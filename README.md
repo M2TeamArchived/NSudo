@@ -54,8 +54,11 @@ NTIShell 1.0
 NSudo [选项]
 
 选项：
+
 -TI 以System权限(具有TrustedInstaller令牌)运行命令提示符
+
 -System 以System权限运行命令提示符
+
 -Help 弹出命令行帮助
 
 注意事项
