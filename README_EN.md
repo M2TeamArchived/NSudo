@@ -54,9 +54,10 @@ NSudo 2.0
 
 1.Using C++ Win32 SDK instead of AutoIT（From 692KiB to 92KiB）
 
-
 2 provide authority  options
+
 3 provides a command line parameter model
+
 4 replace the icon
 
 NTIShell 1.0
