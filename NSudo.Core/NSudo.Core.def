@@ -1,0 +1,6 @@
+LIBRARY NSudo.Core.dll
+
+EXPORTS 
+SetTokenPrivilege @1
+EnableAllTokenPrivileges @2
+SetCurrentProcessPrivilege @3

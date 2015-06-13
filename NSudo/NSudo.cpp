@@ -1,24 +1,30 @@
-//Mouri_Naruto NSudo 2.1 (Build 809)
-//(C) CopyRight 2015 Mouri_Naruto
+//NSudo 3.0 (Build 810)
+//(C) 2015 NSudo Project. All rights reserved.
 
 #include "stdafx.h"
 #include "NSudo.h"
 
-#define NSudo_Title L"Mouri_Naruto NSudo"
-#define NSudo_Version L"2.1 (Build 809)"
-#define NSudo_CopyRight L"(C)2015 Mouri_Naruto. All rights reserved."
+#define NSudo_Title L"NSudo"
+#define NSudo_Version L"3.0 (Build 810)"
+#define NSudo_CopyRight L"\xA9 2015 NSudo Team. All rights reserved."
 
 #define ReturnMessage(lpText) MessageBoxW(NULL, (lpText), NSudo_Title, NULL)
-bool GetPrivilege(HANDLE ProcessHandle, LPCWSTR lpName);
-bool GetToken(HANDLE TokenHandle, LPCWSTR lpName);
-void GetAllTokens(HANDLE TokenHandle);
 void About();
 void GetSystemPrivilege(LPWSTR szCMDLine);
 void GetTIToken(LPWSTR szCMDLine);
 
+#include "..\\NSudo.Core\\NSudo.Core.h"
+#pragma comment(lib,"..\\NSudo.Core\\Lib\\NSudo.Core.lib")
+
+#include <set>
+
+using namespace std;
+
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow)
 {
-	if (!GetPrivilege(GetCurrentProcess(),SE_DEBUG_NAME))
+	
+	
+	if (!SetCurrentProcessPrivilege(SE_DEBUG_NAME, true))
 	{
 		ReturnMessage(L"进程调试权限获取失败");
 		return -1;
@@ -42,12 +48,12 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLi
 	wcscat_s(szCMDLineSystem, 260, L"cmd.exe /K title " NSudo_Title L" - [System] & echo " NSudo_Title  L" " NSudo_Version L" & echo " NSudo_CopyRight);
 	wcscat_s(szCMDLineTI, 260, L"cmd.exe /K title " NSudo_Title L" - [System With TrustedInstaller Token] & echo " NSudo_Title  L" " NSudo_Version L" & echo " NSudo_CopyRight);
 
-	if (wcscmp(L"-TiShell", lpCmdLine) == 0)
+	if (_wcsicmp(L"-TiShell", lpCmdLine) == 0)
 	{	
 		GetTIToken(szCMDLineTI);
 		ExitProcess(0);
 	}
-	else if (wcscmp(L"-TI", lpCmdLine) == 0 || wcscmp(L"-ti", lpCmdLine) == 0 || wcscmp(L"-Ti", lpCmdLine) == 0)
+	else if (_wcsicmp(L"-TI", lpCmdLine) == 0)
 	{
 		wchar_t szCMDLine[260];
 		GetModuleFileNameW(NULL, szCMDLine, 260);
@@ -55,12 +61,12 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLi
 		GetSystemPrivilege(szCMDLine);
 		ExitProcess(0);
 	}
-	else if (wcscmp(L"-System", lpCmdLine) == 0 || wcscmp(L"-system", lpCmdLine) == 0 || wcscmp(L"-SYSTEM", lpCmdLine) == 0)
+	else if (_wcsicmp(L"-System", lpCmdLine) == 0)
 	{
 		GetSystemPrivilege(szCMDLineSystem);
 		ExitProcess(0);
 	}
-	else if (wcscmp(L"-Help", lpCmdLine) == 0 || wcscmp(L"-help", lpCmdLine) == 0 || wcscmp(L"-HELP", lpCmdLine) == 0)
+	else if (_wcsicmp(L"-Help", lpCmdLine) == 0)
 	{
 		About();
 		ExitProcess(0);
@@ -183,7 +189,7 @@ void GetSystemPrivilege(LPWSTR szCMDLine)
 				LPVOID lpEnv; //环境块
 				if (CreateEnvironmentBlock(&lpEnv, hToken, 1))
 				{
-					GetAllTokens(hDupToken);
+					EnableAllTokenPrivileges(hDupToken);
 					
 					STARTUPINFOW StartupInfo = { 0 };
 					PROCESS_INFORMATION ProcessInfo = { 0 };
@@ -303,7 +309,7 @@ void GetTIToken(LPWSTR szCMDLine)
 				LPVOID lpEnv; //环境块
 				if (CreateEnvironmentBlock(&lpEnv, hToken, 1))
 				{
-					GetAllTokens(hDupToken);
+					EnableAllTokenPrivileges(hDupToken);
 					
 					STARTUPINFOW StartupInfo = { 0 };
 					PROCESS_INFORMATION ProcessInfo = { 0 };
@@ -348,76 +354,3 @@ void GetTIToken(LPWSTR szCMDLine)
 	else ReturnMessage(L"TrustedInstaller.exe进程句柄打开失败");
 }
 
-//获取令牌权限(适用于进程)
-bool GetPrivilege(HANDLE ProcessHandle,LPCWSTR lpName)
-{
-	bool bRet = false;
-	HANDLE hCurrentProcessToken;
-	if (OpenProcessToken(ProcessHandle, TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &hCurrentProcessToken))
-	{
-		if (GetToken(hCurrentProcessToken, lpName)) bRet = true;
-		CloseHandle(hCurrentProcessToken);
-	}
-	return bRet;
-}
-
-//获取令牌权限(适用于令牌)
-bool GetToken(HANDLE TokenHandle, LPCWSTR lpName)
-{
-	bool bRet = false;
-	if (TokenHandle != INVALID_HANDLE_VALUE)
-	{
-		LUID Luid;
-		if (LookupPrivilegeValueW(NULL, lpName, &Luid))
-		{
-			TOKEN_PRIVILEGES TokenPrivileges;
-
-			TokenPrivileges.PrivilegeCount = 1;
-			TokenPrivileges.Privileges[0].Luid = Luid;
-			TokenPrivileges.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
-
-			if (AdjustTokenPrivileges(TokenHandle, FALSE, &TokenPrivileges, sizeof(TokenPrivileges), NULL, NULL)) bRet = true;
-		}
-	}
-	return bRet;
-}
-
-//一键获取全部权限令牌(适用于令牌)
-void GetAllTokens(HANDLE TokenHandle)
-{
-	GetToken(TokenHandle,SE_CREATE_TOKEN_NAME);
-	GetToken(TokenHandle, SE_ASSIGNPRIMARYTOKEN_NAME);
-	GetToken(TokenHandle, SE_LOCK_MEMORY_NAME);
-	GetToken(TokenHandle, SE_INCREASE_QUOTA_NAME);
-	GetToken(TokenHandle, SE_UNSOLICITED_INPUT_NAME);
-	GetToken(TokenHandle, SE_MACHINE_ACCOUNT_NAME);
-	GetToken(TokenHandle, SE_TCB_NAME);
-	GetToken(TokenHandle, SE_SECURITY_NAME);
-	GetToken(TokenHandle, SE_TAKE_OWNERSHIP_NAME);
-	GetToken(TokenHandle, SE_LOAD_DRIVER_NAME);
-	GetToken(TokenHandle, SE_SYSTEM_PROFILE_NAME);
-	GetToken(TokenHandle, SE_SYSTEMTIME_NAME);
-	GetToken(TokenHandle, SE_PROF_SINGLE_PROCESS_NAME);
-	GetToken(TokenHandle, SE_INC_BASE_PRIORITY_NAME);
-	GetToken(TokenHandle, SE_CREATE_PAGEFILE_NAME);
-	GetToken(TokenHandle, SE_CREATE_PERMANENT_NAME);
-	GetToken(TokenHandle, SE_BACKUP_NAME);
-	GetToken(TokenHandle, SE_RESTORE_NAME);
-	GetToken(TokenHandle, SE_SHUTDOWN_NAME);
-	GetToken(TokenHandle, SE_DEBUG_NAME);
-	GetToken(TokenHandle, SE_AUDIT_NAME);
-	GetToken(TokenHandle, SE_SYSTEM_ENVIRONMENT_NAME);
-	GetToken(TokenHandle, SE_CHANGE_NOTIFY_NAME);
-	GetToken(TokenHandle, SE_REMOTE_SHUTDOWN_NAME);
-	GetToken(TokenHandle, SE_UNDOCK_NAME);
-	GetToken(TokenHandle, SE_SYNC_AGENT_NAME);
-	GetToken(TokenHandle, SE_ENABLE_DELEGATION_NAME);
-	GetToken(TokenHandle, SE_MANAGE_VOLUME_NAME);
-	GetToken(TokenHandle, SE_IMPERSONATE_NAME);
-	GetToken(TokenHandle, SE_CREATE_GLOBAL_NAME);
-	GetToken(TokenHandle, SE_TRUSTED_CREDMAN_ACCESS_NAME);
-	GetToken(TokenHandle, SE_RELABEL_NAME);
-	GetToken(TokenHandle, SE_INC_WORKING_SET_NAME);
-	GetToken(TokenHandle, SE_TIME_ZONE_NAME);
-	GetToken(TokenHandle, SE_CREATE_SYMBOLIC_LINK_NAME);
-}
