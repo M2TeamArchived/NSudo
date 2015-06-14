@@ -1,11 +1,11 @@
-//NSudo 3.0 (Build 810)
+//NSudo 3.0 (Build 811)
 //(C) 2015 NSudo Project. All rights reserved.
 
 #include "stdafx.h"
 #include "NSudo.h"
 
 #define NSudo_Title L"NSudo"
-#define NSudo_Version L"3.0 (Build 810)"
+#define NSudo_Version L"3.0 Internal Alpha 1(Build 811)"
 #define NSudo_CopyRight L"\xA9 2015 NSudo Team. All rights reserved."
 
 #define ReturnMessage(lpText) MessageBoxW(NULL, (lpText), NSudo_Title, NULL)
@@ -22,9 +22,9 @@ using namespace std;
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow)
 {
-	
-	
-	if (!SetCurrentProcessPrivilege(SE_DEBUG_NAME, true))
+	if (!(SetCurrentProcessPrivilege(SE_ASSIGNPRIMARYTOKEN_NAME, true) 
+		&& SetCurrentProcessPrivilege(SE_INCREASE_QUOTA_NAME, true) 
+		&& SetCurrentProcessPrivilege(SE_DEBUG_NAME, true)))
 	{
 		ReturnMessage(L"进程调试权限获取失败");
 		return -1;
@@ -125,9 +125,6 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLi
 	return 0;
 }
 
-
-
-
 void About()
 {
 	ReturnMessage(NSudo_Title  L" " NSudo_Version L"\n" NSudo_CopyRight L"\n\n"
@@ -135,162 +132,77 @@ void About()
 }
 
 void GetSystemPrivilege(LPWSTR szCMDLine)
-{
-	DWORD dwUserSessionId; //用户会话ID
-	DWORD dwWinLogonPID = -1; //winlogon.exe的ProcessID
-
-	if ((dwUserSessionId = WTSGetActiveConsoleSessionId()) == 0xFFFFFFFF) //获得用户会话ID
+{	
+	HANDLE hSystemToken;
+	if (GetSystemToken(&hSystemToken))
 	{
-		ReturnMessage( L"获得用户会话ID失败");
-		return;
-	}
-
-	PROCESSENTRY32W ProcessEntry;
-	ProcessEntry.dwSize = sizeof(PROCESSENTRY32W);
-	HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0); //调用CreateToolhelp32Snapshot快照所有进程
-	if (hSnapshot == INVALID_HANDLE_VALUE)
-	{
-		ReturnMessage(L"CreateToolhelp32Snapshot调用失败");
-		return;
-	}
-
-	if (Process32FirstW(hSnapshot, &ProcessEntry)) //便利进程
-	{
-		do
+		//获取当前会话ID下的winlogon的PID
+		DWORD dwWinLogonPID = GetWinLogonProcessID();
+		if (dwWinLogonPID != -1)
 		{
-			if (wcscmp(L"winlogon.exe", ProcessEntry.szExeFile) == 0) //寻找winlogon进程
+			HANDLE hProc = OpenProcess(MAXIMUM_ALLOWED, FALSE, dwWinLogonPID);
+			if (hProc != NULL)
 			{
-				DWORD dwSessionID;
-				if (ProcessIdToSessionId(ProcessEntry.th32ProcessID, &dwSessionID)) //获取winlogon的会话ID
+				HANDLE hToken;
+				if (OpenProcessToken(hProc, TOKEN_DUPLICATE | TOKEN_QUERY, &hToken))
 				{
-					if (dwSessionID != dwUserSessionId) continue; //判断是否是当前用户ID
-					dwWinLogonPID = ProcessEntry.th32ProcessID;
-					break;
-				}
-			}
-		} while (Process32NextW(hSnapshot, &ProcessEntry));
-	}
-	CloseHandle(hSnapshot);
-
-	if (dwWinLogonPID == -1)
-	{
-		ReturnMessage(L"winlogon.exe进程PID获取失败");
-		return;
-	}
-
-	HANDLE hProc = OpenProcess(PROCESS_ALL_ACCESS, FALSE, dwWinLogonPID);
-	if (hProc != NULL)
-	{
-		HANDLE hToken, hDupToken;
-		if (OpenProcessToken(hProc, TOKEN_DUPLICATE | TOKEN_QUERY, &hToken))
-		{
-			if (DuplicateTokenEx(hToken, TOKEN_ALL_ACCESS, NULL, SecurityIdentification, TokenPrimary, &hDupToken))
-			{
-				LPVOID lpEnv; //环境块
-				if (CreateEnvironmentBlock(&lpEnv, hToken, 1))
-				{
-					EnableAllTokenPrivileges(hDupToken);
-					
-					STARTUPINFOW StartupInfo = { 0 };
-					PROCESS_INFORMATION ProcessInfo = { 0 };
-					StartupInfo.lpDesktop = L"WinSta0\\Default";
-					if (!CreateProcessWithTokenW(
-						hDupToken,
-						LOGON_WITH_PROFILE,
-						NULL,
-						szCMDLine,
-						CREATE_NEW_CONSOLE | CREATE_UNICODE_ENVIRONMENT,
-						lpEnv,
-						NULL,
-						&StartupInfo,
-						&ProcessInfo))
+					LPVOID lpEnv; //环境块
+					if (CreateEnvironmentBlock(&lpEnv, hToken, 1))
 					{
-						if (!CreateProcessAsUserW(hDupToken,
+						EnableAllTokenPrivileges(hSystemToken);
+
+						STARTUPINFOW StartupInfo = { 0 };
+						PROCESS_INFORMATION ProcessInfo = { 0 };
+						StartupInfo.lpDesktop = L"WinSta0\\Default";
+						if (!CreateProcessWithTokenW(
+							hSystemToken,
+							LOGON_WITH_PROFILE,
 							NULL,
 							szCMDLine,
-							NULL,
-							NULL,
-							NULL,
 							CREATE_NEW_CONSOLE | CREATE_UNICODE_ENVIRONMENT,
 							lpEnv,
 							NULL,
 							&StartupInfo,
 							&ProcessInfo))
 						{
-							ReturnMessage(L"进程创建失败");
+							if (!CreateProcessAsUserW(hSystemToken,
+								NULL,
+								szCMDLine,
+								NULL,
+								NULL,
+								NULL,
+								CREATE_NEW_CONSOLE | CREATE_UNICODE_ENVIRONMENT,
+								lpEnv,
+								NULL,
+								&StartupInfo,
+								&ProcessInfo))
+							{
+								HRESULT hr = GetLastError();
+
+								ReturnMessage(L"进程创建失败");
+							}
 						}
+						DestroyEnvironmentBlock(lpEnv);
 					}
-					DestroyEnvironmentBlock(lpEnv);
+					else ReturnMessage(L"winlogon.exe进程环境块创建失败");
+					
+					//else ReturnMessage(L"winlogon.exe进程句柄令牌复制失败");
+					CloseHandle(hToken);
 				}
-				else ReturnMessage(L"winlogon.exe进程环境块创建失败");
-				CloseHandle(hDupToken);
+				//else ReturnMessage(L"winlogon.exe进程句柄令牌打开失败");
+				CloseHandle(hProc);
 			}
-			else ReturnMessage(L"winlogon.exe进程句柄令牌复制失败");
-			CloseHandle(hToken);
+			//else ReturnMessage(L"winlogon.exe进程句柄打开失败");
 		}
-		else ReturnMessage(L"winlogon.exe进程句柄令牌打开失败");
-		CloseHandle(hProc);
+		//else wprintf(L"NSudo.Core.dll!GetSystemToken!GetWinLogonProcessID Failed")
+		CloseHandle(hSystemToken);
 	}
-	else ReturnMessage(L"winlogon.exe进程句柄打开失败");
 }
 
 void GetTIToken(LPWSTR szCMDLine)
 {
-	SC_HANDLE hSC = OpenSCManagerW(NULL, NULL, GENERIC_EXECUTE);
-	if (hSC != NULL)
-	{
-		SC_HANDLE hSvc = OpenServiceW(hSC, L"TrustedInstaller", SERVICE_START | SERVICE_QUERY_STATUS | SERVICE_STOP);
-		if (hSvc != NULL)
-		{
-			SERVICE_STATUS status;
-			if (QueryServiceStatus(hSvc, &status))
-			{
-				if (status.dwCurrentState == SERVICE_STOPPED)
-				{
-					// 启动服务
-					if (StartServiceW(hSvc, NULL, NULL) == FALSE)
-					{
-						ReturnMessage(L"TrustedInstaller服务启动失败");
-					}
-					// 等待服务启动
-					while (::QueryServiceStatus(hSvc, &status) == TRUE)
-					{
-						Sleep(status.dwWaitHint);
-						if (status.dwCurrentState == SERVICE_RUNNING)
-						{
-							break;
-						}
-					}
-				}
-			}
-			CloseServiceHandle(hSvc);
-		}
-		CloseServiceHandle(hSC);
-	}
-
-	DWORD dwTIPID = -1; //winlogon.exe的ProcessID
-
-	PROCESSENTRY32W ProcessEntry;
-	ProcessEntry.dwSize = sizeof(PROCESSENTRY32W);
-	HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0); //调用CreateToolhelp32Snapshot快照所有进程
-	if (hSnapshot == INVALID_HANDLE_VALUE)
-	{
-		ReturnMessage(L"CreateToolhelp32Snapshot调用失败");
-		return;
-	}
-
-	if (Process32FirstW(hSnapshot, &ProcessEntry)) //便利进程
-	{
-		do
-		{
-			if (wcscmp(L"TrustedInstaller.exe", ProcessEntry.szExeFile) == 0) //寻找winlogon进程
-			{
-				dwTIPID = ProcessEntry.th32ProcessID;
-				break;
-			}
-		} while (Process32NextW(hSnapshot, &ProcessEntry));
-	}
-	CloseHandle(hSnapshot);
+	//获取当前会话ID下的winlogon的PID
+	DWORD dwTIPID = GetTrustedInstallerProcessID();
 
 	if (dwTIPID == -1)
 	{

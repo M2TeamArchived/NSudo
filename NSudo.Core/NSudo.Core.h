@@ -13,4 +13,13 @@ extern "C"
 
 	//一键开启全部权限令牌
 	void EnableAllTokenPrivileges(HANDLE TokenHandle);
+
+	//获取System权限令牌
+	bool GetSystemToken(PHANDLE hNewToken);
+
+	//获取当前会话ID下winlogon的PID
+	DWORD GetWinLogonProcessID();
+
+	//获取TrustedInstaller的PID
+	DWORD GetTrustedInstallerProcessID();
 }

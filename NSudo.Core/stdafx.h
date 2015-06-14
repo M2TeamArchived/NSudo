@@ -7,9 +7,12 @@
 
 #include "targetver.h"
 
-// Windows 头文件: 
+// C 运行时头文件
+#include <stdlib.h>
+#include <malloc.h>
+#include <memory.h>
+#include <tchar.h>
+
 #include <windows.h>
 
-
-
-// TODO:  在此处引用程序需要的其他头文件
+#include <Tlhelp32.h>

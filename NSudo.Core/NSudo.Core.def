@@ -4,3 +4,6 @@ EXPORTS
 SetTokenPrivilege @1
 EnableAllTokenPrivileges @2
 SetCurrentProcessPrivilege @3
+GetSystemToken @4
+GetWinLogonProcessID @5
+GetTrustedInstallerProcessID @6
