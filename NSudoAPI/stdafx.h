@@ -7,7 +7,6 @@
 
 #include "targetver.h"
 
-// C 运行时头文件
 #include <stdlib.h>
 #include <malloc.h>
 #include <memory.h>
@@ -16,3 +15,4 @@
 #include <windows.h>
 
 #include <Tlhelp32.h>
+

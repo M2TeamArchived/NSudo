@@ -1,7 +1,9 @@
 //NSudo 3.0 (Build 810)
-//(C) 2015 NSudo Project. All rights reserved.
+//(C) 2015 NSudo Team. All rights reserved.
 
 #pragma once
+
+//#include <Windows.h>
 
 extern "C"
 {

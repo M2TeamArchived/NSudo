@@ -24,10 +24,10 @@
     <ClInclude Include="targetver.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="NSudo.Core.h">
+    <ClInclude Include="resource.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="resource.h">
+    <ClInclude Include="NSudoAPI.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -35,7 +35,7 @@
     <ClCompile Include="stdafx.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="NSudo.Core.cpp">
+    <ClCompile Include="NSudoAPI.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="dllmain.cpp">
@@ -43,12 +43,12 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="NSudo.Core.def">
+    <None Include="NSudoAPI.def">
       <Filter>源文件</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="NSudo.Core.rc">
+    <ResourceCompile Include="NSudoAPI.rc">
       <Filter>资源文件</Filter>
     </ResourceCompile>
   </ItemGroup>

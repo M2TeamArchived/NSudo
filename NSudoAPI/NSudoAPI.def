@@ -1,4 +1,4 @@
-LIBRARY NSudo.Core.dll
+LIBRARY NSudoAPI
 
 EXPORTS 
 SetTokenPrivilege @1

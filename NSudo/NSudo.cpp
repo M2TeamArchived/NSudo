@@ -1,5 +1,5 @@
-//NSudo 3.0 (Build 811)
-//(C) 2015 NSudo Project. All rights reserved.
+//NSudo 3.0 (Build 810)
+//(C) 2015 NSudo Team. All rights reserved.
 
 #include "stdafx.h"
 #include "NSudo.h"
@@ -8,13 +8,13 @@
 #define NSudo_Version L"3.0 Internal Alpha 1(Build 811)"
 #define NSudo_CopyRight L"\xA9 2015 NSudo Team. All rights reserved."
 
+#include "..\\NSudoAPI\\NSudoAPI.h"
+#pragma comment(lib,"NSudoAPI.lib")
+
 #define ReturnMessage(lpText) MessageBoxW(NULL, (lpText), NSudo_Title, NULL)
 void About();
 void GetSystemPrivilege(LPWSTR szCMDLine);
 void GetTIToken(LPWSTR szCMDLine);
-
-#include "..\\NSudo.Core\\NSudo.Core.h"
-#pragma comment(lib,"..\\NSudo.Core\\Lib\\NSudo.Core.lib")
 
 #include <set>
 

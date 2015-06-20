@@ -1,13 +1,10 @@
 //NSudo 3.0 (Build 810)
-//(C) 2015 NSudo Project. All rights reserved.
+//(C) 2015 NSudo Team. All rights reserved.
 
 #include "stdafx.h"
 
-#include "NSudo.Core.h"
-
 extern "C"
 {
-
 	//设置令牌权限
 	bool SetTokenPrivilege(HANDLE TokenHandle, LPCWSTR lpName, bool bEnable)
 	{
@@ -31,7 +28,7 @@ extern "C"
 		HANDLE hCurrentProcessToken;
 		if (OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &hCurrentProcessToken))
 		{
-			if (SetTokenPrivilege(hCurrentProcessToken, lpName, true)) bRet = true;
+			if (SetTokenPrivilege(hCurrentProcessToken, lpName, bEnable)) bRet = true;
 			CloseHandle(hCurrentProcessToken);
 		}
 		return bRet;
@@ -87,7 +84,7 @@ extern "C"
 	DWORD GetWinLogonProcessID()
 	{
 		DWORD dwWinLogonPID = -1; //winlogon.exe的ProcessID
-		
+
 		//获取当前会话ID
 		DWORD dwUserSessionId = WTSGetActiveConsoleSessionId();
 		if (dwUserSessionId != 0xFFFFFFFF)
@@ -178,35 +175,56 @@ extern "C"
 	bool GetSystemToken(PHANDLE hNewToken)
 	{
 		bool bRet = false;
-		HANDLE hCurrentProcessToken;
-		if (OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &hCurrentProcessToken))
+
+		//获取当前会话ID下的winlogon的PID
+		DWORD dwWinLogonPID = GetWinLogonProcessID();
+		if (dwWinLogonPID != -1)
 		{
-			//获取当前会话ID下的winlogon的PID
-			DWORD dwWinLogonPID = GetWinLogonProcessID();
-			if (dwWinLogonPID != -1)
+			HANDLE hProc = OpenProcess(PROCESS_ALL_ACCESS, FALSE, dwWinLogonPID);
+			if (hProc != NULL)
 			{
-				HANDLE hProc = OpenProcess(PROCESS_ALL_ACCESS, FALSE, dwWinLogonPID);
-				if (hProc != NULL)
+				HANDLE hToken;
+				if (OpenProcessToken(hProc, TOKEN_DUPLICATE, &hToken))
 				{
-					HANDLE hToken;
-					if (OpenProcessToken(hProc, TOKEN_DUPLICATE, &hToken))
+					if (DuplicateTokenEx(hToken, TOKEN_ALL_ACCESS, NULL, SecurityIdentification, TokenPrimary, hNewToken))
 					{
-						if (DuplicateTokenEx(hToken, TOKEN_ALL_ACCESS, NULL, SecurityIdentification, TokenPrimary, hNewToken))
-						{
-							bRet = true;
-						}
-						else wprintf(L"NSudo.Core.dll!GetWinLogonProcessID!DuplicateTokenEx Failed");
-						CloseHandle(hToken);
+						bRet = true;
 					}
-					else wprintf(L"NSudo.Core.dll!GetWinLogonProcessID!OpenProcessToken Failed");
-					CloseHandle(hProc);
+					else wprintf(L"NSudo.Core.dll!GetWinLogonProcessID!DuplicateTokenEx Failed");
+					CloseHandle(hToken);
 				}
-				else wprintf(L"NSudo.Core.dll!GetWinLogonProcessID!OpenProcess Failed");
+				else wprintf(L"NSudo.Core.dll!GetWinLogonProcessID!OpenProcessToken Failed");
+				CloseHandle(hProc);
 			}
-			else wprintf(L"NSudo.Core.dll!GetWinLogonProcessID Failed");
-			CloseHandle(hCurrentProcessToken);
+			else wprintf(L"NSudo.Core.dll!GetWinLogonProcessID!OpenProcess Failed");
 		}
+		else wprintf(L"NSudo.Core.dll!GetWinLogonProcessID Failed");
 		return bRet;
 	}
 
+
+	/*判断是否是x64进程
+	参  数:进程句柄
+	返回值:是x64进程返回TRUE,否则返回FALSE
+	*/
+	BOOL IsWow64ProcessEx(HANDLE hProcess)
+	{
+		/*判断ntdll中的导出函数,可知是否是64位OS*/
+		HMODULE hMod = GetModuleHandle(L"ntdll.dll");
+		FARPROC x64fun = ::GetProcAddress(hMod, "ZwWow64ReadVirtualMemory64");
+		if (!x64fun) return FALSE;
+
+		/*利用IsWow64Process判断是否是x64进程*/
+		typedef BOOL(WINAPI *pfnIsWow64Process)(HANDLE, PBOOL);
+		pfnIsWow64Process fnIsWow64Process = NULL;
+
+		hMod = GetModuleHandle(L"kernel32.dll");
+		fnIsWow64Process = (pfnIsWow64Process)GetProcAddress(hMod, "IsWow64Process");
+		if (!fnIsWow64Process) return FALSE;				//如果没有导出则判定为32位
+
+		BOOL bX64;
+		if (!fnIsWow64Process(hProcess, &bX64)) return FALSE;
+
+		return !bX64;
+	}
 }
