@@ -7,3 +7,9 @@ SetCurrentProcessPrivilege @3
 GetSystemToken @4
 GetWinLogonProcessID @5
 GetTrustedInstallerProcessID @6
+IsWoW64 @7
+GetCurrentUserToken @8
+GetTIToken @9
+DisableAllTokenPrivileges @10
+SetTokenIntegrity @11
+CreateEnvironmentBlockFromProcess @12

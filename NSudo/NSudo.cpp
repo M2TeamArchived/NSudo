@@ -1,268 +1,152 @@
-//NSudo 3.0 (Build 810)
+//NSudo 3.0 (Build 825)
 //(C) 2015 NSudo Team. All rights reserved.
 
 #include "stdafx.h"
 #include "NSudo.h"
 
 #define NSudo_Title L"NSudo"
-#define NSudo_Version L"3.0 Internal Alpha 1(Build 811)"
+#define NSudo_Version L"3.0 Internal Alpha 1(Build 8)"
 #define NSudo_CopyRight L"\xA9 2015 NSudo Team. All rights reserved."
+
+#define NSudo_Text_Default L"默认"
+
+#define NSudo_Text_TI L"TrustedInstaller"
+#define NSudo_Text_Sys L"System"
+#define NSudo_Text_CU L"当前用户(未提权令牌)"
+#define NSudo_Text_CUP L"当前用户"
+
+#define NSudo_Text_EnableAll L"启用所有特权"
+#define NSudo_Text_DisableAll L"禁用所有特权"
+
+#define NSudo_Text_Low L"低"
+#define NSudo_Text_Medium L"中"
+#define NSudo_Text_High L"高"
+#define NSudo_Text_System L"系统"
 
 #include "..\\NSudoAPI\\NSudoAPI.h"
 #pragma comment(lib,"NSudoAPI.lib")
 
-#define ReturnMessage(lpText) MessageBoxW(NULL, (lpText), NSudo_Title, NULL)
-void About();
-void GetSystemPrivilege(LPWSTR szCMDLine);
-void GetTIToken(LPWSTR szCMDLine);
+#define ReturnMessage(lpText) MessageBoxW(NULL, (lpText), L"NSudo 3.0 M1", NULL)
 
-#include <set>
+#include "NSudo_Run.h"
 
-using namespace std;
+//#include <set>
+
+//using namespace std;
+
+INT_PTR CALLBACK NSudoDlgCallBack(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+
+void NSudoBrowseDialog(HWND hWnd, wchar_t* szPath)
+{
+	OPENFILENAME ofn = { 0 };
+
+	ofn.lStructSize = sizeof(OPENFILENAME);
+	ofn.hwndOwner = hWnd;
+	ofn.nMaxFile = MAX_PATH;
+	ofn.nMaxFileTitle = MAX_PATH;
+	ofn.lpstrFile = szPath;
+	ofn.Flags = OFN_HIDEREADONLY | OFN_CREATEPROMPT;
+
+	GetOpenFileNameW(&ofn);
+}
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow)
 {
-	if (!(SetCurrentProcessPrivilege(SE_ASSIGNPRIMARYTOKEN_NAME, true) 
-		&& SetCurrentProcessPrivilege(SE_INCREASE_QUOTA_NAME, true) 
+	if (!(SetCurrentProcessPrivilege(SE_ASSIGNPRIMARYTOKEN_NAME, true)
+		&& SetCurrentProcessPrivilege(SE_INCREASE_QUOTA_NAME, true)
 		&& SetCurrentProcessPrivilege(SE_DEBUG_NAME, true)))
 	{
 		ReturnMessage(L"进程调试权限获取失败");
 		return -1;
 	}
-	
-	wchar_t szCMDPath[260], szCMDLineSystem[260], szCMDLineTI[260];
 
-	GetSystemWindowsDirectoryW(szCMDPath, 260); //获取Windows目录
+	DialogBoxParamW(hInstance, MAKEINTRESOURCEW(IDD_NSudoDlg), NULL, NSudoDlgCallBack, 0L);
 
-	if (GetProcAddress(GetModuleHandleW(L"ntdll.dll"), "ZwWow64ReadVirtualMemory64")) //判断是否是64位OS
-	{
-		wcscat_s(szCMDPath, 260, L"\\SysNative\\");  //64命令提示符路径
-	}
-	else
-	{
-		wcscat_s(szCMDPath, 260, L"\\System32\\");  //32命令提示符路径
-	}
-
-	wcscpy_s(szCMDLineSystem, 260, szCMDPath);
-	wcscpy_s(szCMDLineTI, 260, szCMDPath);
-	wcscat_s(szCMDLineSystem, 260, L"cmd.exe /K title " NSudo_Title L" - [System] & echo " NSudo_Title  L" " NSudo_Version L" & echo " NSudo_CopyRight);
-	wcscat_s(szCMDLineTI, 260, L"cmd.exe /K title " NSudo_Title L" - [System With TrustedInstaller Token] & echo " NSudo_Title  L" " NSudo_Version L" & echo " NSudo_CopyRight);
-
-	if (_wcsicmp(L"-TiShell", lpCmdLine) == 0)
-	{	
-		GetTIToken(szCMDLineTI);
-		ExitProcess(0);
-	}
-	else if (_wcsicmp(L"-TI", lpCmdLine) == 0)
-	{
-		wchar_t szCMDLine[260];
-		GetModuleFileNameW(NULL, szCMDLine, 260);
-		wcscat_s(szCMDLine, 260, L" -TiShell");
-		GetSystemPrivilege(szCMDLine);
-		ExitProcess(0);
-	}
-	else if (_wcsicmp(L"-System", lpCmdLine) == 0)
-	{
-		GetSystemPrivilege(szCMDLineSystem);
-		ExitProcess(0);
-	}
-	else if (_wcsicmp(L"-Help", lpCmdLine) == 0)
-	{
-		About();
-		ExitProcess(0);
-	}
-	else
-	{
-		int nButtonPressed = 0, nRadioButton = 0;
-		TASKDIALOGCONFIG config = { 0 };
-		const TASKDIALOG_BUTTON buttons[] = {
-			{ 101, L"以所选权限运行命令提示符(&C)" },
-			{ 102, L"关于和命令行帮助(&A)" },
-		};
-		const TASKDIALOG_BUTTON choosebuttons[] = {
-			{ 201, L"System权限(具有TrustedInstaller令牌)(&T)" },
-			{ 202, L"仅System权限(&S)" },
-		};
-
-		config.dwFlags = TDF_USE_HICON_MAIN | TDF_USE_HICON_FOOTER | TDF_EXPAND_FOOTER_AREA | TDF_ALLOW_DIALOG_CANCELLATION;
-		config.cbSize = sizeof(config);
-		config.pszWindowTitle = NSudo_Title L" " NSudo_Version;
-		config.cRadioButtons = ARRAYSIZE(choosebuttons);
-		config.pRadioButtons = choosebuttons;
-		config.pszMainInstruction = L"请选择你需要的权限";
-		config.hInstance = hInstance;
-		config.cButtons = ARRAYSIZE(buttons);
-		config.pButtons = buttons;
-		config.hMainIcon = LoadIconW(hInstance, MAKEINTRESOURCE(IDI_NSUDO));
-		LoadIconWithScaleDown(NULL, IDI_WARNING,GetSystemMetrics(SM_CXSMICON), GetSystemMetrics(SM_CYSMICON),&config.hFooterIcon);
-		config.pszFooter = L"警告：使用本工具需要有一定的计算机基础";
-
-		TaskDialogIndirect(&config, &nButtonPressed, &nRadioButton, NULL);
-
-		switch (nButtonPressed)
-		{
-		case 101:
-			if (nRadioButton == 201)
-			{
-				wchar_t szCMDLine[260];
-				GetModuleFileNameW(NULL, szCMDLine, 260);
-				wcscat_s(szCMDLine, 260, L" -TiShell");
-				GetSystemPrivilege(szCMDLine);
-			}
-			else
-			{
-				GetSystemPrivilege(szCMDLineSystem);
-			}
-			ExitProcess(0);
-		case 102:
-			About();
-			_tWinMain(hInstance, hPrevInstance, lpCmdLine, nCmdShow);
-		default:
-			break;
-		}
-	}
-	
 	return 0;
 }
 
-void About()
+INT_PTR CALLBACK NSudoDlgCallBack(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	ReturnMessage(NSudo_Title  L" " NSudo_Version L"\n" NSudo_CopyRight L"\n\n"
-		L"NSudo [选项]\n\n选项:\n-TI 以System权限(具有TrustedInstaller令牌)运行命令提示符\n-System 以System权限运行命令提示符\n-Help 弹出命令行帮助");
-}
+	HWND hUserName = GetDlgItem(hDlg, IDC_UserName);
+	HWND hTokenPrivilege = GetDlgItem(hDlg, IDC_TokenPrivilege);
+	HWND hMandatoryLabel = GetDlgItem(hDlg, IDC_MandatoryLabel);
+	HWND hszPath = GetDlgItem(hDlg, IDC_szPath);
 
-void GetSystemPrivilege(LPWSTR szCMDLine)
-{	
-	HANDLE hSystemToken;
-	if (GetSystemToken(&hSystemToken))
+	wchar_t szCMDLine[260], szUser[260], szPrivilege[260], szMandatory[260], szBuffer[260];
+
+	switch (message)
 	{
-		//获取当前会话ID下的winlogon的PID
-		DWORD dwWinLogonPID = GetWinLogonProcessID();
-		if (dwWinLogonPID != -1)
+	case WM_INITDIALOG:
+		
+		// Show NSudo Logo
+		SendMessageW(
+			GetDlgItem(hDlg, IDC_NSudoLogo),
+			STM_SETIMAGE,
+			IMAGE_ICON,
+			LPARAM(LoadImageW(GetModuleHandleW(NULL), MAKEINTRESOURCE(IDI_NSUDO), IMAGE_ICON, 0, 0, LR_COPYFROMRESOURCE)));
+
+		//Show Warning Icon
+		SendMessageW(
+			GetDlgItem(hDlg, IDC_Icon),
+			STM_SETIMAGE,
+			IMAGE_ICON,
+			LPARAM(LoadIconW(NULL, IDI_WARNING)));
+
+		SendMessageW(hUserName, CB_INSERTSTRING, 0, (LPARAM)NSudo_Text_TI);
+		SendMessageW(hUserName, CB_INSERTSTRING, 0, (LPARAM)NSudo_Text_Sys);
+		SendMessageW(hUserName, CB_INSERTSTRING, 0, (LPARAM)NSudo_Text_CUP);
+		SendMessageW(hUserName, CB_INSERTSTRING, 0, (LPARAM)NSudo_Text_CU);
+		SendMessageW(hUserName, CB_SETCURSEL, 3, 0); //设置默认项"TrustedInstaller"
+		
+		SendMessageW(hTokenPrivilege, CB_INSERTSTRING, 0, (LPARAM)NSudo_Text_Default);
+		SendMessageW(hTokenPrivilege, CB_INSERTSTRING, 0, (LPARAM)NSudo_Text_EnableAll);
+		SendMessageW(hTokenPrivilege, CB_INSERTSTRING, 0, (LPARAM)NSudo_Text_DisableAll);
+		SendMessageW(hTokenPrivilege, CB_SETCURSEL, 2, 0); //设置默认项"默认"
+
+		SendMessageW(hMandatoryLabel, CB_INSERTSTRING, 0, (LPARAM)NSudo_Text_Low);
+		SendMessageW(hMandatoryLabel, CB_INSERTSTRING, 0, (LPARAM)NSudo_Text_Medium);
+		SendMessageW(hMandatoryLabel, CB_INSERTSTRING, 0, (LPARAM)NSudo_Text_High);
+		SendMessageW(hMandatoryLabel, CB_INSERTSTRING, 0, (LPARAM)NSudo_Text_System);
+		SendMessageW(hMandatoryLabel, CB_INSERTSTRING, 0, (LPARAM)NSudo_Text_Default);
+		SendMessageW(hMandatoryLabel, CB_SETCURSEL, 0, 0); //设置默认项"默认"
+
+		SendMessageW(hszPath, CB_INSERTSTRING, 0, (LPARAM)L"命令提示符");
+		SendMessageW(hszPath, CB_INSERTSTRING, 0, (LPARAM)L"PowerShell");
+		SendMessageW(hszPath, CB_INSERTSTRING, 0, (LPARAM)L"PowerShell ISE");
+
+		return (INT_PTR)TRUE;
+	case WM_COMMAND:
+		switch (LOWORD(wParam))
 		{
-			HANDLE hProc = OpenProcess(MAXIMUM_ALLOWED, FALSE, dwWinLogonPID);
-			if (hProc != NULL)
-			{
-				HANDLE hToken;
-				if (OpenProcessToken(hProc, TOKEN_DUPLICATE | TOKEN_QUERY, &hToken))
-				{
-					LPVOID lpEnv; //环境块
-					if (CreateEnvironmentBlock(&lpEnv, hToken, 1))
-					{
-						EnableAllTokenPrivileges(hSystemToken);
+		case IDC_Run:
+			GetDlgItemTextW(hDlg, IDC_UserName, szUser, sizeof(szUser));
+			GetDlgItemTextW(hDlg, IDC_TokenPrivilege, szPrivilege, sizeof(szPrivilege));
+			GetDlgItemTextW(hDlg, IDC_MandatoryLabel, szMandatory, sizeof(szMandatory));
+			GetDlgItemTextW(hDlg, IDC_szPath, szCMDLine, sizeof(szCMDLine));
 
-						STARTUPINFOW StartupInfo = { 0 };
-						PROCESS_INFORMATION ProcessInfo = { 0 };
-						StartupInfo.lpDesktop = L"WinSta0\\Default";
-						if (!CreateProcessWithTokenW(
-							hSystemToken,
-							LOGON_WITH_PROFILE,
-							NULL,
-							szCMDLine,
-							CREATE_NEW_CONSOLE | CREATE_UNICODE_ENVIRONMENT,
-							lpEnv,
-							NULL,
-							&StartupInfo,
-							&ProcessInfo))
-						{
-							if (!CreateProcessAsUserW(hSystemToken,
-								NULL,
-								szCMDLine,
-								NULL,
-								NULL,
-								NULL,
-								CREATE_NEW_CONSOLE | CREATE_UNICODE_ENVIRONMENT,
-								lpEnv,
-								NULL,
-								&StartupInfo,
-								&ProcessInfo))
-							{
-								HRESULT hr = GetLastError();
-
-								ReturnMessage(L"进程创建失败");
-							}
-						}
-						DestroyEnvironmentBlock(lpEnv);
-					}
-					else ReturnMessage(L"winlogon.exe进程环境块创建失败");
-					
-					//else ReturnMessage(L"winlogon.exe进程句柄令牌复制失败");
-					CloseHandle(hToken);
-				}
-				//else ReturnMessage(L"winlogon.exe进程句柄令牌打开失败");
-				CloseHandle(hProc);
-			}
-			//else ReturnMessage(L"winlogon.exe进程句柄打开失败");
+			NSudo_Run(hDlg,szUser, szPrivilege, szMandatory, szCMDLine);
+			break;
+		case IDC_About:
+			ReturnMessage(
+				L"NSudo 3.0 M1 (Build 825)\n"
+				L"\xA9 2015 NSudo Team. All rights reserved.\n\n"
+				L"感谢cjy__05,mhxkx,tangmigoId,wondersnefu,xy137425740,月光光的大力支持（按照英文字母或拼音首字母排序）");
+			break;
+		case IDC_Browse:
+			wcscpy_s(szBuffer, 260, L"");
+			NSudoBrowseDialog(hDlg, szBuffer);
+			SetDlgItemTextW(hDlg, IDC_szPath, szBuffer);
+			break;
 		}
-		//else wprintf(L"NSudo.Core.dll!GetSystemToken!GetWinLogonProcessID Failed")
-		CloseHandle(hSystemToken);
-	}
-}
-
-void GetTIToken(LPWSTR szCMDLine)
-{
-	//获取当前会话ID下的winlogon的PID
-	DWORD dwTIPID = GetTrustedInstallerProcessID();
-
-	if (dwTIPID == -1)
-	{
-		ReturnMessage(L"TrustedInstaller.exe进程PID获取失败");
-		return;
-	}
-
-	HANDLE hProc = OpenProcess(PROCESS_ALL_ACCESS, FALSE, dwTIPID);
-	if (hProc != NULL)
-	{
-		HANDLE hToken, hDupToken;
-		if (OpenProcessToken(hProc, TOKEN_DUPLICATE | TOKEN_QUERY, &hToken))
+		break;
+	case WM_SYSCOMMAND:
+		switch (LOWORD(wParam))
 		{
-			if (DuplicateTokenEx(hToken, TOKEN_ALL_ACCESS, NULL, SecurityIdentification, TokenPrimary, &hDupToken))
-			{
-				LPVOID lpEnv; //环境块
-				if (CreateEnvironmentBlock(&lpEnv, hToken, 1))
-				{
-					EnableAllTokenPrivileges(hDupToken);
-					
-					STARTUPINFOW StartupInfo = { 0 };
-					PROCESS_INFORMATION ProcessInfo = { 0 };
-					StartupInfo.lpDesktop = L"WinSta0\\Default";
-					if (!CreateProcessWithTokenW(
-						hDupToken,
-						LOGON_WITH_PROFILE,
-						NULL,
-						szCMDLine,
-						CREATE_NEW_CONSOLE | CREATE_UNICODE_ENVIRONMENT,
-						lpEnv,
-						NULL,
-						&StartupInfo,
-						&ProcessInfo))
-					{
-						if (!CreateProcessAsUserW(hDupToken,
-							NULL,
-							szCMDLine,
-							NULL,
-							NULL,
-							NULL,
-							CREATE_NEW_CONSOLE | CREATE_UNICODE_ENVIRONMENT,
-							lpEnv,
-							NULL,
-							&StartupInfo,
-							&ProcessInfo))
-						{
-							ReturnMessage(L"进程创建失败");
-						}
-					}
-					DestroyEnvironmentBlock(lpEnv);
-				}
-				else ReturnMessage(L"TrustedInstaller.exe进程环境块创建失败");
-				CloseHandle(hDupToken);
-			}
-			else ReturnMessage(L"TrustedInstaller.exe进程句柄令牌复制失败");
-			CloseHandle(hToken);
+		case SC_CLOSE:
+			PostQuitMessage(0);
+			break;
 		}
-		else ReturnMessage(L"TrustedInstaller.exe进程句柄令牌打开失败");
-		CloseHandle(hProc);
+		break;
 	}
-	else ReturnMessage(L"TrustedInstaller.exe进程句柄打开失败");
+	return 0;
 }
-

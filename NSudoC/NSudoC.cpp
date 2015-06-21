@@ -1,4 +1,4 @@
-//NSudo 3.0 (Build 810)
+//NSudo 3.0 (Build 825)
 //(C) 2015 NSudo Team. All rights reserved.
 
 #include "stdafx.h"
@@ -108,7 +108,7 @@ BOOLEAN WinStationQueryInformationW(
 		pReturnLength);
 }
 
-void GetTIToken()
+void xGetTIToken()
 {
 	//获取当前会话ID下的winlogon的PID
 	DWORD dwTIPID = GetTrustedInstallerProcessID();
@@ -186,37 +186,74 @@ int _tmain(int argc, _TCHAR* argv[])
 	}
 
 	HANDLE hSystemToken;
-	if (GetSystemToken(&hSystemToken))
+	if (GetTIToken(&hSystemToken))
 	{
 		if (ImpersonateLoggedOnUser(hSystemToken))
 		{
-			WINSTATIONUSERTOKEN WinStaUserToken = { 0 };
-			DWORD ccbInfo = NULL;
+			DWORD dwTIPID = GetTrustedInstallerProcessID();
 
-			WinStationQueryInformationW(SERVERNAME_CURRENT, LOGONID_CURRENT, WinStationUserToken, &WinStaUserToken, sizeof(WINSTATIONUSERTOKEN), &ccbInfo);
-
-			HRESULT hr = GetLastError();
-
-			STARTUPINFOW StartupInfo = { 0 };
-			PROCESS_INFORMATION ProcessInfo = { 0 };
-			StartupInfo.lpDesktop = L"WinSta0\\Default";
-
-			wchar_t szCMDLine[] = L"cmd /c start cmd";
-
-			if (CreateProcessAsUserW(WinStaUserToken.UserToken, NULL, szCMDLine, NULL, NULL, FALSE, 0, NULL, NULL, &StartupInfo, &ProcessInfo))
+			if (dwTIPID == -1)
 			{
-
+				ReturnMessage(L"TrustedInstaller.exe进程PID获取失败");
+				return 0;
 			}
 
-			
+			HANDLE hProc = OpenProcess(PROCESS_ALL_ACCESS, FALSE, dwTIPID);
+			if (hProc != NULL)
+			{
+				HANDLE hToken, hDupToken;
+				if (OpenProcessToken(hProc, TOKEN_DUPLICATE | TOKEN_QUERY, &hToken))
+				{
+					if (DuplicateTokenEx(hToken, TOKEN_ALL_ACCESS, NULL, SecurityIdentification, TokenPrimary, &hDupToken))
+					{
+						LPVOID lpEnv; //环境块
+						if (CreateEnvironmentBlock(&lpEnv, hToken, 1))
+						{
+							EnableAllTokenPrivileges(hDupToken);
 
-			//GetTIToken();
-
+							STARTUPINFOW StartupInfo = { 0 };
+							PROCESS_INFORMATION ProcessInfo = { 0 };
+							StartupInfo.lpDesktop = L"WinSta0\\Default";
+							if (!CreateProcessWithTokenW(
+								hSystemToken,
+								LOGON_WITH_PROFILE,
+								NULL,
+								L"C:\\Windows\\System32\\cmd.exe",
+								CREATE_NEW_CONSOLE | CREATE_UNICODE_ENVIRONMENT,
+								lpEnv,
+								NULL,
+								&StartupInfo,
+								&ProcessInfo))
+							{
+								if (!CreateProcessAsUserW(hSystemToken,
+									NULL,
+									L"C:\\Windows\\notepad.exe",
+									NULL,
+									NULL,
+									NULL,
+									CREATE_NEW_CONSOLE | CREATE_UNICODE_ENVIRONMENT,
+									lpEnv,
+									NULL,
+									&StartupInfo,
+									&ProcessInfo))
+								{
+									ReturnMessage(L"进程创建失败");
+								}
+							}
+							DestroyEnvironmentBlock(lpEnv);
+						}
+						else ReturnMessage(L"TrustedInstaller.exe进程环境块创建失败");
+						CloseHandle(hDupToken);
+					}
+					else ReturnMessage(L"TrustedInstaller.exe进程句柄令牌复制失败");
+					CloseHandle(hToken);
+				}
+				else ReturnMessage(L"TrustedInstaller.exe进程句柄令牌打开失败");
+				CloseHandle(hProc);
+			}
+			else ReturnMessage(L"TrustedInstaller.exe进程句柄打开失败");
 			RevertToSelf();
-
-			ReturnMessage(L"OK");
 		}
-
 		CloseHandle(hSystemToken);
 	}
 }
