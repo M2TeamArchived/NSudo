@@ -14,12 +14,7 @@
 
 #include <windows.h>
 
-#include <Tlhelp32.h>
-
 #include<Wtsapi32.h>
 #pragma comment(lib,"Wtsapi32.lib")
-
-#include<Userenv.h>
-#pragma comment(lib,"Userenv.lib")
 
 #include <sddl.h>
