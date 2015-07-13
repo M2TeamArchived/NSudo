@@ -14,6 +14,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NSudoC", "NSudoC\NSudoC.vcx
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NSudoAPI", "NSudoAPI\NSudoAPI.vcxproj", "{F517636B-65A3-4118-9682-24AA9387ED05}"
+	ProjectSection(ProjectDependencies) = postProject
+		{379B9EFB-BA3F-4230-A2D9-72FA4054D93C} = {379B9EFB-BA3F-4230-A2D9-72FA4054D93C}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NSudoAC", "NSudoAC\NSudoAC.vcxproj", "{379B9EFB-BA3F-4230-A2D9-72FA4054D93C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -47,6 +52,14 @@ Global
 		{F517636B-65A3-4118-9682-24AA9387ED05}.Release|Win32.Build.0 = Release|Win32
 		{F517636B-65A3-4118-9682-24AA9387ED05}.Release|x64.ActiveCfg = Release|x64
 		{F517636B-65A3-4118-9682-24AA9387ED05}.Release|x64.Build.0 = Release|x64
+		{379B9EFB-BA3F-4230-A2D9-72FA4054D93C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{379B9EFB-BA3F-4230-A2D9-72FA4054D93C}.Debug|Win32.Build.0 = Debug|Win32
+		{379B9EFB-BA3F-4230-A2D9-72FA4054D93C}.Debug|x64.ActiveCfg = Debug|x64
+		{379B9EFB-BA3F-4230-A2D9-72FA4054D93C}.Debug|x64.Build.0 = Debug|x64
+		{379B9EFB-BA3F-4230-A2D9-72FA4054D93C}.Release|Win32.ActiveCfg = Release|Win32
+		{379B9EFB-BA3F-4230-A2D9-72FA4054D93C}.Release|Win32.Build.0 = Release|Win32
+		{379B9EFB-BA3F-4230-A2D9-72FA4054D93C}.Release|x64.ActiveCfg = Release|x64
+		{379B9EFB-BA3F-4230-A2D9-72FA4054D93C}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

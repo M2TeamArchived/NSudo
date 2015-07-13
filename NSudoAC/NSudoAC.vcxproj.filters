@@ -29,18 +29,21 @@
     <ClCompile Include="stdafx.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="NSudoC.cpp">
+    <ClCompile Include="NSudoAC.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="dllmain.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="NSudoC.rc">
-      <Filter>资源文件</Filter>
-    </ResourceCompile>
+    <None Include="NSudoAC.def">
+      <Filter>源文件</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\NSudo\NSudoIcon.ico">
+    <ResourceCompile Include="NSudoAC.rc">
       <Filter>资源文件</Filter>
-    </Image>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

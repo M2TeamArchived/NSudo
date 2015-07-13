@@ -13,8 +13,12 @@
 #include <tchar.h>
 
 #include <windows.h>
-
 #include<Wtsapi32.h>
 #pragma comment(lib,"Wtsapi32.lib")
 
 #include <sddl.h>
+#include <AccCtrl.h>
+#include <Aclapi.h>
+
+#include <VersionHelpers.h>
+

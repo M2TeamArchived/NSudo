@@ -1,0 +1,6 @@
+LIBRARY NSudoAC
+
+EXPORTS
+NSudoCreateProcessInAppContainer
+NSudoCreateAppContainer
+NSudoDeleteAppContainer
