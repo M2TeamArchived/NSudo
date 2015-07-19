@@ -13,6 +13,3 @@ NSudoImpersonateSystemToken
 NSudoGetSystemToken
 NSudoGetCurrentProcessToken
 NSudoCreateLUAToken
-NSudoCreateProcessInAppContainer
-NSudoCreateAppContainer
-NSudoDeleteAppContainer
