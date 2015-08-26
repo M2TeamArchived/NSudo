@@ -1,19 +1,33 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NSudo", "NSudo\NSudo.vcxproj", "{00CB4EF3-94B3-4869-958E-200C3579DACD}"
 	ProjectSection(ProjectDependencies) = postProject
-		{F517636B-65A3-4118-9682-24AA9387ED05} = {F517636B-65A3-4118-9682-24AA9387ED05}
+		{C83E112C-C1A0-452A-9034-B83F0820D044} = {C83E112C-C1A0-452A-9034-B83F0820D044}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NSudoC", "NSudoC\NSudoC.vcxproj", "{6788D3BF-EACF-488E-AAA3-27F3A44FF749}"
 	ProjectSection(ProjectDependencies) = postProject
-		{F517636B-65A3-4118-9682-24AA9387ED05} = {F517636B-65A3-4118-9682-24AA9387ED05}
+		{C83E112C-C1A0-452A-9034-B83F0820D044} = {C83E112C-C1A0-452A-9034-B83F0820D044}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NSudoAPI", "NSudoAPI\NSudoAPI.vcxproj", "{F517636B-65A3-4118-9682-24AA9387ED05}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C83E112C-C1A0-452A-9034-B83F0820D044} = {C83E112C-C1A0-452A-9034-B83F0820D044}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NSudoLib", "NSudoLib\NSudoLib.vcxproj", "{C83E112C-C1A0-452A-9034-B83F0820D044}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documents", "Documents", "{A99E5575-F049-4EF7-9EB3-69F834AE3C8B}"
+	ProjectSection(SolutionItems) = preProject
+		Documents\ChangeLog.txt = Documents\ChangeLog.txt
+		Documents\GetSource.txt = Documents\GetSource.txt
+		Documents\IntroduceTrustedInstallerByRaymai97.txt = Documents\IntroduceTrustedInstallerByRaymai97.txt
+		Documents\ReadMe.txt = Documents\ReadMe.txt
+		Documents\ThanksList.txt = Documents\ThanksList.txt
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -47,6 +61,14 @@ Global
 		{F517636B-65A3-4118-9682-24AA9387ED05}.Release|Win32.Build.0 = Release|Win32
 		{F517636B-65A3-4118-9682-24AA9387ED05}.Release|x64.ActiveCfg = Release|x64
 		{F517636B-65A3-4118-9682-24AA9387ED05}.Release|x64.Build.0 = Release|x64
+		{C83E112C-C1A0-452A-9034-B83F0820D044}.Debug|Win32.ActiveCfg = Debug|Win32
+		{C83E112C-C1A0-452A-9034-B83F0820D044}.Debug|Win32.Build.0 = Debug|Win32
+		{C83E112C-C1A0-452A-9034-B83F0820D044}.Debug|x64.ActiveCfg = Debug|x64
+		{C83E112C-C1A0-452A-9034-B83F0820D044}.Debug|x64.Build.0 = Debug|x64
+		{C83E112C-C1A0-452A-9034-B83F0820D044}.Release|Win32.ActiveCfg = Release|Win32
+		{C83E112C-C1A0-452A-9034-B83F0820D044}.Release|Win32.Build.0 = Release|Win32
+		{C83E112C-C1A0-452A-9034-B83F0820D044}.Release|x64.ActiveCfg = Release|x64
+		{C83E112C-C1A0-452A-9034-B83F0820D044}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

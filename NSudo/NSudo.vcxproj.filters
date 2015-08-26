@@ -30,6 +30,9 @@
     <ClInclude Include="NSudo_Run.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="MuitiLanguage.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
