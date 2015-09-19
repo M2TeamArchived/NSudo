@@ -21,6 +21,9 @@
   <ItemGroup>
     <ClCompile Include="NSudoLib.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ntdll.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{C83E112C-C1A0-452A-9034-B83F0820D044}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>

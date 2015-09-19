@@ -22,6 +22,8 @@
 #include <UserEnv.h>
 #pragma comment(lib,"userenv.lib")
 
+#include "ntdll.h"
+
 //获取一个进程的PID
 DWORD NSudoGetProcessID(LPCWSTR lpProcessName, bool bUnderCurrentSessionID)
 {
@@ -35,7 +37,7 @@ DWORD NSudoGetProcessID(LPCWSTR lpProcessName, bool bUnderCurrentSessionID)
 		{
 			for (DWORD i = 0; i < dwProcessCount; i++)
 			{
-				if (_wcsicmp(lpProcessName, pWTSProcessInfo[i].pProcessName) == 0) //寻找winlogon进程
+				if (_wcsicmp(lpProcessName, pWTSProcessInfo[i].pProcessName) == 0) //寻找%lpProcessName%进程
 				{
 					if (bUnderCurrentSessionID && pWTSProcessInfo[i].SessionId != dwUserSessionId) continue; //判断是否是当前用户ID
 					dwPID = pWTSProcessInfo[i].ProcessId;
@@ -309,7 +311,8 @@ bool NSudoCreateLUAToken(PHANDLE hNewToken)
 	HANDLE hToken, hToken2, hHeap = GetProcessHeap();
 	if (OpenProcessToken(GetCurrentProcess(), MAXIMUM_ALLOWED, &hToken))
 	{
-		if (CreateRestrictedToken(hToken, LUA_TOKEN, 0, NULL, 0, NULL, 0, NULL, &hToken2)) // 创建受限令牌
+		//if (CreateRestrictedToken(hToken, LUA_TOKEN, 0, NULL, 0, NULL, 0, NULL, &hToken2)) // 创建受限令牌
+		if (NT_SUCCESS(NtFilterToken(hToken, LUA_TOKEN, NULL, NULL, NULL, &hToken2)))
 		{
 			//完整性设置为中（管理员权限需要）
 			SetTokenIntegrity(hToken2, L"S-1-16-8192");
@@ -332,16 +335,6 @@ bool NSudoCreateLUAToken(PHANDLE hNewToken)
 				}
 
 				//设置令牌的ACL（管理员权限需要）
-				EXPLICIT_ACCESS ea;
-				ea.grfAccessMode = GRANT_ACCESS;
-				ea.grfAccessPermissions = TOKEN_ALL_ACCESS;
-				ea.grfInheritance = OBJECT_INHERIT_ACE | CONTAINER_INHERIT_ACE;
-				ea.Trustee.MultipleTrusteeOperation = NO_MULTIPLE_TRUSTEE;
-				ea.Trustee.pMultipleTrustee = NULL;
-				ea.Trustee.TrusteeForm = TRUSTEE_IS_SID;
-				ea.Trustee.TrusteeType = TRUSTEE_IS_USER;
-				ea.Trustee.ptstrName = (LPTSTR)pTokenUser->User.Sid;
-
 				GetTokenInformation(hToken2, TokenDefaultDacl, 0, 0, &dwReturnLength);
 
 				PTOKEN_DEFAULT_DACL pTokenDefaultDacl = (PTOKEN_DEFAULT_DACL)HeapAlloc(hHeap, 0, dwReturnLength);
@@ -349,10 +342,19 @@ bool NSudoCreateLUAToken(PHANDLE hNewToken)
 				{
 					GetTokenInformation(hToken2, TokenDefaultDacl, pTokenDefaultDacl, dwReturnLength, &dwReturnLength);
 
+					//删除Administrator对于该令牌的权限
+					//DeleteAce(pTokenDefaultDacl->DefaultDacl, 0);
+
+					//初始化EXPLICIT_ACCESS结构
+					EXPLICIT_ACCESS_W ea;
+					ea.grfAccessMode = GRANT_ACCESS;
+					ea.grfAccessPermissions = GENERIC_ALL;
+					ea.grfInheritance = OBJECT_INHERIT_ACE | CONTAINER_INHERIT_ACE;
+					BuildTrusteeWithSidW(&ea.Trustee, pTokenUser->User.Sid);
+
 					PACL pNewACL = NULL;
 					if (ERROR_SUCCESS == SetEntriesInAclW(1, &ea, pTokenDefaultDacl->DefaultDacl, &pNewACL))
 					{
-						DeleteAce(pNewACL, 1);
 						pTokenDefaultDacl->DefaultDacl = pNewACL;
 						SetTokenInformation(hToken2, TokenDefaultDacl, pTokenDefaultDacl, sizeof(pTokenDefaultDacl));
 					}
