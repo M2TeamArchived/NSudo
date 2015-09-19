@@ -29,6 +29,18 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documents", "Documents", "{
 		Documents\ThanksList.txt = Documents\ThanksList.txt
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "msvcrt", "msvcrt", "{428D9162-21FE-4307-81D6-FDEB8CD6256E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "x64", "x64", "{40D05561-6A29-4388-9332-ADF2903BE9AC}"
+	ProjectSection(SolutionItems) = preProject
+		lib\x64\msvcrt.lib = lib\x64\msvcrt.lib
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Win32", "Win32", "{80CFAB1C-B389-4AAE-AC74-82441ACB53D9}"
+	ProjectSection(SolutionItems) = preProject
+		lib\Win32\msvcrt.lib = lib\Win32\msvcrt.lib
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -72,5 +84,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{40D05561-6A29-4388-9332-ADF2903BE9AC} = {428D9162-21FE-4307-81D6-FDEB8CD6256E}
+		{80CFAB1C-B389-4AAE-AC74-82441ACB53D9} = {428D9162-21FE-4307-81D6-FDEB8CD6256E}
 	EndGlobalSection
 EndGlobal
