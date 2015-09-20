@@ -10,8 +10,8 @@
 
 #include <Windows.h>
 
-#include<Wtsapi32.h>
-#pragma comment(lib,"Wtsapi32.lib")
+//#include<Wtsapi32.h>
+//#pragma comment(lib,"Wtsapi32.lib")
 
 #include <sddl.h>
 #include <AccCtrl.h>
@@ -23,6 +23,7 @@
 #pragma comment(lib,"userenv.lib")
 
 #include "ntdll.h"
+#include "winsta.h"
 
 //获取一个进程的PID
 DWORD NSudoGetProcessID(LPCWSTR lpProcessName, bool bUnderCurrentSessionID)
@@ -30,21 +31,26 @@ DWORD NSudoGetProcessID(LPCWSTR lpProcessName, bool bUnderCurrentSessionID)
 	DWORD dwPID = -1 /*进程ID*/, dwUserSessionId = 0 /*会话ID*/;
 	if ((dwUserSessionId = WTSGetActiveConsoleSessionId()) != 0xFFFFFFFF)
 	{
-		PWTS_PROCESS_INFOW pWTSProcessInfo = NULL;
-		DWORD dwProcessCount = 0;
-
-		if (WTSEnumerateProcessesW(WTS_CURRENT_SERVER_HANDLE, 0, 1, &pWTSProcessInfo, &dwProcessCount))
+		DWORD dwReturnLength = 0;
+		NtQuerySystemInformation(SystemProcessInformation, NULL, NULL, &dwReturnLength);
+		LPVOID lpBuffer = HeapAlloc(GetProcessHeap(), 0, dwReturnLength);
+		if (lpBuffer)
 		{
-			for (DWORD i = 0; i < dwProcessCount; i++)
+			PSYSTEM_PROCESS_INFORMATION pSPI = (PSYSTEM_PROCESS_INFORMATION)lpBuffer;
+			if (NT_SUCCESS(NtQuerySystemInformation(SystemProcessInformation, pSPI, dwReturnLength, &dwReturnLength)))
 			{
-				if (_wcsicmp(lpProcessName, pWTSProcessInfo[i].pProcessName) == 0) //寻找%lpProcessName%进程
+				while (pSPI->NextEntryOffset != 0)
 				{
-					if (bUnderCurrentSessionID && pWTSProcessInfo[i].SessionId != dwUserSessionId) continue; //判断是否是当前用户ID
-					dwPID = pWTSProcessInfo[i].ProcessId;
-					break;
+					if (_wcsicmp(lpProcessName, pSPI->ImageName.Buffer) == 0) //寻找%lpProcessName%进程
+					{
+						if (bUnderCurrentSessionID && pSPI->SessionId != dwUserSessionId) continue; //判断是否是当前用户ID
+						dwPID = HandleToUlong(pSPI->UniqueProcessId);
+						break;
+					}
+					pSPI = (PSYSTEM_PROCESS_INFORMATION)((char *)pSPI + pSPI->NextEntryOffset);
 				}
 			}
-			WTSFreeMemory(pWTSProcessInfo);
+			HeapFree(GetProcessHeap(), 0, lpBuffer);
 		}
 	}
 	return dwPID;
@@ -257,12 +263,12 @@ bool NSudoGetCurrentUserToken(PHANDLE phNewToken)
 
 	if (NSudoImpersonateSystemToken())
 	{
-		DWORD dwUserSessionId = WTSGetActiveConsoleSessionId();
-		if (0xFFFFFFFF != dwUserSessionId)
+		WINSTATIONUSERTOKEN WinStaUserToken = { 0 };
+		DWORD ccbInfo = NULL;
+		if (WinStationQueryInformationW(SERVERNAME_CURRENT, LOGONID_CURRENT, WinStationUserToken, &WinStaUserToken, sizeof(WINSTATIONUSERTOKEN), &ccbInfo))
 		{
-			bRet = WTSQueryUserToken(dwUserSessionId, phNewToken);
+			bRet = DuplicateTokenEx(WinStaUserToken.UserToken, TOKEN_ALL_ACCESS, NULL, SecurityIdentification, TokenPrimary, phNewToken);
 		}
-
 		RevertToSelf();
 	}
 

@@ -23,6 +23,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ntdll.h" />
+    <ClInclude Include="winsta.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{C83E112C-C1A0-452A-9034-B83F0820D044}</ProjectGuid>
