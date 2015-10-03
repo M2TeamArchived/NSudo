@@ -2,16 +2,36 @@
 
 #define NT_SUCCESS(status) ((NTSTATUS)(status)>=0) 
 
-#pragma comment(lib,"ntdll.lib")
-
-#define HandleToUlong(h) ((ULONG)(ULONG_PTR)(h))
-
-
 typedef struct _UNICODE_STRING {
 	USHORT Length;
 	USHORT MaximumLength;
 	PWSTR  Buffer;
 } UNICODE_STRING, *PUNICODE_STRING;
+
+#define OBJ_INHERIT            0x00000002L
+#define OBJ_PERMANENT          0x00000010L
+#define OBJ_EXCLUSIVE          0x00000020L
+#define OBJ_CASE_INSENSITIVE   0x00000040L
+#define OBJ_OPENIF             0x00000080L
+#define OBJ_OPENLINK           0x00000100L
+#define OBJ_KERNEL_HANDLE      0x00000200L
+#define OBJ_FORCE_ACCESS_CHECK 0x00000400L
+#define OBJ_VALID_ATTRIBUTES   0x000007F2L
+
+typedef struct _OBJECT_ATTRIBUTES {
+	ULONG           Length;
+	HANDLE          RootDirectory;
+	PUNICODE_STRING ObjectName;
+	ULONG           Attributes;
+	PVOID           SecurityDescriptor;
+	PVOID           SecurityQualityOfService;
+}  OBJECT_ATTRIBUTES, *POBJECT_ATTRIBUTES;
+
+typedef struct _CLIENT_ID
+{
+	HANDLE UniqueProcess;
+	HANDLE UniqueThread;
+} CLIENT_ID, *PCLIENT_ID;
 
 enum SYSTEM_INFORMATION_CLASS
 {
@@ -206,21 +226,5 @@ typedef struct _SYSTEM_PROCESS_INFORMATION {
 	LARGE_INTEGER Reserved6[6];
 } SYSTEM_PROCESS_INFORMATION, *PSYSTEM_PROCESS_INFORMATION;
 
-extern "C"
-{
-	NTSYSAPI NTSTATUS NTAPI NtFilterToken(
-		__in HANDLE ExistingTokenHandle,
-		__in ULONG Flags,
-		__in_opt PTOKEN_GROUPS SidsToDisable,
-		__in_opt PTOKEN_PRIVILEGES PrivilegesToDelete,
-		__in_opt PTOKEN_GROUPS RestrictedSids,
-		__out PHANDLE NewTokenHandle
-		);
-
-	NTSYSAPI NTSTATUS WINAPI NtQuerySystemInformation(
-		_In_      SYSTEM_INFORMATION_CLASS SystemInformationClass,
-		_Inout_   PVOID                    SystemInformation,
-		_In_      ULONG                    SystemInformationLength,
-		_Out_opt_ PULONG                   ReturnLength
-		);
-}
+#define NtCurrentProcess() ((HANDLE)(LONG_PTR)-1)
+#define NtCurrentThread() ((HANDLE)(LONG_PTR)-2)

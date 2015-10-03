@@ -4,21 +4,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NSudo", "NSudo\NSudo.vcxproj", "{00CB4EF3-94B3-4869-958E-200C3579DACD}"
-	ProjectSection(ProjectDependencies) = postProject
-		{C83E112C-C1A0-452A-9034-B83F0820D044} = {C83E112C-C1A0-452A-9034-B83F0820D044}
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NSudoC", "NSudoC\NSudoC.vcxproj", "{6788D3BF-EACF-488E-AAA3-27F3A44FF749}"
-	ProjectSection(ProjectDependencies) = postProject
-		{C83E112C-C1A0-452A-9034-B83F0820D044} = {C83E112C-C1A0-452A-9034-B83F0820D044}
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NSudoAPI", "NSudoAPI\NSudoAPI.vcxproj", "{F517636B-65A3-4118-9682-24AA9387ED05}"
-	ProjectSection(ProjectDependencies) = postProject
-		{C83E112C-C1A0-452A-9034-B83F0820D044} = {C83E112C-C1A0-452A-9034-B83F0820D044}
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NSudoLib", "NSudoLib\NSudoLib.vcxproj", "{C83E112C-C1A0-452A-9034-B83F0820D044}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documents", "Documents", "{A99E5575-F049-4EF7-9EB3-69F834AE3C8B}"
 	ProjectSection(SolutionItems) = preProject
@@ -43,9 +28,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Win32", "Win32", "{80CFAB1C
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NSudo.Win32", "NSudo.Win32", "{192EB0D5-B60B-4887-B492-3F9667BA8D1C}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NSudo.Net", "NSudo.Net", "{AAAE5073-E89B-4DEB-AE6B-59661631AC33}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NSudo.Net.Core", "NSudo.Net.Core\NSudo.Net.Core.csproj", "{20AC51FB-AD25-462B-8211-9EA7023B92D2}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NSudo.Universal", "NSudo.Universal", "{12832FBC-41EA-4D72-9419-1F4AB177F43A}"
+	ProjectSection(SolutionItems) = preProject
+		NSudo.Universal\NSudo.Universal.Lib.h = NSudo.Universal\NSudo.Universal.Lib.h
+		NSudo.Universal\NSudo.Universal.Lib.KUserSharedData.h = NSudo.Universal\NSudo.Universal.Lib.KUserSharedData.h
+		NSudo.Universal\NSudo.Universal.Lib.NativeAPI.h = NSudo.Universal\NSudo.Universal.Lib.NativeAPI.h
+		NSudo.Universal\NSudo.Universal.Lib.NativeAPI.Types.h = NSudo.Universal\NSudo.Universal.Lib.NativeAPI.Types.h
+		NSudo.Universal\NSudo.Universal.Lib.WinSta.h = NSudo.Universal\NSudo.Universal.Lib.WinSta.h
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -67,59 +57,13 @@ Global
 		{00CB4EF3-94B3-4869-958E-200C3579DACD}.Release|Win32.Build.0 = Release|Win32
 		{00CB4EF3-94B3-4869-958E-200C3579DACD}.Release|x64.ActiveCfg = Release|x64
 		{00CB4EF3-94B3-4869-958E-200C3579DACD}.Release|x64.Build.0 = Release|x64
-		{6788D3BF-EACF-488E-AAA3-27F3A44FF749}.Debug|Any CPU.ActiveCfg = Debug|Win32
-		{6788D3BF-EACF-488E-AAA3-27F3A44FF749}.Debug|Win32.ActiveCfg = Debug|Win32
-		{6788D3BF-EACF-488E-AAA3-27F3A44FF749}.Debug|Win32.Build.0 = Debug|Win32
-		{6788D3BF-EACF-488E-AAA3-27F3A44FF749}.Debug|x64.ActiveCfg = Debug|x64
-		{6788D3BF-EACF-488E-AAA3-27F3A44FF749}.Debug|x64.Build.0 = Debug|x64
-		{6788D3BF-EACF-488E-AAA3-27F3A44FF749}.Release|Any CPU.ActiveCfg = Release|Win32
-		{6788D3BF-EACF-488E-AAA3-27F3A44FF749}.Release|Win32.ActiveCfg = Release|Win32
-		{6788D3BF-EACF-488E-AAA3-27F3A44FF749}.Release|Win32.Build.0 = Release|Win32
-		{6788D3BF-EACF-488E-AAA3-27F3A44FF749}.Release|x64.ActiveCfg = Release|x64
-		{6788D3BF-EACF-488E-AAA3-27F3A44FF749}.Release|x64.Build.0 = Release|x64
-		{F517636B-65A3-4118-9682-24AA9387ED05}.Debug|Any CPU.ActiveCfg = Debug|Win32
-		{F517636B-65A3-4118-9682-24AA9387ED05}.Debug|Win32.ActiveCfg = Debug|Win32
-		{F517636B-65A3-4118-9682-24AA9387ED05}.Debug|Win32.Build.0 = Debug|Win32
-		{F517636B-65A3-4118-9682-24AA9387ED05}.Debug|x64.ActiveCfg = Debug|x64
-		{F517636B-65A3-4118-9682-24AA9387ED05}.Debug|x64.Build.0 = Debug|x64
-		{F517636B-65A3-4118-9682-24AA9387ED05}.Release|Any CPU.ActiveCfg = Release|Win32
-		{F517636B-65A3-4118-9682-24AA9387ED05}.Release|Win32.ActiveCfg = Release|Win32
-		{F517636B-65A3-4118-9682-24AA9387ED05}.Release|Win32.Build.0 = Release|Win32
-		{F517636B-65A3-4118-9682-24AA9387ED05}.Release|x64.ActiveCfg = Release|x64
-		{F517636B-65A3-4118-9682-24AA9387ED05}.Release|x64.Build.0 = Release|x64
-		{C83E112C-C1A0-452A-9034-B83F0820D044}.Debug|Any CPU.ActiveCfg = Debug|Win32
-		{C83E112C-C1A0-452A-9034-B83F0820D044}.Debug|Win32.ActiveCfg = Debug|Win32
-		{C83E112C-C1A0-452A-9034-B83F0820D044}.Debug|Win32.Build.0 = Debug|Win32
-		{C83E112C-C1A0-452A-9034-B83F0820D044}.Debug|x64.ActiveCfg = Debug|x64
-		{C83E112C-C1A0-452A-9034-B83F0820D044}.Debug|x64.Build.0 = Debug|x64
-		{C83E112C-C1A0-452A-9034-B83F0820D044}.Release|Any CPU.ActiveCfg = Release|Win32
-		{C83E112C-C1A0-452A-9034-B83F0820D044}.Release|Win32.ActiveCfg = Release|Win32
-		{C83E112C-C1A0-452A-9034-B83F0820D044}.Release|Win32.Build.0 = Release|Win32
-		{C83E112C-C1A0-452A-9034-B83F0820D044}.Release|x64.ActiveCfg = Release|x64
-		{C83E112C-C1A0-452A-9034-B83F0820D044}.Release|x64.Build.0 = Release|x64
-		{20AC51FB-AD25-462B-8211-9EA7023B92D2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{20AC51FB-AD25-462B-8211-9EA7023B92D2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{20AC51FB-AD25-462B-8211-9EA7023B92D2}.Debug|Win32.ActiveCfg = Debug|Any CPU
-		{20AC51FB-AD25-462B-8211-9EA7023B92D2}.Debug|Win32.Build.0 = Debug|Any CPU
-		{20AC51FB-AD25-462B-8211-9EA7023B92D2}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{20AC51FB-AD25-462B-8211-9EA7023B92D2}.Debug|x64.Build.0 = Debug|Any CPU
-		{20AC51FB-AD25-462B-8211-9EA7023B92D2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{20AC51FB-AD25-462B-8211-9EA7023B92D2}.Release|Any CPU.Build.0 = Release|Any CPU
-		{20AC51FB-AD25-462B-8211-9EA7023B92D2}.Release|Win32.ActiveCfg = Release|Any CPU
-		{20AC51FB-AD25-462B-8211-9EA7023B92D2}.Release|Win32.Build.0 = Release|Any CPU
-		{20AC51FB-AD25-462B-8211-9EA7023B92D2}.Release|x64.ActiveCfg = Release|Any CPU
-		{20AC51FB-AD25-462B-8211-9EA7023B92D2}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{00CB4EF3-94B3-4869-958E-200C3579DACD} = {192EB0D5-B60B-4887-B492-3F9667BA8D1C}
-		{6788D3BF-EACF-488E-AAA3-27F3A44FF749} = {192EB0D5-B60B-4887-B492-3F9667BA8D1C}
-		{F517636B-65A3-4118-9682-24AA9387ED05} = {192EB0D5-B60B-4887-B492-3F9667BA8D1C}
-		{C83E112C-C1A0-452A-9034-B83F0820D044} = {192EB0D5-B60B-4887-B492-3F9667BA8D1C}
 		{40D05561-6A29-4388-9332-ADF2903BE9AC} = {428D9162-21FE-4307-81D6-FDEB8CD6256E}
 		{80CFAB1C-B389-4AAE-AC74-82441ACB53D9} = {428D9162-21FE-4307-81D6-FDEB8CD6256E}
-		{20AC51FB-AD25-462B-8211-9EA7023B92D2} = {AAAE5073-E89B-4DEB-AE6B-59661631AC33}
 	EndGlobalSection
 EndGlobal
