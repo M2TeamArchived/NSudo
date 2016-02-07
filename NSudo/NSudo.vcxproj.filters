@@ -1,0 +1,123 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Core">
+      <UniqueIdentifier>{09604100-5ada-48d0-9938-05f746330d1c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Native">
+      <UniqueIdentifier>{1c310379-8b83-47f1-8078-48d117f94307}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Base">
+      <UniqueIdentifier>{f8656fca-4dbf-4cf8-8ad2-9b0869c0ab4c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Documents">
+      <UniqueIdentifier>{76717016-334c-4681-bd6a-18713c2ecf76}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\Documents\ChangeLog.txt">
+      <Filter>Documents</Filter>
+    </Text>
+    <Text Include="..\Documents\En_GetSource.txt">
+      <Filter>Documents</Filter>
+    </Text>
+    <Text Include="..\Documents\En_IntroduceTrustedInstallerByRaymai97.txt">
+      <Filter>Documents</Filter>
+    </Text>
+    <Text Include="..\Documents\En_ReadMe.txt">
+      <Filter>Documents</Filter>
+    </Text>
+    <Text Include="..\Documents\En_ThanksList.txt">
+      <Filter>Documents</Filter>
+    </Text>
+    <Text Include="..\Documents\GetSource.txt">
+      <Filter>Documents</Filter>
+    </Text>
+    <Text Include="..\Documents\IntroduceTrustedInstallerByRaymai97.txt">
+      <Filter>Documents</Filter>
+    </Text>
+    <Text Include="ReadMe.txt">
+      <Filter>Documents</Filter>
+    </Text>
+    <Text Include="..\Documents\ReadMe.txt">
+      <Filter>Documents</Filter>
+    </Text>
+    <Text Include="..\Documents\ThanksList.txt">
+      <Filter>Documents</Filter>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="stdafx.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\KUserSharedData.h">
+      <Filter>Core\Native</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\NativeAPI.h">
+      <Filter>Core\Native</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\ObjectManagement.h">
+      <Filter>Core\Native</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\StringManagement.h">
+      <Filter>Core\Native</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\SystemInformation.h">
+      <Filter>Core\Native</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\WindowStation.h">
+      <Filter>Core\Native</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\MemoryManagement.h">
+      <Filter>Core\Native</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\SecurityManagement.h">
+      <Filter>Core\Native</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\ProcessManagement.h">
+      <Filter>Core\Native</Filter>
+    </ClInclude>
+    <ClInclude Include="NSudoBase.h">
+      <Filter>Core\Base</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="NSudo.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="NSudoBase.cpp">
+      <Filter>Core\Base</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="NSudo.rc">
+      <Filter>资源文件</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="NSudoIcon.ico">
+      <Filter>资源文件</Filter>
+    </Image>
+  </ItemGroup>
+</Project>
