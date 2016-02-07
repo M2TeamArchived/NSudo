@@ -1,42 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.23107.0
+VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NSudo", "NSudo\NSudo.vcxproj", "{00CB4EF3-94B3-4869-958E-200C3579DACD}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documents", "Documents", "{A99E5575-F049-4EF7-9EB3-69F834AE3C8B}"
-	ProjectSection(SolutionItems) = preProject
-		Documents\ChangeLog.txt = Documents\ChangeLog.txt
-		Documents\GetSource.txt = Documents\GetSource.txt
-		Documents\IntroduceTrustedInstallerByRaymai97.txt = Documents\IntroduceTrustedInstallerByRaymai97.txt
-		Documents\ReadMe.txt = Documents\ReadMe.txt
-		Documents\ThanksList.txt = Documents\ThanksList.txt
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "msvcrt", "msvcrt", "{428D9162-21FE-4307-81D6-FDEB8CD6256E}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "x64", "x64", "{40D05561-6A29-4388-9332-ADF2903BE9AC}"
-	ProjectSection(SolutionItems) = preProject
-		lib\x64\msvcrt.lib = lib\x64\msvcrt.lib
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Win32", "Win32", "{80CFAB1C-B389-4AAE-AC74-82441ACB53D9}"
-	ProjectSection(SolutionItems) = preProject
-		lib\Win32\msvcrt.lib = lib\Win32\msvcrt.lib
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NSudo.Win32", "NSudo.Win32", "{192EB0D5-B60B-4887-B492-3F9667BA8D1C}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NSudo.Universal", "NSudo.Universal", "{12832FBC-41EA-4D72-9419-1F4AB177F43A}"
-	ProjectSection(SolutionItems) = preProject
-		NSudo.Universal\NSudo.Universal.Lib.h = NSudo.Universal\NSudo.Universal.Lib.h
-		NSudo.Universal\NSudo.Universal.Lib.KUserSharedData.h = NSudo.Universal\NSudo.Universal.Lib.KUserSharedData.h
-		NSudo.Universal\NSudo.Universal.Lib.NativeAPI.h = NSudo.Universal\NSudo.Universal.Lib.NativeAPI.h
-		NSudo.Universal\NSudo.Universal.Lib.NativeAPI.Types.h = NSudo.Universal\NSudo.Universal.Lib.NativeAPI.Types.h
-		NSudo.Universal\NSudo.Universal.Lib.WinSta.h = NSudo.Universal\NSudo.Universal.Lib.WinSta.h
-	EndProjectSection
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -46,24 +12,7 @@ Global
 		Release|Win32 = Release|Win32
 		Release|x64 = Release|x64
 	EndGlobalSection
-	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{00CB4EF3-94B3-4869-958E-200C3579DACD}.Debug|Any CPU.ActiveCfg = Debug|Win32
-		{00CB4EF3-94B3-4869-958E-200C3579DACD}.Debug|Win32.ActiveCfg = Debug|Win32
-		{00CB4EF3-94B3-4869-958E-200C3579DACD}.Debug|Win32.Build.0 = Debug|Win32
-		{00CB4EF3-94B3-4869-958E-200C3579DACD}.Debug|x64.ActiveCfg = Debug|x64
-		{00CB4EF3-94B3-4869-958E-200C3579DACD}.Debug|x64.Build.0 = Debug|x64
-		{00CB4EF3-94B3-4869-958E-200C3579DACD}.Release|Any CPU.ActiveCfg = Release|Win32
-		{00CB4EF3-94B3-4869-958E-200C3579DACD}.Release|Win32.ActiveCfg = Release|Win32
-		{00CB4EF3-94B3-4869-958E-200C3579DACD}.Release|Win32.Build.0 = Release|Win32
-		{00CB4EF3-94B3-4869-958E-200C3579DACD}.Release|x64.ActiveCfg = Release|x64
-		{00CB4EF3-94B3-4869-958E-200C3579DACD}.Release|x64.Build.0 = Release|x64
-	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{00CB4EF3-94B3-4869-958E-200C3579DACD} = {192EB0D5-B60B-4887-B492-3F9667BA8D1C}
-		{40D05561-6A29-4388-9332-ADF2903BE9AC} = {428D9162-21FE-4307-81D6-FDEB8CD6256E}
-		{80CFAB1C-B389-4AAE-AC74-82441ACB53D9} = {428D9162-21FE-4307-81D6-FDEB8CD6256E}
 	EndGlobalSection
 EndGlobal
