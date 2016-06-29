@@ -125,7 +125,7 @@ CommandLine=notepad
 
 ------------
 MDL论坛根据地 MDL Post
-http://forums.mydigitallife.info/threads/59268-M2-Team-NSudo-(New-Version-2016)
+> http://forums.mydigitallife.info/threads/59268-M2-Team-NSudo-(New-Version-2016)
 
 ------------
 Have a good time -- M2-Team参上
