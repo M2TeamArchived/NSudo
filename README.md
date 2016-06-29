@@ -1,4 +1,9 @@
+> 注意：项目已迁移到 https://github.com/M2Team/NSudo
+
+> Notice: The Project has been moved to https://github.com/M2Team/NSudo
+
 # NSudo - 一个强大的系统管理工具
+
 > 注意：NSudo基于raymai97的超级命令提示符，关于raymai97的超级命令提示符，请参阅 [这里](http://bbs.pcbeta.com/viewthread-1508863-1-1.html "这里")
 
 > Notice: NSudo is based on SuperCMD by Raymai97.Visit [here](http://bbs.pcbeta.com/viewthread-1508863-1-1.html "here") for more information about SuperCMD
