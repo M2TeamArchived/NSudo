@@ -46,22 +46,4 @@ Global
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
-	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 5
-		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-		SccTeamFoundationServer = https://mourinaruto.visualstudio.com/
-		SccLocalPath0 = .
-		SccProjectUniqueName1 = NSudo\\NSudo.vcxproj
-		SccProjectName1 = NSudo
-		SccLocalPath1 = NSudo
-		SccProjectUniqueName2 = NSudoSDK\\NSudoSDK.vcxitems
-		SccProjectName2 = NSudoSDK
-		SccLocalPath2 = NSudoSDK
-		SccProjectUniqueName3 = MiniFM\\MiniFM.vcxproj
-		SccProjectName3 = MiniFM
-		SccLocalPath3 = MiniFM
-		SccProjectUniqueName4 = VC-LTL\\VC-LTL.vcxitems
-		SccProjectName4 = VC-LTL
-		SccLocalPath4 = VC-LTL
-	EndGlobalSection
 EndGlobal
