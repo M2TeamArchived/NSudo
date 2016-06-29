@@ -1,0 +1,306 @@
+// xlocinfo internal header for Microsoft
+#pragma once
+#ifndef _XLOCINFO_
+#define _XLOCINFO_
+#ifndef RC_INVOKED
+#include <xlocinfo.h>
+#include <cstdlib>
+#include <xstddef>
+
+ #pragma pack(push,_CRT_PACKING)
+ #pragma warning(push,3)
+ #pragma push_macro("new")
+ #undef new
+
+ #pragma warning(disable: 4412)
+
+_STD_BEGIN
+		// CLASS _Timevec
+class _CRTIMP2_PURE _Timevec
+	{	// smart pointer to information used by _Strftime
+public:
+	__CLR_OR_THIS_CALL _Timevec(void *_Ptr = 0)
+		: _Timeptr(_Ptr)
+		{	// construct from ptr
+		}
+
+	__CLR_OR_THIS_CALL _Timevec(const _Timevec& _Right)
+		{	// construct from _Right
+		*this = _Right;
+		}
+
+	__CLR_OR_THIS_CALL ~_Timevec() _NOEXCEPT
+		{	// destroy the object
+		free(_Timeptr);
+		}
+
+	_Timevec& __CLR_OR_THIS_CALL operator=(const _Timevec& _Right)
+		{	// transfer ownership of _Timeptr from _Right
+		_Timeptr = _Right._Timeptr;
+		((_Timevec *)&_Right)->_Timeptr = 0;
+		return (*this);
+		}
+
+	void *__CLR_OR_THIS_CALL _Getptr() const
+		{	// return pointer to time information
+		return (_Timeptr);
+		}
+
+private:
+	void *_Timeptr;	// pointer to time information
+	};
+
+		// CLASS _Locinfo
+class _CRTIMP2_PURE _Locinfo
+	{	// summary of all stuff peculiar to a locale used by standard facets
+public:
+	typedef ::_Collvec _Collvec;
+	typedef ::_Ctypevec _Ctypevec;
+	typedef ::_Cvtvec _Cvtvec;
+	typedef _STD _Timevec _Timevec;
+
+	static _MRTIMP2_PURE_NPURE void __CLRCALL_PURE_OR_CDECL _Locinfo_ctor(
+		_Locinfo *, const char *);
+	static _MRTIMP2_PURE_NPURE void __CLRCALL_PURE_OR_CDECL _Locinfo_ctor(
+		_Locinfo *, int, const char *);
+	static _MRTIMP2_PURE_NPURE void __CLRCALL_PURE_OR_CDECL _Locinfo_dtor(
+		_Locinfo *);
+	static _MRTIMP2_PURE_NPURE _Locinfo& __CLRCALL_PURE_OR_CDECL _Locinfo_Addcats(
+		_Locinfo *, int, const char *);
+
+	__CLR_OR_THIS_CALL _Locinfo(const char *_Pch = "C")
+ #ifndef _M_CEE
+		: _Lock(_LOCK_LOCALE)
+ #endif /* _M_CEE */
+
+		{	// construct from NTBS
+		if (_Pch == 0)
+			_THROW_NCEE(runtime_error, "bad locale name");
+		_Locinfo_ctor(this, _Pch);
+		}
+
+	__CLR_OR_THIS_CALL _Locinfo(int _Cat, const char *_Pch)
+ #ifndef _M_CEE
+		: _Lock(_LOCK_LOCALE)
+ #endif /* _M_CEE */
+
+		{	// construct from category mask and NTBS
+		if (_Pch == 0)
+			_THROW_NCEE(runtime_error, "bad locale name");
+		_Locinfo_ctor(this, _Cat, _Pch);
+		}
+
+	__CLR_OR_THIS_CALL ~_Locinfo() _NOEXCEPT
+		{	// destroy the object
+		_Locinfo_dtor(this);
+		}
+
+	_Locinfo& __CLR_OR_THIS_CALL _Addcats(int _Cat, const char *_Pch)
+		{	// add facets matching category mask and NTBS
+		if (_Pch == 0)
+			_THROW_NCEE(runtime_error, "bad locale name");
+		return (_Locinfo_Addcats(this, _Cat, _Pch));
+		}
+
+	const char *__CLR_OR_THIS_CALL _Getname() const
+		{	// return the new locale name
+		return (_Newlocname._C_str());
+		}
+
+	_Collvec __CLR_OR_THIS_CALL _Getcoll() const
+		{	// return collation stuff
+		return (::_Getcoll());
+		}
+
+	_Ctypevec __CLR_OR_THIS_CALL _Getctype() const
+		{	// return ctype stuff
+		return (::_Getctype());
+		}
+
+	_Cvtvec __CLR_OR_THIS_CALL _Getcvt() const
+		{	// return codecvt stuff
+		return (::_Getcvt());
+		}
+
+	const lconv *__CLR_OR_THIS_CALL _Getlconv() const
+		{	// return localeconv stuff
+		return (localeconv());
+		}
+
+	_Timevec __CLR_OR_THIS_CALL _Gettnames() const
+		{	// return names used by _Strftime
+		return (_Timevec(::_Gettnames()));
+		}
+
+	const char *__CLR_OR_THIS_CALL _Getdays() const
+		{	// return names for weekdays
+		const char *_Ptr = ::_Getdays();
+
+		if (_Ptr != 0)
+			{	// capture names and free allocated C string
+			((_Locinfo *)this)->_Days = _Ptr;
+			free((void *)_Ptr);
+			}
+		return (!_Days._Empty() ? _Days._C_str()
+			: ":Sun:Sunday:Mon:Monday:Tue:Tuesday:Wed:Wednesday"
+				":Thu:Thursday:Fri:Friday:Sat:Saturday");
+		}
+
+	const char *__CLR_OR_THIS_CALL _Getmonths() const
+		{	// return names for months
+		const char *_Ptr = ::_Getmonths();
+
+		if (_Ptr != 0)
+			{	// capture names and free allocated C string
+			((_Locinfo *)this)->_Months = _Ptr;
+			free((void *)_Ptr);
+			}
+		return (!_Months._Empty() ? _Months._C_str()
+			: ":Jan:January:Feb:February:Mar:March"
+				":Apr:April:May:May:Jun:June"
+				":Jul:July:Aug:August:Sep:September"
+				":Oct:October:Nov:November:Dec:December");
+		}
+
+	const char *__CLR_OR_THIS_CALL _Getfalse() const
+		{	// return false name (no C source)
+		return ("false");
+		}
+
+	const char *__CLR_OR_THIS_CALL _Gettrue() const
+		{	// return true name (no C source)
+		return ("true");
+		}
+
+	int __CLR_OR_THIS_CALL _Getdateorder() const
+		{	// return date order
+		return (::_Getdateorder());
+		}
+
+	_Timevec __CLR_OR_THIS_CALL _W_Gettnames() const
+		{	// return names used by _Wcsftime
+		return (_Timevec(::_W_Gettnames()));
+		}
+
+	const unsigned short *__CLR_OR_THIS_CALL _W_Getdays() const
+		{	// return names for weekdays
+		const wchar_t *_Ptr = ::_W_Getdays();
+
+		if (_Ptr != 0)
+			{	// capture names and free allocated C string
+			((_Locinfo *)this)->_W_Days = _Ptr;
+			free((void *)_Ptr);
+			}
+		return ((const unsigned short *)(!_W_Days._Empty()
+			? _W_Days._C_str()
+			: L":Sun:Sunday:Mon:Monday:Tue:Tuesday:Wed:Wednesday"
+				L":Thu:Thursday:Fri:Friday:Sat:Saturday"));
+		}
+
+	const unsigned short *__CLR_OR_THIS_CALL _W_Getmonths() const
+		{	// return names for months
+		const wchar_t *_Ptr = ::_W_Getmonths();
+
+		if (_Ptr != 0)
+			{	// capture names and free allocated C string
+			((_Locinfo *)this)->_W_Months = _Ptr;
+			free((void *)_Ptr);
+			}
+		return ((const unsigned short *)(!_W_Months._Empty()
+			? _W_Months._C_str()
+			: L":Jan:January:Feb:February:Mar:March"
+				L":Apr:April:May:May:Jun:June"
+				L":Jul:July:Aug:August:Sep:September"
+				L":Oct:October:Nov:November:Dec:December"));
+		}
+
+	_Locinfo(const _Locinfo&) = delete;
+	_Locinfo& operator=(const _Locinfo&) = delete;
+
+private:
+ #ifdef _M_CEE
+	_EmptyLockit _Empty_lock;	// to maintain same size
+
+ #else /* _M_CEE */
+	_Lockit _Lock;	// thread lock, because global locale is altered
+ #endif /* _M_CEE */
+
+	_Yarn<char> _Days;	// weekday names
+	_Yarn<char> _Months;	// month names
+	_Yarn<wchar_t> _W_Days;	// wide weekday names
+	_Yarn<wchar_t> _W_Months;	// wide month names
+	_Yarn<char> _Oldlocname;	// old locale name to revert to on destruction
+	_Yarn<char> _Newlocname;	// new locale name for this object
+	};
+
+		// TEMPLATE FUNCTION _LStrcoll
+template<class _Elem> inline
+	int __CRTDECL _LStrcoll(const _Elem *_First1, const _Elem *_Last1,
+		const _Elem *_First2, const _Elem *_Last2,
+			const _Locinfo::_Collvec *)
+	{	// perform locale-specific comparison of _Elem sequences
+	for (; _First1 != _Last1 && _First2 != _Last2; ++_First1, ++_First2)
+		if (*_First1 < *_First2)
+			return (-1);	// [_First1, _Last1) < [_First2, _Last2)
+		else if (*_First2 < *_First1)
+			return (+1);	// [_First1, _Last1) > [_First2, _Last2)
+	return (_First2 != _Last2 ? -1 : _First1 != _Last1 ? +1 : 0);
+	}
+
+template<> inline
+	int __CRTDECL _LStrcoll(const char *_First1, const char *_Last1,
+		const char *_First2, const char *_Last2,
+			const _Locinfo::_Collvec *_Vector)
+	{	// perform locale-specific comparison of char sequences
+	return (_Strcoll(_First1, _Last1, _First2, _Last2, _Vector));
+	}
+
+template<> inline
+	int __CRTDECL _LStrcoll(const wchar_t *_First1, const wchar_t *_Last1,
+		const wchar_t *_First2, const wchar_t *_Last2,
+			const _Locinfo::_Collvec *_Vector)
+	{	// perform locale-specific comparison of wchar_t sequences
+	return (_Wcscoll(_First1, _Last1, _First2, _Last2, _Vector));
+	}
+
+		// TEMPLATE FUNCTION _LStrxfrm
+template<class _Elem> inline
+	size_t __CRTDECL _LStrxfrm(_Elem *_First1, _Elem *_Last1,
+		const _Elem *_First2, const _Elem *_Last2,
+			const _Locinfo::_Collvec *)
+	{	// perform locale-specific transform of _Elems [_First1, _Last1)
+	size_t _Count = _Last2 - _First2;
+	if (_Count <= (size_t)(_Last1 - _First1))
+		_CRT_SECURE_MEMCPY(_First1, (_Last1 - _First1) * sizeof (_Elem),
+			_First2, _Count * sizeof (_Elem));
+	return (_Count);
+	}
+
+template<> inline
+	size_t __CRTDECL _LStrxfrm(_Out_writes_ (_Last1 - _First1)
+		_Post_readable_size_(return) char *_First1, _In_z_ char *_Last1,
+		const char *_First2, const char *_Last2,
+			const _Locinfo::_Collvec *_Vector)
+	{	// perform locale-specific transform of chars [_First1, _Last1)
+	return (_Strxfrm(_First1, _Last1, _First2, _Last2, _Vector));
+	}
+
+template<> inline
+	size_t __CRTDECL _LStrxfrm(_Out_writes_ (_Last1 - _First1)
+		_Post_readable_size_(return) wchar_t *_First1, _In_z_ wchar_t *_Last1,
+		const wchar_t *_First2, const wchar_t *_Last2,
+			const _Locinfo::_Collvec *_Vector)
+	{	// perform locale-specific transform of wchar_ts [_First1, _Last1)
+	return (_Wcsxfrm(_First1, _Last1, _First2, _Last2, _Vector));
+	}
+_STD_END
+ #pragma pop_macro("new")
+ #pragma warning(pop)
+ #pragma pack(pop)
+#endif /* RC_INVOKED */
+#endif /* _XLOCINFO_ */
+
+/*
+ * Copyright (c) by P.J. Plauger. All rights reserved.
+ * Consult your license regarding permissions and restrictions.
+V6.50:0009 */

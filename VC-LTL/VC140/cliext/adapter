@@ -1,0 +1,1487 @@
+// adapter stl/clr header
+#ifndef _CLI_ADAPTER_
+ #define _CLI_ADAPTER_
+#include <cliext/iterator>
+#include <cliext/utility>
+
+namespace cliext {
+//
+// TEMPLATE CLASS collection_adapter
+//
+template<typename _Cont_t>
+	ref class collection_adapter;
+
+//
+// TEMPLATE REF CLASS Enum_iterator
+//
+template<typename _Cont_t,
+	typename _Enum_t,
+	typename _Value_t>
+	ref class Enum_iterator
+	{	// iterator for read-only one-pass container
+public:
+	// types
+	typedef Enum_iterator<_Cont_t, _Enum_t, _Value_t> _Mytype_t;
+
+	typedef input_iterator_tag iterator_category;
+	typedef _Value_t value_type;
+	typedef int difference_type;
+	typedef value_type% pointer;
+	typedef value_type% reference;
+	typedef value_type% const_reference;
+
+	// basics
+	Enum_iterator()
+		:	_Mycont(nullptr), _Myenum(nullptr)
+		{	// construct default
+		}
+
+	Enum_iterator(Enum_iterator% _Right)
+		:	_Mycont(_Right._Mycont), _Myenum(_Right._Myenum)
+		{	// construct by copying an iterator
+		}
+
+	Enum_iterator% operator=(Enum_iterator% _Right)
+		{	// assign an iterator
+		_Mycont = _Right._Mycont;
+		_Myenum = _Right._Myenum;
+		return (*this);
+		}
+
+	// constructors
+	Enum_iterator(_Cont_t^ _Cont)
+		:	_Mycont(_Cont), _Myenum(nullptr)
+		{	// construct from container
+		}
+
+	Enum_iterator(_Cont_t^ _Cont, _Enum_t^ _Enum)
+		:	_Mycont(_Cont), _Myenum(_Enum)
+		{	// construct from container and enumerator
+		if (!_Myenum->MoveNext())
+			_Myenum = nullptr;
+		}
+
+	// operators
+	static value_type operator->(Enum_iterator% _Left)
+		{	// return pointer to class object
+		return (_Left._Myenum->Current);
+		}
+
+	static value_type operator*(Enum_iterator% _Left)
+		{	// return reference to designated element
+		return (_Left._Myenum->Current);
+		}
+
+	Enum_iterator operator++()
+		{	// return incremented
+		if (!_Myenum->MoveNext())
+			_Myenum = nullptr;
+		return (*this);
+		}
+
+	Enum_iterator operator++(int)
+		{	// return incremented
+		Enum_iterator _Iter = *this;
+
+		++*this;
+		return (_Iter);
+		}
+
+	bool operator==(_Mytype_t% _Right)
+		{	// test if *this == _Right
+		if (_Mycont != _Right._Mycont)
+			throw gcnew System::InvalidOperationException();
+		return ((System::Object^)_Myenum == _Right._Myenum);
+		}
+
+	bool operator!=(_Mytype_t% _Right)
+		{	// test if *this != _Right
+		return (!(*this == _Right));
+		}
+
+_STLCLR_FIELD_ACCESS:
+	// data members
+	_Cont_t^ _Mycont;	// stored container handle
+	_Enum_t^ _Myenum;	// stored enumerator handle
+	};
+
+//
+// TEMPLATE CLASS collection_adapter<IEnumerable>
+//
+template<>
+	ref class collection_adapter<
+		System::Collections::IEnumerable>
+	{	// wrapper for IEnumerable
+public:
+	// types
+	typedef System::Collections::IEnumerable _Mycont_t;
+	typedef System::Collections::IEnumerator _Myenum_t;
+	typedef System::Object^ _Value_t;
+	typedef collection_adapter<_Mycont_t> _Mytype_t;
+
+	typedef Enum_iterator<_Mycont_t, _Myenum_t, _Value_t> iterator;
+
+	typedef int size_type;
+	typedef int difference_type;
+	typedef _Value_t value_type;
+	typedef _Value_t% reference;
+
+	// basics
+	collection_adapter()
+		:	_Mycont(nullptr)
+		{	// construct empty wrapper
+		}
+
+	collection_adapter(collection_adapter% _Right)
+		:	_Mycont(_Right._Mycont)
+		{	// construct by copying _Right
+		}
+
+	collection_adapter% operator=(collection_adapter% _Right)
+		{	// assign
+		_Mycont = _Right._Mycont;
+		return (*this);
+		}
+
+	collection_adapter% operator=(collection_adapter^ _Right)
+		{	// assign
+		_Mycont = _Right->_Mycont;
+		return (*this);
+		}
+
+	// constructors
+	collection_adapter(_Mycont_t^ _Right)
+		:	_Mycont(_Right)
+		{	// construct by wrapping
+		}
+
+	// destructor
+	~collection_adapter()
+		{	// destroy the object
+		}
+
+	// accessors
+	operator _Mycont_t^()
+		{	// convert to base
+		return (_Mycont);
+		}
+
+	_Mycont_t^ base()
+		{	// return base
+		return (_Mycont);
+		}
+
+	// iterator generators
+	iterator begin()
+		{	// return iterator for beginning of input sequence
+		return (iterator(_Mycont, _Mycont->GetEnumerator()));
+		}
+
+	iterator end()
+		{	// return iterator for end of input sequence
+		return (iterator(_Mycont));
+		}
+
+	// size controllers
+//	size_type size()
+//		{	// return length of sequence
+//		return (_Mycont->Count);
+//		}
+
+	// mutators
+	void swap(collection_adapter% _Right)
+		{	// exchange contents with _Right
+		if ((Object^)this != %_Right)
+			{	// worth doing, swap
+			_Mycont_t^ _Tcont = _Mycont;
+
+			_Mycont = _Right._Mycont;
+			_Right._Mycont = _Tcont;
+			}
+		}
+
+_STLCLR_FIELD_ACCESS:
+	// data members
+	_Mycont_t^ _Mycont;	// the wrapped IEnumerable interface
+	};
+
+//
+// TEMPLATE CLASS collection_adapter<IEnumerable<T> >
+//
+template<typename _Value_t>
+	ref class collection_adapter<
+		System::Collections::Generic::IEnumerable<_Value_t> >
+	{	// wrapper for IEnumerable<T>
+public:
+	// types
+	typedef System::Collections::Generic::IEnumerable<_Value_t> _Mycont_t;
+	typedef System::Collections::Generic::IEnumerator<_Value_t> _Myenum_t;
+	typedef collection_adapter<_Mycont_t> _Mytype_t;
+
+	typedef Enum_iterator<_Mycont_t, _Myenum_t, _Value_t> iterator;
+
+	typedef int size_type;
+	typedef int difference_type;
+	typedef _Value_t value_type;
+	typedef _Value_t% reference;
+
+	// basics
+	collection_adapter()
+		:	_Mycont(nullptr)
+		{	// construct empty wrapper
+		}
+
+	collection_adapter(collection_adapter% _Right)
+		:	_Mycont(_Right._Mycont)
+		{	// construct by copying _Right
+		}
+
+	collection_adapter% operator=(collection_adapter% _Right)
+		{	// assign
+		_Mycont = _Right._Mycont;
+		return (*this);
+		}
+
+	collection_adapter% operator=(collection_adapter^ _Right)
+		{	// assign
+		_Mycont = _Right->_Mycont;
+		return (*this);
+		}
+
+	// constructors
+	collection_adapter(_Mycont_t^ _Right)
+		:	_Mycont(_Right)
+		{	// construct by wrapping
+		}
+
+	// destructor
+	~collection_adapter()
+		{	// destroy the object
+		}
+
+	// accessors
+	operator _Mycont_t^()
+		{	// convert to base
+		return (_Mycont);
+		}
+
+	_Mycont_t^ base()
+		{	// return base
+		return (_Mycont);
+		}
+
+	// iterator generators
+	iterator begin()
+		{	// return iterator for beginning of input sequence
+		return (iterator(_Mycont, _Mycont->GetEnumerator()));
+		}
+
+	iterator end()
+		{	// return iterator for end of input sequence
+		return (iterator(_Mycont));
+		}
+
+	// size controllers
+//	size_type size()
+//		{	// return length of sequence
+//		return (_Mycont->Count);
+//		}
+
+	// mutators
+	void swap(collection_adapter% _Right)
+		{	// exchange contents with _Right
+		if ((Object^)this != %_Right)
+			{	// worth doing, swap
+			_Mycont_t^ _Tcont = _Mycont;
+
+			_Mycont = _Right._Mycont;
+			_Right._Mycont = _Tcont;
+			}
+		}
+
+_STLCLR_FIELD_ACCESS:
+	// data members
+	_Mycont_t^ _Mycont;	// the wrapped IEnumerable interface
+	};
+
+//
+// TEMPLATE CLASS collection_adapter<ICollection>
+//
+template<>
+	ref class collection_adapter<
+		System::Collections::ICollection>
+	{	// wrapper for ICollection
+public:
+	// types
+	typedef System::Collections::ICollection _Mycont_t;
+	typedef System::Collections::IEnumerator _Myenum_t;
+	typedef System::Object^ _Value_t;
+	typedef collection_adapter<_Mycont_t> _Mytype_t;
+
+	typedef Enum_iterator<_Mycont_t, _Myenum_t, _Value_t> iterator;
+
+	typedef int size_type;
+	typedef int difference_type;
+	typedef _Value_t value_type;
+	typedef _Value_t% reference;
+
+	// basics
+	collection_adapter()
+		:	_Mycont(nullptr)
+		{	// construct empty wrapper
+		}
+
+	collection_adapter(collection_adapter% _Right)
+		:	_Mycont(_Right._Mycont)
+		{	// construct by copying _Right
+		}
+
+	collection_adapter% operator=(collection_adapter% _Right)
+		{	// assign
+		_Mycont = _Right._Mycont;
+		return (*this);
+		}
+
+	collection_adapter% operator=(collection_adapter^ _Right)
+		{	// assign
+		_Mycont = _Right->_Mycont;
+		return (*this);
+		}
+
+	// constructors
+	collection_adapter(_Mycont_t^ _Right)
+		:	_Mycont(_Right)
+		{	// construct by wrapping
+		}
+
+	// destructor
+	~collection_adapter()
+		{	// destroy the object
+		}
+
+	// accessors
+	operator _Mycont_t^()
+		{	// convert to base
+		return (_Mycont);
+		}
+
+	_Mycont_t^ base()
+		{	// return base
+		return (_Mycont);
+		}
+
+	// iterator generators
+	iterator begin()
+		{	// return iterator for beginning of input sequence
+		return (iterator(_Mycont, _Mycont->GetEnumerator()));
+		}
+
+	iterator end()
+		{	// return iterator for end of input sequence
+		return (iterator(_Mycont));
+		}
+
+	// size controllers
+	size_type size()
+		{	// return length of sequence
+		return (_Mycont->Count);
+		}
+
+	// mutators
+	void swap(collection_adapter% _Right)
+		{	// exchange contents with _Right
+		if ((Object^)this != %_Right)
+			{	// worth doing, swap
+			_Mycont_t^ _Tcont = _Mycont;
+
+			_Mycont = _Right._Mycont;
+			_Right._Mycont = _Tcont;
+			}
+		}
+
+_STLCLR_FIELD_ACCESS:
+	// data members
+	_Mycont_t^ _Mycont;	// the wrapped ICollection interface
+	};
+
+//
+// TEMPLATE CLASS collection_adapter<ICollection<T> >
+//
+template<typename _Value_t>
+	ref class collection_adapter<
+		System::Collections::Generic::ICollection<_Value_t> >
+	{	// wrapper for ICollection<T>
+public:
+	// types
+	typedef System::Collections::Generic::ICollection<_Value_t> _Mycont_t;
+	typedef System::Collections::Generic::IEnumerator<_Value_t> _Myenum_t;
+	typedef collection_adapter<_Mycont_t> _Mytype_t;
+
+	typedef Enum_iterator<_Mycont_t, _Myenum_t, _Value_t> iterator;
+
+	typedef int size_type;
+	typedef int difference_type;
+	typedef _Value_t value_type;
+	typedef _Value_t% reference;
+
+	// basics
+	collection_adapter()
+		:	_Mycont(nullptr)
+		{	// construct empty wrapper
+		}
+
+	collection_adapter(collection_adapter% _Right)
+		:	_Mycont(_Right._Mycont)
+		{	// construct by copying _Right
+		}
+
+	collection_adapter% operator=(collection_adapter% _Right)
+		{	// assign
+		_Mycont = _Right._Mycont;
+		return (*this);
+		}
+
+	collection_adapter% operator=(collection_adapter^ _Right)
+		{	// assign
+		_Mycont = _Right->_Mycont;
+		return (*this);
+		}
+
+	// constructors
+	collection_adapter(_Mycont_t^ _Right)
+		:	_Mycont(_Right)
+		{	// construct by wrapping
+		}
+
+	// destructor
+	~collection_adapter()
+		{	// destroy the object
+		}
+
+	// accessors
+	operator _Mycont_t^()
+		{	// convert to base
+		return (_Mycont);
+		}
+
+	_Mycont_t^ base()
+		{	// return base
+		return (_Mycont);
+		}
+
+	// iterator generators
+	iterator begin()
+		{	// return iterator for beginning of input sequence
+		return (iterator(_Mycont, _Mycont->GetEnumerator()));
+		}
+
+	iterator end()
+		{	// return iterator for end of input sequence
+		return (iterator(_Mycont));
+		}
+
+	// size controllers
+	size_type size()
+		{	// return length of sequence
+		return (_Mycont->Count);
+		}
+
+	// mutators
+	void swap(collection_adapter% _Right)
+		{	// exchange contents with _Right
+		if ((Object^)this != %_Right)
+			{	// worth doing, swap
+			_Mycont_t^ _Tcont = _Mycont;
+
+			_Mycont = _Right._Mycont;
+			_Right._Mycont = _Tcont;
+			}
+		}
+
+_STLCLR_FIELD_ACCESS:
+	// data members
+	_Mycont_t^ _Mycont;	// the wrapped ICollection interface
+	};
+
+//
+// TEMPLATE CLASS collection_adapter<IDictionary>
+//
+template<>
+	ref class collection_adapter<
+		System::Collections::IDictionary>
+	{	// wrapper for IDictionary
+public:
+	// types
+	typedef System::Collections::IDictionary _Mycont_t;
+	typedef System::Collections::IEnumerator _Myenum_t;
+	typedef System::Object^ _Value_t;
+	typedef collection_adapter<_Mycont_t> _Mytype_t;
+
+	typedef Enum_iterator<_Mycont_t, _Myenum_t, _Value_t> iterator;
+
+	typedef int size_type;
+	typedef int difference_type;
+	typedef _Value_t value_type;
+	typedef _Value_t% reference;
+
+	// basics
+	collection_adapter()
+		:	_Mycont(nullptr)
+		{	// construct empty wrapper
+		}
+
+	collection_adapter(collection_adapter% _Right)
+		:	_Mycont(_Right._Mycont)
+		{	// construct by copying _Right
+		}
+
+	collection_adapter% operator=(collection_adapter% _Right)
+		{	// assign
+		_Mycont = _Right._Mycont;
+		return (*this);
+		}
+
+	collection_adapter% operator=(collection_adapter^ _Right)
+		{	// assign
+		_Mycont = _Right->_Mycont;
+		return (*this);
+		}
+
+	// constructors
+	collection_adapter(_Mycont_t^ _Right)
+		:	_Mycont(_Right)
+		{	// construct by wrapping
+		}
+
+	// destructor
+	~collection_adapter()
+		{	// destroy the object
+		}
+
+	// accessors
+	operator _Mycont_t^()
+		{	// convert to base
+		return (_Mycont);
+		}
+
+	_Mycont_t^ base()
+		{	// return base
+		return (_Mycont);
+		}
+
+	// iterator generators
+	iterator begin()
+		{	// return iterator for beginning of input sequence
+		return (iterator(_Mycont, _Mycont->GetEnumerator()));
+		}
+
+	iterator end()
+		{	// return iterator for end of input sequence
+		return (iterator(_Mycont));
+		}
+
+	// size controllers
+	size_type size()
+		{	// return length of sequence
+		return (_Mycont->Count);
+		}
+
+	// mutators
+	void swap(collection_adapter% _Right)
+		{	// exchange contents with _Right
+		if ((Object^)this != %_Right)
+			{	// worth doing, swap
+			_Mycont_t^ _Tcont = _Mycont;
+
+			_Mycont = _Right._Mycont;
+			_Right._Mycont = _Tcont;
+			}
+		}
+
+_STLCLR_FIELD_ACCESS:
+	// data members
+	_Mycont_t^ _Mycont;	// the wrapped IDictionary interface
+	};
+
+//
+// TEMPLATE CLASS collection_adapter<IDictionary<T> >
+//
+template<typename _Key_t,
+	typename _Mapped_t>
+	ref class collection_adapter<
+		System::Collections::Generic::IDictionary<_Key_t, _Mapped_t> >
+	{	// wrapper for IDictionary<T>
+public:
+	// types
+	typedef System::Collections::Generic::IDictionary<
+		_Key_t, _Mapped_t> _Mycont_t;
+	typedef System::Collections::Generic::KeyValuePair<
+		_Key_t, _Mapped_t> _Value_t;
+	typedef System::Collections::Generic::IEnumerator<
+		_Value_t> _Myenum_t;
+	typedef collection_adapter<_Mycont_t> _Mytype_t;
+
+	typedef Enum_iterator<_Mycont_t, _Myenum_t, _Value_t> iterator;
+
+	typedef _Key_t key_type;
+	typedef _Mapped_t mapped_type;
+
+	typedef int size_type;
+	typedef int difference_type;
+	typedef _Value_t value_type;
+	typedef _Value_t% reference;
+
+	// basics
+	collection_adapter()
+		:	_Mycont(nullptr)
+		{	// construct empty wrapper
+		}
+
+	collection_adapter(collection_adapter% _Right)
+		:	_Mycont(_Right._Mycont)
+		{	// construct by copying _Right
+		}
+
+	collection_adapter% operator=(collection_adapter% _Right)
+		{	// assign
+		_Mycont = _Right._Mycont;
+		return (*this);
+		}
+
+	collection_adapter% operator=(collection_adapter^ _Right)
+		{	// assign
+		_Mycont = _Right->_Mycont;
+		return (*this);
+		}
+
+	// constructors
+	collection_adapter(_Mycont_t^ _Right)
+		:	_Mycont(_Right)
+		{	// construct by wrapping
+		}
+
+	// destructor
+	~collection_adapter()
+		{	// destroy the object
+		}
+
+	// accessors
+	operator _Mycont_t^()
+		{	// convert to base
+		return (_Mycont);
+		}
+
+	_Mycont_t^ base()
+		{	// return base
+		return (_Mycont);
+		}
+
+	// iterator generators
+	iterator begin()
+		{	// return iterator for beginning of input sequence
+		return (iterator(_Mycont, _Mycont->GetEnumerator()));
+		}
+
+	iterator end()
+		{	// return iterator for end of input sequence
+		return (iterator(_Mycont));
+		}
+
+	// size controllers
+	size_type size()
+		{	// return length of sequence
+		return (_Mycont->Count);
+		}
+
+	// mutators
+	void swap(collection_adapter% _Right)
+		{	// exchange contents with _Right
+		if ((Object^)this != %_Right)
+			{	// worth doing, swap
+			_Mycont_t^ _Tcont = _Mycont;
+
+			_Mycont = _Right._Mycont;
+			_Right._Mycont = _Tcont;
+			}
+		}
+
+_STLCLR_FIELD_ACCESS:
+	// data members
+	_Mycont_t^ _Mycont;	// the wrapped IDictionary interface
+	};
+
+//
+// TEMPLATE CLASS collection_adapter<IList>
+//
+template<>
+	ref class collection_adapter<
+		System::Collections::IList>
+	{	// wrapper for IList
+public:
+	// types
+	typedef System::Collections::IList _Mycont_t;
+	typedef System::Object^ _Value_t;
+	typedef collection_adapter<_Mycont_t> _Mytype_t;
+
+	typedef BCL_iterator<_Mytype_t, false> iterator;
+
+	typedef int size_type;
+	typedef int difference_type;
+	typedef _Value_t value_type;
+	typedef BCL_reference<_Mytype_t, false> reference;
+
+	// basics
+	collection_adapter()
+		:	_Mycont(nullptr)
+		{	// construct empty wrapper
+		}
+
+	collection_adapter(collection_adapter% _Right)
+		:	_Mycont(_Right._Mycont)
+		{	// construct by copying _Right
+		}
+
+	collection_adapter% operator=(collection_adapter% _Right)
+		{	// assign
+		_Mycont = _Right._Mycont;
+		return (*this);
+		}
+
+	collection_adapter% operator=(collection_adapter^ _Right)
+		{	// assign
+		_Mycont = _Right->_Mycont;
+		return (*this);
+		}
+
+	// constructors
+	collection_adapter(_Mycont_t^ _Right)
+		:	_Mycont(_Right)
+		{	// construct by wrapping
+		}
+
+	// destructor
+	~collection_adapter()
+		{	// destroy the object
+		}
+
+	// accessors
+	bool valid_bias(size_type _Bias)
+		{	// test if _Bias is currently a valid bias
+		return (0 <= _Bias && _Bias <= size());
+		}
+
+	reference at(size_type _Bias)
+		{	// subscript mutable sequence with checking, biased
+		return (reference(this, _Bias));
+		}
+
+	value_type at_val(size_type _Pos)
+		{	// subscript mutable sequence with checking
+		return (_Mycont[_Pos]);
+		}
+
+	void at_set(size_type _Pos, value_type _Val)
+		{	// assign to subscripted mutable sequence with checking
+		_Mycont[_Pos] = _Val;
+		}
+
+	property value_type default[difference_type]
+		{	// get or set subscripted element
+		value_type get(difference_type _Pos)
+			{	// get _Pos element
+			return (_Mycont[_Pos]);
+			}
+
+		void set(difference_type _Pos, value_type _Val)
+			{	// set _Pos element
+			_Mycont[_Pos] = _Val;
+			}
+		};
+
+	// accessors
+	operator _Mycont_t^()
+		{	// convert to base
+		return (_Mycont);
+		}
+
+	_Mycont_t^ base()
+		{	// return base
+		return (_Mycont);
+		}
+
+	// iterator generators
+	iterator make_iterator(size_type _Bias)
+		{	// return iterator for offset
+		return (iterator(this, _Bias));
+		}
+
+	iterator begin()
+		{	// return iterator for beginning of mutable sequence
+		return (make_iterator(0));
+		}
+	iterator end()
+		{	// return iterator for end of mutable sequence
+		return (make_iterator(size()));
+		}
+
+	// size controllers
+	size_type size()
+		{	// return length of sequence
+		return (_Mycont->Count);
+		}
+
+	// mutators
+	void swap(collection_adapter% _Right)
+		{	// exchange contents with _Right
+		if ((Object^)this != %_Right)
+			{	// worth doing, swap
+			_Mycont_t^ _Tcont = _Mycont;
+
+			_Mycont = _Right._Mycont;
+			_Right._Mycont = _Tcont;
+			}
+		}
+
+_STLCLR_FIELD_ACCESS:
+	// data members
+	_Mycont_t^ _Mycont;	// the wrapped IList interface
+	};
+
+//
+// TEMPLATE CLASS collection_adapter<IList<T> >
+//
+template<typename _Value_t>
+	ref class collection_adapter<
+		System::Collections::Generic::IList<_Value_t> >
+	{	// wrapper for IList<T>
+public:
+	// types
+	typedef System::Collections::Generic::IList<_Value_t> _Mycont_t;
+	typedef collection_adapter<_Mycont_t> _Mytype_t;
+
+	typedef BCL_iterator<_Mytype_t, false> iterator;
+
+	typedef int size_type;
+	typedef int difference_type;
+	typedef _Value_t value_type;
+	typedef BCL_reference<_Mytype_t, false> reference;
+
+	// basics
+	collection_adapter()
+		:	_Mycont(nullptr)
+		{	// construct empty wrapper
+		}
+
+	collection_adapter(collection_adapter% _Right)
+		:	_Mycont(_Right._Mycont)
+		{	// construct by copying _Right
+		}
+
+	collection_adapter% operator=(collection_adapter% _Right)
+		{	// assign
+		_Mycont = _Right._Mycont;
+		return (*this);
+		}
+
+	collection_adapter% operator=(collection_adapter^ _Right)
+		{	// assign
+		_Mycont = _Right->_Mycont;
+		return (*this);
+		}
+
+	// constructors
+	collection_adapter(_Mycont_t^ _Right)
+		:	_Mycont(_Right)
+		{	// construct by wrapping
+		}
+
+	// destructor
+	~collection_adapter()
+		{	// destroy the object
+		}
+
+	// accessors
+	bool valid_bias(size_type _Bias)
+		{	// test if _Bias is currently a valid bias
+		return (0 <= _Bias && _Bias <= size());
+		}
+
+	reference at(size_type _Bias)
+		{	// subscript mutable sequence with checking, biased
+		return (reference(this, _Bias));
+		}
+
+	value_type at_val(size_type _Pos)
+		{	// subscript mutable sequence with checking
+		return (_Mycont[_Pos]);
+		}
+
+	void at_set(size_type _Pos, value_type _Val)
+		{	// assign to subscripted mutable sequence with checking
+		_Mycont[_Pos] = _Val;
+		}
+
+	property value_type default[difference_type]
+		{	// get or set subscripted element
+		value_type get(difference_type _Pos)
+			{	// get _Pos element
+			return (_Mycont[_Pos]);
+			}
+
+		void set(difference_type _Pos, value_type _Val)
+			{	// set _Pos element
+			_Mycont[_Pos] = _Val;
+			}
+		};
+
+	// accessors
+	operator _Mycont_t^()
+		{	// convert to base
+		return (_Mycont);
+		}
+
+	_Mycont_t^ base()
+		{	// return base
+		return (_Mycont);
+		}
+
+	// iterator generators
+	iterator make_iterator(size_type _Bias)
+		{	// return iterator for offset
+		return (iterator(this, _Bias));
+		}
+
+	iterator begin()
+		{	// return iterator for beginning of mutable sequence
+		return (make_iterator(0));
+		}
+
+	iterator end()
+		{	// return iterator for end of mutable sequence
+		return (make_iterator(size()));
+		}
+
+	// size controllers
+	size_type size()
+		{	// return length of sequence
+		return (_Mycont->Count);
+		}
+
+	// mutators
+	void swap(collection_adapter% _Right)
+		{	// exchange contents with _Right
+		if ((Object^)this != %_Right)
+			{	// worth doing, swap
+			_Mycont_t^ _Tcont = _Mycont;
+
+			_Mycont = _Right._Mycont;
+			_Right._Mycont = _Tcont;
+			}
+		}
+
+_STLCLR_FIELD_ACCESS:
+	// data members
+	_Mycont_t^ _Mycont;	// the wrapped IList interface
+	};
+
+	namespace impl {
+//
+// TEMPLATE CLASS range_enumerator_base
+//
+template<typename _Iter_t,
+	typename _Value_t>
+	ref class range_enumerator_base
+	:	public System::Collections::IEnumerator
+	{	// enumerator for a range
+public:
+	typedef range_enumerator_base<_Iter_t, _Value_t> _Mytype_t;
+
+	typedef _Value_t value_type;
+
+	range_enumerator_base(_Iter_t _First, _Iter_t _Last)
+		:	_Myfirst(_First), _Mylast(_Last), _Is_reset(true)
+		{	// construct from iterator pair
+		}
+
+	virtual bool MoveNext()
+		{	// move to next element and test if done
+		if (_Is_reset)
+			{	// starting, point to front and clear flag
+			_Is_reset = false;
+			_Mynext = _Myfirst;
+			}
+		else if (_Mynext != _Mylast)
+			++_Mynext;
+		return (_Mynext != _Mylast);
+		}
+
+	property System::Object^ Current
+		{	// get or set next element
+		virtual System::Object^ get()
+			{	// get next element
+			return (_Getval());
+			}
+
+		virtual void set(System::Object^ _Val)
+			{	// set next element
+			_Setval((value_type)_Val);
+			}
+		};
+
+	virtual void Reset()
+		{	// restart enumerator
+		_Is_reset = true;
+		}
+
+_STLCLR_FIELD_ACCESS:
+	value_type _Getval()
+		{	// get next element
+		if (_Is_reset || _Mynext == _Mylast)
+			throw gcnew System::InvalidOperationException();
+		return (*_Mynext);
+		}
+
+	void _Setval(value_type _Val)
+		{	// set next element
+		if (_Is_reset || _Mynext == _Mylast)
+			throw gcnew System::InvalidOperationException();
+		*_Mynext = _Val;
+		}
+
+_STLCLR_FIELD_ACCESS:
+	bool _Is_reset;	// true when starting/reset
+	_Iter_t _Myfirst;	// initial iterator
+	_Iter_t _Mynext;	// current iterator
+	_Iter_t _Mylast;	// final iterator
+	};
+
+//
+// TEMPLATE CLASS range_enumerator
+//
+template<typename _Iter_t,
+	typename _Value_t>
+	ref class range_enumerator
+	:	public range_enumerator_base<_Iter_t, _Value_t>,
+			System::Collections::Generic::IEnumerator<_Value_t>
+	{	// enumerator for a range
+public:
+	typedef range_enumerator<_Iter_t, _Value_t> _Mytype_t;
+	typedef range_enumerator_base<_Iter_t, _Value_t> _Mybase_t;
+
+	typedef _Value_t value_type;
+
+	range_enumerator(_Iter_t _First, _Iter_t _Last)
+		:	_Mybase_t(_First, _Last)
+		{	// construct from container and bias
+		}
+
+	~range_enumerator()
+		{	// destroy the object
+		}
+
+	virtual bool MoveNext() override
+		{	// move to next element and test if done
+		return (_Mybase_t::MoveNext());
+		}
+
+	property value_type Current
+		{	// get or set next element
+		virtual value_type get() new
+			{	// get next element
+			return (_Mybase_t::_Getval());
+			}
+
+		virtual void set(value_type _Val)
+			{	// set next element
+			_Mybase_t::_Setval(_Val);
+			}
+		};
+
+	virtual void Reset() override
+		{	// restart enumerator
+		_Mybase_t::Reset();
+		}
+	};
+
+//
+// TEMPLATE CLASS range_impl
+//
+template<typename _Iter_t,
+	typename _Value_t,
+	bool _Is_ref>
+	ref class range_impl
+	:	public System::Collections::ICollection,
+			System::Collections::IEnumerable
+	{	// base class of wrapper for an iterator pair delimited range
+public:
+	// types
+	typedef range_impl<_Iter_t, _Value_t, _Is_ref> _Mytype_t;
+	typedef cli::array<_Value_t> _Myarray_t;
+	typedef System::Collections::Generic::IEnumerable<_Value_t> _Myenum_it;
+	typedef _Cont_make_value<_Value_t, _Is_ref> _Mymake_t;
+
+	typedef typename iterator_traits<_Iter_t>::distance_type size_type;
+	typedef _Value_t value_type;
+
+	// basics
+	range_impl()
+		:	_Myfirst(), _Mylast()
+		{	// construct empty range
+		}
+
+	range_impl(range_impl% _Right)
+		:	_Myfirst(_Right._Myfirst), _Mylast(_Right._Mylast)
+		{	// construct by copying _Right
+		}
+
+	range_impl% operator=(range_impl% _Right)
+		{	// assign
+		if ((Object^)this != %_Right)
+			{	// worth doing, do it
+			_Myfirst = _Right._Myfirst;
+			_Mylast = _Right._Mylast;
+			}
+		return (*this);
+		}
+
+	// constructors
+	range_impl(_Iter_t _First, _Iter_t _Last)
+		:	_Myfirst(_First), _Mylast(_Last)
+		{	// construct from iterator pair
+		}
+
+	// destructor
+	~range_impl()
+		{	// destroy the object
+		}
+
+_STLCLR_FIELD_ACCESS:
+	// data members
+	_Iter_t _Myfirst;	// beginning of range
+	_Iter_t _Mylast;	// end of range
+
+	// interfaces
+public:
+	System::Object^ Clone()
+		{	// clone the range
+		return (gcnew range_impl(this));
+		}
+
+private:
+	property size_type Count
+		{	// element count
+		virtual size_type get() sealed
+			= System::Collections::ICollection::Count::get
+			{	// get element count
+			return (distance(_Myfirst, _Mylast));
+			}
+		};
+
+	property bool IsSynchronized
+		{	// synchronized status
+		virtual bool get() sealed
+			= System::Collections::ICollection::IsSynchronized::get
+			{	// test if synchronized
+			return (false);
+			}
+		};
+
+	property System::Object^ SyncRoot
+		{	// synchronizer
+		virtual System::Object^ get() sealed
+			= System::Collections::ICollection::SyncRoot::get
+			{	// get synchronizer
+			return (this);
+			}
+		};
+
+	virtual void CopyTo(System::Array^ _Dest_arg, int _First) sealed
+		= System::Collections::ICollection::CopyTo
+		{	// copy to _Dest_arg, beginning at _First
+		cli::array<System::Object^>^ _Dest =
+			(cli::array<System::Object ^>^)_Dest_arg;
+		int _Idx = 0;
+
+		for (_Iter_t _Next = _Myfirst; _Next != _Mylast; ++_Next, ++_Idx)
+			{	// copy front to back
+			_Dest[_First + _Idx] = *_Next;
+			}
+		}
+
+	virtual System::Collections::IEnumerator^ GetEnumerator() sealed
+		= System::Collections::IEnumerable::GetEnumerator
+		{	// get enumerator for the container
+		return (gcnew range_enumerator<_Iter_t, _Value_t>(_Myfirst, _Mylast));
+		}
+	};
+
+//
+// TEMPLATE CLASS range_base
+//
+template<typename _Iter_t,
+	typename _Value_t,
+	bool _Is_ref>
+	ref class range_base
+	:	public range_impl<_Iter_t, _Value_t, _Is_ref>,
+			System::Collections::Generic::ICollection<_Value_t>,
+			System::Collections::Generic::IEnumerable<_Value_t>
+	{	// wrapper for an iterator pair delimited range
+public:
+	// types
+	typedef range_base<_Iter_t, _Value_t, _Is_ref> _Mytype_t;
+	typedef range_impl<_Iter_t, _Value_t, _Is_ref> _Mybase_t;
+
+	// basics
+	range_base()
+		:	_Mybase_t()
+		{	// construct empty range
+		}
+
+	range_base(range_base% _Right)
+		:	_Mybase_t(_Right)
+		{	// construct by copying _Right
+		}
+
+	range_base% operator=(range_base% _Right)
+		{	// assign
+		_Mybase_t::operator=(_Right);
+		return (*this);
+		}
+
+	// constructors
+	range_base(_Iter_t _First, _Iter_t _Last)
+		:	_Mybase_t(_First, _Last)
+		{	// construct from [_First, _Last)
+		}
+
+	// interfaces
+private:
+	property size_type Count_generic
+		{	// element count
+		virtual size_type get() sealed
+			= System::Collections::Generic::ICollection<_Value_t>::Count::get
+			{	// get element count
+			return (distance(_Myfirst, _Mylast));
+			}
+		};
+
+	property bool IsReadOnly
+		{	// test if read only
+		virtual bool get() sealed
+			= System::Collections::Generic::ICollection<_Value_t>
+				::IsReadOnly::get
+			{	// test if read only
+			return (true);
+			}
+		};
+
+	virtual void CopyTo(_Myarray_t^ _Dest, int _First) sealed
+		= System::Collections::Generic::ICollection<_Value_t>::CopyTo
+		{	// copy to _Dest, beginning at _First
+		int _Idx = 0;
+
+		for (_Iter_t _Next = _Myfirst; _Next != _Mylast; ++_Next, ++_Idx)
+			{	// copy front to back
+			_Dest[_First + _Idx] = *_Next;
+			}
+		}
+
+	virtual System::Collections::Generic::IEnumerator<_Value_t>^
+		GetEnumerator() sealed
+		= System::Collections::Generic::IEnumerable<_Value_t>::GetEnumerator
+		{	// get enumerator for the container
+		return (gcnew range_enumerator<_Iter_t, _Value_t>(_Myfirst, _Mylast));
+		}
+
+	// mutators
+	virtual void Add(value_type) sealed
+		= System::Collections::Generic::ICollection<_Value_t>::Add
+		{	// add element with value _Val
+		throw gcnew System::InvalidOperationException();
+		}
+
+	virtual void Clear() sealed
+		= System::Collections::Generic::ICollection<_Value_t>::Clear
+		{	// erase all elements
+		throw gcnew System::InvalidOperationException();
+		}
+
+	virtual bool Contains(value_type _Val) sealed
+		= System::Collections::Generic::ICollection<_Value_t>::Contains
+		{	// search for element matching value _Val
+		for (_Iter_t _Next = _Myfirst; _Next != _Mylast; ++_Next)
+			{	// compare for object equality
+			value_type _Elem = *_Next;
+
+			if (((System::Object^)_Val)->Equals(
+				(System::Object^)_Elem))
+				return (true);
+			}
+		return (false);
+		}
+
+	virtual bool Remove(value_type) sealed
+		= System::Collections::Generic::ICollection<_Value_t>::Remove
+		{	// remove first element matching value _Val
+#pragma warning(push)
+#pragma warning(disable: 4715)
+		throw gcnew System::InvalidOperationException();
+#pragma warning(pop)
+		}
+	};
+
+//
+// TEMPLATE CLASS range_select
+//
+template<typename _Iter_t,
+	typename _Value_t,
+	bool _Is_ref>
+	ref class range_select
+	:	public range_base<_Iter_t, _Value_t, _Is_ref>
+	{	// iterator pair delimited range
+public:
+	// types
+	typedef _Value_t _Gvalue_t;
+
+	typedef range_select<_Iter_t, _Value_t, _Is_ref> _Mytype_t;
+	typedef range_base<_Iter_t, _Gvalue_t, _Is_ref> _Mybase_t;
+
+	// basics
+	range_select()
+		:	_Mybase_t()
+		{	// construct default
+		}
+
+	range_select(range_select% _Right)
+		:	_Mybase_t(_Right)
+		{	// construct by copying a range
+		}
+
+	range_select% operator=(range_select% _Right)
+		{	// assign
+		_Mybase_t::operator=(_Right);
+		return (*this);
+		}
+
+	// constructors
+	range_select(_Iter_t _First, _Iter_t _Last)
+		:	_Mybase_t(_First, _Last)
+		{	// construct from [_First, _Last)
+		}
+	};
+
+//
+// TEMPLATE CLASS range_select: _Value_t REF SPECIALIZATION
+//
+template<typename _Iter_t,
+	typename _Value_t>
+	ref class range_select<_Iter_t, _Value_t, true>
+	:	public range_base<_Iter_t, _Value_t^, true>
+	{	// iterator pair delimited range
+public:
+	// types
+	typedef _Value_t^ _Gvalue_t;
+
+	typedef range_select<_Iter_t, _Value_t, true> _Mytype_t;
+	typedef range_base<_Iter_t, _Gvalue_t, true> _Mybase_t;
+
+	typedef _Value_t value_type;
+
+	// basics
+	range_select()
+		:	_Mybase_t()
+		{	// construct default
+		}
+
+	range_select(range_select% _Right)
+		:	_Mybase_t(_Right)
+		{	// construct by copying a range
+		}
+
+	range_select% operator=(range_select% _Right)
+		{	// assign
+		_Mybase_t::operator=(_Right);
+		return (*this);
+		}
+
+	// constructors
+	range_select(_Iter_t _First, _Iter_t _Last)
+		:	_Mybase_t(_First, _Last)
+		{	// construct from [_First, _Last)
+		}
+	};
+	}	// namespace cliext::impl
+
+//
+// TEMPLATE CLASS range_adapter
+//
+template<typename _Iter_t>
+	ref class range_adapter
+	:	public impl::range_select<
+			_Iter_t,
+			typename iterator_traits<_Iter_t>::value_type,
+			__is_ref_class(typename _Dehandle<
+					typename iterator_traits<_Iter_t>::value_type>::type)
+				&& !is_handle<
+					typename iterator_traits<_Iter_t>::value_type>::value>
+	{	// wrapper for a pair of iterators
+public:
+	// types
+	typedef range_adapter<_Iter_t> _Mytype_t;
+	typedef typename iterator_traits<_Iter_t>::value_type _Value_t;
+	typedef impl::range_select<
+		_Iter_t,
+		_Value_t,
+		__is_ref_class(typename _Dehandle<_Value_t>::type)
+				&& !is_handle<_Value_t>::value> _Mybase_t;
+
+	// basics
+	range_adapter()
+		:	_Mybase_t()
+		{	// default constructor
+		}
+
+	range_adapter(range_adapter% _Right)
+		:	_Mybase_t(_Right)
+		{	// construct by copying _Right
+		}
+
+	range_adapter(range_adapter^ _Right)
+		:	_Mybase_t(*_Right)
+		{	// construct by copying _Right
+		}
+
+	range_adapter% operator=(range_adapter% _Right)
+		{	// assign
+		_Mybase_t::operator=(_Right);
+		return (*this);
+		}
+
+	range_adapter% operator=(range_adapter^ _Right)
+		{	// assign
+		_Mybase_t::operator=(*_Right);
+		return (*this);
+		}
+
+	// constructors
+	range_adapter(_Iter_t _First, _Iter_t _Last)
+		:	_Mybase_t(_First, _Last)
+		{	// construct from [_First, _Last)
+		}
+	};
+
+//
+// TEMPLATE FUNCTION make_collection
+//
+template<typename _Iter_t> inline
+	range_adapter<_Iter_t>^ make_collection(_Iter_t _First, _Iter_t _Last)
+	{	// wrap an iterator pair
+	return (gcnew range_adapter<_Iter_t>(_First, _Last));
+	}
+}	// namespace cliext
+#endif // _CLI_ADAPTER_
+
+/*
+ * Copyright (c) 2004-2007 by Dinkumware, Ltd.  ALL RIGHTS RESERVED.
+ * Consult your license regarding permissions and restrictions.
+V5.03:0009 */

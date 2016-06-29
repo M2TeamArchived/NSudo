@@ -1,0 +1,3963 @@
+// algorithm stl/clr header
+#ifndef _CLI_ALGORITHM_
+#define _CLI_ALGORITHM_
+#include <cliext/memory>
+
+namespace cliext {
+		// REF CLASS _ISort
+ref class _ISort
+	{	// define crossover for insertion sort
+public:
+	literal int _Max = 32;
+	};
+
+		// TEMPLATE FUNCTION for_each
+template<class _InIt,
+	class _Fn1> inline
+	_Fn1 for_each_unchecked(_InIt _First, _InIt _Last, _Fn1 _Func)
+	{	// perform function for each element
+	for (; _First != _Last; ++_First)
+		_Func(*_First);
+	return (_Func);
+	}
+
+template<class _InIt,
+	class _Fn1> inline
+	_Fn1 for_each(_InIt _First, _InIt _Last, _Fn1 _Func)
+	{	// perform function for each element
+	_STLCLRDB_RANGE(_First, _Last);
+	_STLCLRDB_POINTER(_Func);
+	return (cliext::for_each_unchecked(_Unchecked(_First), _Unchecked(_Last),
+		_Func));
+	}
+
+		// TEMPLATE FUNCTION find
+template<class _InIt,
+	class _Ty> inline
+	_InIt find_unchecked(_InIt _First, _InIt _Last, const _Ty% _Val)
+	{	// find first matching _Val
+	for (; _First != _Last; ++_First)
+		if (*_First == _Val)
+			break;
+	return (_First);
+	}
+
+template<class _InIt,
+	class _Ty> inline
+	_InIt find(_InIt _First, _InIt _Last, const _Ty% _Val)
+	{	// find first matching _Val
+	_STLCLRDB_RANGE(_First, _Last);
+	return (cliext::find_unchecked(_Unchecked(_First), _Unchecked(_Last),
+		_Val));
+	}
+
+#ifdef _M_CEE_SAFE
+#else /* _M_CEE_SAFE */
+inline const char *find(const char *_First, const char *_Last, int _Val)
+	{	// find first char that matches _Val
+	_STLCLRDB_RANGE(_First, _Last);
+	_First = (const char *)std::memchr(_First, _Val, _Last - _First);
+	return (_First == 0 ? _Last : _First);
+	}
+
+inline const signed char *find(const signed char *_First,
+	const signed char *_Last, int _Val)
+	{	// find first signed char that matches _Val
+	_STLCLRDB_RANGE(_First, _Last);
+	_First = (const signed char *)std::memchr(_First, _Val,
+		_Last - _First);
+	return (_First == 0 ? _Last : _First);
+	}
+
+inline const unsigned char *find(const unsigned char *_First,
+	const unsigned char *_Last, int _Val)
+	{	// find first unsigned char that matches _Val
+	_STLCLRDB_RANGE(_First, _Last);
+	_First = (const unsigned char *)std::memchr(_First, _Val,
+		_Last - _First);
+	return (_First == 0 ? _Last : _First);
+	}
+#endif /* _M_CEE_SAFE */
+
+		// TEMPLATE FUNCTION find_if
+template<class _InIt,
+	class _Pr> inline
+	_InIt find_if_unchecked(_InIt _First, _InIt _Last, _Pr _Pred)
+	{	// find first satisfying _Pred
+	for (; _First != _Last; ++_First)
+		if (_Pred(*_First))
+			break;
+	return (_First);
+	}
+
+template<class _InIt,
+	class _Pr> inline
+	_InIt find_if(_InIt _First, _InIt _Last, _Pr _Pred)
+	{	// find first satisfying _Pred
+	_STLCLRDB_RANGE(_First, _Last);
+	_STLCLRDB_POINTER(_Pred);
+	return (cliext::find_if_unchecked(
+		_Unchecked(_First), _Unchecked(_Last), _Pred));
+	}
+
+		// TEMPLATE FUNCTION adjacent_find
+template<class _FwdIt> inline
+	_FwdIt adjacent_find_unchecked(_FwdIt _First, _FwdIt _Last)
+	{	// find first matching successor
+	for (_FwdIt _Firstb; (_Firstb = _First) != _Last && ++_First != _Last; )
+		if (*_Firstb == *_First)
+			return (_Firstb);
+	return (_Last);
+	}
+
+template<class _FwdIt> inline
+	_FwdIt adjacent_find(_FwdIt _First, _FwdIt _Last)
+	{	// find first matching successor
+	_STLCLRDB_RANGE(_First, _Last);
+	return (cliext::adjacent_find_unchecked(
+		_Unchecked(_First), _Unchecked(_Last)));
+	}
+
+		// TEMPLATE FUNCTION adjacent_find WITH PRED
+template<class _FwdIt,
+	class _Pr> inline
+	_FwdIt adjacent_find_unchecked(_FwdIt _First, _FwdIt _Last, _Pr _Pred)
+	{	// find first satisfying _Pred with successor
+	for (_FwdIt _Firstb; (_Firstb = _First) != _Last && ++_First != _Last; )
+		if (_Pred(*_Firstb, *_First))
+			return (_Firstb);
+	return (_Last);
+	}
+
+template<class _FwdIt,
+	class _Pr> inline
+	_FwdIt adjacent_find(_FwdIt _First, _FwdIt _Last, _Pr _Pred)
+	{	// find first satisfying _Pred with successor
+	_STLCLRDB_RANGE(_First, _Last);
+	_STLCLRDB_POINTER(_Pred);
+	return (cliext::adjacent_find_unchecked(
+		_Unchecked(_First), _Unchecked(_Last), _Pred));
+	}
+
+		// TEMPLATE FUNCTION count
+template<class _InIt,
+	class _Ty> inline
+	typename iterator_traits<_InIt>::difference_type
+		count_unchecked(_InIt _First, _InIt _Last, const _Ty% _Val)
+	{	// count elements that match _Val
+	typename iterator_traits<_InIt>::difference_type _Count = 0;
+
+	for (; _First != _Last; ++_First)
+		if (*_First == _Val)
+			++_Count;
+	return (_Count);
+	}
+
+template<class _InIt,
+	class _Ty> inline
+	typename iterator_traits<_InIt>::difference_type
+		count(_InIt _First, _InIt _Last, const _Ty% _Val)
+	{	// count elements that match _Val
+	_STLCLRDB_RANGE(_First, _Last);
+	return (cliext::count_unchecked(_Unchecked(_First), _Unchecked(_Last),
+		_Val));
+	}
+
+		// TEMPLATE FUNCTION count_if
+template<class _InIt,
+	class _Pr> inline
+	typename iterator_traits<_InIt>::difference_type
+		count_if_unchecked(_InIt _First, _InIt _Last, _Pr _Pred)
+	{	// count elements satisfying _Pred
+	typename iterator_traits<_InIt>::difference_type _Count = 0;
+
+	for (; _First != _Last; ++_First)
+		if (_Pred(*_First))
+			++_Count;
+	return (_Count);
+	}
+
+template<class _InIt,
+	class _Pr> inline
+	typename iterator_traits<_InIt>::difference_type
+		count_if(_InIt _First, _InIt _Last, _Pr _Pred)
+	{	// count elements satisfying _Pred
+	_STLCLRDB_RANGE(_First, _Last);
+	_STLCLRDB_POINTER(_Pred);
+	return (cliext::count_if_unchecked(_Unchecked(_First), _Unchecked(_Last),
+		_Pred));
+	}
+
+		// TEMPLATE FUNCTION search
+template<class _FwdIt1,
+	class _FwdIt2> inline
+	_FwdIt1 search_unchecked(_FwdIt1 _First1, _FwdIt1 _Last1,
+		_FwdIt2 _First2, _FwdIt2 _Last2)
+	{	// find first [_First2, _Last2) match
+	typedef iterator_traits<_FwdIt1>::difference_type _Diff1;
+	typedef iterator_traits<_FwdIt2>::difference_type _Diff2;
+
+	_Diff1 _Count1 = 0;
+	_Iter_distance(_First1, _Last1, _Count1);
+	_Diff2 _Count2 = 0;
+	_Iter_distance(_First2, _Last2, _Count2);
+
+	for (; _Count2 <= _Count1; ++_First1, --_Count1)
+		{	// room for match, try it
+		_FwdIt1 _Mid1 = _First1;
+		for (_FwdIt2 _Mid2 = _First2; ; ++_Mid1, ++_Mid2)
+			if (_Mid2 == _Last2)
+				return (_First1);
+			else if (!(*_Mid1 == *_Mid2))
+				break;
+		}
+	return (_Last1);
+	}
+
+template<class _FwdIt1,
+	class _FwdIt2> inline
+	_FwdIt1 search(_FwdIt1 _First1, _FwdIt1 _Last1,
+		_FwdIt2 _First2, _FwdIt2 _Last2)
+	{	// find first [_First2, _Last2) match
+	_STLCLRDB_RANGE(_First1, _Last1);
+	_STLCLRDB_RANGE(_First2, _Last2);
+	return (cliext::search_unchecked(_Unchecked(_First1), _Unchecked(_Last1),
+		_Unchecked(_First2), _Unchecked(_Last2)));
+	}
+
+		// TEMPLATE FUNCTION search WITH PRED
+template<class _FwdIt1,
+	class _FwdIt2,
+	class _Pr> inline
+	_FwdIt1 search_unchecked(_FwdIt1 _First1, _FwdIt1 _Last1,
+		_FwdIt2 _First2, _FwdIt2 _Last2, _Pr _Pred)
+	{	// find first [_First2, _Last2) satisfying _Pred
+	typedef iterator_traits<_FwdIt1>::difference_type _Diff1;
+	typedef iterator_traits<_FwdIt2>::difference_type _Diff2;
+
+	_Diff1 _Count1 = 0;
+	_Iter_distance(_First1, _Last1, _Count1);
+	_Diff2 _Count2 = 0;
+	_Iter_distance(_First2, _Last2, _Count2);
+
+	for (; _Count2 <= _Count1; ++_First1, --_Count1)
+		{	// room for match, try it
+		_FwdIt1 _Mid1 = _First1;
+		for (_FwdIt2 _Mid2 = _First2; ; ++_Mid1, ++_Mid2)
+			if (_Mid2 == _Last2)
+				return (_First1);
+			else if (!_Pred(*_Mid1, *_Mid2))
+				break;
+		}
+	return (_Last1);
+	}
+
+template<class _FwdIt1,
+	class _FwdIt2,
+	class _Pr> inline
+	_FwdIt1 search(_FwdIt1 _First1, _FwdIt1 _Last1,
+		_FwdIt2 _First2, _FwdIt2 _Last2, _Pr _Pred)
+	{	// find first [_First2, _Last2) satisfying _Pred
+	_STLCLRDB_RANGE(_First1, _Last1);
+	_STLCLRDB_RANGE(_First2, _Last2);
+	_STLCLRDB_POINTER(_Pred);
+	return (cliext::search_unchecked(_Unchecked(_First1), _Unchecked(_Last1),
+		_Unchecked(_First2), _Unchecked(_Last2), _Pred));
+	}
+
+		// TEMPLATE FUNCTION search_n
+template<class _FwdIt1,
+	class _Diff2,
+	class _Ty> inline
+	_FwdIt1 _Search_n(_FwdIt1 _First1, _FwdIt1 _Last1,
+		_Diff2 _Count, const _Ty% _Val, forward_iterator_tag)
+	{	// find first _Count * _Val match, forward iterators
+	if (_Count <= 0)
+		return (_First1);
+
+	for (; _First1 != _Last1; ++_First1)
+		if (*_First1 == _Val)
+			{	// found start of possible match, check it out
+			_FwdIt1 _Mid1  = _First1;
+
+			for (_Diff2 _Count1 = _Count; ; )
+				if (--_Count1 == 0)
+					return (_First1);	// found rest of match, report it
+				else if (++_Mid1 == _Last1)
+					return (_Last1);	// short match at end
+				else if (!(*_Mid1 == _Val))
+					break;	// short match not at end
+
+			_First1 = _Mid1;	// pick up just beyond failed match
+			}
+	return (_Last1);
+	}
+
+template<class _FwdIt1,
+	class _Diff2,
+	class _Ty> inline
+	_FwdIt1 _Search_n(_FwdIt1 _First1, _FwdIt1 _Last1,
+		_Diff2 _Count, const _Ty% _Val, random_access_iterator_tag)
+	{	// find first _Count * _Val match, random-access iterators
+	if (_Count <= 0)
+		return (_First1);
+
+	_FwdIt1 _Oldfirst1 = _First1;
+	for (; _Count <= _Last1 - _Oldfirst1; )
+		{	// enough room, look for a match
+		if (*_First1 == _Val)
+			{	// found part of possible match, check it out
+			_Diff2 _Count1 = _Count;
+			_FwdIt1 _Mid1  = _First1;
+
+			for (; _Oldfirst1 != _First1 && _First1[-1] == _Val; --_First1)
+				--_Count1;	// back up over any skipped prefix
+
+			if (_Count1 <= _Last1 - _Mid1)
+				for (; ; )	// enough left, test suffix
+					if (--_Count1 == 0)
+						return (_First1);	// found rest of match, report it
+					else if (!(*++_Mid1 == _Val))
+						break;	// short match not at end
+
+			_Oldfirst1 = ++_Mid1;	// failed match, take small jump
+			_First1 = _Oldfirst1;
+			}
+		else
+			{	// no match, take big jump and back up as needed
+			_Oldfirst1 = _First1 + 1;
+			_First1 += _Count;
+			}
+		}
+	return (_Last1);
+	}
+
+template<class _FwdIt1,
+	class _Diff2,
+	class _Ty> inline
+	_FwdIt1 search_n(_FwdIt1 _First1, _FwdIt1 _Last1,
+		_Diff2 _Count, const _Ty% _Val)
+	{	// find first _Count * _Val match
+	_STLCLRDB_RANGE(_First1, _Last1);
+	return (_Search_n(_Unchecked(_First1), _Unchecked(_Last1),
+		_Count, _Val, _Iter_category(_First1)));
+	}
+
+		// TEMPLATE FUNCTION search_n WITH PRED
+template<class _FwdIt1,
+	class _Diff2,
+	class _Ty,
+	class _Pr> inline
+	_FwdIt1 _Search_n(_FwdIt1 _First1, _FwdIt1 _Last1,
+		_Diff2 _Count, const _Ty% _Val, _Pr _Pred, forward_iterator_tag)
+	{	// find first _Count * _Val satisfying _Pred, forward iterators
+	if (_Count <= 0)
+		return (_First1);
+
+	for (; _First1 != _Last1; ++_First1)
+		if (_Pred(*_First1, _Val))
+			{	// found start of possible match, check it out
+			_FwdIt1 _Mid1  = _First1;
+
+			for (_Diff2 _Count1 = _Count; ; )
+				if (--_Count1 == 0)
+					return (_First1);	// found rest of match, report it
+				else if (++_Mid1 == _Last1)
+					return (_Last1);	// short match at end
+				else if (!_Pred(*_Mid1, _Val))
+					break;	// short match not at end
+
+			_First1 = _Mid1;	// pick up just beyond failed match
+			}
+	return (_Last1);
+	}
+
+template<class _FwdIt1,
+	class _Diff2,
+	class _Ty,
+	class _Pr> inline
+	_FwdIt1 _Search_n(_FwdIt1 _First1, _FwdIt1 _Last1,
+		_Diff2 _Count, const _Ty% _Val, _Pr _Pred, random_access_iterator_tag)
+	{	// find first _Count * _Val satisfying _Pred, random-access iterators
+	if (_Count <= 0)
+		return (_First1);
+
+	_FwdIt1 _Oldfirst1 = _First1;
+	for (; _Count <= _Last1 - _Oldfirst1; )
+		{	// enough room, look for a match
+		if (_Pred(*_First1, _Val))
+			{	// found part of possible match, check it out
+			_Diff2 _Count1 = _Count;
+			_FwdIt1 _Mid1  = _First1;
+
+			for (; _Oldfirst1 != _First1 && _First1[-1] == _Val; --_First1)
+				--_Count1;	// back up over any skipped prefix
+
+			if (_Count1 <= _Last1 - _Mid1)
+				for (; ; )	// enough left, test suffix
+					if (--_Count1 == 0)
+						return (_First1);	// found rest of match, report it
+					else if (!_Pred(*++_Mid1, _Val))
+						break;	// short match not at end
+
+			_Oldfirst1 = ++_Mid1;	// failed match, take small jump
+			_First1 = _Oldfirst1;
+			}
+		else
+			{	// no match, take big jump and back up as needed
+			_Oldfirst1 = _First1 + 1;
+			_First1 += _Count;
+			}
+		}
+	return (_Last1);
+	}
+
+template<class _FwdIt1,
+	class _Diff2,
+	class _Ty,
+	class _Pr> inline
+	_FwdIt1 search_n(_FwdIt1 _First1, _FwdIt1 _Last1,
+		_Diff2 _Count, const _Ty% _Val, _Pr _Pred)
+	{	// find first _Count * _Val satisfying _Pred
+	_STLCLRDB_RANGE(_First1, _Last1);
+	_STLCLRDB_POINTER(_Pred);
+	return (_Search_n(_Unchecked(_First1), _Unchecked(_Last1),
+		_Count, _Val, _Pred, _Iter_category(_First1)));
+	}
+
+		// TEMPLATE FUNCTION find_end
+template<class _FwdIt1,
+	class _FwdIt2> inline
+	_FwdIt1 find_end_unchecked(_FwdIt1 _First1, _FwdIt1 _Last1,
+		_FwdIt2 _First2, _FwdIt2 _Last2)
+	{	// find last [_First2, _Last2) match
+	typedef iterator_traits<_FwdIt1>::difference_type _Diff1;
+	typedef iterator_traits<_FwdIt2>::difference_type _Diff2;
+
+	_Diff1 _Count1 = 0;
+	_Iter_distance(_First1, _Last1, _Count1);
+	_Diff2 _Count2 = 0;
+	_Iter_distance(_First2, _Last2, _Count2);
+	_FwdIt1 _Ans = _Last1;
+
+	if (0 < _Count2)
+		for (; _Count2 <= _Count1; ++_First1, --_Count1)
+			{	// room for match, try it
+			_FwdIt1 _Mid1 = _First1;
+			for (_FwdIt2 _Mid2 = _First2; ; ++_Mid1)
+				if (!(*_Mid1 == *_Mid2))
+					break;
+				else if (++_Mid2 == _Last2)
+					{	// potential answer, save it
+					_Ans = _First1;
+					break;
+					}
+			}
+	return (_Ans);
+	}
+
+template<class _FwdIt1,
+	class _FwdIt2> inline
+	_FwdIt1 find_end(_FwdIt1 _First1, _FwdIt1 _Last1,
+		_FwdIt2 _First2, _FwdIt2 _Last2)
+	{	// find last [_First2, _Last2) match
+	_STLCLRDB_RANGE(_First1, _Last1);
+	_STLCLRDB_RANGE(_First2, _Last2);
+	return (cliext::find_end_unchecked(
+		_Unchecked(_First1), _Unchecked(_Last1),
+		_Unchecked(_First2), _Unchecked(_Last2)));
+	}
+
+		// TEMPLATE FUNCTION find_end WITH PRED
+template<class _FwdIt1,
+	class _FwdIt2,
+	class _Pr> inline
+	_FwdIt1 find_end_unchecked(_FwdIt1 _First1, _FwdIt1 _Last1,
+		_FwdIt2 _First2, _FwdIt2 _Last2, _Pr _Pred)
+	{	// find last [_First2, _Last2) satisfying _Pred
+	typedef iterator_traits<_FwdIt1>::difference_type _Diff1;
+	typedef iterator_traits<_FwdIt2>::difference_type _Diff2;
+
+	_Diff1 _Count1 = 0;
+	_Iter_distance(_First1, _Last1, _Count1);
+	_Diff2 _Count2 = 0;
+	_Iter_distance(_First2, _Last2, _Count2);
+	_FwdIt1 _Ans = _Last1;
+
+	if (0 < _Count2)
+		for (; _Count2 <= _Count1; ++_First1, --_Count1)
+			{	// room for match, try it
+			_FwdIt1 _Mid1 = _First1;
+			for (_FwdIt2 _Mid2 = _First2; ; ++_Mid1)
+				if (!_Pred(*_Mid1, *_Mid2))
+					break;
+				else if (++_Mid2 == _Last2)
+					{	// potential answer, save it
+					_Ans = _First1;
+					break;
+					}
+			}
+	return (_Ans);
+	}
+
+template<class _FwdIt1,
+	class _FwdIt2,
+	class _Pr> inline
+	_FwdIt1 find_end(_FwdIt1 _First1, _FwdIt1 _Last1,
+		_FwdIt2 _First2, _FwdIt2 _Last2, _Pr _Pred)
+	{	// find last [_First2, _Last2) satisfying _Pred
+	_STLCLRDB_RANGE(_First1, _Last1);
+	_STLCLRDB_RANGE(_First2, _Last2);
+	_STLCLRDB_POINTER(_Pred);
+	return (cliext::find_end_unchecked(
+		_Unchecked(_First1), _Unchecked(_Last1),
+		_Unchecked(_First2), _Unchecked(_Last2), _Pred));
+	}
+
+		// TEMPLATE FUNCTION find_first_of
+template<class _FwdIt1,
+	class _FwdIt2> inline
+	_FwdIt1 find_first_of_unchecked(_FwdIt1 _First1, _FwdIt1 _Last1,
+		_FwdIt2 _First2, _FwdIt2 _Last2)
+	{	// look for one of [_First2, _Last2) that matches element
+	for (; _First1 != _Last1; ++_First1)
+		for (_FwdIt2 _Mid2 = _First2; _Mid2 != _Last2; ++_Mid2)
+			if (*_First1 == *_Mid2)
+				return (_First1);
+	return (_First1);
+	}
+
+template<class _FwdIt1,
+	class _FwdIt2> inline
+	_FwdIt1 find_first_of(_FwdIt1 _First1, _FwdIt1 _Last1,
+		_FwdIt2 _First2, _FwdIt2 _Last2)
+	{	// look for one of [_First2, _Last2) that matches element
+	_STLCLRDB_RANGE(_First1, _Last1);
+	_STLCLRDB_RANGE(_First2, _Last2);
+	return (cliext::find_first_of_unchecked(
+		_Unchecked(_First1), _Unchecked(_Last1),
+		_Unchecked(_First2), _Unchecked(_Last2)));
+	}
+
+		// TEMPLATE FUNCTION find_first_of WITH PRED
+template<class _FwdIt1,
+	class _FwdIt2,
+	class _Pr> inline
+	_FwdIt1 find_first_of_unchecked(_FwdIt1 _First1, _FwdIt1 _Last1,
+		_FwdIt2 _First2, _FwdIt2 _Last2, _Pr _Pred)
+	{	// look for one of [_First2, _Last2) satisfying _Pred with element
+	for (; _First1 != _Last1; ++_First1)
+		for (_FwdIt2 _Mid2 = _First2; _Mid2 != _Last2; ++_Mid2)
+			if (_Pred(*_First1, *_Mid2))
+				return (_First1);
+	return (_First1);
+	}
+
+template<class _FwdIt1,
+	class _FwdIt2,
+	class _Pr> inline
+	_FwdIt1 find_first_of(_FwdIt1 _First1, _FwdIt1 _Last1,
+		_FwdIt2 _First2, _FwdIt2 _Last2, _Pr _Pred)
+	{	// look for one of [_First2, _Last2) satisfying _Pred with element
+	_STLCLRDB_RANGE(_First1, _Last1);
+	_STLCLRDB_RANGE(_First2, _Last2);
+	_STLCLRDB_POINTER(_Pred);
+	return (cliext::find_first_of_unchecked(
+		_Unchecked(_First1), _Unchecked(_Last1),
+		_Unchecked(_First2), _Unchecked(_Last2), _Pred));
+	}
+
+		// TEMPLATE FUNCTION iter_swap
+template<class _FwdIt1,
+	class _FwdIt2> inline
+	void iter_swap(_FwdIt1 _Left, _FwdIt2 _Right)
+	{	// swap *_Left and *_Right
+	cliext::swap(*_Left, *_Right);
+	}
+
+		// TEMPLATE FUNCTION swap_ranges
+template<class _FwdIt1,
+	class _FwdIt2> inline
+	_FwdIt2 swap_ranges_unchecked(_FwdIt1 _First1, _FwdIt1 _Last1,
+		_FwdIt2 _First2)
+	{	// swap [_First1, _Last1) with [_First2, ...)
+	for (; _First1 != _Last1; ++_First1, ++_First2)
+		cliext::iter_swap(_First1, _First2);
+	return (_First2);
+	}
+
+template<class _FwdIt1,
+	class _FwdIt2> inline
+	_FwdIt2 swap_ranges(_FwdIt1 _First1, _FwdIt1 _Last1,
+		_FwdIt2 _First2)
+	{	// swap [_First1, _Last1) with [_First2, ...)
+	_STLCLRDB_RANGE(_First1, _Last1);
+	return (cliext::swap_ranges_unchecked(
+		_Unchecked(_First1), _Unchecked(_Last1),
+		_Unchecked(_First2)));
+	}
+
+		// TEMPLATE FUNCTION transform WITH UNARY OP
+template<class _InIt,
+	class _OutIt,
+	class _Fn1> inline
+	_OutIt transform_unchecked(_InIt _First, _InIt _Last,
+		_OutIt _Dest, _Fn1 _Func)
+	{	// transform [_First, _Last) with _Func
+	for (; _First != _Last; ++_First, ++_Dest)
+		*_Dest = _Func(*_First);
+	return (_Dest);
+	}
+
+template<class _InIt,
+	class _OutIt,
+	class _Fn1> inline
+	_OutIt transform(_InIt _First, _InIt _Last, _OutIt _Dest, _Fn1 _Func)
+	{	// transform [_First, _Last) with _Func
+	_STLCLRDB_RANGE(_First, _Last);
+	_STLCLRDB_POINTER(_Dest);
+	_STLCLRDB_POINTER(_Func);
+	return (cliext::transform_unchecked(
+		_Unchecked(_First), _Unchecked(_Last),
+		_Dest, _Func));
+	}
+
+		// TEMPLATE FUNCTION transform WITH BINARY OP
+template<class _InIt1,
+	class _InIt2,
+	class _OutIt,
+	class _Fn2> inline
+	_OutIt transform_unchecked(_InIt1 _First1, _InIt1 _Last1,
+		_InIt2 _First2, _OutIt _Dest, _Fn2 _Func)
+	{	// transform [_First1, _Last1) and [_First2, _Last2) with _Func
+	for (; _First1 != _Last1; ++_First1, ++_First2, ++_Dest)
+		*_Dest = _Func(*_First1, *_First2);
+	return (_Dest);
+	}
+
+template<class _InIt1,
+	class _InIt2,
+	class _OutIt,
+	class _Fn2> inline
+	_OutIt transform(_InIt1 _First1, _InIt1 _Last1, _InIt2 _First2,
+		_OutIt _Dest, _Fn2 _Func)
+	{	// transform [_First1, _Last1) and [_First2, _Last2) with _Func
+	_STLCLRDB_RANGE(_First1, _Last1);
+	_STLCLRDB_POINTER(_First2);
+	_STLCLRDB_POINTER(_Dest);
+	_STLCLRDB_POINTER(_Func);
+	return (cliext::transform_unchecked(
+		_Unchecked(_First1), _Unchecked(_Last1),
+		_Unchecked(_First2), _Dest, _Func));
+	}
+
+		// TEMPLATE FUNCTION replace
+template<class _FwdIt,
+	class _Ty> inline
+	void replace_unchecked(_FwdIt _First, _FwdIt _Last,
+		const _Ty% _Oldval, const _Ty% _Newval)
+	{	// replace each matching _Oldval with _Newval
+	for (; _First != _Last; ++_First)
+		if (*_First == _Oldval)
+			*_First = _Newval;
+	}
+
+template<class _FwdIt,
+	class _Ty> inline
+	void replace(_FwdIt _First, _FwdIt _Last,
+		const _Ty% _Oldval, const _Ty% _Newval)
+	{	// replace each matching _Oldval with _Newval
+	_STLCLRDB_RANGE(_First, _Last);
+	cliext::replace_unchecked(_Unchecked(_First), _Unchecked(_Last),
+		_Oldval, _Newval);
+	}
+
+		// TEMPLATE FUNCTION replace_if
+template<class _FwdIt,
+	class _Pr,
+	class _Ty> inline
+	void replace_if_unchecked(_FwdIt _First, _FwdIt _Last,
+		_Pr _Pred, const _Ty% _Val)
+	{	// replace each satisfying _Pred with _Val
+	for (; _First != _Last; ++_First)
+		if (_Pred(*_First))
+			*_First = _Val;
+	}
+
+template<class _FwdIt,
+	class _Pr,
+	class _Ty> inline
+	void replace_if(_FwdIt _First, _FwdIt _Last,
+		_Pr _Pred, const _Ty% _Val)
+	{	// replace each satisfying _Pred with _Val
+	_STLCLRDB_RANGE(_First, _Last);
+	_STLCLRDB_POINTER(_Pred);
+	cliext::replace_if_unchecked(_Unchecked(_First), _Unchecked(_Last),
+		_Pred, _Val);
+	}
+
+		// TEMPLATE FUNCTION replace_copy
+template<class _InIt,
+	class _OutIt,
+	class _Ty> inline
+	_OutIt replace_copy_unchecked(_InIt _First, _InIt _Last,
+		_OutIt _Dest, const _Ty% _Oldval, const _Ty% _Newval)
+	{	// copy replacing each matching _Oldval with _Newval
+	for (; _First != _Last; ++_First, ++_Dest)
+		*_Dest = *_First == _Oldval ? _Newval : *_First;
+	return (_Dest);
+	}
+
+template<class _InIt,
+	class _OutIt,
+	class _Ty> inline
+	_OutIt replace_copy(_InIt _First, _InIt _Last,
+		_OutIt _Dest, const _Ty% _Oldval, const _Ty% _Newval)
+	{	// copy replacing each matching _Oldval with _Newval
+	_STLCLRDB_RANGE(_First, _Last);
+	_STLCLRDB_POINTER(_Dest);
+	return (cliext::replace_copy_unchecked(
+		_Unchecked(_First), _Unchecked(_Last),
+		_Unchecked(_Dest), _Oldval, _Newval));
+	}
+
+		// TEMPLATE FUNCTION replace_copy_if
+template<class _InIt,
+	class _OutIt,
+	class _Pr,
+	class _Ty> inline
+	_OutIt replace_copy_if_unchecked(_InIt _First, _InIt _Last,
+		_OutIt _Dest, _Pr _Pred, const _Ty% _Val)
+	{	// copy replacing each satisfying _Pred with _Val
+	for (; _First != _Last; ++_First, ++_Dest)
+		*_Dest = _Pred(*_First) ? _Val : *_First;
+	return (_Dest);
+	}
+
+template<class _InIt,
+	class _OutIt,
+	class _Pr,
+	class _Ty> inline
+	_OutIt replace_copy_if(_InIt _First, _InIt _Last,
+		_OutIt _Dest, _Pr _Pred, const _Ty% _Val)
+	{	// copy replacing each satisfying _Pred with _Val
+	_STLCLRDB_RANGE(_First, _Last);
+	_STLCLRDB_POINTER(_Dest);
+	_STLCLRDB_POINTER(_Pred);
+	return (cliext::replace_copy_if_unchecked(
+		_Unchecked(_First), _Unchecked(_Last),
+		_Unchecked(_Dest), _Pred, _Val));
+	}
+
+		// TEMPLATE FUNCTION generate
+template<class _FwdIt,
+	class _Fn0> inline
+	void generate_unchecked(_FwdIt _First, _FwdIt _Last, _Fn0 _Func)
+	{	// replace [_First, _Last) with _Func()
+	for (; _First != _Last; ++_First)
+		*_First = _Func();
+	}
+
+template<class _FwdIt,
+	class _Fn0> inline
+	void generate(_FwdIt _First, _FwdIt _Last, _Fn0 _Func)
+	{	// replace [_First, _Last) with _Func()
+	_STLCLRDB_RANGE(_First, _Last);
+	_STLCLRDB_POINTER(_Func);
+	cliext::generate_unchecked(_Unchecked(_First), _Unchecked(_Last), _Func);
+	}
+
+		// TEMPLATE FUNCTION generate_n
+template<class _OutIt,
+	class _Diff,
+	class _Fn0> inline
+	void generate_n_unchecked(_OutIt _Dest, _Diff _Count, _Fn0 _Func)
+	{	// replace [_Dest, _Dest + _Count) with _Func()
+	for (; 0 < _Count; --_Count, ++_Dest)
+		*_Dest = _Func();
+	}
+
+template<class _OutIt,
+	class _Diff,
+	class _Fn0> inline
+	void generate_n(_OutIt _Dest, _Diff _Count, _Fn0 _Func)
+	{	// replace [_Dest, _Dest + _Count) with _Func()
+	_STLCLRDB_POINTER(_Dest);
+	_STLCLRDB_POINTER(_Func);
+	cliext::generate_n_unchecked(_Unchecked(_Dest), _Count, _Func);
+	}
+
+		// TEMPLATE FUNCTION remove_copy
+template<class _InIt,
+	class _OutIt,
+	class _Ty> inline
+	_OutIt remove_copy_unchecked(_InIt _First, _InIt _Last,
+		_OutIt _Dest, const _Ty% _Val)
+	{	// copy omitting each matching _Val
+	for (; _First != _Last; ++_First)
+		if (!(*_First == _Val))
+			*_Dest++ = *_First;
+	return (_Dest);
+	}
+
+template<class _InIt,
+	class _OutIt,
+	class _Ty> inline
+	_OutIt remove_copy(_InIt _First, _InIt _Last,
+		_OutIt _Dest, const _Ty% _Val)
+	{	// copy omitting each matching _Val
+	_STLCLRDB_RANGE(_First, _Last);
+	_STLCLRDB_POINTER(_Dest);
+	return (cliext::remove_copy_unchecked(
+		_Unchecked(_First), _Unchecked(_Last),
+		_Unchecked(_Dest), _Val));
+	}
+
+		// TEMPLATE FUNCTION remove_copy_if
+template<class _InIt,
+	class _OutIt,
+	class _Pr> inline
+	_OutIt remove_copy_if_unchecked(_InIt _First, _InIt _Last,
+		_OutIt _Dest, _Pr _Pred)
+	{	// copy omitting each element satisfying _Pred
+	for (; _First != _Last; ++_First)
+		if (!_Pred(*_First))
+			*_Dest++ = *_First;
+	return (_Dest);
+	}
+
+template<class _InIt,
+	class _OutIt,
+	class _Pr> inline
+	_OutIt remove_copy_if(_InIt _First, _InIt _Last,
+		_OutIt _Dest, _Pr _Pred)
+	{	// copy omitting each element satisfying _Pred
+	_STLCLRDB_RANGE(_First, _Last);
+	_STLCLRDB_POINTER(_Dest);
+	_STLCLRDB_POINTER(_Pred);
+	return (cliext::remove_copy_if_unchecked(
+		_Unchecked(_First), _Unchecked(_Last),
+		_Unchecked(_Dest), _Pred));
+	}
+
+		// TEMPLATE FUNCTION remove
+template<class _FwdIt,
+	class _Ty> inline
+	_FwdIt remove_unchecked(_FwdIt _First, _FwdIt _Last,
+		const _Ty% _Val)
+	{	// remove each matching _Val
+	_First = cliext::find_unchecked(_First, _Last, _Val);
+	if (_First == _Last)
+		return (_First);	// empty sequence, all done
+	else
+		{	// nonempty sequence, worth doing
+		_FwdIt _First1 = _First;
+		return (cliext::remove_copy(++_First1, _Last, _First, _Val));
+		}
+	}
+
+template<class _FwdIt,
+	class _Ty> inline
+	_FwdIt remove(_FwdIt _First, _FwdIt _Last, const _Ty% _Val)
+	{	// remove each matching _Val
+	_STLCLRDB_RANGE(_First, _Last);
+	return (cliext::remove_unchecked(_Unchecked(_First), _Unchecked(_Last),
+		_Val));
+	}
+
+		// TEMPLATE FUNCTION remove_if
+template<class _FwdIt,
+	class _Pr> inline
+	_FwdIt remove_if_unchecked(_FwdIt _First, _FwdIt _Last,
+		_Pr _Pred)
+	{	// remove each satisfying _Pred
+	_First = cliext::find_if_unchecked(_First, _Last, _Pred);
+	if (_First == _Last)
+		return (_First);	// empty sequence, all done
+	else
+		{	// nonempty sequence, worth doing
+		_FwdIt _First1 = _First;
+		return (cliext::remove_copy_if_unchecked(++_First1, _Last,
+			_First, _Pred));
+		}
+	}
+
+template<class _FwdIt,
+	class _Pr> inline
+	_FwdIt remove_if(_FwdIt _First, _FwdIt _Last, _Pr _Pred)
+	{	// remove each satisfying _Pred
+	_STLCLRDB_RANGE(_First, _Last);
+	_STLCLRDB_POINTER(_Pred);
+	return (cliext::remove_if_unchecked(
+		_Unchecked(_First), _Unchecked(_Last), _Pred));
+	}
+
+		// TEMPLATE FUNCTION unique
+template<class _FwdIt> inline
+	_FwdIt unique_unchecked(_FwdIt _First, _FwdIt _Last)
+	{	// remove each matching previous
+	for (_FwdIt _Firstb; (_Firstb = _First) != _Last && ++_First != _Last; )
+		if (*_Firstb == *_First)
+			{	// copy down
+			for (; ++_First != _Last; )
+				if (!(*_Firstb == *_First))
+					*++_Firstb = *_First;
+			return (++_Firstb);
+			}
+	return (_Last);
+	}
+
+template<class _FwdIt> inline
+	_FwdIt unique(_FwdIt _First, _FwdIt _Last)
+	{	// remove each matching previous
+	_STLCLRDB_RANGE(_First, _Last);
+	return (cliext::unique_unchecked(
+		_Unchecked(_First), _Unchecked(_Last)));
+	}
+
+		// TEMPLATE FUNCTION unique WITH PRED
+template<class _FwdIt,
+	class _Pr> inline
+	_FwdIt unique_unchecked(_FwdIt _First, _FwdIt _Last, _Pr _Pred)
+	{	// remove each satisfying _Pred with previous
+	for (_FwdIt _Firstb; (_Firstb = _First) != _Last && ++_First != _Last; )
+		if (_Pred(*_Firstb, *_First))
+			{	// copy down
+			for (; ++_First != _Last; )
+				if (!_Pred(*_Firstb, *_First))
+					*++_Firstb = *_First;
+			return (++_Firstb);
+			}
+	return (_Last);
+	}
+
+template<class _FwdIt,
+	class _Pr> inline
+	_FwdIt unique(_FwdIt _First, _FwdIt _Last, _Pr _Pred)
+	{	// remove each satisfying _Pred with previous
+	_STLCLRDB_RANGE(_First, _Last);
+	_STLCLRDB_POINTER(_Pred);
+	return (cliext::unique_unchecked(
+		_Unchecked(_First), _Unchecked(_Last), _Pred));
+	}
+
+		// TEMPLATE FUNCTION unique_copy
+template<class _InIt,
+	class _OutIt> inline
+	_OutIt _Unique_copy(_InIt _First, _InIt _Last, _OutIt _Dest,
+		input_iterator_tag)
+	{	// copy compressing pairs that match, input iterators
+	typedef iterator_traits<_InIt>::value_type _Ty;
+
+	_Ty _Val = *_First;
+
+	for (*_Dest++ = _Val; ++_First != _Last; )
+		if (!(_Val == *_First))
+			_Val = *_First, *_Dest++ = _Val;
+	return (_Dest);
+	}
+
+template<class _FwdIt,
+	class _OutIt> inline
+	_OutIt _Unique_copy(_FwdIt _First, _FwdIt _Last, _OutIt _Dest,
+		forward_iterator_tag)
+	{	// copy compressing pairs that match, forward iterators
+	_FwdIt _Firstb = _First;
+	for (*_Dest++ = *_Firstb; ++_First != _Last; )
+		if (!(*_Firstb == *_First))
+			_Firstb = _First, *_Dest++ = *_Firstb;
+	return (_Dest);
+	}
+
+template<class _BidIt,
+	class _OutIt> inline
+	_OutIt _Unique_copy(_BidIt _First, _BidIt _Last, _OutIt _Dest,
+		bidirectional_iterator_tag)
+	{	// copy compressing pairs that match, bidirectional iterators
+	return (_Unique_copy(_First, _Last, _Dest, forward_iterator_tag()));
+	}
+
+template<class _RanIt,
+	class _OutIt> inline
+	_OutIt _Unique_copy(_RanIt _First, _RanIt _Last, _OutIt _Dest,
+		random_access_iterator_tag)
+	{	// copy compressing pairs that match, random-access iterators
+	return (_Unique_copy(_First, _Last, _Dest, forward_iterator_tag()));
+	}
+
+template<class _InIt,
+	class _OutIt> inline
+	_OutIt unique_copy_unchecked(_InIt _First, _InIt _Last, _OutIt _Dest)
+	{	// copy compressing pairs that match
+	return (_First == _Last ? _Dest
+		: _Unique_copy(_First, _Last, _Dest, _Iter_category(_First)));
+	}
+
+template<class _InIt,
+	class _OutIt> inline
+	_OutIt unique_copy(_InIt _First, _InIt _Last, _OutIt _Dest)
+	{	// copy compressing pairs that match
+	_STLCLRDB_RANGE(_First, _Last);
+	_STLCLRDB_POINTER(_Dest);
+	return (unique_copy_unchecked(
+		_Unchecked(_First), _Unchecked(_Last),
+		_Unchecked(_Dest)));
+	}
+
+		// TEMPLATE FUNCTION unique_copy WITH PRED
+template<class _InIt,
+	class _OutIt,
+	class _Pr> inline
+	_OutIt _Unique_copy(_InIt _First, _InIt _Last, _OutIt _Dest, _Pr _Pred,
+		input_iterator_tag)
+	{	// copy compressing pairs satisfying _Pred, input iterators
+	typedef iterator_traits<_InIt>::value_type _Ty;
+
+	_Ty _Val = *_First;
+
+	for (*_Dest++ = _Val; ++_First != _Last; )
+		if (!_Pred(_Val, *_First))
+			_Val = *_First, *_Dest++ = _Val;
+	return (_Dest);
+	}
+
+template<class _FwdIt,
+	class _OutIt,
+	class _Pr> inline
+	_OutIt _Unique_copy(_FwdIt _First, _FwdIt _Last, _OutIt _Dest, _Pr _Pred,
+		forward_iterator_tag)
+	{	// copy compressing pairs satisfying _Pred, forward iterators
+	_FwdIt _Firstb = _First;
+
+	for (*_Dest++ = *_Firstb; ++_First != _Last; )
+		if (!_Pred(*_Firstb, *_First))
+			_Firstb = _First, *_Dest++ = *_Firstb;
+	return (_Dest);
+	}
+
+template<class _BidIt,
+	class _OutIt,
+	class _Pr> inline
+	_OutIt _Unique_copy(_BidIt _First, _BidIt _Last, _OutIt _Dest, _Pr _Pred,
+		bidirectional_iterator_tag)
+	{	// copy compressing pairs satisfying _Pred, bidirectional iterators
+	return (_Unique_copy(_First, _Last, _Dest, _Pred,
+		forward_iterator_tag()));
+	}
+
+template<class _RanIt,
+	class _OutIt,
+	class _Pr> inline
+	_OutIt _Unique_copy(_RanIt _First, _RanIt _Last, _OutIt _Dest, _Pr _Pred,
+		random_access_iterator_tag)
+	{	// copy compressing pairs satisfying _Pred, random-access iterators
+	return (_Unique_copy(_First, _Last, _Dest, _Pred,
+		forward_iterator_tag()));
+	}
+
+template<class _InIt,
+	class _OutIt,
+	class _Pr> inline
+	_OutIt unique_copy_unchecked(_InIt _First, _InIt _Last,
+		_OutIt _Dest, _Pr _Pred)
+	{	// copy compressing pairs satisfying _Pred
+	return (_First == _Last ? _Dest
+		: _Unique_copy(_First, _Last, _Dest, _Pred, _Iter_category(_First)));
+	}
+
+template<class _InIt,
+	class _OutIt,
+	class _Pr> inline
+	_OutIt unique_copy(_InIt _First, _InIt _Last, _OutIt _Dest, _Pr _Pred)
+	{	// copy compressing pairs satisfying _Pred
+	_STLCLRDB_RANGE(_First, _Last);
+	_STLCLRDB_POINTER(_Dest);
+	_STLCLRDB_POINTER(_Pred);
+	return (unique_copy_unchecked(
+		_Unchecked(_First), _Unchecked(_Last),
+		_Unchecked(_Dest), _Pred));
+	}
+
+		// TEMPLATE FUNCTION reverse
+template<class _BidIt> inline
+	void _Reverse(_BidIt _First, _BidIt _Last,
+		bidirectional_iterator_tag)
+	{	// reverse elements in [_First, _Last), bidirectional iterators
+	for (; _First != _Last && _First != --_Last; ++_First)
+		cliext::iter_swap(_First, _Last);
+	}
+
+template<class _RanIt> inline
+	void _Reverse(_RanIt _First, _RanIt _Last,
+		random_access_iterator_tag)
+	{	// reverse elements in [_First, _Last), random-access iterators
+	for (; _First < _Last; ++_First)
+		cliext::iter_swap(_First, --_Last);
+	}
+
+template<class _BidIt> inline
+	void reverse_unchecked(_BidIt _First, _BidIt _Last)
+	{	// reverse elements in [_First, _Last)
+	_Reverse(_First, _Last, _Iter_category(_First));
+	}
+
+template<class _BidIt> inline
+	void reverse(_BidIt _First, _BidIt _Last)
+	{	// reverse elements in [_First, _Last)
+	_STLCLRDB_RANGE(_First, _Last);
+	reverse_unchecked(_Unchecked(_First), _Unchecked(_Last));
+	}
+
+		// TEMPLATE FUNCTION reverse_copy
+template<class _BidIt,
+	class _OutIt> inline
+	_OutIt reverse_copy_unchecked(_BidIt _First, _BidIt _Last, _OutIt _Dest)
+	{	// copy reversing elements in [_First, _Last)
+	for (; _First != _Last; ++_Dest)
+		*_Dest = *--_Last;
+	return (_Dest);
+	}
+
+template<class _BidIt,
+	class _OutIt> inline
+	_OutIt reverse_copy(_BidIt _First, _BidIt _Last, _OutIt _Dest)
+	{	// copy reversing elements in [_First, _Last)
+	_STLCLRDB_RANGE(_First, _Last);
+	_STLCLRDB_POINTER(_Dest);
+	return (cliext::reverse_copy_unchecked(
+		_Unchecked(_First), _Unchecked(_Last), _Unchecked(_Dest)));
+	}
+
+		// TEMPLATE FUNCTION rotate
+template<class _FwdIt> inline
+	void _Rotate(_FwdIt _First, _FwdIt _Mid, _FwdIt _Last,
+		forward_iterator_tag)
+	{	// rotate [_First, _Last), forward iterators
+	for (_FwdIt _Next = _Mid; ; )
+		{	// swap [_First, ...) into place
+		cliext::iter_swap(_First, _Next);
+		if (++_First == _Mid)
+			if (++_Next == _Last)
+				break;	// done, quit
+			else
+				_Mid = _Next;	// mark end of next interval
+		else if (++_Next == _Last)
+			_Next = _Mid;	// wrap to last end
+		}
+	}
+
+template<class _BidIt> inline
+	void _Rotate(_BidIt _First, _BidIt _Mid, _BidIt _Last,
+		bidirectional_iterator_tag)
+	{	// rotate [_First, _Last), bidirectional iterators
+	cliext::reverse(_First, _Mid);
+	cliext::reverse(_Mid, _Last);
+	cliext::reverse(_First, _Last);
+	}
+
+template<class _RanIt> inline
+	void _Rotate(_RanIt _First, _RanIt _Mid, _RanIt _Last,
+			random_access_iterator_tag)
+	{	// rotate [_First, _Last), random-access iterators
+	typedef iterator_traits<_RanIt>::difference_type _Diff;
+	typedef iterator_traits<_RanIt>::value_type _Ty;
+
+	_Diff _Shift = _Mid - _First;
+	_Diff _Count = _Last - _First;
+
+	for (_Diff _Factor = _Shift; _Factor != 0; )
+		{	// find subcycle count as GCD of shift count and length
+		_Diff _Tmp = _Count % _Factor;
+		_Count = _Factor, _Factor = _Tmp;
+		}
+
+	if (_Count < _Last - _First)
+		for (; 0 < _Count; --_Count)
+			{	// rotate each subcycle
+			_RanIt _Hole = _First + _Count;
+			_RanIt _Next = _Hole;
+			_Ty _Holeval = *_Hole;
+			_RanIt _Next1 = _Next + _Shift == _Last ? _First : _Next + _Shift;
+			while (_Next1 != _Hole)
+				{	// percolate elements back around subcycle
+				*_Next = *_Next1;
+				_Next = _Next1;
+				_Next1 = _Shift < _Last - _Next1 ? _Next1 + _Shift
+					: _First + (_Shift - (_Last - _Next1));
+				}
+			*_Next = _Holeval;
+			}
+	}
+
+template<class _FwdIt> inline
+	void rotate_unchecked(_FwdIt _First, _FwdIt _Mid, _FwdIt _Last)
+	{	// rotate [_First, _Last)
+	if (_First != _Mid && _Mid != _Last)
+		_Rotate(_First, _Mid, _Last, _Iter_category(_First));
+	}
+
+template<class _FwdIt> inline
+	void rotate(_FwdIt _First, _FwdIt _Mid, _FwdIt _Last)
+	{	// rotate [_First, _Last)
+	_STLCLRDB_RANGE(_First, _Mid);
+	_STLCLRDB_RANGE(_Mid, _Last);
+	if (_First != _Mid && _Mid != _Last)
+		_Rotate(_Unchecked(_First), _Unchecked(_Mid), _Unchecked(_Last),
+		_Iter_category(_First));
+	}
+
+		// TEMPLATE FUNCTION rotate_copy
+template<class _FwdIt,
+	class _OutIt> inline
+	_OutIt rotate_copy_unchecked(_FwdIt _First, _FwdIt _Mid, _FwdIt _Last,
+		_OutIt _Dest)
+	{	// copy rotating [_First, _Last)
+	_Dest = cliext::copy_unchecked(_Mid, _Last, _Dest);
+	return (cliext::copy_unchecked(_First, _Mid, _Dest));
+	}
+
+template<class _FwdIt,
+	class _OutIt> inline
+	_OutIt rotate_copy(_FwdIt _First, _FwdIt _Mid, _FwdIt _Last,
+		_OutIt _Dest)
+	{	// copy rotating [_First, _Last)
+	_STLCLRDB_RANGE(_First, _Mid);
+	_STLCLRDB_RANGE(_Mid, _Last);
+	_STLCLRDB_POINTER(_Dest);
+	return (cliext::rotate_copy_unchecked(
+		_Unchecked(_First), _Unchecked(_Mid), _Unchecked(_Last),
+		_Unchecked(_Dest)));
+	}
+
+		// TEMPLATE FUNCTION random_shuffle
+inline int _Rand(void)
+	{	/* compute pseudo-random value */
+	static long _Randseed = 1;
+
+	_Randseed = _Randseed * 1103515245 + 12345;
+	return ((unsigned int)(_Randseed >> 16) & 0x7fff);
+	}
+
+template<class _RanIt> inline
+	void random_shuffle_unchecked(_RanIt _First, _RanIt _Last)
+	{	// shuffle [_First, _Last)
+	typedef iterator_traits<_RanIt>::difference_type _Diff;
+
+	if (_First != _Last)
+		{	// shuffle nontrivial [_First, _Last)
+		const int _RANDOM_BITS = 15;	// minimum random bits from _Rand()
+		const int _RANDOM_MAX = (1U << _RANDOM_BITS) - 1;
+
+		_RanIt _Next = _First;
+		for (unsigned long _Index = 2; ++_Next != _Last; ++_Index)
+			{	// assume unsigned long big enough for _Diff count
+			unsigned long _Rm = _RANDOM_MAX;
+			unsigned long _Rn = _Rand() & _RANDOM_MAX;
+			for (; _Rm < _Index && _Rm != ~0UL;
+				_Rm = _Rm << _RANDOM_BITS | _RANDOM_MAX)
+				_Rn = _Rn << _RANDOM_BITS
+					| (_Rand() & _RANDOM_MAX);	// build random value
+
+			cliext::iter_swap(_Next,
+				_First + _Diff(_Rn % _Index));	// swap a pair
+			}
+		}
+	}
+
+template<class _RanIt> inline
+	void random_shuffle(_RanIt _First, _RanIt _Last)
+	{	// shuffle [_First, _Last)
+	_STLCLRDB_RANGE(_First, _Last);
+	cliext::random_shuffle_unchecked(
+		_Unchecked(_First), _Unchecked(_Last));
+	}
+
+		// TEMPLATE FUNCTION random_shuffle WITH RANDOM FN
+template<class _RanIt,
+	class _Fn1> inline
+	void random_shuffle_unchecked(_RanIt _First, _RanIt _Last, _Fn1% _Func)
+	{	// shuffle [_First, _Last) using random function _Func
+	typedef iterator_traits<_RanIt>::difference_type _Diff;
+
+	if (_First != _Last)
+		{	// shuffle nonempty [_First, _Last) using random function _Func
+		_RanIt _Next = _First;
+
+		for (_Diff _Index = 2; ++_Next != _Last; ++_Index)
+			cliext::iter_swap(_Next, _First + _Diff(_Func(_Index)));
+		}
+	}
+
+template<class _RanIt,
+	class _Fn1> inline
+	void random_shuffle(_RanIt _First, _RanIt _Last, _Fn1% _Func)
+	{	// shuffle [_First, _Last) using random function _Func
+	_STLCLRDB_RANGE(_First, _Last);
+	cliext::random_shuffle_unchecked(
+		_Unchecked(_First), _Unchecked(_Last), _Func);
+	}
+
+		// TEMPLATE FUNCTION partition
+template<class _BidIt,
+	class _Pr> inline
+	_BidIt partition_unchecked(_BidIt _First, _BidIt _Last, _Pr _Pred)
+	{	// move elements satisfying _Pred to beginning of sequence
+	for (; ; ++_First)
+		{	// find any out-of-order pair
+		for (; _First != _Last && _Pred(*_First); ++_First)
+			;	// skip in-place elements at beginning
+		if (_First == _Last)
+			break;	// done
+
+		for (; _First != --_Last && !_Pred(*_Last); )
+			;	// skip in-place elements at end
+		if (_First == _Last)
+			break;	// done
+
+		cliext::iter_swap(_First, _Last);	// swap out-of-place pair and loop
+		}
+	return (_First);
+	}
+
+template<class _BidIt,
+	class _Pr> inline
+	_BidIt partition(_BidIt _First, _BidIt _Last, _Pr _Pred)
+	{	// move elements satisfying _Pred to beginning of sequence
+	_STLCLRDB_RANGE(_First, _Last);
+	_STLCLRDB_POINTER(_Pred);
+	return (cliext::partition_unchecked(
+		_Unchecked(_First), _Unchecked(_Last), _Pred));
+	}
+
+		// TEMPLATE FUNCTION stable_partition
+template<class _BidIt,
+	class _Pr,
+	class _Diff,
+	class _Ty> inline
+	_BidIt _XStable_partition(_BidIt _First, _BidIt _Last, _Pr _Pred,
+		_Diff _Count, _Temp_iterator<_Ty> _Tempbuf)
+	{	// partition preserving order of equivalents, using _Pred
+	if (_Count == 1)
+		return (_Pred(*_First) ? _Last : _First);
+	else if (_Count <= _Tempbuf._Maxlen())
+		{	// temp buffer big enough, copy right partition out and back
+		_BidIt _Next = _First;
+		for (_Tempbuf._Init(); _First != _Last; ++_First)
+			if (_Pred(*_First))
+				*_Next++ = *_First;
+			else
+				*_Tempbuf++ = *_First;
+
+		cliext::copy_unchecked(_Tempbuf._First(), _Tempbuf._Last(),
+			_Next);	// copy back
+		return (_Next);
+		}
+	else
+		{	// temp buffer not big enough, divide and conquer
+		_BidIt _Mid = _First;
+		cliext::advance(_Mid, _Count / 2);
+
+		_BidIt _Left = cliext::_XStable_partition(_First, _Mid, _Pred,
+			_Count / 2, _Tempbuf);	// form L1R1 in left half
+		_BidIt _Right = cliext::_XStable_partition(_Mid, _Last, _Pred,
+			_Count - _Count / 2, _Tempbuf);	// form L2R2 in right half
+
+		_Diff _Count1 = 0;
+		_Iter_distance(_Left, _Mid, _Count1);
+		_Diff _Count2 = 0;
+		_Iter_distance(_Mid, _Right, _Count2);
+
+		return (cliext::_XBuffered_rotate(_Left, _Mid, _Right,
+			_Count1, _Count2, _Tempbuf));	// rotate L1R1L2R2 to L1L2R1R2
+		}
+	}
+
+#if __cplusplus_cli
+template<class _BidIt,
+	class _Pr,
+	class _Diff,
+	class _Ty> inline
+	_BidIt _XStable_partition(_BidIt _First, _BidIt _Last, _Pr _Pred,
+		_Diff _Count, _Temp_gc_iterator<_Ty> _Tempbuf)
+	{	// partition preserving order of equivalents, using _Pred
+	if (_Count == 0)
+		return (_First);
+	else if (_Count == 1)
+		return (_Pred(*_First) ? _Last : _First);
+	else if (_Count <= _Tempbuf._Maxlen())
+		{	// temp buffer big enough, copy right partition out and back
+		_BidIt _Next = _First;
+		for (_Tempbuf._Init(); _First != _Last; ++_First)
+			if (_Pred(*_First))
+				*_Next++ = *_First;
+			else
+				*_Tempbuf++ = *_First;
+
+		cliext::copy_unchecked(_Tempbuf._First(), _Tempbuf._Last(),
+			_Next);	// copy back
+		return (_Next);
+		}
+	else
+		{	// temp buffer not big enough, divide and conquer
+		_BidIt _Mid = _First;
+		cliext::advance(_Mid, _Count / 2);
+
+		_BidIt _Left = cliext::_XStable_partition(_First, _Mid, _Pred,
+			_Count / 2, _Tempbuf);	// form L1R1 in left half
+		_BidIt _Right = cliext::_XStable_partition(_Mid, _Last, _Pred,
+			_Count - _Count / 2, _Tempbuf);	// form L2R2 in right half
+
+		_Diff _Count1 = 0;
+		_Iter_distance(_Left, _Mid, _Count1);
+		_Diff _Count2 = 0;
+		_Iter_distance(_Mid, _Right, _Count2);
+
+		return (cliext::_XBuffered_rotate(_Left, _Mid, _Right,
+			_Count1, _Count2, _Tempbuf));	// rotate L1R1L2R2 to L1L2R1R2
+		}
+	}
+#endif	// __cplusplus_cli
+
+template<class _BidIt,
+	class _Pr> inline
+	_BidIt stable_partition_unchecked(_BidIt _First, _BidIt _Last,
+		_Pr _Pred)
+	{	// partition preserving order of equivalents, using _Pred
+	typedef iterator_traits<_BidIt>::difference_type _Diff;
+	typedef iterator_traits<_BidIt>::value_type _Ty;
+
+	if (_First == _Last)
+		return (_First);
+	else
+		{	// partition nontrivial sequence
+		_Diff _Count = 0;
+		_Iter_distance(_First, _Last, _Count);
+		_TEMP_ITER(_BidIt, _Ty) _Tempbuf(_Count);
+
+		return (cliext::_XStable_partition(_First, _Last, _Pred, _Count,
+			_Tempbuf));
+		}
+	}
+
+template<class _BidIt,
+	class _Pr> inline
+	_BidIt stable_partition(_BidIt _First, _BidIt _Last,
+		_Pr _Pred)
+	{	// partition preserving order of equivalents, using _Pred
+	_STLCLRDB_RANGE(_First, _Last);
+	_STLCLRDB_POINTER(_Pred);
+	return (cliext::stable_partition_unchecked(
+		_Unchecked(_First), _Unchecked(_Last), _Pred));
+
+	}
+
+ #if _HAS_ITERATOR_DEBUGGING
+		// TEMPLATE FUNCTION _XDebug_heap
+template<class _RanIt> inline
+	void _XDebug_heap(_RanIt _First, _RanIt _Last)
+	{	// test if range is a heap ordered by operator<
+	typedef iterator_traits<_RanIt>::difference_type _Diff;
+
+	_Diff _Size = _Last - _First;
+	if (2 <= _Size)
+		for (_Diff _Off = 0; ++_Off < _Size; )
+			if (_STLCLRDB_LT(*(_First + (_Off - 1) / 2), *(_First + _Off)))
+				_STLCLRDB_ERROR(L"invalid heap");
+	}
+
+		// TEMPLATE FUNCTION _XDebug_heap WITH PRED
+template<class _RanIt,
+	class _Pr> inline
+	void _XDebug_heap(_RanIt _First, _RanIt _Last, _Pr _Pred)
+	{	// test if range is a heap ordered by _Pred
+	typedef iterator_traits<_RanIt>::difference_type _Diff;
+
+	_Diff _Size = _Last - _First;
+	if (2 <= _Size)
+		for (_Diff _Off = 0; ++_Off < _Size; )
+			if (_STLCLRDB_LT_PRED(_Pred, *(_First + (_Off - 1) / 2),
+				*(_First + _Off)))
+				_STLCLRDB_ERROR(L"invalid heap");
+	}
+
+  #define _STLCLRDB_HEAP(first, last)	\
+	_XDebug_heap(first, last)
+  #define _STLCLRDB_HEAP_PRED(first, last, pred)	\
+	_XDebug_heap(first, last, pred)
+
+ #else /* _HAS_ITERATOR_DEBUGGING */
+  #define _STLCLRDB_HEAP(first, last)
+  #define _STLCLRDB_HEAP_PRED(first, last, pred)
+ #endif /* _HAS_ITERATOR_DEBUGGING */
+
+		// TEMPLATE FUNCTION push_heap
+template<class _RanIt,
+	class _Diff,
+	class _Ty> inline
+	void _XPush_heap(_RanIt _First, _Diff _Hole,
+		_Diff _Top, _Ty _Val)
+	{	// percolate _Hole to _Top or where _Val belongs, using operator<
+	for (_Diff _Idx = (_Hole - 1) / 2;
+		_Top < _Hole && _STLCLRDB_LT(*(_First + _Idx), _Val);
+		_Idx = (_Hole - 1) / 2)
+		{	// move _Hole up to parent
+		*(_First + _Hole) = *(_First + _Idx);
+		_Hole = _Idx;
+		}
+
+	*(_First + _Hole) = _Val;	// drop _Val into final hole
+	}
+
+template<class _RanIt> inline
+	void push_heap_unchecked(_RanIt _First, _RanIt _Last)
+	{	// push *(_Last - 1) onto heap at [_First, _Last - 1), using operator<
+	typedef iterator_traits<_RanIt>::difference_type _Diff;
+	typedef iterator_traits<_RanIt>::value_type _Ty;
+
+	--_Last;
+	_Diff _Count = _Last - _First;
+	if (0 < _Count)
+		cliext::_XPush_heap(_First, _Count, _Diff(0), _Ty(*_Last));
+	}
+
+template<class _RanIt> inline
+	void push_heap(_RanIt _First, _RanIt _Last)
+	{	// push *(_Last - 1) onto heap at [_First, _Last - 1), using operator<
+	typedef iterator_traits<_RanIt>::difference_type _Diff;
+	typedef iterator_traits<_RanIt>::value_type _Ty;
+
+	_STLCLRDB_RANGE(_First, _Last);
+	if (_First != _Last)
+		{	// check and push non-empty heap+addition
+		_STLCLRDB_HEAP(_First, _Last - 1);
+		cliext::push_heap_unchecked(_Unchecked(_First), _Unchecked(_Last));
+		}
+	}
+
+		// TEMPLATE FUNCTION push_heap WITH PRED
+template<class _RanIt,
+	class _Diff,
+	class _Ty,
+	class _Pr> inline
+	void _XPush_heap(_RanIt _First, _Diff _Hole,
+		_Diff _Top, _Ty _Val, _Pr _Pred)
+	{	// percolate _Hole to _Top or where _Val belongs, using operator<
+	for (_Diff _Idx = (_Hole - 1) / 2;
+		_Top < _Hole && _STLCLRDB_LT_PRED(_Pred, *(_First + _Idx), _Val);
+		_Idx = (_Hole - 1) / 2)
+		{	// move _Hole up to parent
+		*(_First + _Hole) = *(_First + _Idx);
+		_Hole = _Idx;
+		}
+
+	*(_First + _Hole) = _Val;	// drop _Val into final hole
+	}
+
+template<class _RanIt,
+	class _Pr> inline
+	void push_heap_unchecked(_RanIt _First, _RanIt _Last, _Pr _Pred)
+	{	// push *(_Last - 1) onto heap at [_First, _Last - 1), using _Pred
+	typedef iterator_traits<_RanIt>::difference_type _Diff;
+	typedef iterator_traits<_RanIt>::value_type _Ty;
+
+	--_Last;
+	_Diff _Count = _Last - _First;
+	if (0 < _Count)
+		cliext::_XPush_heap(_First, _Count, _Diff(0), _Ty(*_Last), _Pred);
+	}
+
+template<class _RanIt,
+	class _Pr> inline
+	void push_heap(_RanIt _First, _RanIt _Last, _Pr _Pred)
+	{	// push *(_Last - 1) onto heap at [_First, _Last - 1), using _Pred
+	typedef iterator_traits<_RanIt>::difference_type _Diff;
+	typedef iterator_traits<_RanIt>::value_type _Ty;
+
+	_STLCLRDB_RANGE(_First, _Last);
+	_STLCLRDB_POINTER(_Pred);
+	if (_First != _Last)
+		{	// check and push non-empty heap+addition
+		_STLCLRDB_HEAP_PRED(_First, _Last - 1, _Pred);
+		cliext::push_heap_unchecked(_Unchecked(_First), _Unchecked(_Last),
+			_Pred);
+		}
+	}
+
+		// TEMPLATE FUNCTION pop_heap
+template<class _RanIt,
+	class _Diff,
+	class _Ty> inline
+	void _XAdjust_heap(_RanIt _First, _Diff _Hole, _Diff _Bottom, _Ty _Val)
+	{	// percolate _Hole to _Bottom, then push _Val, using operator<
+	_Diff _Top = _Hole;
+	_Diff _Idx = 2 * _Hole + 2;
+
+	for (; _Idx < _Bottom; _Idx = 2 * _Idx + 2)
+		{	// move _Hole down to larger child
+		if (_STLCLRDB_LT(*(_First + _Idx), *(_First + (_Idx - 1))))
+			--_Idx;
+		*(_First + _Hole) = *(_First + _Idx), _Hole = _Idx;
+		}
+
+	if (_Idx == _Bottom)
+		{	// only child at bottom, move _Hole down to it
+		*(_First + _Hole) = *(_First + (_Bottom - 1));
+		_Hole = _Bottom - 1;
+		}
+	cliext::_XPush_heap(_First, _Hole, _Top, _Val);
+	}
+
+template<class _RanIt,
+	class _Ty> inline
+	void _XPop_heap(_RanIt _First, _RanIt _Last, _RanIt _Dest,
+		_Ty _Val)
+	{	// pop *_First to *_Dest and reheap, using operator<
+	typedef iterator_traits<_RanIt>::difference_type _Diff;
+
+	*_Dest = *_First;
+	cliext::_XAdjust_heap(_First, _Diff(0), _Diff(_Last - _First), _Val);
+	}
+
+template<class _RanIt> inline
+	void pop_heap_unchecked(_RanIt _First, _RanIt _Last)
+	{	// pop *_First to *(_Last - 1) and reheap, using operator<
+	typedef iterator_traits<_RanIt>::value_type _Ty;
+
+	_XPop_heap(_First, _Last - 1, _Last - 1, _Ty(*(_Last - 1)));
+	}
+
+template<class _RanIt> inline
+	void pop_heap(_RanIt _First, _RanIt _Last)
+	{	// pop *_First to *(_Last - 1) and reheap, using operator<
+	_STLCLRDB_RANGE(_First, _Last);
+	_STLCLRDB_HEAP(_First, _Last);
+
+	if (1 < _Last - _First)
+		cliext::pop_heap_unchecked(_Unchecked(_First), _Unchecked(_Last));
+	}
+
+		// TEMPLATE FUNCTION pop_heap WITH PRED
+template<class _RanIt,
+	class _Diff,
+	class _Ty,
+	class _Pr> inline
+	void _XAdjust_heap(_RanIt _First, _Diff _Hole, _Diff _Bottom,
+		_Ty _Val, _Pr _Pred)
+	{	// percolate _Hole to _Bottom, then push _Val, using _Pred
+	_Diff _Top = _Hole;
+	_Diff _Idx = 2 * _Hole + 2;
+
+	for (; _Idx < _Bottom; _Idx = 2 * _Idx + 2)
+		{	// move _Hole down to larger child
+		if (_STLCLRDB_LT_PRED(_Pred, *(_First + _Idx),
+			*(_First + (_Idx - 1))))
+			--_Idx;
+		*(_First + _Hole) = *(_First + _Idx), _Hole = _Idx;
+		}
+
+	if (_Idx == _Bottom)
+		{	// only child at bottom, move _Hole down to it
+		*(_First + _Hole) = *(_First + (_Bottom - 1));
+		_Hole = _Bottom - 1;
+		}
+	cliext::_XPush_heap(_First, _Hole, _Top, _Val, _Pred);
+	}
+
+template<class _RanIt,
+	class _Ty,
+	class _Pr> inline
+	void _XPop_heap(_RanIt _First, _RanIt _Last, _RanIt _Dest,
+		_Ty _Val, _Pr _Pred)
+	{	// pop *_First to *_Dest and reheap, using _Pred
+	typedef iterator_traits<_RanIt>::difference_type _Diff;
+
+	*_Dest = *_First;
+	cliext::_XAdjust_heap(_First, _Diff(0), _Diff(_Last - _First),
+		_Val, _Pred);
+	}
+
+template<class _RanIt,
+	class _Pr> inline
+	void pop_heap_unchecked(_RanIt _First, _RanIt _Last, _Pr _Pred)
+	{	// pop *_First to *(_Last - 1) and reheap, using _Pred
+	typedef iterator_traits<_RanIt>::value_type _Ty;
+
+	if (1 < _Last - _First)
+		_XPop_heap(_First, _Last - 1, _Last - 1, _Ty(*(_Last - 1)), _Pred);
+	}
+
+template<class _RanIt,
+	class _Pr> inline
+	void pop_heap(_RanIt _First, _RanIt _Last, _Pr _Pred)
+	{	// pop *_First to *(_Last - 1) and reheap, using _Pred
+	_STLCLRDB_RANGE(_First, _Last);
+	_STLCLRDB_POINTER(_Pred);
+	_STLCLRDB_HEAP_PRED(_First, _Last, _Pred);
+	cliext::pop_heap_unchecked(_Unchecked(_First), _Unchecked(_Last),
+		_Pred);
+	}
+
+		// TEMPLATE FUNCTION make_heap
+template<class _RanIt> inline
+	void make_heap_unchecked(_RanIt _First, _RanIt _Last)
+	{	// make [_First, _Last) into a heap, using operator<
+	typedef iterator_traits<_RanIt>::difference_type _Diff;
+	typedef iterator_traits<_RanIt>::value_type _Ty;
+
+	if (1 < _Last - _First)
+		{	// make nontrivial heap
+		_Diff _Bottom = _Last - _First;
+
+		for (_Diff _Hole = _Bottom / 2; 0 < _Hole; )
+			{	// reheap top half, bottom to top
+			--_Hole;
+			cliext::_XAdjust_heap(_First, _Hole, _Bottom,
+				_Ty(*(_First + _Hole)));
+			}
+		}
+	}
+
+template<class _RanIt> inline
+	void make_heap(_RanIt _First, _RanIt _Last)
+	{	// make [_First, _Last) into a heap, using operator<
+	_STLCLRDB_RANGE(_First, _Last);
+	cliext::make_heap_unchecked(_Unchecked(_First), _Unchecked(_Last));
+	}
+
+		// TEMPLATE FUNCTION make_heap WITH PRED
+template<class _RanIt,
+	class _Pr> inline
+	void make_heap_unchecked(_RanIt _First, _RanIt _Last, _Pr _Pred)
+	{	// make [_First, _Last) into a heap, using _Pred
+	typedef iterator_traits<_RanIt>::difference_type _Diff;
+	typedef iterator_traits<_RanIt>::value_type _Ty;
+
+	if (1 < _Last - _First)
+		{	// make nontrivial heap
+		_Diff _Bottom = _Last - _First;
+
+		for (_Diff _Hole = _Bottom / 2; 0 < _Hole; )
+			{	// reheap top half, bottom to top
+			--_Hole;
+			cliext::_XAdjust_heap(_First, _Hole, _Bottom,
+				_Ty(*(_First + _Hole)), _Pred);
+			}
+		}
+	}
+
+template<class _RanIt,
+	class _Pr> inline
+	void make_heap(_RanIt _First, _RanIt _Last, _Pr _Pred)
+	{	// make [_First, _Last) into a heap, using _Pred
+	_STLCLRDB_RANGE(_First, _Last);
+	_STLCLRDB_POINTER(_Pred);
+	cliext::make_heap_unchecked(_Unchecked(_First), _Unchecked(_Last),
+		_Pred);
+	}
+
+		// TEMPLATE FUNCTION sort_heap
+template<class _RanIt> inline
+	void sort_heap_unchecked(_RanIt _First, _RanIt _Last)
+	{	// order heap by repeatedly popping, using operator<
+	for (; 1 < _Last - _First; --_Last)
+		cliext::pop_heap_unchecked(_First, _Last);
+	}
+
+template<class _RanIt> inline
+	void sort_heap(_RanIt _First, _RanIt _Last)
+	{	// order heap by repeatedly popping, using operator<
+	_STLCLRDB_RANGE(_First, _Last);
+	_STLCLRDB_HEAP(_First, _Last);
+	cliext::sort_heap_unchecked(_Unchecked(_First), _Unchecked(_Last));
+	}
+
+		// TEMPLATE FUNCTION sort_heap WITH PRED
+template<class _RanIt,
+	class _Pr> inline
+	void sort_heap_unchecked(_RanIt _First, _RanIt _Last, _Pr _Pred)
+	{	// order heap by repeatedly popping, using _Pred
+	for (; 1 < _Last - _First; --_Last)
+		cliext::pop_heap_unchecked(_First, _Last, _Pred);
+	}
+
+template<class _RanIt,
+	class _Pr> inline
+	void sort_heap(_RanIt _First, _RanIt _Last, _Pr _Pred)
+	{	// order heap by repeatedly popping, using _Pred
+	_STLCLRDB_RANGE(_First, _Last);
+	_STLCLRDB_POINTER(_Pred);
+	_STLCLRDB_HEAP_PRED(_First, _Last, _Pred);
+	cliext::sort_heap_unchecked(_Unchecked(_First), _Unchecked(_Last),
+		_Pred);
+	}
+
+		// TEMPLATE FUNCTION lower_bound
+template<class _FwdIt,
+	class _Ty> inline
+	_FwdIt lower_bound_unchecked(_FwdIt _First, _FwdIt _Last,
+		/*const */ _Ty% _Val)
+	{	// find first element not before _Val, using operator<
+	typedef iterator_traits<_FwdIt>::difference_type _Diff;
+
+	_Diff _Count = 0;
+	_Iter_distance(_First, _Last, _Count);
+
+	for (; 0 < _Count; )
+		{	// divide and conquer, find half that contains answer
+		_Diff _Count2 = _Count / 2;
+		_FwdIt _Mid = _First;
+		cliext::advance(_Mid, _Count2);
+
+		if (_STLCLRDB_LT(*_Mid, _Val))
+			_First = ++_Mid, _Count -= _Count2 + 1;
+		else
+			_Count = _Count2;
+		}
+	return (_First);
+	}
+
+template<class _FwdIt,
+	class _Ty> inline
+	_FwdIt lower_bound(_FwdIt _First, _FwdIt _Last, /*const */ _Ty% _Val)
+	{	// find first element not before _Val, using operator<
+	_STLCLRDB_ORDER(_First, _Last);
+	return (cliext::lower_bound_unchecked(
+		_Unchecked(_First), _Unchecked(_Last), _Val));
+	}
+
+		// TEMPLATE FUNCTION lower_bound WITH PRED
+template<class _FwdIt,
+	class _Ty,
+	class _Pr> inline
+	_FwdIt lower_bound_unchecked(_FwdIt _First, _FwdIt _Last,
+		const _Ty% _Val, _Pr _Pred)
+	{	// find first element not before _Val, using _Pred
+	typedef iterator_traits<_FwdIt>::difference_type _Diff;
+
+	_Diff _Count = 0;
+	_Iter_distance(_First, _Last, _Count);
+	for (; 0 < _Count; )
+		{	// divide and conquer, find half that contains answer
+		_Diff _Count2 = _Count / 2;
+		_FwdIt _Mid = _First;
+		cliext::advance(_Mid, _Count2);
+
+		if (_STLCLRDB_LT_PRED(_Pred, *_Mid, _Val))
+			_First = ++_Mid, _Count -= _Count2 + 1;
+		else
+			_Count = _Count2;
+		}
+	return (_First);
+	}
+
+template<class _FwdIt,
+	class _Ty,
+	class _Pr> inline
+	_FwdIt lower_bound(_FwdIt _First, _FwdIt _Last,
+		const _Ty% _Val, _Pr _Pred)
+	{	// find first element not before _Val, using _Pred
+	_STLCLRDB_ORDER_PRED(_First, _Last, _Pred);
+	return (cliext::lower_bound_unchecked(
+		_Unchecked(_First), _Unchecked(_Last), _Val, _Pred));
+	}
+
+		// TEMPLATE FUNCTION upper_bound
+template<class _FwdIt,
+	class _Ty> inline
+	_FwdIt upper_bound_unchecked(_FwdIt _First, _FwdIt _Last,
+		const _Ty% _Val)
+	{	// find first element that _Val is before, using operator<
+	typedef iterator_traits<_FwdIt>::difference_type _Diff;
+
+	_Diff _Count = 0;
+	_Iter_distance(_First, _Last, _Count);
+	for (; 0 < _Count; )
+		{	// divide and conquer, find half that contains answer
+		_Diff _Count2 = _Count / 2;
+		_FwdIt _Mid = _First;
+		cliext::advance(_Mid, _Count2);
+
+		if (!_STLCLRDB_LT(_Val, *_Mid))
+			_First = ++_Mid, _Count -= _Count2 + 1;
+		else
+			_Count = _Count2;
+		}
+	return (_First);
+	}
+
+template<class _FwdIt,
+	class _Ty> inline
+	_FwdIt upper_bound(_FwdIt _First, _FwdIt _Last, const _Ty% _Val)
+	{	// find first element that _Val is before, using operator<
+	_STLCLRDB_ORDER(_First, _Last);
+	return (cliext::upper_bound_unchecked(
+		_Unchecked(_First), _Unchecked(_Last), _Val));
+	}
+
+		// TEMPLATE FUNCTION upper_bound WITH PRED
+template<class _FwdIt,
+	class _Ty,
+	class _Pr> inline
+	_FwdIt upper_bound_unchecked(_FwdIt _First, _FwdIt _Last,
+		const _Ty% _Val, _Pr _Pred)
+	{	// find first element that _Val is before, using _Pred
+	typedef iterator_traits<_FwdIt>::difference_type _Diff;
+
+	_Diff _Count = 0;
+	_Iter_distance(_First, _Last, _Count);
+	for (; 0 < _Count; )
+		{	// divide and conquer, find half that contains answer
+		_Diff _Count2 = _Count / 2;
+		_FwdIt _Mid = _First;
+		cliext::advance(_Mid, _Count2);
+
+		if (!_STLCLRDB_LT_PRED(_Pred, _Val, *_Mid))
+			_First = ++_Mid, _Count -= _Count2 + 1;
+		else
+			_Count = _Count2;
+		}
+	return (_First);
+	}
+
+template<class _FwdIt,
+	class _Ty,
+	class _Pr> inline
+	_FwdIt upper_bound(_FwdIt _First, _FwdIt _Last,
+		const _Ty% _Val, _Pr _Pred)
+	{	// find first element that _Val is before, using _Pred
+	_STLCLRDB_ORDER_PRED(_First, _Last, _Pred);
+	return (cliext::upper_bound_unchecked(
+		_Unchecked(_First), _Unchecked(_Last), _Val, _Pred));
+	}
+
+		// TEMPLATE FUNCTION equal_range
+template<class _FwdIt,
+	class _Ty> inline
+	_PAIR_TYPE(_FwdIt) equal_range_unchecked(_FwdIt _First, _FwdIt _Last,
+		const _Ty% _Val)
+	{	// find range equivalent to _Val, using operator<
+	typedef iterator_traits<_FwdIt>::difference_type _Diff;
+
+	_Diff _Count = 0;
+	_Iter_distance(_First, _Last, _Count);
+
+	for (; 0 < _Count; )
+		{	// divide and conquer, check midpoint
+		_Diff _Count2 = _Count / 2;
+		_FwdIt _Mid = _First;
+		cliext::advance(_Mid, _Count2);
+
+		if (_STLCLRDB_LT(*_Mid, _Val))
+			{	// range begins above _Mid, loop
+			_First = ++_Mid;
+			_Count -= _Count2 + 1;
+			}
+		else if (_Val < *_Mid)
+			_Count = _Count2;	// range in first half, loop
+		else
+			{	// range straddles mid, find each end and return
+			_FwdIt _First2 = lower_bound(_First, _Mid, _Val);
+			cliext::advance(_First, _Count);
+			_FwdIt _Last2 = upper_bound(++_Mid, _First, _Val);
+			return (_PAIR_TYPE(_FwdIt)(_First2, _Last2));
+			}
+		}
+
+	return (_PAIR_TYPE(_FwdIt)(_First, _First));	// empty range
+	}
+
+template<class _FwdIt,
+	class _Ty> inline
+	_PAIR_TYPE(_FwdIt) equal_range(_FwdIt _First, _FwdIt _Last,
+		const _Ty% _Val)
+	{	// find range equivalent to _Val, using operator<
+	_STLCLRDB_ORDER(_First, _Last);
+	return (cliext::equal_range_unchecked(
+		_Unchecked(_First), _Unchecked(_Last), _Val));
+	}
+
+		// TEMPLATE FUNCTION equal_range WITH PRED
+template<class _FwdIt,
+	class _Ty,
+	class _Pr> inline
+	_PAIR_TYPE(_FwdIt) equal_range_unchecked(_FwdIt _First, _FwdIt _Last,
+		const _Ty% _Val, _Pr _Pred)
+	{	// find range equivalent to _Val, using _Pred
+	typedef iterator_traits<_FwdIt>::difference_type _Diff;
+
+	_Diff _Count = 0;
+	_Iter_distance(_First, _Last, _Count);
+
+	for (; 0 < _Count; )
+		{	// divide and conquer, check midpoint
+		_Diff _Count2 = _Count / 2;
+		_FwdIt _Mid = _First;
+		cliext::advance(_Mid, _Count2);
+
+		if (_STLCLRDB_LT_PRED(_Pred, *_Mid, _Val))
+			{	// range begins above _Mid, loop
+			_First = ++_Mid;
+			_Count -= _Count2 + 1;
+			}
+		else if (_Pred(_Val, *_Mid))
+			_Count = _Count2;	// range in first half, loop
+		else
+			{	// range straddles _Mid, find each end and return
+			_FwdIt _First2 = lower_bound(_First, _Mid, _Val, _Pred);
+			cliext::advance(_First, _Count);
+			_FwdIt _Last2 = upper_bound(++_Mid, _First, _Val, _Pred);
+			return (_PAIR_TYPE(_FwdIt)(_First2, _Last2));
+			}
+		}
+
+	return (_PAIR_TYPE(_FwdIt)(_First, _First));	// empty range
+	}
+
+template<class _FwdIt,
+	class _Ty,
+	class _Pr> inline
+	_PAIR_TYPE(_FwdIt) equal_range(_FwdIt _First, _FwdIt _Last,
+		const _Ty% _Val, _Pr _Pred)
+	{	// find range equivalent to _Val, using _Pred
+	_STLCLRDB_ORDER_PRED(_First, _Last, _Pred);
+	return (cliext::equal_range_unchecked(
+		_Unchecked(_First), _Unchecked(_Last), _Val, _Pred));
+	}
+
+		// TEMPLATE FUNCTION binary_search
+template<class _FwdIt,
+	class _Ty> inline
+	bool binary_search_unchecked(_FwdIt _First, _FwdIt _Last,
+		const _Ty% _Val)
+	{	// test if _Val equivalent to some element, using operator<
+	_First = cliext::lower_bound_unchecked(_First, _Last, _Val);
+	return (_First != _Last && !(_Val < *_First));
+	}
+
+template<class _FwdIt,
+	class _Ty> inline
+	bool binary_search(_FwdIt _First, _FwdIt _Last,
+		const _Ty% _Val)
+	{	// test if _Val equivalent to some element, using operator<
+	_STLCLRDB_ORDER(_First, _Last);
+	return (cliext::binary_search_unchecked(
+		_Unchecked(_First), _Unchecked(_Last), _Val));
+	}
+
+		// TEMPLATE FUNCTION binary_search WITH PRED
+template<class _FwdIt,
+	class _Ty,
+	class _Pr> inline
+	bool binary_search_unchecked(_FwdIt _First, _FwdIt _Last,
+		const _Ty% _Val, _Pr _Pred)
+	{	// test if _Val equivalent to some element, using _Pred
+	_First = cliext::lower_bound_unchecked(_First, _Last, _Val, _Pred);
+	return (_First != _Last && !_Pred(_Val, *_First));
+	}
+
+template<class _FwdIt,
+	class _Ty,
+	class _Pr> inline
+	bool binary_search(_FwdIt _First, _FwdIt _Last,
+		const _Ty% _Val, _Pr _Pred)
+	{	// test if _Val equivalent to some element, using _Pred
+	_STLCLRDB_ORDER_PRED(_First, _Last, _Pred);
+	return (cliext::binary_search_unchecked(
+		_Unchecked(_First), _Unchecked(_Last), _Val, _Pred));
+	}
+
+		// TEMPLATE FUNCTION merge
+template<class _InIt1,
+	class _InIt2,
+	class _OutIt> inline
+	_OutIt merge_unchecked(_InIt1 _First1, _InIt1 _Last1,
+		_InIt2 _First2, _InIt2 _Last2, _OutIt _Dest)
+	{	// copy merging ranges, both using operator<
+	for (; _First1 != _Last1 && _First2 != _Last2; ++_Dest)
+		if (_STLCLRDB_LT(*_First2, *_First1))
+			*_Dest = *_First2, ++_First2;
+		else
+			*_Dest = *_First1, ++_First1;
+
+	_Dest = cliext::copy_unchecked(_First1, _Last1, _Dest);	// copy any tail
+	return (cliext::copy_unchecked(_First2, _Last2, _Dest));
+	}
+
+template<class _InIt1,
+	class _InIt2,
+	class _OutIt> inline
+	_OutIt merge(_InIt1 _First1, _InIt1 _Last1,
+		_InIt2 _First2, _InIt2 _Last2, _OutIt _Dest)
+	{	// copy merging ranges, both using operator<
+	_STLCLRDB_ORDER(_First1, _Last1);
+	_STLCLRDB_ORDER(_First2, _Last2);
+	_STLCLRDB_POINTER(_Dest);
+	return (cliext::merge_unchecked(
+		_Unchecked(_First1), _Unchecked(_Last1),
+		_Unchecked(_First2), _Unchecked(_Last2),
+		_Unchecked(_Dest)));
+	}
+
+		// TEMPLATE FUNCTION merge WITH PRED
+template<class _InIt1,
+	class _InIt2,
+	class _OutIt,
+	class _Pr> inline
+	_OutIt merge_unchecked(_InIt1 _First1, _InIt1 _Last1,
+		_InIt2 _First2, _InIt2 _Last2, _OutIt _Dest, _Pr _Pred)
+	{	//  copy merging ranges, both using _Pred
+	for (; _First1 != _Last1 && _First2 != _Last2; ++_Dest)
+		if (_STLCLRDB_LT_PRED(_Pred, *_First2, *_First1))
+			*_Dest = *_First2, ++_First2;
+		else
+			*_Dest = *_First1, ++_First1;
+
+	_Dest = cliext::copy_unchecked(_First1, _Last1, _Dest);	// copy any tail
+	return (cliext::copy_unchecked(_First2, _Last2, _Dest));
+	}
+
+template<class _InIt1,
+	class _InIt2,
+	class _OutIt,
+	class _Pr> inline
+	_OutIt merge(_InIt1 _First1, _InIt1 _Last1,
+		_InIt2 _First2, _InIt2 _Last2, _OutIt _Dest, _Pr _Pred)
+	{	//  copy merging ranges, both using _Pred
+	_STLCLRDB_ORDER_PRED(_First1, _Last1, _Pred);
+	_STLCLRDB_ORDER_PRED(_First2, _Last2, _Pred);
+	_STLCLRDB_POINTER(_Dest);
+	return (cliext::merge_unchecked(
+		_Unchecked(_First1), _Unchecked(_Last1),
+		_Unchecked(_First2), _Unchecked(_Last2),
+		_Unchecked(_Dest), _Pred));
+	}
+
+		// TEMPLATE FUNCTION inplace_merge
+template<class _BidIt,
+	class _Diff,
+	class _Ty> inline
+	_BidIt _XBuffered_rotate(_BidIt _First, _BidIt _Mid, _BidIt _Last,
+		_Diff _Count1, _Diff _Count2, _Temp_iterator<_Ty> _Tempbuf)
+	{	// rotate [_First, _Last) using temp buffer
+	if (_Count1 <= _Count2 && _Count1 <= _Tempbuf._Maxlen())
+		{	// buffer left partition, then copy parts
+		cliext::copy_unchecked(_First, _Mid, _Tempbuf._Init());
+		cliext::copy_unchecked(_Mid, _Last, _First);
+		return (cliext::copy_backward_unchecked(
+			_Tempbuf._First(), _Tempbuf._Last(), _Last));
+		}
+	else if (_Count2 <= _Tempbuf._Maxlen())
+		{	// buffer right partition, then copy parts
+		cliext::copy_unchecked(_Mid, _Last, _Tempbuf._Init());
+		cliext::copy_backward_unchecked(_First, _Mid, _Last);
+		return (cliext::copy_unchecked(
+			_Tempbuf._First(), _Tempbuf._Last(), _First));
+		}
+	else
+		{	// buffer too small, rotate in place
+		cliext::rotate_unchecked(_First, _Mid, _Last);
+		cliext::advance(_First, _Count2);
+		return (_First);
+		}
+	}
+
+#if  __cplusplus_cli
+template<class _BidIt,
+	class _Diff,
+	class _Ty> inline
+	_BidIt _XBuffered_rotate(_BidIt _First, _BidIt _Mid, _BidIt _Last,
+		_Diff _Count1, _Diff _Count2, _Temp_gc_iterator<_Ty> _Tempbuf)
+	{	// rotate [_First, _Last) using temp buffer
+	if (_Count1 <= _Count2 && _Count1 <= _Tempbuf._Maxlen())
+		{	// buffer left partition, then copy parts
+		cliext::copy_unchecked(_First, _Mid, _Tempbuf._Init());
+		cliext::copy_unchecked(_Mid, _Last, _First);
+		return (cliext::copy_backward_unchecked(
+			_Tempbuf._First(), _Tempbuf._Last(), _Last));
+		}
+	else if (_Count2 <= _Tempbuf._Maxlen())
+		{	// buffer right partition, then copy parts
+		cliext::copy_unchecked(_Mid, _Last, _Tempbuf._Init());
+		cliext::copy_backward_unchecked(_First, _Mid, _Last);
+		return (cliext::copy_unchecked(
+			_Tempbuf._First(), _Tempbuf._Last(), _First));
+		}
+	else
+		{	// buffer too small, rotate in place
+		cliext::rotate_unchecked(_First, _Mid, _Last);
+		cliext::advance(_First, _Count2);
+		return (_First);
+		}
+	}
+#endif	// __cplusplus_cli
+
+template<class _BidIt1,
+	class _BidIt2,
+	class _BidIt3> inline
+	_BidIt3 _XMerge_backward(_BidIt1 _First1, _BidIt1 _Last1,
+		_BidIt2 _First2, _BidIt2 _Last2, _BidIt3 _Dest)
+	{	// merge backwards to _Dest, using operator<
+	for (; ; )
+		if (_First1 == _Last1)
+			return (cliext::copy_backward_unchecked(_First2, _Last2, _Dest));
+		else if (_First2 == _Last2)
+			return (cliext::copy_backward_unchecked(_First1, _Last1, _Dest));
+		else if (_STLCLRDB_LT(*--_Last2, *--_Last1))
+			*--_Dest = *_Last1, ++_Last2;
+		else
+			*--_Dest = *_Last2, ++_Last1;
+	}
+
+template<class _BidIt,
+	class _Diff,
+	class _Ty> inline
+	void _XBuffered_merge(_BidIt _First, _BidIt _Mid, _BidIt _Last,
+		_Diff _Count1, _Diff _Count2,
+			_Temp_iterator<_Ty> _Tempbuf)
+	{	// merge [_First, _Mid) with [_Mid, _Last), using operator<
+	if (_Count1 + _Count2 == 2)
+		{	// order two one-element partitions
+		if (_STLCLRDB_LT(*_Mid, *_First))
+			cliext::iter_swap(_First, _Mid);
+		}
+	else if (_Count1 <= _Count2 && _Count1 <= _Tempbuf._Maxlen())
+		{	// buffer left partition, then merge
+		cliext::copy_unchecked(_First, _Mid, _Tempbuf._Init());
+		cliext::merge_unchecked(_Tempbuf._First(), _Tempbuf._Last(),
+			_Mid, _Last, _First);
+		}
+	else if (_Count2 <= _Tempbuf._Maxlen())
+		{	// buffer right partition, then merge
+		cliext::copy_unchecked(_Mid, _Last, _Tempbuf._Init());
+		cliext::_XMerge_backward(_First, _Mid,
+			_Tempbuf._First(), _Tempbuf._Last(), _Last);
+		}
+	else
+		{	// buffer too small, divide and conquer
+		_BidIt _Firstn, _Lastn;
+		_Diff _Count1n, _Count2n;
+
+		if (_Count2 < _Count1)
+			{	// left larger, cut it in half and partition right to match
+			_Count1n = _Count1 / 2, _Count2n = 0;
+			_Firstn = _First;
+			cliext::advance(_Firstn, _Count1n);
+			_Lastn = cliext::lower_bound_unchecked(_Mid, _Last, *_Firstn);
+			_Iter_distance(_Mid, _Lastn, _Count2n);
+			}
+		else
+			{	// right larger, cut it in half and partition left to match
+			_Count1n = 0, _Count2n = _Count2 / 2;
+			_Lastn = _Mid;
+			cliext::advance(_Lastn, _Count2n);
+			_Firstn = cliext::upper_bound_unchecked(_First, _Mid, *_Lastn);
+			_Iter_distance(_First, _Firstn, _Count1n);
+			}
+
+		_BidIt _Midn = cliext::_XBuffered_rotate(_Firstn, _Mid, _Lastn,
+			_Count1 - _Count1n, _Count2n, _Tempbuf);	// rearrange middle
+		cliext::_XBuffered_merge(_First, _Firstn, _Midn,
+			_Count1n, _Count2n, _Tempbuf);	// merge each new part
+		cliext::_XBuffered_merge(_Midn, _Lastn, _Last,
+			_Count1 - _Count1n, _Count2 - _Count2n, _Tempbuf);
+		}
+	}
+
+#if __cplusplus_cli
+template<class _BidIt,
+	class _Diff,
+	class _Ty> inline
+	void _XBuffered_merge(_BidIt _First, _BidIt _Mid, _BidIt _Last,
+		_Diff _Count1, _Diff _Count2,
+			_Temp_gc_iterator<_Ty> _Tempbuf)
+	{	// merge [_First, _Mid) with [_Mid, _Last), using operator<
+	if (_Count1 + _Count2 == 2)
+		{	// order two one-element partitions
+		if (_STLCLRDB_LT(*_Mid, *_First))
+			cliext::iter_swap(_First, _Mid);
+		}
+	else if (_Count1 <= _Count2 && _Count1 <= _Tempbuf._Maxlen())
+		{	// buffer left partition, then merge
+		cliext::copy_unchecked(_First, _Mid, _Tempbuf._Init());
+		cliext::merge_unchecked(_Tempbuf._First(), _Tempbuf._Last(),
+			_Mid, _Last, _First);
+		}
+	else if (_Count2 <= _Tempbuf._Maxlen())
+		{	// buffer right partition, then merge
+		cliext::copy_unchecked(_Mid, _Last, _Tempbuf._Init());
+		cliext::_XMerge_backward(_First, _Mid,
+			_Tempbuf._First(), _Tempbuf._Last(), _Last);
+		}
+	else
+		{	// buffer too small, divide and conquer
+		_BidIt _Firstn, _Lastn;
+		_Diff _Count1n, _Count2n;
+
+		if (_Count2 < _Count1)
+			{	// left larger, cut it in half and partition right to match
+			_Count1n = _Count1 / 2, _Count2n = 0;
+			_Firstn = _First;
+			cliext::advance(_Firstn, _Count1n);
+			_Lastn = cliext::lower_bound_unchecked(_Mid, _Last, *_Firstn);
+			_Iter_distance(_Mid, _Lastn, _Count2n);
+			}
+		else
+			{	// right larger, cut it in half and partition left to match
+			_Count1n = 0, _Count2n = _Count2 / 2;
+			_Lastn = _Mid;
+			cliext::advance(_Lastn, _Count2n);
+			_Firstn = cliext::upper_bound_unchecked(_First, _Mid, *_Lastn);
+			_Iter_distance(_First, _Firstn, _Count1n);
+			}
+
+		_BidIt _Midn = cliext::_XBuffered_rotate(_Firstn, _Mid, _Lastn,
+			_Count1 - _Count1n, _Count2n, _Tempbuf);	// rearrange middle
+		cliext::_XBuffered_merge(_First, _Firstn, _Midn,
+			_Count1n, _Count2n, _Tempbuf);	// merge each new part
+		cliext::_XBuffered_merge(_Midn, _Lastn, _Last,
+			_Count1 - _Count1n, _Count2 - _Count2n, _Tempbuf);
+		}
+	}
+#endif	// __cplusplus_cli
+
+template<class _BidIt> inline
+	void inplace_merge_unchecked(_BidIt _First, _BidIt _Mid, _BidIt _Last)
+	{	// merge [_First, _Mid) with [_Mid, _Last), using operator<
+	typedef iterator_traits<_BidIt>::difference_type _Diff;
+	typedef iterator_traits<_BidIt>::value_type _Ty;
+
+	if (_First != _Mid && _Mid != _Last)
+		{	// merge nontrivial sequence
+		_Diff _Count1 = 0;
+		_Iter_distance(_First, _Mid, _Count1);
+		_Diff _Count2 = 0;
+		_Iter_distance(_Mid, _Last, _Count2);
+		_TEMP_ITER(_BidIt, _Ty)
+			_Tempbuf(_Count1 < _Count2 ? _Count1 : _Count2);
+
+		cliext::_XBuffered_merge(_First, _Mid, _Last,
+			_Count1, _Count2, _Tempbuf);
+		}
+	}
+
+template<class _BidIt> inline
+	void inplace_merge(_BidIt _First, _BidIt _Mid, _BidIt _Last)
+	{	// merge [_First, _Mid) with [_Mid, _Last), using operator<
+	_STLCLRDB_ORDER(_First, _Mid);
+	_STLCLRDB_ORDER(_Mid, _Last);
+	cliext::inplace_merge_unchecked(
+		_Unchecked(_First), _Unchecked(_Mid), _Unchecked(_Last));
+	}
+
+		// TEMPLATE FUNCTION inplace_merge WITH PRED
+template<class _BidIt1,
+	class _BidIt2,
+	class _BidIt3,
+	class _Pr> inline
+	_BidIt3 _XMerge_backward(_BidIt1 _First1, _BidIt1 _Last1,
+		_BidIt2 _First2, _BidIt2 _Last2, _BidIt3 _Dest, _Pr _Pred)
+	{	// merge backwards to _Dest, using _Pred
+	for (; ; )
+		if (_First1 == _Last1)
+			return (cliext::copy_backward_unchecked(_First2, _Last2, _Dest));
+		else if (_First2 == _Last2)
+			return (cliext::copy_backward_unchecked(_First1, _Last1, _Dest));
+		else if (_STLCLRDB_LT_PRED(_Pred, *--_Last2, *--_Last1))
+			*--_Dest = *_Last1, ++_Last2;
+		else
+			*--_Dest = *_Last2, ++_Last1;
+	}
+
+template<class _BidIt,
+	class _Diff,
+	class _Ty,
+	class _Pr> inline
+	void _XBuffered_merge(_BidIt _First, _BidIt _Mid, _BidIt _Last,
+		_Diff _Count1, _Diff _Count2,
+			_Temp_iterator<_Ty> _Tempbuf, _Pr _Pred)
+	{	// merge [_First, _Mid) with [_Mid, _Last), using _Pred
+	if (_Count1 + _Count2 == 2)
+		{	// order two one-element partitions
+		if (_STLCLRDB_LT_PRED(_Pred, *_Mid, *_First))
+			cliext::iter_swap(_First, _Mid);
+		}
+	else if (_Count1 <= _Count2 && _Count1 <= _Tempbuf._Maxlen())
+		{	// buffer left partition, then merge
+		cliext::copy_unchecked(_First, _Mid, _Tempbuf._Init());
+		cliext::merge_unchecked(_Tempbuf._First(), _Tempbuf._Last(),
+			_Mid, _Last, _First, _Pred);
+		}
+	else if (_Count2 <= _Tempbuf._Maxlen())
+		{	// buffer right partition, then merge
+		cliext::copy_unchecked(_Mid, _Last, _Tempbuf._Init());
+		cliext::_XMerge_backward(_First, _Mid,
+			_Tempbuf._First(), _Tempbuf._Last(), _Last, _Pred);
+		}
+	else
+		{	// buffer too small, divide and conquer
+		_BidIt _Firstn, _Lastn;
+		_Diff _Count1n, _Count2n;
+		if (_Count2 < _Count1)
+			{	// left larger, cut it in half and partition right to match
+			_Count1n = _Count1 / 2, _Count2n = 0;
+			_Firstn = _First;
+			cliext::advance(_Firstn, _Count1n);
+			_Lastn = cliext::lower_bound_unchecked(_Mid, _Last,
+				*_Firstn, _Pred);
+			_Iter_distance(_Mid, _Lastn, _Count2n);
+			}
+		else
+			{	// right larger, cut it in half and partition left to match
+			_Count1n = 0, _Count2n = _Count2 / 2;
+			_Lastn = _Mid;
+			cliext::advance(_Lastn, _Count2n);
+			_Firstn = cliext::upper_bound_unchecked(_First, _Mid,
+				*_Lastn, _Pred);
+			_Iter_distance(_First, _Firstn, _Count1n);
+			}
+		_BidIt _Midn = cliext::_XBuffered_rotate(_Firstn, _Mid, _Lastn,
+			_Count1 - _Count1n, _Count2n, _Tempbuf);	// rearrange middle
+		cliext::_XBuffered_merge(_First, _Firstn, _Midn,
+			_Count1n, _Count2n, _Tempbuf, _Pred);	// merge each new part
+		cliext::_XBuffered_merge(_Midn, _Lastn, _Last,
+			_Count1 - _Count1n, _Count2 - _Count2n, _Tempbuf, _Pred);
+		}
+	}
+
+#if __cplusplus_cli
+template<class _BidIt,
+	class _Diff,
+	class _Ty,
+	class _Pr> inline
+	void _XBuffered_merge(_BidIt _First, _BidIt _Mid, _BidIt _Last,
+		_Diff _Count1, _Diff _Count2,
+			_Temp_gc_iterator<_Ty> _Tempbuf, _Pr _Pred)
+	{	// merge [_First, _Mid) with [_Mid, _Last), using _Pred
+	if (_Count1 + _Count2 == 2)
+		{	// order two one-element partitions
+		if (_STLCLRDB_LT_PRED(_Pred, *_Mid, *_First))
+			cliext::iter_swap(_First, _Mid);
+		}
+	else if (_Count1 <= _Count2 && _Count1 <= _Tempbuf._Maxlen())
+		{	// buffer left partition, then merge
+		cliext::copy_unchecked(_First, _Mid, _Tempbuf._Init());
+		cliext::merge_unchecked(_Tempbuf._First(), _Tempbuf._Last(),
+			_Mid, _Last, _First, _Pred);
+		}
+	else if (_Count2 <= _Tempbuf._Maxlen())
+		{	// buffer right partition, then merge
+		cliext::copy_unchecked(_Mid, _Last, _Tempbuf._Init());
+		cliext::_XMerge_backward(_First, _Mid,
+			_Tempbuf._First(), _Tempbuf._Last(), _Last, _Pred);
+		}
+	else
+		{	// buffer too small, divide and conquer
+		_BidIt _Firstn, _Lastn;
+		_Diff _Count1n, _Count2n;
+		if (_Count2 < _Count1)
+			{	// left larger, cut it in half and partition right to match
+			_Count1n = _Count1 / 2, _Count2n = 0;
+			_Firstn = _First;
+			cliext::advance(_Firstn, _Count1n);
+			_Lastn = cliext::lower_bound_unchecked(_Mid, _Last,
+				*_Firstn, _Pred);
+			_Iter_distance(_Mid, _Lastn, _Count2n);
+			}
+		else
+			{	// right larger, cut it in half and partition left to match
+			_Count1n = 0, _Count2n = _Count2 / 2;
+			_Lastn = _Mid;
+			cliext::advance(_Lastn, _Count2n);
+			_Firstn = cliext::upper_bound_unchecked(_First, _Mid,
+				*_Lastn, _Pred);
+			_Iter_distance(_First, _Firstn, _Count1n);
+			}
+		_BidIt _Midn = cliext::_XBuffered_rotate(_Firstn, _Mid, _Lastn,
+			_Count1 - _Count1n, _Count2n, _Tempbuf);	// rearrange middle
+		cliext::_XBuffered_merge(_First, _Firstn, _Midn,
+			_Count1n, _Count2n, _Tempbuf, _Pred);	// merge each new part
+		cliext::_XBuffered_merge(_Midn, _Lastn, _Last,
+			_Count1 - _Count1n, _Count2 - _Count2n, _Tempbuf, _Pred);
+		}
+	}
+#endif	// __cplusplus_cli
+
+template<class _BidIt,
+	class _Pr> inline
+	void inplace_merge_unchecked(_BidIt _First, _BidIt _Mid, _BidIt _Last,
+		_Pr _Pred)
+	{	// merge [_First, _Mid) with [_Mid, _Last), using _Pred
+	typedef iterator_traits<_BidIt>::difference_type _Diff;
+	typedef iterator_traits<_BidIt>::value_type _Ty;
+
+	if (_First != _Mid && _Mid != _Last)
+		{	// merge nontrivial sequence
+		_Diff _Count1 = 0;
+		_Iter_distance(_First, _Mid, _Count1);
+		_Diff _Count2 = 0;
+		_Iter_distance(_Mid, _Last, _Count2);
+		_TEMP_ITER(_BidIt, _Ty)
+			_Tempbuf(_Count1 < _Count2 ? _Count1 : _Count2);
+		cliext::_XBuffered_merge(_First, _Mid, _Last,
+			_Count1, _Count2, _Tempbuf, _Pred);
+		}
+	}
+
+template<class _BidIt,
+	class _Pr> inline
+	void inplace_merge(_BidIt _First, _BidIt _Mid, _BidIt _Last,
+		_Pr _Pred)
+	{	// merge [_First, _Mid) with [_Mid, _Last), using _Pred
+	_STLCLRDB_ORDER_PRED(_First, _Mid, _Pred);
+	_STLCLRDB_ORDER_PRED(_Mid, _Last, _Pred);
+	cliext::inplace_merge_unchecked(
+		_Unchecked(_First), _Unchecked(_Mid), _Unchecked(_Last), _Pred);
+	}
+
+		// TEMPLATE FUNCTION sort
+template<class _BidIt> inline
+	void _XInsertion_sort(_BidIt _First, _BidIt _Last)
+	{	// insertion sort [_First, _Last), using operator<
+	typedef iterator_traits<_BidIt>::value_type _Ty;
+
+	if (_First != _Last)
+		for (_BidIt _Next = _First; ++_Next != _Last; )
+			{	// order next element
+			_BidIt _Next1 = _Next;
+			_Ty _Val = *_Next;
+
+			if (_STLCLRDB_LT(_Val, *_First))
+				{	// found new earliest element, move to front
+				cliext::copy_backward_unchecked(_First, _Next, ++_Next1);
+				*_First = _Val;
+				}
+			else
+				{	// look for insertion point after first
+				for (_BidIt _First1 = _Next1;
+					_STLCLRDB_LT(_Val, *--_First1);
+					_Next1 = _First1)
+					*_Next1 = *_First1;	// move hole down
+				*_Next1 = _Val;	// insert element in hole
+				}
+			}
+	}
+
+template<class _RanIt> inline
+	void _XMed3(_RanIt _First, _RanIt _Mid, _RanIt _Last)
+	{	// sort median of three elements to middle
+	if (_STLCLRDB_LT(*_Mid, *_First))
+		cliext::iter_swap(_Mid, _First);
+	if (_STLCLRDB_LT(*_Last, *_Mid))
+		cliext::iter_swap(_Last, _Mid);
+	if (_STLCLRDB_LT(*_Mid, *_First))
+		cliext::iter_swap(_Mid, _First);
+	}
+
+template<class _RanIt> inline
+	void _XMedian(_RanIt _First, _RanIt _Mid, _RanIt _Last)
+	{	// sort median element to middle
+	if (40 < _Last - _First)
+		{	// median of nine
+		int _Step = (int)(_Last - _First + 1) / 8;
+		cliext::_XMed3(_First, _First + _Step, _First + 2 * _Step);
+		cliext::_XMed3(_Mid - _Step, _Mid, _Mid + _Step);
+		cliext::_XMed3(_Last - 2 * _Step, _Last - _Step, _Last);
+		cliext::_XMed3(_First + _Step, _Mid, _Last - _Step);
+		}
+	else
+		cliext::_XMed3(_First, _Mid, _Last);
+	}
+
+template<class _RanIt> inline
+	_PAIR_TYPE(_RanIt) _XUnguarded_partition(_RanIt _First, _RanIt _Last)
+	{	// partition [_First, _Last), using operator<
+	_RanIt _Mid = _First + (_Last - _First) / 2;	// sort median to _Mid
+	cliext::_XMedian(_First, _Mid, _Last - 1);
+	_RanIt _Pfirst = _Mid;
+	_RanIt _Plast = _Pfirst + 1;
+
+	while (_First < _Pfirst
+		&& !_STLCLRDB_LT(*(_Pfirst - 1), *_Pfirst)
+		&& !(*_Pfirst < *(_Pfirst - 1)))
+		--_Pfirst;
+	while (_Plast < _Last
+		&& !_STLCLRDB_LT(*_Plast, *_Pfirst)
+		&& !(*_Pfirst < *_Plast))
+		++_Plast;
+
+	_RanIt _Gfirst = _Plast;
+	_RanIt _Glast = _Pfirst;
+
+	for (; ; )
+		{	// partition
+		for (; _Gfirst < _Last; ++_Gfirst)
+			if (_STLCLRDB_LT(*_Pfirst, *_Gfirst))
+				;
+			else if (*_Gfirst < *_Pfirst)
+				break;
+			else
+				cliext::iter_swap(_Plast++, _Gfirst);
+		for (; _First < _Glast; --_Glast)
+			if (_STLCLRDB_LT(*(_Glast - 1), *_Pfirst))
+				;
+			else if (*_Pfirst < *(_Glast - 1))
+				break;
+			else
+				cliext::iter_swap(--_Pfirst, _Glast - 1);
+		if (_Glast == _First && _Gfirst == _Last)
+			return (_PAIR_TYPE(_RanIt)(_Pfirst, _Plast));
+
+		if (_Glast == _First)
+			{	// no room at bottom, rotate pivot upward
+			if (_Plast != _Gfirst)
+				cliext::iter_swap(_Pfirst, _Plast);
+			++_Plast;
+			cliext::iter_swap(_Pfirst++, _Gfirst++);
+			}
+		else if (_Gfirst == _Last)
+			{	// no room at top, rotate pivot downward
+			if (--_Glast != --_Pfirst)
+				cliext::iter_swap(_Glast, _Pfirst);
+			cliext::iter_swap(_Pfirst, --_Plast);
+			}
+		else
+			cliext::iter_swap(_Gfirst++, --_Glast);
+		}
+	}
+
+template<class _RanIt,
+	class _Diff> inline
+	void _XSort(_RanIt _First, _RanIt _Last, _Diff _Ideal)
+	{	// order [_First, _Last), using operator<
+	_Diff _Count;
+	for (; _ISort::_Max < (_Count = _Last - _First) && 0 < _Ideal; )
+		{	// divide and conquer by quicksort
+		_PAIR_TYPE(_RanIt) _Mid =
+			cliext::_XUnguarded_partition(_First, _Last);
+		_Ideal /= 2, _Ideal += _Ideal / 2;	// allow 1.5 log2(N) divisions
+
+		if (_Mid.first - _First < _Last - _Mid.second)
+			{	// loop on second half
+			cliext::_XSort(_First, _Mid.first, _Ideal);
+			_First = _Mid.second;
+			}
+		else
+			{	// loop on first half
+			cliext::_XSort(_Mid.second, _Last, _Ideal);
+			_Last = _Mid.first;
+			}
+		}
+
+	if (_ISort::_Max < _Count)
+		{	// heap sort if too many divisions
+		cliext::make_heap_unchecked(_First, _Last);
+		cliext::sort_heap_unchecked(_First, _Last);
+		}
+	else if (1 < _Count)
+		cliext::_XInsertion_sort(_First, _Last);	// small
+	}
+
+template<class _RanIt> inline
+	void sort_unchecked(_RanIt _First, _RanIt _Last)
+	{	// order [_First, _Last), using operator<
+	cliext::_XSort(_First, _Last, _Last - _First);
+	}
+
+template<class _RanIt> inline
+	void sort(_RanIt _First, _RanIt _Last)
+	{	// order [_First, _Last), using operator<
+	_STLCLRDB_RANGE(_First, _Last);
+	cliext::sort_unchecked(_Unchecked(_First), _Unchecked(_Last));
+	}
+
+		// TEMPLATE FUNCTION sort WITH PRED
+template<class _BidIt,
+	class _Pr> inline
+	void _XInsertion_sort(_BidIt _First, _BidIt _Last, _Pr _Pred)
+	{	// insertion sort [_First, _Last), using _Pred
+	typedef iterator_traits<_BidIt>::value_type _Ty;
+
+	if (_First != _Last)
+		for (_BidIt _Next = _First; ++_Next != _Last; )
+			{	// order next element
+			_BidIt _Next1 = _Next;
+			_Ty _Val = *_Next;
+
+			if (_STLCLRDB_LT_PRED(_Pred, _Val, *_First))
+				{	// found new earliest element, move to front
+				cliext::copy_backward_unchecked(_First, _Next, ++_Next1);
+				*_First = _Val;
+				}
+			else
+				{	// look for insertion point after first
+				for (_BidIt _First1 = _Next1;
+					_STLCLRDB_LT_PRED(_Pred, _Val, *--_First1);
+					_Next1 = _First1)
+					*_Next1 = *_First1;	// move hole down
+				*_Next1 = _Val;	// insert element in hole
+				}
+			}
+	}
+
+template<class _RanIt,
+	class _Pr> inline
+	void _XMed3(_RanIt _First, _RanIt _Mid, _RanIt _Last, _Pr _Pred)
+	{	// sort median of three elements to middle
+	if (_STLCLRDB_LT_PRED(_Pred, *_Mid, *_First))
+		cliext::iter_swap(_Mid, _First);
+	if (_STLCLRDB_LT_PRED(_Pred, *_Last, *_Mid))
+		cliext::iter_swap(_Last, _Mid);
+	if (_STLCLRDB_LT_PRED(_Pred, *_Mid, *_First))
+		cliext::iter_swap(_Mid, _First);
+	}
+
+template<class _RanIt,
+	class _Pr> inline
+	void _XMedian(_RanIt _First, _RanIt _Mid, _RanIt _Last, _Pr _Pred)
+	{	// sort median element to middle
+	if (40 < _Last - _First)
+		{	// median of nine
+		int _Step = (int)(_Last - _First + 1) / 8;
+		cliext::_XMed3(_First, _First + _Step, _First + 2 * _Step, _Pred);
+		cliext::_XMed3(_Mid - _Step, _Mid, _Mid + _Step, _Pred);
+		cliext::_XMed3(_Last - 2 * _Step, _Last - _Step, _Last, _Pred);
+		cliext::_XMed3(_First + _Step, _Mid, _Last - _Step, _Pred);
+		}
+	else
+		cliext::_XMed3(_First, _Mid, _Last, _Pred);
+	}
+
+template<class _RanIt,
+	class _Pr> inline
+	_PAIR_TYPE(_RanIt) _XUnguarded_partition(_RanIt _First, _RanIt _Last,
+		_Pr _Pred)
+	{	// partition [_First, _Last), using _Pred
+	_RanIt _Mid = _First + (_Last - _First) / 2;
+	cliext::_XMedian(_First, _Mid, _Last - 1, _Pred);
+	_RanIt _Pfirst = _Mid;
+	_RanIt _Plast = _Pfirst + 1;
+
+	while (_First < _Pfirst
+		&& !_STLCLRDB_LT_PRED(_Pred, *(_Pfirst - 1), *_Pfirst)
+		&& !_Pred(*_Pfirst, *(_Pfirst - 1)))
+		--_Pfirst;
+	while (_Plast < _Last
+		&& !_STLCLRDB_LT_PRED(_Pred, *_Plast, *_Pfirst)
+		&& !_Pred(*_Pfirst, *_Plast))
+		++_Plast;
+
+	_RanIt _Gfirst = _Plast;
+	_RanIt _Glast = _Pfirst;
+
+	for (; ; )
+		{	// partition
+		for (; _Gfirst < _Last; ++_Gfirst)
+			if (_STLCLRDB_LT_PRED(_Pred, *_Pfirst, *_Gfirst))
+				;
+			else if (_Pred(*_Gfirst, *_Pfirst))
+				break;
+			else
+				cliext::iter_swap(_Plast++, _Gfirst);
+		for (; _First < _Glast; --_Glast)
+			if (_STLCLRDB_LT_PRED(_Pred, *(_Glast - 1), *_Pfirst))
+				;
+			else if (_Pred(*_Pfirst, *(_Glast - 1)))
+				break;
+			else
+				cliext::iter_swap(--_Pfirst, _Glast - 1);
+		if (_Glast == _First && _Gfirst == _Last)
+			return (_PAIR_TYPE(_RanIt)(_Pfirst, _Plast));
+
+		if (_Glast == _First)
+			{	// no room at bottom, rotate pivot upward
+			if (_Plast != _Gfirst)
+				cliext::iter_swap(_Pfirst, _Plast);
+			++_Plast;
+			cliext::iter_swap(_Pfirst++, _Gfirst++);
+			}
+		else if (_Gfirst == _Last)
+			{	// no room at top, rotate pivot downward
+			if (--_Glast != --_Pfirst)
+				cliext::iter_swap(_Glast, _Pfirst);
+			cliext::iter_swap(_Pfirst, --_Plast);
+			}
+		else
+			cliext::iter_swap(_Gfirst++, --_Glast);
+		}
+	}
+
+template<class _RanIt,
+	class _Diff,
+	class _Pr> inline
+	void _XSort(_RanIt _First, _RanIt _Last, _Diff _Ideal, _Pr _Pred)
+	{	// order [_First, _Last), using _Pred
+	_Diff _Count;
+	for (; _ISort::_Max < (_Count = _Last - _First) && 0 < _Ideal; )
+		{	// divide and conquer by quicksort
+		_PAIR_TYPE(_RanIt) _Mid =
+			cliext::_XUnguarded_partition(_First, _Last, _Pred);
+		_Ideal /= 2, _Ideal += _Ideal / 2;	// allow 1.5 log2(N) divisions
+
+		if (_Mid.first - _First < _Last - _Mid.second)
+			{	// loop on second half
+			cliext::_XSort(_First, _Mid.first, _Ideal, _Pred);
+			_First = _Mid.second;
+			}
+		else
+			{	// loop on first half
+			cliext::_XSort(_Mid.second, _Last, _Ideal, _Pred);
+			_Last = _Mid.first;
+			}
+		}
+
+	if (_ISort::_Max < _Count)
+		{	// heap sort if too many divisions
+		cliext::make_heap_unchecked(_First, _Last, _Pred);
+		cliext::sort_heap_unchecked(_First, _Last, _Pred);
+		}
+	else if (1 < _Count)
+		cliext::_XInsertion_sort(_First, _Last, _Pred);	// small
+	}
+
+template<class _RanIt,
+	class _Pr> inline
+	void sort_unchecked(_RanIt _First, _RanIt _Last, _Pr _Pred)
+	{	// order [_First, _Last), using _Pred
+	cliext::_XSort(_First, _Last, _Last - _First, _Pred);
+	}
+
+template<class _RanIt,
+	class _Pr> inline
+	void sort(_RanIt _First, _RanIt _Last, _Pr _Pred)
+	{	// order [_First, _Last), using _Pred
+	_STLCLRDB_RANGE(_First, _Last);
+	_STLCLRDB_POINTER(_Pred);
+	cliext::sort_unchecked(_Unchecked(_First), _Unchecked(_Last), _Pred);
+	}
+
+		// TEMPLATE FUNCTION stable_sort
+template<class _BidIt,
+	class _OutIt,
+	class _Diff> inline
+	void _XChunked_merge(_BidIt _First, _BidIt _Last, _OutIt _Dest,
+		_Diff _Chunk, _Diff _Count)
+	{	// copy merging chunks, using operator<
+	for (_Diff _Chunk2 = _Chunk * 2; _Chunk2 <= _Count; _Count -= _Chunk2)
+		{	// copy merging pairs of adjacent chunks
+		_BidIt _Mid1 = _First;
+		cliext::advance(_Mid1, _Chunk);
+		_BidIt _Mid2 = _Mid1;
+		cliext::advance(_Mid2, _Chunk);
+
+		_Dest = cliext::merge_unchecked(_First, _Mid1,
+			_Mid1, _Mid2, _Dest);
+		_First = _Mid2;
+		}
+
+	if (_Count <= _Chunk)
+		cliext::copy_unchecked(_First, _Last,
+			_Dest);	// copy partial last chunk
+	else
+		{	// copy merging whole and partial last chunk
+		_BidIt _Mid = _First;
+		cliext::advance(_Mid, _Chunk);
+
+		cliext::merge_unchecked(_First, _Mid, _Mid, _Last, _Dest);
+		}
+	}
+
+template<class _BidIt,
+	class _Diff,
+	class _Ty> inline
+	void _XBuffered_merge_sort(_BidIt _First, _BidIt _Last, _Diff _Count,
+		_Temp_iterator<_Ty> _Tempbuf)
+	{	// sort using temp buffer for merges, using operator<
+	_BidIt _Mid = _First;
+	for (_Diff _Nleft = _Count; _ISort::_Max <= _Nleft; _Nleft -= _ISort::_Max)
+		{	// sort chunks
+		_BidIt _Midend = _Mid;
+		cliext::advance(_Midend, (int)_ISort::_Max);
+
+		cliext::_XInsertion_sort(_Mid, _Midend);
+		_Mid = _Midend;
+		}
+	cliext::_XInsertion_sort(_Mid, _Last);	// sort partial last chunk
+
+	for (_Diff _Chunk = _ISort::_Max; _Chunk < _Count; _Chunk *= 2)
+		{	// merge adjacent pairs of chunks to and from temp buffer
+		cliext::_XChunked_merge(_First, _Last, _Tempbuf._Init(),
+			_Chunk, _Count);
+		cliext::_XChunked_merge(_Tempbuf._First(), _Tempbuf._Last(), _First,
+			_Chunk *= 2, _Count);
+		}
+	}
+
+#if __cplusplus_cli
+template<class _BidIt,
+	class _Diff,
+	class _Ty> inline
+	void _XBuffered_merge_sort(_BidIt _First, _BidIt _Last, _Diff _Count,
+		_Temp_gc_iterator<_Ty> _Tempbuf)
+	{	// sort using temp buffer for merges, using operator<
+	_BidIt _Mid = _First;
+	for (_Diff _Nleft = _Count; _ISort::_Max <= _Nleft; _Nleft -= _ISort::_Max)
+		{	// sort chunks
+		_BidIt _Midend = _Mid;
+		cliext::advance(_Midend, (int)_ISort::_Max);
+
+		cliext::_XInsertion_sort(_Mid, _Midend);
+		_Mid = _Midend;
+		}
+	cliext::_XInsertion_sort(_Mid, _Last);	// sort partial last chunk
+
+	for (_Diff _Chunk = _ISort::_Max; _Chunk < _Count; _Chunk *= 2)
+		{	// merge adjacent pairs of chunks to and from temp buffer
+		cliext::_XChunked_merge(_First, _Last, _Tempbuf._Init(),
+			_Chunk, _Count);
+		cliext::_XChunked_merge(_Tempbuf._First(), _Tempbuf._Last(), _First,
+			_Chunk *= 2, _Count);
+		}
+	}
+#endif	// __cplusplus_cli
+
+template<class _BidIt,
+	class _Diff,
+	class _Ty> inline
+	void _XStable_sort(_BidIt _First, _BidIt _Last, _Diff _Count,
+		_Temp_iterator<_Ty> _Tempbuf)
+	{	//  sort preserving order of equivalents, using operator<
+	if (_Count <= _ISort::_Max)
+		cliext::_XInsertion_sort(_First, _Last);	// small
+	else
+		{	// sort halves and merge
+		_Diff _Count2 = (_Count + 1) / 2;
+		_BidIt _Mid = _First;
+		cliext::advance(_Mid, _Count2);
+
+		if (_Count2 <= _Tempbuf._Maxlen())
+			{	// temp buffer big enough, sort each half using buffer
+			cliext::_XBuffered_merge_sort(_First, _Mid, _Count2,
+				_Tempbuf);
+			cliext::_XBuffered_merge_sort(_Mid, _Last, _Count - _Count2,
+				_Tempbuf);
+			}
+		else
+			{	// temp buffer not big enough, divide and conquer
+			cliext::_XStable_sort(_First, _Mid, _Count2, _Tempbuf);
+			cliext::_XStable_sort(_Mid, _Last, _Count - _Count2, _Tempbuf);
+			}
+
+		cliext::_XBuffered_merge(_First, _Mid, _Last,
+			_Count2, _Count - _Count2, _Tempbuf);	// merge sorted halves
+		}
+	}
+
+#if __cplusplus_cli
+template<class _BidIt,
+	class _Diff,
+	class _Ty> inline
+	void _XStable_sort(_BidIt _First, _BidIt _Last, _Diff _Count,
+		_Temp_gc_iterator<_Ty> _Tempbuf)
+	{	//  sort preserving order of equivalents, using operator<
+	if (_Count <= _ISort::_Max)
+		cliext::_XInsertion_sort(_First, _Last);	// small
+	else
+		{	// sort halves and merge
+		_Diff _Count2 = (_Count + 1) / 2;
+		_BidIt _Mid = _First;
+		cliext::advance(_Mid, _Count2);
+
+		if (_Count2 <= _Tempbuf._Maxlen())
+			{	// temp buffer big enough, sort each half using buffer
+			cliext::_XBuffered_merge_sort(_First, _Mid, _Count2,
+				_Tempbuf);
+			cliext::_XBuffered_merge_sort(_Mid, _Last, _Count - _Count2,
+				_Tempbuf);
+			}
+		else
+			{	// temp buffer not big enough, divide and conquer
+			cliext::_XStable_sort(_First, _Mid, _Count2, _Tempbuf);
+			cliext::_XStable_sort(_Mid, _Last, _Count - _Count2, _Tempbuf);
+			}
+
+		cliext::_XBuffered_merge(_First, _Mid, _Last,
+			_Count2, _Count - _Count2, _Tempbuf);	// merge sorted halves
+		}
+	}
+#endif	// __cplusplus_cli
+
+template<class _BidIt> inline
+	void stable_sort_unchecked(_BidIt _First, _BidIt _Last)
+	{	// sort preserving order of equivalents, using operator<
+	typedef iterator_traits<_BidIt>::difference_type _Diff;
+	typedef iterator_traits<_BidIt>::value_type _Ty;
+
+	if (_First != _Last)
+		{	// sort nontrivial sequence
+		_Diff _Count = 0;
+		_Iter_distance(_First, _Last, _Count);
+		_TEMP_ITER(_BidIt, _Ty) _Tempbuf((_Count + 1) / 2);
+
+		cliext::_XStable_sort(_First, _Last, _Count, _Tempbuf);
+		}
+	}
+
+template<class _BidIt> inline
+	void stable_sort(_BidIt _First, _BidIt _Last)
+	{	// sort preserving order of equivalents, using operator<
+	_STLCLRDB_RANGE(_First, _Last);
+	cliext::stable_sort_unchecked(_Unchecked(_First), _Unchecked(_Last));
+	}
+
+		// TEMPLATE FUNCTION stable_sort WITH PRED
+template<class _BidIt,
+	class _OutIt,
+	class _Diff,
+	class _Pr> inline
+	void _XChunked_merge(_BidIt _First, _BidIt _Last, _OutIt _Dest,
+		_Diff _Chunk, _Diff _Count, _Pr _Pred)
+	{	// copy merging chunks, using _Pred
+	for (_Diff _Chunk2 = _Chunk * 2; _Chunk2 <= _Count; _Count -= _Chunk2)
+		{	// copy merging pairs of adjacent chunks
+		_BidIt _Mid1 = _First;
+		cliext::advance(_Mid1, _Chunk);
+		_BidIt _Mid2 = _Mid1;
+		cliext::advance(_Mid2, _Chunk);
+
+		_Dest = cliext::merge_unchecked(_First, _Mid1,
+			_Mid1, _Mid2, _Dest, _Pred);
+		_First = _Mid2;
+		}
+
+	if (_Count <= _Chunk)
+		cliext::copy_unchecked(_First, _Last,
+			_Dest);	// copy partial last chunk
+	else
+		{	// copy merging whole and partial last chunk
+		_BidIt _Mid1 = _First;
+		cliext::advance(_Mid1, _Chunk);
+
+		cliext::merge_unchecked(_First, _Mid1,
+			_Mid1, _Last, _Dest, _Pred);
+		}
+	}
+
+template<class _BidIt,
+	class _Diff,
+	class _Ty,
+	class _Pr> inline
+	void _XBuffered_merge_sort(_BidIt _First, _BidIt _Last, _Diff _Count,
+		_Temp_iterator<_Ty> _Tempbuf, _Pr _Pred)
+	{	// sort using temp buffer for merges, using _Pred
+	_BidIt _Mid = _First;
+	for (_Diff _Nleft = _Count; _ISort::_Max <= _Nleft; _Nleft -= _ISort::_Max)
+		{	// sort chunks
+		_BidIt _Midn = _Mid;
+		cliext::advance(_Midn, (int)_ISort::_Max);
+
+		cliext::_XInsertion_sort(_Mid, _Midn, _Pred);
+		_Mid = _Midn;
+		}
+	cliext::_XInsertion_sort(_Mid, _Last, _Pred);	// sort partial last chunk
+
+	for (_Diff _Chunk = _ISort::_Max; _Chunk < _Count; _Chunk *= 2)
+		{	// merge adjacent pairs of chunks to and from temp buffer
+		cliext::_XChunked_merge(_First, _Last, _Tempbuf._Init(),
+			_Chunk, _Count, _Pred);
+		cliext::_XChunked_merge(_Tempbuf._First(), _Tempbuf._Last(), _First,
+			_Chunk *= 2, _Count, _Pred);
+		}
+	}
+
+#if __cplusplus_cli
+template<class _BidIt,
+	class _Diff,
+	class _Ty,
+	class _Pr> inline
+	void _XBuffered_merge_sort(_BidIt _First, _BidIt _Last, _Diff _Count,
+		_Temp_gc_iterator<_Ty> _Tempbuf, _Pr _Pred)
+	{	// sort using temp buffer for merges, using _Pred
+	_BidIt _Mid = _First;
+	for (_Diff _Nleft = _Count; _ISort::_Max <= _Nleft; _Nleft -= _ISort::_Max)
+		{	// sort chunks
+		_BidIt _Midn = _Mid;
+		cliext::advance(_Midn, (int)_ISort::_Max);
+
+		cliext::_XInsertion_sort(_Mid, _Midn, _Pred);
+		_Mid = _Midn;
+		}
+	cliext::_XInsertion_sort(_Mid, _Last, _Pred);	// sort partial last chunk
+
+	for (_Diff _Chunk = _ISort::_Max; _Chunk < _Count; _Chunk *= 2)
+		{	// merge adjacent pairs of chunks to and from temp buffer
+		cliext::_XChunked_merge(_First, _Last, _Tempbuf._Init(),
+			_Chunk, _Count, _Pred);
+		cliext::_XChunked_merge(_Tempbuf._First(), _Tempbuf._Last(), _First,
+			_Chunk *= 2, _Count, _Pred);
+		}
+	}
+#endif	// __cplusplus_cli
+
+template<class _BidIt,
+	class _Diff,
+	class _Ty,
+	class _Pr> inline
+	void _XStable_sort(_BidIt _First, _BidIt _Last, _Diff _Count,
+		_Temp_iterator<_Ty> _Tempbuf, _Pr _Pred)
+	{	// sort preserving order of equivalents, using _Pred
+	if (_Count <= _ISort::_Max)
+		cliext::_XInsertion_sort(_First, _Last, _Pred);	// small
+	else
+		{	// sort halves and merge
+		_Diff _Count2 = (_Count + 1) / 2;
+		_BidIt _Mid = _First;
+		cliext::advance(_Mid, _Count2);
+
+		if (_Count2 <= _Tempbuf._Maxlen())
+			{	// temp buffer big enough, sort each half using buffer
+			cliext::_XBuffered_merge_sort(_First, _Mid, _Count2,
+				_Tempbuf, _Pred);
+			cliext::_XBuffered_merge_sort(_Mid, _Last, _Count - _Count2,
+				_Tempbuf, _Pred);
+			}
+		else
+			{	// temp buffer not big enough, divide and conquer
+			cliext::_XStable_sort(_First, _Mid, _Count2, _Tempbuf,
+				_Pred);
+			cliext::_XStable_sort(_Mid, _Last, _Count - _Count2, _Tempbuf,
+				_Pred);
+			}
+
+		cliext::_XBuffered_merge(_First, _Mid, _Last,
+			_Count2, _Count - _Count2, _Tempbuf, _Pred);	// merge halves
+		}
+	}
+
+#if __cplusplus_cli
+template<class _BidIt,
+	class _Diff,
+	class _Ty,
+	class _Pr> inline
+	void _XStable_sort(_BidIt _First, _BidIt _Last, _Diff _Count,
+		_Temp_gc_iterator<_Ty> _Tempbuf, _Pr _Pred)
+	{	// sort preserving order of equivalents, using _Pred
+	if (_Count <= _ISort::_Max)
+		cliext::_XInsertion_sort(_First, _Last, _Pred);	// small
+	else
+		{	// sort halves and merge
+		_Diff _Count2 = (_Count + 1) / 2;
+		_BidIt _Mid = _First;
+		cliext::advance(_Mid, _Count2);
+
+		if (_Count2 <= _Tempbuf._Maxlen())
+			{	// temp buffer big enough, sort each half using buffer
+			cliext::_XBuffered_merge_sort(_First, _Mid, _Count2,
+				_Tempbuf, _Pred);
+			cliext::_XBuffered_merge_sort(_Mid, _Last, _Count - _Count2,
+				_Tempbuf, _Pred);
+			}
+		else
+			{	// temp buffer not big enough, divide and conquer
+			cliext::_XStable_sort(_First, _Mid, _Count2, _Tempbuf,
+				_Pred);
+			cliext::_XStable_sort(_Mid, _Last, _Count - _Count2, _Tempbuf,
+				_Pred);
+			}
+
+		cliext::_XBuffered_merge(_First, _Mid, _Last,
+			_Count2, _Count - _Count2, _Tempbuf, _Pred);	// merge halves
+		}
+	}
+#endif	// __cplusplus_cli
+
+template<class _BidIt,
+	class _Pr> inline
+	void stable_sort_unchecked(_BidIt _First, _BidIt _Last, _Pr _Pred)
+	{	// sort preserving order of equivalents, using _Pred
+	typedef iterator_traits<_BidIt>::difference_type _Diff;
+	typedef iterator_traits<_BidIt>::value_type _Ty;
+
+	if (_First != _Last)
+		{	// sort nontrivial sequence
+		_Diff _Count = 0;
+		_Iter_distance(_First, _Last, _Count);
+		_TEMP_ITER(_BidIt, _Ty) _Tempbuf((_Count + 1) / 2);
+		cliext::_XStable_sort(_First, _Last, _Count, _Tempbuf, _Pred);
+		}
+	}
+
+template<class _BidIt,
+	class _Pr> inline
+	void stable_sort(_BidIt _First, _BidIt _Last, _Pr _Pred)
+	{	// sort preserving order of equivalents, using _Pred
+	_STLCLRDB_RANGE(_First, _Last);
+	_STLCLRDB_POINTER(_Pred);
+	cliext::stable_sort_unchecked(
+		_Unchecked(_First), _Unchecked(_Last), _Pred);
+	}
+
+		// TEMPLATE FUNCTION partial_sort
+template<class _RanIt> inline
+	void partial_sort_unchecked(_RanIt _First, _RanIt _Mid, _RanIt _Last)
+	{	// order [First, _Last) up to _Mid, using operator<
+	typedef iterator_traits<_RanIt>::value_type _Ty;
+
+	cliext::make_heap_unchecked(_First, _Mid);
+
+	for (_RanIt _Next = _Mid; _Next < _Last; ++_Next)
+		if (_STLCLRDB_LT(*_Next, *_First))
+			_XPop_heap(_First, _Mid, _Next,
+				_Ty(*_Next));	// replace top with new largest
+	cliext::sort_heap_unchecked(_First, _Mid);
+	}
+
+template<class _RanIt> inline
+	void partial_sort(_RanIt _First, _RanIt _Mid, _RanIt _Last)
+	{	// order [First, _Last) up to _Mid, using operator<
+	_STLCLRDB_RANGE(_First, _Mid);
+	_STLCLRDB_RANGE(_Mid, _Last);
+	cliext::partial_sort_unchecked(
+		_Unchecked(_First), _Unchecked(_Mid), _Unchecked(_Last));
+	}
+
+		// TEMPLATE FUNCTION partial_sort WITH PRED
+template<class _RanIt,
+	class _Pr> inline
+	void partial_sort_unchecked(_RanIt _First, _RanIt _Mid, _RanIt _Last,
+		_Pr _Pred)
+	{	// order [First, _Last) up to _Mid, using _Pred
+	typedef iterator_traits<_RanIt>::value_type _Ty;
+
+	cliext::make_heap_unchecked(_First, _Mid, _Pred);
+
+	for (_RanIt _Next = _Mid; _Next < _Last; ++_Next)
+		if (_STLCLRDB_LT_PRED(_Pred, *_Next, *_First))
+			_XPop_heap(_First, _Mid, _Next,
+				_Ty(*_Next), _Pred);	// replace top with new largest
+	cliext::sort_heap_unchecked(_First, _Mid, _Pred);
+	}
+
+template<class _RanIt,
+	class _Pr> inline
+	void partial_sort(_RanIt _First, _RanIt _Mid, _RanIt _Last, _Pr _Pred)
+	{	// order [First, _Last) up to _Mid, using _Pred
+	_STLCLRDB_RANGE(_First, _Mid);
+	_STLCLRDB_RANGE(_Mid, _Last);
+	_STLCLRDB_POINTER(_Pred);
+	cliext::partial_sort_unchecked(
+		_Unchecked(_First), _Unchecked(_Mid), _Unchecked(_Last), _Pred);
+	}
+
+		// TEMPLATE FUNCTION partial_sort_copy
+template<class _InIt,
+	class _RanIt> inline
+	_RanIt partial_sort_copy_unchecked(_InIt _First1, _InIt _Last1,
+		_RanIt _First2, _RanIt _Last2)
+	{	// copy [First1, _Last1) into [_First2, _Last2), using operator<
+	typedef iterator_traits<_RanIt>::difference_type _Diff;
+	typedef iterator_traits<_InIt>::value_type _Ty;
+
+	if (_First1 == _Last1 || _First2 == _Last2)
+		return (_First2);
+	else
+		{	// copy and sort nontrivial
+		_RanIt _Mid2 = _First2;
+
+		for (; _First1 != _Last1 && _Mid2 != _Last2; ++_First1, ++_Mid2)
+			*_Mid2 = *_First1;	// copy min(_Last1-_First1, _Last2-_First2)
+		cliext::make_heap_unchecked(_First2, _Mid2);
+
+		for (; _First1 != _Last1; ++_First1)
+			if (_STLCLRDB_LT(*_First1, *_First2))
+				cliext::_XAdjust_heap(_First2, _Diff(0),
+					_Diff(_Mid2 - _First2),
+					_Ty(*_First1));	// replace top with new largest
+
+		cliext::sort_heap_unchecked(_First2, _Mid2);
+		return (_Mid2);
+		}
+	}
+
+template<class _InIt,
+	class _RanIt> inline
+	_RanIt partial_sort_copy(_InIt _First1, _InIt _Last1,
+		_RanIt _First2, _RanIt _Last2)
+	{	// copy [First1, _Last1) into [_First2, _Last2), using operator<
+	_STLCLRDB_RANGE(_First1, _Last1);
+	_STLCLRDB_RANGE(_First2, _Last2);
+	return (cliext::partial_sort_copy_unchecked(
+		_Unchecked(_First1), _Unchecked(_Last1),
+		_Unchecked(_First2), _Unchecked(_Last2)));
+	}
+
+		// TEMPLATE FUNCTION partial_sort_copy WITH PRED
+template<class _InIt,
+	class _RanIt,
+	class _Pr> inline
+	_RanIt partial_sort_copy_unchecked(_InIt _First1, _InIt _Last1,
+		_RanIt _First2, _RanIt _Last2, _Pr _Pred)
+	{	// copy [First1, _Last1) into [_First2, _Last2) using _Pred
+	typedef iterator_traits<_RanIt>::difference_type _Diff;
+	typedef iterator_traits<_InIt>::value_type _Ty;
+
+	if (_First1 == _Last1 || _First2 == _Last2)
+		return (_First2);
+	else
+		{	// copy and sort nontrivial
+		_RanIt _Mid2 = _First2;
+
+		for (; _First1 != _Last1 && _Mid2 != _Last2; ++_First1, ++_Mid2)
+			*_Mid2 = *_First1;	// copy min(_Last1-_First1, _Last2-_First2)
+		cliext::make_heap_unchecked(_First2, _Mid2, _Pred);
+
+		for (; _First1 != _Last1; ++_First1)
+			if (_STLCLRDB_LT_PRED(_Pred, *_First1, *_First2))
+				cliext::_XAdjust_heap(_First2, _Diff(0),
+					_Diff(_Mid2 - _First2),
+					_Ty(*_First1), _Pred);	// replace top with new largest
+
+		cliext::sort_heap_unchecked(_First2, _Mid2, _Pred);
+		return (_Mid2);
+		}
+	}
+
+template<class _InIt,
+	class _RanIt,
+	class _Pr> inline
+	_RanIt partial_sort_copy(_InIt _First1, _InIt _Last1,
+		_RanIt _First2, _RanIt _Last2, _Pr _Pred)
+	{	// copy [First1, _Last1) into [_First2, _Last2) using _Pred
+	_STLCLRDB_RANGE(_First1, _Last1);
+	_STLCLRDB_RANGE(_First2, _Last2);
+	_STLCLRDB_POINTER(_Pred);
+	return (cliext::partial_sort_copy_unchecked(
+		_Unchecked(_First1), _Unchecked(_Last1),
+		_Unchecked(_First2), _Unchecked(_Last2), _Pred));
+	}
+
+		// TEMPLATE FUNCTION nth_element
+template<class _RanIt> inline
+	void nth_element_unchecked(_RanIt _First, _RanIt _Nth, _RanIt _Last)
+	{	// order Nth element, using operator<
+	for (; _ISort::_Max < _Last - _First; )
+		{	// divide and conquer, ordering partition containing Nth
+		_PAIR_TYPE(_RanIt) _Mid =
+			cliext::_XUnguarded_partition(_First, _Last);
+
+		if (_Mid.second <= _Nth)
+			_First = _Mid.second;
+		else if (_Mid.first <= _Nth)
+			return;	// Nth inside fat pivot, done
+		else
+			_Last = _Mid.first;
+		}
+
+	cliext::_XInsertion_sort(_First, _Last);	// sort any remainder
+	}
+
+template<class _RanIt> inline
+	void nth_element(_RanIt _First, _RanIt _Nth, _RanIt _Last)
+	{	// order Nth element, using operator<
+	_STLCLRDB_RANGE(_First, _Nth);
+	_STLCLRDB_RANGE(_Nth, _Last);
+	cliext::nth_element_unchecked(
+		_Unchecked(_First), _Unchecked(_Nth), _Unchecked(_Last));
+	}
+
+		// TEMPLATE FUNCTION nth_element WITH PRED
+template<class _RanIt,
+	class _Pr> inline
+	void nth_element_unchecked(_RanIt _First, _RanIt _Nth, _RanIt _Last,
+		_Pr _Pred)
+	{	// order Nth element, using _Pred
+	for (; _ISort::_Max < _Last - _First; )
+		{	// divide and conquer, ordering partition containing Nth
+		_PAIR_TYPE(_RanIt) _Mid =
+			cliext::_XUnguarded_partition(_First, _Last, _Pred);
+
+		if (_Mid.second <= _Nth)
+			_First = _Mid.second;
+		else if (_Mid.first <= _Nth)
+			return;	// Nth inside fat pivot, done
+		else
+			_Last = _Mid.first;
+		}
+
+	cliext::_XInsertion_sort(_First, _Last, _Pred);	// sort any remainder
+	}
+
+template<class _RanIt,
+	class _Pr> inline
+	void nth_element(_RanIt _First, _RanIt _Nth, _RanIt _Last, _Pr _Pred)
+	{	// order Nth element, using _Pred
+	_STLCLRDB_RANGE(_First, _Nth);
+	_STLCLRDB_RANGE(_Nth, _Last);
+	_STLCLRDB_POINTER(_Pred);
+	cliext::nth_element_unchecked(
+		_Unchecked(_First), _Unchecked(_Nth), _Unchecked(_Last), _Pred);
+	}
+
+		// TEMPLATE FUNCTION includes
+template<class _InIt1,
+	class _InIt2> inline
+	bool includes_unchecked(_InIt1 _First1, _InIt1 _Last1,
+		_InIt2 _First2, _InIt2 _Last2)
+	{	// test if all [_First1, _Last1) in [_First2, _Last2), using operator<
+	for (; _First1 != _Last1 && _First2 != _Last2; )
+		if (_STLCLRDB_LT(*_First2, *_First1))
+			return (false);
+		else if (*_First1 < *_First2)
+			++_First1;
+		else
+			++_First1, ++_First2;
+	return (_First2 == _Last2);
+	}
+
+template<class _InIt1,
+	class _InIt2> inline
+	bool includes(_InIt1 _First1, _InIt1 _Last1,
+		_InIt2 _First2, _InIt2 _Last2)
+	{	// test if all [_First1, _Last1) in [_First2, _Last2), using operator<
+	_STLCLRDB_ORDER(_First1, _Last1);
+	_STLCLRDB_ORDER(_First2, _Last2);
+	return (cliext::includes_unchecked(
+		_Unchecked(_First1), _Unchecked(_Last1),
+		_Unchecked(_First2), _Unchecked(_Last2)));
+	}
+
+		// TEMPLATE FUNCTION includes WITH PRED
+template<class _InIt1,
+	class _InIt2,
+	class _Pr> inline
+	bool includes_unchecked(_InIt1 _First1, _InIt1 _Last1,
+		_InIt2 _First2, _InIt2 _Last2, _Pr _Pred)
+	{	// test if set [_First1, _Last1) in [_First2, _Last2), using _Pred
+	for (; _First1 != _Last1 && _First2 != _Last2; )
+		if (_STLCLRDB_LT_PRED(_Pred, *_First2, *_First1))
+			return (false);
+		else if (_Pred(*_First1, *_First2))
+			++_First1;
+		else
+			++_First1, ++_First2;
+	return (_First2 == _Last2);
+	}
+
+template<class _InIt1,
+	class _InIt2,
+	class _Pr> inline
+	bool includes(_InIt1 _First1, _InIt1 _Last1,
+		_InIt2 _First2, _InIt2 _Last2, _Pr _Pred)
+	{	// test if set [_First1, _Last1) in [_First2, _Last2), using _Pred
+	_STLCLRDB_ORDER_PRED(_First1, _Last1, _Pred);
+	_STLCLRDB_ORDER_PRED(_First2, _Last2, _Pred);
+	return (cliext::includes_unchecked(
+		_Unchecked(_First1), _Unchecked(_Last1),
+		_Unchecked(_First2), _Unchecked(_Last2), _Pred));
+	}
+
+		// TEMPLATE FUNCTION set_union
+template<class _InIt1,
+	class _InIt2,
+	class _OutIt> inline
+	_OutIt set_union_unchecked(_InIt1 _First1, _InIt1 _Last1,
+		_InIt2 _First2, _InIt2 _Last2, _OutIt _Dest)
+	{	// OR sets [_First1, _Last1) and [_First2, _Last2), using operator<
+	for (; _First1 != _Last1 && _First2 != _Last2; )
+		if (_STLCLRDB_LT(*_First1, *_First2))
+			*_Dest++ = *_First1, ++_First1;
+		else if (*_First2 < *_First1)
+			*_Dest++ = *_First2, ++_First2;
+		else
+			*_Dest++ = *_First1, ++_First1, ++_First2;
+	_Dest = cliext::copy_unchecked(_First1, _Last1, _Dest);
+	return (cliext::copy_unchecked(_First2, _Last2, _Dest));
+	}
+
+template<class _InIt1,
+	class _InIt2,
+	class _OutIt> inline
+	_OutIt set_union(_InIt1 _First1, _InIt1 _Last1,
+		_InIt2 _First2, _InIt2 _Last2, _OutIt _Dest)
+	{	// OR sets [_First1, _Last1) and [_First2, _Last2), using operator<
+	_STLCLRDB_ORDER(_First1, _Last1);
+	_STLCLRDB_ORDER(_First2, _Last2);
+	_STLCLRDB_POINTER(_Dest);
+	return (cliext::set_union_unchecked(
+		_Unchecked(_First1), _Unchecked(_Last1),
+		_Unchecked(_First2), _Unchecked(_Last2), _Unchecked(_Dest)));
+	}
+
+		// TEMPLATE FUNCTION set_union WITH PRED
+template<class _InIt1,
+	class _InIt2,
+	class _OutIt,
+	class _Pr> inline
+	_OutIt set_union_unchecked(_InIt1 _First1, _InIt1 _Last1,
+		_InIt2 _First2, _InIt2 _Last2, _OutIt _Dest, _Pr _Pred)
+	{	// OR sets [_First1, _Last1) and [_First2, _Last2), using _Pred
+	for (; _First1 != _Last1 && _First2 != _Last2; )
+		if (_STLCLRDB_LT_PRED(_Pred, *_First1, *_First2))
+			*_Dest++ = *_First1, ++_First1;
+		else if (_Pred(*_First2, *_First1))
+			*_Dest++ = *_First2, ++_First2;
+		else
+			*_Dest++ = *_First1, ++_First1, ++_First2;
+	_Dest = cliext::copy_unchecked(_First1, _Last1, _Dest);
+	return (cliext::copy_unchecked(_First2, _Last2, _Dest));
+	}
+
+template<class _InIt1,
+	class _InIt2,
+	class _OutIt,
+	class _Pr> inline
+	_OutIt set_union(_InIt1 _First1, _InIt1 _Last1,
+		_InIt2 _First2, _InIt2 _Last2, _OutIt _Dest, _Pr _Pred)
+	{	// OR sets [_First1, _Last1) and [_First2, _Last2), using _Pred
+	_STLCLRDB_ORDER_PRED(_First1, _Last1, _Pred);
+	_STLCLRDB_ORDER_PRED(_First2, _Last2, _Pred);
+	_STLCLRDB_POINTER(_Dest);
+	return (cliext::set_union_unchecked(
+		_Unchecked(_First1), _Unchecked(_Last1),
+		_Unchecked(_First2), _Unchecked(_Last2), _Unchecked(_Dest), _Pred));
+	}
+
+		// TEMPLATE FUNCTION set_intersection
+template<class _InIt1,
+	class _InIt2,
+	class _OutIt> inline
+	_OutIt set_intersection_unchecked(_InIt1 _First1, _InIt1 _Last1,
+		_InIt2 _First2, _InIt2 _Last2, _OutIt _Dest)
+	{	// AND sets [_First1, _Last1) and [_First2, _Last2), using operator<
+	for (; _First1 != _Last1 && _First2 != _Last2; )
+		if (_STLCLRDB_LT(*_First1, *_First2))
+			++_First1;
+		else if (*_First2 < *_First1)
+			++_First2;
+		else
+			*_Dest++ = *_First1++, ++_First2;
+	return (_Dest);
+	}
+
+template<class _InIt1,
+	class _InIt2,
+	class _OutIt> inline
+	_OutIt set_intersection(_InIt1 _First1, _InIt1 _Last1,
+		_InIt2 _First2, _InIt2 _Last2, _OutIt _Dest)
+	{	// AND sets [_First1, _Last1) and [_First2, _Last2), using operator<
+	_STLCLRDB_ORDER(_First1, _Last1);
+	_STLCLRDB_ORDER(_First2, _Last2);
+	_STLCLRDB_POINTER(_Dest);
+	return (cliext::set_intersection_unchecked(
+		_Unchecked(_First1), _Unchecked(_Last1),
+		_Unchecked(_First2), _Unchecked(_Last2), _Unchecked(_Dest)));
+	}
+
+		// TEMPLATE FUNCTION set_intersection WITH PRED
+template<class _InIt1,
+	class _InIt2,
+	class _OutIt,
+	class _Pr> inline
+	_OutIt set_intersection_unchecked(_InIt1 _First1, _InIt1 _Last1,
+		_InIt2 _First2, _InIt2 _Last2, _OutIt _Dest, _Pr _Pred)
+	{	// AND sets [_First1, _Last1) and [_First2, _Last2), using _Pred
+	for (; _First1 != _Last1 && _First2 != _Last2; )
+		if (_STLCLRDB_LT_PRED(_Pred, *_First1, *_First2))
+			++_First1;
+		else if (_Pred(*_First2, *_First1))
+			++_First2;
+		else
+			*_Dest++ = *_First1++, ++_First2;
+	return (_Dest);
+	}
+
+template<class _InIt1,
+	class _InIt2,
+	class _OutIt,
+	class _Pr> inline
+	_OutIt set_intersection(_InIt1 _First1, _InIt1 _Last1,
+		_InIt2 _First2, _InIt2 _Last2, _OutIt _Dest, _Pr _Pred)
+	{	// AND sets [_First1, _Last1) and [_First2, _Last2), using _Pred
+	_STLCLRDB_ORDER_PRED(_First1, _Last1, _Pred);
+	_STLCLRDB_ORDER_PRED(_First2, _Last2, _Pred);
+	_STLCLRDB_POINTER(_Dest);
+	return (cliext::set_intersection_unchecked(
+		_Unchecked(_First1), _Unchecked(_Last1),
+		_Unchecked(_First2), _Unchecked(_Last2), _Unchecked(_Dest), _Pred));
+	}
+
+		// TEMPLATE FUNCTION set_difference
+template<class _InIt1,
+	class _InIt2,
+	class _OutIt> inline
+	_OutIt set_difference_unchecked(_InIt1 _First1, _InIt1 _Last1,
+		_InIt2 _First2, _InIt2 _Last2,	_OutIt _Dest)
+	{	// take set [_First2, _Last2) from [_First1, _Last1), using operator<
+	for (; _First1 != _Last1 && _First2 != _Last2; )
+		if (_STLCLRDB_LT(*_First1, *_First2))
+			*_Dest++ = *_First1, ++_First1;
+		else if (*_First2 < *_First1)
+			++_First2;
+		else
+			++_First1, ++_First2;
+	return (cliext::copy_unchecked(_First1, _Last1, _Dest));
+	}
+
+template<class _InIt1,
+	class _InIt2,
+	class _OutIt> inline
+	_OutIt set_difference(_InIt1 _First1, _InIt1 _Last1,
+		_InIt2 _First2, _InIt2 _Last2,	_OutIt _Dest)
+	{	// take set [_First2, _Last2) from [_First1, _Last1), using operator<
+	_STLCLRDB_ORDER(_First1, _Last1);
+	_STLCLRDB_ORDER(_First2, _Last2);
+	_STLCLRDB_POINTER(_Dest);
+	return (cliext::set_difference_unchecked(
+		_Unchecked(_First1), _Unchecked(_Last1),
+		_Unchecked(_First2), _Unchecked(_Last2), _Unchecked(_Dest)));
+	}
+
+		// TEMPLATE FUNCTION set_difference WITH PRED
+template<class _InIt1,
+	class _InIt2,
+	class _OutIt,
+	class _Pr> inline
+	_OutIt set_difference_unchecked(_InIt1 _First1, _InIt1 _Last1,
+		_InIt2 _First2, _InIt2 _Last2, _OutIt _Dest, _Pr _Pred)
+	{	//  take set [_First2, _Last2) from [_First1, _Last1), using _Pred
+	for (; _First1 != _Last1 && _First2 != _Last2; )
+		if (_STLCLRDB_LT_PRED(_Pred, *_First1, *_First2))
+			*_Dest++ = *_First1, ++_First1;
+		else if (_Pred(*_First2, *_First1))
+			++_First2;
+		else
+			++_First1, ++_First2;
+	return (cliext::copy_unchecked(_First1, _Last1, _Dest));
+	}
+
+template<class _InIt1,
+	class _InIt2,
+	class _OutIt,
+	class _Pr> inline
+	_OutIt set_difference(_InIt1 _First1, _InIt1 _Last1,
+		_InIt2 _First2, _InIt2 _Last2, _OutIt _Dest, _Pr _Pred)
+	{	//  take set [_First2, _Last2) from [_First1, _Last1), using _Pred
+	_STLCLRDB_ORDER_PRED(_First1, _Last1, _Pred);
+	_STLCLRDB_ORDER_PRED(_First2, _Last2, _Pred);
+	_STLCLRDB_POINTER(_Dest);
+	return (cliext::set_difference_unchecked(
+		_Unchecked(_First1), _Unchecked(_Last1),
+		_Unchecked(_First2), _Unchecked(_Last2), _Unchecked(_Dest), _Pred));
+	}
+
+		// TEMPLATE FUNCTION set_symmetric_difference
+template<class _InIt1,
+	class _InIt2,
+	class _OutIt> inline
+	_OutIt set_symmetric_difference_unchecked(_InIt1 _First1, _InIt1 _Last1,
+		_InIt2 _First2, _InIt2 _Last2, _OutIt _Dest)
+	{	// XOR sets [_First1, _Last1) and [_First2, _Last2), using operator<
+	for (; _First1 != _Last1 && _First2 != _Last2; )
+		if (_STLCLRDB_LT(*_First1, *_First2))
+			*_Dest++ = *_First1, ++_First1;
+		else if (*_First2 < *_First1)
+			*_Dest++ = *_First2, ++_First2;
+		else
+			++_First1, ++_First2;
+	_Dest = cliext::copy_unchecked(_First1, _Last1, _Dest);
+	return (cliext::copy_unchecked(_First2, _Last2, _Dest));
+	}
+
+template<class _InIt1,
+	class _InIt2,
+	class _OutIt> inline
+	_OutIt set_symmetric_difference(_InIt1 _First1, _InIt1 _Last1,
+		_InIt2 _First2, _InIt2 _Last2, _OutIt _Dest)
+	{	// XOR sets [_First1, _Last1) and [_First2, _Last2), using operator<
+	_STLCLRDB_ORDER(_First1, _Last1);
+	_STLCLRDB_ORDER(_First2, _Last2);
+	_STLCLRDB_POINTER(_Dest);
+	return (cliext::set_symmetric_difference_unchecked(
+		_Unchecked(_First1), _Unchecked(_Last1),
+		_Unchecked(_First2), _Unchecked(_Last2), _Unchecked(_Dest)));
+	}
+
+		// TEMPLATE FUNCTION set_symmetric_difference WITH PRED
+template<class _InIt1,
+	class _InIt2,
+	class _OutIt,
+	class _Pr> inline
+	_OutIt set_symmetric_difference_unchecked(_InIt1 _First1, _InIt1 _Last1,
+		_InIt2 _First2, _InIt2 _Last2, _OutIt _Dest, _Pr _Pred)
+	{	// XOR sets [_First1, _Last1) and [_First2, _Last2), using _Pred
+	for (; _First1 != _Last1 && _First2 != _Last2; )
+		if (_STLCLRDB_LT_PRED(_Pred, *_First1, *_First2))
+			*_Dest++ = *_First1, ++_First1;
+		else if (_Pred(*_First2, *_First1))
+			*_Dest++ = *_First2, ++_First2;
+		else
+			++_First1, ++_First2;
+	_Dest = cliext::copy_unchecked(_First1, _Last1, _Dest);
+	return (cliext::copy_unchecked(_First2, _Last2, _Dest));
+	}
+
+template<class _InIt1,
+	class _InIt2,
+	class _OutIt,
+	class _Pr> inline
+	_OutIt set_symmetric_difference(_InIt1 _First1, _InIt1 _Last1,
+		_InIt2 _First2, _InIt2 _Last2, _OutIt _Dest, _Pr _Pred)
+	{	// XOR sets [_First1, _Last1) and [_First2, _Last2), using _Pred
+	_STLCLRDB_ORDER_PRED(_First1, _Last1, _Pred);
+	_STLCLRDB_ORDER_PRED(_First2, _Last2, _Pred);
+	_STLCLRDB_POINTER(_Dest);
+	return (cliext::set_symmetric_difference_unchecked(
+		_Unchecked(_First1), _Unchecked(_Last1),
+		_Unchecked(_First2), _Unchecked(_Last2), _Unchecked(_Dest), _Pred));
+	}
+
+		// TEMPLATE FUNCTION max_element
+template<class _FwdIt> inline
+	_FwdIt max_element_unchecked(_FwdIt _First, _FwdIt _Last)
+	{	// find largest element, using operator<
+	_FwdIt _Found = _First;
+	if (_First != _Last)
+		for (; ++_First != _Last; )
+			if (_STLCLRDB_LT(*_Found, *_First))
+				_Found = _First;
+	return (_Found);
+	}
+
+template<class _FwdIt> inline
+	_FwdIt max_element(_FwdIt _First, _FwdIt _Last)
+	{	// find largest element, using operator<
+	_STLCLRDB_RANGE(_First, _Last);
+	return (cliext::max_element_unchecked(
+		_Unchecked(_First), _Unchecked(_Last)));
+	}
+
+		// TEMPLATE FUNCTION max_element WITH PRED
+template<class _FwdIt,
+	class _Pr> inline
+	_FwdIt max_element_unchecked(_FwdIt _First, _FwdIt _Last, _Pr _Pred)
+	{	// find largest element, using _Pred
+	_FwdIt _Found = _First;
+	if (_First != _Last)
+		for (; ++_First != _Last; )
+			if (_STLCLRDB_LT_PRED(_Pred, *_Found, *_First))
+				_Found = _First;
+	return (_Found);
+	}
+
+template<class _FwdIt,
+	class _Pr> inline
+	_FwdIt max_element(_FwdIt _First, _FwdIt _Last, _Pr _Pred)
+	{	// find largest element, using _Pred
+	_STLCLRDB_RANGE(_First, _Last);
+	_STLCLRDB_POINTER(_Pred);
+	return (cliext::max_element_unchecked(
+		_Unchecked(_First), _Unchecked(_Last), _Pred));
+	}
+
+		// TEMPLATE FUNCTION min_element
+template<class _FwdIt> inline
+	_FwdIt min_element_unchecked(_FwdIt _First, _FwdIt _Last)
+	{	// find smallest element, using operator<
+	_FwdIt _Found = _First;
+	if (_First != _Last)
+		for (; ++_First != _Last; )
+			if (_STLCLRDB_LT(*_First, *_Found))
+				_Found = _First;
+	return (_Found);
+	}
+
+template<class _FwdIt> inline
+	_FwdIt min_element(_FwdIt _First, _FwdIt _Last)
+	{	// find smallest element, using operator<
+	_STLCLRDB_RANGE(_First, _Last);
+	return (cliext::min_element_unchecked(
+		_Unchecked(_First), _Unchecked(_Last)));
+	}
+
+		// TEMPLATE FUNCTION min_element WITH PRED
+template<class _FwdIt,
+	class _Pr> inline
+	_FwdIt min_element_unchecked(_FwdIt _First, _FwdIt _Last, _Pr _Pred)
+	{	// find smallest element, using _Pred
+	_FwdIt _Found = _First;
+	if (_First != _Last)
+		for (; ++_First != _Last; )
+			if (_STLCLRDB_LT_PRED(_Pred, *_First, *_Found))
+				_Found = _First;
+	return (_Found);
+	}
+
+template<class _FwdIt,
+	class _Pr> inline
+	_FwdIt min_element(_FwdIt _First, _FwdIt _Last, _Pr _Pred)
+	{	// find smallest element, using _Pred
+	_STLCLRDB_RANGE(_First, _Last);
+	_STLCLRDB_POINTER(_Pred);
+	return (cliext::min_element_unchecked(
+		_Unchecked(_First), _Unchecked(_Last), _Pred));
+	}
+
+		// TEMPLATE FUNCTION next_permutation
+template<class _BidIt> inline
+	bool next_permutation_unchecked(_BidIt _First, _BidIt _Last)
+	{	// permute and test for pure ascending, using operator<
+	_BidIt _Next = _Last;
+	if (_First == _Last || _First == --_Next)
+		return (false);
+
+	for (; ; )
+		{	// find rightmost element smaller than successor
+		_BidIt _Next1 = _Next;
+		if (_STLCLRDB_LT(*--_Next, *_Next1))
+			{	// swap with rightmost element that's smaller, flip suffix
+			_BidIt _Mid = _Last;
+			for (; !_STLCLRDB_LT(*_Next, *--_Mid); )
+				;
+			cliext::iter_swap(_Next, _Mid);
+			cliext::reverse(_Next1, _Last);
+			return (true);
+			}
+
+		if (_Next == _First)
+			{	// pure descending, flip all
+			cliext::reverse(_First, _Last);
+			return (false);
+			}
+		}
+	}
+
+template<class _BidIt> inline
+	bool next_permutation(_BidIt _First, _BidIt _Last)
+	{	// permute and test for pure ascending, using operator<
+	_STLCLRDB_RANGE(_First, _Last);
+	return (cliext::next_permutation_unchecked(
+		_Unchecked(_First), _Unchecked(_Last)));
+	}
+
+		// TEMPLATE FUNCTION next_permutation WITH PRED
+template<class _BidIt,
+	class _Pr> inline
+	bool next_permutation_unchecked(_BidIt _First, _BidIt _Last, _Pr _Pred)
+	{	// permute and test for pure ascending, using _Pred
+	_BidIt _Next = _Last;
+	if (_First == _Last || _First == --_Next)
+		return (false);
+
+	for (; ; )
+		{	// find rightmost element smaller than successor
+		_BidIt _Next1 = _Next;
+		if (_STLCLRDB_LT_PRED(_Pred, *--_Next, *_Next1))
+			{	// swap with rightmost element that's smaller, flip suffix
+			_BidIt _Mid = _Last;
+			for (; !_STLCLRDB_LT_PRED(_Pred, *_Next, *--_Mid); )
+				;
+			cliext::iter_swap(_Next, _Mid);
+			cliext::reverse(_Next1, _Last);
+			return (true);
+			}
+
+		if (_Next == _First)
+			{	// pure descending, flip all
+			cliext::reverse(_First, _Last);
+			return (false);
+			}
+		}
+	}
+
+template<class _BidIt,
+	class _Pr> inline
+	bool next_permutation(_BidIt _First, _BidIt _Last, _Pr _Pred)
+	{	// permute and test for pure ascending, using _Pred
+	_STLCLRDB_RANGE(_First, _Last);
+	_STLCLRDB_POINTER(_Pred);
+	return (cliext::next_permutation_unchecked(
+		_Unchecked(_First), _Unchecked(_Last), _Pred));
+	}
+
+		// TEMPLATE FUNCTION prev_permutation
+template<class _BidIt> inline
+	bool prev_permutation_unchecked(_BidIt _First, _BidIt _Last)
+	{	// reverse permute and test for pure descending, using operator<
+	_BidIt _Next = _Last;
+	if (_First == _Last || _First == --_Next)
+		return (false);
+	for (; ; )
+		{	// find rightmost element not smaller than successor
+		_BidIt _Next1 = _Next;
+		if (_STLCLRDB_LT(*_Next1, *--_Next))
+			{	// swap with rightmost element that's not smaller, flip suffix
+			_BidIt _Mid = _Last;
+			for (; !_STLCLRDB_LT(*--_Mid, *_Next); )
+				;
+			cliext::iter_swap(_Next, _Mid);
+			cliext::reverse(_Next1, _Last);
+			return (true);
+			}
+
+		if (_Next == _First)
+			{	// pure ascending, flip all
+			cliext::reverse(_First, _Last);
+			return (false);
+			}
+		}
+	}
+
+template<class _BidIt> inline
+	bool prev_permutation(_BidIt _First, _BidIt _Last)
+	{	// reverse permute and test for pure descending, using operator<
+	_STLCLRDB_RANGE(_First, _Last);
+	return (cliext::prev_permutation_unchecked(
+		_Unchecked(_First), _Unchecked(_Last)));
+	}
+
+		// TEMPLATE FUNCTION prev_permutation WITH PRED
+template<class _BidIt,
+	class _Pr> inline
+	bool prev_permutation_unchecked(_BidIt _First, _BidIt _Last, _Pr _Pred)
+	{	// reverse permute and test for pure descending, using _Pred
+	_BidIt _Next = _Last;
+	if (_First == _Last || _First == --_Next)
+		return (false);
+
+	for (; ; )
+		{	// find rightmost element not smaller than successor
+		_BidIt _Next1 = _Next;
+		if (_STLCLRDB_LT_PRED(_Pred, *_Next1, *--_Next))
+			{	// swap with rightmost element that's not smaller, flip suffix
+			_BidIt _Mid = _Last;
+			for (; !_STLCLRDB_LT_PRED(_Pred, *--_Mid, *_Next); )
+				;
+			cliext::iter_swap(_Next, _Mid);
+			cliext::reverse(_Next1, _Last);
+			return (true);
+			}
+
+		if (_Next == _First)
+			{	// pure ascending, flip all
+			cliext::reverse(_First, _Last);
+			return (false);
+			}
+		}
+	}
+
+template<class _BidIt,
+	class _Pr> inline
+	bool prev_permutation(_BidIt _First, _BidIt _Last, _Pr _Pred)
+	{	// reverse permute and test for pure descending, using _Pred
+	_STLCLRDB_RANGE(_First, _Last);
+	_STLCLRDB_POINTER(_Pred);
+	return (cliext::prev_permutation_unchecked(
+		_Unchecked(_First), _Unchecked(_Last), _Pred));
+	}
+} // namespace cliext
+
+#endif /* _CLI_ALGORITHM_ */
+
+/*
+ * Copyright (c) 2004-2007 by Dinkumware, Ltd.  ALL RIGHTS RESERVED.
+ * Consult your license regarding permissions and restrictions.
+V5.03:0009 */

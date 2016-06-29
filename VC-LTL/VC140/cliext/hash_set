@@ -1,0 +1,1262 @@
+// hash_set stl/clr header
+#ifndef _CLI_HASH_SET_
+ #define _CLI_HASH_SET_
+#include <cliext/xhash>
+
+namespace cliext {
+	namespace impl {
+//
+// TEMPLATE CLASS hash_set_traits
+//
+template<typename _Key_t,	// key type
+	bool _Mflag>			// true if multiple equivalent keys are permitted
+	ref class hash_set_traits
+	{	// traits required to make hash table behave like a set
+public:
+	typedef hash_set_traits<_Key_t, _Mflag> _Mytype_t;
+
+	typedef _Key_t key_type;
+	typedef _Key_t value_type;
+	typedef _STLCLR BinaryDelegate<key_type, key_type, bool>
+		key_compare;
+	typedef key_compare value_compare;
+	typedef _STLCLR UnaryDelegate<key_type, int> hasher;
+
+	typedef _Key_t generic_key;
+
+	hash_set_traits()
+		:	comp(gcnew key_compare(&_Hash_key_compare)),
+			hash_fun(gcnew hasher(&_Hasher)),
+			_Multi(_Mflag)
+		{	// construct with default comparator and hash function
+		}
+
+	hash_set_traits(key_compare^ _Pred)
+		:	comp(_Pred),
+			hash_fun(gcnew hasher(&_Hasher)),
+			_Multi(_Mflag)
+		{	// construct with specified comparator and default hash function
+		}
+
+	hash_set_traits(key_compare^ _Pred, hasher^ _Hashfn)
+		:	comp(_Pred), hash_fun(_Hashfn),
+			_Multi(_Mflag)
+		{	// construct with specified comparator and default hash function
+		}
+
+	key_compare^ key_comp()
+		{	// return object for comparing keys
+		return (comp);
+		}
+
+	value_compare^ value_comp()
+		{	// return object for comparing keys
+		return (comp);
+		}
+
+	hasher^ hash_delegate()
+		{	// return object for hashing key
+		return (gcnew hasher(this, &hash_set_traits::get_hash));
+		}
+
+	int get_hash(key_type _Key)
+		{	// rehash hashed _Key to int value by pseudorandomizing transform
+		int _Hashval = hash_fun(_Key);
+		int _Quot = _Hashval / 127773;
+		int _Rem = _Hashval % 127773;
+
+		_Rem = 16807 * _Rem - 2836 * _Quot;
+		if (_Rem < 0)
+			_Rem += 2147483647;
+		return (_Rem);
+		}
+
+	static key_type get_key(value_type% _Val)
+		{	// extract key from element value
+		return (_Val);
+		}
+
+_STLCLR_FIELD_ACCESS:
+	static int _Hasher(key_type _Key)
+		{	// hash _Key to int value using template function hash_value
+		return (hash_value(_Key));
+		}
+
+	// data members
+	key_compare^ comp;	// the comparator predicate for keys: ==, <=, or >=
+	hasher^ hash_fun;	// the hash function
+	bool _Multi;		// true if multiple equivalents keys are permitted
+	};
+
+//
+// TEMPLATE CLASS hash_set_base
+//
+template<typename _Key_t>
+	ref class hash_set_base
+	:	public hash<
+			hash_set_traits<_Key_t, false> >,
+			System::Collections::Generic::ICollection<_Key_t>,
+			System::Collections::Generic::IEnumerable<_Key_t>
+	{	// hash table of unique key values
+public:
+	// types
+	typedef hash_set_base<_Key_t> _Mytype_t;
+	typedef _Key_t _Value_t;
+	typedef hash<hash_set_traits<_Key_t, false> > _Mybase_t;
+
+	typedef typename _Mybase_t::key_type key_type;
+//	typedef typename _Mybase_t::value_type value_type;
+//	typedef typename _Mybase_t::key_compare key_compare;
+//	typedef typename _Traits_t::value_compare value_compare;
+//	typedef typename _Mybase_t::hasher hasher;
+
+//	typedef int size_type;
+//	typedef int difference_type;
+//	typedef _Value_t value_type;
+//	typedef value_type% reference;
+//	typedef value_type% const_reference;
+
+//	typedef _Mycont_it generic_container;
+//	typedef value_type generic_value;
+
+//	typedef _STLCLR GenericPair<iterator^, bool> pair_iter_bool;
+//	typedef _STLCLR GenericPair<iterator^, iterator^> pair_iter_iter;
+
+	// basics
+	hash_set_base()
+		:	_Mybase_t()
+		{	// construct empty hash_set from defaults
+		}
+
+	hash_set_base(hash_set_base% _Right)
+		:	_Mybase_t(_Right)
+		{	// construct by copying a hash_set
+		}
+
+	hash_set_base% operator=(hash_set_base% _Right)
+		{	// assign
+		_Mybase_t::operator=(_Right);
+		return (*this);
+		}
+
+	// constructors
+	explicit hash_set_base(key_compare^ _Pred)
+		:	_Mybase_t(_Pred)
+		{	// construct empty hash_set from compare
+		}
+
+	hash_set_base(key_compare^ _Pred, hasher^ _Hasher)
+		:	_Mybase_t(_Pred, _Hasher)
+		{	// construct with specified compare and hash
+		}
+
+	template<typename _Iter_t>
+		hash_set_base(_Iter_t _First, _Iter_t _Last)
+		:	_Mybase_t()
+		{	// construct hash_set from [_First, _Last), defaults
+		for (; _First != _Last; ++_First)
+			insert((value_type)*_First);
+		}
+
+	template<typename _Iter_t>
+		hash_set_base(_Iter_t _First, _Iter_t _Last,
+			key_compare^ _Pred)
+		:	_Mybase_t(_Pred)
+		{	// construct hash_set from [_First, _Last), compare
+		for (; _First != _Last; ++_First)
+			insert((value_type)*_First);
+		}
+
+	template<typename _Iter_t>
+		hash_set_base(_Iter_t _First, _Iter_t _Last,
+			key_compare^ _Pred, hasher^ _Hasher)
+		:	_Mybase_t(_Pred, _Hasher)
+		{	// construct hash_set from [_First, _Last), compare and hash
+		for (; _First != _Last; ++_First)
+			insert((value_type)*_First);
+		}
+
+	// interfaces
+private:
+	property size_type Count_generic
+		{	// element count
+		virtual size_type get() sealed
+			= System::Collections::Generic::ICollection<_Value_t>::Count::get
+			{	// get element count
+			return (size());
+			}
+		};
+
+	property bool IsReadOnly
+		{	// test if read only
+		virtual bool get() sealed
+			= System::Collections::Generic::ICollection<_Value_t>
+				::IsReadOnly::get
+			{	// test if read only
+			return (false);
+			}
+		};
+
+	// converters
+	virtual void CopyTo(_Myarray_t^ _Dest, int _First) sealed
+		= System::Collections::Generic::ICollection<_Value_t>::CopyTo
+		{	// copy to _Dest, beginning at _First
+		node_type^ _Node = head_node();
+
+		for (int _Idx = size(); 0 <= --_Idx; )
+			{	// copy back to front
+			_Node = _Node->prev_node();
+			_Dest[_First + _Idx] = _Node->_Value;
+			}
+		}
+
+	// iterator generators
+	virtual System::Collections::Generic::IEnumerator<_Value_t>^
+		GetEnumerator() sealed
+		= System::Collections::Generic::IEnumerable<_Value_t>::GetEnumerator
+		{	// get enumerator for the container
+		return (gcnew _STLCLR HashEnumerator<_Key_t, _Value_t>(
+			front_node()));
+		}
+
+	// mutators
+	virtual void Add(value_type _Val) sealed
+		= System::Collections::Generic::ICollection<_Value_t>::Add
+		{	// add element with value _Val
+		insert_node(_Val, nullptr);
+		}
+
+	virtual void Clear() sealed
+		= System::Collections::Generic::ICollection<_Value_t>::Clear
+		{	// erase all elements
+		clear();
+		}
+
+	virtual bool Contains(value_type _Val) sealed
+		= System::Collections::Generic::ICollection<_Value_t>::Contains
+		{	// search for element matching value _Val
+		for (node_type^ _Node = front_node(); _Node != head_node();
+			_Node = _Node->next_node())
+			if (((System::Object^)_Val)->Equals(
+				(System::Object^)_Node->_Value))
+				return (true);
+		return (false);
+		}
+
+	virtual bool Remove(value_type _Val) sealed
+		= System::Collections::Generic::ICollection<_Value_t>::Remove
+		{	// remove first element matching value _Val
+		for (node_type^ _Node = front_node(); _Node != head_node();
+			_Node = _Node->next_node())
+			if (((System::Object^)_Val)->Equals(
+				(System::Object^)_Node->_Value))
+				{	// found a match, remove it
+				erase_node(_Node);
+				return (true);
+				}
+		return (false);
+		}
+	};
+
+//
+// TEMPLATE CLASS hash_set_select
+//
+template<typename _Key1_t,
+	bool _Is_ref_key>
+	ref class hash_set_select
+	:	public hash_set_base<_Key1_t>
+	{	// ordered red-black tree of unique keys
+public:
+	// types
+	typedef _Key1_t _Gkey_t;
+
+	typedef hash_set_select<_Key1_t, _Is_ref_key> _Mytype_t;
+	typedef hash_set_base<_Gkey_t> _Mybase_t;
+//	typedef System::Collections::Generic::IEnumerable<_Value_t> _Myenum_it;
+
+	typedef _Key1_t key_type;
+//	typedef typename _Mybase_t::value_type value_type;
+//	typedef typename _Mybase_t::key_compare key_compare;
+//	typedef typename _Traits_t::value_compare value_compare;
+//	typedef typename _Mybase_t::hasher hasher;
+
+//	typedef int size_type;
+//	typedef int difference_type;
+//	typedef _Value_t value_type;
+//	typedef value_type% reference;
+//	typedef value_type% const_reference;
+
+//	typedef _Mycont_it generic_container;
+//	typedef key_type generic_value;
+
+//	typedef _STLCLR GenericPair<iterator^, bool> pair_iter_bool;
+//	typedef _STLCLR GenericPair<iterator^, iterator^> pair_iter_iter;
+
+	// basics
+	hash_set_select()
+		:	_Mybase_t()
+		{	// construct empty hash_set from defaults
+		}
+
+	hash_set_select(hash_set_select% _Right)
+		:	_Mybase_t((_Mybase_t%)_Right)
+		{	// construct by copying a list
+		}
+
+	hash_set_select% operator=(hash_set_select% _Right)
+		{	// assign
+		_Mybase_t::operator=(_Right);
+		return (*this);
+		}
+
+	// constructors
+	explicit hash_set_select(key_compare^ _Pred)
+		:	_Mybase_t(_Pred)
+		{	// construct empty hash_set from comparator
+		}
+
+	hash_set_select(key_compare^ _Pred, hasher^ _Hasher)
+		:	_Mybase_t(_Pred, _Hasher)
+		{	// construct with specified compare and hash
+		}
+
+	template<typename _Iter_t>
+		hash_set_select(_Iter_t _First, _Iter_t _Last)
+		:	_Mybase_t()
+		{	// construct hash_set from [_First, _Last), default comparator
+		for (; _First != _Last; ++_First)
+			insert((value_type)*_First);
+		}
+
+	template<typename _Iter_t>
+		hash_set_select(_Iter_t _First, _Iter_t _Last, key_compare^ _Pred)
+		:	_Mybase_t(_Pred)
+		{	// construct hash_set from [_First, _Last), comparator
+		for (; _First != _Last; ++_First)
+			insert((value_type)*_First);
+		}
+
+	template<typename _Iter_t>
+		hash_set_select(_Iter_t _First, _Iter_t _Last,
+			key_compare^ _Pred, hasher^ _Hasher)
+		:	_Mybase_t(_Pred, _Hasher)
+		{	// construct hash_map from [_First, _Last), compare and hash
+		for (; _First != _Last; ++_First)
+			insert((value_type)*_First);
+		}
+
+	// converters
+	static generic_value make_value(key_type _Key)
+		{	// make a generic_value
+		return (_Key);
+		}
+
+	// mutators
+//	virtual size_type erase(key_type _Keyval);
+
+	// searches
+//	virtual iterator find(key_type _Keyval);
+//	virtual size_type count(key_type _Keyval);
+//	virtual iterator lower_bound(key_type _Keyval);
+//	virtual iterator upper_bound(key_type _Keyval);
+//	virtual pair_iter_iter equal_range(key_type _Keyval);
+	};
+
+//
+// TEMPLATE CLASS hash_set_select: _Key1_t REF SPECIALIZATION
+//
+template<typename _Key1_t>
+	ref class hash_set_select<_Key1_t, true>
+	:	public hash_set_base<_Key1_t^>
+	{	// ordered red-black tree of unique keys
+public:
+	// types
+	typedef _Key1_t^ _Gkey_t;
+
+	typedef hash_set_select<_Key1_t, true> _Mytype_t;
+	typedef hash_set_base<_Gkey_t> _Mybase_t;
+//	typedef System::Collections::Generic::IEnumerable<_Value_t> _Myenum_it;
+
+	typedef _Key1_t key_type;
+//	typedef typename _Mybase_t::value_type value_type;
+//	typedef typename _Mybase_t::key_compare key_compare;
+//	typedef typename _Traits_t::value_compare value_compare;
+//	typedef typename _Mybase_t::hasher hasher;
+
+//	typedef int size_type;
+//	typedef int difference_type;
+//	typedef _Value_t value_type;
+//	typedef value_type% reference;
+//	typedef value_type% const_reference;
+
+//	typedef _Mycont_it generic_container;
+//	typedef key_type generic_value;
+
+//	typedef _STLCLR GenericPair<iterator^, bool> pair_iter_bool;
+//	typedef _STLCLR GenericPair<iterator^, iterator^> pair_iter_iter;
+
+	// basics
+	hash_set_select()
+		:	_Mybase_t()
+		{	// construct empty hash_set from defaults
+		}
+
+	hash_set_select(hash_set_select% _Right)
+		:	_Mybase_t((_Mybase_t%)_Right)
+		{	// construct by copying a list
+		}
+
+	hash_set_select% operator=(hash_set_select% _Right)
+		{	// assign
+		_Mybase_t::operator=(_Right);
+		return (*this);
+		}
+
+	// constructors
+	explicit hash_set_select(key_compare^ _Pred)
+		:	_Mybase_t(_Pred)
+		{	// construct empty hash_set from comparator
+		}
+
+	hash_set_select(key_compare^ _Pred, hasher^ _Hasher)
+		:	_Mybase_t(_Pred, _Hasher)
+		{	// construct with specified compare and hash
+		}
+
+	template<typename _Iter_t>
+		hash_set_select(_Iter_t _First, _Iter_t _Last)
+		:	_Mybase_t()
+		{	// construct hash_set from [_First, _Last), default comparator
+		for (; _First != _Last; ++_First)
+			insert((value_type)*_First);
+		}
+
+	template<typename _Iter_t>
+		hash_set_select(_Iter_t _First, _Iter_t _Last, key_compare^ _Pred)
+		:	_Mybase_t(_Pred)
+		{	// construct hash_set from [_First, _Last), comparator
+		for (; _First != _Last; ++_First)
+			insert((value_type)*_First);
+		}
+
+	template<typename _Iter_t>
+		hash_set_select(_Iter_t _First, _Iter_t _Last,
+			key_compare^ _Pred, hasher^ _Hasher)
+		:	_Mybase_t(_Pred, _Hasher)
+		{	// construct hash_map from [_First, _Last), compare and hash
+		for (; _First != _Last; ++_First)
+			insert((value_type)*_First);
+		}
+
+	// converters
+	static generic_value make_value(key_type _Key)
+		{	// make a generic_value
+		return (gcnew key_type(_Key));
+		}
+
+	// mutators
+	pair_iter_bool insert(key_type _Val)
+		{	// try to insert node with value _Val, return iterator
+		_Pairnb _Ans = insert_node(%_Val, nullptr);
+
+		return (pair_iter_bool(iterator(_Ans.first),
+			_Ans.second));
+		}
+
+	iterator insert(iterator _Where, key_type _Val)
+		{	// insert a key value, with hint
+		return (_Mybase_t::insert(_Where, %_Val));
+		}
+
+	template<typename _Iter_t>
+		void insert(_Iter_t _First, _Iter_t _Last)
+		{	// insert [_First, _Last) one at a time
+		_Mybase_t::insert(_First, _Last);
+		}
+
+	void insert(_Myenum_it^ _Right) new
+		{	// insert enumerable
+		_Mybase_t::insert(_Right);
+		}
+
+	size_type erase(key_type _Keyval)
+		{	// erase element at _Where
+		return (_Mybase_t::erase(%_Keyval));
+		}
+
+	// searches
+	iterator find(key_type _Keyval)
+		{	// find an element that matches _Keyval, return iterator
+		return (_Mybase_t::find(%_Keyval));
+		}
+
+	size_type count(key_type _Keyval)
+		{	// count all elements that match _Keyval
+		return (_Mybase_t::count(%_Keyval));
+		}
+
+	iterator lower_bound(key_type _Keyval)
+		{	// find leftmost node not less than _Keyval
+		return (_Mybase_t::lower_bound(%_Keyval));
+		}
+
+	iterator upper_bound(key_type _Keyval)
+		{	// find leftmost node not less than _Keyval
+		return (_Mybase_t::upper_bound(%_Keyval));
+		}
+
+	pair_iter_iter equal_range(key_type _Keyval)
+		{	// find range equivalent to _Keyval
+		return (_Mybase_t::equal_range(%_Keyval));
+		}
+	};
+	}	// namespace cliext::impl
+
+//
+// TEMPLATE CLASS hash_set
+//
+template<typename _Key1_t>
+	ref class hash_set
+	:	public impl::hash_set_select<
+			_Key1_t,
+			__is_ref_class(typename _Dehandle<_Key1_t>::type)
+				&& !is_handle<_Key1_t>::value>
+	{	// ordered red-black tree of unique keys
+public:
+	// types
+	typedef hash_set<_Key1_t> _Mytype_t;
+	typedef impl::hash_set_select<
+		_Key1_t,
+		__is_ref_class(typename _Dehandle<_Key1_t>::type)
+			&& !is_handle<_Key1_t>::value> _Mybase_t;
+
+//	typedef _Key1_t key_type;
+//	typedef typename _Mybase_t::value_type value_type;
+//	typedef typename _Mybase_t::key_compare key_compare;
+//	typedef typename _Traits_t::value_compare value_compare;
+//	typedef typename _Mybase_t::hasher hasher;
+
+//	typedef int size_type;
+//	typedef int difference_type;
+//	typedef _Value_t value_type;
+//	typedef value_type% reference;
+//	typedef value_type% const_reference;
+
+//	typedef _Mycont_it generic_container;
+//	typedef value_type generic_value;
+
+//	typedef _STLCLR GenericPair<iterator^, bool> pair_iter_bool;
+//	typedef _STLCLR GenericPair<iterator^, iterator^> pair_iter_iter;
+
+	// basics
+	hash_set()
+		:	_Mybase_t()
+		{	// construct default
+		}
+
+	hash_set(hash_set% _Right)
+		:	_Mybase_t((_Mybase_t%)_Right)
+		{	// construct by copying a list
+		}
+
+	hash_set(hash_set^ _Right)
+		:	_Mybase_t((_Mybase_t%)*_Right)
+		{	// construct by copying a list
+		}
+
+	hash_set% operator=(hash_set% _Right)
+		{	// assign
+		_Mybase_t::operator=(_Right);
+		return (*this);
+		}
+
+	hash_set% operator=(hash_set^ _Right)
+		{	// assign
+		_Mybase_t::operator=(*_Right);
+		return (*this);
+		}
+
+	// constructors
+	explicit hash_set(key_compare^ _Pred)
+		:	_Mybase_t(_Pred)
+		{	// construct empty hash_set from comparator
+		}
+
+	hash_set(key_compare^ _Pred, hasher^ _Hasher)
+		:	_Mybase_t(_Pred, _Hasher)
+		{	// construct with specified compare and hash
+		}
+
+	template<typename _Iter_t>
+		hash_set(_Iter_t _First, _Iter_t _Last)
+		:	_Mybase_t()
+		{	// construct hash_set from [_First, _Last), default comparator
+		for (; _First != _Last; ++_First)
+			insert((value_type)*_First);
+		}
+
+	template<typename _Iter_t>
+		hash_set(_Iter_t _First, _Iter_t _Last, key_compare^ _Pred)
+		:	_Mybase_t(_Pred)
+		{	// construct hash_set from [_First, _Last), comparator
+		for (; _First != _Last; ++_First)
+			insert((value_type)*_First);
+		}
+
+	template<typename _Iter_t>
+		hash_set(_Iter_t _First, _Iter_t _Last,
+			key_compare^ _Pred, hasher^ _Hasher)
+		:	_Mybase_t(_Pred, _Hasher)
+		{	// construct hash_map from [_First, _Last), compare and hash
+		for (; _First != _Last; ++_First)
+			insert((value_type)*_First);
+		}
+
+	hash_set(_Myenum_it^ _Right)
+		:	_Mybase_t()
+		{	// construct hash_set from enumeration, default comparator
+		for each (value_type _Val in _Right)
+			insert(_Val);
+		}
+
+	hash_set(_Myenum_it^ _Right,
+		key_compare^ _Pred)
+		:	_Mybase_t(_Pred)
+		{	// construct hash_set from enumeration, comparator
+		for each (value_type _Val in _Right)
+			insert(_Val);
+		}
+
+	hash_set(_Myenum_it^ _Right,
+		key_compare^ _Pred, hasher^ _Hasher)
+		:	_Mybase_t(_Pred, _Hasher)
+		{	// construct map from enumeration, compare and hash
+		for each (value_type _Val in _Right)
+			insert(_Val);
+		}
+
+	// mutators
+	void swap(hash_set% _Right)
+		{	// exchange contents with _Right
+		_Mybase_t::swap(_Right);
+		}
+
+	// interfaces
+public:
+	virtual System::Object^ Clone() override
+		{	// clone the vector
+		return (gcnew _Mytype_t(*this));
+		}
+	};
+
+//
+// TEMPLATE FUNCTION swap
+//
+template<typename _Key_t> inline
+	void swap(cliext::hash_set<_Key_t>% _Left,
+		cliext::hash_set<_Key_t>% _Right)
+	{	// swap two hash_sets
+	_Left.swap(_Right);
+	}
+
+	namespace impl {
+//
+// TEMPLATE CLASS hash_multiset_base
+//
+template<typename _Key_t>
+	ref class hash_multiset_base
+	:	public hash<
+			hash_set_traits<_Key_t, true> >,
+			System::Collections::Generic::ICollection<_Key_t>,
+			System::Collections::Generic::IEnumerable<_Key_t>
+	{	// hash table of unique key values
+public:
+	// types
+	typedef hash_multiset_base<_Key_t> _Mytype_t;
+	typedef _Key_t _Value_t;
+	typedef hash<hash_set_traits<_Key_t, true> > _Mybase_t;
+
+	typedef typename _Mybase_t::key_type key_type;
+//	typedef typename _Mybase_t::value_type value_type;
+//	typedef typename _Mybase_t::key_compare key_compare;
+//	typedef typename _Traits_t::value_compare value_compare;
+//	typedef typename _Mybase_t::hasher hasher;
+
+//	typedef int size_type;
+//	typedef int difference_type;
+//	typedef _Value_t value_type;
+//	typedef value_type% reference;
+//	typedef value_type% const_reference;
+
+//	typedef _Mycont_it generic_container;
+//	typedef value_type generic_value;
+
+//	typedef _STLCLR GenericPair<iterator^, bool> pair_iter_bool;
+//	typedef _STLCLR GenericPair<iterator^, iterator^> pair_iter_iter;
+
+	// basics
+	hash_multiset_base()
+		:	_Mybase_t()
+		{	// construct empty hash_multiset from defaults
+		}
+
+	hash_multiset_base(hash_multiset_base% _Right)
+		:	_Mybase_t(_Right)
+		{	// construct by copying a hash_multiset
+		}
+
+	hash_multiset_base% operator=(hash_multiset_base% _Right)
+		{	// assign
+		_Mybase_t::operator=(_Right);
+		return (*this);
+		}
+
+	// constructors
+	explicit hash_multiset_base(key_compare^ _Pred)
+		:	_Mybase_t(_Pred)
+		{	// construct empty hash_multiset from compare
+		}
+
+	hash_multiset_base(key_compare^ _Pred, hasher^ _Hasher)
+		:	_Mybase_t(_Pred, _Hasher)
+		{	// construct with specified compare and hash
+		}
+
+	template<typename _Iter_t>
+		hash_multiset_base(_Iter_t _First, _Iter_t _Last)
+		:	_Mybase_t()
+		{	// construct hash_multiset from [_First, _Last), defaults
+		for (; _First != _Last; ++_First)
+			insert((value_type)*_First);
+		}
+
+	template<typename _Iter_t>
+		hash_multiset_base(_Iter_t _First, _Iter_t _Last,
+			key_compare^ _Pred)
+		:	_Mybase_t(_Pred)
+		{	// construct hash_multiset from [_First, _Last), compare
+		for (; _First != _Last; ++_First)
+			insert((value_type)*_First);
+		}
+
+	template<typename _Iter_t>
+		hash_multiset_base(_Iter_t _First, _Iter_t _Last,
+			key_compare^ _Pred, hasher^ _Hasher)
+		:	_Mybase_t(_Pred, _Hasher)
+		{	// construct hash_multiset from [_First, _Last), compare and hash
+		for (; _First != _Last; ++_First)
+			insert((value_type)*_First);
+		}
+
+	// mutators
+	iterator insert(value_type _Val)
+		{	// try to insert node with value _Val, return iterator
+		_Pairnb _Ans = insert_node(_Val, nullptr);
+
+		return (make_iterator(_Ans.first));
+		}
+
+	iterator insert(iterator, value_type _Val) new
+		{	// insert a key value, with hint
+		_Pairnb _Ans = insert_node(_Val, nullptr);	// ignore hint
+
+		return (make_iterator(_Ans.first));
+		}
+
+	template<typename _Iter_t>
+		void insert(_Iter_t _First, _Iter_t _Last)
+		{	// insert [_First, _Last) one at a time
+		_Mybase_t::insert(_First, _Last);
+		}
+
+	void insert(_Myenum_it^ _Right) new
+		{	// insert enumerable
+		_Mybase_t::insert(_Right);
+		}
+
+	// interfaces
+private:
+	property size_type Count_generic
+		{	// element count
+		virtual size_type get() sealed
+			= System::Collections::Generic::ICollection<_Value_t>::Count::get
+			{	// get element count
+			return (size());
+			}
+		};
+
+	property bool IsReadOnly
+		{	// test if read only
+		virtual bool get() sealed
+			= System::Collections::Generic::ICollection<_Value_t>
+				::IsReadOnly::get
+			{	// test if read only
+			return (false);
+			}
+		};
+
+	virtual void CopyTo(_Myarray_t^ _Dest, int _First) sealed
+		= System::Collections::Generic::ICollection<_Value_t>::CopyTo
+		{	// copy to _Dest, beginning at _First
+		node_type^ _Node = head_node();
+
+		for (int _Idx = size(); 0 <= --_Idx; )
+			{	// copy back to front
+			_Node = _Node->prev_node();
+			_Dest[_First + _Idx] = _Node->_Value;
+			}
+		}
+
+	virtual System::Collections::Generic::IEnumerator<_Value_t>^
+		GetEnumerator() sealed
+		= System::Collections::Generic::IEnumerable<_Value_t>::GetEnumerator
+		{	// get enumerator for the container
+		return (gcnew _STLCLR HashEnumerator<_Key_t, _Value_t>(
+			front_node()));
+		}
+
+	// mutators
+	virtual void Add(value_type _Val) sealed
+		= System::Collections::Generic::ICollection<_Value_t>::Add
+		{	// add element with value _Val
+		insert_node(_Val, nullptr);
+		}
+
+	virtual void Clear() sealed
+		= System::Collections::Generic::ICollection<_Value_t>::Clear
+		{	// erase all elements
+		clear();
+		}
+
+	virtual bool Contains(value_type _Val) sealed
+		= System::Collections::Generic::ICollection<_Value_t>::Contains
+		{	// search for element matching value _Val
+		for (node_type^ _Node = front_node(); _Node != head_node();
+			_Node = _Node->next_node())
+			if (((System::Object^)_Val)->Equals(
+				(System::Object^)_Node->_Value))
+				return (true);
+		return (false);
+		}
+
+	virtual bool Remove(value_type _Val) sealed
+		= System::Collections::Generic::ICollection<_Value_t>::Remove
+		{	// remove first element matching value _Val
+		for (node_type^ _Node = front_node(); _Node != head_node();
+			_Node = _Node->next_node())
+			if (((System::Object^)_Val)->Equals(
+				(System::Object^)_Node->_Value))
+				{	// found a match, remove it
+				erase_node(_Node);
+				return (true);
+				}
+		return (false);
+		}
+	};
+
+//
+// TEMPLATE CLASS hash_multiset_select
+//
+template<typename _Key1_t,
+	bool _Is_ref_key>
+	ref class hash_multiset_select
+	:	public hash_multiset_base<_Key1_t>
+	{	// ordered red-black tree of unique keys
+public:
+	// types
+	typedef _Key1_t _Gkey_t;
+
+	typedef hash_multiset_select<_Key1_t, false> _Mytype_t;
+	typedef hash_multiset_base<_Gkey_t> _Mybase_t;
+//	typedef System::Collections::Generic::IEnumerable<_Value_t> _Myenum_it;
+
+	typedef _Key1_t key_type;
+//	typedef typename _Mybase_t::value_type value_type;
+//	typedef typename _Mybase_t::key_compare key_compare;
+//	typedef typename _Traits_t::value_compare value_compare;
+//	typedef typename _Mybase_t::hasher hasher;
+
+//	typedef int size_type;
+//	typedef int difference_type;
+//	typedef _Value_t value_type;
+//	typedef value_type% reference;
+//	typedef value_type% const_reference;
+
+//	typedef _Mycont_it generic_container;
+//	typedef key_type generic_value;
+
+//	typedef _STLCLR GenericPair<iterator^, bool> pair_iter_bool;
+//	typedef _STLCLR GenericPair<iterator^, iterator^> pair_iter_iter;
+
+	// basics
+	hash_multiset_select()
+		:	_Mybase_t()
+		{	// construct empty hash_multiset from defaults
+		}
+
+	hash_multiset_select(hash_multiset_select% _Right)
+		:	_Mybase_t((_Mybase_t%)_Right)
+		{	// construct by copying a list
+		}
+
+	hash_multiset_select% operator=(hash_multiset_select% _Right)
+		{	// assign
+		_Mybase_t::operator=(_Right);
+		return (*this);
+		}
+
+	// constructors
+	explicit hash_multiset_select(key_compare^ _Pred)
+		:	_Mybase_t(_Pred)
+		{	// construct empty hash_multiset from comparator
+		}
+
+	hash_multiset_select(key_compare^ _Pred, hasher^ _Hasher)
+		:	_Mybase_t(_Pred, _Hasher)
+		{	// construct with specified compare and hash
+		}
+
+	template<typename _Iter_t>
+		hash_multiset_select(_Iter_t _First, _Iter_t _Last)
+		:	_Mybase_t()
+		{	// construct hash_multiset from [_First, _Last), default comparator
+		for (; _First != _Last; ++_First)
+			insert((value_type)*_First);
+		}
+
+	template<typename _Iter_t>
+		hash_multiset_select(_Iter_t _First, _Iter_t _Last, key_compare^ _Pred)
+		:	_Mybase_t(_Pred)
+		{	// construct hash_multiset from [_First, _Last), comparator
+		for (; _First != _Last; ++_First)
+			insert((value_type)*_First);
+		}
+
+	template<typename _Iter_t>
+		hash_multiset_select(_Iter_t _First, _Iter_t _Last,
+			key_compare^ _Pred, hasher^ _Hasher)
+		:	_Mybase_t(_Pred, _Hasher)
+		{	// construct hash_map from [_First, _Last), compare and hash
+		for (; _First != _Last; ++_First)
+			insert((value_type)*_First);
+		}
+
+	// converters
+	static generic_value make_value(key_type _Key)
+		{	// make a generic_value
+		return (_Key);
+		}
+
+	// mutators
+//	virtual size_type erase(key_type _Keyval);
+
+	// searches
+//	virtual iterator find(key_type _Keyval);
+//	virtual size_type count(key_type _Keyval);
+//	virtual iterator lower_bound(key_type _Keyval);
+//	virtual iterator upper_bound(key_type _Keyval);
+//	virtual pair_iter_iter equal_range(key_type _Keyval);
+	};
+
+//
+// TEMPLATE CLASS hash_multiset_select: _Key1_t REF SPECIALIZATION
+//
+template<typename _Key1_t>
+	ref class hash_multiset_select<_Key1_t, true>
+	:	public hash_multiset_base<_Key1_t^>
+	{	// ordered red-black tree of unique keys
+public:
+	// types
+	typedef _Key1_t^ _Gkey_t;
+
+	typedef hash_multiset_select<_Key1_t, true> _Mytype_t;
+	typedef hash_multiset_base<_Gkey_t> _Mybase_t;
+//	typedef System::Collections::Generic::IEnumerable<_Value_t> _Myenum_it;
+
+	typedef _Key1_t key_type;
+//	typedef typename _Mybase_t::value_type value_type;
+//	typedef typename _Mybase_t::key_compare key_compare;
+//	typedef typename _Traits_t::value_compare value_compare;
+//	typedef typename _Mybase_t::hasher hasher;
+
+//	typedef int size_type;
+//	typedef int difference_type;
+//	typedef _Value_t value_type;
+//	typedef value_type% reference;
+//	typedef value_type% const_reference;
+
+//	typedef _Mycont_it generic_container;
+//	typedef key_type generic_value;
+
+//	typedef _STLCLR GenericPair<iterator^, bool> pair_iter_bool;
+//	typedef _STLCLR GenericPair<iterator^, iterator^> pair_iter_iter;
+
+	// basics
+	hash_multiset_select()
+		:	_Mybase_t()
+		{	// construct empty hash_multiset from defaults
+		}
+
+	hash_multiset_select(hash_multiset_select% _Right)
+		:	_Mybase_t((_Mybase_t%)_Right)
+		{	// construct by copying a list
+		}
+
+	hash_multiset_select% operator=(hash_multiset_select% _Right)
+		{	// assign
+		_Mybase_t::operator=(_Right);
+		return (*this);
+		}
+
+	// constructors
+	explicit hash_multiset_select(key_compare^ _Pred)
+		:	_Mybase_t(_Pred)
+		{	// construct empty hash_multiset from comparator
+		}
+
+	hash_multiset_select(key_compare^ _Pred, hasher^ _Hasher)
+		:	_Mybase_t(_Pred, _Hasher)
+		{	// construct with specified compare and hash
+		}
+
+	template<typename _Iter_t>
+		hash_multiset_select(_Iter_t _First, _Iter_t _Last)
+		:	_Mybase_t()
+		{	// construct hash_multiset from [_First, _Last), default comparator
+		for (; _First != _Last; ++_First)
+			insert((value_type)*_First);
+		}
+
+	template<typename _Iter_t>
+		hash_multiset_select(_Iter_t _First, _Iter_t _Last, key_compare^ _Pred)
+		:	_Mybase_t(_Pred)
+		{	// construct hash_multiset from [_First, _Last), comparator
+		for (; _First != _Last; ++_First)
+			insert((value_type)*_First);
+		}
+
+	template<typename _Iter_t>
+		hash_multiset_select(_Iter_t _First, _Iter_t _Last,
+			key_compare^ _Pred, hasher^ _Hasher)
+		:	_Mybase_t(_Pred, _Hasher)
+		{	// construct hash_map from [_First, _Last), compare and hash
+		for (; _First != _Last; ++_First)
+			insert((value_type)*_First);
+		}
+
+	// converters
+	static generic_value make_value(key_type _Key)
+		{	// make a generic_value
+		return (gcnew key_type(_Key));
+		}
+
+	// mutators
+		iterator insert(key_type _Val)
+		{	// try to insert node with value _Val, return iterator
+		_Pairnb _Ans = insert_node(%_Val, nullptr);
+
+		return (make_iterator(_Ans.first));
+		}
+
+	iterator insert(iterator _Where, key_type _Val)
+		{	// insert a key value, with hint
+		return (_Mybase_t::insert(_Where, %_Val));
+		}
+
+	template<typename _Iter_t>
+		void insert(_Iter_t _First, _Iter_t _Last)
+		{	// insert [_First, _Last) one at a time
+		_Mybase_t::insert(_First, _Last);
+		}
+
+	void insert(_Myenum_it^ _Right) new
+		{	// insert enumerable
+		_Mybase_t::insert(_Right);
+		}
+
+	size_type erase(key_type _Keyval)
+		{	// erase element at _Where
+		return (_Mybase_t::erase(%_Keyval));
+		}
+
+	// searches
+	iterator find(key_type _Keyval)
+		{	// find an element that matches _Keyval, return iterator
+		return (_Mybase_t::find(%_Keyval));
+		}
+
+	size_type count(key_type _Keyval)
+		{	// count all elements that match _Keyval
+		return (_Mybase_t::count(%_Keyval));
+		}
+
+	iterator lower_bound(key_type _Keyval)
+		{	// find leftmost node not less than _Keyval
+		return (_Mybase_t::lower_bound(%_Keyval));
+		}
+
+	iterator upper_bound(key_type _Keyval)
+		{	// find leftmost node not less than _Keyval
+		return (_Mybase_t::upper_bound(%_Keyval));
+		}
+
+	pair_iter_iter equal_range(key_type _Keyval)
+		{	// find range equivalent to _Keyval
+		return (_Mybase_t::equal_range(%_Keyval));
+		}
+	};
+	}	// namespace cliext::impl
+
+//
+// TEMPLATE CLASS hash_multiset
+//
+template<typename _Key1_t>
+	ref class hash_multiset
+	:	public impl::hash_multiset_select<
+			_Key1_t,
+			__is_ref_class(typename _Dehandle<_Key1_t>::type)
+				&& !is_handle<_Key1_t>::value>
+	{	// ordered red-black tree of unique keys
+public:
+	// types
+	typedef hash_multiset<_Key1_t> _Mytype_t;
+	typedef impl::hash_multiset_select<
+		_Key1_t,
+		__is_ref_class(typename _Dehandle<_Key1_t>::type)
+			&& !is_handle<_Key1_t>::value> _Mybase_t;
+
+//	typedef _Key1_t key_type;
+//	typedef typename _Mybase_t::value_type value_type;
+//	typedef typename _Mybase_t::key_compare key_compare;
+//	typedef typename _Traits_t::value_compare value_compare;
+//	typedef typename _Mybase_t::hasher hasher;
+
+//	typedef int size_type;
+//	typedef int difference_type;
+//	typedef _Value_t value_type;
+//	typedef value_type% reference;
+//	typedef value_type% const_reference;
+
+//	typedef _Mycont_it generic_container;
+//	typedef value_type generic_value;
+
+//	typedef _STLCLR GenericPair<iterator^, bool> pair_iter_bool;
+//	typedef _STLCLR GenericPair<iterator^, iterator^> pair_iter_iter;
+
+	// basics
+	hash_multiset()
+		:	_Mybase_t()
+		{	// construct default
+		}
+
+	hash_multiset(hash_multiset% _Right)
+		:	_Mybase_t((_Mybase_t%)_Right)
+		{	// construct by copying a list
+		}
+
+	hash_multiset(hash_multiset^ _Right)
+		:	_Mybase_t((_Mybase_t%)*_Right)
+		{	// construct by copying a list
+		}
+
+	hash_multiset% operator=(hash_multiset% _Right)
+		{	// assign
+		_Mybase_t::operator=(_Right);
+		return (*this);
+		}
+
+	hash_multiset% operator=(hash_multiset^ _Right)
+		{	// assign
+		_Mybase_t::operator=(*_Right);
+		return (*this);
+		}
+
+	// constructors
+	explicit hash_multiset(key_compare^ _Pred)
+		:	_Mybase_t(_Pred)
+		{	// construct empty hash_multiset from comparator
+		}
+
+	hash_multiset(key_compare^ _Pred, hasher^ _Hasher)
+		:	_Mybase_t(_Pred, _Hasher)
+		{	// construct with specified compare and hash
+		}
+
+	template<typename _Iter_t>
+		hash_multiset(_Iter_t _First, _Iter_t _Last)
+		:	_Mybase_t()
+		{	// construct hash_multiset from [_First, _Last), default comparator
+		for (; _First != _Last; ++_First)
+			insert((value_type)*_First);
+		}
+
+	template<typename _Iter_t>
+		hash_multiset(_Iter_t _First, _Iter_t _Last, key_compare^ _Pred)
+		:	_Mybase_t(_Pred)
+		{	// construct hash_multiset from [_First, _Last), comparator
+		for (; _First != _Last; ++_First)
+			insert((value_type)*_First);
+		}
+
+	template<typename _Iter_t>
+		hash_multiset(_Iter_t _First, _Iter_t _Last,
+			key_compare^ _Pred, hasher^ _Hasher)
+		:	_Mybase_t(_Pred, _Hasher)
+		{	// construct hash_map from [_First, _Last), compare and hash
+		for (; _First != _Last; ++_First)
+			insert((value_type)*_First);
+		}
+
+	hash_multiset(_Myenum_it^ _Right)
+		:	_Mybase_t()
+		{	// construct hash_multiset from enumeration, default comparator
+		for each (value_type _Val in _Right)
+			insert(_Val);
+		}
+
+	hash_multiset(_Myenum_it^ _Right,
+		key_compare^ _Pred)
+		:	_Mybase_t(_Pred)
+		{	// construct hash_multiset from enumeration, comparator
+		for each (value_type _Val in _Right)
+			insert(_Val);
+		}
+
+	hash_multiset(_Myenum_it^ _Right,
+		key_compare^ _Pred, hasher^ _Hasher)
+		:	_Mybase_t(_Pred, _Hasher)
+		{	// construct map from enumeration, compare and hash
+		for each (value_type _Val in _Right)
+			insert(_Val);
+		}
+
+	// mutators
+	void swap(hash_multiset% _Right)
+		{	// exchange contents with _Right
+		_Mybase_t::swap(_Right);
+		}
+
+	// interfaces
+public:
+	virtual System::Object^ Clone() override
+		{	// clone the vector
+		return (gcnew _Mytype_t(*this));
+		}
+	};
+
+//
+// TEMPLATE FUNCTION swap
+//
+template<typename _Key_t> inline
+	void swap(cliext::hash_multiset<_Key_t>% _Left,
+		cliext::hash_multiset<_Key_t>% _Right)
+	{	// swap two hash_multisets
+	_Left.swap(_Right);
+	}
+}	// namespace cliext
+#endif // _CLI_HASH_SET_
+
+/*
+ * Copyright (c) 2004-2007 by Dinkumware, Ltd.  ALL RIGHTS RESERVED.
+ * Consult your license regarding permissions and restrictions.
+V5.03:0009 */

@@ -1,0 +1,4264 @@
+// iterator stl/clr header
+#ifndef _CLI_ITERATOR_
+ #define _CLI_ITERATOR_
+#include <cliext/xutility>
+
+namespace cliext {
+//
+//	TEMPLATE FUNCTION _Unchecked
+//
+template<typename _Iter_t> inline
+	_Iter_t _Unchecked(_Iter_t _Iter)
+	{	// return unknown iterator unchanged
+	return (_Iter);
+	}
+
+//
+// TEMPLATE VALUE CLASS ConstBidirectionalIterator
+//
+template<typename _Cont_t>
+	value class ConstBidirectionalIterator
+	:	public _STLCLR Generic::IBidirectionalIterator<
+			typename _Cont_t::value_type>
+	{	// iterator for nonmutable bidirectional container
+public:
+	// types
+	typedef typename _Cont_t::value_type _Value_t;
+	typedef ConstBidirectionalIterator<_Cont_t> _Mytype_t;
+	typedef _STLCLR Generic::IBidirectionalIterator<_Value_t> _Myiter_t;
+	typedef typename _Cont_t::node_type node_type;
+
+	typedef bidirectional_iterator_tag iterator_category;
+	typedef _Value_t value_type;
+	typedef int difference_type;
+	typedef value_type% pointer;
+	typedef value_type% reference;
+	typedef value_type% const_reference;
+
+	// constructors and special members
+	ConstBidirectionalIterator(node_type^ _Node)
+		:	_Mynode(_Node)
+		{	// construct from node
+		}
+
+	// generic conversions
+	typedef _STLCLR Generic::ConstContainerBidirectionalIterator<_Value_t>
+		_Mygeniter_t;
+
+	ConstBidirectionalIterator(_Mygeniter_t% _Right)
+		:	_Mynode((node_type^)_Right.get_node())
+		{	// construct by copying a generic iterator
+		}
+
+	operator _Mygeniter_t()
+		{	// convert to generic iterator
+		return (_Mygeniter_t(_Mynode));
+		}
+
+	// member functions
+	virtual System::Object^ Clone()
+		{	// return a copy
+		return (gcnew ConstBidirectionalIterator(_Mynode));
+		}
+
+	int get_bias()
+		{	// get offset from wrapped iterator
+		return (0);
+		}
+
+	System::Object^ get_node()
+		{	// get node from wrapped iterator
+		return (_Mynode);
+		}
+
+	bool valid()
+		{	// test if iterator valid
+		return (container() != nullptr);
+		}
+
+	System::Object^ container()
+		{	// return owning container
+		return (_Mynode == nullptr ? nullptr : _Mynode->container());
+		}
+
+	void next()
+		{	// increment
+		_Mynode = _Mynode->next_node();
+		}
+
+	bool equal_to(_STLCLR Generic::IInputIterator<_Value_t>^ _Right)
+		{	// test if *this == _Right
+		if (container() == nullptr
+			|| container() != _Right->container())
+			throw gcnew System::ArgumentException();
+		return (get_bias() == _Right->get_bias()
+			&& get_node() == _Right->get_node());
+		}
+
+	bool equal_to(_Mytype_t% _Right)
+		{	// test if *this == _Right
+		if (container() == nullptr
+			|| container() != _Right.container())
+			throw gcnew System::ArgumentException();
+		return (get_bias() == _Right.get_bias()
+			&& get_node() == _Right.get_node());
+		}
+
+	const_reference get_cref()
+		{	// return const reference to designated element
+		return (_Mynode->_Value);
+		}
+
+	reference get_ref()
+		{	// return reference to designated element
+#pragma warning(push)
+#pragma warning(disable: 4715)
+		throw gcnew System::InvalidOperationException();
+#pragma warning(pop)
+		}
+
+	void prev()
+		{	// decrement
+		_Mynode = _Mynode->prev_node();
+		}
+
+//	difference_type move(difference_type _Offset);
+//	difference_type distance(
+//		_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Right);
+//	bool less_than(_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Right);
+
+	// operators
+	static const_reference operator->(
+		ConstBidirectionalIterator% _Left)
+		{	// return pointer to class object
+		return (_Left.get_cref());
+		}
+
+	static const_reference operator*(
+		ConstBidirectionalIterator% _Left)
+		{	// return const reference to designated element
+		return (_Left.get_cref());
+		}
+
+#pragma warning(push)
+#pragma warning(disable:4460)
+	static ConstBidirectionalIterator operator++(
+		ConstBidirectionalIterator% _Left)
+		{	// return incremented
+		_Left.next();
+		return (_Left);
+		}
+#pragma warning(pop)
+
+	bool operator==(_STLCLR Generic::IInputIterator<_Value_t>^ _Right)
+		{	// test if *this == _Right
+		return (equal_to(_Right));
+		}
+
+	bool operator==(_Mytype_t% _Right)
+		{	// test if *this == _Right
+		return (equal_to(_Right));
+		}
+
+	bool operator!=(_STLCLR Generic::IInputIterator<_Value_t>^ _Right)
+		{	// test if *this != _Right
+		return (!(*this == _Right));
+		}
+
+	bool operator!=(_Mytype_t% _Right)
+		{	// test if *this != _Right
+		return (!(*this == _Right));
+		}
+
+#pragma warning(push)
+#pragma warning(disable:4460)
+	static ConstBidirectionalIterator operator--(
+		ConstBidirectionalIterator% _Left)
+		{	// return decremented
+		_Left.prev();
+		return (_Left);
+		}
+
+//	static ConstBidirectionalIterator operator+(
+//		ConstBidirectionalIterator _Left,
+//		difference_type _Right);
+//	static ConstBidirectionalIterator operator+(
+//		difference_type _Left,
+//		ConstBidirectionalIterator _Right);
+//	static ConstBidirectionalIterator operator-(
+//		difference_type _Right);
+//	difference_type operator-(ConstBidirectionalIterator _Right);
+//	bool operator<(_STLCLR Generic::IBidirectionalIterator^ _Right);
+//	bool operator>=(_STLCLR Generic::IBidirectionalIterator^ _Right);
+//	bool operator>(_STLCLR Generic::IBidirectionalIterator^ _Right);
+//	bool operator<=(_STLCLR Generic::IBidirectionalIterator^ _Right);
+//	property const_reference default[difference_type];
+
+_STLCLR_FIELD_ACCESS:
+	// data members
+	node_type^ _Mynode;	// node into list
+
+private:
+	virtual int get_bias_virtual() sealed
+		= _Myiter_t::get_bias
+		{	// get offset from wrapped iterator
+		return (get_bias());
+		}
+
+	virtual System::Object^ get_node_virtual() sealed
+		= _Myiter_t::get_node
+		{	// get node from wrapped iterator
+		return (get_node());
+		}
+
+	virtual bool valid_virtual() sealed
+		= _Myiter_t::valid
+		{	// test if iterator valid
+		return (valid());
+		}
+
+	virtual System::Object^ container_virtual() sealed
+		= _Myiter_t::container
+		{	// return owning container
+		return (container());
+		}
+
+	virtual void next_virtual() sealed
+		= _Myiter_t::next
+		{	// increment
+		next();
+		}
+
+	virtual bool equal_to_virtual(
+		_STLCLR Generic::IInputIterator<_Value_t>^ _Right) sealed
+			= _Myiter_t::equal_to
+		{	// test if *this == _Right
+		return (equal_to(_Right));
+		}
+
+	virtual const_reference get_cref_virtual() sealed
+		= _Myiter_t::get_cref
+		{	// return const reference to designated element
+		return (get_cref());
+		}
+
+	virtual reference get_ref_virtual() sealed
+		= _Myiter_t::get_ref
+		{	// return reference to designated element
+#pragma warning(push)
+#pragma warning(disable: 4715)
+		throw gcnew System::InvalidOperationException();
+#pragma warning(pop)
+		}
+
+	virtual void prev_virtual() sealed
+		= _Myiter_t::prev
+		{	// decrement
+		prev();
+		}
+
+//	virtual difference_type move_virtual(difference_type _Offset);
+//	virtual difference_type distance_virtual(
+//		_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Right);
+//	virtual bool less_than_virtual(
+//		_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Right);
+	};
+
+//
+// TEMPLATE VALUE CLASS ConstUncheckedBidirectionalIterator
+//
+template<typename _Cont_t>
+	value class ConstUncheckedBidirectionalIterator
+	:	public _STLCLR Generic::IBidirectionalIterator<
+			typename _Cont_t::value_type>
+	{	// iterator for nonmutable bidirectional container
+public:
+	// types
+	typedef typename _Cont_t::value_type _Value_t;
+	typedef ConstUncheckedBidirectionalIterator<_Cont_t> _Mytype_t;
+	typedef _STLCLR Generic::IBidirectionalIterator<_Value_t> _Myiter_t;
+	typedef typename _Cont_t::node_type node_type;
+
+	typedef bidirectional_iterator_tag iterator_category;
+	typedef _Value_t value_type;
+	typedef int difference_type;
+	typedef value_type% pointer;
+	typedef value_type% reference;
+	typedef value_type% const_reference;
+
+	// constructors and special members
+	ConstUncheckedBidirectionalIterator(node_type^ _Node)
+		:	_Mynode(_Node)
+		{	// construct from node
+		}
+
+	operator ConstBidirectionalIterator<_Cont_t>()
+		{	// convert to checked iterator
+		return (ConstBidirectionalIterator<_Cont_t>(_Mynode));
+		}
+
+	// generic conversions
+	typedef _STLCLR Generic::ConstContainerBidirectionalIterator<_Value_t>
+		_Mygeniter_t;
+
+	ConstUncheckedBidirectionalIterator(_Mygeniter_t% _Right)
+		:	_Mynode((node_type^)_Right.get_node())
+		{	// construct by copying a generic iterator
+		}
+
+	operator _Mygeniter_t()
+		{	// convert to generic iterator
+		return (_Mygeniter_t(_Mynode));
+		}
+
+	// member functions
+	virtual System::Object^ Clone()
+		{	// return a copy
+		return (gcnew ConstUncheckedBidirectionalIterator(_Mynode));
+		}
+
+	int get_bias()
+		{	// get offset from wrapped iterator
+		return (0);
+		}
+
+	System::Object^ get_node()
+		{	// get node from wrapped iterator
+		return (_Mynode);
+		}
+
+	bool valid()
+		{	// test if iterator valid
+		return (true);	// UNCHECKED
+//		return (container() != nullptr);
+		}
+
+	System::Object^ container()
+		{	// return owning container
+		return (_Mynode->container());	// UNCHECKED
+//		return (_Mynode == nullptr ? nullptr : _Mynode->container());
+		}
+
+	void next()
+		{	// increment
+		_Mynode = _Mynode->next_node();
+		}
+
+	bool equal_to(_STLCLR Generic::IInputIterator<_Value_t>^ _Right)
+		{	// test if *this == _Right
+//		if (container() == nullptr	// UNCHECKED
+//			|| container() != _Right->container())
+//			throw gcnew System::ArgumentException();
+		return (get_bias() == _Right->get_bias()
+			&& get_node() == _Right->get_node());
+		}
+
+	bool equal_to(_Mytype_t% _Right)
+		{	// test if *this == _Right
+//		if (container() == nullptr	// UNCHECKED
+//			|| container() != _Right.container())
+//			throw gcnew System::ArgumentException();
+		return (get_bias() == _Right.get_bias()
+			&& get_node() == _Right.get_node());
+		}
+
+	const_reference get_cref()
+		{	// return const reference to designated element
+		return (_Mynode->_Value);
+		}
+
+	reference get_ref()
+		{	// return reference to designated element
+#pragma warning(push)
+#pragma warning(disable: 4715)
+		throw gcnew System::InvalidOperationException();
+#pragma warning(pop)
+		}
+
+	void prev()
+		{	// decrement
+		_Mynode = _Mynode->prev_node();
+		}
+
+//	difference_type move(difference_type _Offset);
+//	difference_type distance(
+//		_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Right);
+//	bool less_than(_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Right);
+
+	// operators
+	static const_reference operator->(
+		ConstUncheckedBidirectionalIterator% _Left)
+		{	// return pointer to class object
+		return (_Left.get_cref());
+		}
+
+	static const_reference operator*(
+		ConstUncheckedBidirectionalIterator% _Left)
+		{	// return const reference to designated element
+		return (_Left.get_cref());
+		}
+
+#pragma warning(push)
+#pragma warning(disable:4460)
+	static ConstUncheckedBidirectionalIterator operator++(
+		ConstUncheckedBidirectionalIterator% _Left)
+		{	// return incremented
+		_Left.next();
+		return (_Left);
+		}
+#pragma warning(pop)
+
+	bool operator==(_STLCLR Generic::IInputIterator<_Value_t>^ _Right)
+		{	// test if *this == _Right
+		return (equal_to(_Right));
+		}
+
+	bool operator==(_Mytype_t% _Right)
+		{	// test if *this == _Right
+		return (equal_to(_Right));
+		}
+
+	bool operator!=(_STLCLR Generic::IInputIterator<_Value_t>^ _Right)
+		{	// test if *this != _Right
+		return (!(*this == _Right));
+		}
+
+	bool operator!=(_Mytype_t% _Right)
+		{	// test if *this != _Right
+		return (!(*this == _Right));
+		}
+
+#pragma warning(push)
+#pragma warning(disable:4460)
+	static ConstUncheckedBidirectionalIterator operator--(
+		ConstUncheckedBidirectionalIterator% _Left)
+		{	// return decremented
+		_Left.prev();
+		return (_Left);
+		}
+
+//	static ConstUncheckedBidirectionalIterator operator+(
+//		ConstUncheckedBidirectionalIterator _Left,
+//		difference_type _Right);
+//	static ConstUncheckedBidirectionalIterator operator+(
+//		difference_type _Left,
+//		ConstUncheckedBidirectionalIterator _Right);
+//	static ConstUncheckedBidirectionalIterator operator-(
+//		difference_type _Right);
+//	difference_type operator-(ConstUncheckedBidirectionalIterator _Right);
+//	bool operator<(_STLCLR Generic::IBidirectionalIterator^ _Right);
+//	bool operator>=(_STLCLR Generic::IBidirectionalIterator^ _Right);
+//	bool operator>(_STLCLR Generic::IBidirectionalIterator^ _Right);
+//	bool operator<=(_STLCLR Generic::IBidirectionalIterator^ _Right);
+//	property const_reference default[difference_type];
+
+_STLCLR_FIELD_ACCESS:
+	// data members
+	node_type^ _Mynode;	// node into list
+
+private:
+	virtual int get_bias_virtual() sealed
+		= _Myiter_t::get_bias
+		{	// get offset from wrapped iterator
+		return (get_bias());
+		}
+
+	virtual System::Object^ get_node_virtual() sealed
+		= _Myiter_t::get_node
+		{	// get node from wrapped iterator
+		return (get_node());
+		}
+
+	virtual bool valid_virtual() sealed
+		= _Myiter_t::valid
+		{	// test if iterator valid
+		return (valid());
+		}
+
+	virtual System::Object^ container_virtual() sealed
+		= _Myiter_t::container
+		{	// return owning container
+		return (container());
+		}
+
+	virtual void next_virtual() sealed
+		= _Myiter_t::next
+		{	// increment
+		next();
+		}
+
+	virtual bool equal_to_virtual(
+		_STLCLR Generic::IInputIterator<_Value_t>^ _Right) sealed
+			= _Myiter_t::equal_to
+		{	// test if *this == _Right
+		return (equal_to(_Right));
+		}
+
+	virtual const_reference get_cref_virtual() sealed
+		= _Myiter_t::get_cref
+		{	// return const reference to designated element
+		return (get_cref());
+		}
+
+	virtual reference get_ref_virtual() sealed
+		= _Myiter_t::get_ref
+		{	// return reference to designated element
+		return (get_ref());
+		}
+
+	virtual void prev_virtual() sealed
+		= _Myiter_t::prev
+		{	// decrement
+		prev();
+		}
+
+//	virtual difference_type move_virtual(difference_type _Offset);
+//	virtual difference_type distance_virtual(
+//		_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Right);
+//	virtual bool less_than_virtual(
+//		_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Right);
+	};
+
+template<typename _Cont_t>
+	ConstUncheckedBidirectionalIterator<_Cont_t>
+		_Unchecked(ConstBidirectionalIterator<_Cont_t> _Iter)
+	{	// return unchecked version
+	ConstUncheckedBidirectionalIterator<_Cont_t> _Newiter(
+		(typename _Cont_t::node_type^)_Iter.get_node());
+
+	return (_Newiter);
+	}
+
+//
+// TEMPLATE VALUE CLASS BidirectionalIterator
+//
+template<typename _Cont_t>
+	value class BidirectionalIterator
+	:	public _STLCLR Generic::IBidirectionalIterator<
+			typename _Cont_t::value_type>
+	{	// iterator for mutable bidirectional container
+public:
+	// types
+	typedef typename _Cont_t::value_type _Value_t;
+	typedef BidirectionalIterator<_Cont_t> _Mytype_t;
+	typedef _STLCLR Generic::IBidirectionalIterator<_Value_t> _Myiter_t;
+	typedef typename _Cont_t::node_type node_type;
+
+	typedef bidirectional_iterator_tag iterator_category;
+	typedef _Value_t value_type;
+	typedef int difference_type;
+	typedef value_type% pointer;
+	typedef value_type% reference;
+	typedef value_type% const_reference;
+
+	// constructors and special members
+	BidirectionalIterator(node_type^ _Node)
+		:	_Mynode(_Node)
+		{	// construct from node
+		}
+
+	typedef ConstBidirectionalIterator<_Cont_t> _Myciter_t;
+
+	operator _Myciter_t()
+		{	// convert to const iterator
+		return (_Myciter_t(_Mynode));
+		}
+
+	// generic conversions
+	typedef _STLCLR Generic::ContainerBidirectionalIterator<_Value_t>
+		_Mygeniter_t;
+
+	BidirectionalIterator(_Mygeniter_t% _Right)
+		:	_Mynode((node_type^)_Right.get_node())
+		{	// construct by copying a generic iterator
+		}
+
+	operator _Mygeniter_t()
+		{	// convert to generic iterator
+		return (_Mygeniter_t(_Mynode));
+		}
+
+	// member functions
+	virtual System::Object^ Clone()
+		{	// return a copy
+		return (gcnew BidirectionalIterator(_Mynode));
+		}
+
+	int get_bias()
+		{	// get offset from wrapped iterator
+		return (0);
+		}
+
+	System::Object^ get_node()
+		{	// get node from wrapped iterator
+		return (_Mynode);
+		}
+
+	bool valid()
+		{	// test if iterator valid
+		return (container() != nullptr);
+		}
+
+	System::Object^ container()
+		{	// return owning container
+		return (_Mynode == nullptr ? nullptr : _Mynode->container());
+		}
+
+	void next()
+		{	// increment
+		_Mynode = _Mynode->next_node();
+		}
+
+	bool equal_to(_STLCLR Generic::IInputIterator<_Value_t>^ _Right)
+		{	// test if *this == _Right
+		if (container() == nullptr
+			|| container() != _Right->container())
+			throw gcnew System::ArgumentException();
+		return (get_bias() == _Right->get_bias()
+			&& get_node() == _Right->get_node());
+		}
+
+	bool equal_to(_Mytype_t% _Right)
+		{	// test if *this == _Right
+		if (container() == nullptr
+			|| container() != _Right.container())
+			throw gcnew System::ArgumentException();
+		return (get_bias() == _Right.get_bias()
+			&& get_node() == _Right.get_node());
+		}
+
+	const_reference get_cref()
+		{	// return const reference to designated element
+		return (_Mynode->_Value);
+		}
+
+	reference get_ref()
+		{	// return reference to designated element
+		return (_Mynode->_Value);
+		}
+
+	void prev()
+		{	// decrement
+		_Mynode = _Mynode->prev_node();
+		}
+
+//	difference_type move(difference_type _Offset);
+//	difference_type distance(
+//		_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Right);
+//	bool less_than(_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Right);
+
+	// operators
+	static const_reference operator->(
+		BidirectionalIterator% _Left)
+		{	// return pointer to class object
+		return (_Left.get_ref());
+		}
+
+	static const_reference operator*(
+		BidirectionalIterator% _Left)
+		{	// return const reference to designated element
+		return (_Left.get_ref());
+		}
+
+#pragma warning(push)
+#pragma warning(disable:4460)
+	static BidirectionalIterator operator++(
+		BidirectionalIterator% _Left)
+		{	// return incremented
+		_Left.next();
+		return (_Left);
+		}
+#pragma warning(pop)
+
+	bool operator==(_STLCLR Generic::IInputIterator<_Value_t>^ _Right)
+		{	// test if *this == _Right
+		return (equal_to(_Right));
+		}
+
+	bool operator==(_Mytype_t% _Right)
+		{	// test if *this == _Right
+		return (equal_to(_Right));
+		}
+
+	bool operator!=(_STLCLR Generic::IInputIterator<_Value_t>^ _Right)
+		{	// test if *this != _Right
+		return (!(*this == _Right));
+		}
+
+	bool operator!=(_Mytype_t% _Right)
+		{	// test if *this != _Right
+		return (!(*this == _Right));
+		}
+
+#pragma warning(push)
+#pragma warning(disable:4460)
+	static BidirectionalIterator operator--(
+		BidirectionalIterator% _Left)
+		{	// return decremented
+		_Left.prev();
+		return (_Left);
+		}
+
+//	static BidirectionalIterator operator+(
+//		BidirectionalIterator _Left,
+//		difference_type _Right);
+//	static BidirectionalIterator operator+(
+//		difference_type _Left,
+//		BidirectionalIterator _Right);
+//	static BidirectionalIterator operator-(
+//		difference_type _Right);
+//	difference_type operator-(BidirectionalIterator _Right);
+//	bool operator<(_STLCLR Generic::IBidirectionalIterator^ _Right);
+//	bool operator>=(_STLCLR Generic::IBidirectionalIterator^ _Right);
+//	bool operator>(_STLCLR Generic::IBidirectionalIterator^ _Right);
+//	bool operator<=(_STLCLR Generic::IBidirectionalIterator^ _Right);
+//	property const_reference default[difference_type];
+
+_STLCLR_FIELD_ACCESS:
+	// data members
+	node_type^ _Mynode;	// node into list
+
+private:
+	virtual int get_bias_virtual() sealed
+		= _Myiter_t::get_bias
+		{	// get offset from wrapped iterator
+		return (get_bias());
+		}
+
+	virtual System::Object^ get_node_virtual() sealed
+		= _Myiter_t::get_node
+		{	// get node from wrapped iterator
+		return (get_node());
+		}
+
+	virtual bool valid_virtual() sealed
+		= _Myiter_t::valid
+		{	// test if iterator valid
+		return (valid());
+		}
+
+	virtual System::Object^ container_virtual() sealed
+		= _Myiter_t::container
+		{	// return owning container
+		return (container());
+		}
+
+	virtual void next_virtual() sealed
+		= _Myiter_t::next
+		{	// increment
+		next();
+		}
+
+	virtual bool equal_to_virtual(
+		_STLCLR Generic::IInputIterator<_Value_t>^ _Right) sealed
+			= _Myiter_t::equal_to
+		{	// test if *this == _Right
+		return (equal_to(_Right));
+		}
+
+	virtual const_reference get_cref_virtual() sealed
+		= _Myiter_t::get_cref
+		{	// return const reference to designated element
+		return (get_cref());
+		}
+
+	virtual reference get_ref_virtual() sealed
+		= _Myiter_t::get_ref
+		{	// return reference to designated element
+		return (get_ref());
+		}
+
+	virtual void prev_virtual() sealed
+		= _Myiter_t::prev
+		{	// decrement
+		prev();
+		}
+
+//	virtual difference_type move_virtual(difference_type _Offset);
+//	virtual difference_type distance_virtual(
+//		_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Right);
+//	virtual bool less_than_virtual(
+//		_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Right);
+	};
+
+//
+// TEMPLATE VALUE CLASS UncheckedBidirectionalIterator
+//
+template<typename _Cont_t>
+	value class UncheckedBidirectionalIterator
+	:	public _STLCLR Generic::IBidirectionalIterator<
+			typename _Cont_t::value_type>
+	{	// iterator for mutable bidirectional container
+public:
+	// types
+	typedef typename _Cont_t::value_type _Value_t;
+	typedef UncheckedBidirectionalIterator<_Cont_t> _Mytype_t;
+	typedef _STLCLR Generic::IBidirectionalIterator<_Value_t> _Myiter_t;
+	typedef typename _Cont_t::node_type node_type;
+
+	typedef bidirectional_iterator_tag iterator_category;
+	typedef _Value_t value_type;
+	typedef int difference_type;
+	typedef value_type% pointer;
+	typedef value_type% reference;
+	typedef value_type% const_reference;
+
+	// constructors and special members
+	UncheckedBidirectionalIterator(node_type^ _Node)
+		:	_Mynode(_Node)
+		{	// construct from node
+		}
+
+	typedef ConstUncheckedBidirectionalIterator<_Cont_t> _Myciter_t;
+
+	operator _Myciter_t()
+		{	// convert to const iterator
+		return (_Myciter_t(_Mynode));
+		}
+
+	operator BidirectionalIterator<_Cont_t>()
+		{	// convert to checked iterator
+		return (BidirectionalIterator<_Cont_t>(_Mynode));
+		}
+
+	// generic conversions
+	typedef _STLCLR Generic::ContainerBidirectionalIterator<_Value_t>
+		_Mygeniter_t;
+
+	UncheckedBidirectionalIterator(_Mygeniter_t% _Right)
+		:	_Mynode((node_type^)_Right.get_node())
+		{	// construct by copying a generic iterator
+		}
+
+	operator _Mygeniter_t()
+		{	// convert to generic iterator
+		return (_Mygeniter_t(_Mynode));
+		}
+
+	// member functions
+	virtual System::Object^ Clone()
+		{	// return a copy
+		return (gcnew UncheckedBidirectionalIterator(_Mynode));
+		}
+
+	int get_bias()
+		{	// get offset from wrapped iterator
+		return (0);
+		}
+
+	System::Object^ get_node()
+		{	// get node from wrapped iterator
+		return (_Mynode);
+		}
+
+	bool valid()
+		{	// test if iterator valid
+		return (true);	// UNCHECKED
+//		return (container() != nullptr);
+		}
+
+	System::Object^ container()
+		{	// return owning container
+		return (_Mynode->container());	// UNCHECKED
+//		return (_Mynode == nullptr ? nullptr : _Mynode->container());
+		}
+
+	void next()
+		{	// increment
+		_Mynode = _Mynode->next_node();
+		}
+
+	bool equal_to(_STLCLR Generic::IInputIterator<_Value_t>^ _Right)
+		{	// test if *this == _Right
+//		if (container() == nullptr	// UNCHECKED
+//			|| container() != _Right->container())
+//			throw gcnew System::ArgumentException();
+		return (get_bias() == _Right->get_bias()
+			&& get_node() == _Right->get_node());
+		}
+
+	bool equal_to(_Mytype_t% _Right)
+		{	// test if *this == _Right
+//		if (container() == nullptr	// UNCHECKED
+//			|| container() != _Right.container())
+//			throw gcnew System::ArgumentException();
+		return (get_bias() == _Right.get_bias()
+			&& get_node() == _Right.get_node());
+		}
+
+	const_reference get_cref()
+		{	// return const reference to designated element
+		return (_Mynode->_Value);
+		}
+
+	reference get_ref()
+		{	// return reference to designated element
+		return (_Mynode->_Value);
+		}
+
+	void prev()
+		{	// decrement
+		_Mynode = _Mynode->prev_node();
+		}
+
+//	difference_type move(difference_type _Offset);
+//	difference_type distance(
+//		_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Right);
+//	bool less_than(_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Right);
+
+	// operators
+	static const_reference operator->(
+		UncheckedBidirectionalIterator% _Left)
+		{	// return pointer to class object
+		return (_Left.get_ref());
+		}
+
+	static const_reference operator*(
+		UncheckedBidirectionalIterator% _Left)
+		{	// return const reference to designated element
+		return (_Left.get_ref());
+		}
+
+#pragma warning(push)
+#pragma warning(disable:4460)
+	static UncheckedBidirectionalIterator operator++(
+		UncheckedBidirectionalIterator% _Left)
+		{	// return incremented
+		_Left.next();
+		return (_Left);
+		}
+#pragma warning(pop)
+
+	bool operator==(_STLCLR Generic::IInputIterator<_Value_t>^ _Right)
+		{	// test if *this == _Right
+		return (equal_to(_Right));
+		}
+
+	bool operator==(_Mytype_t% _Right)
+		{	// test if *this == _Right
+		return (equal_to(_Right));
+		}
+
+	bool operator!=(_STLCLR Generic::IInputIterator<_Value_t>^ _Right)
+		{	// test if *this != _Right
+		return (!(*this == _Right));
+		}
+
+	bool operator!=(_Mytype_t% _Right)
+		{	// test if *this != _Right
+		return (!(*this == _Right));
+		}
+
+#pragma warning(push)
+#pragma warning(disable:4460)
+	static UncheckedBidirectionalIterator operator--(
+		UncheckedBidirectionalIterator% _Left)
+		{	// return decremented
+		_Left.prev();
+		return (_Left);
+		}
+
+//	static UncheckedBidirectionalIterator operator+(
+//		UncheckedBidirectionalIterator _Left,
+//		difference_type _Right);
+//	static UncheckedBidirectionalIterator operator+(
+//		difference_type _Left,
+//		UncheckedBidirectionalIterator _Right);
+//	static UncheckedBidirectionalIterator operator-(
+//		difference_type _Right);
+//	difference_type operator-(UncheckedBidirectionalIterator _Right);
+//	bool operator<(_STLCLR Generic::IBidirectionalIterator^ _Right);
+//	bool operator>=(_STLCLR Generic::IBidirectionalIterator^ _Right);
+//	bool operator>(_STLCLR Generic::IBidirectionalIterator^ _Right);
+//	bool operator<=(_STLCLR Generic::IBidirectionalIterator^ _Right);
+//	property const_reference default[difference_type];
+
+_STLCLR_FIELD_ACCESS:
+	// data members
+	node_type^ _Mynode;	// node into list
+
+private:
+	virtual int get_bias_virtual() sealed
+		= _Myiter_t::get_bias
+		{	// get offset from wrapped iterator
+		return (get_bias());
+		}
+
+	virtual System::Object^ get_node_virtual() sealed
+		= _Myiter_t::get_node
+		{	// get node from wrapped iterator
+		return (get_node());
+		}
+
+	virtual bool valid_virtual() sealed
+		= _Myiter_t::valid
+		{	// test if iterator valid
+		return (valid());
+		}
+
+	virtual System::Object^ container_virtual() sealed
+		= _Myiter_t::container
+		{	// return owning container
+		return (container());
+		}
+
+	virtual void next_virtual() sealed
+		= _Myiter_t::next
+		{	// increment
+		next();
+		}
+
+	virtual bool equal_to_virtual(
+		_STLCLR Generic::IInputIterator<_Value_t>^ _Right) sealed
+			= _Myiter_t::equal_to
+		{	// test if *this == _Right
+		return (equal_to(_Right));
+		}
+
+	virtual const_reference get_cref_virtual() sealed
+		= _Myiter_t::get_cref
+		{	// return const reference to designated element
+		return (get_cref());
+		}
+
+	virtual reference get_ref_virtual() sealed
+		= _Myiter_t::get_ref
+		{	// return reference to designated element
+		return (get_ref());
+		}
+
+	virtual void prev_virtual() sealed
+		= _Myiter_t::prev
+		{	// decrement
+		prev();
+		}
+
+//	virtual difference_type move_virtual(difference_type _Offset);
+//	virtual difference_type distance_virtual(
+//		_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Right);
+//	virtual bool less_than_virtual(
+//		_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Right);
+	};
+
+template<typename _Cont_t>
+	UncheckedBidirectionalIterator<_Cont_t>
+		_Unchecked(BidirectionalIterator<_Cont_t> _Iter)
+	{	// return unchecked version
+	UncheckedBidirectionalIterator<_Cont_t> _Newiter(
+		(typename _Cont_t::node_type^)_Iter.get_node());
+
+	return (_Newiter);
+	}
+
+//
+// TEMPLATE VALUE CLASS ReverseBidirectionalIterator
+//
+template<typename _Cont_t>
+	value class ReverseBidirectionalIterator
+	:	public _STLCLR Generic::IBidirectionalIterator<
+			typename _Cont_t::value_type>
+	{	// iterator for mutable reverse bidirectional container
+public:
+	// types
+	typedef typename _Cont_t::value_type _Value_t;
+	typedef ReverseBidirectionalIterator<_Cont_t> _Mytype_t;
+	typedef _STLCLR Generic::IBidirectionalIterator<
+		typename _Cont_t::value_type> _Myiter_t;
+	typedef typename _Cont_t::iterator _Mywrapped_t;
+
+	typedef bidirectional_iterator_tag iterator_category;
+	typedef _Value_t value_type;
+	typedef int difference_type;
+	typedef value_type% pointer;
+	typedef value_type% reference;
+	typedef value_type% const_reference;
+
+	// constructors and special members
+	ReverseBidirectionalIterator(_Mywrapped_t% _Iter)
+		:	_Myiter(_Iter)
+		{	// construct from wrapped iterator
+		}
+
+	// member functions
+	virtual System::Object^ Clone()
+		{	// return a copy
+		return (gcnew ReverseBidirectionalIterator(_Myiter));
+		}
+
+	int get_bias()
+		{	// get offset from wrapped iterator
+		return (0);
+		}
+
+	System::Object^ get_node()
+		{	// get node from wrapped iterator
+		_Myiter.prev();
+		System::Object^ _Node = _Myiter.get_node();
+		_Myiter.next();
+		return (_Node);
+		}
+
+	bool valid()
+		{	// test if iterator valid
+		return (_Myiter.valid());
+		}
+
+	System::Object^ container()
+		{	// return owning container
+		return (_Myiter.container());
+		}
+
+	void next()
+		{	// increment
+		_Myiter.prev();
+		}
+
+	bool equal_to(_STLCLR Generic::IInputIterator<_Value_t>^ _Right)
+		{	// test if *this == _Right
+		if (container() == nullptr
+			|| container() != _Right->container())
+			throw gcnew System::ArgumentException();
+		return (get_bias() == _Right->get_bias()
+			&& get_node() == _Right->get_node());
+		}
+
+	bool equal_to(_Mytype_t% _Right)
+		{	// test if *this == _Right
+		return (_Myiter.equal_to(_Right._Myiter));
+		}
+
+	const_reference get_cref()
+		{	// return const reference to designated element
+		_Myiter.prev();
+		const_reference _Ref = _Myiter.get_cref();
+		_Myiter.next();
+		return (_Ref);
+		}
+
+	reference get_ref()
+		{	// return reference to designated element
+		_Myiter.prev();
+		const_reference _Ref = _Myiter.get_ref();
+		_Myiter.next();
+		return (_Ref);
+		}
+
+	void prev()
+		{	// decrement
+		_Myiter.next();
+		}
+
+//	difference_type move(difference_type _Offset);
+//	difference_type distance(
+//		_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Right);
+//	bool less_than(_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Right);
+
+	// operators
+	static const_reference operator->(
+		ReverseBidirectionalIterator% _Left)
+		{	// return pointer to class object
+		return (_Left.get_ref());
+		}
+
+	static const_reference operator*(
+		ReverseBidirectionalIterator% _Left)
+		{	// return const reference to designated element
+		return (_Left.get_ref());
+		}
+
+#pragma warning(push)
+#pragma warning(disable:4460)
+	static ReverseBidirectionalIterator operator++(
+		ReverseBidirectionalIterator% _Left)
+		{	// return incremented
+		_Left.next();
+		return (_Left);
+		}
+#pragma warning(pop)
+
+	bool operator==(_STLCLR Generic::IInputIterator<_Value_t>^ _Right)
+		{	// test if *this == _Right
+		return (equal_to(_Right));
+		}
+
+	bool operator==(_Mytype_t% _Right)
+		{	// test if *this == _Right
+		return (equal_to(_Right));
+		}
+
+	bool operator!=(_STLCLR Generic::IInputIterator<_Value_t>^ _Right)
+		{	// test if *this != _Right
+		return (!(*this == _Right));
+		}
+
+	bool operator!=(_Mytype_t% _Right)
+		{	// test if *this != _Right
+		return (!(*this == _Right));
+		}
+
+#pragma warning(push)
+#pragma warning(disable:4460)
+	static ReverseBidirectionalIterator operator--(
+		ReverseBidirectionalIterator% _Left)
+		{	// return decremented
+		_Left.prev();
+		return (_Left);
+		}
+
+//	static ReverseBidirectionalIterator operator+(
+//		ReverseBidirectionalIterator _Left,
+//		difference_type _Right);
+//	static ReverseBidirectionalIterator operator+(
+//		difference_type _Left,
+//		ReverseBidirectionalIterator _Right);
+//	static ReverseBidirectionalIterator operator-(
+//		difference_type _Right);
+//	difference_type operator-(ReverseBidirectionalIterator _Right);
+//	bool operator<(_STLCLR Generic::IReverseBidirectionalIterator^ _Right);
+//	bool operator>=(_STLCLR Generic::IReverseBidirectionalIterator^ _Right);
+//	bool operator>(_STLCLR Generic::IReverseBidirectionalIterator^ _Right);
+//	bool operator<=(_STLCLR Generic::IReverseBidirectionalIterator^ _Right);
+//	property const_reference default[difference_type];
+
+_Mywrapped_t base()
+	{	// return wrapped iterator
+	return (_Myiter);
+	}
+
+_STLCLR_FIELD_ACCESS:
+	// data members
+	_Mywrapped_t _Myiter;	// the wrapped iterator
+
+private:
+	virtual int get_bias_virtual() sealed
+		= _Myiter_t::get_bias
+		{	// get offset from wrapped iterator
+		return (get_bias());
+		}
+
+	virtual System::Object^ get_node_virtual() sealed
+		= _Myiter_t::get_node
+		{	// get node from wrapped iterator
+		return (get_node());
+		}
+
+	virtual bool valid_virtual() sealed
+		= _Myiter_t::valid
+		{	// test if iterator valid
+		return (valid());
+		}
+
+	virtual System::Object^ container_virtual() sealed
+		= _Myiter_t::container
+		{	// return owning container
+		return (container());
+		}
+
+	virtual void next_virtual() sealed
+		= _Myiter_t::next
+		{	// increment
+		next();
+		}
+
+	virtual bool equal_to_virtual(
+		_STLCLR Generic::IInputIterator<_Value_t>^ _Right) sealed
+			= _Myiter_t::equal_to
+		{	// test if *this == _Right
+		return (equal_to(_Right));
+		}
+
+	virtual const_reference get_cref_virtual() sealed
+		= _Myiter_t::get_cref
+		{	// return const reference to designated element
+		return (get_cref());
+		}
+
+	virtual reference get_ref_virtual() sealed
+		= _Myiter_t::get_ref
+		{	// return reference to designated element
+		return (get_ref());
+		}
+
+	virtual void prev_virtual() sealed
+		= _Myiter_t::prev
+		{	// decrement
+		prev();
+		}
+
+//	virtual difference_type move_virtual(difference_type _Offset);
+//	virtual difference_type distance_virtual(
+//		_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Right);
+//	virtual bool less_than_virtual(
+//		_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Right);
+	};
+
+template<typename _Cont_t>
+	ReverseBidirectionalIterator<_Cont_t>
+		_Unchecked(ReverseBidirectionalIterator<_Cont_t> _Iter)
+	{	// return unchecked version
+	ReverseBidirectionalIterator<_Cont_t> _Newiter(_Iter.base());
+
+	return (_Newiter);
+	}
+
+//
+// TEMPLATE VALUE CLASS ConstRandomAccessIterator
+//
+template<typename _Cont_t>
+	value class ConstRandomAccessIterator
+	:	public _STLCLR Generic::IRandomAccessIterator<
+			typename _Cont_t::value_type>
+	{	// iterator for nonmutable random-access container
+public:
+	// types
+	typedef typename _Cont_t::value_type _Value_t;
+	typedef ConstRandomAccessIterator<_Cont_t> _Mytype_t;
+	typedef _STLCLR Generic::IRandomAccessIterator<_Value_t> _Myiter_t;
+
+	typedef random_access_iterator_tag iterator_category;
+	typedef _Value_t value_type;
+	typedef int difference_type;
+	typedef value_type% pointer;
+	typedef value_type% reference;
+	typedef value_type% const_reference;
+
+	// constructors and special members
+	ConstRandomAccessIterator(_Cont_t^ _Cont, int _Offset)
+		:	_Mycont(_Cont), _Myoffset(_Offset)
+		{	// construct from container pointer and offset
+		}
+
+	// generic conversions
+	typedef _STLCLR Generic::ConstContainerRandomAccessIterator<_Value_t>
+		_Mygeniter_t;
+
+	ConstRandomAccessIterator(_Mygeniter_t% _Right)
+		:	_Mycont((_Cont_t^)_Right.container()),
+			_Myoffset(_Right.get_bias())
+		{	// construct by copying a generic iterator
+		}
+
+	operator _Mygeniter_t()
+		{	// convert to generic iterator
+		return (_Mygeniter_t(_Mycont, _Myoffset));
+		}
+
+	// member functions
+	virtual System::Object^ Clone()
+		{	// return a copy
+		return (gcnew ConstRandomAccessIterator(_Mycont, _Myoffset));
+		}
+
+	int get_bias()
+		{	// get offset from wrapped iterator
+		return (_Myoffset);
+		}
+
+	System::Object^ get_node()
+		{	// get node from wrapped iterator
+		return (nullptr);
+		}
+
+	bool valid()
+		{	// test if iterator valid
+		return (container() != nullptr
+			&& _Mycont->valid_bias(_Myoffset));
+		}
+
+	System::Object^ container()
+		{	// return owning container
+		return (_Mycont);
+		}
+
+	void next()
+		{	// increment
+		if (!_Mycont->valid_bias(_Myoffset + 1))
+			throw gcnew System::InvalidOperationException();
+		++_Myoffset;
+		}
+
+	bool equal_to(_STLCLR Generic::IInputIterator<_Value_t>^ _Right)
+		{	// test if *this == _Right
+		if (container() == nullptr
+			|| container() != _Right->container())
+			throw gcnew System::ArgumentException();
+		return (get_bias() == _Right->get_bias()
+			&& get_node() == _Right->get_node());
+		}
+
+	bool equal_to(_Mytype_t% _Right)
+		{	// test if *this == _Right
+		if (container() == nullptr
+			|| container() != _Right.container())
+			throw gcnew System::ArgumentException();
+		return (get_bias() == _Right.get_bias()
+			&& get_node() == _Right.get_node());
+		}
+
+	const_reference get_cref()
+		{	// return const reference to designated element
+		return (_Mycont->at_bias(_Myoffset));
+		}
+
+	reference get_ref()
+		{	// return reference to designated element
+#pragma warning(push)
+#pragma warning(disable: 4715)
+		throw gcnew System::InvalidOperationException();
+#pragma warning(pop)
+		}
+
+	void prev()
+		{	// decrement
+		if (!_Mycont->valid_bias(_Myoffset - 1))
+			throw gcnew System::InvalidOperationException();
+		--_Myoffset;
+		}
+
+	difference_type move(difference_type _Offset)
+		{	// incremented by integer
+		difference_type _Newoffset = _Myoffset + _Offset;	// can overflow
+
+		if (!_Mycont->valid_bias(_Newoffset))
+			throw gcnew System::InvalidOperationException();
+		_Myoffset = _Newoffset;
+		return (_Myoffset);
+		}
+
+	difference_type distance(
+		_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Right)
+		{	// return difference of two iterators
+		if (container() == nullptr
+			|| container() != _Right->container())
+			throw gcnew System::ArgumentException();
+		return (get_bias() - _Right->get_bias());
+		}
+
+	difference_type distance(
+		_Mytype_t% _Right)
+		{	// return difference of two iterators
+		if (container() == nullptr
+			|| container() != _Right.container())
+			throw gcnew System::ArgumentException();
+		return (get_bias() - _Right.get_bias());
+		}
+
+	bool less_than(_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Right)
+		{	// test if *this < _Right
+		if (container() == nullptr
+			|| container() != _Right->container())
+			throw gcnew System::ArgumentException();
+		return (get_bias() < _Right->get_bias());
+		}
+
+	bool less_than(_Mytype_t% _Right)
+		{	// test if *this < _Right
+		if (container() == nullptr
+			|| container() != _Right.container())
+			throw gcnew System::ArgumentException();
+		return (get_bias() < _Right.get_bias());
+		}
+
+	// operators
+	static const_reference operator->(
+		ConstRandomAccessIterator% _Left)
+		{	// return pointer to class object
+		return (_Left.get_cref());
+		}
+
+	static const_reference operator*(
+		ConstRandomAccessIterator% _Left)
+		{	// return const reference to designated element
+		return (_Left.get_cref());
+		}
+
+#pragma warning(push)
+#pragma warning(disable:4460)
+	static ConstRandomAccessIterator operator++(
+		ConstRandomAccessIterator% _Left)
+		{	// return incremented
+		_Left.next();
+		return (_Left);
+		}
+#pragma warning(pop)
+
+	bool operator==(_STLCLR Generic::IInputIterator<_Value_t>^ _Right)
+		{	// test if *this == _Right
+		return (equal_to(_Right));
+		}
+
+	bool operator==(_Mytype_t% _Right)
+		{	// test if *this == _Right
+		return (equal_to(_Right));
+		}
+
+	bool operator!=(_STLCLR Generic::IInputIterator<_Value_t>^ _Right)
+		{	// test if *this != _Right
+		return (!(*this == _Right));
+		}
+
+	bool operator!=(_Mytype_t% _Right)
+		{	// test if *this != _Right
+		return (!(*this == _Right));
+		}
+
+#pragma warning(push)
+#pragma warning(disable:4460)
+	static ConstRandomAccessIterator operator--(
+		ConstRandomAccessIterator% _Left)
+		{	// return decremented
+		_Left.prev();
+		return (_Left);
+		}
+
+	static ConstRandomAccessIterator operator+(
+		ConstRandomAccessIterator% _Left,
+			difference_type _Right)
+		{	// return incremented by integer
+		ConstRandomAccessIterator _Iter = _Left;
+
+		_Iter.move(_Right);
+		return (_Iter);
+		}
+
+	static ConstRandomAccessIterator operator+(
+		difference_type _Left,
+			ConstRandomAccessIterator _Right)
+		{	// return incremented by integer
+		ConstRandomAccessIterator _Iter = _Right;
+
+		_Iter.move(_Left);
+		return (_Iter);
+		}
+
+	static ConstRandomAccessIterator operator-(
+		ConstRandomAccessIterator% _Left,
+			difference_type _Right)
+		{	// return decremented by integer
+		ConstRandomAccessIterator _Iter = _Left;
+
+		_Iter.move(-_Right);	// can overflow
+		return (_Iter);
+		}
+
+	difference_type operator-(
+		_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Right)
+		{	// return difference of two iterators
+		return (distance(_Right));
+		}
+
+	bool operator<(_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Right)
+		{	// test if *this < _Right
+		return (less_than(_Right));
+		}
+
+	bool operator<(_Mytype_t% _Right)
+		{	// test if *this < _Right
+		return (less_than(_Right));
+		}
+
+	bool operator>=(_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Right)
+		{	// test if *this >= _Right
+		return (!(*this < _Right));
+		}
+
+	bool operator>=(_Mytype_t% _Right)
+		{	// test if *this >= _Right
+		return (!(*this < _Right));
+		}
+
+	static bool operator>(
+		_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Left,
+		_Mytype_t% _Right)
+		{	// test if _Left > _Right
+		return (_Right < _Left);
+		}
+
+	bool operator>(_Mytype_t%_Right)
+		{	// test if *this > _Right
+		return (_Right < *this);
+		}
+
+	static bool operator<=(
+		_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Left,
+		_Mytype_t% _Right)
+		{	// test if _Left <= _Right
+		return (!(_Right < _Left));
+		}
+
+	bool operator<=(_Mytype_t%_Right)
+		{	// test if *this <= _Right
+		return (!(_Right < *this));
+		}
+
+	property const_reference default[difference_type]
+		{	// get subscripted element
+		const_reference get(difference_type _Pos)
+			{	// get _Pos element
+			ConstRandomAccessIterator _Where = *this + _Pos;
+
+			return (*_Where);
+			}
+		};
+
+_STLCLR_FIELD_ACCESS:
+	// data members
+	_Cont_t^ _Mycont;	// owning container
+	difference_type _Myoffset;	// offset into container
+
+private:
+	virtual int get_bias_virtual() sealed
+		= _Myiter_t::get_bias
+		{	// get offset from wrapped iterator
+		return (get_bias());
+		}
+
+	virtual System::Object^ get_node_virtual() sealed
+		= _Myiter_t::get_node
+		{	// get node from wrapped iterator
+		return (get_node());
+		}
+
+	virtual bool valid_virtual() sealed
+		= _Myiter_t::valid
+		{	// test if iterator valid
+		return (valid());
+		}
+
+	virtual System::Object^ container_virtual() sealed
+		= _Myiter_t::container
+		{	// return owning container
+		return (container());
+		}
+
+	virtual void next_virtual() sealed
+		= _Myiter_t::next
+		{	// increment
+		next();
+		}
+
+	virtual bool equal_to_virtual(
+		_STLCLR Generic::IInputIterator<_Value_t>^ _Right) sealed
+			= _Myiter_t::equal_to
+		{	// test if *this == _Right
+		return (equal_to(_Right));
+		}
+
+	virtual const_reference get_cref_virtual() sealed
+		= _Myiter_t::get_cref
+		{	// return const reference to designated element
+		return (get_cref());
+		}
+
+	virtual reference get_ref_virtual() sealed
+		= _Myiter_t::get_ref
+		{	// return reference to designated element
+#pragma warning(push)
+#pragma warning(disable: 4715)
+		throw gcnew System::InvalidOperationException();
+#pragma warning(pop)
+		}
+
+	virtual void prev_virtual() sealed
+		= _Myiter_t::prev
+		{	// decrement
+		prev();
+		}
+
+	virtual difference_type move_virtual(difference_type _Offset) sealed
+		= _Myiter_t::move
+		{	// incremented by integer
+		return (move(_Offset));
+		}
+
+	virtual difference_type distance_virtual(
+		_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Right) sealed
+			= _Myiter_t::distance
+		{	// return difference of two iterators
+		return (distance(_Right));
+		}
+
+	virtual bool less_than_virtual(
+		_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Right) sealed
+			= _Myiter_t::less_than
+		{	// test if *this < _Right
+		return (less_than(_Right));
+		}
+	};
+
+//
+// TEMPLATE VALUE CLASS ConstUncheckedRandomAccessIterator
+//
+template<typename _Cont_t>
+	value class ConstUncheckedRandomAccessIterator
+	:	public _STLCLR Generic::IRandomAccessIterator<
+			typename _Cont_t::value_type>
+	{	// iterator for nonmutable random-access container
+public:
+	// types
+	typedef typename _Cont_t::value_type _Value_t;
+	typedef ConstUncheckedRandomAccessIterator<_Cont_t> _Mytype_t;
+	typedef _STLCLR Generic::IRandomAccessIterator<_Value_t> _Myiter_t;
+
+	typedef random_access_iterator_tag iterator_category;
+	typedef _Value_t value_type;
+	typedef int difference_type;
+	typedef value_type% pointer;
+	typedef value_type% reference;
+	typedef value_type% const_reference;
+
+	// constructors and special members
+	ConstUncheckedRandomAccessIterator(_Cont_t^ _Cont, int _Offset)
+		:	_Mycont(_Cont), _Myoffset(_Offset)
+		{	// construct from container pointer and offset
+		}
+
+	operator ConstRandomAccessIterator<_Cont_t>()
+		{	// convert to checked iterator
+		return (ConstRandomAccessIterator<_Cont_t>(_Mycont, _Myoffset));
+		}
+
+	// generic conversions
+	typedef _STLCLR Generic::ConstContainerRandomAccessIterator<_Value_t>
+		_Mygeniter_t;
+
+	ConstUncheckedRandomAccessIterator(_Mygeniter_t% _Right)
+		:	_Mycont((_Cont_t^)_Right.container()),
+			_Myoffset(_Right.get_bias())
+		{	// construct by copying a generic iterator
+		}
+
+	operator _Mygeniter_t()
+		{	// convert to generic iterator
+		return (_Mygeniter_t(_Mycont, _Myoffset));
+		}
+
+	// member functions
+	virtual System::Object^ Clone()
+		{	// return a copy
+		return (gcnew ConstUncheckedRandomAccessIterator(_Mycont, _Myoffset));
+		}
+
+	int get_bias()
+		{	// get offset from wrapped iterator
+		return (_Myoffset);
+		}
+
+	System::Object^ get_node()
+		{	// get node from wrapped iterator
+		return (nullptr);
+		}
+
+	bool valid()
+		{	// test if iterator valid
+		return (true);	// UNCHECKED
+//		return (container() != nullptr
+//			&& _Mycont->valid_bias(_Myoffset));
+		}
+
+	System::Object^ container()
+		{	// return owning container
+		return (_Mycont);
+		}
+
+	void next()
+		{	// increment
+//		if (!_Mycont->valid_bias(_Myoffset + 1))	// UNCHECKED
+//			throw gcnew System::InvalidOperationException();
+		++_Myoffset;
+		}
+
+	bool equal_to(_STLCLR Generic::IInputIterator<_Value_t>^ _Right)
+		{	// test if *this == _Right
+//		if (container() == nullptr	// UNCHECKED
+//			|| container() != _Right->container())
+//			throw gcnew System::ArgumentException();
+		return (get_bias() == _Right->get_bias()
+			&& get_node() == _Right->get_node());
+		}
+
+	bool equal_to(_Mytype_t% _Right)
+		{	// test if *this == _Right
+//		if (container() == nullptr	// UNCHECKED
+//			|| container() != _Right.container())
+//			throw gcnew System::ArgumentException();
+		return (get_bias() == _Right.get_bias()
+			&& get_node() == _Right.get_node());
+		}
+
+	const_reference get_cref()
+		{	// return const reference to designated element
+		return (_Mycont->at_bias(_Myoffset));
+		}
+
+	reference get_ref()
+		{	// return reference to designated element
+#pragma warning(push)
+#pragma warning(disable: 4715)
+		throw gcnew System::InvalidOperationException();
+#pragma warning(pop)
+		}
+
+	void prev()
+		{	// decrement
+//		if (!_Mycont->valid_bias(_Myoffset - 1))	// UNCHECKED
+//			throw gcnew System::InvalidOperationException();
+		--_Myoffset;
+		}
+
+	difference_type move(difference_type _Offset)
+		{	// incremented by integer
+		difference_type _Newoffset = _Myoffset + _Offset;	// can overflow
+
+//		if (!_Mycont->valid_bias(_Newoffset))	// UNCHECKED
+//			throw gcnew System::InvalidOperationException();
+		_Myoffset = _Newoffset;
+		return (_Myoffset);
+		}
+
+	difference_type distance(
+		_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Right)
+		{	// return difference of two iterators
+//		if (container() == nullptr	// UNCHECKED
+//			|| container() != _Right->container())
+//			throw gcnew System::ArgumentException();
+		return (get_bias() - _Right->get_bias());
+		}
+
+	difference_type distance(
+		_Mytype_t% _Right)
+		{	// return difference of two iterators
+//		if (container() == nullptr	// UNCHECKED
+//			|| container() != _Right->container())
+//			throw gcnew System::ArgumentException();
+		return (get_bias() - _Right.get_bias());
+		}
+
+	bool less_than(_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Right)
+		{	// test if *this < _Right
+//		if (container() == nullptr	// UNCHECKED
+//			|| container() != _Right->container())
+//			throw gcnew System::ArgumentException();
+		return (get_bias() < _Right->get_bias());
+		}
+
+	bool less_than(_Mytype_t% _Right)
+		{	// test if *this < _Right
+//		if (container() == nullptr	// UNCHECKED
+//			|| container() != _Right->container())
+//			throw gcnew System::ArgumentException();
+		return (get_bias() < _Right.get_bias());
+		}
+
+	// operators
+	static const_reference operator->(
+		ConstUncheckedRandomAccessIterator% _Left)
+		{	// return pointer to class object
+		return (_Left.get_cref());
+		}
+
+	static const_reference operator*(
+		ConstUncheckedRandomAccessIterator% _Left)
+		{	// return const reference to designated element
+		return (_Left.get_cref());
+		}
+
+#pragma warning(push)
+#pragma warning(disable:4460)
+	static ConstUncheckedRandomAccessIterator operator++(
+		ConstUncheckedRandomAccessIterator% _Left)
+		{	// return incremented
+		_Left.next();
+		return (_Left);
+		}
+#pragma warning(pop)
+
+	bool operator==(_STLCLR Generic::IInputIterator<_Value_t>^ _Right)
+		{	// test if *this == _Right
+		return (equal_to(_Right));
+		}
+
+	bool operator==(_Mytype_t% _Right)
+		{	// test if *this == _Right
+		return (equal_to(_Right));
+		}
+
+	bool operator!=(_STLCLR Generic::IInputIterator<_Value_t>^ _Right)
+		{	// test if *this != _Right
+		return (!(*this == _Right));
+		}
+
+	bool operator!=(_Mytype_t% _Right)
+		{	// test if *this != _Right
+		return (!(*this == _Right));
+		}
+
+#pragma warning(push)
+#pragma warning(disable:4460)
+	static ConstUncheckedRandomAccessIterator operator--(
+		ConstUncheckedRandomAccessIterator% _Left)
+		{	// return decremented
+		_Left.prev();
+		return (_Left);
+		}
+
+	static ConstUncheckedRandomAccessIterator operator+(
+		ConstUncheckedRandomAccessIterator% _Left,
+			difference_type _Right)
+		{	// return incremented by integer
+		ConstUncheckedRandomAccessIterator _Iter = _Left;
+
+		_Iter.move(_Right);
+		return (_Iter);
+		}
+
+	static ConstUncheckedRandomAccessIterator operator+(
+		difference_type _Left,
+			ConstUncheckedRandomAccessIterator _Right)
+		{	// return incremented by integer
+		ConstUncheckedRandomAccessIterator _Iter = _Right;
+
+		_Iter.move(_Left);
+		return (_Iter);
+		}
+
+	static ConstUncheckedRandomAccessIterator operator-(
+		ConstUncheckedRandomAccessIterator% _Left,
+			difference_type _Right)
+		{	// return decremented by integer
+		ConstUncheckedRandomAccessIterator _Iter = _Left;
+
+		_Iter.move(-_Right);	// can overflow
+		return (_Iter);
+		}
+
+	difference_type operator-(
+		_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Right)
+		{	// return difference of two iterators
+		return (distance(_Right));
+		}
+
+	bool operator<(_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Right)
+		{	// test if *this < _Right
+		return (less_than(_Right));
+		}
+
+	bool operator<(_Mytype_t% _Right)
+		{	// test if *this < _Right
+		return (less_than(_Right));
+		}
+
+	bool operator>=(_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Right)
+		{	// test if *this >= _Right
+		return (!(*this < _Right));
+		}
+
+	bool operator>=(_Mytype_t% _Right)
+		{	// test if *this >= _Right
+		return (!(*this < _Right));
+		}
+
+	static bool operator>(
+		_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Left,
+		_Mytype_t% _Right)
+		{	// test if _Left > _Right
+		return (_Right < _Left);
+		}
+
+	bool operator>(_Mytype_t%_Right)
+		{	// test if *this > _Right
+		return (_Right < *this);
+		}
+
+	static bool operator<=(
+		_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Left,
+		_Mytype_t% _Right)
+		{	// test if _Left <= _Right
+		return (!(_Right < _Left));
+		}
+
+	bool operator<=(_Mytype_t%_Right)
+		{	// test if *this <= _Right
+		return (!(_Right < *this));
+		}
+
+	property const_reference default[difference_type]
+		{	// get subscripted element
+		const_reference get(difference_type _Pos)
+			{	// get _Pos element
+			ConstUncheckedRandomAccessIterator _Where = *this + _Pos;
+
+			return (*_Where);
+			}
+		};
+
+_STLCLR_FIELD_ACCESS:
+	// data members
+	_Cont_t^ _Mycont;	// owning container
+	difference_type _Myoffset;	// offset into container
+
+private:
+	virtual int get_bias_virtual() sealed
+		= _Myiter_t::get_bias
+		{	// get offset from wrapped iterator
+		return (get_bias());
+		}
+
+	virtual System::Object^ get_node_virtual() sealed
+		= _Myiter_t::get_node
+		{	// get node from wrapped iterator
+		return (get_node());
+		}
+
+	virtual bool valid_virtual() sealed
+		= _Myiter_t::valid
+		{	// test if iterator valid
+		return (valid());
+		}
+
+	virtual System::Object^ container_virtual() sealed
+		= _Myiter_t::container
+		{	// return owning container
+		return (container());
+		}
+
+	virtual void next_virtual() sealed
+		= _Myiter_t::next
+		{	// increment
+		next();
+		}
+
+	virtual bool equal_to_virtual(
+		_STLCLR Generic::IInputIterator<_Value_t>^ _Right) sealed
+			= _Myiter_t::equal_to
+		{	// test if *this == _Right
+		return (equal_to(_Right));
+		}
+
+	virtual const_reference get_cref_virtual() sealed
+		= _Myiter_t::get_cref
+		{	// return const reference to designated element
+		return (get_cref());
+		}
+
+	virtual reference get_ref_virtual() sealed
+		= _Myiter_t::get_ref
+		{	// return reference to designated element
+#pragma warning(push)
+#pragma warning(disable: 4715)
+		throw gcnew System::InvalidOperationException();
+#pragma warning(pop)
+		}
+
+	virtual void prev_virtual() sealed
+		= _Myiter_t::prev
+		{	// decrement
+		prev();
+		}
+
+	virtual difference_type move_virtual(difference_type _Offset) sealed
+		= _Myiter_t::move
+		{	// incremented by integer
+		return (move(_Offset));
+		}
+
+	virtual difference_type distance_virtual(
+		_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Right) sealed
+			= _Myiter_t::distance
+		{	// return difference of two iterators
+		return (distance(_Right));
+		}
+
+	virtual bool less_than_virtual(
+		_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Right) sealed
+			= _Myiter_t::less_than
+		{	// test if *this < _Right
+		return (less_than(_Right));
+		}
+	};
+
+template<typename _Cont_t>
+	ConstUncheckedRandomAccessIterator<_Cont_t>
+		_Unchecked(ConstRandomAccessIterator<_Cont_t> _Iter)
+	{	// return unchecked version
+	typedef typename _Cont_t::value_type _Value_t;
+
+	return (ConstUncheckedRandomAccessIterator<_Cont_t>(
+		(_Cont_t^)_Iter.container(),
+		_Iter.get_bias()));
+	}
+
+//
+// TEMPLATE VALUE CLASS RandomAccessIterator
+//
+template<typename _Cont_t>
+	value class RandomAccessIterator
+	:	public _STLCLR Generic::IRandomAccessIterator<
+			typename _Cont_t::value_type>
+	{	// iterator for mutable random-access container
+public:
+	// types
+	typedef typename _Cont_t::value_type _Value_t;
+	typedef RandomAccessIterator<_Cont_t> _Mytype_t;
+	typedef _STLCLR Generic::IRandomAccessIterator<_Value_t> _Myiter_t;
+
+	typedef random_access_iterator_tag iterator_category;
+	typedef _Value_t value_type;
+	typedef int difference_type;
+	typedef value_type% pointer;
+	typedef value_type% reference;
+	typedef value_type% const_reference;
+
+	// constructors and special members
+	RandomAccessIterator(_Cont_t^ _Cont, int _Offset)
+		:	_Mycont(_Cont), _Myoffset(_Offset)
+		{	// construct from container pointer and offset
+		}
+
+	typedef ConstRandomAccessIterator<_Cont_t> _Myciter_t;
+
+	operator _Myciter_t()
+		{	// convert to const iterator
+		return (_Myciter_t(_Mycont, _Myoffset));
+		}
+
+	// generic conversions
+	typedef _STLCLR Generic::ContainerRandomAccessIterator<_Value_t>
+		_Mygeniter_t;
+
+	RandomAccessIterator(_Mygeniter_t% _Right)
+		:	_Mycont((_Cont_t^)_Right.container()),
+			_Myoffset(_Right.get_bias())
+		{	// construct by copying a generic iterator
+		}
+
+	operator _Mygeniter_t()
+		{	// convert to generic iterator
+		return (_Mygeniter_t(_Mycont, _Myoffset));
+		}
+
+	// member functions
+	virtual System::Object^ Clone()
+		{	// return a copy
+		return (gcnew RandomAccessIterator(_Mycont, _Myoffset));
+		}
+
+	int get_bias()
+		{	// get offset from wrapped iterator
+		return (_Myoffset);
+		}
+
+	System::Object^ get_node()
+		{	// get node from wrapped iterator
+		return (nullptr);
+		}
+
+	bool valid()
+		{	// test if iterator valid
+		return (container() != nullptr
+			&& _Mycont->valid_bias(_Myoffset));
+		}
+
+	System::Object^ container()
+		{	// return owning container
+		return (_Mycont);
+		}
+
+	void next()
+		{	// increment
+		if (!_Mycont->valid_bias(_Myoffset + 1))
+			throw gcnew System::InvalidOperationException();
+		++_Myoffset;
+		}
+
+	bool equal_to(_STLCLR Generic::IInputIterator<_Value_t>^ _Right)
+		{	// test if *this == _Right
+		if (container() == nullptr
+			|| container() != _Right->container())
+			throw gcnew System::ArgumentException();
+		return (get_bias() == _Right->get_bias()
+			&& get_node() == _Right->get_node());
+		}
+
+	bool equal_to(_Mytype_t% _Right)
+		{	// test if *this == _Right
+		if (container() == nullptr
+			|| container() != _Right.container())
+			throw gcnew System::ArgumentException();
+		return (get_bias() == _Right.get_bias()
+			&& get_node() == _Right.get_node());
+		}
+
+	const_reference get_cref()
+		{	// return const reference to designated element
+		return (_Mycont->at_bias(_Myoffset));
+		}
+
+	reference get_ref()
+		{	// return reference to designated element
+		return (_Mycont->at_bias(_Myoffset));
+		}
+
+	void prev()
+		{	// decrement
+		if (!_Mycont->valid_bias(_Myoffset - 1))
+			throw gcnew System::InvalidOperationException();
+		--_Myoffset;
+		}
+
+	difference_type move(difference_type _Offset)
+		{	// incremented by integer
+		difference_type _Newoffset = _Myoffset + _Offset;	// can overflow
+
+		if (!_Mycont->valid_bias(_Newoffset))
+			throw gcnew System::InvalidOperationException();
+		_Myoffset = _Newoffset;
+		return (_Myoffset);
+		}
+
+	difference_type distance(
+		_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Right)
+		{	// return difference of two iterators
+		if (container() == nullptr
+			|| container() != _Right->container())
+			throw gcnew System::ArgumentException();
+		return (get_bias() - _Right->get_bias());
+		}
+
+	difference_type distance(
+		_Mytype_t% _Right)
+		{	// return difference of two iterators
+		if (container() == nullptr
+			|| container() != _Right.container())
+			throw gcnew System::ArgumentException();
+		return (get_bias() - _Right.get_bias());
+		}
+
+	bool less_than(_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Right)
+		{	// test if *this < _Right
+		if (container() == nullptr
+			|| container() != _Right->container())
+			throw gcnew System::ArgumentException();
+		return (get_bias() < _Right->get_bias());
+		}
+
+	bool less_than(_Mytype_t% _Right)
+		{	// test if *this < _Right
+		if (container() == nullptr
+			|| container() != _Right.container())
+			throw gcnew System::ArgumentException();
+		return (get_bias() < _Right.get_bias());
+		}
+
+	// operators
+	static reference operator->(RandomAccessIterator% _Left)
+		{	// return pointer to class object
+		return (_Left.get_ref());
+		}
+
+	static reference operator*(RandomAccessIterator% _Left)
+		{	// return reference to designated element
+		return (_Left.get_ref());
+		}
+
+#pragma warning(push)
+#pragma warning(disable:4460)
+	static RandomAccessIterator operator++(
+		RandomAccessIterator% _Left)
+		{	// return incremented
+		_Left.next();
+		return (_Left);
+		}
+#pragma warning(pop)
+
+	bool operator==(_STLCLR Generic::IInputIterator<_Value_t>^ _Right)
+		{	// test if *this == _Right
+		return (equal_to(_Right));
+		}
+
+	bool operator==(_Mytype_t% _Right)
+		{	// test if *this == _Right
+		return (equal_to(_Right));
+		}
+
+	bool operator!=(_STLCLR Generic::IInputIterator<_Value_t>^ _Right)
+		{	// test if *this != _Right
+		return (!(*this == _Right));
+		}
+
+	bool operator!=(_Mytype_t% _Right)
+		{	// test if *this != _Right
+		return (!(*this == _Right));
+		}
+
+#pragma warning(push)
+#pragma warning(disable:4460)
+	static RandomAccessIterator operator--(
+		RandomAccessIterator% _Left)
+		{	// return decremented
+		_Left.prev();
+		return (_Left);
+		}
+#pragma warning(pop)
+
+	static RandomAccessIterator operator+(
+		RandomAccessIterator% _Left,
+			difference_type _Right)
+		{	// return incremented by integer
+		RandomAccessIterator _Iter = _Left;
+
+		_Iter.move(_Right);
+		return (_Iter);
+		}
+
+	static RandomAccessIterator operator+(
+		difference_type _Left,
+			RandomAccessIterator% _Right)
+		{	// return incremented by integer
+		RandomAccessIterator _Iter = _Right;
+
+		_Iter.move(_Left);
+		return (_Iter);
+		}
+
+	static RandomAccessIterator operator-(
+		RandomAccessIterator% _Left,
+			difference_type _Right)
+		{	// return decremented by integer
+		RandomAccessIterator _Iter = _Left;
+
+		_Iter.move(-_Right);	// can overflow
+		return (_Iter);
+		}
+
+	difference_type operator-(
+		_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Right)
+		{	// return difference of two iterators
+		return (distance(_Right));
+		}
+
+	bool operator<(_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Right)
+		{	// test if *this < _Right
+		return (less_than(_Right));
+		}
+
+	bool operator<(_Mytype_t% _Right)
+		{	// test if *this < _Right
+		return (less_than(_Right));
+		}
+
+	bool operator>=(_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Right)
+		{	// test if *this >= _Right
+		return (!(*this < _Right));
+		}
+
+	bool operator>=(_Mytype_t% _Right)
+		{	// test if *this >= _Right
+		return (!(*this < _Right));
+		}
+
+	static bool operator>(_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Left,
+		_Mytype_t% _Right)
+		{	// test if _Left > _Right
+		return (_Right < _Left);
+		}
+
+	bool operator>(_Mytype_t%_Right)
+		{	// test if *this > _Right
+		return (_Right < *this);
+		}
+
+	static bool operator<=(
+		_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Left,
+		_Mytype_t% _Right)
+		{	// test if _Left <= _Right
+		return (!(_Right < _Left));
+		}
+
+	bool operator<=(_Mytype_t%_Right)
+		{	// test if *this <= _Right
+		return (!(_Right < *this));
+		}
+
+	property value_type default[difference_type]
+		{	// get or set subscripted element
+		value_type get(difference_type _Pos)
+			{	// get _Pos element
+			RandomAccessIterator _Where = *this + _Pos;
+
+			return (*_Where);
+			}
+
+		void set(difference_type _Pos, value_type _Val)
+			{	// set _Pos element
+			RandomAccessIterator _Where = *this + _Pos;
+
+			*_Where = _Val;
+			}
+		};
+
+_STLCLR_FIELD_ACCESS:
+	// data members
+	_Cont_t^ _Mycont;	// owning container
+	difference_type _Myoffset;	// offset into container
+
+private:
+	virtual int get_bias_virtual() sealed
+		= _Myiter_t::get_bias
+		{	// get offset from wrapped iterator
+		return (get_bias());
+		}
+
+	virtual System::Object^ get_node_virtual() sealed
+		= _Myiter_t::get_node
+		{	// get node from wrapped iterator
+		return (get_node());
+		}
+
+	virtual bool valid_virtual() sealed
+		= _Myiter_t::valid
+		{	// test if iterator valid
+		return (valid());
+		}
+
+	virtual System::Object^ container_virtual() sealed
+		= _Myiter_t::container
+		{	// return owning container
+		return (container());
+		}
+
+	virtual void next_virtual() sealed
+		= _Myiter_t::next
+		{	// increment
+		next();
+		}
+
+	virtual bool equal_to_virtual(
+		_STLCLR Generic::IInputIterator<_Value_t>^ _Right) sealed
+			= _Myiter_t::equal_to
+		{	// test if *this == _Right
+		return (equal_to(_Right));
+		}
+
+	virtual const_reference get_cref_virtual() sealed
+		= _Myiter_t::get_cref
+		{	// return const reference to designated element
+		return (get_cref());
+		}
+
+	virtual reference get_ref_virtual() sealed
+		= _Myiter_t::get_ref
+		{	// return reference to designated element
+		return (get_ref());
+		}
+
+	virtual void prev_virtual() sealed
+		= _Myiter_t::prev
+		{	// decrement
+		prev();
+		}
+
+	virtual difference_type move_virtual(difference_type _Offset) sealed
+		= _Myiter_t::move
+		{	// incremented by integer
+		return (move(_Offset));
+		}
+
+	virtual difference_type distance_virtual(
+		_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Right) sealed
+			= _Myiter_t::distance
+		{	// return difference of two iterators
+		return (distance(_Right));
+		}
+
+	virtual bool less_than_virtual(
+		_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Right) sealed
+			= _Myiter_t::less_than
+		{	// test if *this < _Right
+		return (less_than(_Right));
+		}
+	};
+
+//
+// TEMPLATE VALUE CLASS UncheckedRandomAccessIterator
+//
+template<typename _Cont_t>
+	value class UncheckedRandomAccessIterator
+	:	public _STLCLR Generic::IRandomAccessIterator<
+			typename _Cont_t::value_type>
+	{	// iterator for mutable random-access container
+public:
+	// types
+	typedef typename _Cont_t::value_type _Value_t;
+	typedef UncheckedRandomAccessIterator<_Cont_t> _Mytype_t;
+	typedef _STLCLR Generic::IRandomAccessIterator<_Value_t> _Myiter_t;
+
+	typedef random_access_iterator_tag iterator_category;
+	typedef _Value_t value_type;
+	typedef int difference_type;
+	typedef value_type% pointer;
+	typedef value_type% reference;
+	typedef value_type% const_reference;
+
+	// constructors and special members
+	UncheckedRandomAccessIterator(_Cont_t^ _Cont, int _Offset)
+		:	_Mycont(_Cont), _Myoffset(_Offset)
+		{	// construct from container pointer and offset
+		}
+
+	typedef ConstUncheckedRandomAccessIterator<_Cont_t> _Myciter_t;
+
+	operator _Myciter_t()
+		{	// convert to const iterator
+		return (_Myciter_t(_Mycont, _Myoffset));
+		}
+
+	operator RandomAccessIterator<_Cont_t>()
+		{	// convert to checked iterator
+		return (RandomAccessIterator<_Cont_t>(_Mycont, _Myoffset));
+		}
+
+	// generic conversions
+	typedef _STLCLR Generic::ContainerRandomAccessIterator<_Value_t>
+		_Mygeniter_t;
+
+	UncheckedRandomAccessIterator(_Mygeniter_t% _Right)
+		:	_Mycont((_Cont_t^)_Right.container()),
+			_Myoffset(_Right.get_bias())
+		{	// construct by copying a generic iterator
+		}
+
+	operator _Mygeniter_t()
+		{	// convert to generic iterator
+		return (_Mygeniter_t(_Mycont, _Myoffset));
+		}
+
+	// member functions
+	virtual System::Object^ Clone()
+		{	// return a copy
+		return (gcnew UncheckedRandomAccessIterator(_Mycont, _Myoffset));
+		}
+
+	int get_bias()
+		{	// get offset from wrapped iterator
+		return (_Myoffset);
+		}
+
+	System::Object^ get_node()
+		{	// get node from wrapped iterator
+		return (nullptr);
+		}
+
+	bool valid()
+		{	// test if iterator valid
+		return (true);	// UNCHECKED
+//		return (container() != nullptr
+//			&& _Mycont->valid_bias(_Myoffset));
+		}
+
+	System::Object^ container()
+		{	// return owning container
+		return (_Mycont);
+		}
+
+	void next()
+		{	// increment
+//		if (!_Mycont->valid_bias(_Myoffset + 1))	// UNCHECKED
+//			throw gcnew System::InvalidOperationException();
+		++_Myoffset;
+		}
+
+	bool equal_to(_STLCLR Generic::IInputIterator<_Value_t>^ _Right)
+		{	// test if *this == _Right
+//		if (container() == nullptr	// UNCHECKED
+//			|| container() != _Right->container())
+//			throw gcnew System::ArgumentException();
+		return (get_bias() == _Right->get_bias()
+			&& get_node() == _Right->get_node());
+		}
+
+	bool equal_to(_Mytype_t% _Right)
+		{	// test if *this == _Right
+//		if (container() == nullptr	// UNCHECKED
+//			|| container() != _Right.container())
+//			throw gcnew System::ArgumentException();
+		return (get_bias() == _Right.get_bias()
+			&& get_node() == _Right.get_node());
+		}
+
+	const_reference get_cref()
+		{	// return const reference to designated element
+		return (_Mycont->at_bias(_Myoffset));
+		}
+
+	reference get_ref()
+		{	// return reference to designated element
+		return (_Mycont->at_bias(_Myoffset));
+		}
+
+	void prev()
+		{	// decrement
+//		if (!_Mycont->valid_bias(_Myoffset - 1))	// UNCHECKED
+//			throw gcnew System::InvalidOperationException();
+		--_Myoffset;
+		}
+
+	difference_type move(difference_type _Offset)
+		{	// incremented by integer
+		difference_type _Newoffset = _Myoffset + _Offset;	// can overflow
+
+//		if (!_Mycont->valid_bias(_Newoffset))	// UNCHECKED
+//			throw gcnew System::InvalidOperationException();
+		_Myoffset = _Newoffset;
+		return (_Myoffset);
+		}
+
+	difference_type distance(
+		_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Right)
+		{	// return difference of two iterators
+//		if (container() == nullptr	// UNCHECKED
+//			|| container() != _Right->container())
+//			throw gcnew System::ArgumentException();
+		return (get_bias() - _Right->get_bias());
+		}
+
+	difference_type distance(
+		_Mytype_t% _Right)
+		{	// return difference of two iterators
+//		if (container() == nullptr	// UNCHECKED
+//			|| container() != _Right->container())
+//			throw gcnew System::ArgumentException();
+		return (get_bias() - _Right.get_bias());
+		}
+
+	bool less_than(_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Right)
+		{	// test if *this < _Right
+//		if (container() == nullptr	// UNCHECKED
+//			|| container() != _Right->container())
+//			throw gcnew System::ArgumentException();
+		return (get_bias() < _Right->get_bias());
+		}
+
+	bool less_than(_Mytype_t% _Right)
+		{	// test if *this < _Right
+//		if (container() == nullptr	// UNCHECKED
+//			|| container() != _Right->container())
+//			throw gcnew System::ArgumentException();
+		return (get_bias() < _Right.get_bias());
+		}
+
+	// operators
+	static reference operator->(UncheckedRandomAccessIterator% _Left)
+		{	// return pointer to class object
+		return (_Left.get_ref());
+		}
+
+	static reference operator*(UncheckedRandomAccessIterator% _Left)
+		{	// return reference to designated element
+		return (_Left.get_ref());
+		}
+
+#pragma warning(push)
+#pragma warning(disable:4460)
+	static UncheckedRandomAccessIterator operator++(
+		UncheckedRandomAccessIterator% _Left)
+		{	// return incremented
+		_Left.next();
+		return (_Left);
+		}
+#pragma warning(pop)
+
+	bool operator==(_STLCLR Generic::IInputIterator<_Value_t>^ _Right)
+		{	// test if *this == _Right
+		return (equal_to(_Right));
+		}
+
+	bool operator==(_Mytype_t% _Right)
+		{	// test if *this == _Right
+		return (equal_to(_Right));
+		}
+
+	bool operator!=(_STLCLR Generic::IInputIterator<_Value_t>^ _Right)
+		{	// test if *this != _Right
+		return (!(*this == _Right));
+		}
+
+	bool operator!=(_Mytype_t% _Right)
+		{	// test if *this != _Right
+		return (!(*this == _Right));
+		}
+
+#pragma warning(push)
+#pragma warning(disable:4460)
+	static UncheckedRandomAccessIterator operator--(
+		UncheckedRandomAccessIterator% _Left)
+		{	// return decremented
+		_Left.prev();
+		return (_Left);
+		}
+#pragma warning(pop)
+
+	static UncheckedRandomAccessIterator operator+(
+		UncheckedRandomAccessIterator% _Left,
+			difference_type _Right)
+		{	// return incremented by integer
+		UncheckedRandomAccessIterator _Iter = _Left;
+
+		_Iter.move(_Right);
+		return (_Iter);
+		}
+
+	static UncheckedRandomAccessIterator operator+(
+		difference_type _Left,
+			UncheckedRandomAccessIterator% _Right)
+		{	// return incremented by integer
+		UncheckedRandomAccessIterator _Iter = _Right;
+
+		_Iter.move(_Left);
+		return (_Iter);
+		}
+
+	static UncheckedRandomAccessIterator operator-(
+		UncheckedRandomAccessIterator% _Left,
+			difference_type _Right)
+		{	// return decremented by integer
+		UncheckedRandomAccessIterator _Iter = _Left;
+
+		_Iter.move(-_Right);	// can overflow
+		return (_Iter);
+		}
+
+	difference_type operator-(
+		_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Right)
+		{	// return difference of two iterators
+		return (distance(_Right));
+		}
+
+	bool operator<(_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Right)
+		{	// test if *this < _Right
+		return (less_than(_Right));
+		}
+
+	bool operator<(_Mytype_t% _Right)
+		{	// test if *this < _Right
+		return (less_than(_Right));
+		}
+
+	bool operator>=(_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Right)
+		{	// test if *this >= _Right
+		return (!(*this < _Right));
+		}
+
+	bool operator>=(_Mytype_t% _Right)
+		{	// test if *this >= _Right
+		return (!(*this < _Right));
+		}
+
+	static bool operator>(
+		_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Left,
+		_Mytype_t% _Right)
+		{	// test if _Left > _Right
+		return (_Right < _Left);
+		}
+
+	bool operator>(_Mytype_t%_Right)
+		{	// test if *this > _Right
+		return (_Right < *this);
+		}
+
+	static bool operator<=(
+		_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Left,
+		_Mytype_t% _Right)
+		{	// test if _Left <= _Right
+		return (!(_Right < _Left));
+		}
+
+	bool operator<=(_Mytype_t%_Right)
+		{	// test if *this <= _Right
+		return (!(_Right < *this));
+		}
+
+	property value_type default[difference_type]
+		{	// get or set subscripted element
+		value_type get(difference_type _Pos)
+			{	// get _Pos element
+			UncheckedRandomAccessIterator _Where = *this + _Pos;
+
+			return (*_Where);
+			}
+
+		void set(difference_type _Pos, value_type _Val)
+			{	// set _Pos element
+			UncheckedRandomAccessIterator _Where = *this + _Pos;
+
+			*_Where = _Val;
+			}
+		};
+
+_STLCLR_FIELD_ACCESS:
+	// data members
+	_Cont_t^ _Mycont;	// owning container
+	difference_type _Myoffset;	// offset into container
+
+private:
+	virtual int get_bias_virtual() sealed
+		= _Myiter_t::get_bias
+		{	// get offset from wrapped iterator
+		return (get_bias());
+		}
+
+	virtual System::Object^ get_node_virtual() sealed
+		= _Myiter_t::get_node
+		{	// get node from wrapped iterator
+		return (get_node());
+		}
+
+	virtual bool valid_virtual() sealed
+		= _Myiter_t::valid
+		{	// test if iterator valid
+		return (valid());
+		}
+
+	virtual System::Object^ container_virtual() sealed
+		= _Myiter_t::container
+		{	// return owning container
+		return (container());
+		}
+
+	virtual void next_virtual() sealed
+		= _Myiter_t::next
+		{	// increment
+		next();
+		}
+
+	virtual bool equal_to_virtual(
+		_STLCLR Generic::IInputIterator<_Value_t>^ _Right) sealed
+			= _Myiter_t::equal_to
+		{	// test if *this == _Right
+		return (equal_to(_Right));
+		}
+
+	virtual const_reference get_cref_virtual() sealed
+		= _Myiter_t::get_cref
+		{	// return const reference to designated element
+		return (get_cref());
+		}
+
+	virtual reference get_ref_virtual() sealed
+		= _Myiter_t::get_ref
+		{	// return reference to designated element
+		return (get_ref());
+		}
+
+	virtual void prev_virtual() sealed
+		= _Myiter_t::prev
+		{	// decrement
+		prev();
+		}
+
+	virtual difference_type move_virtual(difference_type _Offset) sealed
+		= _Myiter_t::move
+		{	// incremented by integer
+		return (move(_Offset));
+		}
+
+	virtual difference_type distance_virtual(
+		_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Right) sealed
+			= _Myiter_t::distance
+		{	// return difference of two iterators
+		return (distance(_Right));
+		}
+
+	virtual bool less_than_virtual(
+		_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Right) sealed
+			= _Myiter_t::less_than
+		{	// test if *this < _Right
+		return (less_than(_Right));
+		}
+	};
+
+template<typename _Cont_t>
+	UncheckedRandomAccessIterator<_Cont_t>
+		_Unchecked(RandomAccessIterator<_Cont_t> _Iter)
+	{	// return unchecked version
+	typedef typename _Cont_t::value_type _Value_t;
+
+	return (UncheckedRandomAccessIterator<_Cont_t>(
+		(_Cont_t^)_Iter.container(),
+		_Iter.get_bias()));
+	}
+
+//
+// TEMPLATE VALUE CLASS ReverseRandomAccessIterator
+//
+template<typename _Cont_t>
+	value class ReverseRandomAccessIterator
+	:	public _STLCLR Generic::IRandomAccessIterator<
+			typename _Cont_t::value_type>
+	{	// iterator for mutable random-access container
+public:
+	// types
+	typedef typename _Cont_t::value_type _Value_t;
+	typedef ReverseRandomAccessIterator<_Cont_t> _Mytype_t;
+	typedef _STLCLR Generic::IRandomAccessIterator<_Value_t> _Myiter_t;
+	typedef typename _Cont_t::iterator _Mywrapped_t;
+
+	typedef random_access_iterator_tag iterator_category;
+	typedef _Value_t value_type;
+	typedef int difference_type;
+	typedef value_type% pointer;
+	typedef value_type% reference;
+	typedef value_type% const_reference;
+
+	// constructors and special members
+	ReverseRandomAccessIterator(_Mywrapped_t% _Iter)
+		:	_Myiter(_Iter)
+		{	// construct from wrapped iterator
+		}
+
+	// member functions
+	virtual System::Object^ Clone()
+		{	// return a copy
+		return (gcnew ReverseRandomAccessIterator(_Myiter));
+		}
+
+	int get_bias()
+		{	// get offset from wrapped iterator
+		return (_Myiter.get_bias());
+		}
+
+	System::Object^ get_node()
+		{	// get node from wrapped iterator
+		return (nullptr);
+		}
+
+	bool valid()
+		{	// test if iterator valid
+		return (_Myiter.valid());
+		}
+
+	System::Object^ container()
+		{	// return owning container
+		return (_Myiter.container());
+		}
+
+	void next()
+		{	// increment
+		_Myiter.prev();
+		}
+
+	bool equal_to(_STLCLR Generic::IInputIterator<_Value_t>^ _Right)
+		{	// test if *this == _Right
+		if (container() == nullptr
+			|| container() != _Right->container())
+			throw gcnew System::ArgumentException();
+		return (get_bias() == _Right->get_bias()
+			&& get_node() == _Right->get_node());
+		}
+
+	bool equal_to(_Mytype_t% _Right)
+		{	// test if *this == _Right
+		return (_Myiter.equal_to(_Right._Myiter));
+		}
+
+	const_reference get_cref()
+		{	// return const reference to designated element
+		_Myiter.prev();
+		const_reference _Ref = _Myiter.get_cref();
+		_Myiter.next();
+		return (_Ref);
+		}
+
+	reference get_ref()
+		{	// return reference to designated element
+		_Myiter.prev();
+		const_reference _Ref = _Myiter.get_ref();
+		_Myiter.next();
+		return (_Ref);
+		}
+
+	void prev()
+		{	// decrement
+		return (_Myiter.next());
+		}
+
+	difference_type move(difference_type _Offset)
+		{	// incremented by integer
+		return (_Myiter.move(_Offset));
+		}
+
+	difference_type distance(
+		_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Right)
+		{	// return difference of two iterators
+		return (_Myiter.distance(_Right));
+		}
+
+	difference_type distance(
+		_Mytype_t% _Right)
+		{	// return difference of two iterators
+		return (_Myiter.distance(_Right));
+		}
+
+	bool less_than(_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Right)
+		{	// test if *this < _Right
+		if (container() == nullptr
+			|| container() != _Right->container())
+			throw gcnew System::ArgumentException();
+		return (get_bias() < _Right->get_bias());
+		}
+
+	bool less_than(_Mytype_t% _Right)
+		{	// test if *this < _Right
+		return (_Myiter.less_than(_Right));
+		}
+
+	// operators
+	static reference operator->(ReverseRandomAccessIterator% _Left)
+		{	// return pointer to class object
+		return (_Left.get_ref());
+		}
+
+	static reference operator*(ReverseRandomAccessIterator% _Left)
+		{	// return reference to designated element
+		return (_Left.get_ref());
+		}
+
+#pragma warning(push)
+#pragma warning(disable:4460)
+	static ReverseRandomAccessIterator operator++(
+		ReverseRandomAccessIterator% _Left)
+		{	// return incremented
+		_Left.next();
+		return (_Left);
+		}
+#pragma warning(pop)
+
+	bool operator==(_STLCLR Generic::IInputIterator<_Value_t>^ _Right)
+		{	// test if *this == _Right
+		return (equal_to(_Right));
+		}
+
+	bool operator==(_Mytype_t% _Right)
+		{	// test if *this == _Right
+		return (equal_to(_Right));
+		}
+
+	bool operator!=(_STLCLR Generic::IInputIterator<_Value_t>^ _Right)
+		{	// test if *this != _Right
+		return (!(*this == _Right));
+		}
+
+	bool operator!=(_Mytype_t% _Right)
+		{	// test if *this != _Right
+		return (!(*this == _Right));
+		}
+
+#pragma warning(push)
+#pragma warning(disable:4460)
+	static ReverseRandomAccessIterator operator--(
+		ReverseRandomAccessIterator% _Left)
+		{	// return decremented
+		_Left.prev();
+		return (_Left);
+		}
+#pragma warning(pop)
+
+	static ReverseRandomAccessIterator operator+(
+		ReverseRandomAccessIterator% _Left,
+			difference_type _Right)
+		{	// return incremented by integer
+		ReverseRandomAccessIterator _Iter = _Left;
+
+		_Iter.move(_Right);
+		return (_Iter);
+		}
+
+	static ReverseRandomAccessIterator operator+(
+		difference_type _Left,
+			ReverseRandomAccessIterator% _Right)
+		{	// return incremented by integer
+		ReverseRandomAccessIterator _Iter = _Right;
+
+		_Iter.move(_Left);
+		return (_Iter);
+		}
+
+	static ReverseRandomAccessIterator operator-(
+		ReverseRandomAccessIterator% _Left,
+			difference_type _Right)
+		{	// return decremented by integer
+		ReverseRandomAccessIterator _Iter = _Left;
+
+		_Iter.move(-_Right);	// can overflow
+		return (_Iter);
+		}
+
+	difference_type operator-(
+		_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Right)
+		{	// return difference of two iterators
+		return (distance(_Right));
+		}
+
+	bool operator<(_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Right)
+		{	// test if *this < _Right
+		return (less_than(_Right));
+		}
+
+	bool operator<(_Mytype_t% _Right)
+		{	// test if *this < _Right
+		return (less_than(_Right));
+		}
+
+	bool operator>=(_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Right)
+		{	// test if *this >= _Right
+		return (!(*this < _Right));
+		}
+
+	bool operator>=(_Mytype_t% _Right)
+		{	// test if *this >= _Right
+		return (!(*this < _Right));
+		}
+
+	static bool operator>(_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Left,
+		_Mytype_t% _Right)
+		{	// test if _Left > _Right
+		return (_Right < _Left);
+		}
+
+	bool operator>(_Mytype_t%_Right)
+		{	// test if *this > _Right
+		return (_Right < *this);
+		}
+
+	static bool operator<=(
+		_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Left,
+		_Mytype_t% _Right)
+		{	// test if _Left <= _Right
+		return (!(_Right < _Left));
+		}
+
+	bool operator<=(_Mytype_t%_Right)
+		{	// test if *this <= _Right
+		return (!(_Right < *this));
+		}
+
+	property value_type default[difference_type]
+		{	// get or set subscripted element
+		value_type get(difference_type _Pos)
+			{	// get _Pos element
+			ReverseRandomAccessIterator _Where = *this + _Pos;
+
+			return (*_Where);
+			}
+
+		void set(difference_type _Pos, value_type _Val)
+			{	// set _Pos element
+			ReverseRandomAccessIterator _Where = *this + _Pos;
+
+			*_Where = _Val;
+			}
+		};
+
+_Mywrapped_t base()
+	{	// return wrapped iterator
+	return (_Myiter);
+	}
+
+_STLCLR_FIELD_ACCESS:
+	// data members
+	_Mywrapped_t _Myiter;	// the wrapped iterator
+
+private:
+	virtual int get_bias_virtual() sealed
+		= _Myiter_t::get_bias
+		{	// get offset from wrapped iterator
+		return (get_bias());
+		}
+
+	virtual System::Object^ get_node_virtual() sealed
+		= _Myiter_t::get_node
+		{	// get node from wrapped iterator
+		return (get_node());
+		}
+
+	virtual bool valid_virtual() sealed
+		= _Myiter_t::valid
+		{	// test if iterator valid
+		return (valid());
+		}
+
+	virtual System::Object^ container_virtual() sealed
+		= _Myiter_t::container
+		{	// return owning container
+		return (container());
+		}
+
+	virtual void next_virtual() sealed
+		= _Myiter_t::next
+		{	// increment
+		next();
+		}
+
+	virtual bool equal_to_virtual(
+		_STLCLR Generic::IInputIterator<_Value_t>^ _Right) sealed
+			= _Myiter_t::equal_to
+		{	// test if *this == _Right
+		return (equal_to(_Right));
+		}
+
+	virtual const_reference get_cref_virtual() sealed
+		= _Myiter_t::get_cref
+		{	// return const reference to designated element
+		return (get_cref());
+		}
+
+	virtual reference get_ref_virtual() sealed
+		= _Myiter_t::get_ref
+		{	// return reference to designated element
+		return (get_ref());
+		}
+
+	virtual void prev_virtual() sealed
+		= _Myiter_t::prev
+		{	// decrement
+		prev();
+		}
+
+	virtual difference_type move_virtual(difference_type _Offset) sealed
+		= _Myiter_t::move
+		{	// incremented by integer
+		return (move(_Offset));
+		}
+
+	virtual difference_type distance_virtual(
+		_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Right) sealed
+			= _Myiter_t::distance
+		{	// return difference of two iterators
+		return (distance(_Right));
+		}
+
+	virtual bool less_than_virtual(
+		_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Right) sealed
+			= _Myiter_t::less_than
+		{	// test if *this < _Right
+		return (less_than(_Right));
+		}
+	};
+
+template<typename _Cont_t>
+	ReverseRandomAccessIterator<_Cont_t>
+		_Unchecked(ReverseRandomAccessIterator<_Cont_t> _Iter)
+	{	// return unchecked version
+	ReverseRandomAccessIterator<_Cont_t> _Newiter(_Iter.base());
+
+	return (_Newiter);
+	}
+
+// TEMPLATE REF CLASS BCL_reference_base
+//
+template<typename _Cont_t,
+	bool _Is_ref>
+	ref class BCL_reference_base
+	{	// base of BCL reference proxy
+public:
+	typedef typename _Cont_t::value_type generic_value;
+	typedef typename _Cont_t::value_type value_type;
+
+	generic_value make_generic(value_type% _Val)
+		{	// convert to generic value
+		return (_Val);
+		}
+
+	value_type make_value(generic_value% _Val)
+		{	// convert to value
+		return (_Val);
+		}
+	};
+
+//
+// TEMPLATE REF CLASS BCL_reference_base: REF value_type
+//
+template<typename _Cont_t>
+	ref class BCL_reference_base<_Cont_t, true>
+	{	// base of BCL reference proxy
+public:
+	typedef typename _Cont_t::generic_value generic_value;
+	typedef typename _Dehandle<generic_value>::type value_type;
+
+	generic_value make_generic(value_type% _Val)
+		{	// convert to generic value
+		return (%_Val);
+		}
+
+	value_type make_value(generic_value% _Val)
+		{	// convert to value
+		return (*_Val);
+		}
+	};
+
+//
+// TEMPLATE REF CLASS BCL_reference
+//
+template<typename _Cont_t,
+	bool _Is_ref = false>
+	ref class BCL_reference
+	:	public BCL_reference_base<_Cont_t, _Is_ref>
+	{	// reference proxy for a BCL container wrapper
+public:
+	typedef BCL_reference<_Cont_t> _Mytype_t;
+
+	BCL_reference(_Cont_t^ _Cont, int _Offset)
+		:	_Mycont(_Cont), _Myoffset(_Offset)
+		{	// construct from container and offset
+		}
+
+	BCL_reference(BCL_reference% _Right)
+		:	_Mycont(nullptr), _Myoffset(0),
+				_Myval(_Right.operator value_type())
+		{	// construct by copying _Right
+		}
+
+	BCL_reference% operator=(BCL_reference% _Right)
+		{	// assign from a BCL_reference
+		if (_Mycont != nullptr)
+			_Mycont->at_set(_Myoffset, _Right.operator value_type());
+		else
+			_Myval = _Right.operator value_type();
+		return (*this);
+		}
+
+	BCL_reference% operator=(value_type _Val)
+		{	// assign a value
+		if (_Mycont != nullptr)
+			_Mycont->at_set(_Myoffset, _Val);
+		else
+			_Myval = _Val;
+		return (*this);
+		}
+
+	operator value_type()
+		{	// convert to value type
+		if (_Mycont != nullptr)
+			return (make_value(_Mycont->at_val(_Myoffset)));
+		else
+			return (_Myval);
+		}
+
+_STLCLR_FIELD_ACCESS:
+	_Cont_t^ _Mycont;	// the container
+	int _Myoffset;		// the stored offset (_Mycont != nullptr)
+	value_type _Myval;	// the stored value (_Mycont == nullptr)
+	};
+
+//
+// TEMPLATE REF CLASS BCL_iterator
+//
+template<typename _Cont_t,
+	bool _Is_ref = false>
+	ref class BCL_iterator
+	:	public _STLCLR Generic::IRandomAccessIterator<
+			typename _Cont_t::value_type>
+	{	// iterator for mutable random-access container
+public:
+	// types
+	typedef BCL_iterator<_Cont_t, _Is_ref> _Mytype_t;
+	typedef typename _Cont_t::value_type _Value_t;
+	typedef _STLCLR Generic::IRandomAccessIterator<_Value_t> _Myiter_t;
+
+	typedef random_access_iterator_tag iterator_category;
+	typedef _Value_t value_type;
+	typedef int difference_type;
+	typedef value_type% pointer;
+	typedef value_type% reference;
+	typedef value_type% const_reference;
+
+	// basics
+	BCL_iterator()
+		:	_Mycont(nullptr), _Myoffset(0)
+		{	// construct default
+		}
+
+	BCL_iterator(BCL_iterator% _Right)
+		:	_Mycont(_Right._Mycont), _Myoffset(_Right._Myoffset)
+		{	// construct by copying an iterator
+		}
+
+	BCL_iterator% operator=(BCL_iterator% _Right)
+		{	// assign an iterator
+		_Mycont = _Right._Mycont;
+		_Myoffset = _Right._Myoffset;
+		return (*this);
+		}
+
+	operator _Myiter_t^()
+		{	// convert to interface
+		return (this);
+		}
+
+	// constructors
+	BCL_iterator(_Cont_t^ _Cont, int _Offset)
+		:	_Mycont(_Cont), _Myoffset(_Offset)
+		{	// construct from container pointer and offset
+		}
+
+	// member functions
+	virtual System::Object^ Clone()
+		{	// return a copy
+		return (gcnew BCL_iterator(_Mycont, _Myoffset));
+		}
+
+	int get_bias()
+		{	// get offset from wrapped iterator
+		return (_Myoffset);
+		}
+
+	System::Object^ get_node()
+		{	// get node from wrapped iterator
+		return (nullptr);
+		}
+
+	bool valid()
+		{	// test if iterator valid
+		return (container() != nullptr
+			&& _Mycont->valid_bias(_Myoffset));
+		}
+
+	System::Object^ container()
+		{	// return owning container
+		return (_Mycont);
+		}
+
+	void next()
+		{	// increment
+		if (!_Mycont->valid_bias(_Myoffset + 1))
+			throw gcnew System::InvalidOperationException();
+		++_Myoffset;
+		}
+
+	bool equal_to(_STLCLR Generic::IInputIterator<_Value_t>^ _Right)
+		{	// test if *this == _Right
+		if (container() == nullptr
+			|| container() != _Right->container())
+			throw gcnew System::ArgumentException();
+		return (get_bias() == _Right->get_bias()
+			&& get_node() == _Right->get_node());
+		}
+
+	bool equal_to(_Mytype_t% _Right)
+		{	// test if *this == _Right
+		if (container() == nullptr
+			|| container() != _Right.container())
+			throw gcnew System::ArgumentException();
+		return (get_bias() == _Right.get_bias()
+			&& get_node() == _Right.get_node());
+		}
+
+	const_reference get_cref()
+		{	// return const reference to designated element
+		_Myval = _Mycont[_Myoffset];
+		return (_Myval);
+		}
+
+	reference get_ref()
+		{	// return reference to designated element
+		_Myval = _Mycont[_Myoffset];
+		return (_Myval);
+		}
+
+	void prev()
+		{	// decrement
+		if (!_Mycont->valid_bias(_Myoffset - 1))
+			throw gcnew System::InvalidOperationException();
+		--_Myoffset;
+		}
+
+	difference_type move(difference_type _Offset)
+		{	// incremented by integer
+		difference_type _Newoffset = _Myoffset + _Offset;	// can overflow
+
+		if (!_Mycont->valid_bias(_Newoffset))
+			throw gcnew System::InvalidOperationException();
+		_Myoffset = _Newoffset;
+		return (_Myoffset);
+		}
+
+	difference_type distance(
+		_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Right)
+		{	// return difference of two iterators
+		if (container() == nullptr
+			|| container() != _Right->container())
+			throw gcnew System::ArgumentException();
+		return (get_bias() - _Right->get_bias());
+		}
+
+	difference_type distance(
+		_Mytype_t% _Right)
+		{	// return difference of two iterators
+		if (container() == nullptr
+			|| container() != _Right.container())
+			throw gcnew System::ArgumentException();
+		return (get_bias() - _Right.get_bias());
+		}
+
+	bool less_than(_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Right)
+		{	// test if *this < _Right
+		if (container() == nullptr
+			|| container() != _Right->container())
+			throw gcnew System::ArgumentException();
+		return (get_bias() < _Right->get_bias());
+		}
+
+	bool less_than(_Mytype_t% _Right)
+		{	// test if *this < _Right
+		if (container() == nullptr
+			|| container() != _Right.container())
+			throw gcnew System::ArgumentException();
+		return (get_bias() < _Right.get_bias());
+		}
+
+	// operators
+	static BCL_reference<_Cont_t, _Is_ref> operator->(BCL_iterator% _Left)
+		{	// return pointer to class object
+		return (_Left._Mycont->at(_Myoffset));
+		}
+
+	static BCL_reference<_Cont_t, _Is_ref> operator*(BCL_iterator% _Left)
+		{	// return reference to designated element
+		return (_Left._Mycont->at(_Left._Myoffset));
+		}
+
+	BCL_iterator operator++()
+		{	// return incremented
+		next();
+		return (*this);
+		}
+
+	BCL_iterator operator++(int)
+		{	// return incremented
+		BCL_iterator _Iter = *this;
+
+		++*this;
+		return (_Iter);
+		}
+
+	bool operator==(_STLCLR Generic::IInputIterator<_Value_t>^ _Right)
+		{	// test if *this == _Right
+		return (equal_to(_Right));
+		}
+
+	bool operator==(_Mytype_t% _Right)
+		{	// test if *this == _Right
+		return (equal_to(_Right));
+		}
+
+	bool operator!=(_STLCLR Generic::IInputIterator<_Value_t>^ _Right)
+		{	// test if *this != _Right
+		return (!(*this == _Right));
+		}
+
+	bool operator!=(_Mytype_t% _Right)
+		{	// test if *this != _Right
+		return (!(*this == _Right));
+		}
+
+	BCL_iterator operator--()
+		{	// return decremented
+		prev();
+		return (*this);
+		}
+
+	BCL_iterator operator--(int)
+		{	// return decremented
+		BCL_iterator _Iter = *this;
+
+		--*this;
+		return (_Iter);
+		}
+
+	BCL_iterator operator+(difference_type _Right)
+		{	// return incremented by integer
+		BCL_iterator _Iter = *this;
+
+		_Iter.move(_Right);
+		return (_Iter);
+		}
+
+	static BCL_iterator operator+(difference_type _Left,
+		BCL_iterator _Right)
+		{	// return incremented by integer
+		BCL_iterator _Iter = _Right;
+
+		_Iter.move(_Left);
+		return (_Iter);
+		}
+
+	BCL_iterator operator-(difference_type _Right)
+		{	// return decremented by integer
+		BCL_iterator _Iter = *this;
+
+		_Iter.move(-_Right);	// can overflow
+		return (_Iter);
+		}
+
+	difference_type operator-(
+		_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Right)
+		{	// return difference of two iterators
+		return (distance(_Right));
+		}
+
+	bool operator<(_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Right)
+		{	// test if *this < _Right
+		return (less_than(_Right));
+		}
+
+	bool operator<(_Mytype_t% _Right)
+		{	// test if *this < _Right
+		return (less_than(_Right));
+		}
+
+	bool operator>=(_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Right)
+		{	// test if *this >= _Right
+		return (!(*this < _Right));
+		}
+
+	bool operator>=(_Mytype_t% _Right)
+		{	// test if *this >= _Right
+		return (!(*this < _Right));
+		}
+
+	static bool operator>(
+		_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Left,
+		_Mytype_t% _Right)
+		{	// test if _Left > _Right
+		return (_Right < _Left);
+		}
+
+	bool operator>(_Mytype_t%_Right)
+		{	// test if *this > _Right
+		return (_Right < *this);
+		}
+
+	static bool operator<=(
+		_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Left,
+		_Mytype_t% _Right)
+		{	// test if _Left <= _Right
+		return (!(_Right < _Left));
+		}
+
+	bool operator<=(_Mytype_t%_Right)
+		{	// test if *this <= _Right
+		return (!(_Right < *this));
+		}
+
+	property value_type default[difference_type]
+		{	// get or set subscripted element
+		value_type get(difference_type _Pos)
+			{	// get _Pos element
+			return (_Mycont[_Pos]);
+			}
+
+		void set(difference_type _Pos, value_type _Val)
+			{	// set _Pos element
+			_Mycont[_Pos] = _Val;
+			}
+		};
+
+_STLCLR_FIELD_ACCESS:
+	// data members
+	_Cont_t^ _Mycont;	// owning container
+	difference_type _Myoffset;	// offset into container
+	value_type _Myval;	// for get_ref/get_cref
+
+private:
+	virtual int get_bias_virtual() sealed
+		= _Myiter_t::get_bias
+		{	// get offset from wrapped iterator
+		return (get_bias());
+		}
+
+	virtual System::Object^ get_node_virtual() sealed
+		= _Myiter_t::get_node
+		{	// get node from wrapped iterator
+		return (get_node());
+		}
+
+	virtual bool valid_virtual() sealed
+		= _Myiter_t::valid
+		{	// test if iterator valid
+		return (valid());
+		}
+
+	virtual System::Object^ container_virtual() sealed
+		= _Myiter_t::container
+		{	// return owning container
+		return (container());
+		}
+
+	virtual void next_virtual() sealed
+		= _Myiter_t::next
+		{	// increment
+		next();
+		}
+
+	virtual bool equal_to_virtual(
+		_STLCLR Generic::IInputIterator<_Value_t>^ _Right) sealed
+			= _Myiter_t::equal_to
+		{	// test if *this == _Right
+		return (equal_to(_Right));
+		}
+
+	virtual const_reference get_cref_virtual() sealed
+		= _Myiter_t::get_cref
+		{	// return const reference to designated element
+		return (get_cref());
+		}
+
+	virtual reference get_ref_virtual() sealed
+		= _Myiter_t::get_ref
+		{	// return reference to designated element
+		return (get_ref());
+		}
+
+	virtual void prev_virtual() sealed
+		= _Myiter_t::prev
+		{	// decrement
+		prev();
+		}
+
+	virtual difference_type move_virtual(difference_type _Offset) sealed
+		= _Myiter_t::move
+		{	// incremented by integer
+		return (move(_Offset));
+		}
+
+	virtual difference_type distance_virtual(
+		_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Right) sealed
+			= _Myiter_t::distance
+		{	// return difference of two iterators
+		return (distance(_Right));
+		}
+
+	virtual bool less_than_virtual(
+		_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Right) sealed
+			= _Myiter_t::less_than
+		{	// test if *this < _Right
+		return (less_than(_Right));
+		}
+	};
+
+//
+// TEMPLATE REF CLASS UncheckedBCL_iterator
+//
+template<typename _Cont_t,
+	bool _Is_ref = false>
+	ref class UncheckedBCL_iterator
+	:	public _STLCLR Generic::IRandomAccessIterator<
+			typename _Cont_t::value_type>
+	{	// iterator for mutable random-access container
+public:
+	// types
+	typedef UncheckedBCL_iterator<_Cont_t, _Is_ref> _Mytype_t;
+	typedef typename _Cont_t::value_type _Value_t;
+	typedef _STLCLR Generic::IRandomAccessIterator<_Value_t> _Myiter_t;
+
+	typedef random_access_iterator_tag iterator_category;
+	typedef _Value_t value_type;
+	typedef int difference_type;
+	typedef value_type% pointer;
+	typedef value_type% reference;
+	typedef value_type% const_reference;
+
+	// basics
+	UncheckedBCL_iterator()
+		:	_Mycont(nullptr), _Myoffset(0)
+		{	// construct default
+		}
+
+	UncheckedBCL_iterator(UncheckedBCL_iterator% _Right)
+		:	_Mycont(_Right._Mycont), _Myoffset(_Right._Myoffset)
+		{	// construct by copying an iterator
+		}
+
+	UncheckedBCL_iterator% operator=(UncheckedBCL_iterator% _Right)
+		{	// assign an iterator
+		_Mycont = _Right._Mycont;
+		_Myoffset = _Right._Myoffset;
+		return (*this);
+		}
+
+	operator _Myiter_t^()
+		{	// convert to interface
+		return (this);
+		}
+
+	// constructors and special members
+	UncheckedBCL_iterator(_Cont_t^ _Cont, int _Offset)
+		:	_Mycont(_Cont), _Myoffset(_Offset)
+		{	// construct from container pointer and offset
+		}
+
+	operator BCL_iterator<_Cont_t, _Is_ref>()
+		{	// convert to checked iterator
+		return (BCL_iterator<_Cont_t, _Is_ref>(_Mycont, _Myoffset));
+		}
+
+	// member functions
+	virtual System::Object^ Clone()
+		{	// return a copy
+		return (gcnew UncheckedBCL_iterator(_Mycont, _Myoffset));
+		}
+
+	int get_bias()
+		{	// get offset from wrapped iterator
+		return (_Myoffset);
+		}
+
+	System::Object^ get_node()
+		{	// get node from wrapped iterator
+		return (nullptr);
+		}
+
+	bool valid()
+		{	// test if iterator valid
+		return (true);	// UNCHECKED
+//		return (container() != nullptr
+//			&& _Mycont->valid_bias(_Myoffset));
+		}
+
+	System::Object^ container()
+		{	// return owning container
+		return (_Mycont);
+		}
+
+	void next()
+		{	// increment
+//		if (!_Mycont->valid_bias(_Myoffset + 1))	// UNCHECKED
+//			throw gcnew System::InvalidOperationException();
+		++_Myoffset;
+		}
+
+	bool equal_to(_STLCLR Generic::IInputIterator<_Value_t>^ _Right)
+		{	// test if *this == _Right
+//		if (container() == nullptr	// UNCHECKED
+//			|| container() != _Right->container())
+//			throw gcnew System::ArgumentException();
+		return (get_bias() == _Right->get_bias()
+			&& get_node() == _Right->get_node());
+		}
+
+	bool equal_to(_Mytype_t% _Right)
+		{	// test if *this == _Right
+//		if (container() == nullptr	// UNCHECKED
+//			|| container() != _Right.container())
+//			throw gcnew System::ArgumentException();
+		return (get_bias() == _Right.get_bias()
+			&& get_node() == _Right.get_node());
+		}
+
+	const_reference get_cref()
+		{	// return const reference to designated element
+		_Myval = _Mycont[_Myoffset];
+		return (_Myval);
+		}
+
+	reference get_ref()
+		{	// return reference to designated element
+		_Myval = _Mycont[_Myoffset];
+		return (_Myval);
+		}
+
+	void prev()
+		{	// decrement
+//		if (!_Mycont->valid_bias(_Myoffset - 1))	// UNCHECKED
+//			throw gcnew System::InvalidOperationException();
+		--_Myoffset;
+		}
+
+	difference_type move(difference_type _Offset)
+		{	// incremented by integer
+		difference_type _Newoffset = _Myoffset + _Offset;	// can overflow
+
+//		if (!_Mycont->valid_bias(_Newoffset))	// UNCHECKED
+//			throw gcnew System::InvalidOperationException();
+		_Myoffset = _Newoffset;
+		return (_Myoffset);
+		}
+
+	difference_type distance(
+		_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Right)
+		{	// return difference of two iterators
+//		if (container() == nullptr	// UNCHECKED
+//			|| container() != _Right->container())
+//			throw gcnew System::ArgumentException();
+		return (get_bias() - _Right->get_bias());
+		}
+
+	difference_type distance(
+		_Mytype_t% _Right)
+		{	// return difference of two iterators
+//		if (container() == nullptr	// UNCHECKED
+//			|| container() != _Right.container())
+//			throw gcnew System::ArgumentException();
+		return (get_bias() - _Right.get_bias());
+		}
+
+	bool less_than(_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Right)
+		{	// test if *this < _Right
+//		if (container() == nullptr	// UNCHECKED
+//			|| container() != _Right->container())
+//			throw gcnew System::ArgumentException();
+		return (get_bias() < _Right->get_bias());
+		}
+
+	bool less_than(_Mytype_t% _Right)
+		{	// test if *this < _Right
+//		if (container() == nullptr	// UNCHECKED
+//			|| container() != _Right.container())
+//			throw gcnew System::ArgumentException();
+		return (get_bias() < _Right.get_bias());
+		}
+
+	// operators
+	static BCL_reference<_Cont_t, _Is_ref>
+		operator->(UncheckedBCL_iterator% _Left)
+		{	// return pointer to class object
+		return (_Left._Mycont->at(_Myoffset));
+		}
+
+	static BCL_reference<_Cont_t, _Is_ref>
+		operator*(UncheckedBCL_iterator% _Left)
+		{	// return reference to designated element
+		return (_Left._Mycont->at(_Left._Myoffset));
+		}
+
+	UncheckedBCL_iterator operator++()
+		{	// return incremented
+		next();
+		return (*this);
+		}
+
+	UncheckedBCL_iterator operator++(int)
+		{	// return incremented
+		UncheckedBCL_iterator _Iter = *this;
+
+		++*this;
+		return (_Iter);
+		}
+
+	bool operator==(_STLCLR Generic::IInputIterator<_Value_t>^ _Right)
+		{	// test if *this == _Right
+		return (equal_to(_Right));
+		}
+
+	bool operator==(_Mytype_t% _Right)
+		{	// test if *this == _Right
+		return (equal_to(_Right));
+		}
+
+	bool operator!=(_STLCLR Generic::IInputIterator<_Value_t>^ _Right)
+		{	// test if *this != _Right
+		return (!(*this == _Right));
+		}
+
+	bool operator!=(_Mytype_t% _Right)
+		{	// test if *this != _Right
+		return (!(*this == _Right));
+		}
+
+	UncheckedBCL_iterator operator--()
+		{	// return decremented
+		prev();
+		return (*this);
+		}
+
+	UncheckedBCL_iterator operator--(int)
+		{	// return decremented
+		UncheckedBCL_iterator _Iter = *this;
+
+		--*this;
+		return (_Iter);
+		}
+
+	UncheckedBCL_iterator operator+(difference_type _Right)
+		{	// return incremented by integer
+		UncheckedBCL_iterator _Iter = *this;
+
+		_Iter.move(_Right);
+		return (_Iter);
+		}
+
+	static UncheckedBCL_iterator operator+(
+		difference_type _Left,
+			UncheckedBCL_iterator% _Right)
+		{	// return incremented by integer
+		UncheckedBCL_iterator _Iter = _Right;
+
+		_Iter.move(_Left);
+		return (_Iter);
+		}
+
+	UncheckedBCL_iterator operator-(difference_type _Right)
+		{	// return decremented by integer
+		UncheckedBCL_iterator _Iter = *this;
+
+		_Iter.move(-_Right);	// can overflow
+		return (_Iter);
+		}
+
+	difference_type operator-(
+		_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Right)
+		{	// return difference of two iterators
+		return (distance(_Right));
+		}
+
+	bool operator<(_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Right)
+		{	// test if *this < _Right
+		return (less_than(_Right));
+		}
+
+	bool operator<(_Mytype_t% _Right)
+		{	// test if *this < _Right
+		return (less_than(_Right));
+		}
+
+	bool operator>=(_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Right)
+		{	// test if *this >= _Right
+		return (!(*this < _Right));
+		}
+
+	bool operator>=(_Mytype_t% _Right)
+		{	// test if *this >= _Right
+		return (!(*this < _Right));
+		}
+
+	static bool operator>(
+		_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Left,
+		_Mytype_t% _Right)
+		{	// test if _Left > _Right
+		return (_Right < _Left);
+		}
+
+	bool operator>(_Mytype_t%_Right)
+		{	// test if *this > _Right
+		return (_Right < *this);
+		}
+
+	static bool operator<=(
+		_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Left,
+		_Mytype_t% _Right)
+		{	// test if _Left <= _Right
+		return (!(_Right < _Left));
+		}
+
+	bool operator<=(_Mytype_t%_Right)
+		{	// test if *this <= _Right
+		return (!(_Right < *this));
+		}
+
+	property value_type default[difference_type]
+		{	// get or set subscripted element
+		value_type get(difference_type _Pos)
+			{	// get _Pos element
+			return (_Mycont[_Pos]);
+			}
+
+		void set(difference_type _Pos, value_type _Val)
+			{	// set _Pos element
+			_Mycont[_Pos] = _Val;
+			}
+		};
+
+_STLCLR_FIELD_ACCESS:
+	// data members
+	_Cont_t^ _Mycont;	// owning container
+	difference_type _Myoffset;	// offset into container
+	value_type _Myval;	// for get_ref/get_cref
+
+private:
+	virtual int get_bias_virtual() sealed
+		= _Myiter_t::get_bias
+		{	// get offset from wrapped iterator
+		return (get_bias());
+		}
+
+	virtual System::Object^ get_node_virtual() sealed
+		= _Myiter_t::get_node
+		{	// get node from wrapped iterator
+		return (get_node());
+		}
+
+	virtual bool valid_virtual() sealed
+		= _Myiter_t::valid
+		{	// test if iterator valid
+		return (valid());
+		}
+
+	virtual System::Object^ container_virtual() sealed
+		= _Myiter_t::container
+		{	// return owning container
+		return (container());
+		}
+
+	virtual void next_virtual() sealed
+		= _Myiter_t::next
+		{	// increment
+		next();
+		}
+
+	virtual bool equal_to_virtual(
+		_STLCLR Generic::IInputIterator<_Value_t>^ _Right) sealed
+			= _Myiter_t::equal_to
+		{	// test if *this == _Right
+		return (equal_to(_Right));
+		}
+
+	virtual const_reference get_cref_virtual() sealed
+		= _Myiter_t::get_cref
+		{	// return const reference to designated element
+		return (get_cref());
+		}
+
+	virtual reference get_ref_virtual() sealed
+		= _Myiter_t::get_ref
+		{	// return reference to designated element
+		return (get_ref());
+		}
+
+	virtual void prev_virtual() sealed
+		= _Myiter_t::prev
+		{	// decrement
+		prev();
+		}
+
+	virtual difference_type move_virtual(difference_type _Offset) sealed
+		= _Myiter_t::move
+		{	// incremented by integer
+		return (move(_Offset));
+		}
+
+	virtual difference_type distance_virtual(
+		_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Right) sealed
+			= _Myiter_t::distance
+		{	// return difference of two iterators
+		return (distance(_Right));
+		}
+
+	virtual bool less_than_virtual(
+		_STLCLR Generic::IRandomAccessIterator<_Value_t>^ _Right) sealed
+			= _Myiter_t::less_than
+		{	// test if *this < _Right
+		return (less_than(_Right));
+		}
+	};
+
+template<typename _Cont_t,
+	bool _Is_ref>
+	UncheckedBCL_iterator<_Cont_t, _Is_ref>
+		_Unchecked(BCL_iterator<_Cont_t, _Is_ref> _Iter)
+	{	// return unchecked version
+	return (UncheckedBCL_iterator<_Cont_t, _Is_ref>(
+		(_Cont_t^)_Iter.container(),
+		_Iter.get_bias()));
+	}
+
+//
+// TEMPLATE CLASS ArrayContainer
+//
+template<typename _Value_t>
+	ref class ArrayContainer
+	:	public _STLCLR Generic::IRandomAccessContainer<_Value_t>
+	{	// container wrapper for cli::array
+public:
+	typedef ArrayContainer<_Value_t> _Mytype_t;
+	typedef cli::array<_Value_t> _Myarray_t;
+	typedef _STLCLR Generic::ContainerRandomAccessIterator<_Value_t>
+		_Myiter_t;
+
+	typedef int size_type;
+//	typedef int difference_type;
+	typedef _Value_t value_type;
+	typedef _Value_t% reference;
+//	typedef _Value_t% const_reference;
+
+	typedef _Myiter_t iterator;
+
+	// constructors
+	ArrayContainer(size_type _Count)
+		:	_Myarray(gcnew _Myarray_t(_Count))
+		{	// construct from size
+		}
+
+	ArrayContainer(_Myarray_t^ _Mycont)
+		:	_Myarray(_Mycont)
+		{	// construct from array pointer
+		}
+
+	ArrayContainer(ArrayContainer^ _Right)
+		:	_Myarray(_Right->_Myarray)
+		{	// construct by copying a wrapper
+		}
+
+	// accessors
+	virtual reference at_bias(size_type _Pos)
+		{	// subscript array with checking
+		return (_Myarray[_Pos]);
+		}
+
+	virtual bool valid_bias(size_type _Pos)
+		{	// test if _Pos is currently a valid bias
+		return (0 <= _Pos && _Pos <= _Myarray->Length);
+		}
+
+		// converters
+	virtual System::Object^ Clone()
+		{	// clone the vector
+		return (gcnew ArrayContainer(this));
+		}
+
+// iterator generators
+	iterator make_iterator(size_type _Offset)
+		{	// return iterator for offset
+		return (_Myiter_t(this, _Offset));
+		}
+
+	iterator begin()
+		{	// return iterator for beginning of mutable sequence
+		return (make_iterator(0));
+		}
+
+	iterator end()
+		{	// return iterator for end of mutable sequence
+		return (make_iterator(_Myarray->Length));
+		}
+
+	// size controllers
+	int size()
+		{	// return length of sequence
+		return (_Myarray->Length);
+		}
+
+_STLCLR_FIELD_ACCESS:
+	_Myarray_t^ _Myarray;	// the wrapped array
+	};
+
+//
+// TEMPLATE FUNCTION _Iter_container
+//
+template<typename _Iter_t> inline
+	System::Object^ _Iter_container(_Iter_t% _Next)
+	{	// get container for arbitrary iterator
+	return (_Next.container());
+	}
+
+template<typename _Iter_t> inline
+	System::Object^ _Iter_container(_Iter_t^ _Next)
+	{	// get container for arbitrary iterator
+	return (_Next->container());
+	}
+}	// namespace cliext
+#endif // _CLI_ITERATOR_
+
+/*
+ * Copyright (c) 2004-2007 by Dinkumware, Ltd.  ALL RIGHTS RESERVED.
+ * Consult your license regarding permissions and restrictions.
+V5.03:0009 */

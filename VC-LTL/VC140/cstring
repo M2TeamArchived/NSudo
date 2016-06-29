@@ -1,0 +1,34 @@
+// cstring standard header
+#pragma once
+#ifndef _CSTRING_
+#define _CSTRING_
+#include <yvals.h>
+
+#ifdef _STD_USING
+ #undef _STD_USING
+  #include <string.h>
+ #define _STD_USING
+
+#else /* _STD_USING */
+ #include <string.h>
+#endif /* _STD_USING */
+
+ #if _GLOBAL_USING && !defined(RC_INVOKED)
+_STD_BEGIN
+using _CSTD size_t; using _CSTD memchr; using _CSTD memcmp;
+using _CSTD memcpy; using _CSTD memmove; using _CSTD memset;
+using _CSTD strcat; using _CSTD strchr; using _CSTD strcmp;
+using _CSTD strcoll; using _CSTD strcpy; using _CSTD strcspn;
+using _CSTD strerror; using _CSTD strlen; using _CSTD strncat;
+using _CSTD strncmp; using _CSTD strncpy; using _CSTD strpbrk;
+using _CSTD strrchr; using _CSTD strspn; using _CSTD strstr;
+using _CSTD strtok; using _CSTD strxfrm;
+_STD_END
+ #endif /* _GLOBAL_USING */
+
+#endif /* _CSTRING_ */
+
+/*
+ * Copyright (c) by P.J. Plauger. All rights reserved.
+ * Consult your license regarding permissions and restrictions.
+V6.50:0009 */

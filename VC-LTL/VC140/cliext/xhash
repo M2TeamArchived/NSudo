@@ -1,0 +1,1026 @@
+// xhash stl/clr header
+#ifndef _CLI_XHASH_
+ #define _CLI_XHASH_
+#include <cliext/functional>	// for Binary/UnaryDelegate
+#include <cliext/list>		// for the sequence container
+
+namespace cliext {
+//
+// TEMPLATE FUNCTION _Hash_key_compare
+//
+template<typename _Key_t> inline
+	bool _Hash_key_compare(_Key_t _Left, _Key_t _Right)
+	{	// test if _Left <= _Right
+	return (!(_Right < _Left));
+	}
+
+inline bool _Hash_key_compare(System::String^ _Left, System::String^ _Right)
+	{	// test if _Left <= _Right for String
+	return (!(_Right->CompareTo(_Left) < 0));
+	}
+
+//
+// FUNCTION hash_value
+//
+inline int hash_value(System::Object^ _Key)
+	{	// get hash code from object
+	return (_Key->GetHashCode());
+	}
+
+	namespace impl {
+//
+// TEMPLATE CLASS hash
+//
+template<typename _Traits_t>
+	ref class hash
+	:	public _Traits_t,
+		_STLCLR IHash<
+			typename _Traits_t::key_type,
+			typename _Traits_t::value_type>
+	{	// hash table of elements
+public:
+	// types
+	typedef hash<_Traits_t> _Mytype_t;
+	typedef _Traits_t _Mybase_t;
+	typedef typename _Traits_t::key_type _Key_t;
+	typedef typename _Traits_t::value_type _Value_t;
+	typedef _STLCLR IHash<_Key_t, _Value_t> _Mycont_it;
+	typedef System::Collections::Generic::IEnumerable<_Value_t> _Myenum_it;
+	typedef cli::array<_Value_t> _Myarray_t;
+
+	typedef list<_Value_t> _Mylist_t;	// the controlled sequence
+	typedef list_node<_Value_t> node_type;
+	typedef cli::array<node_type^> _Myvector_t;	// the hash table
+
+	typedef typename _Mylist_t::iterator
+		iterator;
+	typedef typename _Mylist_t::const_iterator
+		const_iterator;
+	typedef typename _Mylist_t::reverse_iterator
+		reverse_iterator;
+	typedef typename _Mylist_t::const_reverse_iterator
+		const_reverse_iterator;
+
+	typedef typename _Traits_t::key_type key_type;
+	typedef typename _Traits_t::value_type value_type;
+	typedef typename _Traits_t::key_compare key_compare;
+	typedef typename _Traits_t::value_compare value_compare;
+	typedef typename _Traits_t::hasher hasher;
+
+	typedef int size_type;
+	typedef int difference_type;
+//	typedef _Value_t value_type;
+	typedef value_type% reference;
+	typedef value_type% const_reference;
+
+	typedef _Mycont_it generic_container;
+	typedef value_type generic_value;
+	typedef _STLCLR Generic::ContainerBidirectionalIterator<_Value_t>
+		generic_iterator;
+	typedef typename _Mylist_t::generic_reverse_iterator
+		generic_reverse_iterator;
+
+	typedef _STLCLR GenericPair<iterator, bool> pair_iter_bool;
+	typedef _STLCLR GenericPair<iterator, iterator> pair_iter_iter;
+	typedef _STLCLR GenericPair<node_type^, bool> _Pairnb;
+	typedef _STLCLR GenericPair<node_type^, node_type^> _Pairnn;
+
+	typedef _STLCLR GenericPair<generic_iterator^, bool>
+		generic_pair_iter_bool;
+	typedef _STLCLR GenericPair<generic_iterator^, generic_iterator^>
+		generic_pair_iter_iter;
+
+	// constants
+	static const int _Maxsize = MAX_CONTAINER_SIZE;
+	static const int _Default_load = 4;		// default _Max_load_factor
+	static const int _Default_buckets = 16;	// default table size, power of 2!
+
+	// basics
+	hash()
+		{	// construct empty hash from default
+		_Init(0);
+		}
+
+	hash(hash% _Right)
+		:	_Mybase_t(_Right.comp, _Right.hash_fun)
+		{	// construct by copying _Right
+		_Init(_Right.bucket_count());
+		_Mylist->insert_node(_Mylist->head_node(),
+			_Right._Mylist->front_node(), _Right._Mylist->head_node());
+		_Reinsert();
+		}
+
+	hash% operator=(hash% _Right)
+		{	// assign
+		if ((Object^)this != %_Right)
+			{	// worth doing, do it
+			clear();
+			_Mylist->insert_node(_Mylist->head_node(),
+				_Right._Mylist->front_node(), _Right._Mylist->head_node());
+			_Reinsert();
+			}
+		return (*this);
+		}
+
+	operator _Mycont_it^()
+		{	// convert to interface
+		return (this);
+		}
+
+	// constructors
+	explicit hash(key_compare^ _Pred)
+		:	_Mybase_t(_Pred)
+		{	// construct empty hash from compare
+		_Init(0);
+		}
+
+	hash(key_compare^ _Pred, hasher^ _Hashfn)
+		:	_Mybase_t(_Pred, _Hashfn)
+		{	// construct empty hash from compare and hash
+		_Init(0);
+		}
+
+	// destructor
+	~hash()
+		{	// destroy the object
+		clear();
+		_Mylist = nullptr;
+		_Myvector = nullptr;
+		++_Mygen;
+		}
+
+	// accessors
+	unsigned long get_generation()
+		{	// get underlying container generation
+		return (_Mygen);
+		}
+
+	node_type^ get_node(iterator _Where)
+		{	// get node from valid iterator
+		return (_Mylist->get_node(_Mylist_t::iterator(_Where)));
+		}
+
+	node_type^ hash_node(size_type _Idx)
+		{	// get node from hash table
+		return (_Myvector[_Idx]);
+		}
+
+	void set_hash_node(size_type _Idx, node_type^ _Node)
+		{	// set node from hash table
+		_Myvector[_Idx] = _Node;
+		}
+
+	node_type^ front_node()
+		{	// return leftmost node in list
+		return (_Mylist->front_node());
+		}
+
+	node_type^ back_node()
+		{	// return rightmost node in list
+		return (_Mylist->back_node());
+		}
+
+	node_type^ head_node()
+		{	// get head node
+		return (_Mylist->head_node());
+		}
+
+//	property reference default[/* size_type */];
+//	property value_type front_item;
+//	property value_type back_item;
+//	reference front();
+//	reference back();
+
+	// converters
+	_Myarray_t^ to_array()
+		{	// convert to array
+		return (_Mylist->to_array());
+		}
+
+	key_compare^ key_comp() new
+		{	// return object for comparing keys
+		return (_Mybase_t::key_comp());
+		}
+
+	value_compare^ value_comp() new
+		{	// return object for comparing keys
+		return (_Mybase_t::value_comp());
+		}
+
+	hasher^ hash_delegate() new
+		{	// return object for hashing key
+		return (_Mybase_t::hash_delegate());
+		}
+
+	// iterator generators
+	iterator make_iterator(node_type^ _Node)
+		{	// return iterator for node
+		return (_Mylist->make_iterator(_Node));
+		}
+
+	iterator begin()
+		{	// return iterator for beginning of mutable sequence
+		return (_Mylist->begin());
+		}
+
+	iterator end()
+		{	// return iterator for end of mutable sequence
+		return (_Mylist->end());
+		}
+
+	reverse_iterator rbegin()
+		{	// return reverse iterator for beginning of mutable sequence
+		return (_Mylist->rbegin());
+		}
+
+	reverse_iterator rend()
+		{	// return reverse iterator for end of mutable sequence
+		return (_Mylist->rend());
+		}
+
+	// size controllers
+//	void reserve(size_type _Capacity);
+//	size_type capacity();
+//	void resize(size_type _Newsize);
+//	void resize(size_type _Newsize, value_type _Val);
+
+	size_type size()
+		{	// return length of sequence
+		return (_Mylist->size());
+		}
+
+	bool empty()
+		{	// test if sequence is empty
+		return (size() == 0);
+		}
+
+	int bucket_count()
+		{	// return number of buckets in table
+		return (_Maxidx);
+		}
+
+	float load_factor()
+		{	// return average number of elements per bucket
+		return ((float)size() / (float)bucket_count());
+		}
+
+	float max_load_factor()
+		{	// return maximum number of elements per bucket
+		return (_Max_load_factor);
+		}
+
+	void max_load_factor(float _Newmax)
+		{	// set maximum load factor
+		if (_Newmax != _Newmax	// might detect a NaN
+			|| _Newmax <= 0)
+			throw gcnew System::ArgumentException();
+
+		_Max_load_factor = _Newmax;
+		}
+
+	// mutators
+	void rehash(int _Buckets)
+		{	// try to grow table to at least _Buckets buckets
+		_Buckets = _True_buckets(_Buckets);
+
+		if ((float)size() / (float)_Buckets <= max_load_factor())
+			_Rebuild_table(_Buckets);
+		}
+
+//	void push_front(value_type _Val);
+//	void pop_front();
+//	void push_back(value_type _Val);
+//	void pop_back();
+
+//	void assign(size_type _Count, value_type _Val);
+//	template<typename _Iter_t>
+//		void assign(_Iter_t _First, _Iter_t _Last);
+//	void assign(System::Collections::Generic::IEnumerable<_Value_t>^);
+
+	pair_iter_bool insert(value_type _Val)
+		{	// try to insert node with value _Val, return iterator, bool
+		_Pairnb _Ans = insert_node(_Val, nullptr);
+
+		return (pair_iter_bool(iterator(_Ans.first),
+			_Ans.second));
+		}
+
+	iterator insert(iterator,
+		value_type _Val)
+		{	// try to insert node with value _Val at _Where, return iterator
+		_Pairnb _Ans = insert_node(_Val, nullptr);
+
+		return (make_iterator(_Ans.first));
+		}
+
+	template<typename _Iter_t>
+		void insert(_Iter_t _First, _Iter_t _Last)
+		{	// insert [_First, _Last) one at a time
+#pragma warning(push)
+#pragma warning(disable: 4127)
+		if (_Iter_container(_First) != _Mylist)
+			for (; _First != _Last; ++_First)
+				insert_node(*_First, nullptr);
+		else if (_Multi)
+			{	// worth assigning to self
+			for (; _First != _Last; ++_First)
+				_Mylist->insert_node(_Mylist->front_node(), 1, *_First);
+			_Reinsert();
+			}
+#pragma warning(pop)
+		}
+
+	void insert(
+		_STLCLR Generic::IInputIterator<_Value_t>^ _First,
+		_STLCLR Generic::IInputIterator<_Value_t>^ _Last)
+		{	// insert [_First, _Last) one at a time
+#pragma warning(push)
+#pragma warning(disable: 4127)
+		if (_First->container() != _Mylist)
+			for (; !_First->equal_to(_Last); _First->next())
+				insert_node((value_type%)_First->get_cref(), nullptr);
+		else if (_Multi)
+			{	// worth assigning to self
+			for (; !_First->equal_to(_Last); _First->next())
+				_Mylist->insert_node(front_node(), 1,
+					(value_type%)_First->get_cref());
+			_Reinsert();
+			}
+#pragma warning(pop)
+		}
+
+	void insert(_Myenum_it^ _Right)
+		{	// insert enumerable
+		for each (value_type _Val in _Right)
+			_Mylist->insert_node(_Mylist->front_node(), 1, _Val);
+		_Reinsert();
+		}
+
+	void insert(System::Collections::IEnumerable^ _Right)
+		{	// insert enumerable
+		for each (value_type _Val in _Right)
+			_Mylist->insert_node(_Mylist->front_node(), 1, _Val);
+		_Reinsert();
+		}
+
+//	void insert(iterator _Where, size_type _Count, value_type _Val);
+//	template<typename _Iter_t>
+//		void insert(iterator _Where, _Iter_t _First, _Iter_t _Last);
+//	void insert(iterator _Where,
+//		System::Collections::Generic::IEnumerable<_Value_t>^ _Right);
+
+	_Pairnb insert_node(value_type _Val, list_node<value_type>^ _Newnode)
+		{	// try to insert node with value _Val, return node pointer, bool
+#pragma warning(push)
+#pragma warning(disable: 4127)
+		size_type _Bucket = _Hashval(this->get_key(_Val));
+		node_type^ _Node = hash_node(_Bucket + 1);	// end node for bucket
+
+		for (; _Node != hash_node(_Bucket); )
+			if (!this->comp(this->get_key(_Val),
+				this->get_key((_Node = _Node->prev_node())->_Myval)))
+				;	// still too high in bucket list
+			else if (_Multi
+				|| !this->comp(this->get_key(_Node->_Myval),
+					this->get_key(_Val)))
+				{	// found insertion point, back up to it
+				_Node = _Node->next_node();
+				break;
+				}
+			else
+				{	// discard new node and return existing node
+				if (_Newnode != nullptr)
+					_Mylist->erase_node(_Newnode);
+				return (_Pairnb(_Node, false));
+				}
+		if (_Newnode != nullptr)
+			_Mylist->splice_node((list_node<value_type>^)_Node, _Mylist,
+				_Newnode, _Newnode->_Next);	// place existing node
+		else
+			{	// insert value to make new node
+			_Mylist->insert_node((list_node<value_type>^)_Node, 1, _Val);
+			_Newnode = (list_node<value_type>^)_Node->prev_node();
+			}
+
+		for (; _Node == hash_node(_Bucket); --_Bucket)
+			{	// update end iterators if new first bucket element
+			set_hash_node(_Bucket, _Newnode);
+			if (_Bucket == 0)
+				break;
+			}
+
+		if (max_load_factor() < load_factor())
+			_Grow(bucket_count() + 1);
+		++_Mygen;
+		return (_Pairnb(_Newnode, true));	// return added node
+#pragma warning(pop)
+		}
+
+	iterator erase(iterator _Where)
+		{	// erase element at _Where
+		return (make_iterator(erase_node(get_node(_Where))));
+		}
+
+	iterator erase(iterator _First, iterator _Last)
+		{	// erase [_First, _Last)
+		node_type^ _First_node = get_node(_First);
+		node_type^ _Last_node = get_node(_Last);
+
+		if (_First_node == front_node() && _Last_node == head_node())
+			clear();	// erase all
+		else
+			for (; _First_node != _Last_node; )
+				_First_node = erase_node(_First_node);
+		return (_Last);
+		}
+
+	size_type erase(key_type _Keyval)
+		{	// erase and count all that match _Keyval
+		node_type^ _First = lower_bound_node(_Keyval);
+		node_type^ _Last = upper_bound_node(_Keyval);
+		size_type _Num = 0;
+
+		for (; _First != _Last; ++_Num)
+			_First = erase_node(_First);	// erase an element matching key
+		return (_Num);
+		}
+
+	node_type^ erase_node(node_type^ _Where)
+		{	// erase node at _Where
+		if (_Where->container() != _Mylist || _Where->is_head())
+			throw gcnew System::InvalidOperationException();
+
+		size_type _Bucket = _Hashval(this->get_key(_Where->_Myval));
+
+		for (; _Where == hash_node(_Bucket); --_Bucket)
+			{	// update end iterators if erasing first
+			set_hash_node(_Bucket, hash_node(_Bucket)->next_node());
+			if (_Bucket == 0)
+				break;
+			}
+
+		++_Mygen;
+		return (_Mylist->erase_node((list_node<value_type>^)_Where));
+		}
+
+	void clear()
+		{	// erase all
+		_Mylist->clear();
+		_Rebuild_table(_Myvector->Length - 1);
+		++_Mygen;
+		}
+
+	void swap(_Mytype_t% _Right)
+		{	// exchange contents with _Right
+		if ((Object^)this != %_Right)
+			{	// worth doing, swap
+			_Mylist_t^ _Tlist = _Mylist;
+			_Myvector_t^ _Tvector = _Myvector;
+			int _Tmask = _Mask;
+			int _Tmaxidx = _Maxidx;
+			float _Tmax_load_factor = _Max_load_factor;
+
+			_Mylist = _Right._Mylist;
+			_Right._Mylist = _Tlist;
+
+			_Myvector = _Right._Myvector;
+			_Right._Myvector = _Tvector;
+
+			_Mask = _Right._Mask;
+			_Right._Mask = _Tmask;
+
+			_Maxidx = _Right._Maxidx;
+			_Right._Maxidx = _Tmaxidx;
+
+			_Max_load_factor = _Right._Max_load_factor;
+			_Right._Max_load_factor = _Tmax_load_factor;
+			++_Mygen;
+			++_Right._Mygen;
+			}
+		}
+
+	// searches
+	iterator find(key_type _Keyval)
+		{	// find an element that matches _Keyval, return iterator
+		return (make_iterator(lower_bound_node(_Keyval)));
+		}
+
+	size_type count(key_type _Keyval)
+		{	// count all elements that match _Keyval
+		node_type^ _First = lower_bound_node(_Keyval);
+		node_type^ _Last = upper_bound_node(_Keyval);
+		size_type _Num = 0;
+
+		for (; _First != _Last; _First = _First->next_node())
+			++_Num;
+		return (_Num);
+		}
+
+	iterator lower_bound(key_type _Keyval)
+		{	// find leftmost node not less than _Keyval
+		return (make_iterator(lower_bound_node(_Keyval)));
+		}
+
+	node_type^ lower_bound_node(key_type _Keyval)
+		{	// find leftmost node not less than _Keyval
+		size_type _Bucket = _Hashval(_Keyval);
+		node_type^ _Where = hash_node(_Bucket);
+
+		for (; _Where != hash_node(_Bucket + 1);
+			_Where = _Where->next_node())
+			if (this->comp(this->get_key(_Where->_Myval), _Keyval))
+				return (!this->comp(_Keyval,
+					this->get_key(_Where->_Myval)) ? head_node() : _Where);
+		return (head_node());
+		}
+
+	iterator upper_bound(key_type _Keyval)
+		{	// find leftmost node greater than _Keyval
+		return (make_iterator(upper_bound_node(_Keyval)));
+		}
+
+	node_type^ upper_bound_node(key_type _Keyval)
+		{	// find leftmost node greater than _Keyval
+		size_type _Bucket = _Hashval(_Keyval);
+		node_type^ _Where = hash_node(_Bucket + 1);
+
+		for (; _Where != hash_node(_Bucket); )
+			{	// scan down to first that matches key, then back up one
+			_Where = _Where->prev_node();
+			if (this->comp(_Keyval, this->get_key(_Where->_Myval)))
+				return (!this->comp(this->get_key(_Where->_Myval),
+					_Keyval) ? head_node() : _Where->next_node());
+			}
+		return (head_node());
+		}
+
+	pair_iter_iter equal_range(key_type _Keyval)
+		{	// find range equivalent to _Keyval
+		_Pairnn _Ans = equal_range_node(_Keyval);
+		return (pair_iter_iter(iterator(_Ans.first),
+			iterator(_Ans.second)));
+		}
+
+	_Pairnn equal_range_node(key_type _Keyval)
+		{	// find range equivalent to _Keyval
+		return (_Pairnn(lower_bound_node(_Keyval),
+			upper_bound_node(_Keyval)));
+		}
+
+void dumptab()
+	{
+	int i;
+	int siz = _Myvector->Length;
+
+	System::Console::WriteLine("\nmaxidx = {0}, mask = {1}", _Maxidx, _Mask);
+	for (i = 0; i < siz; ++i)
+		{
+		node_type^ p;
+
+		System::Console::Write("bucket {0}:", i);
+		if (hash_node(i) != head_node())
+		System::Console::Write("begins with {0}:",
+			(char)hash_node(i)->_Myval->first);
+		if (hash_node(i) == head_node())
+			break;
+		else if (i + 1 == siz)
+			for (p = hash_node(i); p != head_node(); p = p->next_node())
+				System::Console::Write(" {0}", (char)p->_Myval->first);
+		else
+			for (p = hash_node(i); p != hash_node(i + 1); p = p->next_node())
+				System::Console::Write(" {0}", (char)p->_Myval->first);
+		System::Console::WriteLine(" end");
+		}
+	System::Console::WriteLine("dump end");
+	}
+
+_STLCLR_FIELD_ACCESS:
+	void _Resize(size_type _Newsize, node_type^ _Pad)
+		{	// change table size
+		size_type _Idx = 0;
+		size_type _Oldsize = _Myvector == nullptr ? 0 : _Myvector->Length;
+		_Myvector_t^ _Newvector = gcnew _Myvector_t(_Newsize);
+
+		for (; _Idx < _Oldsize; ++_Idx)
+			 _Newvector[_Idx] = _Myvector[_Idx];
+		for (; _Idx < _Newvector->Length; ++_Idx)
+			 _Newvector[_Idx] = _Pad;
+		_Myvector = _Newvector;
+		}
+
+	void _Grow(int _Buckets)
+		{	// incrementally grow table
+		for (; bucket_count() < _Buckets; )
+			{	// too dense, need to grow hash table
+			node_type^ _Node;
+
+			if (_Myvector->Length - 1 <= _Maxidx)
+				{	// table full, double its size
+				_Mask = ((_Myvector->Length - 1) << 1) - 1;
+				_Resize(_Mask + 2, head_node());
+				}
+			else if (_Mask < _Maxidx)
+				_Mask = (_Mask << 1) + 1;
+
+			size_type _Bucket = _Maxidx - (_Mask >> 1) - 1;
+
+			for (_Node = hash_node(_Bucket);
+				_Node != hash_node(_Bucket + 1); )
+				{	// split old bucket
+				size_type _Newbucket =
+					this->hash_fun(this->get_key(_Node->_Myval)) & _Mask;
+
+				if (_Newbucket == _Bucket)
+					_Node = _Node->next_node();	// leave element in old bucket
+				else
+					{	// move element to new bucket
+					size_type _Idx;
+					node_type^ _Next = _Node->next_node();
+
+					if (_Next != head_node())
+						{	// not at end, move it
+						for (_Idx = _Bucket; _Node == hash_node(_Idx); )
+							{	// update end iterators if moving first
+							set_hash_node(_Idx, _Next);
+							if (--_Idx < 0)
+								break;
+							}
+						_Mylist->splice_node(_Mylist->head_node(), _Mylist,
+							(list_node<value_type>^)_Node,
+							(list_node<value_type>^)_Next);
+						_Node = back_node();
+						_Myvector[_Maxidx + 1] = head_node();
+						}
+
+					for (_Idx = _Maxidx; _Bucket < _Idx; --_Idx)
+						{	// update end iterators if new bucket filled
+						if (hash_node(_Idx) != head_node())
+							break;
+						set_hash_node(_Idx, _Node);
+						}
+
+					if (_Next == head_node())
+						break;
+					else
+						_Node = _Next;
+					}
+				}
+			++_Maxidx;	// open new bucket for hash lookup
+			}
+		}
+
+	size_type _Hashval(key_type% _Keyval)
+		{	// return hash value, masked and wrapped to current table size
+		size_type _Num = this->hash_fun(_Keyval) & _Mask;
+
+		if (_Maxidx <= _Num)
+			_Num -= (_Mask >> 1) + 1;
+		return (_Num);
+		}
+
+	void _Init(int _Buckets)
+		{	// initialize for a minimum table size of _Buckets
+		_Buckets = _True_buckets(_Buckets);
+		_Mylist = gcnew _Mylist_t;
+		_Myvector = nullptr;
+		_Resize(_Buckets + 1, head_node());
+		_Mygen = 0;
+
+		_Mask = _Buckets - 1;
+		_Maxidx = _Buckets;
+		_Max_load_factor = _Default_load;
+		}
+
+	void _Reinsert()
+		{	// insert elements at beginning of list into table
+		for (; front_node() != hash_node(0); )
+			{	// hash another node
+			list_node<value_type>^ _Node = _Mylist->front_node();
+
+			insert_node(_Node->_Myval, _Node);
+			}
+		}
+
+	void _Rebuild_table(int _Buckets)
+		{	// rebuild hash table
+		_Myvector = nullptr;
+		_Resize(_Buckets + 1, head_node());
+		_Mask = _Buckets - 1;
+		_Maxidx = _Buckets;	// blow away old hash table
+
+		_Reinsert();	// insert old list into table
+		}
+
+	int _True_buckets(int _Buckets)
+		{	// canonicalize bucket count
+		if (_Buckets < 0)
+			throw gcnew System::ArgumentException();
+
+		int _Newsize = _Default_buckets;
+
+		for (; _Newsize < _Buckets && _Newsize < _Maxsize / 2; )
+			_Newsize *= 2;	// double until big enough
+		return (_Newsize);
+		}
+
+	// data members
+	_Mylist_t^ _Mylist;		// list of elements
+	_Myvector_t^ _Myvector;	// the hash table
+	unsigned long _Mygen;	// current change generation	///INCREMENT!!!
+
+	int _Mask;		// the key mask
+	int _Maxidx;	// current maximum key value
+	float _Max_load_factor;	// maximum average elements per bucket
+
+	// interfaces
+public:
+	virtual System::Object^ Clone()
+		{	// clone the hash
+		return (gcnew hash(*this));
+		}
+
+private:
+	property size_type Count
+		{	// element count
+		virtual size_type get() sealed
+			= System::Collections::ICollection::Count::get
+			{	// get element count
+			return (size());
+			}
+		};
+
+	property bool IsSynchronized
+		{	// synchronized status
+		virtual bool get() sealed
+			= System::Collections::ICollection::IsSynchronized::get
+			{	// test if synchronized
+			return (false);
+			}
+		};
+
+	property System::Object^ SyncRoot
+		{	// synchronizer
+		virtual System::Object^ get() sealed
+			= System::Collections::ICollection::SyncRoot::get
+			{	// get synchronizer
+			return (this);
+			}
+		};
+
+	virtual void CopyTo(System::Array^ _Dest_arg, int _First) sealed
+		= System::Collections::ICollection::CopyTo
+		{	// copy to _Dest_arg, beginning at _First
+		cli::array<System::Object^>^ _Dest =
+			(cli::array<System::Object ^>^)_Dest_arg;
+		node_type^ _Node = head_node();
+
+		for (int _Idx = size(); 0 <= --_Idx; )
+			{	// copy back to front
+			_Node = _Node->prev_node();
+			_Dest[_First + _Idx] = _Node->_Myval;
+			}
+		}
+
+	virtual System::Collections::IEnumerator^ GetEnumerator() sealed
+		= System::Collections::IEnumerable::GetEnumerator
+		{	// get enumerator for the container
+		return (gcnew _STLCLR HashEnumerator<_Key_t, _Value_t>(front_node()));
+		}
+
+	virtual unsigned long get_generation_virtual() sealed
+		= _Mycont_it::get_generation
+		{	// get underlying container generation
+		return (get_generation());
+		}
+
+//	virtual bool valid_bias_virtual(size_type _Bias);
+//	virtual reference at_virtual(size_type _Pos);
+//	virtual reference at_bias_virtual(size_type _Bias);
+
+//	virtual reference front_virtual();
+//	virtual reference back_virtual();
+
+	// converters
+	virtual key_compare^ key_comp_virtual() sealed
+		= _Mycont_it::key_comp
+		{	// return object for comparing keys
+		return (key_comp());
+		}
+
+	virtual value_compare^ value_comp_virtual() sealed
+		= _Mycont_it::value_comp
+		{	// return object for comparing keys
+		return (value_comp());
+		}
+
+	// iterator generators
+	virtual generic_iterator begin_virtual() sealed
+		= _Mycont_it::begin
+		{	// return iterator for beginning of mutable sequence
+		return (begin());
+		}
+	virtual generic_iterator end_virtual() sealed
+		= _Mycont_it::end
+		{	// return iterator for end of mutable sequence
+		return (end());
+		}
+
+	virtual generic_reverse_iterator rbegin_virtual() sealed
+		= _Mycont_it::rbegin
+		{	// return reverse iterator for beginning of mutable sequence
+		return (generic_reverse_iterator(end()));
+		}
+
+	virtual generic_reverse_iterator rend_virtual() sealed
+		= _Mycont_it::rend
+		{	// return reverse iterator for end of mutable sequence
+		return (generic_reverse_iterator(begin()));
+		}
+
+	// size controllers
+//	virtual void reserve_virtual(size_type _Capacity);
+//	virtual size_type capacity_virtual();
+//	virtual void resize_virtual(size_type _Newsize);
+//	virtual void resize_virtual(size_type _Newsize, value_type _Val);
+
+	virtual size_type size_virtual() sealed
+		= _Mycont_it::size
+		{	// return length of sequence
+		return (size());
+		}
+
+	virtual bool empty_virtual() sealed
+		= _Mycont_it::empty
+		{	// test if sequence is empty
+		return (empty());
+		}
+
+	// hash controllers
+	virtual hasher^ hash_delegate_virtual() sealed
+		= _Mycont_it::hash_delegate
+		{	// return object for hashing key
+		return (hash_delegate());
+		}
+
+	virtual int bucket_count_virtual() sealed
+		= _Mycont_it::bucket_count
+		{	// return number of buckets in table
+		return (bucket_count());
+		}
+
+	virtual float load_factor_virtual() sealed
+		= _Mycont_it::load_factor
+		{	// return average number of elements per bucket
+		return (load_factor());
+		}
+
+	virtual float max_load_factor_virtual() sealed
+		= _Mycont_it::max_load_factor
+		{	// return maximum number of elements per bucket
+		return (max_load_factor());
+		}
+
+	virtual void max_load_factor_virtual(float _Newmax) sealed
+		= _Mycont_it::max_load_factor
+		{	// set maximum load factor
+		max_load_factor(_Newmax);
+		}
+
+	virtual void rehash_virtual(int _Buckets) sealed
+		= _Mycont_it::rehash
+		{	// try to grow table to at least _Buckets buckets
+		rehash(_Buckets);
+		}
+
+	// mutators
+//	virtual void push_front_virtual(value_type _Val);
+//	virtual void pop_front_virtual();
+//	virtual void push_back_virtual(value_type _Val);
+//	virtual void pop_back_virtual();
+
+//	virtual void assign_virtual(size_type _Count, value_type _Val);
+//	virtual void assign_virtual(
+//		_STLCLR Generic::IInputIterator<_Value_t>^ _First,
+//		_STLCLR Generic::IInputIterator<_Value_t>^ _Last);
+//	virtual void assign_virtual(_Myenum_it^ _Right);
+
+	virtual generic_pair_iter_bool insert_virtual(value_type _Val) sealed
+		= _Mycont_it::insert
+		{	// try to insert node with value _Val, return iterator, bool
+		_Pairnb _Ans = insert_node(_Val, nullptr);
+		return (generic_pair_iter_bool(gcnew generic_iterator(_Ans.first),
+			_Ans.second));
+		}
+
+	virtual generic_iterator insert_virtual(generic_iterator _Where,
+		value_type _Val) sealed
+		= _Mycont_it::insert
+		{	// insert _Val at _Where
+		return (insert(iterator(_Where), _Val));
+		}
+
+//	virtual void insert_virtual(generic_iterator _Where,
+//		size_type _Count, value_type _Val);
+//	virtual void insert_virtual(generic_iterator _Where_iter,
+//		_STLCLR Generic::IInputIterator<_Value_t>^ _First,
+//		_STLCLR Generic::IInputIterator<_Value_t>^ _Last);
+//	virtual void insert_virtual(generic_iterator _Where_iter,
+//		_Myenum_it^ _Right);
+
+	virtual void insert_virtual(
+		_STLCLR Generic::IInputIterator<_Value_t>^ _First,
+		_STLCLR Generic::IInputIterator<_Value_t>^ _Last) sealed
+		= _Mycont_it::insert
+		{	// insert [_First, _Last) one at a time
+		insert(_First, _Last);
+		}
+
+	virtual void insert_virtual(
+		System::Collections::IEnumerable^ _Right) sealed
+		= _Mycont_it::insert
+		{	// insert enumerable
+		insert(_Right);
+		}
+
+	virtual generic_iterator erase_virtual(generic_iterator _Where) sealed
+		= _Mycont_it::erase
+		{	// erase element at _Where
+		return (erase(iterator(_Where)));
+		}
+
+	virtual generic_iterator erase_virtual(generic_iterator _First,
+		generic_iterator _Last) sealed
+		= _Mycont_it::erase
+		{	// erase [_First, _Last)
+		return (erase(iterator(_First), iterator(_Last)));
+		}
+
+	virtual size_type erase_virtual(key_type _Keyval) sealed
+		= _Mycont_it::erase
+		{	// erase and count all that match _Keyval
+		return (erase(_Keyval));
+		}
+
+	virtual void clear_virtual() sealed
+		= _Mycont_it::clear
+		{	// erase all
+		clear();
+		}
+
+	virtual void swap_virtual(_Mycont_it^ _Right) sealed
+		= _Mycont_it::swap
+		{	// exchange contents with _Right
+		swap(*(_Mytype_t^)_Right);
+		}
+
+	// searches
+	virtual generic_iterator find_virtual(key_type _Keyval) sealed
+		= _Mycont_it::find
+		{	// find an element that matches _Keyval, return iterator
+		return (find(_Keyval));
+		}
+
+	virtual size_type count_virtual(key_type _Keyval) sealed
+		= _Mycont_it::count
+		{	// count all elements that match _Keyval
+		return (count(_Keyval));
+		}
+
+	virtual generic_iterator lower_bound_virtual(key_type _Keyval) sealed
+		= _Mycont_it::lower_bound
+		{	// find leftmost node not less than _Keyval
+		return (lower_bound(_Keyval));
+		}
+
+	virtual generic_iterator upper_bound_virtual(key_type _Keyval) sealed
+		= _Mycont_it::upper_bound
+		{	// find leftmost node greater than _Keyval
+		return (upper_bound(_Keyval));
+		}
+
+	virtual generic_pair_iter_iter equal_range_virtual(
+		key_type _Keyval) sealed
+			= _Mycont_it::equal_range
+		{	// find range equivalent to _Keyval
+		_Pairnn _Ans = equal_range_node(_Keyval);
+		return (generic_pair_iter_iter(gcnew generic_iterator(_Ans.first),
+			gcnew generic_iterator(_Ans.second)));
+		}
+	};
+	}	// namespace cliext::impl
+//
+// TEMPLATE FUNCTION swap
+//
+template<typename _Traits_t> inline
+	void swap(cliext::impl::hash<_Traits_t>% _Left,
+		cliext::impl::hash<_Traits_t>% _Right)
+	{	// swap two hash objects
+	_Left.swap(_Right);
+	}
+}	// namespace cliext
+#endif // _CLI_XHASH_
+
+/*
+ * Copyright (c) 2004-2007 by Dinkumware, Ltd.  ALL RIGHTS RESERVED.
+ * Consult your license regarding permissions and restrictions.
+V5.03:0009 */

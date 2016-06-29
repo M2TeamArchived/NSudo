@@ -1,0 +1,1099 @@
+// set stl/clr header
+#ifndef _CLI_SET_
+ #define _CLI_SET_
+#include <cliext/xtree>
+
+namespace cliext {
+	namespace impl {
+//
+// TEMPLATE CLASS set_traits
+//
+template<typename _Key_t,	// key type
+	bool _Mflag,			// true if multiple equivalent keys are permitted
+	bool _Is_ref_key>		// true if key field is allocated
+	ref class set_traits
+	{	// traits required to make tree behave like a set
+public:
+	typedef set_traits<_Key_t, _Mflag, _Is_ref_key> _Mytype_t;
+
+	typedef _Key_t key_type;
+	typedef _Key_t value_type;
+	typedef _STLCLR BinaryDelegate<key_type, key_type, bool>
+		key_compare;
+	typedef key_compare value_compare;
+
+	typedef _Key_t generic_key;
+
+	set_traits()
+		:	comp(gcnew key_compare(&_Key_compare)),
+			_Multi(_Mflag)
+		{	// construct with default comparator
+		}
+
+	set_traits(key_compare^ _Pred)
+		:	comp(_Pred),
+			_Multi(_Mflag)
+		{	// construct with specified comparator
+		}
+
+	key_compare^ key_comp()
+		{	// return object for comparing keys
+		return (comp);
+		}
+
+	value_compare^ value_comp()
+		{	// return object for comparing keys
+		return (comp);
+		}
+
+	static key_type get_key(value_type% _Val)
+		{	// extract key from element value
+		return (_Val);
+		}
+
+	static void unmake_value(value_type% _Val)
+		{	// free allocated fields as needed
+		_Cont_make_value<key_type, _Is_ref_key>::unmake_value(_Val);
+		}
+
+_STLCLR_FIELD_ACCESS:
+	// data members
+	key_compare^ comp;	// the comparator predicate for keys: < or >
+	bool _Multi;		// true if multiple equivalents keys are permitted
+	};
+
+//
+// TEMPLATE CLASS set_base
+//
+template<typename _Key_t,
+	bool _Is_ref_key>
+	ref class set_base
+	:	public tree<
+			set_traits<_Key_t, false, _Is_ref_key> >,
+			System::Collections::Generic::ICollection<_Key_t>,
+			System::Collections::Generic::IEnumerable<_Key_t>
+	{	// ordered red-black tree of unique keys
+public:
+	// types
+	typedef set_base<_Key_t, _Is_ref_key> _Mytype_t;
+	typedef _Key_t _Value_t;
+	typedef tree<
+		set_traits<_Key_t, false, _Is_ref_key> > _Mybase_t;
+
+//	typedef _Key_t key_type;
+//	typedef typename _Traits_t::value_type value_type;
+//	typedef typename _Traits_t::key_compare key_compare;
+//	typedef typename _Traits_t::value_compare value_compare;
+
+//	typedef int size_type;
+//	typedef int difference_type;
+//	typedef _Value_t value_type;
+//	typedef value_type% reference;
+//	typedef value_type% const_reference;
+
+//	typedef _Mycont_it generic_container;
+	typedef key_type generic_value;
+
+//	typedef _STLCLR GenericPair<iterator^, bool> pair_iter_bool;
+//	typedef _STLCLR GenericPair<iterator^, iterator^> pair_iter_iter;
+
+	// basics
+	set_base()
+		:	_Mybase_t()
+		{	// construct empty set from defaults
+		}
+
+	set_base(set_base% _Right)
+		:	_Mybase_t((_Mybase_t%)_Right)
+		{	// construct by copying a list
+		}
+
+	set_base% operator=(set_base% _Right)
+		{	// assign
+		_Mybase_t::operator=(_Right);
+		return (*this);
+		}
+
+	// constructors
+	explicit set_base(key_compare^ _Pred)
+		:	_Mybase_t(_Pred)
+		{	// construct empty set from comparator
+		}
+
+	template<typename _Iter_t>
+		set_base(_Iter_t _First, _Iter_t _Last)
+		:	_Mybase_t()
+		{	// construct set from [_First, _Last), default comparator
+		for (; _First != _Last; ++_First)
+			insert((value_type)*_First);
+		}
+
+	template<typename _Iter_t>
+		set_base(_Iter_t _First, _Iter_t _Last, key_compare^ _Pred)
+		:	_Mybase_t(_Pred)
+		{	// construct set from [_First, _Last), comparator
+		for (; _First != _Last; ++_First)
+			insert((value_type)*_First);
+		}
+
+	// interfaces
+private:
+	property size_type Count_generic
+		{	// element count
+		virtual size_type get() sealed
+			= System::Collections::Generic::ICollection<_Value_t>::Count::get
+			{	// get element count
+			return (size());
+			}
+		};
+
+	property bool IsReadOnly
+		{	// test if read only
+		virtual bool get() sealed
+			= System::Collections::Generic::ICollection<_Value_t>
+				::IsReadOnly::get
+			{	// test if read only
+			return (false);
+			}
+		};
+
+	virtual void CopyTo(_Myarray_t^ _Dest, int _First) sealed
+		= System::Collections::Generic::ICollection<_Value_t>::CopyTo
+		{	// copy to _Dest, beginning at _First
+		node_type^ _Node = head_node();
+
+		for (int _Idx = size(); 0 <= --_Idx; )
+			{	// copy back to front
+			_Node = _Node->prev_node();
+			_Dest[_First + _Idx] = _Node->_Value;
+			}
+		}
+
+	virtual System::Collections::Generic::IEnumerator<_Value_t>^
+		GetEnumerator() sealed
+		= System::Collections::Generic::IEnumerable<_Value_t>::GetEnumerator
+		{	// get enumerator for the container
+		return (gcnew _STLCLR TreeEnumerator<_Key_t, _Value_t>(
+			front_node()));
+		}
+
+	virtual void Add(value_type _Val) sealed
+		= System::Collections::Generic::ICollection<_Value_t>::Add
+		{	// add element with value _Val
+		insert_node(_Val);
+		}
+
+	virtual void Clear() sealed
+		= System::Collections::Generic::ICollection<_Value_t>::Clear
+		{	// erase all elements
+		clear();
+		}
+
+	virtual bool Contains(value_type _Val) sealed
+		= System::Collections::Generic::ICollection<_Value_t>::Contains
+		{	// search for element matching value _Val
+		for (node_type^ _Node = front_node(); _Node != head_node();
+			_Node = _Node->next_node())
+			if (((System::Object^)_Val)->Equals(
+				(System::Object^)_Node->_Value))
+				return (true);
+		return (false);
+		}
+
+	virtual bool Remove(value_type _Val) sealed
+		= System::Collections::Generic::ICollection<_Value_t>::Remove
+		{	// remove first element matching value _Val
+		for (node_type^ _Node = front_node(); _Node != head_node();
+			_Node = _Node->next_node())
+			if (((System::Object^)_Val)->Equals(
+				(System::Object^)_Node->_Value))
+				{	// found a match, remove it
+				erase_node(_Node);
+				return (true);
+				}
+		return (false);
+		}
+	};
+
+//
+// TEMPLATE CLASS set_select
+//
+template<typename _Key1_t,
+	bool _Is_ref_key>
+	ref class set_select
+	:	public set_base<_Key1_t, _Is_ref_key>
+	{	// ordered red-black tree of unique keys
+public:
+	// types
+	typedef _Key1_t _Gkey_t;
+
+	typedef set_select<_Key1_t, _Is_ref_key> _Mytype_t;
+	typedef set_base<_Gkey_t, _Is_ref_key> _Mybase_t;
+//	typedef System::Collections::Generic::IEnumerable<_Value_t> _Myenum_it;
+
+	typedef _Key1_t key_type;
+//	typedef typename _Traits_t::value_type value_type;
+//	typedef typename _Traits_t::key_compare key_compare;
+//	typedef typename _Traits_t::value_compare value_compare;
+
+//	typedef int size_type;
+//	typedef int difference_type;
+//	typedef _Value_t value_type;
+//	typedef value_type% reference;
+//	typedef value_type% const_reference;
+
+//	typedef _Mycont_it generic_container;
+//	typedef key_type generic_value;
+
+//	typedef _STLCLR GenericPair<iterator^, bool> pair_iter_bool;
+//	typedef _STLCLR GenericPair<iterator^, iterator^> pair_iter_iter;
+
+	// basics
+	set_select()
+		:	_Mybase_t()
+		{	// construct empty set from defaults
+		}
+
+	set_select(set_select% _Right)
+		:	_Mybase_t((_Mybase_t%)_Right)
+		{	// construct by copying a list
+		}
+
+	set_select% operator=(set_select% _Right)
+		{	// assign
+		_Mybase_t::operator=(_Right);
+		return (*this);
+		}
+
+	// constructors
+	explicit set_select(key_compare^ _Pred)
+		:	_Mybase_t(_Pred)
+		{	// construct empty set from comparator
+		}
+
+	template<typename _Iter_t>
+		set_select(_Iter_t _First, _Iter_t _Last)
+		:	_Mybase_t()
+		{	// construct set from [_First, _Last), default comparator
+		for (; _First != _Last; ++_First)
+			insert((value_type)*_First);
+		}
+
+	template<typename _Iter_t>
+		set_select(_Iter_t _First, _Iter_t _Last, key_compare^ _Pred)
+		:	_Mybase_t(_Pred)
+		{	// construct set from [_First, _Last), comparator
+		for (; _First != _Last; ++_First)
+			insert((value_type)*_First);
+		}
+
+	// converters
+	static generic_value make_value(key_type _Key)
+		{	// make a generic_value
+		return (_Key);
+		}
+
+	// mutators
+//	virtual size_type erase(key_type _Keyval);
+
+	// searches
+//	virtual iterator find(key_type _Keyval);
+//	virtual size_type count(key_type _Keyval);
+//	virtual iterator lower_bound(key_type _Keyval);
+//	virtual iterator upper_bound(key_type _Keyval);
+//	virtual pair_iter_iter equal_range(key_type _Keyval);
+	};
+
+//
+// TEMPLATE CLASS set_select: _Key1_t REF SPECIALIZATION
+//
+template<typename _Key1_t>
+	ref class set_select<_Key1_t, true>
+	:	public set_base<_Key1_t^, true>
+	{	// ordered red-black tree of unique keys
+public:
+	// types
+	typedef _Key1_t^ _Gkey_t;
+
+	typedef set_select<_Key1_t, true> _Mytype_t;
+	typedef set_base<_Gkey_t, true> _Mybase_t;
+//	typedef System::Collections::Generic::IEnumerable<_Value_t> _Myenum_it;
+
+	typedef _Key1_t key_type;
+//	typedef typename _Traits_t::value_type value_type;
+//	typedef typename _Traits_t::key_compare key_compare;
+//	typedef typename _Traits_t::value_compare value_compare;
+
+//	typedef int size_type;
+//	typedef int difference_type;
+//	typedef _Value_t value_type;
+//	typedef value_type% reference;
+//	typedef value_type% const_reference;
+
+//	typedef _Mycont_it generic_container;
+//	typedef key_type generic_value;
+
+//	typedef _STLCLR GenericPair<iterator^, bool> pair_iter_bool;
+//	typedef _STLCLR GenericPair<iterator^, iterator^> pair_iter_iter;
+
+	// basics
+	set_select()
+		:	_Mybase_t()
+		{	// construct empty set from defaults
+		}
+
+	set_select(set_select% _Right)
+		:	_Mybase_t((_Mybase_t%)_Right)
+		{	// construct by copying a list
+		}
+
+	set_select% operator=(set_select% _Right)
+		{	// assign
+		_Mybase_t::operator=(_Right);
+		return (*this);
+		}
+
+	// constructors
+	explicit set_select(key_compare^ _Pred)
+		:	_Mybase_t(_Pred)
+		{	// construct empty set from comparator
+		}
+
+	template<typename _Iter_t>
+		set_select(_Iter_t _First, _Iter_t _Last)
+		:	_Mybase_t()
+		{	// construct set from [_First, _Last), default comparator
+		for (; _First != _Last; ++_First)
+			insert((value_type)*_First);
+		}
+
+	template<typename _Iter_t>
+		set_select(_Iter_t _First, _Iter_t _Last, key_compare^ _Pred)
+		:	_Mybase_t(_Pred)
+		{	// construct set from [_First, _Last), comparator
+		for (; _First != _Last; ++_First)
+			insert((value_type)*_First);
+		}
+
+	// converters
+	static generic_value make_value(key_type _Key)
+		{	// make a generic_value
+		return (gcnew key_type(_Key));
+		}
+
+	// mutators
+	pair_iter_bool insert(key_type _Val)
+		{	// try to insert node with value _Val, return iterator
+		_Pairnb _Ans = insert_node(%_Val);
+
+		return (pair_iter_bool(iterator(_Ans.first),
+			_Ans.second));
+		}
+
+	iterator insert(iterator _Where, key_type _Val)
+		{	// insert a key value, with hint
+		return (_Mybase_t::insert(_Where, %_Val));
+		}
+
+	template<typename _Iter_t>
+		void insert(_Iter_t _First, _Iter_t _Last)
+		{	// insert [_First, _Last) one at a time
+		_Mybase_t::insert(_First, _Last);
+		}
+
+	void insert(_Myenum_it^ _Right) new
+		{	// insert enumerable
+		_Mybase_t::insert(_Right);
+		}
+
+	size_type erase(key_type _Keyval)
+		{	// erase element at _Where
+		return (_Mybase_t::erase(%_Keyval));
+		}
+
+	// searches
+	iterator find(key_type _Keyval)
+		{	// find an element that matches _Keyval, return iterator
+		return (_Mybase_t::find(%_Keyval));
+		}
+
+	size_type count(key_type _Keyval)
+		{	// count all elements that match _Keyval
+		return (_Mybase_t::count(%_Keyval));
+		}
+
+	iterator lower_bound(key_type _Keyval)
+		{	// find leftmost node not less than _Keyval
+		return (_Mybase_t::lower_bound(%_Keyval));
+		}
+
+	iterator upper_bound(key_type _Keyval)
+		{	// find leftmost node not less than _Keyval
+		return (_Mybase_t::upper_bound(%_Keyval));
+		}
+
+	pair_iter_iter equal_range(key_type _Keyval)
+		{	// find range equivalent to _Keyval
+		return (_Mybase_t::equal_range(%_Keyval));
+		}
+	};
+	}	// namespace cliext::impl
+
+//
+// TEMPLATE CLASS set
+//
+template<typename _Key1_t>
+	ref class set
+	:	public impl::set_select<
+			_Key1_t,
+			__is_ref_class(typename _Dehandle<_Key1_t>::type)
+				&& !is_handle<_Key1_t>::value>
+	{	// ordered red-black tree of unique keys
+public:
+	// types
+	typedef set<_Key1_t> _Mytype_t;
+	typedef impl::set_select<
+		_Key1_t,
+		__is_ref_class(typename _Dehandle<_Key1_t>::type)
+			&& !is_handle<_Key1_t>::value> _Mybase_t;
+
+//	typedef _Key1_t key_type;
+//	typedef typename _Traits_t::value_type value_type;
+//	typedef typename _Traits_t::key_compare key_compare;
+//	typedef typename _Traits_t::value_compare value_compare;
+
+//	typedef int size_type;
+//	typedef int difference_type;
+//	typedef _Value_t value_type;
+//	typedef value_type% reference;
+//	typedef value_type% const_reference;
+
+//	typedef _Mycont_it generic_container;
+//	typedef value_type generic_value;
+
+//	typedef _STLCLR GenericPair<iterator^, bool> pair_iter_bool;
+//	typedef _STLCLR GenericPair<iterator^, iterator^> pair_iter_iter;
+
+	// basics
+	set()
+		:	_Mybase_t()
+		{	// construct default
+		}
+
+	set(set% _Right)
+		:	_Mybase_t((_Mybase_t%)_Right)
+		{	// construct by copying a list
+		}
+
+	set(set^ _Right)
+		:	_Mybase_t((_Mybase_t%)*_Right)
+		{	// construct by copying a list
+		}
+
+	set% operator=(set% _Right)
+		{	// assign
+		_Mybase_t::operator=(_Right);
+		return (*this);
+		}
+
+	set% operator=(set^ _Right)
+		{	// assign
+		_Mybase_t::operator=(*_Right);
+		return (*this);
+		}
+
+	// constructors
+	explicit set(key_compare^ _Pred)
+		:	_Mybase_t(_Pred)
+		{	// construct empty set from comparator
+		}
+
+	template<typename _Iter_t>
+		set(_Iter_t _First, _Iter_t _Last)
+		:	_Mybase_t()
+		{	// construct set from [_First, _Last), default comparator
+		for (; _First != _Last; ++_First)
+			insert((value_type)*_First);
+		}
+
+	template<typename _Iter_t>
+		set(_Iter_t _First, _Iter_t _Last, key_compare^ _Pred)
+		:	_Mybase_t(_Pred)
+		{	// construct set from [_First, _Last), comparator
+		for (; _First != _Last; ++_First)
+			insert((value_type)*_First);
+		}
+
+	set(_Myenum_it^ _Right)
+		:	_Mybase_t()
+		{	// construct set from enumeration, default comparator
+		for each (value_type _Val in _Right)
+			insert(_Val);
+		}
+
+	set(_Myenum_it^ _Right,
+		key_compare^ _Pred)
+		:	_Mybase_t(_Pred)
+		{	// construct set from enumeration, comparator
+		for each (value_type _Val in _Right)
+			insert(_Val);
+		}
+
+	// mutators
+	void swap(set% _Right)
+		{	// exchange contents with _Right
+		_Mybase_t::swap(_Right);
+		}
+
+	// interfaces
+public:
+	virtual System::Object^ Clone() override
+		{	// clone the vector
+		return (gcnew _Mytype_t(*this));
+		}
+	};
+
+//
+// TEMPLATE FUNCTION swap
+//
+template<typename _Key_t> inline
+	void swap(set<_Key_t>% _Left,
+		set<_Key_t>% _Right)
+	{	// swap two sets
+	_Left.swap(_Right);
+	}
+
+	namespace impl {
+//
+// TEMPLATE CLASS multiset_base
+//
+template<typename _Key_t,
+	bool _Is_ref_key>
+	ref class multiset_base
+	:	public tree<
+			set_traits<_Key_t, true, _Is_ref_key> >,
+			System::Collections::Generic::ICollection<_Key_t>,
+			System::Collections::Generic::IEnumerable<_Key_t>
+	{	// ordered red-black tree of non-unique keys
+public:
+	// types
+	typedef multiset_base<_Key_t, _Is_ref_key> _Mytype_t;
+	typedef _Key_t _Value_t;
+	typedef tree<
+		set_traits<_Key_t, true, _Is_ref_key> > _Mybase_t;
+
+//	typedef _Key_t key_type;
+//	typedef typename _Traits_t::value_type value_type;
+//	typedef typename _Traits_t::key_compare key_compare;
+//	typedef typename _Traits_t::value_compare value_compare;
+
+//	typedef int size_type;
+//	typedef int difference_type;
+//	typedef _Value_t value_type;
+//	typedef value_type% reference;
+//	typedef value_type% const_reference;
+
+//	typedef _Mycont_it generic_container;
+	typedef key_type generic_value;
+
+//	typedef _STLCLR GenericPair<iterator^, bool> pair_iter_bool;
+//	typedef _STLCLR GenericPair<iterator^, iterator^> pair_iter_iter;
+
+	// basics
+	multiset_base()
+		:	_Mybase_t()
+		{	// construct empty multiset from defaults
+		}
+
+	multiset_base(multiset_base% _Right)
+		:	_Mybase_t((_Mybase_t%)_Right)
+		{	// construct by copying a list
+		}
+
+	multiset_base% operator=(multiset_base% _Right)
+		{	// assign
+		_Mybase_t::operator=(_Right);
+		return (*this);
+		}
+
+	// constructors
+	explicit multiset_base(key_compare^ _Pred)
+		:	_Mybase_t(_Pred)
+		{	// construct empty multiset from comparator
+		}
+
+	template<typename _Iter_t>
+		multiset_base(_Iter_t _First, _Iter_t _Last)
+		:	_Mybase_t()
+		{	// construct multiset from [_First, _Last), default comparator
+		for (; _First != _Last; ++_First)
+			insert((value_type)*_First);
+		}
+
+	template<typename _Iter_t>
+		multiset_base(_Iter_t _First, _Iter_t _Last, key_compare^ _Pred)
+		:	_Mybase_t(_Pred)
+		{	// construct multiset from [_First, _Last), comparator
+		for (; _First != _Last; ++_First)
+			insert((value_type)*_First);
+		}
+
+	// interfaces
+private:
+	property size_type Count_generic
+		{	// element count
+		virtual size_type get() sealed
+			= System::Collections::Generic::ICollection<_Value_t>::Count::get
+			{	// get element count
+			return (size());
+			}
+		};
+
+	property bool IsReadOnly
+		{	// test if read only
+		virtual bool get() sealed
+			= System::Collections::Generic::ICollection<_Value_t>
+				::IsReadOnly::get
+			{	// test if read only
+			return (false);
+			}
+		};
+
+	// converters
+	virtual void CopyTo(_Myarray_t^ _Dest, int _First) sealed
+		= System::Collections::Generic::ICollection<_Value_t>::CopyTo
+		{	// copy to _Dest, beginning at _First
+		node_type^ _Node = head_node();
+
+		for (int _Idx = size(); 0 <= --_Idx; )
+			{	// copy back to front
+			_Node = _Node->prev_node();
+			_Dest[_First + _Idx] = _Node->_Value;
+			}
+		}
+
+	// iterator generators
+	virtual System::Collections::Generic::IEnumerator<_Value_t>^
+		GetEnumerator() sealed
+		= System::Collections::Generic::IEnumerable<_Value_t>::GetEnumerator
+		{	// get enumerator for the container
+		return (gcnew _STLCLR TreeEnumerator<_Key_t, _Value_t>(
+			front_node()));
+		}
+
+	// mutators
+	virtual void Add(value_type _Val) sealed
+		= System::Collections::Generic::ICollection<_Value_t>::Add
+		{	// add element with value _Val
+		insert_node(_Val);
+		}
+
+	virtual void Clear() sealed
+		= System::Collections::Generic::ICollection<_Value_t>::Clear
+		{	// erase all elements
+		clear();
+		}
+
+	virtual bool Contains(value_type _Val) sealed
+		= System::Collections::Generic::ICollection<_Value_t>::Contains
+		{	// search for element matching value _Val
+		for (node_type^ _Node = front_node(); _Node != head_node();
+			_Node = _Node->next_node())
+			if (((System::Object^)_Val)->Equals(
+				(System::Object^)_Node->_Value))
+				return (true);
+		return (false);
+		}
+
+	virtual bool Remove(value_type _Val) sealed
+		= System::Collections::Generic::ICollection<_Value_t>::Remove
+		{	// remove first element matching value _Val
+		for (node_type^ _Node = front_node(); _Node != head_node();
+			_Node = _Node->next_node())
+			if (((System::Object^)_Val)->Equals(
+				(System::Object^)_Node->_Value))
+				{	// found a match, remove it
+				erase_node(_Node);
+				return (true);
+				}
+		return (false);
+		}
+	};
+
+//
+// TEMPLATE CLASS multiset_select
+//
+template<typename _Key1_t,
+	bool _Is_ref_key>
+	ref class multiset_select
+	:	public multiset_base<_Key1_t, _Is_ref_key>
+	{	// ordered red-black tree of non-unique keys
+public:
+	// types
+	typedef _Key1_t _Gkey_t;
+
+	typedef multiset_select<_Key1_t, _Is_ref_key> _Mytype_t;
+	typedef multiset_base<_Gkey_t, _Is_ref_key> _Mybase_t;
+//	typedef System::Collections::Generic::IEnumerable<_Value_t> _Myenum_it;
+
+	typedef _Key1_t key_type;
+//	typedef typename _Traits_t::value_type value_type;
+//	typedef typename _Traits_t::key_compare key_compare;
+//	typedef typename _Traits_t::value_compare value_compare;
+
+//	typedef int size_type;
+//	typedef int difference_type;
+//	typedef _Value_t value_type;
+//	typedef value_type% reference;
+//	typedef value_type% const_reference;
+
+//	typedef _Mycont_it generic_container;
+//	typedef key_type generic_value;
+
+//	typedef _STLCLR GenericPair<iterator^, bool> pair_iter_bool;
+//	typedef _STLCLR GenericPair<iterator^, iterator^> pair_iter_iter;
+
+	// basics
+	multiset_select()
+		:	_Mybase_t()
+		{	// construct empty multiset from defaults
+		}
+
+	multiset_select(multiset_select% _Right)
+		:	_Mybase_t((_Mybase_t%)_Right)
+		{	// construct by copying a list
+		}
+
+	multiset_select% operator=(multiset_select% _Right)
+		{	// assign
+		_Mybase_t::operator=(_Right);
+		return (*this);
+		}
+
+	// constructors
+	explicit multiset_select(key_compare^ _Pred)
+		:	_Mybase_t(_Pred)
+		{	// construct empty multiset from comparator
+		}
+
+	template<typename _Iter_t>
+		multiset_select(_Iter_t _First, _Iter_t _Last)
+		:	_Mybase_t()
+		{	// construct multiset from [_First, _Last), default comparator
+		for (; _First != _Last; ++_First)
+			insert((value_type)*_First);
+		}
+
+	template<typename _Iter_t>
+		multiset_select(_Iter_t _First, _Iter_t _Last, key_compare^ _Pred)
+		:	_Mybase_t(_Pred)
+		{	// construct multiset from [_First, _Last), comparator
+		for (; _First != _Last; ++_First)
+			insert((value_type)*_First);
+		}
+
+	// converters
+	static generic_value make_value(key_type _Key)
+		{	// make a generic_value
+		return (_Key);
+		}
+
+	// mutators
+	iterator insert(key_type _Val)
+		{	// insert node with value _Val, return iterator
+		_Pairnb _Ans = insert_node(_Val);
+
+		return (make_iterator(_Ans.first));
+		}
+
+	iterator insert(iterator _Where, key_type _Val) new
+		{	// insert a key value, with hint
+		return (_Mybase_t::insert(_Where, _Val));
+		}
+
+	template<typename _Iter_t>
+		void insert(_Iter_t _First, _Iter_t _Last)
+		{	// insert [_First, _Last) one at a time
+		_Mybase_t::insert(_First, _Last);
+		}
+
+	void insert(_Myenum_it^ _Right) new
+		{	// insert enumerable
+		_Mybase_t::insert(_Right);
+		}
+
+//	virtual size_type erase(key_type _Keyval);
+
+	// searches
+//	virtual iterator find(key_type _Keyval);
+//	virtual size_type count(key_type _Keyval);
+//	virtual iterator lower_bound(key_type _Keyval);
+//	virtual iterator upper_bound(key_type _Keyval);
+//	virtual pair_iter_iter equal_range(key_type _Keyval);
+	};
+
+//
+// TEMPLATE CLASS multiset_select: _Key1_t REF SPECIALIZATION
+//
+template<typename _Key1_t>
+	ref class multiset_select<_Key1_t, true>
+	:	public multiset_base<_Key1_t^, true>
+	{	// ordered red-black tree of non-unique keys
+public:
+	// types
+	typedef _Key1_t^ _Gkey_t;
+
+	typedef multiset_select<_Key1_t, true> _Mytype_t;
+	typedef multiset_base<_Gkey_t, true> _Mybase_t;
+//	typedef System::Collections::Generic::IEnumerable<_Value_t> _Myenum_it;
+
+	typedef _Key1_t key_type;
+//	typedef typename _Traits_t::value_type value_type;
+//	typedef typename _Traits_t::key_compare key_compare;
+//	typedef typename _Traits_t::value_compare value_compare;
+
+//	typedef int size_type;
+//	typedef int difference_type;
+//	typedef _Value_t value_type;
+//	typedef value_type% reference;
+//	typedef value_type% const_reference;
+
+//	typedef _Mycont_it generic_container;
+//	typedef key_type generic_value;
+
+//	typedef _STLCLR GenericPair<iterator^, bool> pair_iter_bool;
+//	typedef _STLCLR GenericPair<iterator^, iterator^> pair_iter_iter;
+
+	// basics
+	multiset_select()
+		:	_Mybase_t()
+		{	// construct empty multiset from defaults
+		}
+
+	multiset_select(multiset_select% _Right)
+		:	_Mybase_t((_Mybase_t%)_Right)
+		{	// construct by copying a list
+		}
+
+	multiset_select% operator=(multiset_select% _Right)
+		{	// assign
+		_Mybase_t::operator=(_Right);
+		return (*this);
+		}
+
+	// constructors
+	explicit multiset_select(key_compare^ _Pred)
+		:	_Mybase_t(_Pred)
+		{	// construct empty multiset from comparator
+		}
+
+	template<typename _Iter_t>
+		multiset_select(_Iter_t _First, _Iter_t _Last)
+		:	_Mybase_t()
+		{	// construct multiset from [_First, _Last), default comparator
+		for (; _First != _Last; ++_First)
+			insert((value_type)*_First);
+		}
+
+	template<typename _Iter_t>
+		multiset_select(_Iter_t _First, _Iter_t _Last, key_compare^ _Pred)
+		:	_Mybase_t(_Pred)
+		{	// construct multiset from [_First, _Last), comparator
+		for (; _First != _Last; ++_First)
+			insert((value_type)*_First);
+		}
+
+	// converters
+	static generic_value make_value(key_type _Key)
+		{	// make a generic_value
+		return (gcnew key_type(_Key));
+		}
+
+	// mutators
+	iterator insert(key_type _Val)
+		{	// insert node with value _Val, return iterator
+		_Pairnb _Ans = insert_node(%_Val);
+
+		return (make_iterator(_Ans.first));
+		}
+
+	iterator insert(iterator _Where, key_type _Val)
+		{	// insert a key value, with hint
+		return (_Mybase_t::insert(_Where, %_Val));
+		}
+
+	template<typename _Iter_t>
+		void insert(_Iter_t _First, _Iter_t _Last)
+		{	// insert [_First, _Last) one at a time
+		_Mybase_t::insert(_First, _Last);
+		}
+
+	void insert(_Myenum_it^ _Right) new
+		{	// insert enumerable
+		_Mybase_t::insert(_Right);
+		}
+
+	size_type erase(key_type _Keyval)
+		{	// erase element at _Where
+		return (_Mybase_t::erase(%_Keyval));
+		}
+
+	// searches
+	iterator find(key_type _Keyval)
+		{	// find an element that matches _Keyval, return iterator
+		return (_Mybase_t::find(%_Keyval));
+		}
+
+	size_type count(key_type _Keyval)
+		{	// count all elements that match _Keyval
+		return (_Mybase_t::count(%_Keyval));
+		}
+
+	iterator lower_bound(key_type _Keyval)
+		{	// find leftmost node not less than _Keyval
+		return (_Mybase_t::lower_bound(%_Keyval));
+		}
+
+	iterator upper_bound(key_type _Keyval)
+		{	// find leftmost node not less than _Keyval
+		return (_Mybase_t::upper_bound(%_Keyval));
+		}
+
+	pair_iter_iter equal_range(key_type _Keyval)
+		{	// find range equivalent to _Keyval
+		return (_Mybase_t::equal_range(%_Keyval));
+		}
+	};
+	}	// namespace cliext::impl
+
+//
+// TEMPLATE CLASS multiset
+//
+template<typename _Key1_t>
+	ref class multiset
+	:	public impl::multiset_select<
+			_Key1_t,
+			__is_ref_class(typename _Dehandle<_Key1_t>::type)
+				&& !is_handle<_Key1_t>::value>
+	{	// ordered red-black tree of non-unique keys
+public:
+	// types
+	typedef multiset<_Key1_t> _Mytype_t;
+	typedef impl::multiset_select<
+		_Key1_t,
+		__is_ref_class(typename _Dehandle<_Key1_t>::type)
+			&& !is_handle<_Key1_t>::value> _Mybase_t;
+
+//	typedef _Key1_t key_type;
+//	typedef typename _Traits_t::value_type value_type;
+//	typedef typename _Traits_t::key_compare key_compare;
+//	typedef typename _Traits_t::value_compare value_compare;
+
+//	typedef int size_type;
+//	typedef int difference_type;
+//	typedef _Value_t value_type;
+//	typedef value_type% reference;
+//	typedef value_type% const_reference;
+
+//	typedef _Mycont_it generic_container;
+//	typedef value_type generic_value;
+
+//	typedef _STLCLR GenericPair<iterator^, bool> pair_iter_bool;
+//	typedef _STLCLR GenericPair<iterator^, iterator^> pair_iter_iter;
+
+	// basics
+	multiset()
+		:	_Mybase_t()
+		{	// construct default
+		}
+
+	multiset(multiset% _Right)
+		:	_Mybase_t((_Mybase_t%)_Right)
+		{	// construct by copying a list
+		}
+
+	multiset(multiset^ _Right)
+		:	_Mybase_t((_Mybase_t%)*_Right)
+		{	// construct by copying a list
+		}
+
+	multiset% operator=(multiset% _Right)
+		{	// assign
+		_Mybase_t::operator=(_Right);
+		return (*this);
+		}
+
+	multiset% operator=(multiset^ _Right)
+		{	// assign
+		_Mybase_t::operator=(*_Right);
+		return (*this);
+		}
+
+	// constructors
+	explicit multiset(key_compare^ _Pred)
+		:	_Mybase_t(_Pred)
+		{	// construct empty multiset from comparator
+		}
+
+	template<typename _Iter_t>
+		multiset(_Iter_t _First, _Iter_t _Last)
+		:	_Mybase_t()
+		{	// construct multiset from [_First, _Last), default comparator
+		for (; _First != _Last; ++_First)
+			insert((value_type)*_First);
+		}
+
+	template<typename _Iter_t>
+		multiset(_Iter_t _First, _Iter_t _Last, key_compare^ _Pred)
+		:	_Mybase_t(_Pred)
+		{	// construct multiset from [_First, _Last), comparator
+		for (; _First != _Last; ++_First)
+			insert((value_type)*_First);
+		}
+
+	multiset(_Myenum_it^ _Right)
+		:	_Mybase_t()
+		{	// construct multiset from enumeration, default comparator
+		for each (value_type _Val in _Right)
+			insert(_Val);
+		}
+
+	multiset(_Myenum_it^ _Right,
+		key_compare^ _Pred)
+		:	_Mybase_t(_Pred)
+		{	// construct multiset from enumeration, comparator
+		for each (value_type _Val in _Right)
+			insert(_Val);
+		}
+
+	// mutators
+	void swap(multiset% _Right)
+		{	// exchange contents with _Right
+		_Mybase_t::swap(_Right);
+		}
+
+	// interfaces
+public:
+	virtual System::Object^ Clone() override
+		{	// clone the vector
+		return (gcnew _Mytype_t(*this));
+		}
+	};
+
+//
+// TEMPLATE FUNCTION swap
+//
+template<typename _Key_t> inline
+	void swap(multiset<_Key_t>% _Left,
+		multiset<_Key_t>% _Right)
+	{	// swap two multisets
+	_Left.swap(_Right);
+	}
+}	// namespace cliext
+
+#endif // _CLI_SET_
+
+/*
+ * Copyright (c) 2004-2007 by Dinkumware, Ltd.  ALL RIGHTS RESERVED.
+ * Consult your license regarding permissions and restrictions.
+V5.03:0009 */

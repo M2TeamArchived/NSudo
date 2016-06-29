@@ -1,0 +1,65 @@
+// cstdio standard header
+#pragma once
+#ifndef _CSTDIO_
+#define _CSTDIO_
+#include <yvals.h>
+
+#ifdef _STD_USING
+ #undef _STD_USING
+  #include <stdio.h>
+ #define _STD_USING
+
+#else /* _STD_USING */
+ #include <stdio.h>
+#endif /* _STD_USING */
+
+// undef common macro overrides
+ #undef clearerr
+ #undef feof
+ #undef ferror
+ #undef getc
+ #undef getchar
+ #undef putc
+ #undef putchar
+
+ #define _HAS_CONVENTIONAL_CLIB	1
+ #define _IOBASE	_base
+ #define _IOPTR	_ptr
+ #define _IOCNT	_cnt
+
+  #define _FPOSOFF(fp)  ((long long)(fp))
+
+typedef FILE _Filet;
+
+ #if _GLOBAL_USING && !defined(RC_INVOKED)
+_STD_BEGIN
+using _CSTD _Filet; using _CSTD _Mbstatet;
+
+using _CSTD size_t; using _CSTD fpos_t; using _CSTD FILE;
+using _CSTD clearerr; using _CSTD fclose; using _CSTD feof;
+using _CSTD ferror; using _CSTD fflush; using _CSTD fgetc;
+using _CSTD fgetpos; using _CSTD fgets; using _CSTD fopen;
+using _CSTD fprintf; using _CSTD fputc; using _CSTD fputs;
+using _CSTD fread; using _CSTD freopen; using _CSTD fscanf;
+using _CSTD fseek; using _CSTD fsetpos; using _CSTD ftell;
+using _CSTD fwrite; using _CSTD getc; using _CSTD getchar;
+using _CSTD perror;
+using _CSTD putc; using _CSTD putchar;
+using _CSTD printf; using _CSTD puts; using _CSTD remove;
+using _CSTD rename; using _CSTD rewind; using _CSTD scanf;
+using _CSTD setbuf; using _CSTD setvbuf; using _CSTD sprintf;
+using _CSTD sscanf; using _CSTD tmpfile; using _CSTD tmpnam;
+using _CSTD ungetc; using _CSTD vfprintf; using _CSTD vprintf;
+using _CSTD vsprintf;
+
+using _CSTD snprintf; using _CSTD vsnprintf;
+using _CSTD vfscanf; using _CSTD vscanf; using _CSTD vsscanf;
+_STD_END
+ #endif /* _GLOBAL_USING */
+
+#endif /* _CSTDIO_ */
+
+/*
+ * Copyright (c) by P.J. Plauger. All rights reserved.
+ * Consult your license regarding permissions and restrictions.
+V6.50:0009 */

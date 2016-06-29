@@ -1,0 +1,270 @@
+// xthread C++11 header
+#pragma once
+#ifndef _THR_XTHREAD_
+#define _THR_XTHREAD_
+#ifndef RC_INVOKED
+#include <thr/xthrcommon.h>
+#include <thr/xtime>
+#include <thr/xthreads.h>
+#include <tuple>
+#include <type_traits>
+#include <utility>
+
+ #pragma pack(push,_CRT_PACKING)
+ #pragma warning(push,3)
+ #pragma push_macro("new")
+ #undef new
+
+_STD_BEGIN
+enum {	// constants for error codes
+	_DEVICE_OR_RESOURCE_BUSY,
+	_INVALID_ARGUMENT,
+	_NO_SUCH_PROCESS,
+	_NOT_ENOUGH_MEMORY,
+	_OPERATION_NOT_PERMITTED,
+	_RESOURCE_DEADLOCK_WOULD_OCCUR,
+	_RESOURCE_UNAVAILABLE_TRY_AGAIN
+	};
+
+_CRTIMP2_PURE void __cdecl _Throw_C_error(int _Code);
+_CRTIMP2_PURE void __cdecl _Throw_Cpp_error(int _Code);
+
+inline int _Check_C_return(int _Res)
+	{	// throw exception on failure
+	if (_Res != _Thrd_success)
+		_Throw_C_error(_Res);
+	return (_Res);
+	}
+
+inline int _Check_C_return(int _Res, int _Other)
+	{	// throw exception on failure
+	if (_Res != _Thrd_success && _Res != _Other)
+		_Throw_C_error(_Res);
+	return (_Res);
+	}
+
+	// C++ WRAPPERS FOR C FUNCTIONS (SAME NAMES, IN NAMESPACE std)
+inline int _Thrd_startX(_Thrd_imp_t *_Thr, _Thrd_callback_t _Fp, void *_Arg)
+	{	// throw exception on failure
+	int _Res = _Thrd_start(_Thr, _Fp, _Arg);
+	return (_Check_C_return(_Res != _Thrd_error ? _Res : _Thrd_nomem));
+	}
+
+inline int _Thrd_detachX(_Thrd_t _Thr)
+	{	// throw exception on failure
+	return (_Check_C_return(_Thrd_detach(_Thr)));
+	}
+
+inline int _Thrd_joinX(_Thrd_t _Thr, int *_Res)
+	{	// throw exception on failure
+	return (_Check_C_return(_Thrd_join(_Thr, _Res)));
+	}
+
+inline int _Mtx_initX(_Mtx_t *_Mtx, int _Type)
+	{	// throw exception on failure
+	return (_Check_C_return(_Mtx_init(_Mtx, _Type)));
+	}
+
+inline int _Mtx_lockX(_Mtx_t _Mtx)
+	{	// throw exception on failure
+	return (_Check_C_return(_Mtx_lock(_Mtx)));
+	}
+
+inline int _Mtx_trylockX(_Mtx_t _Mtx)
+	{	// throw exception on failure
+	return (_Check_C_return(_Mtx_trylock(_Mtx), _Thrd_busy));
+	}
+
+inline int _Mtx_timedlockX(_Mtx_t _Mtx, const xtime *_Xt)
+	{	// throw exception on failure
+	return (_Check_C_return(_Mtx_timedlock(_Mtx, _Xt), _Thrd_timedout));
+	}
+
+inline int _Mtx_unlockX(_Mtx_t _Mtx)
+	{	// throw exception on failure
+	return (_Check_C_return(_Mtx_unlock(_Mtx)));
+	}
+
+inline int _Cnd_initX(_Cnd_t *_Cnd)
+	{	// throw exception on failure
+	return (_Check_C_return(_Cnd_init(_Cnd)));
+	}
+
+inline int _Cnd_waitX(_Cnd_t _Cnd, _Mtx_t _Mtx)
+	{	// throw exception on failure
+	return (_Check_C_return(_Cnd_wait(_Cnd, _Mtx)));
+	}
+
+inline int _Cnd_timedwaitX(_Cnd_t _Cnd,
+	_Mtx_t _Mtx, const xtime *_Xt)
+	{	// throw exception on failure
+	return (_Check_C_return(_Cnd_timedwait(_Cnd, _Mtx, _Xt), _Thrd_timedout));
+	}
+
+inline int _Cnd_broadcastX(_Cnd_t _Cnd)
+	{	// throw exception on failure
+	return (_Check_C_return(_Cnd_broadcast(_Cnd)));
+	}
+
+inline int _Cnd_signalX(_Cnd_t _Cnd)
+	{	// throw exception on failure
+	return (_Check_C_return(_Cnd_signal(_Cnd)));
+	}
+
+class _Auto_cnd
+	{	// clean up condition variable on destruction
+public:
+	_Auto_cnd(_Cnd_t _Cndp)
+		: _Active(true), _MyCndp(_Cndp)
+		{	// construct from condition variable pointer
+		}
+
+	~_Auto_cnd() _NOEXCEPT
+		{	// destroy the object
+		if (_Active)
+			_Cnd_destroy(_MyCndp);
+			}
+
+	void _Release()
+		{	// release the condition variable
+		_Active = false;
+		}
+
+private:
+	bool _Active;
+	_Cnd_t _MyCndp;
+	};
+
+class _Auto_mtx
+	{	// clean up mutex on destruction
+public:
+	_Auto_mtx(_Mtx_t _Mtxp)
+		: _Active(true), _MyMtxp(_Mtxp)
+		{	// construct from mutex
+		}
+
+	~_Auto_mtx() _NOEXCEPT
+		{	// destroy the object
+		if (_Active)
+			_Mtx_destroy(_MyMtxp);
+		}
+
+	void _Release()
+		{	// release the mutex
+		_Active = false;
+		}
+
+private:
+	bool _Active;
+	_Mtx_t _MyMtxp;
+	};
+
+class _Pad
+	{	// base class for launching threads
+public:
+	_Pad()
+		{	// initialize handshake
+		_Cnd_initX(&_Cond);
+		_Auto_cnd _Cnd_cleaner(_Cond);
+		_Mtx_initX(&_Mtx, _Mtx_plain);
+		_Auto_mtx _Mtx_cleaner(_Mtx);
+		_Started = false;
+		_Mtx_lockX(_Mtx);
+		_Mtx_cleaner._Release();
+		_Cnd_cleaner._Release();
+		}
+
+	~_Pad() _NOEXCEPT
+		{	// clean up handshake
+		_Auto_cnd _Cnd_cleaner(_Cond);
+		_Auto_mtx _Mtx_cleaner(_Mtx);
+		_Mtx_unlockX(_Mtx);
+		}
+
+	void _Launch(_Thrd_t *_Thr)
+		{	// launch a thread
+		_Thrd_startX(_Thr, _Call_func, this);
+		while (!_Started)
+			_Cnd_waitX(_Cond, _Mtx);
+		}
+
+	void _Release()
+		{	// notify caller that it's okay to continue
+		_Mtx_lockX(_Mtx);
+		_Started = true;
+		_Cnd_signalX(_Cond);
+		_Mtx_unlockX(_Mtx);
+		}
+
+	virtual void _Go() = 0;
+
+private:
+typedef unsigned int _Call_func_ret;
+#define _CALL_FUNC_MODIFIER	_STDCALL
+
+	static _Call_func_ret _STDCALL _Call_func(void *_Data)
+		{	// entry point for new thread
+		static_cast<_Pad *>(_Data)->_Go();
+		_Cnd_do_broadcast_at_thread_exit();
+		return (0);
+		}
+
+	_Cnd_t _Cond;
+	_Mtx_t _Mtx;
+	bool _Started;
+	};
+
+template<class _Target>
+	class _LaunchPad
+		: public _Pad
+	{	// template class for launching threads
+public:
+	template<class _Other> inline
+		_LaunchPad(_Other&& _Tgt)
+		: _MyTarget(_STD forward<_Other>(_Tgt))
+		{	// construct from target
+		}
+
+	virtual void _Go()
+		{	// run the thread function object
+		_Run(this);
+		}
+
+private:
+	template<size_t... _Idxs>
+		static void _Execute(typename _Target::element_type& _Tup,
+			integer_sequence<size_t, _Idxs...>)
+		{	// invoke function object packed in tuple
+		_STD invoke(_STD move(_STD get<_Idxs>(_Tup))...);
+		}
+
+	static void _Run(_LaunchPad *_Ln) _NOEXCEPT	// enforces termination
+		{	// construct local unique_ptr and call function object within
+		_Target _Local(_STD forward<_Target>(_Ln->_MyTarget));
+		_Ln->_Release();
+		_Execute(*_Local,
+			make_integer_sequence<size_t,
+				tuple_size<typename _Target::element_type>::value>());
+		}
+
+	_Target _MyTarget;
+	};
+
+template<class _Target> inline
+	void _Launch(_Thrd_t *_Thr, _Target&& _Tg)
+	{	// launch a new thread
+	_LaunchPad<_Target> _Launcher(_STD forward<_Target>(_Tg));
+	_Launcher._Launch(_Thr);
+	}
+_STD_END
+
+ #pragma pop_macro("new")
+ #pragma warning(pop)
+ #pragma pack(pop)
+#endif /* RC_INVOKED */
+#endif /* _THR_XTHREAD_ */
+
+/*
+ * Copyright (c) by P.J. Plauger. All rights reserved.
+ * Consult your license regarding permissions and restrictions.
+V6.50:0009 */

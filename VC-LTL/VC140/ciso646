@@ -1,0 +1,13 @@
+// ciso646 standard header
+#pragma once
+#ifndef _CISO646_
+#define _CISO646_
+#include <yvals.h>
+
+#include <iso646.h>
+#endif /* _CISO646_ */
+
+/*
+ * Copyright (c) by P.J. Plauger. All rights reserved.
+ * Consult your license regarding permissions and restrictions.
+V6.50:0009 */

@@ -1,0 +1,677 @@
+// strstream standard header
+#pragma once
+#ifndef _STRSTREAM_
+#define _STRSTREAM_
+#ifndef RC_INVOKED
+#include <istream>
+
+ #pragma pack(push,_CRT_PACKING)
+ #pragma warning(push,3)
+ #pragma push_macro("new")
+ #undef new
+
+_STD_BEGIN
+		// CLASS strstreambuf
+class strstreambuf
+	: public streambuf
+	{	// stream buffer associated with static or allocated character array
+public:
+	typedef strstreambuf _Myt;
+	typedef streambuf _Mysb;
+	enum
+		{	// constants for bits in stream state
+		_Allocated = 1,	// set if character array storage has been allocated
+		_Constant = 2,	// set if character array nonmutable
+		_Dynamic = 4,	// set if character array length grows on demand
+		_Frozen = 8};	// set if character array ownership given away
+	typedef int _Strstate;
+
+	explicit __CLR_OR_THIS_CALL strstreambuf(streamsize _Count = 0)
+		{	// construct with empty character array, suggested initial size
+		_Init(_Count);
+		}
+
+	__CLR_OR_THIS_CALL strstreambuf(void *(__CLRCALL_OR_CDECL *_Allocfunc)(size_t),
+		void (__CLRCALL_OR_CDECL *_Freefunc)(void *))
+		{	// construct with empty character array, allocation functions
+		_Init();
+		_Palloc = _Allocfunc;
+		_Pfree = _Freefunc;
+		}
+
+	__CLR_OR_THIS_CALL strstreambuf(_In_opt_z_ char *_Getptr,
+		streamsize _Count,
+		_In_opt_z_ char *_Putptr = 0)
+		{	// construct with [_Getptr, _Getptr + _Count), possibly mutable
+		_Init(_Count, _Getptr, _Putptr);
+		}
+
+	__CLR_OR_THIS_CALL strstreambuf(_In_z_ const char *_Getptr,
+		streamsize _Count)
+		{	// construct with [_Getptr, _Getptr + _Count), nonmutable
+		_Init(_Count, (char *)_Getptr, 0, _Constant);
+		}
+
+  #pragma warning(push)
+  #pragma warning(disable: 6054)
+
+	__CLR_OR_THIS_CALL strstreambuf(_In_opt_z_ unsigned char *_Getptr,
+		streamsize _Count,
+		_In_opt_z_ unsigned char *_Putptr = 0)
+		{	// construct with [_Getptr, _Getptr + _Count), possibly mutable
+		_Init(_Count, (char *)_Getptr, (char *)_Putptr);
+		}
+
+	__CLR_OR_THIS_CALL strstreambuf(_In_opt_z_ const unsigned char *_Getptr,
+		streamsize _Count)
+		{	// construct with [_Getptr, _Getptr + _Count), nonmutable
+		_Init(_Count, (char *)_Getptr, 0, _Constant);
+		}
+
+  #pragma warning(pop)
+
+	__CLR_OR_THIS_CALL strstreambuf(_Myt&& _Right)
+		{	// construct by moving _Right
+		_Init();
+		_Assign_rv(_STD forward<_Myt>(_Right));
+		}
+
+	_Myt& __CLR_OR_THIS_CALL operator=(_Myt&& _Right)
+		{	// assign by moving _Right
+		_Assign_rv(_STD forward<_Myt>(_Right));
+		return (*this);
+		}
+
+	void __CLR_OR_THIS_CALL _Assign_rv(_Myt&& _Right)
+		{	// assign by moving _Right
+		if (this != &_Right)
+			{	// different, worth moving
+			_Tidy();
+			this->swap(_Right);
+			}
+		}
+
+	void __CLR_OR_THIS_CALL swap(_Myt& _Right)
+		{	// swap with _Right
+		if (this != &_Right)
+			{	// different, worth swapping
+			_Mysb::swap(_Right);
+			_STD swap(_Minsize, _Right._Minsize);
+			_STD swap(_Pendsave, _Right._Pendsave);
+			_STD swap(_Seekhigh, _Right._Seekhigh);
+			_STD swap(_Strmode, _Right._Strmode);
+			_STD swap(_Palloc, _Right._Palloc);
+			_STD swap(_Pfree, _Right._Pfree);
+			}
+		}
+
+	virtual __CLR_OR_THIS_CALL ~strstreambuf() _NOEXCEPT
+		{	// destroy a strstreambuf
+		_Tidy();
+		}
+
+	void __CLR_OR_THIS_CALL freeze(bool _Freezeit = true)
+		{	// freeze or unfreeze writing
+		if (_Freezeit && !(_Strmode & _Frozen))
+			{	// disable writing
+			_Strmode |= _Frozen;
+			_Pendsave = epptr();
+			setp(pbase(), pptr(), eback());
+			}
+		else if (!_Freezeit && _Strmode & _Frozen)
+			{	// re-enable writing
+			_Strmode &= ~_Frozen;
+			setp(pbase(), pptr(), _Pendsave);
+			}
+		}
+
+	char *__CLR_OR_THIS_CALL str()
+		{	// freeze and return pointer to character array
+		freeze();
+		return (gptr());
+		}
+
+	streamsize __CLR_OR_THIS_CALL pcount() const
+		{	// return size of writable character array
+		return (pptr() == 0 ? 0 : (streamsize)(pptr() - pbase()));
+		}
+
+	__CLR_OR_THIS_CALL strstreambuf(_In_opt_z_ signed char *_Getptr,
+		streamsize _Count,
+		_In_opt_z_ signed char *_Putptr = 0)
+		{	// construct with [_Getptr, _Getptr + _Count), possibly mutable
+		_Init(_Count, (char *)_Getptr, (char *)_Putptr);
+		}
+
+	__CLR_OR_THIS_CALL strstreambuf(const signed char *_Getptr,
+		streamsize _Count)
+		{	// construct with [_Getptr, _Getptr + _Count), nonmutable
+		_Init(_Count, (char *)_Getptr, 0, _Constant);
+		}
+
+	void clear()
+		{	// free any allocated storage
+		_Tidy();
+		}
+
+protected:
+	virtual int __CLR_OR_THIS_CALL overflow(int _Meta = EOF)
+		{	// try to extend write area
+		if (_Meta == EOF)
+			return (0);	// nothing to write
+		else if (pptr() != 0 && pptr() < epptr())
+			return ((unsigned char)(*_Pninc() = (char)_Meta));
+		else if (!(_Strmode & _Dynamic)
+			|| _Strmode & (_Constant | _Frozen))
+			return (EOF);	// can't extend
+		else
+			{	// okay to extend
+			int _Oldsize = gptr() == 0 ? 0 : (int)(epptr() - eback());
+			int _Newsize = _Oldsize;
+			int _Inc = _Newsize / 2 < _Minsize
+				? _Minsize : _Newsize / 2;	// grow by 50 per cent if possible
+			_Minsize = _MINSIZE;	// back to default for future growth
+			char *_Ptr = 0;
+
+			while (0 < _Inc && INT_MAX - _Inc < _Newsize)
+				_Inc /= 2;	// reduce growth increment if too big
+			if (0 < _Inc)
+				{	// room to grow, increase size
+				_Newsize += _Inc;
+
+				_Ptr = _Palloc != 0 ? (char *)(*_Palloc)(_Newsize)
+					: (char *)_malloc_dbg(_Newsize, _CRT_BLOCK,
+						__FILE__, __LINE__);
+				}
+			if (_Ptr == 0)
+				return (EOF);	// couldn't grow, return failure
+
+			if (0 < _Oldsize)
+				_CSTD memcpy(_Ptr, eback(), _Oldsize);	// copy existing
+			if (!(_Strmode & _Allocated))
+				;	// no buffer to free
+			else if (_Pfree != 0)
+				(*_Pfree)(eback());	// free with function call
+			else
+				_CSTD free(eback());	// free by deleting array
+			_Strmode |= _Allocated;
+			if (_Oldsize == 0)
+				{	// set up new buffer
+				_Seekhigh = _Ptr;
+				setp(_Ptr, _Ptr + _Newsize);
+				setg(_Ptr, _Ptr, _Ptr);
+				}
+			else
+				{	// revise old pointers
+				_Seekhigh = _Seekhigh - eback() + _Ptr;
+				setp(pbase() - eback() + _Ptr, pptr() - eback() + _Ptr,
+					_Ptr + _Newsize);
+				setg(_Ptr, gptr() - eback() + _Ptr, pptr() + 1);
+				}
+
+			return ((unsigned char)(*_Pninc() = (char)_Meta));
+			}
+		}
+
+	virtual int __CLR_OR_THIS_CALL pbackfail(int _Meta = EOF)
+		{	// try to putback a character
+		if (gptr() == 0 || gptr() <= eback() || (_Meta != EOF
+				&& (unsigned char)_Meta != (unsigned char)gptr()[-1]
+				&& _Strmode & _Constant))
+			return (EOF);	// can't put it back
+		else
+			{	// safe to back up
+			gbump(-1);
+			if (_Meta != EOF && *gptr() != (char)_Meta)
+				*gptr() = (char)_Meta;
+			return (_Meta == EOF ? 0 : (unsigned char)_Meta);
+			}
+		}
+
+	virtual int __CLR_OR_THIS_CALL underflow()
+		{	// read if read position available
+		if (gptr() == 0)
+			return (EOF);	// no read buffer
+		else if (gptr() < egptr())
+			return ((unsigned char)*gptr());	// char in buffer, read it
+		else if (pptr() == 0 || (pptr() <= gptr() && _Seekhigh <= gptr()))
+			return (EOF);	// no write buffer to read
+		else
+			{	// update _Seekhigh and expand read region
+			if (_Seekhigh < pptr())
+				_Seekhigh = pptr();
+			setg(eback(), gptr(), _Seekhigh);
+			return ((unsigned char)*gptr());
+			}
+		}
+
+	virtual streampos __CLR_OR_THIS_CALL seekoff(streamoff _Off_arg,
+		ios_base::seekdir _Way,
+		ios_base::openmode _Which =
+			ios_base::in | ios_base::out)
+		{	// seek by specified offset
+		int _Off = (int)_Off_arg;
+
+		if (pptr() != 0 && (int)(_Seekhigh - pptr()) < 0)	// sic
+			_Seekhigh = pptr();	// update high water mark
+
+		if (_Which & ios_base::in && gptr() != 0)
+			{	// set input (and maybe output) pointer
+			if (_Way == ios_base::end)
+				_Off += (int)(_Seekhigh - eback());	// seek from end
+			else if (_Way == ios_base::cur
+				&& !(_Which & ios_base::out))
+				_Off += (int)(gptr() - eback());	// seek from current
+			else if (_Way != ios_base::beg || _Off == (int)_BADOFF)
+				_Off = (int)_BADOFF;	// invalid seek
+			if (0 <= _Off && _Off <= (int)(_Seekhigh - eback()))
+				{	// seek from beginning, set one or two pointers
+				gbump(_Off - (int)(gptr() - eback()));
+				if (_Which & ios_base::out && pptr() != 0)
+					setp(pbase(), gptr(), epptr());
+				}
+			else
+				_Off = (int)_BADOFF;	// invalid seek from beginning
+			}
+		else if (_Which & ios_base::out && pptr() != 0)
+			{	// set only output pointer
+			if (_Way == ios_base::end)
+				_Off += (int)(_Seekhigh - eback());	// seek from end
+			else if (_Way == ios_base::cur)
+				_Off += (int)(pptr() - eback());	// seek from current
+			else if (_Way != ios_base::beg || _Off == (int)_BADOFF)
+				_Off = (int)_BADOFF;	// invalid seek
+			if (0 <= _Off && _Off <= (int)(_Seekhigh - eback()))
+				pbump(_Off - (int)(pptr() - eback()));	// seek from beginning
+			else
+				_Off = (int)_BADOFF;	// invalid seek from beginning
+			}
+		else
+			_Off = (int)_BADOFF;	// nothing to set
+		return (streampos((streamoff)_Off));
+		}
+
+	virtual streampos __CLR_OR_THIS_CALL seekpos(streampos _Sp,
+		ios_base::openmode _Which=
+			ios_base::in | ios_base::out)
+		{	// seek to memorized position
+		int _Off = (int)(streamoff)_Sp;
+
+		if (pptr() != 0 && (int)(_Seekhigh - pptr()) < 0)	// sic
+			_Seekhigh = pptr();	// update high water mark
+
+		if (_Off == (int)_BADOFF)
+			;	// invalid seek
+		else if (_Which & ios_base::in && gptr() != 0)
+			{	// set input (and maybe output) pointer
+			if (0 <= _Off && _Off <= (int)(_Seekhigh - eback()))
+				{	// set valid offset
+				gbump(_Off - (int)(gptr() - eback()));
+				if (_Which & ios_base::out && pptr() != 0)
+					setp(pbase(), gptr(), epptr());
+				}
+			else
+				_Off = (int)_BADOFF;	// offset invalid, don't seek
+			}
+		else if (_Which & ios_base::out && pptr() != 0)
+			{	// set output pointer
+			if (0 <= _Off && _Off <= (int)(_Seekhigh - eback()))
+				pbump(_Off - (int)(pptr() - eback()));	// seek from beginning
+			else
+				_Off = (int)_BADOFF;	// offset invalid, don't seek
+			}
+		else
+			_Off = (int)_BADOFF;	// nothing to set
+		return (streampos((streamoff)_Off));
+		}
+
+	void __CLR_OR_THIS_CALL _Init(streamsize _Count = 0,
+		char *_Gp = 0,
+		char *_Pp = 0,
+		_Strstate _Mode = (_Strstate)0)
+		{	// initialize with possibly static buffer
+		streambuf::_Init();
+		_Minsize = _MINSIZE;
+		_Pendsave = 0;
+		_Seekhigh = 0;
+		_Palloc = 0;
+		_Pfree = 0;
+		_Strmode = _Mode;
+
+		if (_Gp == 0)
+			{	// make dynamic
+			_Strmode |= _Dynamic;
+			if (_Minsize < _Count)
+				_Minsize = (int)_Count;
+			}
+		else
+			{	// make static
+			size_t _Size = _Count < 0 ? INT_MAX
+				: _Count == 0 ? _CSTD strlen(_Gp)
+				: (size_t)_Count;
+			_Seekhigh = _Gp + _Size;
+
+			if (_Pp == 0)
+				setg(_Gp, _Gp, _Gp + _Size);	// set read pointers only
+			else
+				{	// make writable too
+				if (_Pp < _Gp)
+					_Pp = _Gp;
+				else if (_Gp + _Size < _Pp)
+					_Pp = _Gp + _Size;
+				setp(_Pp, _Gp + _Size);
+				setg(_Gp, _Gp, _Pp);
+				}
+			}
+		}
+
+	void __CLR_OR_THIS_CALL _Tidy()
+		{	// free any allocated storage
+		if ((_Strmode & (_Allocated | _Frozen)) != _Allocated)
+			;	// no buffer to free
+		else if (_Pfree != 0)
+			(*_Pfree)(eback());	// free with function call
+		else
+			_CSTD free(eback());	// free by deleting array
+
+		_Seekhigh = 0;
+		_Strmode &= ~(_Allocated | _Frozen);
+		}
+
+private:
+	enum
+		{	// constant for default minimum buffer size
+		_MINSIZE = 32};
+
+	int _Minsize;		// the minimum buffer size
+	char *_Pendsave;	// the saved end pointer during freeze
+	char *_Seekhigh;	// the high-water pointer in character array
+	_Strstate _Strmode;	// the stream state
+	void *(__CLRCALL_OR_CDECL *_Palloc)(size_t);	// the pointer to allocator function
+	void (__CLRCALL_OR_CDECL *_Pfree)(void *);	// the pointer to free function
+	};
+
+	// strstreambuf OPERATORS
+inline void swap(strstreambuf& _Left, strstreambuf& _Right)
+	{	// swap _Left and _Right strstreambufs
+	_Left.swap(_Right);
+	}
+
+		// CLASS istrstream
+class istrstream
+	: public istream
+	{	// input stream associated with a character array
+public:
+	typedef istrstream _Myt;
+	typedef istream _Mybase;
+	typedef strstreambuf _Mysb;
+
+	explicit __CLR_OR_THIS_CALL istrstream(const char *_Ptr)
+		: _Mybase(&_Strbuffer), _Strbuffer(_Ptr, 0)
+		{	// construct with NTBS
+		}
+
+	__CLR_OR_THIS_CALL istrstream(const char *_Ptr,
+		streamsize _Count)
+		: _Mybase(&_Strbuffer), _Strbuffer(_Ptr, _Count)
+		{	// construct with [_Ptr, _Ptr + _Count)
+		}
+
+	explicit __CLR_OR_THIS_CALL istrstream(char *_Ptr)
+		: _Mybase(&_Strbuffer), _Strbuffer((const char *)_Ptr, 0)
+		{	// construct with NTBS
+		}
+
+	__CLR_OR_THIS_CALL istrstream(char *_Ptr,
+		int _Count)
+		: _Mybase(&_Strbuffer), _Strbuffer((const char *)_Ptr, _Count)
+		{	// construct with [_Ptr, _Ptr + _Count)
+		}
+
+	__CLR_OR_THIS_CALL istrstream(_Myt&& _Right)
+		: _Mybase(&_Strbuffer)
+		{	// construct by moving _Right
+		_Assign_rv(_STD forward<_Myt>(_Right));
+		}
+
+	_Myt& __CLR_OR_THIS_CALL operator=(_Myt&& _Right)
+		{	// move from _Right
+		_Assign_rv(_STD forward<_Myt>(_Right));
+		return (*this);
+		}
+
+	void __CLR_OR_THIS_CALL _Assign_rv(_Myt&& _Right)
+		{	// move from _Right
+		if (this != &_Right)
+			{	// different, swap base and buffer
+			_Strbuffer.clear();
+			this->swap(_Right);
+			}
+		}
+
+	void __CLR_OR_THIS_CALL swap(_Myt& _Right)
+		{	// swap with _Right
+		if (this != &_Right)
+			{	// different, swap base and buffer
+			_Mybase::swap(_Right);
+			_Strbuffer.swap(_Right._Strbuffer);
+			}
+		}
+
+	virtual __CLR_OR_THIS_CALL ~istrstream() _NOEXCEPT
+		{	// destroy an istrstream
+		}
+
+	_Mysb *__CLR_OR_THIS_CALL rdbuf() const
+		{	// return pointer to character array buffer
+		return ((_Mysb *)&_Strbuffer);
+		}
+
+	char *__CLR_OR_THIS_CALL str()
+		{	// freeze and return pointer to character array
+		return (_Strbuffer.str());
+		}
+
+private:
+	_Mysb _Strbuffer;	// the string buffer
+	};
+
+	// istrstream OPERATORS
+inline void swap(istrstream& _Left, istrstream& _Right)
+	{	// swap _Left and _Right istrstreams
+	_Left.swap(_Right);
+	}
+
+		// CLASS ostrstream
+class ostrstream
+	: public ostream
+	{	// output stream associated with a character array
+public:
+	typedef ostrstream _Myt;
+	typedef ostream _Mybase;
+	typedef strstreambuf _Mysb;
+
+	__CLR_OR_THIS_CALL ostrstream()
+		: ostream(&_Strbuffer), _Strbuffer()
+		{	// construct with empty character array
+		}
+
+	__CLR_OR_THIS_CALL ostrstream(char *_Ptr,
+		streamsize _Count,
+		ios_base::openmode _Mode =
+			ios_base::out)
+		: ostream(&_Strbuffer),
+			_Strbuffer(_Ptr, _Count,
+				_Ptr == 0 || (_Mode & ios_base::app) == 0
+					? _Ptr : _Ptr + _CSTD strlen(_Ptr))
+		{	// construct with [_Ptr, _Ptr + _Count)
+		}
+
+	__CLR_OR_THIS_CALL ostrstream(_Myt&& _Right)
+		: _Mybase(&_Strbuffer)
+		{	// construct by moving _Right
+		_Assign_rv(_STD forward<_Myt>(_Right));
+		}
+
+	_Myt& __CLR_OR_THIS_CALL operator=(_Myt&& _Right)
+		{	// move from _Right
+		_Assign_rv(_STD forward<_Myt>(_Right));
+		return (*this);
+		}
+
+	void __CLR_OR_THIS_CALL _Assign_rv(_Myt&& _Right)
+		{	// move from _Right
+		if (this != &_Right)
+			{	// different, swap base and buffer
+			_Strbuffer.clear();
+			this->swap(_Right);
+			}
+		}
+
+	void __CLR_OR_THIS_CALL swap(_Myt& _Right)
+		{	// swap with _Right
+		if (this != &_Right)
+			{	// different, swap base and buffer
+			_Mybase::swap(_Right);
+			_Strbuffer.swap(_Right._Strbuffer);
+			}
+		}
+
+	virtual __CLR_OR_THIS_CALL ~ostrstream() _NOEXCEPT
+		{	// destroy an ostrstream
+		}
+
+	_Mysb *__CLR_OR_THIS_CALL rdbuf() const
+		{	// return pointer to character array buffer
+		return ((_Mysb *)&_Strbuffer);
+		}
+
+	void __CLR_OR_THIS_CALL freeze(bool _Freezeit = true)
+		{	// freeze or unfreeze writing
+		_Strbuffer.freeze(_Freezeit);
+		}
+
+	char *__CLR_OR_THIS_CALL str()
+		{	// freeze and return pointer to character array
+		return (_Strbuffer.str());
+		}
+
+	streamsize __CLR_OR_THIS_CALL pcount() const
+		{	// return size of writable character array
+		return (_Strbuffer.pcount());
+		}
+
+private:
+	_Mysb _Strbuffer;	// the string buffer
+	};
+
+	// ostrstream OPERATORS
+inline void swap(ostrstream& _Left, ostrstream& _Right)
+	{	// swap _Left and _Right ostrstreams
+	_Left.swap(_Right);
+	}
+
+		// CLASS strstream
+class strstream
+	: public iostream
+	{	// input/output stream associated with character array buffer
+public:
+	typedef strstream _Myt;
+	typedef iostream _Mybase;
+	typedef strstreambuf _Mysb;
+
+	typedef char char_type;
+	typedef int int_type;
+	typedef streampos pos_type;
+	typedef streamoff off_type;
+
+	__CLR_OR_THIS_CALL strstream()
+		: _Mybase(&_Strbuffer), _Strbuffer()
+		{	// construct with empty character array
+		}
+
+	__CLR_OR_THIS_CALL strstream(char *_Ptr,
+		streamsize _Count,
+		ios_base::openmode _Mode =
+			ios_base::in | ios_base::out)
+		: iostream(&_Strbuffer),
+			_Strbuffer(_Ptr, _Count,
+				_Ptr == 0 || (_Mode & ios_base::app) == 0
+					? _Ptr : _Ptr + _CSTD strlen(_Ptr))
+		{	// construct with [_Ptr, _Ptr + _Count)
+		}
+
+	__CLR_OR_THIS_CALL strstream(_Myt&& _Right)
+		: _Mybase(&_Strbuffer)
+		{	// construct by moving _Right
+		_Assign_rv(_STD forward<_Myt>(_Right));
+		}
+
+	_Myt& __CLR_OR_THIS_CALL operator=(_Myt&& _Right)
+		{	// move from _Right
+		_Assign_rv(_STD forward<_Myt>(_Right));
+		return (*this);
+		}
+
+	void __CLR_OR_THIS_CALL _Assign_rv(_Myt&& _Right)
+		{	// move from _Right
+		if (this != &_Right)
+			{	// different, swap base and buffer
+			_Strbuffer.clear();
+			this->swap(_Right);
+			}
+		}
+
+	void __CLR_OR_THIS_CALL swap(_Myt& _Right)
+		{	// swap with _Right
+		if (this != &_Right)
+			{	// different, swap base and buffer
+			_Mybase::swap(_Right);
+			_Strbuffer.swap(_Right._Strbuffer);
+			}
+		}
+
+	virtual __CLR_OR_THIS_CALL ~strstream() _NOEXCEPT
+		{	// destroy a strstream
+		}
+
+	_Mysb *__CLR_OR_THIS_CALL rdbuf() const
+		{	// return pointer to character array buffer
+		return ((_Mysb *)&_Strbuffer);
+		}
+
+	void __CLR_OR_THIS_CALL freeze(bool _Freezeit = true)
+		{	// freeze or unfreeze writing
+		_Strbuffer.freeze(_Freezeit);
+		}
+
+	char *__CLR_OR_THIS_CALL str()
+		{	// freeze and return pointer to character array
+		return (_Strbuffer.str());
+		}
+
+	streamsize __CLR_OR_THIS_CALL pcount() const
+		{	// return size of writable character array
+		return (_Strbuffer.pcount());
+		}
+
+private:
+	_Mysb _Strbuffer;	// the string buffer
+	};
+
+	// strstream OPERATORS
+inline void swap(strstream& _Left, strstream& _Right)
+	{	// swap _Left and _Right strstreams
+	_Left.swap(_Right);
+	}
+_STD_END
+ #pragma pop_macro("new")
+ #pragma warning(pop)
+ #pragma pack(pop)
+#endif /* RC_INVOKED */
+#endif /* _STRSTREAM_ */
+
+/*
+ * Copyright (c) by P.J. Plauger. All rights reserved.
+ * Consult your license regarding permissions and restrictions.
+V6.50:0009 */

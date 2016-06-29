@@ -1,0 +1,31 @@
+// csignal standard header
+#pragma once
+#ifndef _CSIGNAL_
+#define _CSIGNAL_
+#include <yvals.h>
+
+#ifdef _STD_USING
+ #undef _STD_USING
+  #include <signal.h>
+ #define _STD_USING
+
+#else /* _STD_USING */
+ #include <signal.h>
+#endif /* _STD_USING */
+
+ #if _GLOBAL_USING && !defined(RC_INVOKED)
+_STD_BEGIN
+ #ifndef _M_CEE_PURE
+using _CSTD sig_atomic_t; using _CSTD raise; using _CSTD signal;
+
+ #else /* _M_CEE_PURE */
+using _CSTD sig_atomic_t; using _CSTD raise;
+ #endif /* _M_CEE_PURE */
+_STD_END
+ #endif /* _GLOBAL_USING */
+#endif /* _CSIGNAL_ */
+
+/*
+ * Copyright (c) by P.J. Plauger. All rights reserved.
+ * Consult your license regarding permissions and restrictions.
+V6.50:0009 */

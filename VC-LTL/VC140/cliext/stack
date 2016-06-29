@@ -1,0 +1,423 @@
+// stack stl/clr header
+#ifndef _CLI_STACK_
+ #define _CLI_STACK_
+#include <cliext/deque>	// for default stack container
+#include <cliext/iterator>
+
+namespace cliext {
+	namespace impl {
+//
+// TEMPLATE CLASS stack_base
+//
+template<typename _Value_t,
+	typename _Cont_t>
+	ref class stack_base
+	:	public _STLCLR IStack<_Value_t,
+		typename _Container_traits<_Cont_t>::generic_container_handle>
+	{	// LIFO queue of elements
+public:
+	// types
+	typedef stack_base<_Value_t, _Cont_t> _Mytype_t;
+	typedef _STLCLR IStack<_Value_t,
+		typename _Container_traits<_Cont_t>::generic_container_handle> _Mycont_it;
+	typedef cli::array<_Value_t> _Myarray_t;
+
+	typedef int size_type;
+	typedef int difference_type;
+	typedef _Value_t value_type;
+	typedef value_type% reference;
+	typedef value_type% const_reference;
+
+	typedef _Mycont_it generic_container;
+	typedef value_type generic_value;
+
+	typedef typename _Dehandle<_Cont_t>::type container_type;
+
+	// basics
+	stack_base()
+		:	c(gcnew container_type)
+		{	// default constructor
+		}
+
+	stack_base% operator=(stack_base% _Right)
+		{	// assign
+		assign(_Right);
+		return (*this);
+		}
+
+	operator _Mycont_it^()
+		{	// convert to interface
+		return (this);
+		}
+
+	// constructors
+	stack_base(container_type% _Cont)
+		:	c(gcnew container_type(_Cont))
+		{	// construct from container
+		}
+
+	// destructor
+	~stack_base()
+		{	// destroy the object
+		delete c;
+		}
+
+	// accessors
+	property value_type top_item
+		{	// get or set top element
+		virtual value_type get()
+			{	// get last element
+			return (top());
+			}
+
+		virtual void set(value_type _Val)
+			{	// set last element
+			top() = _Val;
+			}
+		};
+
+	reference top()
+		{	// get top element
+		return (((typename container_type::generic_container^)c)->back());
+		}
+
+	container_type^ get_container()
+		{	// return container
+		return (c);
+		}
+
+	// converters
+	virtual System::Object^ Clone()
+		{	// clone the stack
+		return (gcnew stack_base(*c));
+		}
+
+	_Myarray_t^ to_array()
+		{	// convert to array
+		return (c->to_array());
+		}
+
+	// size controllers
+	size_type size()
+		{	// return length of sequence
+		return (c->size());
+		}
+
+	bool empty()
+		{	// test if sequence is empty
+		return (size() == 0);
+		}
+
+	// mutators
+	void push(value_type _Val)
+		{	// insert element at end
+		c->push_back(_Val);
+		}
+
+	void pop()
+		{	// erase element at end
+		c->pop_back();
+		}
+
+	void assign(_Mytype_t% _Right)
+		{	// assign
+		*c = _Right.get_container();
+		}
+
+_STLCLR_FIELD_ACCESS:
+	// data members
+	container_type^ c;	// the underlying container
+
+private:
+	virtual reference top_virtual() sealed
+		= _Mycont_it::top
+		{	// get top element
+		return (top());
+		}
+
+	virtual typename _Container_traits<_Cont_t>::generic_container_handle
+		get_container_virtual() sealed
+		= _Mycont_it::get_container
+		{	// return container
+		return (get_container());
+		}
+
+	// size controllers
+	virtual size_type size_virtual() sealed
+		= _Mycont_it::size
+		{	// return length of sequence
+		return (size());
+		}
+
+	virtual bool empty_virtual() sealed
+		= _Mycont_it::empty
+		{	// test if sequence is empty
+		return (empty());
+		}
+
+	// mutators
+	virtual void push_virtual(value_type _Val) sealed
+		= _Mycont_it::push
+		{	// insert element at end
+		push(_Val);
+		}
+
+	virtual void pop_virtual() sealed
+		= _Mycont_it::pop
+		{	// erase element at end
+		pop();
+		}
+
+	virtual void assign_virtual(_Mycont_it^ _Right) sealed
+		= _Mycont_it::assign
+		{	// assign
+		assign(*(_Mytype_t^)_Right);
+		}
+	};
+
+//
+// TEMPLATE CLASS stack_select
+//
+template<typename _Value_t,
+	typename _Cont_t,
+	bool _Is_ref>
+	ref class stack_select
+	:	public stack_base<_Value_t, _Cont_t^>
+	{	// LIFO queue of elements
+public:
+	// types
+	typedef stack_select<_Value_t, _Cont_t, _Is_ref> _Mytype_t;
+	typedef stack_base<_Value_t, _Cont_t^> _Mybase_t;
+//	typedef _STLCLR IStack<_Value_t, _Cont_t> _Mycont_it;
+//	typedef cli::array<_Value_t> _Myarray_t;
+
+//	typedef int size_type;
+//	typedef int difference_type;
+	typedef _Value_t value_type;
+	typedef value_type% reference;
+	typedef value_type% const_reference;
+
+//	typedef _Mycont_it generic_container;
+//	typedef value_type generic_value;
+
+//	typedef _Cont_t container_type;
+
+	// basics
+	stack_select()
+		{	// construct with empty container
+		}
+
+	stack_select% operator=(stack_select% _Right)
+		{	// assign
+		_Mybase_t::operator=(_Right);
+		return (*this);
+		}
+
+	// constructors
+	explicit stack_select(container_type% _Cont)
+		:	_Mybase_t(_Cont)
+		{	// construct with specified container
+		}
+	};
+
+//
+// TEMPLATE CLASS stack_select: _Value_t REF SPECIALIZATION
+//
+template<typename _Value_t,
+	typename _Cont_t>
+	ref class stack_select<_Value_t, _Cont_t, true>
+	:	public stack_base<_Value_t^, _Cont_t^>
+	{	// LIFO queue of elements
+public:
+	// types
+	typedef stack_select<_Value_t, _Cont_t, true> _Mytype_t;
+	typedef stack_base<_Value_t^, _Cont_t^> _Mybase_t;
+//	typedef _STLCLR IStack<_Value_t, _Cont_t> _Mycont_it;
+//	typedef cli::array<_Value_t> _Myarray_t;
+
+//	typedef int size_type;
+//	typedef int difference_type;
+	typedef _Value_t value_type;
+	typedef value_type% reference;
+	typedef value_type% const_reference;
+
+//	typedef _Mycont_it generic_container;
+//	typedef value_type generic_value;
+
+//	typedef _Cont_t container_type;
+
+	// basics
+	stack_select()
+		{	// construct with empty container
+		}
+
+	stack_select% operator=(stack_select% _Right)
+		{	// assign
+		_Mybase_t::operator=(_Right);
+		return (*this);
+		}
+
+	// constructors
+	explicit stack_select(container_type% _Cont)
+		:	_Mybase_t(_Cont)
+		{	// construct with specified container
+		}
+
+	// accessors
+	property value_type top_item
+		{	// get or set top element
+		value_type get()
+			{	// get last element
+			return (top());
+			}
+
+		void set(value_type _Val)
+			{	// set last element
+			top() = _Val;
+			}
+		};
+
+	reference top() new
+		{	// get top element
+		return (c->back());
+		}
+
+	// mutators
+	void push(value_type _Val)
+		{	// insert element at end
+		c->push_back(_Val);
+		}
+	};
+	}	// namespace cliext::impl
+
+//
+// TEMPLATE CLASS stack
+//
+template<typename _Value_t,
+	typename _Cont_t = cliext::deque<_Value_t> >
+	ref class stack
+	:	public impl::stack_select<
+			_Value_t,
+			typename _Dehandle<_Cont_t>::type,
+			__is_ref_class(typename _Dehandle<_Value_t>::type)
+				&& !is_handle<_Value_t>::value>
+
+	{	// LIFO queue of elements
+public:
+	// types
+	typedef stack<_Value_t, _Cont_t> _Mytype_t;
+	typedef impl::stack_select<
+		_Value_t,
+		typename _Dehandle<_Cont_t>::type,
+		__is_ref_class(typename _Dehandle<_Value_t>::type)
+			&& !is_handle<_Value_t>::value> _Mybase_t;
+//	typedef cli::array<_Value_t> _Myarray_t;
+
+//	typedef int size_type;
+//	typedef int difference_type;
+//	typedef _Value_t value_type;
+//	typedef value_type% reference;
+//	typedef value_type% const_reference;
+
+//	typedef _Mycont_it generic_container;
+//	typedef value_type generic_value;
+
+//	typedef _Cont_t container_type;
+
+	// basics
+	stack()
+		{	// construct with empty container
+		}
+
+	stack(stack% _Right)
+		:	_Mybase_t(*_Right.get_container())
+		{	// construct by copying a stack
+		}
+
+	stack(stack^ _Right)
+		:	_Mybase_t(*_Right->get_container())
+		{	// construct by copying a stack
+		}
+
+	stack% operator=(stack% _Right)
+		{	// assign
+		_Mybase_t::operator=(_Right);
+		return (*this);
+		}
+
+	stack% operator=(stack^ _Right)
+		{	// assign
+		_Mybase_t::operator=(*_Right);
+		return (*this);
+		}
+
+	// constructors
+	explicit stack(container_type% _Cont)
+		:	_Mybase_t(_Cont)
+		{	// construct with specified container
+		}
+
+	// interfaces
+	virtual System::Object^ Clone() override
+		{	// clone the vector
+		return (gcnew _Mytype_t(*this));
+		}
+	};
+
+//
+// TEMPLATE COMPARISONS
+//
+template<typename _Value_t,
+	typename _Cont_t>
+	bool operator==(stack<_Value_t, _Cont_t>% _Left,
+		stack<_Value_t, _Cont_t>% _Right)
+	{	// test if _Left == _Right
+	return (*_Left.get_container() == *_Right.get_container());
+	}
+
+template<typename _Value_t,
+	typename _Cont_t>
+	bool operator!=(stack<_Value_t, _Cont_t>% _Left,
+		stack<_Value_t, _Cont_t>% _Right)
+	{	// test if _Left != _Right
+	return (!(_Left == _Right));
+	}
+
+template<typename _Value_t,
+	typename _Cont_t>
+	bool operator<(stack<_Value_t, _Cont_t>% _Left,
+		stack<_Value_t, _Cont_t>% _Right)
+	{	// test if _Left < _Right
+	return (*_Left.get_container() < *_Right.get_container());
+	}
+
+template<typename _Value_t,
+	typename _Cont_t>
+	bool operator>=(stack<_Value_t, _Cont_t>% _Left,
+		stack<_Value_t, _Cont_t>% _Right)
+	{	// test if _Left >= _Right
+	return (!(_Left < _Right));
+	}
+
+template<typename _Value_t,
+	typename _Cont_t>
+	bool operator>(stack<_Value_t, _Cont_t>% _Left,
+		stack<_Value_t, _Cont_t>% _Right)
+	{	// test if _Left > _Right
+	return (_Right < _Left);
+	}
+
+template<typename _Value_t,
+	typename _Cont_t>
+	bool operator<=(stack<_Value_t, _Cont_t>% _Left,
+		stack<_Value_t, _Cont_t>% _Right)
+	{	// test if _Left <= _Right
+	return (!(_Right < _Left));
+	}
+}	// namespace cliext
+#endif // _CLI_STACK_
+
+/*
+ * Copyright (c) 2004-2007 by Dinkumware, Ltd.  ALL RIGHTS RESERVED.
+ * Consult your license regarding permissions and restrictions.
+V5.03:0009 */

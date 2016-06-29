@@ -1,0 +1,740 @@
+// xutility stl/clr header
+#ifndef _CLI_XUTILITY_
+ #define _CLI_XUTILITY_
+
+#ifndef __cplusplus_cli
+ #error STL/CLR can be used only in code compiled /clr, clr:pure, or /clr:safe
+#endif /* __cplusplus_cli */
+
+#using <Microsoft.VisualC.STLCLR.dll>
+
+#ifdef _M_CEE_SAFE
+#else /* _M_CEE_SAFE */
+ #include <cstddef>		// for ptrdiff_t, size_t
+ #include <xutility>	// for iterator tags
+#endif /* _M_CEE_SAFE */
+
+#define _STLCLR_FIELD_ACCESS	internal
+#define _STLCLR		Microsoft::VisualC::StlClr::
+
+#define MAX_CONTAINER_SIZE	((int)((unsigned int)(-1) >> 1))
+
+namespace cliext {
+//
+// TEMPLATE METAPROGRAMMING AIDS
+//
+//
+// TEMPLATE VALUE CLASS is_handle
+//
+template<typename _Value_t>
+	value class is_handle
+	{	// identify non-handle type
+public:
+	static const bool value = false;
+	};
+
+template<typename _Value_t>
+	value class is_handle<_Value_t^>
+	{	// identify handle type
+public:
+	static const bool value = true;
+	};
+
+//
+// TEMPLATE VALUE CLASS _Container_traits
+//
+template<typename _Cont_t>
+	value class _Container_traits
+	{	// define types associated with a container
+public:
+	typedef typename _Cont_t::generic_container generic_container;
+	typedef typename _Cont_t::generic_container^ generic_container_handle;
+	};
+
+template<typename _Cont_t>
+	value class _Container_traits<_Cont_t^>
+	{	// define type associated with a container handle
+public:
+	typedef typename _Cont_t::generic_container generic_container;
+	typedef typename _Cont_t::generic_container^ generic_container_handle;
+	};
+
+//
+// TEMPLATE VALUE CLASS _Dehandle
+//
+template<typename _Value_t>
+	value class _Dehandle
+	{	// define non-handle type
+public:
+	typedef _Value_t type;
+	};
+
+template<typename _Value_t>
+	value class _Dehandle<_Value_t^>
+	{	// define type with handle removed
+public:
+	typedef _Value_t type;
+	};
+
+//
+// TEMPLATE CLASS _Cont_make_value
+//
+template<typename _Value_t,
+	bool _Is_ref>
+	ref class _Cont_make_value
+	{	// make a non-ref value
+public:
+	static _Value_t make_value(_Value_t% _Val)
+		{	// just return value
+		return (_Val);
+		}
+
+	static void unmake_value(_Value_t%)
+		{	// just do nothing
+		}
+	};
+
+template<typename _Value_t>
+	ref class _Cont_make_value<_Value_t, true>
+	{	// make a ref value
+public:
+	static _Value_t make_value(_Value_t% _Val)
+		{	// return copy of value
+		return (gcnew typename _Dehandle<_Value_t>::type(_Val));
+		}
+
+	static void unmake_value(_Value_t% _Val)
+		{	// delete object designated by handle value
+		delete _Val;
+		}
+	};
+
+//
+// TEMPLATE VALUE CLASS _Generic_type
+//
+template<typename _Value_t,
+	bool isref = !is_handle<_Value_t>::value && __is_ref_class(_Value_t)>
+	value class _Generic_type;
+
+template<typename _Value_t>
+	value class _Generic_type<_Value_t, false>
+	{	// define a non-ref type
+public:
+	typedef _Value_t type;
+	};
+
+template<typename _Value_t>
+	value class _Generic_type<_Value_t, true>
+	{	// define a ref type
+public:
+	typedef _Value_t^ type;
+	};
+
+//
+// TEMPLATE FUNCTION _Handle_alloc
+//
+template<typename Mycont> inline
+	Mycont^ _Handle_alloc(Mycont^)
+	{	// allocate a container, given its handle type
+	return (gcnew Mycont);
+	}
+
+//
+// TEMPLATE CLASS _Fix_handle
+//
+#define _FIX_HANDLE(to, from, val) \
+	cliext::_Fix_handle<to, from>::_Cvt(from(val))
+
+template<typename _To_t,
+	typename _From_t>
+	ref class _Fix_handle
+	{	// add or remove handle as needed, default version
+public:
+	static _To_t _Cvt(_From_t _Val)
+		{	// convert _Val
+		return (_To_t(_Val));
+		}
+	};
+
+template<typename _To_t,
+	typename _From_t>
+	ref class _Fix_handle<_To_t^, _From_t>
+	{	// add or remove handle as needed, add version
+public:
+	static _To_t^ _Cvt(_From_t _Val)
+		{	// convert _Val
+		return (gcnew _To_t(_Val));
+		}
+	};
+
+template<typename _To_t,
+	typename _From_t>
+	ref class _Fix_handle<_To_t, _From_t^>
+	{	// add or remove handle as needed, remove version
+public:
+	static _To_t _Cvt(_From_t^ _Val)
+		{	// convert _Val
+		return (*_Val);
+		}
+	};
+
+template<typename _To_t,
+	typename _From_t>
+	ref class _Fix_handle<_To_t^, _From_t^>
+	{	// add or remove handle as needed, handles version
+public:
+	static _To_t^ _Cvt(_From_t^ _Val)
+		{	// convert _Val
+		return (_Val);
+		}
+	};
+
+//
+// ITERATOR TAGS
+//
+ref class input_iterator_tag
+	{	// identifying tag for input iterators
+public:
+	typedef input_iterator_tag _Mytype_t;
+
+	input_iterator_tag()
+		{	// default constructor
+		}
+
+	input_iterator_tag(input_iterator_tag%)
+		{	// copy constructor
+		}
+	};
+
+ref class output_iterator_tag
+	{	// identifying tag for output iterators
+public:
+	typedef output_iterator_tag _Mytype_t;
+
+	output_iterator_tag()
+		{	// default constructor
+		}
+
+	output_iterator_tag(output_iterator_tag%)
+		{	// copy constructor
+		}
+	};
+
+ref class forward_iterator_tag
+	: public input_iterator_tag
+	{	// identifying tag for forward iterators
+public:
+	typedef forward_iterator_tag _Mytype_t;
+
+	forward_iterator_tag()
+		{	// default constructor
+		}
+
+	forward_iterator_tag(forward_iterator_tag%)
+		{	// copy constructor
+		}
+	};
+
+ref class bidirectional_iterator_tag
+	: public forward_iterator_tag
+	{	// identifying tag for bidirectional iterators
+public:
+	typedef bidirectional_iterator_tag _Mytype_t;
+
+	bidirectional_iterator_tag()
+		{	// default constructor
+		}
+
+	bidirectional_iterator_tag(bidirectional_iterator_tag%)
+		{	// copy constructor
+		}
+	};
+
+ref class random_access_iterator_tag
+	: public bidirectional_iterator_tag
+	{	// identifying tag for random-access iterators
+public:
+	typedef random_access_iterator_tag _Mytype_t;
+
+	random_access_iterator_tag()
+		{	// default constructor
+		}
+
+	random_access_iterator_tag(random_access_iterator_tag%)
+		{	// copy constructor
+		}
+	};
+
+ref class _Int_iterator_tag
+	{	// identifying tag for integer types, not an iterator
+public:
+	typedef _Int_iterator_tag _Mytype_t;
+
+	_Int_iterator_tag()
+		{	// default constructor
+		}
+
+	_Int_iterator_tag(_Int_iterator_tag%)
+		{	// copy constructor
+		}
+	};
+
+//
+// REF CLASS _Map_iter_cat
+//
+template<typename _Cat>
+	ref class _Map_iter_cat
+	{	// map to argument
+public:
+	typedef _Cat iterator_category;
+	};
+
+#ifdef _M_CEE_SAFE
+#else /* _M_CEE_SAFE */
+template<>
+	ref class _Map_iter_cat<std::input_iterator_tag>
+	{	// map to managed tag
+public:
+	typedef input_iterator_tag iterator_category;
+	};
+
+template<>
+	ref class _Map_iter_cat<std::output_iterator_tag>
+	{	// map to managed tag
+public:
+	typedef output_iterator_tag iterator_category;
+	};
+
+template<>
+	ref class _Map_iter_cat<std::forward_iterator_tag>
+	{	// map to managed tag
+public:
+	typedef forward_iterator_tag iterator_category;
+	};
+
+template<>
+	ref class _Map_iter_cat<std::bidirectional_iterator_tag>
+	{	// map to managed tag
+public:
+	typedef bidirectional_iterator_tag iterator_category;
+	};
+
+template<>
+	ref class _Map_iter_cat<std::random_access_iterator_tag>
+	{	// map to managed tag
+public:
+	typedef random_access_iterator_tag iterator_category;
+	};
+#endif /* _M_CEE_SAFE */
+
+//
+// TEMPLATE CLASS iterator_traits
+//
+template<class _Iter_t>
+	value class iterator_traits
+	{	// get traits from iterator _Iter
+public:
+	typedef typename _Map_iter_cat<
+		typename _Iter_t::iterator_category>::iterator_category
+		iterator_category;
+	typedef typename _Iter_t::value_type value_type;
+	typedef typename _Iter_t::difference_type difference_type;
+	typedef difference_type distance_type;	// retained
+	typedef typename _Iter_t::pointer pointer;
+	typedef typename _Iter_t::reference reference;
+	};
+
+template<typename _Iter_t>
+	value class iterator_traits<_Iter_t^>
+	{	// get traits from managed pointer
+public:
+	typedef typename _Iter_t::iterator_category iterator_category;
+	typedef typename _Iter_t::value_type value_type;
+	typedef typename _Iter_t::difference_type difference_type;
+	typedef difference_type distance_type;	// retained
+	typedef typename _Iter_t::pointer pointer;
+	typedef typename _Iter_t::reference reference;
+	};
+
+#ifdef _M_CEE_SAFE
+#else /* _M_CEE_SAFE */
+template<class _Ty>
+	value class iterator_traits<_Ty *>
+	{	// get traits from pointer
+public:
+	typedef random_access_iterator_tag iterator_category;
+	typedef _Ty value_type;
+	typedef std::ptrdiff_t difference_type;
+	typedef std::ptrdiff_t distance_type;	// retained
+	typedef _Ty *pointer;
+	typedef _Ty& reference;
+	};
+
+template<class _Ty>
+	value class iterator_traits<const _Ty *>
+	{	// get traits from const pointer
+public:
+	typedef random_access_iterator_tag iterator_category;
+	typedef _Ty value_type;
+	typedef std::ptrdiff_t difference_type;
+	typedef std::ptrdiff_t distance_type;	// retained
+	typedef const _Ty *pointer;
+	typedef const _Ty& reference;
+	};
+#endif /* _M_CEE_SAFE */
+
+//
+// PARTIAL SPECIALIZATIONS OF iterator_traits
+//
+template<class _Ty>
+	value class iterator_traits<
+		_STLCLR Generic::IInputIterator<_Ty>>
+	{	// get traits from generic interface
+public:
+	typedef input_iterator_tag iterator_category;
+	typedef _Ty value_type;
+	typedef int difference_type;
+	typedef int distance_type;	// retained
+	typedef typename _Ty% pointer;
+	typedef typename _Ty% reference;
+	};
+
+template<class _Ty>
+	value class iterator_traits<
+		_STLCLR Generic::IOutputIterator<_Ty>>
+	{	// get traits from generic interface
+public:
+	typedef output_iterator_tag iterator_category;
+	typedef _Ty value_type;
+	typedef int difference_type;
+	typedef int distance_type;	// retained
+	typedef typename _Ty% pointer;
+	typedef typename _Ty% reference;
+	};
+
+template<class _Ty>
+	value class iterator_traits<
+		_STLCLR Generic::IForwardIterator<_Ty>>
+	{	// get traits from generic interface
+public:
+	typedef forward_iterator_tag iterator_category;
+	typedef _Ty value_type;
+	typedef int difference_type;
+	typedef int distance_type;	// retained
+	typedef typename _Ty% pointer;
+	typedef typename _Ty% reference;
+	};
+
+template<class _Ty>
+	value class iterator_traits<
+		_STLCLR Generic::IBidirectionalIterator<_Ty>>
+	{	// get traits from generic interface
+public:
+	typedef bidirectional_iterator_tag iterator_category;
+	typedef _Ty value_type;
+	typedef int difference_type;
+	typedef int distance_type;	// retained
+	typedef typename _Ty% pointer;
+	typedef typename _Ty% reference;
+	};
+
+template<class _Ty>
+	value class iterator_traits<
+		_STLCLR Generic::IRandomAccessIterator<_Ty>>
+	{	// get traits from generic interface
+public:
+	typedef random_access_iterator_tag iterator_category;
+	typedef _Ty value_type;
+	typedef int difference_type;
+	typedef int distance_type;	// retained
+	typedef typename _Ty% pointer;
+	typedef typename _Ty% reference;
+	};
+
+template<class _Ty>
+	value class iterator_traits<
+		_STLCLR Generic::ReverseBidirectionalIterator<_Ty>>
+	{	// get traits from generic interface
+public:
+	typedef bidirectional_iterator_tag iterator_category;
+	typedef _Ty value_type;
+	typedef int difference_type;
+	typedef int distance_type;	// retained
+	typedef typename _Ty% pointer;
+	typedef typename _Ty% reference;
+	};
+
+template<class _Ty>
+	value class iterator_traits<
+		_STLCLR Generic::ConstReverseBidirectionalIterator<_Ty>>
+	{	// get traits from generic interface
+public:
+	typedef bidirectional_iterator_tag iterator_category;
+	typedef _Ty value_type;
+	typedef int difference_type;
+	typedef int distance_type;	// retained
+	typedef typename _Ty% pointer;
+	typedef typename _Ty% reference;
+	};
+
+template<class _Ty>
+	value class iterator_traits<
+		_STLCLR Generic::ReverseRandomAccessIterator<_Ty>>
+	{	// get traits from generic interface
+public:
+	typedef random_access_iterator_tag iterator_category;
+	typedef _Ty value_type;
+	typedef int difference_type;
+	typedef int distance_type;	// retained
+	typedef typename _Ty% pointer;
+	typedef typename _Ty% reference;
+	};
+
+template<class _Ty>
+	value class iterator_traits<
+		_STLCLR Generic::ConstReverseRandomAccessIterator<_Ty>>
+	{	// get traits from generic interface
+public:
+	typedef random_access_iterator_tag iterator_category;
+	typedef _Ty value_type;
+	typedef int difference_type;
+	typedef int distance_type;	// retained
+	typedef typename _Ty% pointer;
+	typedef typename _Ty% reference;
+	};
+
+template<class _Ty>
+	value class iterator_traits<
+		_STLCLR Generic::ContainerBidirectionalIterator<_Ty>>
+	{	// get traits from generic interface
+public:
+	typedef bidirectional_iterator_tag iterator_category;
+	typedef _Ty value_type;
+	typedef int difference_type;
+	typedef int distance_type;	// retained
+	typedef typename _Ty% pointer;
+	typedef typename _Ty% reference;
+	};
+
+template<class _Ty>
+	value class iterator_traits<
+		_STLCLR Generic::ConstContainerBidirectionalIterator<_Ty>>
+	{	// get traits from generic interface
+public:
+	typedef bidirectional_iterator_tag iterator_category;
+	typedef _Ty value_type;
+	typedef int difference_type;
+	typedef int distance_type;	// retained
+	typedef typename _Ty% pointer;
+	typedef typename _Ty% reference;
+	};
+
+template<class _Ty>
+	value class iterator_traits<
+		_STLCLR Generic::ContainerRandomAccessIterator<_Ty>>
+	{	// get traits from generic interface
+public:
+	typedef random_access_iterator_tag iterator_category;
+	typedef _Ty value_type;
+	typedef int difference_type;
+	typedef int distance_type;	// retained
+	typedef typename _Ty% pointer;
+	typedef typename _Ty% reference;
+	};
+
+template<class _Ty>
+	value class iterator_traits<
+		_STLCLR Generic::ConstContainerRandomAccessIterator<_Ty>>
+	{	// get traits from generic interface
+public:
+	typedef random_access_iterator_tag iterator_category;
+	typedef _Ty value_type;
+	typedef int difference_type;
+	typedef int distance_type;	// retained
+	typedef typename _Ty% pointer;
+	typedef typename _Ty% reference;
+	};
+
+template<>
+	value class iterator_traits<bool>
+	{	// get traits from integer type
+public:
+	typedef _Int_iterator_tag iterator_category;
+	};
+
+template<>
+	value class iterator_traits<char>
+	{	// get traits from integer type
+public:
+	typedef _Int_iterator_tag iterator_category;
+	};
+
+template<>
+	value class iterator_traits<signed char>
+	{	// get traits from integer type
+public:
+	typedef _Int_iterator_tag iterator_category;
+	};
+
+template<>
+	value class iterator_traits<unsigned char>
+	{	// get traits from integer type
+public:
+	typedef _Int_iterator_tag iterator_category;
+	};
+
+template<>
+	value class iterator_traits<wchar_t>
+	{	// get traits from integer type
+public:
+	typedef _Int_iterator_tag iterator_category;
+	};
+
+template<>
+	value class iterator_traits<short>
+	{	// get traits from integer type
+public:
+	typedef _Int_iterator_tag iterator_category;
+	};
+
+template<>
+	value class iterator_traits<unsigned short>
+	{	// get traits from integer type
+public:
+	typedef _Int_iterator_tag iterator_category;
+	};
+
+template<>
+	value class iterator_traits<int>
+	{	// get traits from integer type
+public:
+	typedef _Int_iterator_tag iterator_category;
+	};
+
+template<>
+	value class iterator_traits<unsigned int>
+	{	// get traits from integer type
+public:
+	typedef _Int_iterator_tag iterator_category;
+	};
+
+template<>
+	value class iterator_traits<long>
+	{	// get traits from integer type
+public:
+	typedef _Int_iterator_tag iterator_category;
+	};
+
+template<>
+	value class iterator_traits<unsigned long>
+	{	// get traits from integer type
+public:
+	typedef _Int_iterator_tag iterator_category;
+	};
+
+template<>
+	value class iterator_traits<__int64>
+	{	// get traits from integer type
+public:
+	typedef _Int_iterator_tag iterator_category;
+	};
+
+template<>
+	value class iterator_traits<unsigned __int64>
+	{	// get traits from integer type
+public:
+	typedef _Int_iterator_tag iterator_category;
+	};
+
+//
+// TEMPLATE FUNCTION _Iter_category
+//
+template<class _Iter_t> inline
+	typename iterator_traits<_Iter_t>::iterator_category
+		_Iter_category(_Iter_t)
+	{	// return category from iterator argument
+	typename iterator_traits<_Iter_t>::iterator_category _Cat;
+
+	return (_Cat);
+	}
+
+//
+// TEMPLATE FUNCTION advance
+//
+template<typename _InIt_t,
+	typename _Diff_t> inline
+	void _Iter_advance(_InIt_t% _Where, _Diff_t _Off,
+		input_iterator_tag)
+	{	// increment iterator by offset, input iterators
+	for (; 0 < _Off; --_Off)
+		++_Where;
+	}
+
+template<typename _BidIt_t,
+	typename _Diff_t> inline
+	void _Iter_advance(_BidIt_t% _Where, _Diff_t _Off,
+		bidirectional_iterator_tag)
+	{	// increment iterator by offset, bidirectional iterators
+	for (; 0 < _Off; --_Off)
+		++_Where;
+	for (; _Off < 0; ++_Off)
+		--_Where;
+	}
+
+template<typename _RanIt_t,
+	typename _Diff_t> inline
+	void _Iter_advance(_RanIt_t% _Where, _Diff_t _Off,
+		random_access_iterator_tag)
+	{	// increment iterator by offset, random-access iterators
+	_Where += _Off;
+	}
+
+template<typename _InIt_t,
+	typename _Diff_t> inline
+	void advance(_InIt_t% _Where, _Diff_t _Off)
+	{	// increment iterator by _Off, arbitrary iterators
+	_Iter_advance(_Where, _Off, _Iter_category(_Where));
+	}
+
+//
+// TEMPLATE FUNCTIONS distance and _Iter_distance
+//
+template<typename _InIt_t,
+	typename _Diff_t> inline
+	void _Iter_distance2(_InIt_t _First, _InIt_t _Last, _Diff_t% _Off,
+		input_iterator_tag)
+	{	// add to _Off distance between input iterators
+	for (; _First != _Last; ++_First)
+		++_Off;
+	}
+
+template<typename _RanIt_t,
+	typename _Diff_t> inline
+	void _Iter_distance2(_RanIt_t _First, _RanIt_t _Last, _Diff_t% _Off,
+		random_access_iterator_tag)
+	{	// add to _Off distance between random-access iterators
+	_Off += (_Diff_t)(_Last - _First);
+	}
+
+template<typename _InIt_t> inline
+	int distance(_InIt_t _First, _InIt_t _Last)
+	{	// return distance between iterators
+	int _Off = 0;
+
+	_Iter_distance2(_First, _Last, _Off, _Iter_category(_First));
+	return (_Off);
+	}
+
+template<typename _InIt_t,
+	typename _Diff_t> inline
+	void _Iter_distance(_InIt_t _First, _InIt_t _Last, _Diff_t% _Off)
+	{	// add to _Off distance between iterators
+	_Iter_distance2(_First, _Last, _Off, _Iter_category(_First));
+	}
+}	// namespace cliext
+#endif // _CLI_XUTILITY_
+
+/*
+ * Copyright (c) 2004-2007 by Dinkumware, Ltd.  ALL RIGHTS RESERVED.
+ * Consult your license regarding permissions and restrictions.
+V5.03:0009 */

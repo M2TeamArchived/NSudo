@@ -1,0 +1,255 @@
+// numeric stl/clr header
+#ifndef _CLI_NUMERIC_
+#define _CLI_NUMERIC_
+#include <cliext/memory>
+
+namespace cliext {
+		// TEMPLATE FUNCTION accumulate
+template<class _InIt,
+	class _Ty> inline
+	_Ty accumulate_unchecked(_InIt _First, _InIt _Last, _Ty _Val)
+	{	// return sum of _Val and all in [_First, _Last)
+	for (; _First != _Last; ++_First)
+		_Val = _Val + *_First;
+	return (_Val);
+	}
+
+template<class _InIt,
+	class _Ty> inline
+	_Ty accumulate(_InIt _First, _InIt _Last, _Ty _Val)
+	{	// return sum of _Val and all in [_First, _Last)
+	_STLCLRDB_RANGE(_First, _Last);
+	return (cliext::accumulate_unchecked(
+		_Unchecked(_First), _Unchecked(_Last), _Val));
+	}
+
+		// TEMPLATE FUNCTION accumulate WITH BINOP
+template<class _InIt,
+	class _Ty,
+	class _Fn2> inline
+	_Ty accumulate_unchecked(_InIt _First, _InIt _Last,
+		_Ty _Val, _Fn2 _Func)
+	{	// return sum of _Val and all in [_First, _Last), using _Func
+	for (; _First != _Last; ++_First)
+		_Val = _Func(_Val, *_First);
+	return (_Val);
+	}
+
+template<class _InIt,
+	class _Ty,
+	class _Fn2> inline
+	_Ty accumulate(_InIt _First, _InIt _Last,
+		_Ty _Val, _Fn2 _Func)
+	{	// return sum of _Val and all in [_First, _Last), using _Func
+	_STLCLRDB_RANGE(_First, _Last);
+	_STLCLRDB_POINTER(_Func);
+	return (cliext::accumulate_unchecked(
+		_Unchecked(_First), _Unchecked(_Last), _Val, _Func));
+	}
+
+		// TEMPLATE FUNCTION inner_product
+template<class _InIt1,
+	class _InIt2,
+	class _Ty> inline
+	_Ty inner_product_unchecked(_InIt1 _First1, _InIt1 _Last1,
+		_InIt2 _First2, _Ty _Val)
+	{	// return inner product of sequences
+	for (; _First1 != _Last1; ++_First1, ++_First2)
+		_Val = _Val + *_First1 * *_First2;
+	return (_Val);
+	}
+
+template<class _InIt1,
+	class _InIt2,
+	class _Ty> inline
+	_Ty inner_product(_InIt1 _First1, _InIt1 _Last1,
+		_InIt2 _First2, _Ty _Val)
+	{	// return inner product of sequences
+	_STLCLRDB_RANGE(_First1, _Last1);
+	_STLCLRDB_POINTER(_First2);
+	return (cliext::inner_product_unchecked(
+		_Unchecked(_First1), _Unchecked(_Last1),
+		_Unchecked(_First2), _Val));
+	}
+
+		// TEMPLATE FUNCTION inner_product WITH BINOPS
+template<class _InIt1,
+	class _InIt2,
+	class _Ty,
+	class _Fn21,
+	class _Fn22> inline
+	_Ty inner_product_unchecked(_InIt1 _First1, _InIt1 _Last1,
+		_InIt2 _First2, _Ty _Val, _Fn21 _Func1, _Fn22 _Func2)
+	{	// return inner product of sequences, using _Func1 and _Func2
+	for (; _First1 != _Last1; ++_First1, ++_First2)
+		_Val = _Func1(_Val, _Func2(*_First1, *_First2));
+	return (_Val);
+	}
+
+template<class _InIt1,
+	class _InIt2,
+	class _Ty,
+	class _Fn21,
+	class _Fn22> inline
+	_Ty inner_product(_InIt1 _First1, _InIt1 _Last1,
+		_InIt2 _First2, _Ty _Val, _Fn21 _Func1, _Fn22 _Func2)
+	{	// return inner product of sequences, using _Func1 and _Func2
+	_STLCLRDB_RANGE(_First1, _Last1);
+	_STLCLRDB_POINTER(_First2);
+	_STLCLRDB_POINTER(_Func1);
+	_STLCLRDB_POINTER(_Func2);
+	return (cliext::inner_product_unchecked(
+		_Unchecked(_First1), _Unchecked(_Last1),
+		_Unchecked(_First2), _Val, _Func1, _Func2));
+	}
+
+		// TEMPLATE FUNCTION partial_sum
+template<class _InIt,
+	class _OutIt> inline
+	_OutIt partial_sum_unchecked(_InIt _First, _InIt _Last,
+		_OutIt _Dest)
+	{	// compute partial sums into _Dest
+	typedef iterator_traits<_InIt>::value_type _Ty;
+
+	if (_First == _Last)
+		return (_Dest);
+	else
+		{	// compute nontrivial sum
+		_Ty _Val = *_First;
+
+		for (*_Dest = _Val; ++_First != _Last; *++_Dest = _Val)
+			_Val = _Val + *_First;
+		return (++_Dest);
+		}
+	}
+
+template<class _InIt,
+	class _OutIt> inline
+	_OutIt partial_sum(_InIt _First, _InIt _Last,
+		_OutIt _Dest)
+	{	// compute partial sums into _Dest
+	_STLCLRDB_RANGE(_First, _Last);
+	_STLCLRDB_POINTER(_Dest);
+	return (cliext::partial_sum_unchecked(
+		_Unchecked(_First), _Unchecked(_Last),
+		_Unchecked(_Dest)));
+	}
+
+		// TEMPLATE FUNCTION partial_sum WITH BINOP
+template<class _InIt,
+	class _OutIt,
+	class _Fn2> inline
+	_OutIt partial_sum_unchecked(_InIt _First, _InIt _Last,
+		_OutIt _Dest, _Fn2 _Func)
+	{	// compute partial sums into _Dest, using _Func
+	typedef iterator_traits<_InIt>::value_type _Ty;
+
+	if (_First == _Last)
+		return (_Dest);
+	else
+		{	// compute nontrivial sum
+		_Ty _Val = *_First;
+
+		for (*_Dest = _Val; ++_First != _Last; *++_Dest = _Val)
+			_Val = _Func(_Val, *_First);
+		return (++_Dest);
+		}
+	}
+
+template<class _InIt,
+	class _OutIt,
+	class _Fn2> inline
+	_OutIt partial_sum(_InIt _First, _InIt _Last,
+		_OutIt _Dest, _Fn2 _Func)
+	{	// compute partial sums into _Dest, using _Func
+	_STLCLRDB_RANGE(_First, _Last);
+	_STLCLRDB_POINTER(_Dest);
+	_STLCLRDB_POINTER(_Func);
+	return (cliext::partial_sum_unchecked(
+		_Unchecked(_First), _Unchecked(_Last),
+		_Unchecked(_Dest), _Func));
+	}
+
+		// TEMPLATE FUNCTION adjacent_difference
+template<class _InIt,
+	class _OutIt> inline
+	_OutIt adjacent_difference_unchecked(_InIt _First, _InIt _Last,
+		_OutIt _Dest)
+	{	// compute adjacent differences into _Dest
+	typedef iterator_traits<_InIt>::value_type _Ty;
+
+	if (_First == _Last)
+		return (_Dest);
+	else
+		{	// compute nontrivial difference
+		_Ty _Val = *_First;
+
+		for (*_Dest = _Val; ++_First != _Last; )
+			{	// compute another difference
+			_Ty _Tmp = *_First;
+
+			*++_Dest = _Tmp - _Val;
+			_Val = _Tmp;
+			}
+		return (++_Dest);
+		}
+	}
+
+template<class _InIt,
+	class _OutIt> inline
+	_OutIt adjacent_difference(_InIt _First, _InIt _Last,
+		_OutIt _Dest)
+	{	// compute adjacent differences into _Dest
+	_STLCLRDB_RANGE(_First, _Last);
+	_STLCLRDB_POINTER(_Dest);
+	return (cliext::adjacent_difference_unchecked(
+		_Unchecked(_First), _Unchecked(_Last),
+		_Unchecked(_Dest)));
+	}
+
+		// TEMPLATE FUNCTION adjacent_difference WITH BINOP
+template<class _InIt,
+	class _OutIt,
+	class _Fn2> inline
+	_OutIt adjacent_difference_unchecked(_InIt _First, _InIt _Last,
+		_OutIt _Dest, _Fn2 _Func)
+	{	// compute adjacent differences into _Dest, using _Func
+	typedef iterator_traits<_InIt>::value_type _Ty;
+
+	if (_First == _Last)
+		return (_Dest);
+	else
+		{	// compute nontrivial difference
+		_Ty _Val = *_First;
+
+		for (*_Dest = _Val; ++_First != _Last; )
+			{	// compute another difference
+			_Ty _Tmp = *_First;
+
+			*++_Dest = _Func(_Tmp, _Val);
+			_Val = _Tmp;
+			}
+		return (++_Dest);
+		}
+	}
+
+template<class _InIt,
+	class _OutIt,
+	class _Fn2> inline
+	_OutIt adjacent_difference(_InIt _First, _InIt _Last,
+		_OutIt _Dest, _Fn2 _Func)
+	{	// compute adjacent differences into _Dest, using _Func
+	_STLCLRDB_RANGE(_First, _Last);
+	_STLCLRDB_POINTER(_Dest);
+	_STLCLRDB_POINTER(_Func);
+	return (cliext::adjacent_difference_unchecked(
+		_Unchecked(_First), _Unchecked(_Last),
+		_Unchecked(_Dest), _Func));
+	}
+} // namespace cliext
+#endif /* _CLI_NUMERIC_ */
+
+/*
+ * Copyright (c) 2004-2007 by Dinkumware, Ltd.  ALL RIGHTS RESERVED.
+ * Consult your license regarding permissions and restrictions.
+V5.03:0009 */

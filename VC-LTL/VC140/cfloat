@@ -1,0 +1,13 @@
+// cfloat standard header
+#pragma once
+#ifndef _CFLOAT_
+#define _CFLOAT_
+#include <yvals.h>
+
+#include <float.h>
+#endif /* _CFLOAT_ */
+
+/*
+ * Copyright (c) by P.J. Plauger. All rights reserved.
+ * Consult your license regarding permissions and restrictions.
+V6.50:0009 */

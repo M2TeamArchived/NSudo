@@ -1,0 +1,759 @@
+// iosfwd standard header
+#pragma once
+#ifndef _IOSFWD_
+#define _IOSFWD_
+#ifndef RC_INVOKED
+#include <cstdio>
+#include <cstring>
+#include <cwchar>
+#include <xstddef>
+
+#include <crtdbg.h>
+
+ #pragma pack(push,_CRT_PACKING)
+ #pragma warning(push,3)
+ #pragma push_macro("new")
+ #undef new
+
+_STD_BEGIN
+		// STREAM POSITIONING TYPES (from <streambuf>)
+
+typedef _Longlong streamoff;
+typedef _Longlong streamsize;
+
+  #define _FSEEK_OFF(str, off, way)	_fseeki64(str, off, way)
+  #define _Fpz	0	/* initializer for zero fpos_t */
+
+  #ifdef _M_CEE_PURE
+extern const streamoff _BADOFF;
+
+  #else /* _M_CEE_PURE */
+extern _CRTDATA2 _PGLOBAL const streamoff _BADOFF;
+  #endif /* _M_CEE_PURE */
+
+		// TEMPLATE CLASS fpos (from <streambuf>)
+template<class _Statetype>
+	class fpos
+	{	// store arbitrary file position
+	typedef fpos<_Statetype> _Myt;
+
+public:
+	__CLR_OR_THIS_CALL fpos(streamoff _Off = 0)
+		: _Myoff(_Off), _Fpos(_Fpz), _Mystate()
+		{	// construct with stream offset
+		}
+
+	__CLR_OR_THIS_CALL fpos(_Statetype _State, fpos_t _Fileposition)
+		: _Myoff(0), _Fpos(_Fileposition), _Mystate(_State)
+		{	// construct with conversion state and C file position
+		}
+
+	_Statetype __CLR_OR_THIS_CALL state() const
+		{	// return conversion state
+		return (_Mystate);
+		}
+
+	void __CLR_OR_THIS_CALL state(_Statetype _State)
+		{	// set conversion state
+		_Mystate = _State;
+		}
+
+	fpos_t __CLR_OR_THIS_CALL seekpos() const
+		{	// return C file position
+		return (_Fpos);
+		}
+
+	__CLR_OR_THIS_CALL operator streamoff() const
+		{	// return offset
+		return ((streamoff)(_Myoff + _FPOSOFF(_Fpos)));
+		}
+
+	streamoff __CLR_OR_THIS_CALL operator-(const _Myt& _Right) const
+		{	// return difference of file positions as an offset
+		return ((streamoff)*this - (streamoff)_Right);
+		}
+
+	_Myt& __CLR_OR_THIS_CALL operator+=(streamoff _Off)
+		{	// add offset
+		_Myoff += _Off;
+		return (*this);
+		}
+
+	_Myt& __CLR_OR_THIS_CALL operator-=(streamoff _Off)
+		{	// subtract offset
+		_Myoff -= _Off;
+		return (*this);
+		}
+
+	_Myt __CLR_OR_THIS_CALL operator+(streamoff _Off) const
+		{	// return this + offset
+		_Myt _Tmp = *this;
+		return (_Tmp += _Off);
+		}
+
+	_Myt __CLR_OR_THIS_CALL operator-(streamoff _Off) const
+		{	// return this - offset
+		_Myt _Tmp = *this;
+		return (_Tmp -= _Off);
+		}
+
+	bool __CLR_OR_THIS_CALL operator==(const _Myt& _Right) const
+		{	// test for file position equality
+		return ((streamoff)*this == (streamoff)_Right);
+		}
+
+	bool __CLR_OR_THIS_CALL operator==(streamoff _Right) const
+		{	// test for file position equality with streamoff
+		return ((streamoff)*this == _Right);
+		}
+
+	bool __CLR_OR_THIS_CALL operator!=(const _Myt& _Right) const
+		{	// test for file position inequality
+		return (!(*this == _Right));
+		}
+
+private:
+	streamoff _Myoff;	// stream offset
+	fpos_t _Fpos;	// C file position
+	_Statetype _Mystate;	// current conversion state
+	};
+
+ #define _POS_TYPE_FROM_STATE(postype, state, position)	\
+	postype(state, position)
+ #define _POS_TYPE_TO_FPOS_T(pos)	pos.seekpos()
+ #define _POS_TYPE_TO_STATE(pos)	pos.state()
+
+typedef fpos<_Mbstatet> streampos;
+
+typedef streampos wstreampos;
+
+		// TEMPLATE STRUCT _Char_traits (FROM <string>)
+template<class _Elem,
+	class _Int_type>
+	struct _Char_traits
+	{	// properties of a string or stream element
+	typedef _Elem char_type;
+	typedef _Int_type int_type;
+	typedef streampos pos_type;
+	typedef streamoff off_type;
+	typedef _Mbstatet state_type;
+
+	static int __CLRCALL_OR_CDECL compare(
+		_In_reads_(_Count) const _Elem *_First1,
+		_In_reads_(_Count) const _Elem *_First2, size_t _Count)
+		{	// compare [_First1, _First1 + _Count) with [_First2, ...)
+		for (; 0 < _Count; --_Count, ++_First1, ++_First2)
+			if (!eq(*_First1, *_First2))
+				return (lt(*_First1, *_First2) ? -1 : +1);
+		return (0);
+		}
+
+	static size_t __CLRCALL_OR_CDECL length(_In_z_ const _Elem *_First)
+		{	// find length of null-terminated sequence
+		size_t _Count;
+		for (_Count = 0; !eq(*_First, _Elem()); ++_First)
+			++_Count;
+		return (_Count);
+		}
+
+	static _Elem *__CLRCALL_OR_CDECL copy(
+		_Out_writes_(_Count) _Elem *_First1,
+		_In_reads_(_Count) const _Elem *_First2, size_t _Count)
+		{	// copy [_First2, _First2 + _Count) to [_First1, ...)
+		_Elem *_Next = _First1;
+		for (; 0 < _Count; --_Count, ++_Next, ++_First2)
+			assign(*_Next, *_First2);
+		return (_First1);
+		}
+
+	static _Elem *__CLRCALL_OR_CDECL _Copy_s(
+		_Out_writes_(_Dest_size) _Elem *_First1, size_t _Dest_size,
+		_In_reads_(_Count) const _Elem *_First2, size_t _Count)
+		{	// copy [_First2, _First2 + _Count) to [_First1, ...)
+		_SCL_SECURE_CRT_VALIDATE(_Count <= _Dest_size, NULL);
+		return (copy(_First1, _First2, _Count));
+		}
+
+	static const _Elem *__CLRCALL_OR_CDECL find(
+		_In_reads_(_Count) const _Elem *_First,
+		size_t _Count, const _Elem& _Ch)
+		{	// look for _Ch in [_First, _First + _Count)
+		for (; 0 < _Count; --_Count, ++_First)
+			if (eq(*_First, _Ch))
+				return (_First);
+		return (0);
+		}
+
+	static _Elem *__CLRCALL_OR_CDECL move(
+		_Out_writes_(_Count) _Elem *_First1,
+		_In_reads_(_Count) const _Elem *_First2, size_t _Count)
+		{	// copy [_First2, _First2 + _Count) to [_First1, ...)
+		_Elem *_Next = _First1;
+		if (_First2 < _Next && _Next < _First2 + _Count)
+			for (_Next += _Count, _First2 += _Count; 0 < _Count; --_Count)
+				assign(*--_Next, *--_First2);
+		else
+			for (; 0 < _Count; --_Count, ++_Next, ++_First2)
+				assign(*_Next, *_First2);
+		return (_First1);
+		}
+
+	static _Elem *__CLRCALL_OR_CDECL assign(
+		_Out_writes_(_Count) _Elem *_First,
+		size_t _Count, _Elem _Ch)
+		{	// assign _Count * _Ch to [_First, ...)
+		_Elem *_Next = _First;
+		for (; 0 < _Count; --_Count, ++_Next)
+			assign(*_Next, _Ch);
+		return (_First);
+		}
+
+	static void __CLRCALL_OR_CDECL assign(_Elem& _Left, const _Elem& _Right) _NOEXCEPT
+		{	// assign an element
+		_Left = _Right;
+		}
+
+	static _CONST_FUN bool __CLRCALL_OR_CDECL eq(const _Elem& _Left,
+		const _Elem& _Right) _NOEXCEPT
+		{	// test for element equality
+		return (_Left == _Right);
+		}
+
+	static _CONST_FUN bool __CLRCALL_OR_CDECL lt(const _Elem& _Left,
+		const _Elem& _Right) _NOEXCEPT
+		{	// test if _Left precedes _Right
+		return (_Left < _Right);
+		}
+
+	static _CONST_FUN _Elem __CLRCALL_OR_CDECL to_char_type(
+		const int_type& _Meta) _NOEXCEPT
+		{	// convert metacharacter to character
+		return ((_Elem)_Meta);
+		}
+
+	static _CONST_FUN int_type __CLRCALL_OR_CDECL to_int_type(
+		const _Elem& _Ch) _NOEXCEPT
+		{	// convert character to metacharacter
+		return ((int_type)_Ch);
+		}
+
+	static _CONST_FUN bool __CLRCALL_OR_CDECL eq_int_type(const int_type& _Left,
+		const int_type& _Right) _NOEXCEPT
+		{	// test for metacharacter equality
+		return (_Left == _Right);
+		}
+
+	static _CONST_FUN int_type __CLRCALL_OR_CDECL not_eof(
+		const int_type& _Meta) _NOEXCEPT
+		{	// return anything but EOF
+		return (_Meta != eof() ? (int_type)_Meta : (int_type)!eof());
+		}
+
+	static _CONST_FUN int_type __CLRCALL_OR_CDECL eof() _NOEXCEPT
+		{	// return end-of-file metacharacter
+		return ((int_type)EOF);
+		}
+	};
+
+		// TEMPLATE STRUCT char_traits
+template<class _Elem>
+	struct char_traits
+		: public _Char_traits<_Elem, long>
+	{	// properties of a string or stream unknown element
+	};
+
+		// STRUCT char_traits<char16_t>
+template<>
+	struct char_traits<char16_t>
+	: public _Char_traits<char16_t, unsigned short>
+	{	// properties of a string or stream char16_t element
+	};
+
+typedef streampos u16streampos;
+
+		// STRUCT char_traits<char32_t>
+template<>
+	struct char_traits<char32_t>
+	: public _Char_traits<char32_t, unsigned int>
+	{	// properties of a string or stream char32_t element
+	};
+
+typedef streampos u32streampos;
+
+		// STRUCT char_traits<wchar_t>
+template<>
+	struct char_traits<wchar_t>
+	{	// properties of a string or stream wchar_t element
+	typedef wchar_t _Elem;
+	typedef _Elem char_type;	// for overloads
+	typedef wint_t int_type;
+	typedef streampos pos_type;
+	typedef streamoff off_type;
+	typedef _Mbstatet state_type;
+
+	static int __CLRCALL_OR_CDECL compare(const _Elem *_First1, const _Elem *_First2,
+		size_t _Count)
+		{	// compare [_First1, _First1 + _Count) with [_First2, ...)
+		return (_Count == 0 ? 0
+			: _CSTD wmemcmp(_First1, _First2, _Count));
+		}
+
+	static size_t __CLRCALL_OR_CDECL length(const _Elem *_First)
+		{	// find length of null-terminated sequence
+		return (*_First == 0 ? 0
+			: _CSTD wcslen(_First));
+		}
+
+	static _Elem *__CLRCALL_OR_CDECL copy(_Elem *_First1, const _Elem *_First2,
+		size_t _Count)
+		{	// copy [_First2, _First2 + _Count) to [_First1, ...)
+		return (_Count == 0 ? _First1
+			: (_Elem *)_CSTD wmemcpy(_First1, _First2, _Count));
+		}
+
+	static _Elem *__CLRCALL_OR_CDECL _Copy_s(
+		_Out_writes_(_Size_in_words) _Elem *_First1, size_t _Size_in_words,
+		_In_reads_(_Count) const _Elem *_First2, size_t _Count)
+		{	// copy [_First2, _First2 + _Count) to [_First1, ...)
+		if (0 < _Count)
+			_CRT_SECURE_WMEMCPY(_First1, _Size_in_words, _First2, _Count);
+		return (_First1);
+		}
+
+	static const _Elem *__CLRCALL_OR_CDECL find(const _Elem *_First, size_t _Count,
+		const _Elem& _Ch)
+		{	// look for _Ch in [_First, _First + _Count)
+		return (_Count == 0 ? (const _Elem *)0
+			: (const _Elem *)_CSTD wmemchr(_First, _Ch, _Count));
+		}
+
+	static _Elem *__CLRCALL_OR_CDECL move(_Elem *_First1, const _Elem *_First2,
+		size_t _Count)
+		{	// copy [_First2, _First2 + _Count) to [_First1, ...)
+		return (_Count == 0 ? _First1
+			: (_Elem *)_CSTD wmemmove(_First1, _First2, _Count));
+		}
+
+	static _Elem *__CLRCALL_OR_CDECL assign(_Elem *_First, size_t _Count,
+		_Elem _Ch)
+		{	// assign _Count * _Ch to [_First, ...)
+		return ((_Elem *)_CSTD wmemset(_First, _Ch, _Count));
+		}
+
+	static void __CLRCALL_OR_CDECL assign(_Elem& _Left, const _Elem& _Right) _NOEXCEPT
+		{	// assign an element
+		_Left = _Right;
+		}
+
+	static _CONST_FUN bool __CLRCALL_OR_CDECL eq(const _Elem& _Left,
+		const _Elem& _Right) _NOEXCEPT
+		{	// test for element equality
+		return (_Left == _Right);
+		}
+
+	static _CONST_FUN bool __CLRCALL_OR_CDECL lt(const _Elem& _Left,
+		const _Elem& _Right) _NOEXCEPT
+		{	// test if _Left precedes _Right
+		return (_Left < _Right);
+		}
+
+	static _CONST_FUN _Elem __CLRCALL_OR_CDECL to_char_type(
+		const int_type& _Meta) _NOEXCEPT
+		{	// convert metacharacter to character
+		return (_Meta);
+		}
+
+	static _CONST_FUN int_type __CLRCALL_OR_CDECL to_int_type(
+		const _Elem& _Ch) _NOEXCEPT
+		{	// convert character to metacharacter
+		return (_Ch);
+		}
+
+	static _CONST_FUN bool __CLRCALL_OR_CDECL eq_int_type(const int_type& _Left,
+		const int_type& _Right) _NOEXCEPT
+		{	// test for metacharacter equality
+		return (_Left == _Right);
+		}
+
+	static _CONST_FUN int_type __CLRCALL_OR_CDECL not_eof(
+		const int_type& _Meta) _NOEXCEPT
+		{	// return anything but EOF
+		return (_Meta != eof() ? _Meta : !eof());
+		}
+
+	static _CONST_FUN int_type __CLRCALL_OR_CDECL eof() _NOEXCEPT
+		{	// return end-of-file metacharacter
+		return (WEOF);
+		}
+	};
+
+ #ifdef _NATIVE_WCHAR_T_DEFINED
+		// STRUCT char_traits<unsigned short>
+template<>
+	struct char_traits<unsigned short>
+	{	// properties of a string or stream unsigned short element
+	typedef unsigned short _Elem;
+	typedef _Elem char_type;	// for overloads
+	typedef wint_t int_type;
+	typedef streampos pos_type;
+	typedef streamoff off_type;
+	typedef _Mbstatet state_type;
+
+	static int __CLRCALL_OR_CDECL compare(const _Elem *_First1, const _Elem *_First2,
+		size_t _Count)
+		{	// compare [_First1, _First1 + _Count) with [_First2, ...)
+		return (_Count == 0 ? 0
+			: _CSTD wmemcmp((const wchar_t *)_First1,
+				(const wchar_t *)_First2, _Count));
+		}
+
+	static size_t __CLRCALL_OR_CDECL length(const _Elem *_First)
+		{	// find length of null-terminated sequence
+		return (*_First == 0 ? 0
+			: _CSTD wcslen((const wchar_t *)_First));
+		}
+
+	static _Elem *__CLRCALL_OR_CDECL copy(_Elem *_First1, const _Elem *_First2,
+		size_t _Count)
+		{	// copy [_First2, _First2 + _Count) to [_First1, ...)
+		return (_Count == 0 ? _First1
+			: (_Elem *)_CSTD wmemcpy((wchar_t *)_First1,
+				(const wchar_t *)_First2, _Count));
+		}
+
+	static _Elem *__CLRCALL_OR_CDECL _Copy_s(
+		_Out_writes_(_Size_in_words) _Elem *_First1, size_t _Size_in_words,
+		_In_reads_(_Count) const _Elem *_First2, size_t _Count)
+		{	// copy [_First2, _First2 + _Count) to [_First1, ...)
+		if (0 < _Count)
+			_CRT_SECURE_WMEMCPY((wchar_t *)_First1, _Size_in_words,
+				(const wchar_t *)_First2, _Count);
+		return (_First1);
+		}
+
+	static const _Elem *__CLRCALL_OR_CDECL find(const _Elem *_First, size_t _Count,
+		const _Elem& _Ch)
+		{	// look for _Ch in [_First, _First + _Count)
+		return (_Count == 0 ? (const _Elem *)0
+			: (const _Elem *)_CSTD wmemchr((const wchar_t *)_First,
+				_Ch, _Count));
+		}
+
+	static _Elem *__CLRCALL_OR_CDECL move(_Elem *_First1, const _Elem *_First2,
+		size_t _Count)
+		{	// copy [_First2, _First2 + _Count) to [_First1, ...)
+		return (_Count == 0 ? _First1
+			: (_Elem *)_CSTD wmemmove((wchar_t *)_First1,
+				(const wchar_t *)_First2, _Count));
+		}
+
+	static _Elem *__CLRCALL_OR_CDECL assign(_Elem *_First, size_t _Count,
+		_Elem _Ch)
+		{	// assign _Count * _Ch to [_First, ...)
+		return ((_Elem *)_CSTD wmemset((wchar_t *)_First, _Ch, _Count));
+		}
+
+	static void __CLRCALL_OR_CDECL assign(_Elem& _Left, const _Elem& _Right) _NOEXCEPT
+		{	// assign an element
+		_Left = _Right;
+		}
+
+	static _CONST_FUN bool __CLRCALL_OR_CDECL eq(const _Elem& _Left,
+		const _Elem& _Right) _NOEXCEPT
+		{	// test for element equality
+		return (_Left == _Right);
+		}
+
+	static _CONST_FUN bool __CLRCALL_OR_CDECL lt(const _Elem& _Left,
+		const _Elem& _Right) _NOEXCEPT
+		{	// test if _Left precedes _Right
+		return (_Left < _Right);
+		}
+
+	static _CONST_FUN _Elem __CLRCALL_OR_CDECL to_char_type(const int_type& _Meta)
+		_NOEXCEPT
+		{	// convert metacharacter to character
+		return (_Meta);
+		}
+
+	static _CONST_FUN int_type __CLRCALL_OR_CDECL to_int_type(const _Elem& _Ch)
+		_NOEXCEPT
+		{	// convert character to metacharacter
+		return (_Ch);
+		}
+
+	static _CONST_FUN bool __CLRCALL_OR_CDECL eq_int_type(const int_type& _Left,
+		const int_type& _Right) _NOEXCEPT
+		{	// test for metacharacter equality
+		return (_Left == _Right);
+		}
+
+	static _CONST_FUN int_type __CLRCALL_OR_CDECL not_eof(const int_type& _Meta)
+		_NOEXCEPT
+		{	// return anything but EOF
+		return (_Meta != eof() ? _Meta : !eof());
+		}
+
+	static _CONST_FUN int_type __CLRCALL_OR_CDECL eof() _NOEXCEPT
+		{	// return end-of-file metacharacter
+		return (WEOF);
+		}
+	};
+ #endif /* _NATIVE_WCHAR_T_DEFINED */
+
+		// STRUCT char_traits<char> (FROM <string>)
+template<> struct char_traits<char>
+	{	// properties of a string or stream char element
+	typedef char _Elem;
+	typedef _Elem char_type;
+	typedef int int_type;
+	typedef streampos pos_type;
+	typedef streamoff off_type;
+	typedef _Mbstatet state_type;
+
+	static int __CLRCALL_OR_CDECL compare(const _Elem *_First1, const _Elem *_First2,
+		size_t _Count)
+		{	// compare [_First1, _First1 + _Count) with [_First2, ...)
+		return (_Count == 0 ? 0
+			: _CSTD memcmp(_First1, _First2, _Count));
+		}
+
+	static size_t __CLRCALL_OR_CDECL length(const _Elem *_First)
+		{	// find length of null-terminated string
+		return (*_First == 0 ? 0
+			: _CSTD strlen(_First));
+		}
+
+	static _Elem *__CLRCALL_OR_CDECL copy(_Elem *_First1, const _Elem *_First2,
+		size_t _Count)
+		{	// copy [_First2, _First2 + _Count) to [_First1, ...)
+		return (_Count == 0 ? _First1
+			: (_Elem *)_CSTD memcpy(_First1, _First2, _Count));
+		}
+
+	static _Elem *__CLRCALL_OR_CDECL _Copy_s(
+		_Out_writes_(_Size_in_bytes) _Elem *_First1, size_t _Size_in_bytes,
+		_In_reads_(_Count) const _Elem *_First2, size_t _Count)
+		{	// copy [_First2, _First2 + _Count) to [_First1, ...)
+		if (0 < _Count)
+			_CRT_SECURE_MEMCPY(_First1, _Size_in_bytes, _First2, _Count);
+		return (_First1);
+		}
+
+	static const _Elem *__CLRCALL_OR_CDECL find(const _Elem *_First, size_t _Count,
+		const _Elem& _Ch)
+		{	// look for _Ch in [_First, _First + _Count)
+		return (_Count == 0 ? (const _Elem *)0
+			: (const _Elem *)_CSTD memchr(_First, _Ch, _Count));
+		}
+
+	static _Elem *__CLRCALL_OR_CDECL move(_Elem *_First1, const _Elem *_First2,
+		size_t _Count)
+		{	// copy [_First2, _First2 + _Count) to [_First1, ...)
+		return (_Count == 0 ? _First1
+			: (_Elem *)_CSTD memmove(_First1, _First2, _Count));
+		}
+
+	static _Elem *__CLRCALL_OR_CDECL assign(_Elem *_First, size_t _Count,
+		_Elem _Ch)
+		{	// assign _Count * _Ch to [_First, ...)
+		return ((_Elem *)_CSTD memset(_First, _Ch, _Count));
+		}
+
+	static void __CLRCALL_OR_CDECL assign(_Elem& _Left, const _Elem& _Right) _NOEXCEPT
+		{	// assign an element
+		_Left = _Right;
+		}
+
+	static _CONST_FUN bool __CLRCALL_OR_CDECL eq(const _Elem& _Left,
+		const _Elem& _Right) _NOEXCEPT
+		{	// test for element equality
+		return (_Left == _Right);
+		}
+
+	static _CONST_FUN bool __CLRCALL_OR_CDECL lt(const _Elem& _Left,
+		const _Elem& _Right) _NOEXCEPT
+		{	// test if _Left precedes _Right
+		return ((unsigned char)_Left < (unsigned char)_Right);
+		}
+
+	static _CONST_FUN _Elem __CLRCALL_OR_CDECL to_char_type(
+		const int_type& _Meta) _NOEXCEPT
+		{	// convert metacharacter to character
+		return ((_Elem)_Meta);
+		}
+
+	static _CONST_FUN int_type __CLRCALL_OR_CDECL to_int_type(
+		const _Elem& _Ch) _NOEXCEPT
+		{	// convert character to metacharacter
+		return ((unsigned char)_Ch);
+		}
+
+	static _CONST_FUN bool __CLRCALL_OR_CDECL eq_int_type(const int_type& _Left,
+		const int_type& _Right) _NOEXCEPT
+		{	// test for metacharacter equality
+		return (_Left == _Right);
+		}
+
+	static _CONST_FUN int_type __CLRCALL_OR_CDECL not_eof(
+		const int_type& _Meta) _NOEXCEPT
+		{	// return anything but EOF
+		return (_Meta != eof() ? _Meta : !eof());
+		}
+
+	static _CONST_FUN int_type __CLRCALL_OR_CDECL eof() _NOEXCEPT
+		{	// return end-of-file metacharacter
+		return (EOF);
+		}
+	};
+
+		// FORWARD REFERENCES
+template<class _Ty>
+	class allocator;
+class ios_base;
+template<class _Elem,
+	class _Traits = char_traits<_Elem> >
+	class basic_ios;
+template<class _Elem,
+	class _Traits = char_traits<_Elem> >
+	class istreambuf_iterator;
+template<class _Elem,
+	class _Traits = char_traits<_Elem> >
+	class ostreambuf_iterator;
+template<class _Elem,
+	class _Traits = char_traits<_Elem> >
+	class basic_streambuf;
+template<class _Elem,
+	class _Traits = char_traits<_Elem> >
+	class basic_istream;
+template<class _Elem,
+	class _Traits = char_traits<_Elem> >
+	class basic_ostream;
+template<class _Elem,
+	class _Traits = char_traits<_Elem> >
+	class basic_iostream;
+template<class _Elem,
+	class _Traits = char_traits<_Elem>,
+	class _Alloc = allocator<_Elem> >
+	class basic_stringbuf;
+template<class _Elem,
+	class _Traits = char_traits<_Elem>,
+	class _Alloc = allocator<_Elem> >
+	class basic_istringstream;
+template<class _Elem,
+	class _Traits = char_traits<_Elem>,
+	class _Alloc = allocator<_Elem> >
+	class basic_ostringstream;
+template<class _Elem,
+	class _Traits = char_traits<_Elem>,
+	class _Alloc = allocator<_Elem> >
+	class basic_stringstream;
+template<class _Elem,
+	class _Traits = char_traits<_Elem> >
+	class basic_filebuf;
+template<class _Elem,
+	class _Traits = char_traits<_Elem> >
+	class basic_ifstream;
+template<class _Elem,
+	class _Traits = char_traits<_Elem> >
+	class basic_ofstream;
+template<class _Elem,
+	class _Traits = char_traits<_Elem> >
+	class basic_fstream;
+
+ #if defined(_DLL_CPPLIB) && !defined(_M_CEE_PURE)
+template<class _Elem,
+	class _InIt >
+	class num_get;
+template<class _Elem,
+	class _OutIt >
+	class num_put;
+template<class _Elem>
+	class collate;
+ #endif /* defined(_DLL_CPPLIB) etc. */
+
+		// char TYPEDEFS
+typedef basic_ios<char, char_traits<char> > ios;
+typedef basic_streambuf<char, char_traits<char> > streambuf;
+typedef basic_istream<char, char_traits<char> > istream;
+typedef basic_ostream<char, char_traits<char> > ostream;
+typedef basic_iostream<char, char_traits<char> > iostream;
+typedef basic_stringbuf<char, char_traits<char>,
+	allocator<char> > stringbuf;
+typedef basic_istringstream<char, char_traits<char>,
+	allocator<char> > istringstream;
+typedef basic_ostringstream<char, char_traits<char>,
+	allocator<char> > ostringstream;
+typedef basic_stringstream<char, char_traits<char>,
+	allocator<char> > stringstream;
+typedef basic_filebuf<char, char_traits<char> > filebuf;
+typedef basic_ifstream<char, char_traits<char> > ifstream;
+typedef basic_ofstream<char, char_traits<char> > ofstream;
+typedef basic_fstream<char, char_traits<char> > fstream;
+
+		// wchat_t TYPEDEFS
+typedef basic_ios<wchar_t, char_traits<wchar_t> > wios;
+typedef basic_streambuf<wchar_t, char_traits<wchar_t> >
+	wstreambuf;
+typedef basic_istream<wchar_t, char_traits<wchar_t> > wistream;
+typedef basic_ostream<wchar_t, char_traits<wchar_t> > wostream;
+typedef basic_iostream<wchar_t, char_traits<wchar_t> > wiostream;
+typedef basic_stringbuf<wchar_t, char_traits<wchar_t>,
+	allocator<wchar_t> > wstringbuf;
+typedef basic_istringstream<wchar_t, char_traits<wchar_t>,
+	allocator<wchar_t> > wistringstream;
+typedef basic_ostringstream<wchar_t, char_traits<wchar_t>,
+	allocator<wchar_t> > wostringstream;
+typedef basic_stringstream<wchar_t, char_traits<wchar_t>,
+	allocator<wchar_t> > wstringstream;
+typedef basic_filebuf<wchar_t, char_traits<wchar_t> > wfilebuf;
+typedef basic_ifstream<wchar_t, char_traits<wchar_t> > wifstream;
+typedef basic_ofstream<wchar_t, char_traits<wchar_t> > wofstream;
+typedef basic_fstream<wchar_t, char_traits<wchar_t> > wfstream;
+
+ #ifdef _CRTBLD_NATIVE_WCHAR_T
+		// unsigned short TYPEDEFS
+typedef basic_ios<unsigned short, char_traits<unsigned short> > ushios;
+typedef basic_streambuf<unsigned short, char_traits<unsigned short> >
+	ushstreambuf;
+typedef basic_istream<unsigned short, char_traits<unsigned short> > ushistream;
+typedef basic_ostream<unsigned short, char_traits<unsigned short> > ushostream;
+typedef basic_iostream<unsigned short, char_traits<unsigned short> > ushiostream;
+typedef basic_stringbuf<unsigned short, char_traits<unsigned short>,
+	allocator<unsigned short> > ushstringbuf;
+typedef basic_istringstream<unsigned short, char_traits<unsigned short>,
+	allocator<unsigned short> > ushistringstream;
+typedef basic_ostringstream<unsigned short, char_traits<unsigned short>,
+	allocator<unsigned short> > ushostringstream;
+typedef basic_stringstream<unsigned short, char_traits<unsigned short>,
+	allocator<unsigned short> > ushstringstream;
+typedef basic_filebuf<unsigned short, char_traits<unsigned short> > ushfilebuf;
+typedef basic_ifstream<unsigned short, char_traits<unsigned short> > ushifstream;
+typedef basic_ofstream<unsigned short, char_traits<unsigned short> > ushofstream;
+typedef basic_fstream<unsigned short, char_traits<unsigned short> > ushfstream;
+ #endif /* _CRTBLD_NATIVE_WCHAR_T */
+
+ #if defined(_DLL_CPPLIB) && !defined(_M_CEE_PURE)
+typedef num_get<char, istreambuf_iterator<char, char_traits<char> > >
+	numget;
+typedef num_get<wchar_t, istreambuf_iterator<wchar_t, char_traits<wchar_t> > >
+	wnumget;
+typedef num_put<char, ostreambuf_iterator<char, char_traits<char> > >
+	numput;
+typedef num_put<wchar_t, ostreambuf_iterator<wchar_t, char_traits<wchar_t> > >
+	wnumput;
+typedef collate<char> ncollate;
+typedef collate<wchar_t> wcollate;
+ #endif /* defined(_DLL_CPPLIB) etc. */
+_STD_END
+
+ #pragma pop_macro("new")
+ #pragma warning(pop)
+ #pragma pack(pop)
+#endif /* RC_INVOKED */
+#endif /* _IOSFWD_ */
+
+/*
+ * Copyright (c) by P.J. Plauger. All rights reserved.
+ * Consult your license regarding permissions and restrictions.
+V6.50:0009 */

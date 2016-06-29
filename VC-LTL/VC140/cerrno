@@ -1,0 +1,26 @@
+// cerrno standard header
+#pragma once
+#ifndef _CERRNO_
+#define _CERRNO_
+#ifndef RC_INVOKED
+#include <yvals.h>
+
+#ifdef _STD_USING
+ #undef _STD_USING
+  #include <errno.h>
+ #define _STD_USING
+
+#else /* _STD_USING */
+ #include <errno.h>
+#endif /* _STD_USING */
+
+#ifndef errno
+ #define errno	errno
+#endif /* errno */
+#endif /* RC_INVOKED */
+#endif /* _CERRNO_ */
+
+/*
+ * Copyright (c) by P.J. Plauger. All rights reserved.
+ * Consult your license regarding permissions and restrictions.
+V6.50:0009 */

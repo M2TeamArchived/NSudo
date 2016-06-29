@@ -1,0 +1,509 @@
+// utility stl/clr header
+#ifndef _CLI_UTILITY_
+ #define _CLI_UTILITY_
+
+#include <cliext/xutility>
+
+namespace cliext {
+//
+// TEMPLATE REF CLASS pair
+//
+template<typename _Value1_t,
+	typename _Value2_t>
+	ref class pair
+	{	// store a pair of values
+public:
+	typedef pair<_Value1_t, _Value2_t> _Mytype_t;
+	typedef typename _Value1_t first_type;
+	typedef typename _Value2_t second_type;
+
+	// basics
+	pair()
+		{	// construct default
+		}
+
+	pair(pair% _Right)
+		:	first(_Right.first), second(_Right.second)
+		{	// construct by copying _Right
+		}
+
+	pair(pair^ _Right)
+		:	first(_Right->first), second(_Right->second)
+		{	// construct by copying _Right
+		}
+
+	pair% operator=(pair% _Right)
+		{	// assign
+		first = _Right.first;
+		second = _Right.second;
+		return (*this);
+		}
+
+	pair% operator=(pair^ _Right)
+		{	// assign
+		first = _Right->first;
+		second = _Right->second;
+		return (*this);
+		}
+
+	// constructors
+	pair(first_type _Val1)
+		:	first(_Val1)
+		{	// construct from first value only
+		}
+
+	pair(first_type _Val1, second_type _Val2)
+		:	first(_Val1), second(_Val2)
+		{	// construct from specified values
+		}
+
+	template<typename _Pair_t>
+		pair(_Pair_t% _Right)
+		:	first(_Right.first), second(_Right.second)
+		{	// construct from pair type
+		}
+
+	template<typename _Pair_t>
+		pair(_Pair_t^ _Right)
+		:	first(_Right->first), second(_Right->second)
+		{	// construct from pair type
+		}
+
+	template<template <class, class> class _Pair_t, typename _OtherFirst_t, typename _OtherSecond_t>
+		operator _Pair_t<_OtherFirst_t, _OtherSecond_t>()
+		{	// convert to compatible pair
+		_Pair_t<_OtherFirst_t, _OtherSecond_t> _Newpair((_OtherFirst_t)first,(_OtherSecond_t)second);
+
+		return (_Newpair);
+		}
+
+	// mutators
+	void swap(pair% _Right)
+		{	// exchange contents with _Right
+		if ((Object^)this != %_Right)
+			{	// worth swapping, do it
+			_Value1_t _Tfirst = first;
+			_Value2_t _Tsecond = second;
+
+			first = _Right.first;
+			_Right.first = _Tfirst;
+
+			second = _Right.second;
+			_Right.second = _Tsecond;
+			}
+		}
+
+	first_type first;	// first stored value
+	second_type second;	// second stored value
+	};
+
+//
+// TEMPLATE OPERATIONS
+//
+template<class _Ty1,
+	class _Ty2> inline
+	void swap(pair<_Ty1, _Ty2>% _Left, pair<_Ty1, _Ty2>% _Right)
+	{	// swap _Left and _Right pairs
+	_Left.swap(_Right);
+	}
+
+template<class _Ty1,
+	class _Ty2> inline
+	bool operator==(pair<_Ty1, _Ty2>% _Left,
+		pair<_Ty1, _Ty2>% _Right)
+	{	// test for pair equality
+	return (_Left.first == _Right.first && _Left.second == _Right.second);
+	}
+
+template<class _Ty1,
+	class _Ty2> inline
+	bool operator!=(pair<_Ty1, _Ty2>% _Left,
+		pair<_Ty1, _Ty2>% _Right)
+	{	// test for pair inequality
+	return (!(_Left == _Right));
+	}
+
+template<class _Ty1,
+	class _Ty2> inline
+	bool operator<(pair<_Ty1, _Ty2>% _Left,
+		pair<_Ty1, _Ty2>% _Right)
+	{	// test if _Left < _Right for pairs
+	return (_Left.first < _Right.first ||
+		!(_Right.first < _Left.first) && _Left.second < _Right.second);
+	}
+
+template<class _Ty1,
+	class _Ty2> inline
+	bool operator>(pair<_Ty1, _Ty2>% _Left,
+		pair<_Ty1, _Ty2>% _Right)
+	{	// test if _Left > _Right for pairs
+	return (_Right < _Left);
+	}
+
+template<class _Ty1,
+	class _Ty2> inline
+	bool operator<=(pair<_Ty1, _Ty2>% _Left,
+		pair<_Ty1, _Ty2>% _Right)
+	{	// test if _Left <= _Right for pairs
+	return (!(_Right < _Left));
+	}
+
+template<class _Ty1,
+	class _Ty2> inline
+	bool operator>=(pair<_Ty1, _Ty2>% _Left,
+		pair<_Ty1, _Ty2>% _Right)
+	{	// test if _Left >= _Right for pairs
+	return (!(_Left < _Right));
+	}
+
+template<class _Ty1,
+	class _Ty2> inline
+	pair<_Ty1, _Ty2> make_pair(_Ty1 _Val1, _Ty2 _Val2)
+	{	// return pair composed from arguments
+	return (pair<_Ty1, _Ty2>(_Val1, _Val2));
+	}
+
+//
+// TEMPLATE VALUE CLASS light_pair
+//
+template<typename _Value1_t,
+	typename _Value2_t>
+	value class light_pair
+	{	// store a pair of values
+public:
+	typedef light_pair<_Value1_t, _Value2_t> _Mytype_t;
+	typedef typename _Value1_t first_type;
+	typedef typename _Value2_t second_type;
+
+	// constructors
+	light_pair(first_type _Val1)
+		:	first(_Val1)
+		{	// construct from first value only
+		}
+
+	light_pair(first_type _Val1, second_type _Val2)
+		:	first(_Val1), second(_Val2)
+		{	// construct from specified values
+		}
+
+	template<typename _Pair_t>
+		light_pair(_Pair_t% _Right)
+		:	_First(_Right.first), _Second(_Right.second)
+		{	// construct from ref_pair
+		}
+
+	template<template <class, class> class _Pair_t, typename _OtherFirst_t, typename _OtherSecond_t>
+		operator _Pair_t<_OtherFirst_t, _OtherSecond_t>()
+		{	// convert to compatible pair
+		_Pair_t<_OtherFirst_t, _OtherSecond_t> _Newpair((_OtherFirst_t)first,(_OtherSecond_t)second);
+
+		return (_Newpair);
+		}
+
+	// mutators
+	void swap(pair% _Right)
+		{	// exchange contents with _Right
+		if ((Object^)this != %_Right)
+			{	// worth swapping, do it
+			_Value1_t _Tfirst = first;
+			_Value2_t _Tsecond = second;
+
+			first = _Right.first;
+			_Right.first = _Tfirst;
+
+			second = _Right.second;
+			_Right.second = _Tsecond;
+			}
+		}
+
+	first_type first;	// first stored value
+	second_type second;	// second stored value
+	};
+
+//
+// TEMPLATE REF CLASS select_pair
+//
+template<typename _Value1_t,
+	typename _Value2_t,
+	bool _Is_ref =
+		__is_ref_class(typename _Dehandle<_Value1_t>::type)
+			&& !is_handle<_Value1_t>::value
+		&& __is_ref_class(typename _Dehandle<_Value2_t>::type)
+			&& !is_handle<_Value2_t>::value>
+	ref class select_pair
+	{	// select pair
+public:
+	typedef pair<_Value1_t, _Value2_t> type;
+	};
+
+template<typename _Value1_t,
+	typename _Value2_t>
+	ref class select_pair<_Value1_t, _Value2_t, false>
+	{	// select light_pair
+public:
+	typedef light_pair<_Value1_t, _Value2_t> type;
+	};
+
+//
+// System::IComparable TEMPLATE COMPARISONS
+//
+template<typename _Value_t>
+	bool operator==(System::IComparable<_Value_t>^ _Left,
+		System::IComparable<_Value_t>^ _Right)
+	{	// test if _Left == _Right
+	return (_Left->CompareTo(_Right) == 0);
+	}
+
+template<typename _Value_t>
+	bool operator!=(System::IComparable<_Value_t>^ _Left,
+		System::IComparable<_Value_t>^ _Right)
+	{	// test if _Left != _Right
+	return (!(_Left == _Right));
+	}
+
+template<typename _Value_t>
+	bool operator<(System::IComparable<_Value_t>^ _Left,
+		System::IComparable<_Value_t>^ _Right)
+	{	// test if _Left < _Right
+	return (_Left->CompareTo(_Right) < 0);
+	}
+
+template<typename _Value_t>
+	bool operator>=(System::IComparable<_Value_t>^ _Left,
+		System::IComparable<_Value_t>^ _Right)
+	{	// test if _Left >= _Right
+	return (!(_Left < _Right));
+	}
+
+template<typename _Value_t>
+	bool operator>(System::IComparable<_Value_t>^ _Left,
+		System::IComparable<_Value_t>^ _Right)
+	{	// test if _Left > _Right
+	return (_Right < _Left);
+	}
+
+template<typename _Value_t>
+	bool operator<=(System::IComparable<_Value_t>^ _Left,
+		System::IComparable<_Value_t>^ _Right)
+	{	// test if _Left <= _Right
+	return (!(_Right < _Left));
+	}
+
+template<typename _Value_t>
+	bool operator==(System::IComparable<_Value_t>% _Left,
+		System::IComparable<_Value_t>% _Right)
+	{	// test if _Left == _Right
+	return (_Left.CompareTo((_Value_t)%(System::Object%)_Right) == 0);
+	}
+
+template<typename _Value_t>
+	bool operator!=(System::IComparable<_Value_t>% _Left,
+		System::IComparable<_Value_t>% _Right)
+	{	// test if _Left != _Right
+	return (!(_Left == _Right));
+	}
+
+template<typename _Value_t>
+	bool operator<(System::IComparable<_Value_t>% _Left,
+		System::IComparable<_Value_t>% _Right)
+	{	// test if _Left < _Right
+	return (_Left.CompareTo((_Value_t)%(System::Object%)_Right) < 0);
+	}
+
+template<typename _Value_t>
+	bool operator>=(System::IComparable<_Value_t>% _Left,
+		System::IComparable<_Value_t>% _Right)
+	{	// test if _Left >= _Right
+	return (!(_Left < _Right));
+	}
+
+template<typename _Value_t>
+	bool operator>(System::IComparable<_Value_t>% _Left,
+		System::IComparable<_Value_t>% _Right)
+	{	// test if _Left > _Right
+	return (_Right < _Left);
+	}
+
+template<typename _Value_t>
+	bool operator<=(System::IComparable<_Value_t>% _Left,
+		System::IComparable<_Value_t>% _Right)
+	{	// test if _Left <= _Right
+	return (!(_Right < _Left));
+	}
+
+inline bool operator==(System::IComparable^ _Left,
+		System::IComparable^ _Right)
+	{	// test if _Left == _Right
+	return (_Left->CompareTo(_Right) == 0);
+	}
+
+inline bool operator!=(System::IComparable^ _Left,
+		System::IComparable^ _Right)
+	{	// test if _Left != _Right
+	return (!(_Left == _Right));
+	}
+
+inline bool operator<(System::IComparable^ _Left,
+		System::IComparable^ _Right)
+	{	// test if _Left < _Right
+	return (_Left->CompareTo(_Right) < 0);
+	}
+
+inline bool operator>=(System::IComparable^ _Left,
+		System::IComparable^ _Right)
+	{	// test if _Left >= _Right
+	return (!(_Left < _Right));
+	}
+
+inline bool operator>(System::IComparable^ _Left,
+		System::IComparable^ _Right)
+	{	// test if _Left > _Right
+	return (_Right < _Left);
+	}
+
+inline bool operator<=(System::IComparable^ _Left,
+		System::IComparable^ _Right)
+	{	// test if _Left <= _Right
+	return (!(_Right < _Left));
+	}
+
+inline bool operator==(System::IComparable% _Left,
+		System::IComparable% _Right)
+	{	// test if _Left == _Right
+	return (_Left.CompareTo(%(System::Object%)_Right) == 0);
+	}
+
+inline bool operator!=(System::IComparable% _Left,
+		System::IComparable% _Right)
+	{	// test if _Left != _Right
+	return (!(_Left == _Right));
+	}
+
+inline bool operator<(System::IComparable% _Left,
+		System::IComparable% _Right)
+	{	// test if _Left < _Right
+	return (_Left.CompareTo(%(System::Object%)_Right) < 0);
+	}
+
+inline bool operator>=(System::IComparable% _Left,
+		System::IComparable% _Right)
+	{	// test if _Left >= _Right
+	return (!(_Left < _Right));
+	}
+
+inline bool operator>(System::IComparable% _Left,
+		System::IComparable% _Right)
+	{	// test if _Left > _Right
+	return (_Right < _Left);
+	}
+
+inline bool operator<=(System::IComparable% _Left,
+		System::IComparable% _Right)
+	{	// test if _Left <= _Right
+	return (!(_Right < _Left));
+	}
+}	// namespace cliext
+using cliext::operator==;
+using cliext::operator!=;
+using cliext::operator<;
+using cliext::operator>=;
+using cliext::operator>;
+using cliext::operator<=;
+
+namespace Microsoft {
+	namespace VisualC {
+		namespace StlClr {
+//
+// TEMPLATE OPERATIONS FOR GenericPair
+//
+template<class _Ty1,
+	class _Ty2> inline
+	void swap(_STLCLR GenericPair<_Ty1, _Ty2>% _Left,
+		_STLCLR GenericPair<_Ty1, _Ty2>% _Right)
+	{	// swap _Left and _Right GenericPairs
+	_Left.swap(_Right);
+	}
+
+template<class _Ty1,
+	class _Ty2> inline
+	bool operator==(_STLCLR GenericPair<_Ty1, _Ty2>% _Left,
+		_STLCLR GenericPair<_Ty1, _Ty2>% _Right)
+	{	// test for GenericPair equality
+	return (_Left.first == _Right.first && _Left.second == _Right.second);
+	}
+
+template<class _Ty1,
+	class _Ty2> inline
+	bool operator==(_STLCLR GenericPair<_Ty1, _Ty2>^ _Left,
+		_STLCLR GenericPair<_Ty1, _Ty2>^ _Right)
+	{	// test for GenericPair equality
+	return (_Left->first == _Right->first
+		&& _Left->second == _Right->second);
+	}
+
+template<class _Ty1,
+	class _Ty2> inline
+	bool operator!=(_STLCLR GenericPair<_Ty1, _Ty2>% _Left,
+		_STLCLR GenericPair<_Ty1, _Ty2>% _Right)
+	{	// test for GenericPair inequality
+	return (!(_Left == _Right));
+	}
+
+template<class _Ty1,
+	class _Ty2> inline
+	bool operator<(_STLCLR GenericPair<_Ty1, _Ty2>% _Left,
+		_STLCLR GenericPair<_Ty1, _Ty2>% _Right)
+	{	// test if _Left < _Right for GenericPairs
+	return (_Left.first < _Right.first ||
+		!(_Right.first < _Left.first) && _Left.second < _Right.second);
+	}
+
+template<class _Ty1,
+	class _Ty2> inline
+	bool operator<(_STLCLR GenericPair<_Ty1, _Ty2>^ _Left,
+		_STLCLR GenericPair<_Ty1, _Ty2>^ _Right)
+	{	// test if _Left < _Right for GenericPairs
+	return (_Left->first < _Right->first ||
+		!(_Right->first < _Left->first) && _Left->second < _Right->second);
+	}
+
+template<class _Ty1,
+	class _Ty2> inline
+	bool operator>(_STLCLR GenericPair<_Ty1, _Ty2>% _Left,
+		_STLCLR GenericPair<_Ty1, _Ty2>% _Right)
+	{	// test if _Left > _Right for GenericPairs
+	return (_Right < _Left);
+	}
+
+template<class _Ty1,
+	class _Ty2> inline
+	bool operator<=(_STLCLR GenericPair<_Ty1, _Ty2>% _Left,
+		_STLCLR GenericPair<_Ty1, _Ty2>% _Right)
+	{	// test if _Left <= _Right for GenericPairs
+	return (!(_Right < _Left));
+	}
+
+template<class _Ty1,
+	class _Ty2> inline
+	bool operator>=(_STLCLR GenericPair<_Ty1, _Ty2>% _Left,
+		_STLCLR GenericPair<_Ty1, _Ty2>% _Right)
+	{	// test if _Left >= _Right for GenericPairs
+	return (!(_Left < _Right));
+	}
+
+template<class _Ty1,
+	class _Ty2> inline
+	_STLCLR GenericPair<_Ty1, _Ty2>
+		make_generic_pair(_Ty1 _Val1, _Ty2 _Val2)
+	{	// return GenericPair composed from arguments
+	return (_STLCLR GenericPair<_Ty1, _Ty2>(_Val1, _Val2));
+	}
+		}	// namespace StlClr
+	}	// namespace VisualC
+}	// namespace Microsoft
+#endif // _CLI_UTILITY_
+
+/*
+ * Copyright (c) 2004-2007 by Dinkumware, Ltd.  ALL RIGHTS RESERVED.
+ * Consult your license regarding permissions and restrictions.
+V5.03:0009 */

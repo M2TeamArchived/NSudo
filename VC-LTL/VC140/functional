@@ -1,0 +1,929 @@
+// functional standard header
+#pragma once
+#ifndef _FUNCTIONAL_
+#define _FUNCTIONAL_
+#ifndef RC_INVOKED
+#include <xfunctional>
+#include <exception>
+#include <typeinfo>
+#include <tuple>	// for bind
+
+ #pragma pack(push,_CRT_PACKING)
+ #pragma warning(push,3)
+ #pragma push_macro("new")
+ #undef new
+
+_STD_BEGIN
+	// TEMPLATE FUNCTION mem_fn
+template<class _Memptr>
+	class _Mem_fn
+		: public _Weak_types<_Memptr>::type
+	{	// wrap a pointer to member function/data
+private:
+	_Memptr _Pm;
+
+public:
+	explicit _Mem_fn(_Memptr _Val) _NOEXCEPT
+		: _Pm(_Val)
+		{	// construct, storing a pointer to member function/data
+		}
+
+	template<class... _Types>
+		auto operator()(_Types&&... _Args) const
+		-> decltype(_STD invoke(_Pm, _STD forward<_Types>(_Args)...))
+		{	// invoke a pointer to member function/data
+		return (_STD invoke(_Pm, _STD forward<_Types>(_Args)...));
+		}
+	};
+
+template<class _Memptr> inline
+	typename enable_if<is_member_pointer<_Memptr>::value,
+		_Mem_fn<_Memptr> >::type mem_fn(_Memptr _Pm) _NOEXCEPT
+	{	// wrap a pointer to member function/data
+		// NOTE: This template parameter differs from the Standard
+		// in order to handle arbitrary calling conventions.
+	return (_Mem_fn<_Memptr>(_Pm));
+	}
+
+// IMPLEMENT function
+
+	// CLASS bad_function_call
+class bad_function_call
+	: public _XSTD exception
+	{	// exception thrown when an empty std::function is called
+public:
+	bad_function_call() _NOEXCEPT
+		{	// construct
+		}
+
+	virtual const char *__CLR_OR_THIS_CALL what() const _THROW0()
+		{	// return pointer to message string
+		return ("bad function call");
+		}
+	};
+
+//_CRTIMP2_PURE _NO_RETURN(__CLRCALL_PURE_OR_CDECL _Xbad_function_call());
+
+	// TEMPLATE FUNCTION _Test_callable
+template<class _Fty>
+	class function;
+
+template<class _Ty> inline
+	bool _Test_callable(const _Ty& _Arg, true_type) _NOEXCEPT
+	{	// std::function must store non-null testable callable objects
+	return (!!_Arg);
+	}
+
+template<class _Ty> inline
+	bool _Test_callable(const _Ty&, false_type) _NOEXCEPT
+	{	// std::function must store arbitrary callable objects
+	return (true);
+	}
+
+template<class _Ty> inline
+	bool _Test_callable(const _Ty& _Arg) _NOEXCEPT
+	{	// determine whether std::function must store _Arg
+	_Cat_base<is_member_pointer<_Ty>::value || (is_pointer<_Ty>::value
+		&& is_function<typename remove_pointer<_Ty>::type>::value)> _Testable;
+	return (_Test_callable(_Arg, _Testable));
+	}
+
+template<class _Fty> inline
+	bool _Test_callable(const function<_Fty>& _Arg) _NOEXCEPT
+	{	// determine whether std::function must store _Arg
+	return (!!_Arg);
+	}
+
+	// TEMPLATE CLASS _Func_base
+template<class _Rx,
+	class... _Types>
+	class _Func_base
+	{	// abstract base for implementation types
+public:
+	typedef _Func_base<_Rx, _Types...> _Myt;
+
+	virtual _Myt *_Copy(void *) const = 0;
+	virtual _Myt *_Move(void *) = 0;
+	virtual _Rx _Do_call(_Types&&...) = 0;
+	virtual const _XSTD2 type_info& _Target_type() const _NOEXCEPT = 0;
+	virtual void _Delete_this(bool) _NOEXCEPT = 0;
+
+	const void *_Target(const _XSTD2 type_info& _Info) const _NOEXCEPT
+		{	// return pointer to stored object of type _Info
+		return (_Target_type() == _Info ? _Get() : 0);
+		}
+
+	_Func_base(const _Myt&) = delete;
+	_Myt& operator=(const _Myt&) = delete;
+
+	_Func_base() = default;
+
+	~_Func_base() _NOEXCEPT
+		{	// non-virtual due to _Delete_this()
+		}
+
+private:
+	virtual const void *_Get() const _NOEXCEPT = 0;
+	};
+
+	// TEMPLATE CLASS _Is_large
+const int _Num_ptrs = 6 + 16 / sizeof (void *);
+
+const size_t _Space_size = (_Num_ptrs - 1) * sizeof (void *);
+
+template<class _Impl>
+	struct _Is_large
+		: bool_constant<_Space_size < sizeof (_Impl)
+			|| !_Impl::_Nothrow_move::value>
+	{	// determine whether _Impl must be dynamically allocated
+	};
+
+	// TEMPLATE CLASS _Func_impl
+template<class _Callable,
+	class _Alloc,
+	class _Rx,
+	class... _Types>
+	class _Func_impl
+		: public _Func_base<_Rx, _Types...>
+	{	// derived class for specific implementation types
+public:
+	typedef _Func_impl<_Callable, _Alloc, _Rx, _Types...> _Myt;
+	typedef _Func_base<_Rx, _Types...> _Mybase;
+	typedef _Wrap_alloc<_Alloc> _Myalty0;
+	typedef typename _Myalty0::template rebind<_Myt>::other _Myalty;
+	typedef is_nothrow_move_constructible<_Callable> _Nothrow_move;
+
+	template<class _Other1,
+		class _Other2>
+		_Func_impl(_Other1&& _Val, _Other2&& _Ax)
+		: _Mypair(_One_then_variadic_args_t(),
+			_STD forward<_Other2>(_Ax), _STD forward<_Other1>(_Val))
+		{	// construct
+		}
+
+	~_Func_impl() _NOEXCEPT
+		{	// non-virtual due to _Delete_this()
+		}
+
+private:
+	virtual _Mybase *_Copy(void *_Where) const
+		{	// return clone of *this
+		return (_Clone(_Where, _Is_large<_Myt>()));
+		}
+
+	template<class _Void>
+		_Mybase *_Clone(_Void *, true_type) const
+		{	// return clone of *this, large (dynamically allocated)
+		_Myalty _Al(_Myax());
+		_Myt * _Ptr = _Al.allocate(1);
+
+		_TRY_BEGIN
+			_Al.construct(_Ptr, _Callee(), _Myax());
+		_CATCH_ALL
+			_Al.deallocate(_Ptr, 1);
+		_RERAISE;
+		_CATCH_END
+
+		return (_Ptr);
+		}
+
+	template<class _Void>
+		_Mybase *_Clone(_Void *_Where, false_type) const
+		{	// return clone of *this, small (locally stored)
+		_Myalty _Al(_Myax());
+		_Myt * _Ptr = static_cast<_Myt *>(_Where);
+		_Al.construct(_Ptr, _Callee(), _Myax());
+		return (_Ptr);
+		}
+
+	virtual _Mybase *_Move(void *_Where)
+		{	// return clone of *this
+		_Myalty _Al(_Myax());
+		_Myt *_Ptr = static_cast<_Myt *>(_Where);
+		_Al.construct(_Ptr, _STD move(_Callee()), _STD move(_Myax()));
+		return (_Ptr);
+		}
+
+	virtual _Rx _Do_call(_Types&&... _Args)
+		{	// call wrapped function
+		return (_Invoke_ret(_Forced<_Rx>(), _Callee(),
+			_STD forward<_Types>(_Args)...));
+		}
+
+	virtual const _XSTD2 type_info& _Target_type() const _NOEXCEPT
+		{	// return type information for stored object
+		return (typeid(_Callable));
+		}
+
+	virtual const void *_Get() const _NOEXCEPT
+		{	// return address of stored object
+		return (_STD addressof(_Callee()));
+		}
+
+	virtual void _Delete_this(bool _Deallocate) _NOEXCEPT
+		{	// destroy self
+		_Myalty _Al(_Myax());
+		_Al.destroy(this);
+		if (_Deallocate)
+			_Al.deallocate(this, 1);
+		}
+
+	_Compressed_pair<_Alloc, _Callable> _Mypair;
+
+	_Alloc& _Myax() _NOEXCEPT
+		{	// return reference to allocator
+		return (_Mypair._Get_first());
+		}
+
+	const _Alloc& _Myax() const _NOEXCEPT
+		{	// return const reference to allocator
+		return (_Mypair._Get_first());
+		}
+
+	_Callable& _Callee() _NOEXCEPT
+		{	// return reference to wrapped function
+		return (_Mypair._Get_second());
+		}
+
+	const _Callable& _Callee() const _NOEXCEPT
+		{	// return const reference to wrapped function
+		return (_Mypair._Get_second());
+		}
+	};
+
+	// TEMPLATE CLASS _Func_class
+template<class _Ret,
+	class... _Types>
+	class _Func_class
+		: public _Arg_types<_Types...>
+	{	// implement function template
+public:
+	typedef _Ret result_type;
+
+	typedef _Func_class<_Ret, _Types...> _Myt;
+	typedef _Func_base<_Ret, _Types...> _Ptrt;
+
+	_Func_class() _NOEXCEPT
+		{	// construct without stored object
+		_Set(0);
+		}
+
+	_Ret operator()(_Types... _Args) const
+		{	// call through stored object
+		//if (_Empty())
+		//	_Xbad_function_call();
+		return (_Getimpl()->_Do_call(_STD forward<_Types>(_Args)...));
+		}
+
+	~_Func_class() _NOEXCEPT
+		{	// destroy the object
+		_Tidy();
+		}
+
+protected:
+	bool _Empty() const _NOEXCEPT
+		{	// return true if no stored object
+		return (_Getimpl() == 0);
+		}
+
+	void _Reset_copy(const _Myt& _Right)
+		{	// copy _Right's stored object
+		if (_Right._Empty())
+			;	// already empty
+		else if (_Right._Local())
+			_Set(_Right._Getimpl()->_Copy(_Getspace()));
+		else
+			_Set(_Right._Getimpl()->_Copy(0));
+		}
+
+	void _Reset_move(_Myt&& _Right)
+		{	// move _Right's stored object
+		if (_Right._Empty())
+			;	// already empty
+		else if (_Right._Local())
+			{	// move and tidy
+			_Set(_Right._Getimpl()->_Move(_Getspace()));
+			_Right._Tidy();
+			}
+		else
+			{	// steal from _Right
+			_Set(_Right._Getimpl());
+			_Right._Set(0);
+			}
+		}
+
+	template<class _Fx>
+		void _Reset(_Fx&& _Val)
+		{	// store copy of _Val
+		_Reset_alloc(_STD forward<_Fx>(_Val), allocator<int>());
+		}
+
+	template<class _Fx,
+		class _Alloc>
+		void _Reset_alloc(_Fx&& _Val, const _Alloc& _Ax)
+		{	// store copy of _Val with allocator
+		if (!_Test_callable(_Val))
+			{	// null member pointer/function pointer/std::function
+			return;	// already empty
+			}
+
+		typedef typename decay<_Fx>::type _Decayed;
+		typedef _Func_impl<_Decayed, _Alloc, _Ret, _Types...> _Myimpl;
+		_Myimpl *_Ptr = 0;
+
+		typedef _Wrap_alloc<_Alloc> _Alimpl0;
+		typedef typename _Alimpl0::template rebind<_Myimpl>::other _Alimpl;
+		_Alimpl _Al(_Ax);
+
+		_Reset_impl(_STD forward<_Fx>(_Val), _Ax,
+			_Ptr, _Al, _Is_large<_Myimpl>());
+		}
+
+	template<class _Fx,
+		class _Alloc,
+		class _Myimpl,
+		class _Alimpl>
+		void _Reset_impl(_Fx&& _Val, const _Alloc& _Ax,
+			_Myimpl *, _Alimpl& _Al, true_type)
+		{	// store copy of _Val with allocator, large (dynamically allocated)
+		_Myimpl *_Ptr = _Al.allocate(1);
+
+		_TRY_BEGIN
+			_Al.construct(_Ptr, _STD forward<_Fx>(_Val), _Ax);
+		_CATCH_ALL
+			_Al.deallocate(_Ptr, 1);
+		_RERAISE;
+		_CATCH_END
+
+		_Set(_Ptr);
+		}
+
+	template<class _Fx,
+		class _Alloc,
+		class _Myimpl,
+		class _Alimpl>
+		void _Reset_impl(_Fx&& _Val, const _Alloc& _Ax,
+			_Myimpl *, _Alimpl& _Al, false_type)
+		{	// store copy of _Val with allocator, small (locally stored)
+		_Myimpl *_Ptr = static_cast<_Myimpl *>(_Getspace());
+		_Al.construct(_Ptr, _STD forward<_Fx>(_Val), _Ax);
+		_Set(_Ptr);
+		}
+
+	void _Tidy() _NOEXCEPT
+		{	// clean up
+		if (!_Empty())
+			{	// destroy callable object and maybe delete it
+			_Getimpl()->_Delete_this(!_Local());
+			_Set(0);
+			}
+		}
+
+	void _Swap(_Myt& _Right) _NOEXCEPT
+		{	// swap contents with contents of _Right
+		if (!_Local() && !_Right._Local())
+			{	// just swap pointers
+			_Ptrt *_Temp = _Getimpl();
+			_Set(_Right._Getimpl());
+			_Right._Set(_Temp);
+			}
+		else
+			{	// do three-way move
+			_Myt _Temp;
+			_Temp._Reset_move(_STD move(*this));
+			_Reset_move(_STD move(_Right));
+			_Right._Reset_move(_STD move(_Temp));
+			}
+		}
+
+	const _XSTD2 type_info& _Target_type() const _NOEXCEPT
+		{	// return type information for stored object
+		return (_Getimpl() ? _Getimpl()->_Target_type() : typeid(void));
+		}
+
+	const void *_Target(const _XSTD2 type_info& _Info) const _NOEXCEPT
+		{	// return pointer to stored object
+		return (_Getimpl() ? _Getimpl()->_Target(_Info) : 0);
+		}
+
+private:
+	bool _Local() const _NOEXCEPT
+		{	// test for locally stored copy of object
+		return (_Getimpl() == _Getspace());
+		}
+
+	union _Storage
+		{	// storage for small objects (basic_string is small)
+		max_align_t _Dummy1;	// for maximum alignment
+		char _Dummy2[_Space_size];	// to permit aliasing
+		_Ptrt *_Ptrs[_Num_ptrs];	// _Ptrs[_Num_ptrs - 1] is reserved
+		};
+
+	_Storage _Mystorage;
+	enum {_EEN_IMPL = _Num_ptrs - 1};	// helper for expression evaluator
+	_Ptrt *_Getimpl() const _NOEXCEPT
+		{	// get pointer to object
+		return (_Mystorage._Ptrs[_Num_ptrs - 1]);
+		}
+
+	void _Set(_Ptrt *_Ptr) _NOEXCEPT
+		{	// store pointer to object
+		_Mystorage._Ptrs[_Num_ptrs - 1] = _Ptr;
+		}
+
+	void *_Getspace() _NOEXCEPT
+		{	// get pointer to storage space
+		return (&_Mystorage);
+		}
+
+	const void *_Getspace() const _NOEXCEPT
+		{	// get pointer to storage space
+		return (&_Mystorage);
+		}
+	};
+
+	// TEMPLATE CLASS _Get_function_impl
+template<class _Tx>
+	struct _Get_function_impl;
+
+#define _GET_FUNCTION_IMPL(CALL_OPT) \
+template<class _Ret, \
+	class... _Types> \
+	struct _Get_function_impl<_Ret CALL_OPT (_Types...)> \
+	{	/* determine type from argument list */ \
+	typedef _Func_class<_Ret, _Types...> type; \
+	};
+
+_NON_MEMBER_CALL(_GET_FUNCTION_IMPL)
+#undef _GET_FUNCTION_IMPL
+
+	// TEMPLATE CLASS function
+template<class _Fty>
+	class function
+		: public _Get_function_impl<_Fty>::type
+	{	// wrapper for callable objects
+public:
+	typedef function<_Fty> _Myt;
+
+	function() _NOEXCEPT
+		{	// construct empty function wrapper
+		}
+
+	function(nullptr_t) _NOEXCEPT
+		{	// construct empty function wrapper from null pointer
+		}
+
+	function(const _Myt& _Right)
+		{	// construct holding copy of _Right
+		this->_Reset_copy(_Right);
+		}
+
+	template<class _Fx>
+		function(_Fx _Func)
+		{	// construct wrapper holding copy of _Func
+		this->_Reset(_STD move(_Func));
+		}
+
+	template<class _Alloc>
+		function(allocator_arg_t, const _Alloc&) _NOEXCEPT
+		{	// construct empty function wrapper, allocator
+		}
+
+	template<class _Alloc>
+		function(allocator_arg_t, const _Alloc&, nullptr_t) _NOEXCEPT
+		{	// construct empty function wrapper from null pointer, allocator
+		}
+
+	template<class _Alloc>
+		function(allocator_arg_t, const _Alloc& _Ax, const _Myt& _Right)
+		{	// construct wrapper holding copy of _Right, allocator
+		this->_Reset_alloc(_Right, _Ax);
+		}
+
+	template<class _Fx,
+		class _Alloc>
+		function(allocator_arg_t, const _Alloc& _Ax, _Fx _Func)
+		{	// construct wrapper holding copy of _Func, allocator
+		this->_Reset_alloc(_STD move(_Func), _Ax);
+		}
+
+	~function() _NOEXCEPT
+		{	// destroy the object
+		}
+
+	_Myt& operator=(const _Myt& _Right)
+		{	// assign _Right
+		_Myt(_Right).swap(*this);
+		return (*this);
+		}
+
+	function(_Myt&& _Right)
+		{	// construct holding moved copy of _Right
+		this->_Reset_move(_STD move(_Right));
+		}
+
+	template<class _Alloc>
+		function(allocator_arg_t, const _Alloc& _Al, _Myt&& _Right)
+		{	// construct wrapper holding moved copy of _Right, allocator
+		this->_Reset_alloc(_STD move(_Right), _Al);
+		}
+
+	_Myt& operator=(_Myt&& _Right)
+		{	// assign by moving _Right
+		if (this != &_Right)
+			{	// clean up and copy
+			this->_Tidy();
+			this->_Reset_move(_STD move(_Right));
+			}
+		return (*this);
+		}
+
+	template<class _Fx>
+		_Myt& operator=(_Fx&& _Func)
+		{	// assign function object _Func
+		_Myt(_STD forward<_Fx>(_Func)).swap(*this);
+		return (*this);
+		}
+
+	template<class _Fx,
+		class _Alloc>
+		void assign(_Fx&& _Func, const _Alloc& _Ax)
+		{	// assign wrapper holding copy of _Func, allocator
+		_Myt(allocator_arg, _Ax, _STD forward<_Fx>(_Func)).swap(*this);
+		}
+
+	_Myt& operator=(nullptr_t) _NOEXCEPT
+		{	// clear function object
+		this->_Tidy();
+		return (*this);
+		}
+
+	template<class _Fx>
+		_Myt& operator=(reference_wrapper<_Fx> _Func) _NOEXCEPT
+		{	// assign wrapper holding reference_wrapper to function object
+		this->_Tidy();
+		this->_Reset(_Func);
+		return (*this);
+		}
+
+	void swap(_Myt& _Right) _NOEXCEPT
+		{	// swap with _Right
+		this->_Swap(_Right);
+		}
+
+	explicit operator bool() const _NOEXCEPT
+		{	// test if wrapper holds function object
+		return (!this->_Empty());
+		}
+
+	const _XSTD2 type_info& target_type() const _NOEXCEPT
+		{	// return type_info object for target type
+		return (this->_Target_type());
+		}
+
+	template<class _Fx>
+		_Fx *target() _NOEXCEPT
+		{	// return pointer to target object
+		return (static_cast<_Fx *>(const_cast<void *>(
+			this->_Target(typeid(_Fx)))));
+		}
+
+	template<class _Fx>
+		const _Fx *target() const _NOEXCEPT
+		{	// return pointer to target object
+		return (static_cast<const _Fx *>(this->_Target(typeid(_Fx))));
+		}
+	};
+
+	// TEMPLATE FUNCTION swap
+template<class _Fty> inline
+	void swap(function<_Fty>& _Left, function<_Fty>& _Right) _NOEXCEPT
+	{	// swap contents of _Left with contents of _Right
+	_Left.swap(_Right);
+	}
+
+	// TEMPLATE NULL POINTER COMPARISONS
+template<class _Fty> inline
+	bool operator==(const function<_Fty>& _Other,
+		nullptr_t) _NOEXCEPT
+	{	// compare to null pointer
+	return (!_Other);
+	}
+
+template<class _Fty> inline
+	bool operator==(nullptr_t,
+		const function<_Fty>& _Other) _NOEXCEPT
+	{	// compare to null pointer
+	return (!_Other);
+	}
+
+template<class _Fty> inline
+	bool operator!=(const function<_Fty>& _Other,
+		nullptr_t) _NOEXCEPT
+	{	// compare to null pointer
+	return (static_cast<bool>(_Other));
+	}
+
+template<class _Fty> inline
+	bool operator!=(nullptr_t,
+		const function<_Fty>& _Other) _NOEXCEPT
+	{	// compare to null pointer
+	return (static_cast<bool>(_Other));
+	}
+
+// IMPLEMENT bind
+	// PLACEHOLDERS
+template<int _Nx>
+	struct _Ph
+	{	// placeholder
+	};
+
+template<class _Tx>
+	struct is_placeholder
+		: integral_constant<int, 0>
+	{	// template to indicate that _Tx is not a placeholder
+	};
+
+template<int _Nx>
+	struct is_placeholder<_Ph<_Nx> >
+		: integral_constant<int, _Nx>
+	{	// template specialization to indicate that _Ph<_Nx> is a placeholder
+	};
+
+template<class _Tx>
+	struct is_placeholder<const _Tx>
+		: is_placeholder<_Tx>
+	{	// ignore cv-qualifiers
+	};
+
+template<class _Tx>
+	struct is_placeholder<volatile _Tx>
+		: is_placeholder<_Tx>
+	{	// ignore cv-qualifiers
+	};
+
+template<class _Tx>
+	struct is_placeholder<const volatile _Tx>
+		: is_placeholder<_Tx>
+	{	// ignore cv-qualifiers
+	};
+
+	// TEMPLATE CLASS _Binder FORWARD DECLARATION
+template<class _Ret,
+	class _Fx,
+	class... _Types>
+	class _Binder;
+
+	// TEMPLATE CLASS is_bind_expression
+template<class _Tx>
+	struct is_bind_expression
+		: false_type
+	{	// template to indicate that _Tx is not a bind expression
+	};
+
+template<class _Ret,
+	class _Fx,
+	class... _Types>
+	struct is_bind_expression<_Binder<_Ret, _Fx, _Types...> >
+		: true_type
+	{	// template specialization to indicate a bind expression
+	};
+
+template<class _Tx>
+	struct is_bind_expression<const _Tx>
+		: is_bind_expression<_Tx>
+	{	// ignore cv-qualifiers
+	};
+
+template<class _Tx>
+	struct is_bind_expression<volatile _Tx>
+		: is_bind_expression<_Tx>
+	{	// ignore cv-qualifiers
+	};
+
+template<class _Tx>
+	struct is_bind_expression<const volatile _Tx>
+		: is_bind_expression<_Tx>
+	{	// ignore cv-qualifiers
+	};
+
+	// TEMPLATE FUNCTION _Fix_arg
+template<class _Cv_TiD,
+	bool = _Unrefwrap<_Cv_TiD>::_Is_refwrap,
+	bool = is_bind_expression<_Cv_TiD>::value,
+	int = is_placeholder<_Cv_TiD>::value>
+	struct _Select_fixer;
+
+template<class _Cv_TiD>
+	struct _Select_fixer<_Cv_TiD, true, false, 0>
+	{	// reference_wrapper fixer
+	template<class _Untuple>
+		static auto _Fix(_Cv_TiD& _Tid, _Untuple&&)
+		-> typename _Cv_TiD::type&
+		{	// unwrap a reference_wrapper
+		return (_Tid.get());
+		}
+	};
+
+template<class _Cv_TiD>
+	struct _Select_fixer<_Cv_TiD, false, true, 0>
+	{	// nested bind fixer
+	template<class _Untuple,
+		size_t... _Jx>
+		static auto _Apply(_Cv_TiD& _Tid, _Untuple&& _Ut,
+			integer_sequence<size_t, _Jx...>)
+		-> decltype(_Tid(_STD get<_Jx>(_STD move(_Ut))...))
+		{	// call a nested bind expression
+		return (_Tid(_STD get<_Jx>(_STD move(_Ut))...));
+		}
+
+	template<class _Untuple>
+		static auto _Fix(_Cv_TiD& _Tid, _Untuple&& _Ut)
+		-> decltype(_Apply(_Tid, _STD move(_Ut),
+			make_integer_sequence<size_t, tuple_size<_Untuple>::value>()))
+		{	// call a nested bind expression
+		return (_Apply(_Tid, _STD move(_Ut),
+			make_integer_sequence<size_t, tuple_size<_Untuple>::value>()));
+		}
+	};
+
+template<class _Cv_TiD>
+	struct _Select_fixer<_Cv_TiD, false, false, 0>
+	{	// identity fixer
+	template<class _Untuple>
+		static _Cv_TiD& _Fix(_Cv_TiD& _Tid, _Untuple&&)
+		{	// pass a bound argument as an lvalue (important!)
+		return (_Tid);
+		}
+	};
+
+template<class _Cv_TiD,
+	int _Jx>
+	struct _Select_fixer<_Cv_TiD, false, false, _Jx>
+	{	// placeholder fixer
+	static_assert(_Jx > 0, "invalid is_placeholder value");
+
+	template<class _Untuple>
+		static auto _Fix(_Cv_TiD& _Tid, _Untuple&& _Ut)
+		-> decltype(_STD get<_Jx - 1>(_STD move(_Ut)))
+		{	// choose the Jth unbound argument (1-based indexing)
+		return (_STD get<_Jx - 1>(_STD move(_Ut)));
+		}
+	};
+
+template<class _Cv_TiD,
+	class _Untuple> inline
+	auto _Fix_arg(_Cv_TiD& _Tid, _Untuple&& _Ut)
+	-> decltype(_Select_fixer<_Cv_TiD>::_Fix(_Tid, _STD move(_Ut)))
+	{	// translate an argument for bind
+	return (_Select_fixer<_Cv_TiD>::_Fix(_Tid, _STD move(_Ut)));
+	}
+
+	// TEMPLATE FUNCTION _Call_binder
+template<class _Ret,
+	size_t... _Ix,
+	class _Cv_FD,
+	class _Cv_tuple_TiD,
+	class _Untuple> inline
+	auto _Call_binder(_Forced<_Ret> _Fr, integer_sequence<size_t, _Ix...>,
+		_Cv_FD& _Obj, _Cv_tuple_TiD& _Tpl, _Untuple&& _Ut)
+	-> decltype(_Invoke_ret(_Fr, _Obj, _Fix_arg(
+		_STD get<_Ix>(_Tpl), _STD move(_Ut))...))
+	{	// bind() and bind<R>() invocation
+	return (_Invoke_ret(_Fr, _Obj, _Fix_arg(
+		_STD get<_Ix>(_Tpl), _STD move(_Ut))...));
+	}
+
+	// TEMPLATE CLASS _Binder
+template<class _Ret>
+	struct _Forced_result_type
+	{	// used by bind<R>()
+	typedef _Ret result_type;
+	};
+
+template<class _Ret,
+	class _Fx>
+	struct _Binder_result_type
+	{	// provide result_type (sometimes)
+	typedef typename decay<_Fx>::type _Decayed;
+
+	typedef typename _Weak_types<_Decayed>::type _All_weak_types;
+
+	typedef typename _If<is_same<_Ret, _Unforced>::value,
+		_Weak_result_type<_All_weak_types>,
+		_Forced_result_type<_Ret> >::type type;
+	};
+
+template<class _Ret,
+	class _Fx,
+	class... _Types>
+	class _Binder
+		: public _Binder_result_type<_Ret, _Fx>::type
+	{	// wrap bound callable object and arguments
+private:
+	typedef make_integer_sequence<size_t, sizeof...(_Types)> _Seq;
+	typedef typename decay<_Fx>::type _First;
+	typedef tuple<typename decay<_Types>::type...> _Second;
+
+	_Compressed_pair<_First, _Second> _Mypair;
+
+public:
+	explicit _Binder(_Fx&& _Func, _Types&&... _Args)
+		: _Mypair(_One_then_variadic_args_t(),
+			_STD forward<_Fx>(_Func), _STD forward<_Types>(_Args)...)
+		{	// construct from forwarded callable object and arguments
+		}
+
+#define _BINDER_OPERATOR(CONST_OPT) \
+	template<class... _Unbound> \
+		auto operator()(_Unbound&&... _Unbargs) CONST_OPT \
+		-> decltype(_Call_binder(_Forced<_Ret>(), _Seq(), \
+			_Mypair._Get_first(), _Mypair._Get_second(), \
+			_STD forward_as_tuple(_STD forward<_Unbound>(_Unbargs)...))) \
+		{	/* invoke bound callable object with bound/unbound arguments */ \
+		return (_Call_binder(_Forced<_Ret>(), _Seq(), \
+			_Mypair._Get_first(), _Mypair._Get_second(), \
+			_STD forward_as_tuple(_STD forward<_Unbound>(_Unbargs)...))); \
+		}
+
+_CLASS_DEFINE_CONST(_BINDER_OPERATOR)
+#undef _BINDER_OPERATOR
+	};
+
+	// TEMPLATE FUNCTION bind (implicit return type)
+template<class _Fx,
+	class... _Types> inline
+	_Binder<_Unforced, _Fx, _Types...> bind(_Fx&& _Func, _Types&&... _Args)
+	{	// bind a callable object with an implicit return type
+	return (_Binder<_Unforced, _Fx, _Types...>(
+		_STD forward<_Fx>(_Func), _STD forward<_Types>(_Args)...));
+	}
+
+	// TEMPLATE FUNCTION bind (explicit return type)
+template<class _Ret,
+	class _Fx,
+	class... _Types> inline
+	_Binder<_Ret, _Fx, _Types...> bind(_Fx&& _Func, _Types&&... _Args)
+	{	// bind a callable object with an explicit return type
+	return (_Binder<_Ret, _Fx, _Types...>(
+		_STD forward<_Fx>(_Func), _STD forward<_Types>(_Args)...));
+	}
+
+	// PLACEHOLDER ARGUMENTS
+		namespace placeholders {	// placeholders
+_CONST_DATA _Ph<1> _1{};
+_CONST_DATA _Ph<2> _2{};
+_CONST_DATA _Ph<3> _3{};
+_CONST_DATA _Ph<4> _4{};
+_CONST_DATA _Ph<5> _5{};
+_CONST_DATA _Ph<6> _6{};
+_CONST_DATA _Ph<7> _7{};
+_CONST_DATA _Ph<8> _8{};
+_CONST_DATA _Ph<9> _9{};
+_CONST_DATA _Ph<10> _10{};
+_CONST_DATA _Ph<11> _11{};
+_CONST_DATA _Ph<12> _12{};
+_CONST_DATA _Ph<13> _13{};
+_CONST_DATA _Ph<14> _14{};
+_CONST_DATA _Ph<15> _15{};
+_CONST_DATA _Ph<16> _16{};
+_CONST_DATA _Ph<17> _17{};
+_CONST_DATA _Ph<18> _18{};
+_CONST_DATA _Ph<19> _19{};
+_CONST_DATA _Ph<20> _20{};
+		}	// namespace placeholders
+
+namespace tr1 {	// TR1 additions
+using _STD bad_function_call;
+using _STD bind;
+using _STD function;
+using _STD is_bind_expression;
+using _STD is_placeholder;
+using _STD mem_fn;
+using _STD swap;
+
+namespace placeholders {
+	using namespace _STD placeholders;
+	}	// namespace placeholders
+}	// namespace tr1
+_STD_END
+
+namespace std {
+	// TEMPLATE STRUCT uses_allocator
+template<class _Fty,
+	class _Alloc>
+	struct uses_allocator<function<_Fty>, _Alloc>
+		: true_type
+	{	// true_type if container allocator enabled
+	};
+}	// namespace std
+ #pragma pop_macro("new")
+ #pragma warning(pop)
+ #pragma pack(pop)
+#endif /* RC_INVOKED */
+#endif /* _FUNCTIONAL_ */
+
+/*
+ * Copyright (c) by P.J. Plauger. All rights reserved.
+ * Consult your license regarding permissions and restrictions.
+V6.50:0009 */
