@@ -69,33 +69,27 @@ CommandLine=notepad
 ## 下载 Download
 下载地址：https://zh-cn.b0.upaiyun.com/lite/NSudo2016.1.zip 
 
+## MDL论坛根据地 MDL Post
+http://forums.mydigitallife.info/threads/59268-M2-Team-NSudo-(New-Version-2016)
+
 ## 交流 Communication
 如果碰到什么问题，可以在NSudo官方群（QQ群：```466078631```）探讨
 
 ------------
 ## 感谢（排名不分先后） Thanks
-- raymai97
-> SuperCMD作者
-- mingkuang(初雨团队)
-> VC-LTL作者及团队
-- Wen Jia Liu
-> Process Hacker作者
-- boyangpangzi,cjy__05,mhxkx,NotePad,tangmigoId,wondersnefu,xy137425740,月光光
-> 捐赠
-- Eugene Wang J.y
-> 繁体中文翻译
-- Microsoft_Mars
-> 日语翻译
-- Bill
-> 新版Readme和Changelog建立者
-- 20011010wo，4071E95D-A09B-4AA3-8008，Microsoft_Mars
-> 开发工作
-- こうさか ほのか (a Japanese anime “Love Live” character)
-> 精神支持 O(∩_∩)O~
-- 20011010wo,Bill,hortz,Eugene Wang J.y,Microsoft_Mars,Mouri_Naruto,杂货店的音符
-> M2-Team 成员
+```
+SuperCMD作者(NSudo原型): raymai97
+VC-LTL作者及团队(NSudo 4.0开始所用C运行时):mingkuang(初雨团队)
+Process Hacker作者(NSudo 4.0使用的Native API头文件定义的源头):Wen Jia Liu
+捐赠: boyangpangzi,cjy__05,mhxkx,NotePad,tangmigoId,wondersnefu,xy137425740,月光光
+繁体中文翻译: Eugene Wang J.y
+日语翻译: Microsoft_Mars
+Bill: 新版Readme和Changelog建立者
+开发工作: 20011010wo，4071E95D-A09B-4AA3-8008，Microsoft_Mars
+精神支持 O(∩_∩)O~: こうさか ほのか (a Japanese anime “Love Live” character)
+M2-Team 成员: 20011010wo,Bill,hortz,Eugene Wang J.y,Microsoft_Mars,Mouri_Naruto,杂货店的音符
+```
 
-------------
 ## 第三方库 3rd-party
 
 - VC-LTL
@@ -126,10 +120,6 @@ PS：我对该库进行了大幅度修改
  
 附整理成果地址：https://github.com/Chuyu-Team/NativeLib
 ```
-
-------------
-MDL论坛根据地 MDL Post
-> http://forums.mydigitallife.info/threads/59268-M2-Team-NSudo-(New-Version-2016)
 
 ------------
 Have a good time -- M2-Team参上
