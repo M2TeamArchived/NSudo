@@ -1,0 +1,1632 @@
+// valarray standard header
+#pragma once
+#ifndef _VALARRAY_
+#define _VALARRAY_
+#ifndef RC_INVOKED
+#include <cmath>
+#include <xmemory>
+
+ #pragma pack(push,_CRT_PACKING)
+ #pragma warning(push,3)
+ #pragma push_macro("new")
+ #undef new
+
+ #pragma warning(disable: 4244 4700)
+_STD_BEGIN
+		// FORWARD REFERENCES
+class gslice;
+class slice;
+
+template<class _Ty>
+	class gslice_array;
+template<class _Ty>
+	class indirect_array;
+template<class _Ty>
+	class mask_array;
+template<class _Ty>
+	class slice_array;
+template<class _Ty>
+	class valarray;
+
+typedef valarray<bool> _Boolarray;
+typedef valarray<size_t> _Sizarray;
+
+		// MACROS FOR valarray
+#define _VALOP(TYPE, LENGTH, RHS)	/* assign RHS(_Idx) to new valarray */ \
+	valarray<TYPE> _Ans(LENGTH); \
+	for (size_t _Idx = 0; _Idx < _Ans.size(); ++_Idx) \
+		_Ans[_Idx] = RHS; \
+	return (_Ans)
+
+#define _VALGOP(RHS)	/* apply RHS(_Idx) to valarray */ \
+	for (size_t _Idx = 0; _Idx < size(); ++_Idx) \
+		_Myptr[_Idx] RHS; \
+	return (*this)
+
+		// TEMPLATE CLASS valarray
+template<class _Ty>
+	class valarray
+	{	// store array with various indexing options
+public:
+	typedef valarray<_Ty> _Myt;
+	typedef _Ty value_type;
+
+	valarray()
+		{	// construct empty valarray
+		_Tidy();
+		}
+
+	explicit valarray(size_t _Count)
+		{	// construct with _Count * _Ty()
+		_Tidy();
+		_Grow(_Count);
+		}
+
+	valarray(const _Ty& _Val, size_t _Count)
+		{	// construct with _Count * _Val
+		_Tidy();
+		_Grow(_Count, &_Val);
+		}
+
+	valarray(const _Ty *_Ptr, size_t _Count)
+		{	// construct with [_Ptr, _Ptr + _Count)
+		_Tidy();
+		_Grow(_Count, _Ptr, 1);
+		}
+
+	valarray(const _Myt& _Right)
+		{	// construct from valarray
+		_Tidy();
+		_Grow(_Right.size(), _Right._Myptr, 1);
+		}
+
+	valarray(const slice_array<_Ty>& _Slicearr)
+		{	// construct from slice_array
+		_Tidy();
+		*this = _Slicearr;
+		}
+
+	valarray(const gslice_array<_Ty>& _Gslicearr)
+		{	// construct from gslice_array
+		_Tidy();
+		*this = _Gslicearr;
+		}
+
+	valarray(const mask_array<_Ty>& _Maskarr)
+		{	// construct from mask_array
+		_Tidy();
+		*this = _Maskarr;
+		}
+
+	valarray(const indirect_array<_Ty>& _Indarr)
+		{	// construct from indirect_array
+		_Tidy();
+		*this = _Indarr;
+		}
+
+	valarray(_Myt&& _Right) _NOEXCEPT
+		{	// construct by moving _Right
+		_Tidy();
+		_Assign_rv(_STD forward<_Myt>(_Right));
+		}
+
+	_Myt& operator=(_Myt&& _Right) _NOEXCEPT
+		{	// assign by moving _Right
+		_Assign_rv(_STD forward<_Myt>(_Right));
+		return (*this);
+		}
+
+	void _Assign_rv(_Myt&& _Right)
+		{	// assign by moving _Right
+		if (this != &_Right)
+			{	// clear this and steal from _Right
+			_Tidy(true);
+			_Myptr = _Right._Myptr;
+			_Mysize = _Right._Mysize;
+			_Right._Tidy();
+			}
+		}
+
+	valarray(_XSTD initializer_list<_Ty> _Ilist)
+		{	// construct from initializer_list
+		_Tidy();
+		_Grow(_Ilist.size(), _Ilist.begin(), 1);
+		}
+
+	_Myt& operator=(_XSTD initializer_list<_Ty> _Ilist)
+		{	// assign initializer_list
+		_Assign(_Ilist.size(), _Ilist.begin());
+		return (*this);
+		}
+
+	void swap(_Myt& _Right) _NOEXCEPT
+		{	// exchange contents with _Right
+		if (this != &_Right)
+			{	// swap with emptied container
+			_STD swap(_Myptr, _Right._Myptr);
+			_STD swap(_Mysize, _Right._Mysize);
+			}
+		}
+
+	~valarray() _NOEXCEPT
+		{	// destroy the object
+		_Tidy(true);
+		}
+
+	_Myt& operator=(const _Myt& _Right)
+		{	// assign valarray _Right
+		if (this != &_Right)
+			_Assign(_Right.size(), _Right._Myptr);
+		return (*this);
+		}
+
+	_Myt& operator=(const _Ty& _Val)
+		{	// assign _Val to each element
+		_VALGOP(= _Val);
+		}
+
+	void resize(size_t _Newsize)
+		{	// determine new length, filling with _Ty() elements
+		_Tidy(true);
+		_Grow(_Newsize);
+		}
+
+	void resize(size_t _Newsize, _Ty _Val)
+		{	// determine new length, filling with _Val elements
+		_Tidy(true);
+		_Grow(_Newsize, &_Val, 0);
+		}
+
+	_Myt& operator=(
+		const slice_array<_Ty>& _Slicearr);	// defined below
+
+	_Myt& operator=(
+		const gslice_array<_Ty>& _Gslicearr);	// defined below
+
+	_Myt& operator=(
+		const mask_array<_Ty>& _Maskarr);	// defined below
+
+	_Myt& operator=(
+		const indirect_array<_Ty>& _Indarr);	// defined below
+
+	_Myt operator+() const
+		{	// return +valarray
+		_VALOP(_Ty, size(), +_Myptr[_Idx]);
+		}
+
+	_Myt operator-() const
+		{	// return -valarray
+		_VALOP(_Ty, size(), -_Myptr[_Idx]);
+		}
+
+	_Myt operator~() const
+		{	// return ~valarray
+		_VALOP(_Ty, size(), ~_Myptr[_Idx]);
+		}
+
+	_Boolarray operator!() const
+		{	// return !valarray
+		_VALOP(bool, size(), !_Myptr[_Idx]);
+		}
+
+	_Myt& operator*=(const _Ty& _Right)
+		{	// multiply valarray elements by _Right
+		_VALGOP(*= _Right);
+		}
+
+	_Myt& operator/=(const _Ty& _Right)
+		{	// divide valarray elements by _Right
+		_VALGOP(/= _Right);
+		}
+
+	_Myt& operator%=(const _Ty& _Right)
+		{	// remainder valarray elements by _Right
+		_VALGOP(%= _Right);
+		}
+
+	_Myt& operator+=(const _Ty& _Right)
+		{	// add _Right to valarray elements
+		_VALGOP(+= _Right);
+		}
+
+	_Myt& operator-=(const _Ty& _Right)
+		{	// subtract _Right from valarray elements
+		_VALGOP(-= _Right);
+		}
+
+	_Myt& operator^=(const _Ty& _Right)
+		{	// XOR _Right into valarray elements
+		_VALGOP(^= _Right);
+		}
+
+	_Myt& operator&=(const _Ty& _Right)
+		{	// AND _Right into valarray elements
+		_VALGOP(&= _Right);
+		}
+
+	_Myt& operator|=(const _Ty& _Right)
+		{	// OR _Right into valarray elements
+		_VALGOP(|= _Right);
+		}
+
+	_Myt& operator<<=(const _Ty& _Right)
+		{	// left shift valarray elements by _Right
+		_VALGOP(<<= _Right);
+		}
+
+	_Myt& operator>>=(const _Ty& _Right)
+		{	// right shift valarray elements by _Right
+		_VALGOP(>>= _Right);
+		}
+
+	_Myt& operator*=(const _Myt& _Right)
+		{	// multiply valarray elements by valarray _Right elements
+		_VALGOP(*= _Right[_Idx]);
+		}
+
+	_Myt& operator/=(const _Myt& _Right)
+		{	// divide valarray elements by valarray _Right elements
+		_VALGOP(/= _Right[_Idx]);
+		}
+
+	_Myt& operator%=(const _Myt& _Right)
+		{	// remainder valarray elements by valarray _Right elements
+		_VALGOP(%= _Right[_Idx]);
+		}
+
+	_Myt& operator+=(const _Myt& _Right)
+		{	// add valarray _Right elements to valarray elements
+		_VALGOP(+= _Right[_Idx]);
+		}
+
+	_Myt& operator-=(const _Myt& _Right)
+		{	// subtract valarray _Right elements from valarray elements
+		_VALGOP(-= _Right[_Idx]);
+		}
+
+	_Myt& operator^=(const _Myt& _Right)
+		{	// XOR valarray _Right elements into valarray elements
+		_VALGOP(^= _Right[_Idx]);
+		}
+
+	_Myt& operator|=(const _Myt& _Right)
+		{	// OR valarray _Right elements into valarray elements
+		_VALGOP(|= _Right[_Idx]);
+		}
+
+	_Myt& operator&=(const _Myt& _Right)
+		{	// AND valarray _Right elements into valarray elements
+		_VALGOP(&= _Right[_Idx]);
+		}
+
+	_Myt& operator<<=(const _Myt& _Right)
+		{	// left shift valarray elements by valarray _Right elements
+		_VALGOP(<<= _Right[_Idx]);
+		}
+
+	_Myt& operator>>=(const _Myt& _Right)
+		{	// right shift valarray elements by valarray _Right elements
+		_VALGOP(>>= _Right[_Idx]);
+		}
+
+	size_t size() const
+		{	// return length of sequence
+		return (_Mysize);
+		}
+
+	const _Ty& operator[](size_t _Off) const
+		{	// subscript nonmutable sequence
+		return (_Myptr[_Off]);
+		}
+
+	_Ty& operator[](size_t _Off)
+		{	// subscript mutable sequence
+		return (_Myptr[_Off]);
+		}
+
+	_Myt operator[](
+		slice _Slicearr) const;	// defined below
+
+	slice_array<_Ty> operator[](
+		slice _Slicearr);	// defined below
+
+	_Myt operator[](
+		const gslice& _Gslicearr) const;	// defined below
+
+	gslice_array<_Ty> operator[](
+		const gslice& _Gslicearr);	// defined below
+
+	_Myt operator[](
+		const _Boolarray& _Boolarr) const;	// defined below
+
+	mask_array<_Ty> operator[](
+		const _Boolarray& _Boolarr);	// defined below
+
+	_Myt operator[](
+		const _Sizarray& _Indarr) const;	// defined below
+
+	indirect_array<_Ty> operator[](
+		const _Sizarray& _Indarr);	// defined below
+
+	_Ty sum() const
+		{	// return sum all elements
+		_Ty _Sum = _Myptr[0];
+		for (size_t _Idx = 0; ++_Idx < size(); )
+			_Sum += _Myptr[_Idx];
+		return (_Sum);
+		}
+
+	_Ty (min)() const
+		{	// return smallest of all elements
+		_Ty _Min = _Myptr[0];
+		for (size_t _Idx = 0; ++_Idx < size(); )
+			if (_Myptr[_Idx] < _Min)
+				_Min = _Myptr[_Idx];
+		return (_Min);
+		}
+
+	_Ty (max)() const
+		{	// return largest of all elements
+		_Ty _Max = _Myptr[0];
+		for (size_t _Idx = 0; ++_Idx < size(); )
+			if (_Max < _Myptr[_Idx])
+				_Max = _Myptr[_Idx];
+		return (_Max);
+		}
+
+	_Myt shift(int _Count) const
+		{	// return valarray left shifted
+		__PURE_APPDOMAIN_GLOBAL static _Ty _Dflt;
+		_VALOP(_Ty, size(),
+			0 < _Count && size() - _Idx <= (size_t)_Count
+				|| _Count < 0 && _Idx < (size_t)-_Count
+					? _Dflt : _Myptr[_Idx + _Count]);
+		}
+
+	_Myt cshift(int _Count) const
+		{	// return valarray left rotated
+		if (size() == 0)
+			;	// no shift
+		else if (_Count < 0)
+			{	// right shift
+			if (size() < (size_t)0 - _Count)
+				_Count = (int)(size() - ((size_t)0 - _Count - size())
+					% size());
+			else
+				_Count = (int)(size() + _Count);
+			}
+		else if (size() <= (size_t)_Count)
+			_Count %= size();
+
+		_VALOP(_Ty, size(), size() - _Idx <= (size_t)_Count
+			? _Myptr[_Idx - size() + _Count] : _Myptr[_Idx + _Count]);
+		}
+
+	_Myt apply(_Ty _Func(_Ty)) const
+		{	// return valarray transformed by _Func, value argument
+		_VALOP(_Ty, size(), _Func(_Myptr[_Idx]));
+		}
+
+	_Myt apply(_Ty _Func(const _Ty&)) const
+		{	// return valarray transformed by _Func, nonmutable argument
+		_VALOP(_Ty, size(), _Func(_Myptr[_Idx]));
+		}
+
+private:
+	void _Grow(size_t _Newsize)
+		{	// grow to _Count elements and pad with default values
+		if (0 < _Newsize)
+			{	// worth doing, allocate
+			_Myptr = _Allocate(_Newsize, (_Ty *)0, false);
+
+			_TRY_BEGIN
+			for (size_t _Idx = 0; _Idx < _Newsize; ++_Idx)
+				_Construct(&_Myptr[_Idx]);
+			_CATCH_ALL
+			_Tidy(true);	// construction failed, clean up and reraise
+			_RERAISE;
+			_CATCH_END
+
+			_Mysize = _Newsize;
+			}
+		}
+
+	void _Grow(size_t _Newsize,
+		const _Ty *_Ptr,
+		size_t _Inc = 0)
+		{	// grow to _Count elements and fill
+		if (0 < _Newsize)
+			{	// worth doing, allocate
+			_Myptr = _Allocate(_Newsize, (_Ty *)0, false);
+
+			_TRY_BEGIN
+			for (size_t _Idx = 0; _Idx < _Newsize; ++_Idx, _Ptr += _Inc)
+				_Construct(&_Myptr[_Idx], *_Ptr);
+			_CATCH_ALL
+			_Tidy(true);	// construction failed, clean up and reraise
+			_RERAISE;
+			_CATCH_END
+
+			_Mysize = _Newsize;
+			}
+		}
+
+	void _Tidy(bool _Constructed = false)
+		{	// initialize the object, freeing any allocated storage
+		if (_Constructed && _Myptr != 0)
+			{	// destroy elements
+			for (size_t _Idx = 1; _Idx < _Mysize; ++_Idx)
+				_Destroy(&_Myptr[_Idx]);
+			delete _Myptr;
+			}
+
+		_Mysize = 0;
+		_Myptr = 0;
+		}
+
+	void _Assign(size_t _Newsize, const _Ty *_Ptr)
+		{	// assign [_Ptr, _Ptr + _Newsize)
+		if (size() == _Newsize)
+			for (size_t _Idx = 0; _Idx < size(); ++_Idx)
+				_Myptr[_Idx] = _Ptr[_Idx];
+		else
+			{	// resize and copy
+			_Tidy(true);
+			_Grow(_Newsize, _Ptr, 1);
+			}
+		}
+
+	_Ty *_Myptr;	// current storage reserved for array
+	size_t _Mysize;	// current length of sequence
+	};
+
+		// valarray TEMPLATE FUNCTIONS
+template<class _Ty> inline
+	void swap(valarray<_Ty>& _Left,
+		valarray<_Ty>& _Right) _NOEXCEPT
+	{	// swap _Left and _Right valarrays
+	_Left.swap(_Right);
+	}
+
+template<class _Ty> inline
+	_Ty *begin(valarray<_Ty>& _Array)
+	{	// get beginning of valarray
+	return (&_Array[0]);
+	}
+
+template<class _Ty> inline
+	const _Ty *begin(const valarray<_Ty>& _Array)
+	{	// get beginning of valarray
+	return (&_Array[0]);
+	}
+
+template<class _Ty> inline
+	_Ty *end(valarray<_Ty>& _Array)
+	{	// get end of valarray
+	return (&_Array[0] + _Array.size());
+	}
+
+template<class _Ty> inline
+	const _Ty *end(const valarray<_Ty>& _Array)
+	{	// get end of valarray
+	return (&_Array[0] + _Array.size());
+	}
+
+template<class _Ty> inline
+	valarray<_Ty> operator*(const valarray<_Ty>& _Left,
+		const _Ty& _Right)
+	{	// return valarray * scalar
+	_VALOP(_Ty, _Left.size(), _Left[_Idx] * _Right);
+	}
+
+template<class _Ty> inline
+	valarray<_Ty> operator*(const _Ty& _Left,
+		const valarray<_Ty>& _Right)
+	{	// return scalar * valarray
+	_VALOP(_Ty, _Right.size(), _Left * _Right[_Idx]);
+	}
+
+template<class _Ty> inline
+	valarray<_Ty> operator/(const valarray<_Ty>& _Left,
+		const _Ty& _Right)
+	{	// return valarray / scalar
+	_VALOP(_Ty, _Left.size(), _Left[_Idx] / _Right);
+	}
+
+template<class _Ty> inline
+	valarray<_Ty> operator/(const _Ty& _Left,
+		const valarray<_Ty>& _Right)
+	{	// return scalar / valarray
+	_VALOP(_Ty, _Right.size(), _Left / _Right[_Idx]);
+	}
+
+template<class _Ty> inline
+	valarray<_Ty> operator%(const valarray<_Ty>& _Left,
+		const _Ty& _Right)
+	{	// return valarray % scalar
+	_VALOP(_Ty, _Left.size(), _Left[_Idx] % _Right);
+	}
+
+template<class _Ty> inline
+	valarray<_Ty> operator%(const _Ty& _Left,
+		const valarray<_Ty>& _Right)
+	{	// return scalar % valarray
+	_VALOP(_Ty, _Right.size(), _Left % _Right[_Idx]);
+	}
+
+template<class _Ty> inline
+	valarray<_Ty> operator+(const valarray<_Ty>& _Left,
+		const _Ty& _Right)
+	{	// return valarray + scalar
+	_VALOP(_Ty, _Left.size(), _Left[_Idx] + _Right);
+	}
+
+template<class _Ty> inline
+	valarray<_Ty> operator+(const _Ty& _Left,
+		const valarray<_Ty>& _Right)
+	{	// return scalar + valarray
+	_VALOP(_Ty, _Right.size(), _Left + _Right[_Idx]);
+	}
+
+template<class _Ty> inline
+	valarray<_Ty> operator-(const valarray<_Ty>& _Left,
+		const _Ty& _Right)
+	{	// return valarray - scalar
+	_VALOP(_Ty, _Left.size(), _Left[_Idx] - _Right);
+	}
+
+template<class _Ty> inline
+	valarray<_Ty> operator-(const _Ty& _Left,
+		const valarray<_Ty>& _Right)
+	{	// return scalar - valarray
+	_VALOP(_Ty, _Right.size(), _Left - _Right[_Idx]);
+	}
+
+template<class _Ty> inline
+	valarray<_Ty> operator^(const valarray<_Ty>& _Left,
+		const _Ty& _Right)
+	{	// return valarray ^ scalar
+	_VALOP(_Ty, _Left.size(), _Left[_Idx] ^ _Right);
+	}
+
+template<class _Ty> inline
+	valarray<_Ty> operator^(const _Ty& _Left,
+		const valarray<_Ty>& _Right)
+	{	// return scalar ^ valarray
+	_VALOP(_Ty, _Right.size(), _Left ^ _Right[_Idx]);
+	}
+
+template<class _Ty> inline
+	valarray<_Ty> operator&(const valarray<_Ty>& _Left,
+		const _Ty& _Right)
+	{	// return valarray & scalar
+	_VALOP(_Ty, _Left.size(), _Left[_Idx] & _Right);
+	}
+
+template<class _Ty> inline
+	valarray<_Ty> operator&(const _Ty& _Left,
+		const valarray<_Ty>& _Right)
+	{	// return scalar & valarray
+	_VALOP(_Ty, _Right.size(), _Left & _Right[_Idx]);
+	}
+
+template<class _Ty> inline
+	valarray<_Ty> operator|(const valarray<_Ty>& _Left,
+		const _Ty& _Right)
+	{	// return valarray | scalar
+	_VALOP(_Ty, _Left.size(), _Left[_Idx] | _Right);
+	}
+
+template<class _Ty> inline
+	valarray<_Ty> operator|(const _Ty& _Left,
+		const valarray<_Ty>& _Right)
+	{	// return scalar | valarray
+	_VALOP(_Ty, _Right.size(), _Left | _Right[_Idx]);
+	}
+
+template<class _Ty> inline
+	valarray<_Ty> operator<<(const valarray<_Ty>& _Left,
+		const _Ty& _Right)
+	{	// return valarray << scalar
+	_VALOP(_Ty, _Left.size(), _Left[_Idx] << _Right);
+	}
+
+template<class _Ty> inline
+	valarray<_Ty> operator<<(const _Ty& _Left,
+		const valarray<_Ty>& _Right)
+	{	// return scalar << valarray
+	_VALOP(_Ty, _Right.size(), _Left << _Right[_Idx]);
+	}
+
+template<class _Ty> inline
+	valarray<_Ty> operator>>(const valarray<_Ty>& _Left,
+		const _Ty& _Right)
+	{	// return valarray >> scalar
+	_VALOP(_Ty, _Left.size(), _Left[_Idx] >> _Right);
+	}
+
+template<class _Ty> inline
+	valarray<_Ty> operator>>(const _Ty& _Left,
+		const valarray<_Ty>& _Right)
+	{	// return scalar >> valarray
+	_VALOP(_Ty, _Right.size(), _Left >> _Right[_Idx]);
+	}
+
+template<class _Ty> inline
+	_Boolarray operator&&(const valarray<_Ty>& _Left,
+		const _Ty& _Right)
+	{	// return valarray && scalar
+	_VALOP(bool, _Left.size(), _Left[_Idx] && _Right);
+	}
+
+template<class _Ty> inline
+	_Boolarray operator&&(const _Ty& _Left,
+		const valarray<_Ty>& _Right)
+	{	// return scalar && valarray
+	_VALOP(bool, _Right.size(), _Left && _Right[_Idx]);
+	}
+
+template<class _Ty> inline
+	_Boolarray operator||(const valarray<_Ty>& _Left,
+		const _Ty& _Right)
+	{	// return valarray || scalar
+	_VALOP(bool, _Left.size(), _Left[_Idx] || _Right);
+	}
+
+template<class _Ty> inline
+	_Boolarray operator||(const _Ty& _Left,
+		const valarray<_Ty>& _Right)
+	{	// return scalar || valarray
+	_VALOP(bool, _Right.size(), _Left || _Right[_Idx]);
+	}
+
+template<class _Ty> inline
+	valarray<_Ty> operator*(const valarray<_Ty>& _Left,
+		const valarray<_Ty>& _Right)
+	{	// return valarray * valarray
+	_VALOP(_Ty, _Left.size(), _Left[_Idx] * _Right[_Idx]);
+	}
+
+template<class _Ty> inline
+	valarray<_Ty> operator/(const valarray<_Ty>& _Left,
+		const valarray<_Ty>& _Right)
+	{	// return valarray ? valarray
+	_VALOP(_Ty, _Left.size(), _Left[_Idx] / _Right[_Idx]);
+	}
+
+template<class _Ty> inline
+	valarray<_Ty> operator%(const valarray<_Ty>& _Left,
+		const valarray<_Ty>& _Right)
+	{	// return valarray % valarray
+	_VALOP(_Ty, _Left.size(), _Left[_Idx] % _Right[_Idx]);
+	}
+
+template<class _Ty> inline
+	valarray<_Ty> operator+(const valarray<_Ty>& _Left,
+		const valarray<_Ty>& _Right)
+	{	// return valarray + valarray
+	_VALOP(_Ty, _Left.size(), _Left[_Idx] + _Right[_Idx]);
+	}
+
+template<class _Ty> inline
+	valarray<_Ty> operator-(const valarray<_Ty>& _Left,
+		const valarray<_Ty>& _Right)
+	{	// return valarray - valarray
+	_VALOP(_Ty, _Left.size(), _Left[_Idx] - _Right[_Idx]);
+	}
+
+template<class _Ty> inline
+	valarray<_Ty> operator^(const valarray<_Ty>& _Left,
+		const valarray<_Ty>& _Right)
+	{	// return valarray ^ valarray
+	_VALOP(_Ty, _Left.size(), _Left[_Idx] ^ _Right[_Idx]);
+	}
+
+template<class _Ty> inline
+	valarray<_Ty> operator&(const valarray<_Ty>& _Left,
+		const valarray<_Ty>& _Right)
+	{	// return valarray & valarray
+	_VALOP(_Ty, _Left.size(), _Left[_Idx] & _Right[_Idx]);
+	}
+
+template<class _Ty> inline
+	valarray<_Ty> operator|(const valarray<_Ty>& _Left,
+		const valarray<_Ty>& _Right)
+	{	// return valarray | valarray
+	_VALOP(_Ty, _Left.size(), _Left[_Idx] | _Right[_Idx]);
+	}
+
+template<class _Ty> inline
+	valarray<_Ty> operator<<(const valarray<_Ty>& _Left,
+		const valarray<_Ty>& _Right)
+	{	// return valarray << valarray
+	_VALOP(_Ty, _Left.size(), _Left[_Idx] << _Right[_Idx]);
+	}
+
+template<class _Ty> inline
+	valarray<_Ty> operator>>(const valarray<_Ty>& _Left,
+		const valarray<_Ty>& _Right)
+	{	// return valarray >> valarray
+	_VALOP(_Ty, _Left.size(), _Left[_Idx] >> _Right[_Idx]);
+	}
+
+template<class _Ty> inline
+	_Boolarray operator&&(const valarray<_Ty>& _Left,
+		const valarray<_Ty>& _Right)
+	{	// return valarray && valarray
+	_VALOP(bool, _Left.size(), _Left[_Idx] && _Right[_Idx]);
+	}
+
+template<class _Ty> inline
+	_Boolarray operator||(const valarray<_Ty>& _Left,
+		const valarray<_Ty>& _Right)
+	{	// return valarray || valarray
+	_VALOP(bool, _Left.size(), _Left[_Idx] || _Right[_Idx]);
+	}
+
+template<class _Ty> inline
+	_Boolarray operator==(const valarray<_Ty>& _Left,
+		const _Ty& _Right)
+	{	// return valarray == scalar
+	_VALOP(bool, _Left.size(), _Left[_Idx] == _Right);
+	}
+
+template<class _Ty> inline
+	_Boolarray operator==(const _Ty& _Left,
+		const valarray<_Ty>& _Right)
+	{	// return scalar == valarray
+	_VALOP(bool, _Right.size(), _Left == _Right[_Idx]);
+	}
+
+template<class _Ty> inline
+	_Boolarray operator==(const valarray<_Ty>& _Left,
+		const valarray<_Ty>& _Right)
+	{	// return valarray == valarray
+	_VALOP(bool, _Left.size(), _Left[_Idx] == _Right[_Idx]);
+	}
+
+template<class _Ty> inline
+	_Boolarray operator!=(const valarray<_Ty>& _Left,
+		const _Ty& _Right)
+	{	// return valarray != scalar
+	_VALOP(bool, _Left.size(), _Left[_Idx] != _Right);
+	}
+
+template<class _Ty> inline
+	_Boolarray operator!=(const _Ty& _Left,
+		const valarray<_Ty>& _Right)
+	{	// return scalar != valarray
+	_VALOP(bool, _Right.size(), _Left != _Right[_Idx]);
+	}
+
+template<class _Ty> inline
+	_Boolarray operator!=(const valarray<_Ty>& _Left,
+		const valarray<_Ty>& _Right)
+	{	// return valarray != valarray
+	_VALOP(bool, _Left.size(), _Left[_Idx] != _Right[_Idx]);
+	}
+
+template<class _Ty> inline
+	_Boolarray operator<(const valarray<_Ty>& _Left,
+		const _Ty& _Right)
+	{	// return valarray < scalar
+	_VALOP(bool, _Left.size(), _Left[_Idx] < _Right);
+	}
+
+template<class _Ty> inline
+	_Boolarray operator<(const _Ty& _Left,
+		const valarray<_Ty>& _Right)
+	{	// return scalar < valarray
+	_VALOP(bool, _Right.size(), _Left < _Right[_Idx]);
+	}
+
+template<class _Ty> inline
+	_Boolarray operator<(const valarray<_Ty>& _Left,
+		const valarray<_Ty>& _Right)
+	{	// return valarray < valarray
+	_VALOP(bool, _Left.size(), _Left[_Idx] < _Right[_Idx]);
+	}
+
+template<class _Ty> inline
+	_Boolarray operator>(const valarray<_Ty>& _Left,
+		const _Ty& _Right)
+	{	// return valarray > scalar
+	_VALOP(bool, _Left.size(), _Left[_Idx] > _Right);
+	}
+
+template<class _Ty> inline
+	_Boolarray operator>(const _Ty& _Left,
+		const valarray<_Ty>& _Right)
+	{	// return scalar > valarray
+	_VALOP(bool, _Right.size(), _Left > _Right[_Idx]);
+	}
+
+template<class _Ty> inline
+	_Boolarray operator>(const valarray<_Ty>& _Left,
+		const valarray<_Ty>& _Right)
+	{	// return valarray > valarray
+	_VALOP(bool, _Left.size(), _Left[_Idx] > _Right[_Idx]);
+	}
+
+template<class _Ty> inline
+	_Boolarray operator<=(const valarray<_Ty>& _Left,
+		const _Ty& _Right)
+	{	// return valarray <= scalar
+	_VALOP(bool, _Left.size(), _Left[_Idx] <= _Right);
+	}
+
+template<class _Ty> inline
+	_Boolarray operator<=(const _Ty& _Left,
+		const valarray<_Ty>& _Right)
+	{	// return scalar <= valarray
+	_VALOP(bool, _Right.size(), _Left <= _Right[_Idx]);
+	}
+
+template<class _Ty> inline
+	_Boolarray operator<=(const valarray<_Ty>& _Left,
+		const valarray<_Ty>& _Right)
+	{	// return valarray <= valarray
+	_VALOP(bool, _Left.size(), _Left[_Idx] <= _Right[_Idx]);
+	}
+
+template<class _Ty> inline
+	_Boolarray operator>=(const valarray<_Ty>& _Left,
+		const _Ty& _Right)
+	{	// return valarray >= scalar
+	_VALOP(bool, _Left.size(), _Left[_Idx] >= _Right);
+	}
+
+template<class _Ty> inline
+	_Boolarray operator>=(const _Ty& _Left,
+		const valarray<_Ty>& _Right)
+	{	// return scalar >= valarray
+	_VALOP(bool, _Right.size(), _Left >= _Right[_Idx]);
+	}
+
+template<class _Ty> inline
+	_Boolarray operator>=(const valarray<_Ty>& _Left,
+		const valarray<_Ty>& _Right)
+	{	// return valarray >= valarray
+	_VALOP(bool, _Left.size(), _Left[_Idx] >= _Right[_Idx]);
+	}
+
+template<class _Ty> inline
+	valarray<_Ty> abs(const valarray<_Ty>& _Left)
+	{	// apply abs to each element of valarray
+	_VALOP(_Ty, _Left.size(), abs(_Left[_Idx]));
+	}
+
+template<class _Ty> inline
+	valarray<_Ty> acos(const valarray<_Ty>& _Left)
+	{	// apply acos to each element of valarray
+	_VALOP(_Ty, _Left.size(), _CSTD acos(_Left[_Idx]));
+	}
+
+template<class _Ty> inline
+	valarray<_Ty> asin(const valarray<_Ty>& _Left)
+	{	// apply asin to each element of valarray
+	_VALOP(_Ty, _Left.size(), _CSTD asin(_Left[_Idx]));
+	}
+
+template<class _Ty> inline
+	valarray<_Ty> atan(const valarray<_Ty>& _Left)
+	{	// apply atan to each element of valarray
+	_VALOP(_Ty, _Left.size(), _CSTD atan(_Left[_Idx]));
+	}
+
+template<class _Ty> inline
+	valarray<_Ty> atan2(const valarray<_Ty>& _Left,
+		const valarray<_Ty>& _Right)
+	{	// apply atan2 to pairs of valarray elements
+	_VALOP(_Ty, _Left.size(), _CSTD atan2(_Left[_Idx], _Right[_Idx]));
+	}
+
+template<class _Ty> inline
+	valarray<_Ty> atan2(const valarray<_Ty>& _Left, const _Ty& _Right)
+	{	// apply atan2 to each valarray element and scalar
+	_VALOP(_Ty, _Left.size(), _CSTD atan2(_Left[_Idx], _Right));
+	}
+
+template<class _Ty> inline
+	valarray<_Ty> atan2(const _Ty& _Left, const valarray<_Ty>& _Right)
+	{	// apply atan2 to scalar and each valarray element
+	_VALOP(_Ty, _Right.size(), _CSTD atan2(_Left, _Right[_Idx]));
+	}
+
+template<class _Ty> inline
+	valarray<_Ty> cos(const valarray<_Ty>& _Left)
+	{	// apply cos to each element of valarray
+	_VALOP(_Ty, _Left.size(), _CSTD cos(_Left[_Idx]));
+	}
+
+template<class _Ty> inline
+	valarray<_Ty> cosh(const valarray<_Ty>& _Left)
+	{	// apply cosh to each element of valarray
+	_VALOP(_Ty, _Left.size(), _CSTD cosh(_Left[_Idx]));
+	}
+
+template<class _Ty> inline
+	valarray<_Ty> exp(const valarray<_Ty>& _Left)
+	{	// apply exp to each element of valarray
+	_VALOP(_Ty, _Left.size(), _CSTD exp(_Left[_Idx]));
+	}
+
+template<class _Ty> inline
+	valarray<_Ty> log(const valarray<_Ty>& _Left)
+	{	// apply log to each element of valarray
+	_VALOP(_Ty, _Left.size(), _CSTD log(_Left[_Idx]));
+	}
+
+template<class _Ty> inline
+	valarray<_Ty> log10(const valarray<_Ty>& _Left)
+	{	// apply log10 to each element of valarray
+	_VALOP(_Ty, _Left.size(), _CSTD log10(_Left[_Idx]));
+	}
+
+template<class _Ty> inline
+	valarray<_Ty> pow(const valarray<_Ty>& _Left,
+		const valarray<_Ty>& _Right)
+	{	// apply pow to pairs of valarray elements
+	_VALOP(_Ty, _Left.size(), _CSTD pow(_Left[_Idx], _Right[_Idx]));
+	}
+
+template<class _Ty> inline
+	valarray<_Ty> pow(const valarray<_Ty>& _Left, const _Ty& _Right)
+	{	// apply pow to each valarray element and scalar
+	_VALOP(_Ty, _Left.size(), _CSTD pow(_Left[_Idx], _Right));
+	}
+
+template<class _Ty> inline
+	valarray<_Ty> pow(const _Ty& _Left, const valarray<_Ty>& _Right)
+	{	// apply pow to scalar and each valarray element
+	_VALOP(_Ty, _Right.size(), _CSTD pow(_Left, _Right[_Idx]));
+	}
+
+template<class _Ty> inline
+	valarray<_Ty> sin(const valarray<_Ty>& _Left)
+	{	// apply sin to each element of valarray
+	_VALOP(_Ty, _Left.size(), _CSTD sin(_Left[_Idx]));
+	}
+
+template<class _Ty> inline
+	valarray<_Ty> sinh(const valarray<_Ty>& _Left)
+	{	// apply sinh to each element of valarray
+	_VALOP(_Ty, _Left.size(), _CSTD sinh(_Left[_Idx]));
+	}
+
+template<class _Ty> inline
+	valarray<_Ty> sqrt(const valarray<_Ty>& _Left)
+	{	// apply sqrt to each element of valarray
+	_VALOP(_Ty, _Left.size(), _CSTD sqrt(_Left[_Idx]));
+	}
+
+template<class _Ty> inline
+	valarray<_Ty> tan(const valarray<_Ty>& _Left)
+	{	// apply tan to each element of valarray
+	_VALOP(_Ty, _Left.size(), _CSTD tan(_Left[_Idx]));
+	}
+
+template<class _Ty> inline
+	valarray<_Ty> tanh(const valarray<_Ty>& _Left)
+	{	// apply tanh to each element of valarray
+	_VALOP(_Ty, _Left.size(), _CSTD tanh(_Left[_Idx]));
+	}
+
+		// CLASS slice
+class slice
+	{	// define a slice of a valarray
+public:
+	slice()
+		: _Start(0), _Len(0), _Stride(0)
+		{	// construct with all zeros
+		}
+
+	slice(size_t _Off, size_t _Count, size_t _Inc)
+		: _Start(_Off), _Len(_Count), _Stride(_Inc)
+		{	// construct slice from starting offset, length, and stride
+		}
+
+	size_t start() const
+		{	// return starting offset of slice
+		return (_Start);
+		}
+
+	size_t size() const
+		{	// return number of elements specified by slice
+		return (_Len);
+		}
+
+	size_t stride() const
+		{	// return distance between elements specified by slice
+		return (_Stride);
+		}
+
+protected:
+	size_t _Start;	// the starting offset
+	size_t _Len;	// the number of elements
+	size_t _Stride;	// the distance between elements
+	};
+
+		// MACROS FOR slice_array
+#define _SLOP(RHS)	/* apply RHS(_Idx) to slice_array */ \
+	size_t _Off = _Start; \
+	for (size_t _Idx = 0; _Idx < _Len; ++_Idx, _Off += _Stride) \
+		_Myptr[_Off] RHS;
+
+		// TEMPLATE CLASS slice_array
+template<class _Ty>
+	class slice_array
+		: public slice
+	{	// define a slice of a valarray
+public:
+	typedef _Ty value_type;
+
+	void operator=(const valarray<_Ty>& _Right) const
+		{	// assign a valarray to a slice
+		_SLOP(= _Right[_Idx]);
+		}
+
+	void operator=(const _Ty& _Right) const
+		{	// assign a scalar to elements of a slice
+		_SLOP(= _Right);
+		}
+
+	void operator*=(const valarray<_Ty>& _Right) const
+		{	// multiply slice by valarray
+		_SLOP(*= _Right[_Idx]);
+		}
+
+	void operator/=(const valarray<_Ty>& _Right) const
+		{	// divide slice by valarray
+		_SLOP(/= _Right[_Idx]);
+		}
+
+	void operator%=(const valarray<_Ty>& _Right) const
+		{	// remainder slice by valarray
+		_SLOP(%= _Right[_Idx]);
+		}
+
+	void operator+=(const valarray<_Ty>& _Right) const
+		{	// add slice to valarray
+		_SLOP(+= _Right[_Idx]);
+		}
+
+	void operator-=(const valarray<_Ty>& _Right) const
+		{	// subtract valarray from slice
+		_SLOP(-= _Right[_Idx]);
+		}
+
+	void operator^=(const valarray<_Ty>& _Right) const
+		{	// XOR valarray into slice
+		_SLOP(^= _Right[_Idx]);
+		}
+
+	void operator&=(const valarray<_Ty>& _Right) const
+		{	// AND valarray into slice
+		_SLOP(&= _Right[_Idx]);
+		}
+
+	void operator|=(const valarray<_Ty>& _Right) const
+		{	// OR valarray into slice
+		_SLOP(|= _Right[_Idx]);
+		}
+
+	void operator<<=(const valarray<_Ty>& _Right) const
+		{	// left shift slice by valarray
+		_SLOP(<<= _Right[_Idx]);
+		}
+
+	void operator>>=(const valarray<_Ty>& _Right) const
+		{	// right shift slice by valarray
+		_SLOP(>>= _Right[_Idx]);
+		}
+
+	_Ty& _Data(size_t _Idx) const
+		{	// return reference to underlying array element
+		return (_Myptr[_Idx]);
+		}
+
+	slice_array() = delete;
+
+	slice_array(const slice_array&);	// not defined
+
+	slice_array& operator=(const slice_array&);	// not defined
+
+private:
+	friend class valarray<_Ty>;
+
+	slice_array(const slice& _Slice, _Ty *_Pdata)
+		: slice(_Slice), _Myptr(_Pdata)
+		{	// construct from slice and pointer to valarray contents
+		}
+
+	_Ty *_Myptr;	// pointer to valarray contents
+	};
+
+		// CLASS gslice
+class gslice
+	{	// define a generalized (multidimensional) slice of a valarray
+public:
+	gslice()
+		: _Start(0)
+		{	// construct with all zeros
+		}
+
+	gslice(size_t _Off, const _Sizarray& _Lenarr,
+		const _Sizarray& _Incarr)
+		: _Start(_Off), _Len(_Lenarr), _Stride(_Incarr)
+		{	// construct from starting offset, arrays of lengths and strides
+		}
+
+	size_t start() const
+		{	// return starting offset of generalized slice
+		return (_Start);
+		}
+
+	_Sizarray size() const
+		{	// return array of lengths of slices
+		return (_Len);
+		}
+
+	_Sizarray stride() const
+		{	// return array of strides of slices
+		return (_Stride);
+		}
+
+	size_t _Nslice() const
+		{	// return number of slices
+		return (_Len.size());
+		}
+
+	size_t _Off(_Sizarray& _Indexarr) const
+		{	// return offset for an array of indexes, then increment
+		size_t _Idx, _Ans = _Start;
+
+		for (_Idx = 0; _Idx < _Indexarr.size(); ++_Idx)
+			_Ans += _Indexarr[_Idx] * _Stride[_Idx];	// compute offset
+
+		while (0 < _Idx--)
+			if (++_Indexarr[_Idx] < _Len[_Idx])
+				break;	// increment done, quit
+			else
+				_Indexarr[_Idx] = 0;	// carry to more-significant index
+		return (_Ans);
+		}
+
+	size_t _Totlen() const
+		{	// return total length of generalized slice
+		if (_Len.size() == 0)
+			return (0);
+
+		size_t _Count = _Len[0];
+		for (size_t _Idx = 0; ++_Idx < _Len.size(); )
+			_Count *= _Len[_Idx];
+		return (_Count);
+		}
+
+private:
+	size_t _Start;	// the starting offset
+	_Sizarray _Len;	// array of numbers of elements
+	_Sizarray _Stride;	// array of distances between elements
+	};
+
+		// MACROS FOR gslice_array
+#define _GSLOP(RHS)	/* apply RHS(_Idx) to gslice_array */ \
+	_Sizarray _Indexarray((size_t)0, _Nslice()); \
+	size_t _Size = _Totlen(); \
+	for (size_t _Idx = 0; _Idx < _Size; ++_Idx) \
+		_Myptr[_Off(_Indexarray)] RHS;
+
+		// TEMPLATE CLASS gslice_array
+template<class _Ty>
+	class gslice_array
+		: public gslice
+	{	// define a generalized slice of a valarray
+public:
+	typedef _Ty value_type;
+
+	void operator=(const valarray<_Ty>& _Right) const
+		{	// assign a valarray to a generalized slice
+		_GSLOP(= _Right[_Idx]);
+		}
+
+	void operator=(const _Ty& _Right) const
+		{	// assign a scalar to elements of a generalized slice
+		_GSLOP(= _Right);
+		}
+
+	void operator*=(const valarray<_Ty>& _Right) const
+		{	// multiply generalized slice by valarray
+		_GSLOP(*= _Right[_Idx]);
+		}
+
+	void operator/=(const valarray<_Ty>& _Right) const
+		{	// divide generalized slice by valarray
+		_GSLOP(/= _Right[_Idx]);
+		}
+
+	void operator%=(const valarray<_Ty>& _Right) const
+		{	// remainder generalized slice by valarray
+		_GSLOP(%= _Right[_Idx]);
+		}
+
+	void operator+=(const valarray<_Ty>& _Right) const
+		{	// add valarray to generalized slice
+		_GSLOP(+= _Right[_Idx]);
+		}
+
+	void operator-=(const valarray<_Ty>& _Right) const
+		{	// subtract valarray from generalized slice
+		_GSLOP(-= _Right[_Idx]);
+		}
+
+	void operator^=(const valarray<_Ty>& _Right) const
+		{	// XOR valarray into generalized slice
+		_GSLOP(^= _Right[_Idx]);
+		}
+
+	void operator&=(const valarray<_Ty>& _Right) const
+		{	// AND valarray into generalized slice
+		_GSLOP(&= _Right[_Idx]);
+		}
+
+	void operator|=(const valarray<_Ty>& _Right) const
+		{	// OR valarray into generalized slice
+		_GSLOP(|= _Right[_Idx]);
+		}
+
+	void operator<<=(const valarray<_Ty>& _Right) const
+		{	// left shift generalized slice by valarray
+		_GSLOP(<<= _Right[_Idx]);
+		}
+
+	void operator>>=(const valarray<_Ty>& _Right) const
+		{	// right shift generalized slice by valarray
+		_GSLOP(>>= _Right[_Idx]);
+		}
+
+	_Ty& _Data(size_t _Idx) const
+		{	// return reference to underlying array element
+		return (_Myptr[_Idx]);
+		}
+
+	gslice_array() = delete;
+
+	gslice_array(const gslice_array&);	// not defined
+
+	gslice_array& operator=( const gslice_array&);	// not defined
+
+private:
+	friend class valarray<_Ty>;
+
+	gslice_array(const gslice& _Gslice, _Ty *_Ptr)
+		: gslice(_Gslice), _Myptr(_Ptr)
+		{	// construct from gslice and pointer to valarray contents
+		}
+
+	_Ty *_Myptr;	// pointer to valarray contents
+	};
+
+		// MACROS FOR mask_array
+#define _MOP(RHS)	/* apply RHS(_Idx) to mask_array */ \
+	size_t _Off = 0; \
+	size_t _Size = _Totlen(); \
+	for (size_t _Idx = 0; _Idx < _Size; ++_Off) \
+		if (_Mask(_Off)) \
+			_Myptr[_Off] RHS, ++_Idx;
+
+		// TEMPLATE CLASS mask_array
+template<class _Ty>
+	class mask_array
+	{	// define a subset of a valarray with an array of mask bits
+public:
+	typedef _Ty value_type;
+
+	void operator=(const valarray<_Ty>& _Right) const
+		{	// assign a valarray to a masked array
+		_MOP(= _Right[_Idx]);
+		}
+
+	void operator=(const _Ty& _Right) const
+		{	// assign a scalar to elements of a masked array
+		_MOP(= _Right);
+		}
+
+	void operator*=(const valarray<_Ty>& _Right) const
+		{	// multiply masked array by valarray
+		_MOP(*= _Right[_Idx]);
+		}
+
+	void operator/=(const valarray<_Ty>& _Right) const
+		{	// divide masked array by valarray
+		_MOP(/= _Right[_Idx]);
+		}
+
+	void operator%=(const valarray<_Ty>& _Right) const
+		{	// remainder masked array by valarray
+		_MOP(%= _Right[_Idx]);
+		}
+
+	void operator+=(const valarray<_Ty>& _Right) const
+		{	// add valarray to masked array
+		_MOP(+= _Right[_Idx]);
+		}
+
+	void operator-=(const valarray<_Ty>& _Right) const
+		{	// subtract valarray from masked array
+		_MOP(-= _Right[_Idx]);
+		}
+
+	void operator^=(const valarray<_Ty>& _Right) const
+		{	// XOR valarray into masked array
+		_MOP(^= _Right[_Idx]);
+		}
+
+	void operator&=(const valarray<_Ty>& _Right) const
+		{	// OR valarray into masked array
+		_MOP(&= _Right[_Idx]);
+		}
+
+	void operator|=(const valarray<_Ty>& _Right) const
+		{	// OR valarray into masked array
+		_MOP(|= _Right[_Idx]);
+		}
+
+	void operator<<=(const valarray<_Ty>& _Right) const
+		{	// left shift masked array by valarray
+		_MOP(<<= _Right[_Idx]);
+		}
+
+	void operator>>=(const valarray<_Ty>& _Right) const
+		{	// right shift masked array by valarray
+		_MOP(>>= _Right[_Idx]);
+		}
+
+	_Ty& _Data(size_t _Idx) const
+		{	// return reference to underlying array element
+		return (_Myptr[_Idx]);
+		}
+
+	bool _Mask(size_t _Idx) const
+		{	// return mask element for a given index
+		return (_Mybool[_Idx]);
+		}
+
+	size_t _Totlen() const
+		{	// return total length of masked array
+		size_t _Count = 0;
+		for (size_t _Idx = 0; _Idx < _Mybool.size(); ++_Idx)
+			if (_Mybool[_Idx])
+				++_Count;
+		return (_Count);
+		}
+
+	mask_array() = delete;
+
+	mask_array(const mask_array&);	// not defined
+
+	mask_array& operator=(const mask_array&);	// not defined
+
+private:
+	friend class valarray<_Ty>;
+
+	mask_array(const _Boolarray& _Maskarr, _Ty *_Pdata)
+		: _Mybool(_Maskarr), _Myptr(_Pdata)
+		{	// construct from mask array and pointer to valarray contents
+		}
+
+	_Boolarray _Mybool;	// array of mask bits
+	_Ty *_Myptr;	// pointer to valarray contents
+	};
+
+		// MACROS FOR indirect_array
+#define _IOP(RHS)	/* apply RHS(_Idx) to indirect_array */ \
+	size_t _Size = _Totlen(); \
+	for (size_t _Idx = 0; _Idx < _Size; ++_Idx) \
+		_Myptr[_Indir(_Idx)] RHS;
+
+		// TEMPLATE CLASS indirect_array
+template<class _Ty>
+	class indirect_array
+	{	// define a subset of a valarray with an array of indexes
+public:
+	typedef _Ty value_type;
+
+	void operator=(const valarray<_Ty>& _Right) const
+		{	// assign a valarray to an indirect array
+		_IOP(= _Right[_Idx]);
+		}
+
+	void operator=(const _Ty& _Right) const
+		{	// assign a scalar to elements of an indirect array
+		_IOP(= _Right);
+		}
+
+	void operator*=(const valarray<_Ty>& _Right) const
+		{	// multiply indirect array by valarray
+		_IOP(*= _Right[_Idx]);
+		}
+
+	void operator/=(const valarray<_Ty>& _Right) const
+		{	// divide indirect array by valarray
+		_IOP(/= _Right[_Idx]);
+		}
+
+	void operator%=(const valarray<_Ty>& _Right) const
+		{	// remainder indirect array by valarray
+		_IOP(%= _Right[_Idx]);
+		}
+
+	void operator+=(const valarray<_Ty>& _Right) const
+		{	// add valarray to indirect array
+		_IOP(+= _Right[_Idx]);
+		}
+
+	void operator-=(const valarray<_Ty>& _Right) const
+		{	// subtract valarray from indirect array
+		_IOP(-= _Right[_Idx]);
+		}
+
+	void operator^=(const valarray<_Ty>& _Right) const
+		{	// XOR valarray into indirect array
+		_IOP(^= _Right[_Idx]);
+		}
+
+	void operator&=(const valarray<_Ty>& _Right) const
+		{	// AND valarray into indirect array
+		_IOP(&= _Right[_Idx]);
+		}
+
+	void operator|=(const valarray<_Ty>& _Right) const
+		{	// OR valarray into indirect array
+		_IOP(|= _Right[_Idx]);
+		}
+
+	void operator<<=(const valarray<_Ty>& _Right) const
+		{	// left shift indirect array by valarray
+		_IOP(<<= _Right[_Idx]);
+		}
+
+	void operator>>=(const valarray<_Ty>& _Right) const
+		{	// right shift indirect array by valarray
+		_IOP(>>= _Right[_Idx]);
+		}
+
+	_Ty& _Data(size_t _Idx) const
+		{	// return reference to underlying array element
+		return (_Myptr[_Idx]);
+		}
+
+	size_t _Indir(size_t _Idx) const
+		{	// return mapped index for a given index
+		return (_Myindarr[_Idx]);
+		}
+
+	size_t _Totlen() const
+		{	// return total length of indirect array
+		return (_Myindarr.size());
+		}
+
+	indirect_array() = delete;
+
+	indirect_array(const indirect_array&);	// not defined
+
+	indirect_array& operator=(const indirect_array&);	// not defined
+
+private:
+	friend class valarray<_Ty>;
+
+	indirect_array(const _Sizarray& _Indarr, _Ty *_Ptr)
+		: _Myindarr(_Indarr), _Myptr(_Ptr)
+		{	// construct from indirect array and pointer to valarray contents
+		}
+
+	_Sizarray _Myindarr;	// array of indirect indexes
+	_Ty *_Myptr;	// pointer to valarray contents
+	};
+
+		// slice_array TEMPLATE FUNCTIONS
+template<class _Ty> inline
+	valarray<_Ty>& valarray<_Ty>::operator=(
+		const slice_array<_Ty>& _Slicearr)
+	{	// assign slice array to valarray
+	_Tidy(true);
+	_Grow(_Slicearr.size(), &_Slicearr._Data(_Slicearr.start()),
+		_Slicearr.stride());
+	return (*this);
+	}
+
+template<class _Ty> inline
+	valarray<_Ty> valarray<_Ty>::operator[](slice _Slice) const
+	{	// subscript nonmutable valarray by slice
+	return (valarray<_Ty>(slice_array<_Ty>(_Slice, _Myptr)));
+	}
+
+template<class _Ty> inline
+	slice_array<_Ty> valarray<_Ty>::operator[](slice _Slice)
+	{	// subscript mutable valarray by slice
+	return (slice_array<_Ty>(_Slice, _Myptr));
+	}
+
+		// gslice_array TEMPLATE FUNCTIONS
+template<class _Ty> inline
+	valarray<_Ty>& valarray<_Ty>::operator=(
+		const gslice_array<_Ty>& _Gslicearr)
+	{	// assign generalized slice array to valarray
+	_Tidy(true);
+	_Grow(_Gslicearr._Totlen());
+	_Sizarray _Indexarray((size_t)0, _Gslicearr._Nslice());
+	_VALGOP(= _Gslicearr._Data(_Gslicearr._Off(_Indexarray)));
+	}
+
+template<class _Ty> inline
+	valarray<_Ty> valarray<_Ty>::operator[](const gslice& _Gslice) const
+	{	// subscript nonmutable valarray by generalized slice
+	return (valarray<_Ty>(gslice_array<_Ty>(_Gslice, _Myptr)));
+	}
+
+template<class _Ty> inline
+	gslice_array<_Ty> valarray<_Ty>::operator[](const gslice& _Gslicearr)
+	{	// subscript mutable valarray by generalized slice
+	return (gslice_array<_Ty>(_Gslicearr, _Myptr));
+	}
+
+		// mask_array TEMPLATE FUNCTIONS
+template<class _Ty> inline
+	valarray<_Ty>& valarray<_Ty>::operator=(const mask_array<_Ty>& _Maskarr)
+	{	// assign masked array to valarray
+	_Tidy(true);
+	_Grow(_Maskarr._Totlen());
+	size_t _Count = 0;
+
+	for (size_t _Idx = 0; _Idx < size(); ++_Count)
+		if (_Maskarr._Mask(_Count))
+			_Myptr[_Idx++] = _Maskarr._Data(_Count);
+	return (*this);
+	}
+
+template<class _Ty> inline
+	valarray<_Ty> valarray<_Ty>::operator[](const _Boolarray& _Boolarr) const
+	{	// subscript nonmutable valarray by boolean (mask) array
+	return (valarray<_Ty>(mask_array<_Ty>(_Boolarr, _Myptr)));
+	}
+
+template<class _Ty> inline
+	mask_array<_Ty> valarray<_Ty>::operator[](const _Boolarray& _Boolarr)
+	{	// subscript nonmutable valarray by boolean (mask) array
+	return (mask_array<_Ty>(_Boolarr, _Myptr));
+	}
+
+		// indirect_array TEMPLATE FUNCTIONS
+template<class _Ty> inline
+	valarray<_Ty>& valarray<_Ty>::operator=(
+		const indirect_array<_Ty>& _Indarr)
+	{	// assign indirect array to valarray
+	_Tidy(true);
+	_Grow(_Indarr._Totlen());
+	_VALGOP(= _Indarr._Data(_Indarr._Indir(_Idx)));
+	}
+
+template<class _Ty> inline
+	valarray<_Ty> valarray<_Ty>::operator[](const _Sizarray& _Indarr) const
+	{	// subscript nonmutable valarray by indirect (mapping) array
+	return (valarray<_Ty>(indirect_array<_Ty>(_Indarr, _Myptr)));
+	}
+
+template<class _Ty> inline
+	indirect_array<_Ty> valarray<_Ty>::operator[](const _Sizarray& _Indarr)
+	{	// subscript mutable valarray by indirect (mapping) array
+	return (indirect_array<_Ty>(_Indarr, _Myptr));
+	}
+_STD_END
+
+ #pragma pop_macro("new")
+ #pragma warning(pop)
+ #pragma pack(pop)
+#endif /* RC_INVOKED */
+#endif /* _VALARRAY_ */
+
+/*
+ * Copyright (c) by P.J. Plauger. All rights reserved.
+ * Consult your license regarding permissions and restrictions.
+V6.50:0009 */

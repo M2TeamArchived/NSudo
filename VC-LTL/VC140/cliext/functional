@@ -1,0 +1,1093 @@
+// functional stl/clr header
+#ifndef _CLI_FUNCTIONAL_
+ #define _CLI_FUNCTIONAL_
+#include <cliext/xutility>
+
+namespace cliext {
+//
+// GENERICS DELEGATES
+//
+
+// GENERIC DELEGATE unary_delegate
+//
+generic<typename TArg,
+	typename TResult>
+	delegate TResult unary_delegate(TArg);
+
+// GENERIC DELEGATE unary_delegate_noreturn
+//
+generic<typename TArg>
+	delegate void unary_delegate_noreturn(TArg);
+
+//
+// GENERIC DELEGATE binary_delegate
+//
+generic<typename TArg1,
+	typename TArg2,
+	typename TResult>
+	delegate TResult binary_delegate(TArg1, TArg2);
+
+//
+// GENERIC DELEGATE binary_delegate_noreturn
+//
+generic<typename TArg1,
+	typename TArg2>
+	delegate void binary_delegate_noreturn(TArg1, TArg2);
+
+//
+// TEMPLATE REF FUNCTORS
+//
+
+//
+// TEMPLATE REF unary_function
+//
+template<typename _Arg_t,
+	typename _Result_t>
+	ref class unary_function
+	{	// defines typedefs for a unary function
+public:
+	typedef _Arg_t argument_type;
+	typedef _Result_t result_type;
+	};
+
+//
+// TEMPLATE REF binary_function
+//
+template<typename _Arg1_t,
+	typename _Arg2_t,
+	typename _Result_t>
+	ref class binary_function
+	{	// defines typedefs for a binary function
+public:
+	typedef _Arg1_t first_argument_type;
+	typedef _Arg2_t second_argument_type;
+	typedef _Result_t result_type;
+	};
+
+//
+// TEMPLATE REF CLASS ref_logical_not
+//
+template<typename _Arg_t>
+	ref class ref_logical_not
+	:	public unary_function<_Arg_t, bool>
+	{	// generic functor for logical_not
+public:
+	static result_type function(argument_type _Left)
+		{	// do the operation
+		return (!_Left);
+		}
+	};
+
+//
+// TEMPLATE REF CLASS ref_negate
+//
+template<typename _Arg_t>
+	ref class ref_negate
+	:	public unary_function<_Arg_t, _Arg_t>
+	{	// generic functor for negate
+public:
+	static result_type function(argument_type _Left)
+		{	// do the operation
+		return (-_Left);
+		}
+	};
+
+//
+// TEMPLATE REF CLASS ref_plus
+//
+template<typename _Arg_t>
+	ref class ref_plus
+	:	public binary_function<_Arg_t, _Arg_t, _Arg_t>
+	{	// generic functor for plus
+public:
+	static result_type function(first_argument_type _Left,
+		second_argument_type _Right)
+		{	// do the operation
+		return (_Left + _Right);
+		}
+	};
+
+//
+// TEMPLATE REF CLASS ref_minus
+//
+template<typename _Arg_t>
+	ref class ref_minus
+	:	public binary_function<_Arg_t, _Arg_t, _Arg_t>
+	{	// generic functor for minus
+public:
+	static result_type function(first_argument_type _Left,
+		second_argument_type _Right)
+		{	// do the operation
+		return (_Left - _Right);
+		}
+	};
+
+//
+// TEMPLATE REF CLASS ref_multiplies
+//
+template<typename _Arg_t>
+	ref class ref_multiplies
+	:	public binary_function<_Arg_t, _Arg_t, _Arg_t>
+	{	// generic functor for multiplies
+public:
+	static result_type function(first_argument_type _Left,
+		second_argument_type _Right)
+		{	// do the operation
+		return (_Left * _Right);
+		}
+	};
+
+//
+// TEMPLATE REF CLASS ref_divides
+//
+template<typename _Arg_t>
+	ref class ref_divides
+	:	public binary_function<_Arg_t, _Arg_t, _Arg_t>
+	{	// generic functor for divides
+public:
+	static result_type function(first_argument_type _Left,
+		second_argument_type _Right)
+		{	// do the operation
+		return (_Left / _Right);
+		}
+	};
+
+//
+// TEMPLATE REF CLASS ref_modulus
+//
+template<typename _Arg_t>
+	ref class ref_modulus
+	:	public binary_function<_Arg_t, _Arg_t, _Arg_t>
+	{	// generic functor for modulus
+public:
+	static result_type function(first_argument_type _Left,
+		second_argument_type _Right)
+		{	// do the operation
+		return (_Left % _Right);
+		}
+	};
+
+//
+// TEMPLATE REF CLASS ref_equal_to
+//
+template<typename _Arg_t>
+	ref class ref_equal_to
+	:	public binary_function<_Arg_t, _Arg_t, bool>
+	{	// generic functor for equal_to
+public:
+	static result_type function(first_argument_type _Left,
+		second_argument_type _Right)
+		{	// do the operation
+		return (_Left == _Right);
+		}
+	};
+
+//
+// TEMPLATE REF CLASS ref_not_equal_to
+//
+template<typename _Arg_t>
+	ref class ref_not_equal_to
+	:	public binary_function<_Arg_t, _Arg_t, bool>
+	{	// generic functor for not_equal_to
+public:
+	static result_type function(first_argument_type _Left,
+		second_argument_type _Right)
+		{	// do the operation
+		return (_Left != _Right);
+		}
+	};
+
+//
+// TEMPLATE REF CLASS ref_less
+//
+template<typename _Arg_t>
+	ref class ref_less
+	:	public binary_function<_Arg_t, _Arg_t, bool>
+	{	// generic functor for less
+public:
+	static result_type function(first_argument_type _Left,
+		second_argument_type _Right)
+		{	// do the operation
+		return (_Left < _Right);
+		}
+	};
+
+//
+// TEMPLATE REF CLASS ref_greater_equal
+//
+template<typename _Arg_t>
+	ref class ref_greater_equal
+	:	public binary_function<_Arg_t, _Arg_t, bool>
+	{	// generic functor for greater_equal
+public:
+	static result_type function(first_argument_type _Left,
+		second_argument_type _Right)
+		{	// do the operation
+		return (_Left >= _Right);
+		}
+	};
+
+//
+// TEMPLATE REF CLASS ref_greater
+//
+template<typename _Arg_t>
+	ref class ref_greater
+	:	public binary_function<_Arg_t, _Arg_t, bool>
+	{	// generic functor for greater
+public:
+	static result_type function(first_argument_type _Left,
+		second_argument_type _Right)
+		{	// do the operation
+		return (_Left > _Right);
+		}
+	};
+
+//
+// TEMPLATE REF CLASS ref_less_equal
+//
+template<typename _Arg_t>
+	ref class ref_less_equal
+	:	public binary_function<_Arg_t, _Arg_t, bool>
+	{	// generic functor for less_equal
+public:
+	static result_type function(first_argument_type _Left,
+		second_argument_type _Right)
+		{	// do the operation
+		return (_Left <= _Right);
+		}
+	};
+
+//
+// TEMPLATE REF CLASS ref_logical_and
+//
+template<typename _Arg_t>
+	ref class ref_logical_and
+	:	public binary_function<_Arg_t, _Arg_t, bool>
+	{	// generic functor for logical_and
+public:
+	static result_type function(first_argument_type _Left,
+		second_argument_type _Right)
+		{	// do the operation
+		return (_Left && _Right);
+		}
+	};
+
+//
+// TEMPLATE REF CLASS ref_logical_or
+//
+template<typename _Arg_t>
+	ref class ref_logical_or
+	:	public binary_function<_Arg_t, _Arg_t, bool>
+	{	// generic functor for logical_or
+public:
+	static result_type function(first_argument_type _Left,
+		second_argument_type _Right)
+		{	// do the operation
+		return (_Left || _Right);
+		}
+	};
+
+//
+// TEMPLATE FUNCTORS
+//
+
+//
+// TEMPLATE CLASS _Unary_fun
+//
+template<typename _Ref_t>
+	ref class _Unary_fun
+	{	// functor for unary function
+public:
+	typedef _Ref_t ref_type;
+	typedef typename ref_type::argument_type argument_type;
+	typedef typename ref_type::result_type result_type;
+	typedef _STLCLR UnaryDelegate<argument_type, result_type>
+		delegate_type;
+
+	result_type operator()(argument_type _Left)
+		{	// do the operation
+		return (ref_type::function(_Left));
+		}
+
+	operator delegate_type^()
+		{	// convert function to delegate
+		return (gcnew delegate_type(&ref_type::function));
+		}
+	};
+
+//
+// TEMPLATE CLASS _Unary_fun_noreturn
+//
+template<typename _Ref_t>
+	ref class _Unary_fun_noreturn
+	{	// functor for unary function returning void
+public:
+	typedef _Ref_t ref_type;
+	typedef typename ref_type::argument_type argument_type;
+	typedef void result_type;
+	typedef unary_delegate_noreturn<argument_type>
+		delegate_type;
+
+	result_type operator()(argument_type _Left)
+		{	// do the operation
+		return (ref_type::function(_Left));
+		}
+
+	operator delegate_type^()
+		{	// convert function to delegate
+		return (gcnew delegate_type(&ref_type::function));
+		}
+	};
+
+//
+// TEMPLATE CLASS _Binary_fun
+//
+template<typename _Ref_t>
+	ref class _Binary_fun
+	{	// functor for binary function
+public:
+	typedef _Ref_t ref_type;
+	typedef typename ref_type::first_argument_type first_argument_type;
+	typedef typename ref_type::second_argument_type second_argument_type;
+	typedef typename ref_type::result_type result_type;
+	typedef _STLCLR BinaryDelegate<
+		first_argument_type, second_argument_type, result_type>
+		delegate_type;
+
+	result_type operator()(first_argument_type _Left,
+		second_argument_type _Right)
+		{	// do the operation
+		return (ref_type::function(_Left, _Right));
+		}
+
+	operator delegate_type^()
+		{	// convert function to delegate
+		return (gcnew delegate_type(&ref_type::function));
+		}
+	};
+
+//
+// TEMPLATE CLASS _Binary_fun_noreturn
+//
+template<typename _Ref_t>
+	ref class _Binary_fun_noreturn
+	{	// functor for binary function returning void
+public:
+	typedef _Ref_t ref_type;
+	typedef typename ref_type::first_argument_type first_argument_type;
+	typedef typename ref_type::second_argument_type second_argument_type;
+	typedef void result_type;
+	typedef binary_delegate_noreturn<
+		first_argument_type, second_argument_type>
+		delegate_type;
+
+	result_type operator()(first_argument_type _Left,
+		second_argument_type _Right)
+		{	// do the operation
+		return (ref_type::function(_Left, _Right));
+		}
+
+	operator delegate_type^()
+		{	// convert function to delegate
+		return (gcnew delegate_type(&ref_type::function));
+		}
+	};
+
+//
+// TEMPLATE CLASS logical_not
+//
+template<typename _Arg_t>
+	ref class logical_not
+	:	public _Unary_fun< ref_logical_not<_Arg_t> >
+	{	// functor for logical_not
+public:
+	typedef logical_not _Mytype_t;
+
+	logical_not()
+		{	// default constructor
+		}
+
+	logical_not(logical_not%)
+		{	// copy constructor
+		}
+	};
+
+//
+// TEMPLATE CLASS negate
+//
+template<typename _Arg_t>
+	ref class negate
+	:	public _Unary_fun< ref_negate<_Arg_t> >
+	{	// functor for negate
+public:
+	typedef negate _Mytype_t;
+
+	negate()
+		{	// default constructor
+		}
+
+	negate(negate%)
+		{	// copy constructor
+		}
+	};
+
+//
+// TEMPLATE CLASS plus
+//
+template<typename _Arg_t>
+	ref class plus
+	:	public _Binary_fun< ref_plus<_Arg_t> >
+	{	// functor for plus
+public:
+	typedef plus _Mytype_t;
+
+	plus()
+		{	// default constructor
+		}
+
+	plus(plus%)
+		{	// copy constructor
+		}
+	};
+
+//
+// TEMPLATE CLASS minus
+//
+template<typename _Arg_t>
+	ref class minus
+	:	public _Binary_fun< ref_minus<_Arg_t> >
+	{	// functor for minus
+public:
+	typedef minus _Mytype_t;
+
+	minus()
+		{	// default constructor
+		}
+
+	minus(minus%)
+		{	// copy constructor
+		}
+	};
+
+//
+// TEMPLATE CLASS multiplies
+//
+template<typename _Arg_t>
+	ref class multiplies
+	:	public _Binary_fun< ref_multiplies<_Arg_t> >
+	{	// functor for multiplies
+public:
+	typedef multiplies _Mytype_t;
+
+	multiplies()
+		{	// default constructor
+		}
+
+	multiplies(multiplies%)
+		{	// copy constructor
+		}
+	};
+
+//
+// TEMPLATE CLASS divides
+//
+template<typename _Arg_t>
+	ref class divides
+	:	public _Binary_fun< ref_divides<_Arg_t> >
+	{	// functor for divides
+public:
+	typedef divides _Mytype_t;
+
+	divides()
+		{	// default constructor
+		}
+
+	divides(divides%)
+		{	// copy constructor
+		}
+	};
+
+//
+// TEMPLATE CLASS modulus
+//
+template<typename _Arg_t>
+	ref class modulus
+	:	public _Binary_fun< ref_modulus<_Arg_t> >
+	{	// functor for modulus
+public:
+	typedef modulus _Mytype_t;
+
+	modulus()
+		{	// default constructor
+		}
+
+	modulus(modulus%)
+		{	// copy constructor
+		}
+	};
+
+//
+// TEMPLATE CLASS equal_to
+//
+template<typename _Arg_t>
+	ref class equal_to
+	:	public _Binary_fun< ref_equal_to<_Arg_t> >
+	{	// functor for equal_to
+public:
+	typedef equal_to _Mytype_t;
+
+	equal_to()
+		{	// default constructor
+		}
+
+	equal_to(equal_to%)
+		{	// copy constructor
+		}
+	};
+
+//
+// TEMPLATE CLASS not_equal_to
+//
+template<typename _Arg_t>
+	ref class not_equal_to
+	:	public _Binary_fun< ref_not_equal_to<_Arg_t> >
+	{	// functor for not_equal_to
+public:
+	typedef not_equal_to _Mytype_t;
+
+	not_equal_to()
+		{	// default constructor
+		}
+
+	not_equal_to(not_equal_to%)
+		{	// copy constructor
+		}
+	};
+
+//
+// TEMPLATE CLASS less
+//
+template<typename _Arg_t>
+	ref class less
+	:	public _Binary_fun< ref_less<_Arg_t> >
+	{	// functor for less
+public:
+	typedef less _Mytype_t;
+
+	less()
+		{	// default constructor
+		}
+
+	less(less%)
+		{	// copy constructor
+		}
+	};
+
+//
+// TEMPLATE CLASS greater_equal
+//
+template<typename _Arg_t>
+	ref class greater_equal
+	:	public _Binary_fun< ref_greater_equal<_Arg_t> >
+	{	// functor for greater_equal
+public:
+	typedef greater_equal _Mytype_t;
+
+	greater_equal()
+		{	// default constructor
+		}
+
+	greater_equal(greater_equal%)
+		{	// copy constructor
+		}
+	};
+
+//
+// TEMPLATE CLASS greater
+//
+template<typename _Arg_t>
+	ref class greater
+	:	public _Binary_fun< ref_greater<_Arg_t> >
+	{	// functor for greater
+public:
+	typedef greater _Mytype_t;
+
+	greater()
+		{	// default constructor
+		}
+
+	greater(greater%)
+		{	// copy constructor
+		}
+	};
+
+//
+// TEMPLATE CLASS less_equal
+//
+template<typename _Arg_t>
+	ref class less_equal
+	:	public _Binary_fun< ref_less_equal<_Arg_t> >
+	{	// functor for less_equal
+public:
+	typedef less_equal _Mytype_t;
+
+	less_equal()
+		{	// default constructor
+		}
+
+	less_equal(less_equal%)
+		{	// copy constructor
+		}
+	};
+
+//
+// TEMPLATE CLASS logical_and
+//
+template<typename _Arg_t>
+	ref class logical_and
+	:	public _Binary_fun< ref_logical_and<_Arg_t> >
+	{	// functor for logical_and
+public:
+	typedef logical_and _Mytype_t;
+
+	logical_and()
+		{	// default constructor
+		}
+
+	logical_and(logical_and%)
+		{	// copy constructor
+		}
+	};
+
+//
+// TEMPLATE CLASS logical_or
+//
+template<typename _Arg_t>
+	ref class logical_or
+	:	public _Binary_fun< ref_logical_or<_Arg_t> >
+	{	// functor for logical_or
+public:
+	typedef logical_or _Mytype_t;
+
+	logical_or()
+		{	// default constructor
+		}
+
+	logical_or(logical_or%)
+		{	// copy constructor
+		}
+	};
+
+//
+// TEMPLATE REF CLASS ref_unary_negate
+//
+template<typename _Arg_t,
+	typename _Result_t>
+	ref class ref_unary_negate
+	{	// generic functor for unary_negate
+public:
+	typedef _Arg_t argument_type;
+	typedef _Result_t result_type;
+	typedef _STLCLR UnaryDelegate<argument_type, result_type>
+		stored_delegate_type;
+
+	ref_unary_negate(stored_delegate_type^ _Function)
+		:	stored_delegate(_Function)
+		{	// construct stored delegate from function
+		}
+
+	bool function(argument_type _Left)
+		{	// do the operation
+		return (!stored_delegate(_Left));
+		}
+
+_STLCLR_FIELD_ACCESS:
+	stored_delegate_type^ stored_delegate;	// the stored delegate
+	};
+
+//
+// TEMPLATE CLASS unary_negate
+//
+template<typename _Fun_t>
+	ref class unary_negate
+	{	// functor for unary_negate
+public:
+	typedef unary_negate _Mytype_t;
+	typedef _Fun_t stored_function_type;
+	typedef typename stored_function_type::argument_type argument_type;
+	typedef bool result_type;
+	typedef ref_unary_negate<argument_type,
+		typename stored_function_type::result_type> ref_type;
+	typedef _STLCLR UnaryDelegate<argument_type, result_type>
+		delegate_type;
+
+	explicit unary_negate(stored_function_type% _Func)
+		:	op(_Func)
+		{	// construct from functor
+		}
+
+	unary_negate(unary_negate%)
+		{	// copy constructor
+		}
+
+	result_type operator()(argument_type _Left)
+		{	// apply functor to operand
+		return (!op(_Left));
+		}
+
+	operator delegate_type^()
+		{	// convert function to delegate
+		return (gcnew delegate_type(gcnew ref_type(op),
+			%ref_type::function));
+		}
+
+_STLCLR_FIELD_ACCESS:
+	stored_function_type op;	// the stored functor to apply
+	};
+
+//
+// TEMPLATE FUNCTION not1
+//
+template<typename _Fun_t> inline
+	unary_negate<_Fun_t> not1(_Fun_t% _Func)
+	{	// return a unary_negate functor adapter
+	return (unary_negate<_Fun_t>(_Func));
+	}
+
+//
+// TEMPLATE REF CLASS ref_binary_negate
+//
+template<typename _Arg1_t,
+	typename _Arg2_t,
+	typename _Result_t>
+	ref class ref_binary_negate
+	{	// generic functor for binary_negate
+public:
+	typedef _Arg1_t first_argument_type;
+	typedef _Arg2_t second_argument_type;
+	typedef _Result_t result_type;
+	typedef _STLCLR BinaryDelegate<
+		first_argument_type, second_argument_type, result_type>
+		stored_delegate_type;
+
+	ref_binary_negate(stored_delegate_type^ _Function)
+		:	stored_delegate(_Function)
+		{	// construct stored delegate from function
+		}
+
+	bool function(first_argument_type _Left,
+		second_argument_type _Right)
+		{	// do the operation
+		return (!stored_delegate(_Left, _Right));
+		}
+
+_STLCLR_FIELD_ACCESS:
+	stored_delegate_type^ stored_delegate;	// the stored delegate
+	};
+
+//
+// TEMPLATE CLASS binary_negate
+//
+template<typename _Fun_t>
+	ref class binary_negate
+	{	// functor for binary_negate
+public:
+	typedef binary_negate _Mytype_t;
+	typedef _Fun_t stored_function_type;
+	typedef typename stored_function_type::first_argument_type
+		first_argument_type;
+	typedef typename stored_function_type::second_argument_type
+		second_argument_type;
+	typedef bool result_type;
+	typedef ref_binary_negate<first_argument_type, second_argument_type,
+		typename stored_function_type::result_type> ref_type;
+	typedef _STLCLR BinaryDelegate<
+		first_argument_type, second_argument_type, result_type>
+		delegate_type;
+
+	explicit binary_negate(stored_function_type% _Func)
+		:	op(_Func)
+		{	// construct from functor
+		}
+
+	binary_negate(binary_negate%)
+		{	// copy constructor
+		}
+
+	result_type operator()(first_argument_type _Left,
+		second_argument_type _Right)
+		{	// apply functor to operands
+		return (!op(_Left, _Right));
+		}
+
+	operator delegate_type^()
+		{	// convert function to delegate
+		return (gcnew delegate_type(gcnew ref_type(op),
+			%ref_type::function));
+		}
+
+_STLCLR_FIELD_ACCESS:
+	stored_function_type op;	// the stored functor to apply
+	};
+
+//
+// TEMPLATE FUNCTION not2
+//
+template<typename _Fun_t> inline
+	binary_negate<_Fun_t> not2(_Fun_t% _Func)
+	{	// return a binary_negate functor adapter
+	return (binary_negate<_Fun_t>(_Func));
+	}
+
+//
+// TEMPLATE REF CLASS ref_binder1st
+//
+template<typename _Arg1_t,
+	typename _Arg2_t,
+	typename _Result_t>
+	ref class ref_binder1st
+	{	// generic functor for binder1st
+public:
+	typedef _Arg1_t first_argument_type;
+	typedef _Arg2_t second_argument_type;
+	typedef _Result_t result_type;
+	typedef _STLCLR BinaryDelegate<
+		first_argument_type, second_argument_type, result_type>
+		stored_delegate_type;
+
+	ref_binder1st(stored_delegate_type^ _Function, first_argument_type _Left)
+		:	stored_delegate(_Function), value(_Left)
+		{	// construct with delegate object and first argument
+		}
+
+	result_type function(second_argument_type _Right)
+		{	// do the operation
+		return (stored_delegate(value, _Right));
+		}
+
+_STLCLR_FIELD_ACCESS:
+	stored_delegate_type^ stored_delegate;	// the stored delegate
+	first_argument_type value;	// the stored first argument
+	};
+
+//
+// TEMPLATE CLASS binder1st
+//
+template<typename _Fun_t>
+	ref class binder1st
+	{	// functor for binder1st
+public:
+	typedef binder1st _Mytype_t;
+	typedef _Fun_t stored_function_type;
+	typedef typename stored_function_type::first_argument_type
+		first_argument_type;
+	typedef typename stored_function_type::second_argument_type
+		second_argument_type;
+	typedef typename stored_function_type::result_type result_type;
+	typedef ref_binder1st<first_argument_type, second_argument_type,
+		result_type> ref_type;
+	typedef _STLCLR UnaryDelegate<second_argument_type, result_type>
+		delegate_type;
+
+	binder1st(stored_function_type% _Func,
+		first_argument_type _Left)
+		:	op(_Func), value(_Left)
+		{	// construct from functor
+		}
+
+	binder1st(binder1st% _Right)
+		: op(_Right.op), value(_Right.value)
+		{	// copy constructor
+		}
+
+	result_type operator()(second_argument_type _Right)
+		{	// apply functor to operands
+		return (op(value, _Right));
+		}
+
+	operator delegate_type^()
+		{	// convert function to delegate
+		return (gcnew delegate_type(
+			gcnew ref_type(op, value),
+			&ref_type::function));
+		}
+
+_STLCLR_FIELD_ACCESS:
+	stored_function_type op;	// the stored functor to apply
+	first_argument_type value;	// the stored left argument
+	};
+
+//
+// TEMPLATE FUNCTION bind1st
+//
+template<typename _Fun_t,
+	typename _Arg_t> inline
+	binder1st<_Fun_t> bind1st(_Fun_t% _Func, _Arg_t _Left)
+	{	// return a binder1st functor adapter
+	typename _Fun_t::first_argument_type _Val = _Left;
+
+	return (binder1st<_Fun_t>(_Func, _Val));
+	}
+
+//
+// TEMPLATE REF CLASS ref_binder2nd
+//
+template<typename _Arg1_t,
+	typename _Arg2_t,
+	typename _Result_t>
+	ref class ref_binder2nd
+	{	// generic functor for binder2nd
+public:
+	typedef _Arg1_t first_argument_type;
+	typedef _Arg2_t second_argument_type;
+	typedef _Result_t result_type;
+	typedef _STLCLR BinaryDelegate<
+		first_argument_type, second_argument_type, result_type>
+		stored_delegate_type;
+
+	ref_binder2nd(stored_delegate_type^ _Function,
+		second_argument_type _Right)
+		:	stored_delegate(_Function), value(_Right)
+		{	// construct with delegate object and second argument
+		}
+
+	result_type function(first_argument_type _Left)
+		{	// do the operation
+		return (stored_delegate(_Left, value));
+		}
+
+_STLCLR_FIELD_ACCESS:
+	stored_delegate_type^ stored_delegate;	// the stored delegate
+	second_argument_type value;	// the stored second argument
+	};
+
+//
+// TEMPLATE CLASS binder2nd
+//
+template<typename _Fun_t>
+	ref class binder2nd
+	{	// functor for binder2nd
+public:
+	typedef binder2nd _Mytype_t;
+	typedef _Fun_t stored_function_type;
+	typedef typename stored_function_type::first_argument_type
+		first_argument_type;
+	typedef typename stored_function_type::second_argument_type
+		second_argument_type;
+	typedef typename stored_function_type::result_type result_type;
+	typedef ref_binder2nd<first_argument_type, second_argument_type,
+		result_type> ref_type;
+	typedef _STLCLR UnaryDelegate<first_argument_type, result_type>
+		delegate_type;
+
+	binder2nd(stored_function_type% _Func,
+		second_argument_type _Right)
+		:	op(_Func), value(_Right)
+		{	// construct from functor
+		}
+
+	binder2nd(binder2nd% _Right)
+		: op(_Right.op), value(_Right.value)
+		{	// copy constructor
+		}
+
+	result_type operator()(second_argument_type _Left)
+		{	// apply functor to operands
+		return (op(_Left, value));
+		}
+
+	operator delegate_type^()
+		{	// convert function to delegate
+		return (gcnew delegate_type(
+			gcnew ref_type(op, value),
+			&ref_type::function));
+		}
+
+_STLCLR_FIELD_ACCESS:
+	stored_function_type op;	// the stored functor to apply
+	second_argument_type value;	// the stored right argument
+	};
+
+//
+// TEMPLATE FUNCTION bind2nd
+//
+template<typename _Fun_t,
+	typename _Arg_t> inline
+	binder2nd<_Fun_t> bind2nd(_Fun_t% _Func, _Arg_t _Right)
+	{	// return a binder2nd functor adapter
+	typename _Fun_t::second_argument_type _Val = _Right;
+
+	return (binder2nd<_Fun_t>(_Func, _Val));
+	}
+
+//
+// TEMPLATE CLASS comparer_less
+//
+template<typename _Arg_t,
+	typename _Mycomp_t>
+	ref class comparer_less
+	{	// functor for comparer_less
+public:
+	typedef comparer_less<_Arg_t, _Mycomp_t> _Mytype_t;
+	typedef _Arg_t argument_type;
+	typedef _STLCLR BinaryDelegate<
+		argument_type, argument_type, bool>
+		delegate_type;
+
+	comparer_less(_Mycomp_t^ _Comp)
+		:	_Mycomp(_Comp)
+		{	// construct from comparer
+		}
+
+	comparer_less(comparer_less% _Right)
+		:	_Mycomp(_Right._Mycomp)
+		{	// construct by copying comparer
+		}
+
+	bool operator()(argument_type _Left, argument_type _Right)
+		{	// do the operation
+		return (function(_Left, _Right));
+		}
+
+	operator delegate_type^()
+		{	// convert function to delegate
+		return (gcnew delegate_type(%function));
+		}
+
+	static bool function(argument_type _Left, argument_type _Right)
+		{	// do the operation
+		return (_Mycomp->Compare(_Left, _Right) < 0);
+		}
+
+_STLCLR_FIELD_ACCESS:
+	_Mycomp_t^ _Mycomp;	// the stored IComparer object
+	};
+
+//
+// TEMPLATE FUNCTION make_comparer_less
+//
+template<typename _Arg_t> inline
+	comparer_less<_Arg_t,
+		System::Collections::Generic::IComparer<_Arg_t> >^
+	make_comparer_less(
+		System::Collections::Generic::IComparer<_Arg_t>^ _Comp)
+	{	// make comparer less from IComparer<T>
+	typedef System::Collections::Generic::IComparer<_Arg_t> _Mycomp_t;
+
+	return (gcnew comparer_less<_Arg_t, _Mycomp_t>(_Comp));
+	}
+
+inline comparer_less<System::Object^, System::Collections::IComparer>^
+	make_comparer_less(System::Collections::IComparer^ _Comp)
+	{	// make comparer less from IComparer
+	typedef System::Collections::IComparer _Mycomp_t;
+
+	return (gcnew comparer_less<System::Object^, _Mycomp_t>(_Comp));
+	}
+}	// namespace cliext
+#endif // _CLI_FUNCTIONAL_
+
+/*
+ * Copyright (c) 2004-2007 by Dinkumware, Ltd.  ALL RIGHTS RESERVED.
+ * Consult your license regarding permissions and restrictions.
+V5.03:0009 */

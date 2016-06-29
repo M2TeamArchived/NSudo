@@ -1,0 +1,1868 @@
+// list stl/clr header
+#ifndef _CLI_LIST_
+ #define _CLI_LIST_
+#include <cliext/functional>
+#include <cliext/iterator>
+
+namespace cliext {
+	namespace impl {
+//
+// TEMPLATE REF CLASS list_node
+//
+template<typename _Value_t>
+	ref class list_node
+	:	public _STLCLR Generic::INode<_Value_t>
+	{	// list node
+public:
+	typedef list_node<_Value_t> _Mytype_t;
+	typedef _STLCLR Generic::INode<_Value_t> _Mynode_it;
+	typedef _STLCLR Generic::IBidirectionalContainer<_Value_t> _Mycont_it;
+	typedef _Value_t value_type;
+
+	list_node(_Mycont_it^ _Owner)
+		:	_Mycont(_Owner)
+		{	// construct a node with defaults
+		}
+
+	_Mycont_it^ container()
+		{	// return owning container
+		return (_Head == nullptr ? nullptr : _Head->_Mycont);
+		}
+
+	bool is_head()
+		{	// test if head node
+		return (_Mycont != nullptr);
+		}
+
+	_Mytype_t^ next_node()
+		{	// return successor node
+		if (this == _Head || _Head == nullptr)
+			throw gcnew System::InvalidOperationException();
+		return (_Next);
+		}
+
+	_Mytype_t^ prev_node()
+		{	// return predecessor node
+		if (_Head == _Prev || _Head == nullptr)
+			throw gcnew System::InvalidOperationException();
+		return (_Prev);
+		}
+
+	property _Value_t% _Value
+		{	// get or set _Myval
+		virtual _Value_t% get()
+			{	// get _Myval element
+			if (this == _Head || _Head == nullptr)
+				throw gcnew System::InvalidOperationException();
+			return (_Myval);
+			}
+
+		virtual void set(_Value_t% _Val)
+			{	// set _Myval element
+			if (this == _Head || _Head == nullptr)
+				throw gcnew System::InvalidOperationException();
+			_Myval = _Val;
+			}
+		};
+
+	// data members
+	_Mycont_it^ _Mycont;	// pointer to owning list (if head node)
+	_Mytype_t^ _Head;	// pointer to head node
+	_Mytype_t^ _Next;	// pointer to successor node
+	_Mytype_t^ _Prev;	// pointer to predecessor node
+	value_type _Myval;	// the stored value (if not head node)
+
+private:
+	virtual _Mycont_it^ container_virtual() sealed
+		= _Mynode_it::container
+		{	// return owning container
+		return (container());
+		}
+
+	virtual bool is_head_virtual() sealed
+		= _Mynode_it::is_head
+		{	// test if head node
+		return (is_head());
+		}
+
+	virtual _Mynode_it^ next_node_virtual() sealed
+		= _Mynode_it::next_node
+		{	// return successor node
+		return (next_node());
+		}
+
+	virtual _Mynode_it^ prev_node_virtual() sealed
+		= _Mynode_it::prev_node
+		{	// return predecessor node
+		return (prev_node());
+		}
+	};
+
+//
+// TEMPLATE REF CLASS list_impl
+//
+template<typename _Value_t,
+	bool _Is_ref>
+	ref class list_impl
+	:	public _STLCLR IList<_Value_t>
+	{	// bidirectional linked list of elements
+public:
+	// types
+	typedef list_impl<_Value_t, _Is_ref> _Mytype_t;
+	typedef _STLCLR IList<_Value_t> _Mycont_it;
+	typedef list_node<_Value_t> _Mynode_t;
+	typedef cli::array<_Value_t> _Myarray_t;
+	typedef System::Collections::Generic::IEnumerable<_Value_t> _Myenum_it;
+	typedef _Cont_make_value<_Value_t, _Is_ref> _Mymake_t;
+
+	typedef list_node<_Value_t> node_type;
+
+	typedef BidirectionalIterator<_Mytype_t>
+		iterator;
+	typedef ConstBidirectionalIterator<_Mytype_t>
+		const_iterator;
+	typedef ReverseBidirectionalIterator<_Mytype_t>
+		reverse_iterator;
+	typedef ReverseBidirectionalIterator<_Mytype_t>
+		const_reverse_iterator;
+
+	typedef int size_type;
+	typedef int difference_type;
+	typedef _Value_t value_type;
+	typedef value_type% reference;
+	typedef value_type% const_reference;
+
+	typedef _Mycont_it generic_container;
+	typedef value_type generic_value;
+	typedef _STLCLR Generic::ContainerBidirectionalIterator<_Value_t>
+		generic_iterator;
+	typedef _STLCLR Generic::ReverseBidirectionalIterator<_Value_t>
+		generic_reverse_iterator;
+
+	typedef _STLCLR BinaryDelegate<value_type, value_type, bool>
+		_Valcomp_dt;
+	typedef _STLCLR UnaryDelegate<value_type, bool> _Valtest_dt;
+
+	// constants
+	static const int _Maxsize = MAX_CONTAINER_SIZE;
+
+	// basics
+	list_impl()
+		:	_Mysize(0), _Mygen(0)
+		{	// construct empty list
+		_Myhead = _Buynode();
+		}
+
+	list_impl% operator=(list_impl% _Right)
+		{	// assign
+		if ((Object^)this != %_Right)
+			{	// worth doing, do it
+			clear();
+			insert_node(head_node(),
+				_Right.front_node(), _Right.head_node());
+			}
+		return (*this);
+		}
+
+	// constructors
+	list_impl(_Mytype_t% _Right)
+		:	_Mysize(0), _Mygen(0)
+		{	// construct by copying _Right
+		_Myhead = _Buynode();
+		insert_node(head_node(), _Right.front_node(), _Right.head_node());
+		}
+
+	explicit list_impl(size_type _Count)
+		:	_Mysize(0), _Mygen(0)
+		{	// construct from _Count * value_type()
+		_Myhead = _Buynode();
+		insert_node(head_node(), _Count, value_type());
+		}
+
+	list_impl(size_type _Count, value_type _Val)
+		:	_Mysize(0), _Mygen(0)
+		{	// construct from _Count * _Val
+		_Myhead = _Buynode();
+		insert_node(head_node(), _Count, _Val);
+		}
+
+	template<typename _InIt_t>
+		list_impl(_InIt_t _First, _InIt_t _Last)
+		:	_Mysize(0), _Mygen(0)
+		{	// construct from [_First, _Last)
+		_Myhead = _Buynode();
+		_Construct(_First, _Last, _Iter_category(_First));
+		}
+
+	template<typename _InIt_t>
+		void _Construct(_InIt_t _Count, _InIt_t _Val,
+			_Int_iterator_tag%)
+		{	// initialize with _Count * _Val
+		insert_node(head_node(), (size_type)_Count, (value_type)_Val);
+		}
+
+	template<typename _InIt_t>
+		void _Construct(_InIt_t _First, _InIt_t _Last,
+			input_iterator_tag%)
+		{	// initialize with [_First, _Last), input iterators
+		for (; _First != _Last; ++_First)
+			push_back((value_type)*_First);
+		}
+
+	template<typename _InIt_t>
+		void _Construct(_InIt_t _First, _InIt_t _Last,
+			random_access_iterator_tag%)
+		{	// initialize with [_First, _Last), random-access iterators
+		if (_Last < _First)
+			throw gcnew System::ArgumentOutOfRangeException();
+		for (; _First != _Last; ++_First)
+			push_back((value_type)*_First);
+		}
+
+	list_impl(_Myenum_it^ _Right)
+		:	_Mysize(0), _Mygen(0)
+		{	// initialize with enumeration
+		_Myhead = _Buynode();
+		for each (value_type _Val in _Right)
+			push_back(_Val);
+		}
+
+	// destructor
+	~list_impl()
+		{	// destroy the object
+		clear();
+		_Myhead = nullptr;
+		_Mysize = 0;
+		++_Mygen;
+		}
+
+	// accessors
+	unsigned long get_generation()
+		{	// get underlying container generation
+		return (_Mygen);
+		}
+
+	node_type^ get_node(iterator _Where)
+		{	// get node from valid iterator
+		node_type^ _Node = (node_type^)_Where.get_node();
+
+		if (_Node->container() != (System::Object^)this)
+			throw gcnew System::InvalidOperationException();
+		return (_Node);
+		}
+
+	node_type^ front_node()
+		{	// return leftmost node in tree
+		return (head_node()->_Next);	// avoid usual check
+		}
+
+	node_type^ back_node()
+		{	// return rightmost node in tree
+		return (head_node()->_Prev);	// avoid usual check
+		}
+
+	node_type^ head_node()
+		{	// get head node
+		return (_Myhead);
+		}
+
+//	property reference default[/* size_type */];
+
+	property value_type front_item
+		{	// get or set first element
+		virtual value_type get()
+			{	// get first element
+			return (front());
+			}
+
+		virtual void set(value_type _Val)
+			{	// set first element
+			front() = _Mymake_t::make_value(_Val);
+			}
+		};
+
+	property value_type back_item
+		{	// get or set last element
+		virtual value_type get()
+			{	// get last element
+			return (back());
+			}
+
+		virtual void set(value_type _Val)
+			{	// set last element
+			back() = _Mymake_t::make_value(_Val);
+			}
+		};
+
+	reference front()
+		{	// get first element of mutable sequence
+		if (empty())
+			throw gcnew System::NullReferenceException();
+		return (front_node()->_Myval);
+		}
+
+	reference back()
+		{	// get last element of mutable sequence
+		if (empty())
+			throw gcnew System::NullReferenceException();
+		return (back_node()->_Myval);
+		}
+
+	// converters
+	_Myarray_t^ to_array()
+		{	// convert to array
+		_Myarray_t^ _Ans = gcnew _Myarray_t(size());
+		node_type^ _Node = head_node();
+
+		for (int _Idx = size(); 0 <= --_Idx; )
+			{	// copy back to front
+			_Node = _Node->prev_node();
+			_Ans[_Idx] = _Mymake_t::make_value(_Node->_Myval);
+			}
+		return (_Ans);
+		}
+
+	// iterator generators
+	iterator make_iterator(node_type^ _Node)
+		{	// return iterator for node
+		return (iterator(_Node));
+		}
+
+	iterator begin()
+		{	// return iterator for beginning of mutable sequence
+		return (make_iterator(front_node()));
+		}
+
+	iterator end()
+		{	// return iterator for end of mutable sequence
+		return (make_iterator(head_node()));
+		}
+
+	reverse_iterator rbegin()
+		{	// return reverse iterator for beginning of mutable sequence
+		return (reverse_iterator(end()));
+		}
+
+	reverse_iterator rend()
+		{	// return reverse iterator for end of mutable sequence
+		return (reverse_iterator(begin()));
+		}
+
+	// size controllers
+//	void reserve(size_type _Capacity);
+//	size_type capacity();
+
+	virtual void resize(size_type _Newsize)
+		{	// determine new length, padding with value_type elements
+		resize(_Newsize, value_type());
+		}
+
+	void resize(size_type _Newsize, value_type _Val)
+		{	// determine new length, padding with _Val elements
+		if (_Newsize < 0)
+			throw gcnew System::ArgumentOutOfRangeException();
+
+		if (size() < _Newsize)
+			insert_node(head_node(), _Newsize - size(), _Val);
+		else
+			for (; _Newsize < size(); )
+				pop_back();	// discard from end
+		}
+
+	size_type size()
+		{	// return length of sequence
+		return (_Mysize);
+		}
+
+	bool empty()
+		{	// test if sequence is empty
+		return (size() == 0);
+		}
+
+	// mutators
+	void push_front(value_type _Val)
+		{	// insert element at beginning
+		insert_node(front_node(), 1, _Val);
+		}
+
+	void pop_front()
+		{	// erase element at beginning
+		if (empty())
+			throw gcnew System::InvalidOperationException();
+		erase_node(front_node());	// discard from beginning
+		}
+
+	void push_back(value_type _Val)
+		{	// insert element at end
+		insert_node(head_node(), 1, _Val);
+		}
+
+	void pop_back()
+		{	// erase element at end
+		if (empty())
+			throw gcnew System::InvalidOperationException();
+		erase_node(back_node());	// discard from end
+		}
+
+	void assign(size_type _Count, value_type _Val)
+		{	// assign _Count * _Val
+		clear();
+		insert_node(head_node(), _Count, _Val);
+		}
+
+	void assign(_STLCLR Generic::IInputIterator<_Value_t>^ _First,
+		_STLCLR Generic::IInputIterator<_Value_t>^ _Last)
+		{	// assign [_First, _Last)
+		if (_First->container() != this)
+			clear();
+
+		size_type _Oldsize = size();
+
+		_Insert_safe(front_node(), _First, _Last);
+		for (; 0 < _Oldsize; --_Oldsize)
+			pop_back();	// discard old stuff
+		}
+
+	void assign(_Myenum_it^ _Right)
+		{	// initialize with enumeration
+		node_type^ _Oldfirst = front_node();
+
+		try
+			{	// try to build insert list
+			for each (value_type _Val in _Right)
+				insert_node(_Oldfirst,	// insert new at beginning
+					1, _Val);
+			}
+		catch (System::Object^)
+			{	// failed, discard new stuff
+			for (; front_node() != _Oldfirst; )
+				pop_front();
+			throw;
+			}
+		for (; _Oldfirst != head_node(); )
+			_Oldfirst = erase_node(_Oldfirst);	// discard old stuff
+		}
+
+	void assign(System::Collections::IEnumerable^ _Right)
+		{	// initialize with enumeration
+		node_type^ _Oldfirst = front_node();
+
+		try
+			{	// try to build insert list
+			for each (value_type _Val in _Right)
+				insert_node(_Oldfirst,	// insert new at beginning
+					1, _Val);
+			}
+		catch (System::Object^)
+			{	// failed, discard new stuff
+			for (; front_node() != _Oldfirst; )
+				pop_front();
+			throw;
+			}
+		for (; _Oldfirst != head_node(); )
+			_Oldfirst = erase_node(_Oldfirst);	// discard old stuff
+		}
+
+	iterator insert(iterator _Where, value_type _Val)
+		{	// insert _Val at _Where
+		insert_node(get_node(_Where), 1, _Val);
+		return (--_Where);
+		}
+
+	void insert(iterator _Where,
+		size_type _Count, value_type _Val)
+		{	// insert _Count * _Val at _Where
+		insert_node(get_node(_Where), _Count, _Val);
+		}
+
+	void insert(iterator _Where_iter,
+		_STLCLR Generic::IInputIterator<_Value_t>^ _First,
+		_STLCLR Generic::IInputIterator<_Value_t>^ _Last)
+		{	// insert [_First, _Last) at _Where, input iterators
+		node_type^ _Where = get_node(_Where_iter);
+
+		if (_First->container() == this)
+			_Insert_safe(_Where, _First, _Last);
+		else
+			for (; !_First->equal_to(_Last); _First->next())
+				insert_node(_Where, 1, (value_type)_First->get_cref());
+		}
+
+	void insert(iterator _Where_iter,
+		_Myenum_it^ _Right)
+		{	// insert enumeration at _Where, possibly from this container
+		node_type^ _Where = get_node(_Where_iter);
+		node_type^ _Oldfirst = front_node();
+
+		try
+			{	// try to build insert list
+			for each (value_type _Val in _Right)
+				insert_node(_Oldfirst,	// insert new at beginning
+					1, _Val);
+			}
+		catch (System::Object^)
+			{	// failed, discard new stuff
+			for (; front_node() != _Oldfirst; )
+				pop_front();
+			throw;
+			}
+		splice_node(_Where, this,
+			front_node(), _Oldfirst);	// splice new into place
+		}
+
+	void insert(iterator _Where_iter,
+		System::Collections::IEnumerable^ _Right)
+		{	// insert enumeration at _Where, possibly from this container
+		node_type^ _Where = get_node(_Where_iter);
+		node_type^ _Oldfirst = front_node();
+
+		try
+			{	// try to build insert list
+			for each (value_type _Val in _Right)
+				insert_node(_Oldfirst,	// insert new at beginning
+					1, _Val);
+			}
+		catch (System::Object^)
+			{	// failed, discard new stuff
+			for (; front_node() != _Oldfirst; )
+				pop_front();
+			throw;
+			}
+		splice_node(_Where, this,
+			front_node(), _Oldfirst);	// splice new into place
+		}
+
+	void _Insert_safe(_Mynode_t^ _Where,
+		_STLCLR Generic::IInputIterator<_Value_t>^ _First,
+		_STLCLR Generic::IInputIterator<_Value_t>^ _Last)
+		{	// insert [_First, _Last] at _Where, possibly from this container
+		node_type^ _Oldfirst = front_node();
+
+		try
+			{	// try to build insert list
+			for (; !_First->equal_to(_Last); _First->next())
+				insert_node(_Oldfirst,
+					1, (value_type)_First->get_cref());	// insert at beginning
+			}
+		catch (System::Object^)
+			{	// failed, discard new stuff
+			for (; front_node() != _Oldfirst; )
+				pop_front();
+			throw;
+			}
+		splice_node(_Where, this,
+			front_node(), _Oldfirst);	// splice new into place
+		}
+
+	template<typename _InIt_t>
+		void _Insert_safe(_Mynode_t^ _Where, _InIt_t _First, _InIt_t _Last)
+		{	// insert [_First, _Last] at _Where, possibly from this container
+		node_type^ _Oldfirst = front_node();
+
+		try
+			{	// try to build insert list
+			for (; _First != _Last; ++_First)
+				insert_node(_Oldfirst,
+					1, (value_type)*_First);	// insert new at beginning
+			}
+		catch (System::Object^)
+			{	// failed, discard new stuff
+			for (; front_node() != _Oldfirst; )
+				pop_front();
+			throw;
+			}
+		splice_node(_Where, this,
+			front_node(), _Oldfirst);	// splice new into place
+		}
+
+	void insert_node(node_type^ _Where,
+		size_type _Count, value_type _Val)
+		{	// insert _Count * _Val at _Where
+		size_type _Added = 0;
+
+		if ((System::Object^)_Where->container() != this)
+			throw gcnew System::ArgumentException();
+
+		if (_Count < 0 || _Maxsize - size() < _Count)
+			throw gcnew System::ArgumentOutOfRangeException();
+		try
+			{	// try to insert _Count copies
+			for (; _Added < _Count; ++_Added)
+				{	// insert a node at _Where
+				node_type^ _Node = _Buynode(_Where, _Where->_Prev, _Val);
+
+				_Where->_Prev = _Node;
+				_Node->_Prev->_Next = _Node;
+				++_Mysize;
+				}
+			}
+		catch (System::Object^)
+			{	// failed, discard new stuff
+			for (; 0 < _Added; --_Added)
+				erase_node(_Where->prev_node());
+			}
+
+		if (0 < _Added)
+			++_Mygen;
+		}
+
+	node_type^ insert_node(node_type^ _Where,
+		node_type^ _First, node_type^ _Last)
+		{	// insert copy of list subrange
+		size_type _Added = 0;
+
+		if (_Where->container() != this)
+			throw gcnew System::ArgumentException();
+
+		try
+			{	// try to insert _Count copies
+			for (; _First != _Last; _First = _First->next_node(), ++_Added)
+				insert_node(_Where, 1, _First->_Myval);
+			}
+		catch (System::Object^)
+			{	// failed, discard new stuff
+			for (; 0 < _Added; --_Added)
+				erase_node(_Where->prev_node());
+			}
+
+		if (0 < _Added)
+			++_Mygen;
+		return (_Where);
+		}
+
+	iterator erase(iterator _Where)
+		{	// erase element at _Where
+		node_type^ _Node = get_node(_Where);
+
+		return (make_iterator(erase_node(_Node)));
+		}
+
+	iterator erase(iterator _First, iterator _Last)
+		{	// erase [_First, _Last)
+		return (erase_node(get_node(_First), get_node(_Last)));
+		}
+
+	node_type^ erase_node(node_type^ _Where)
+		{	// erase node at _Where
+		if (_Where->container() != this || _Where->is_head())
+			throw gcnew System::InvalidOperationException();
+
+		_Mymake_t::unmake_value(_Where->_Myval);
+		_Where->_Head = nullptr;	// orphan corresponding iterators
+		_Where->_Prev->_Next = _Where->_Next;
+		_Where = _Where->_Next;
+		_Where->_Prev = _Where->_Prev->_Prev;
+		--_Mysize;
+		++_Mygen;
+		return (_Where);
+		}
+
+	iterator erase_node(node_type^ _First, node_type^ _Last)
+		{	// erase nodes in [_First, _Last)
+		if (_First == nullptr || _First->container() != this)
+			throw gcnew System::ArgumentException();
+
+		for (; _First != _Last; )
+			_First = erase_node(_First);
+		return (make_iterator(_First));
+		}
+
+	void clear()
+		{	// erase all
+		for (; front_node() != head_node(); )
+			erase_node(front_node());
+		}
+
+	void swap(_Mytype_t% _Right)
+		{	// exchange contents with _Right
+		if ((Object^)this != %_Right)
+			{	// worth doing, swap
+			node_type^ _Oldfirst = front_node();
+
+			splice_node(_Oldfirst, %_Right,
+				_Right.front_node(), _Right.head_node());
+			_Right.splice_node(_Right.head_node(), this,
+				_Oldfirst, head_node());
+
+			++_Mygen;
+			++_Right._Mygen;
+			}
+		}
+
+	// special functions
+	void splice(iterator _Where, _Mytype_t% _Right)
+		{	// splice all of _Right at _Where
+		splice_node(get_node(_Where), %_Right,
+			_Right.front_node(), _Right.head_node());
+		}
+
+	void splice(iterator _Where, _Mytype_t% _Right, iterator _First)
+		{	// splice _Right [_First, _First + 1) at _Where
+		node_type^ _Node = _Right.get_node(_First);
+
+		splice_node(get_node(_Where), %_Right,
+			_Node, _Node->next_node());
+		}
+
+	void splice(iterator _Where, _Mytype_t% _Right,
+		iterator _First, iterator _Last)
+		{	// splice _Right [_First, _First + 1) at _Where
+		splice_node(get_node(_Where), %_Right,
+			_Right.get_node(_First), _Right.get_node(_Last));
+		}
+
+	void splice_node(node_type^ _Where, _Mytype_t^ _Right,
+		node_type^ _First, node_type^ _Last)
+		{	// splice _Right [_First, _Last) before _Where
+		if (_Where->container() != this
+			|| _First->container() != _Right)
+			throw gcnew System::ArgumentException();
+
+		if (_First == _Last)
+			;	// nothing to do
+		else if ((Object^)this != _Right)
+			{	// get sublist from another list
+			node_type^ _Nlast = _Last->_Prev;
+
+			_Mysize += _Right->unsplice_node(this, _First, _Last);
+			_Nlast->_Next = _Where;
+			_Where->_Prev->_Next = _First;
+			_First->_Prev = _Where->_Prev;
+			_Where->_Prev = _Nlast;
+			++_Mygen;
+			}
+		else if (_First != _Where && _Where != _Last)
+			{	// worth splicing, do it
+			node_type^ _Node = _Where->_Prev;
+
+			_First->_Prev->_Next = _Last;
+			_Last->_Prev->_Next = _Where;
+			_Where->_Prev->_Next = _First;
+			_Where->_Prev = _Last->_Prev;
+			_Last->_Prev = _First->_Prev;
+			_First->_Prev = _Node;
+			++_Mygen;
+			}
+		}
+
+	size_type unsplice_node(_Mytype_t^ _Left,
+		node_type^ _First, node_type^ _Last)
+		{	// unsplice [_First, _Last) to give to _Left
+		if (_First->container() != this)
+			throw gcnew System::InvalidOperationException();
+
+		size_type _Count = 0;
+		node_type^ _Node = _First;
+
+		for (; _Node != _Last && !_Node->is_head();
+			_Node = _Node->_Next, ++_Count)
+			_Node->_Head = _Left->head_node();	// change ownership
+
+		if (_Node != _Last || _Maxsize - _Left->size() < _Count)
+			{	// invalid splice, back out
+			for (; _First != _Node; _First = _First->_Next)
+				_Node->_Head = _Myhead;	// revert ownership
+
+			if (_Node != _Last)
+				throw gcnew System::InvalidOperationException();
+			else
+				throw gcnew System::ArgumentOutOfRangeException();
+			}
+
+		_First->_Prev->_Next = _Last;	// remove sublist
+		_Last->_Prev = _First->_Prev;
+		_Mysize -= _Count;
+		++_Mygen;
+		return (_Count);
+		}
+
+	void remove(value_type _Val)
+		{	// erase each element matching _Val
+		for (node_type^ _First = front_node(); _First != head_node(); )
+			{	// point past element and test it
+			_First = _First->next_node();
+			if (_First->prev_node()->_Myval == _Val)
+				erase_node(_First->prev_node());
+			}
+		}
+
+	void remove_if(_Valtest_dt^ _Pred)
+		{	// erase each element satisfying _Pred
+		for (node_type^ _First = front_node(); _First != head_node(); )
+			{	// point past element and test it
+			_First = _First->next_node();
+			if (_Pred(_First->prev_node()->_Myval))
+				erase_node(_First->prev_node());
+			}
+		}
+
+	template<typename _Pr1_t>
+		void remove_if(_Pr1_t _Pred)
+		{	// erase each element satisfying _Pred
+		for (node_type^ _First = front_node(); _First != head_node(); )
+			{	// point past element and test it
+			_First = _First->next_node();
+			if (_Pred(_First->prev_node()->_Myval))
+				erase_node(_First->prev_node());
+			}
+		}
+
+	void unique()
+		{	// erase each element matching previous
+		_Unique(equal_to<value_type>());
+		}
+
+	void unique(_Valcomp_dt^ _Pred)
+		{	// erase each element satisfying _Pred with previous
+		_Unique(_Pred);
+		}
+
+	template<typename _Pr2_t>
+		void unique(_Pr2_t _Pred)
+		{	// erase each element satisfying _Pred with previous
+		_Unique(_Pred);
+		}
+
+	template<typename _Pr2_t>
+		void _Unique(_Pr2_t _Pred)
+		{	// erase each element satisfying _Pred with previous
+		if (2 <= size())
+			{	// worth doing, do it
+			for (node_type^ _First = front_node();
+				_First->next_node() != head_node(); )
+				if (_Pred(_First->_Myval, _First->next_node()->_Myval))
+					erase_node(_First->next_node());
+				else
+					_First = _First->next_node();
+			}
+		}
+
+	void merge(_Mytype_t% _Right)
+		{	// merge in elements from _Right, both ordered by operator<
+		_Merge(_Right, less<value_type>());
+		}
+
+	void merge(_Mytype_t% _Right, _Valcomp_dt^ _Pred)
+		{	// merge in elements from _Right, both ordered by _Pred
+		_Merge(_Right, _Pred);
+		}
+
+	template<typename _Pr3_t>
+		void merge(_Mytype_t% _Right, _Pr3_t _Pred)
+		{	// merge in elements from _Right, both ordered by _Pred
+		_Merge(_Right, _Pred);
+		}
+
+	template<typename _Pr3_t>
+		void _Merge(_Mytype_t% _Right, _Pr3_t _Pred)
+		{	// merge in elements from _Right, both ordered by _Pred
+		if ((Object^)this != %_Right)
+			{	// safe to merge, do it
+			node_type^ _First1 = front_node();
+			node_type^ _First2 = _Right.front_node();
+
+			for (; _First1 != head_node() && _First2 != _Right.head_node(); )
+				if (_Pred(_First2->_Myval, _First1->_Myval))
+					{	// splice in an element from _Right
+					_First2 = _First2->next_node();
+					splice_node(_First1, %_Right,
+						_First2->prev_node(), _First2);
+					}
+				else
+					_First1 = _First1->next_node();
+
+			splice_node(head_node(), %_Right, _First2,
+				_Right.head_node());
+			}
+		}
+
+	void sort()
+		{	// order sequence, using operator<
+		_Sort(less<value_type>());
+		}
+
+	void sort(_Valcomp_dt^ _Pred)
+		{	// order sequence, using _Pred
+		_Sort(_Pred);
+		}
+
+	template<typename _Pr3_t>
+		void sort(_Pr3_t _Pred)
+		{	// order sequence, using _Pred
+		_Sort(_Pred);
+		}
+
+	template<typename _Pr3_t>
+		void _Sort(_Pr3_t _Pred)
+		{	// order sequence, using _Pred
+		if (2 <= size())
+			{	// worth sorting, do it
+			const size_type _Maxbins = 30;
+			typedef cli::array<list_impl^> _Myarray_t;
+
+			list_impl^ _Templist = gcnew list_impl;
+			_Myarray_t^ _Binlist = gcnew _Myarray_t(_Maxbins);
+			int _Maxbin = 0;
+			int _Bin;
+			for (; !empty(); )
+				{	// sort another element, using bins
+				_Templist->splice_node(_Templist->front_node(), this,
+					front_node(),
+					front_node()->next_node());	// pick an element
+				for (_Bin = 0; _Bin < _Maxbin && !_Binlist[_Bin]->empty();
+					++_Bin)
+					{	// merge into ever larger bins
+					_Binlist[_Bin]->merge(*_Templist, _Pred);
+					_Binlist[_Bin]->swap(*_Templist);
+					}
+				if (_Bin == _Maxbins)
+					_Binlist[_Bin - 1]->merge(*_Templist, _Pred);
+				else
+					{	// spill to empty or new bin, while they last
+					if (_Bin == _Maxbin)
+						{	// start a new bin
+						_Binlist[_Bin] = gcnew list_impl;
+						++_Maxbin;
+						}
+					_Binlist[_Bin]->swap(*_Templist);
+					}
+				}
+			for (_Bin = 1; _Bin < _Maxbin; ++_Bin)
+				_Binlist[_Bin]->merge(*_Binlist[_Bin - 1], _Pred);
+			splice_node(head_node(), _Binlist[_Maxbin - 1],
+				_Binlist[_Maxbin - 1]->front_node(),
+				_Binlist[_Maxbin - 1]->head_node());
+			}
+		}
+
+	void reverse()
+		{	// reverse sequence
+		if (2 <= size())
+			for (node_type^ _Node = front_node()->next_node();
+				_Node != head_node(); )
+				{	// move next element to beginning
+				_Node = _Node->_Next;
+				splice_node(front_node(), this, _Node->_Prev, _Node);
+				}
+		}
+
+_STLCLR_FIELD_ACCESS:
+	node_type^ _Buynode()
+		{	// allocate a head node and set links
+		node_type^ _Node = gcnew node_type(this);
+
+		_Node->_Head = _Node;
+		_Node->_Next = _Node;
+		_Node->_Prev = _Node;
+		return (_Node);
+		}
+
+	node_type^ _Buynode(node_type^ _Next, node_type^ _Prev,
+		value_type _Val)
+		{	// allocate a node and set links
+		node_type^ _Node = gcnew node_type(nullptr);
+
+		_Node->_Head = _Myhead;
+		_Node->_Next = _Next;
+		_Node->_Prev = _Prev;
+		_Node->_Myval = _Mymake_t::make_value(_Val);
+		return (_Node);
+		}
+
+	// data members
+	node_type^ _Myhead;		// pointer to head node
+	size_type _Mysize;		// number of elements
+	unsigned long _Mygen;	// current change generation
+
+	// interfaces
+public:
+	virtual System::Object^ Clone()
+		{	// clone the list
+		return (gcnew list_impl(*this));
+		}
+
+private:
+	property size_type Count
+		{	// element count
+		virtual size_type get() sealed
+			= System::Collections::ICollection::Count::get
+			{	// get element count
+			return (size());
+			}
+		};
+
+	property bool IsSynchronized
+		{	// synchronized status
+		virtual bool get() sealed
+			= System::Collections::ICollection::IsSynchronized::get
+			{	// test if synchronized
+			return (false);
+			}
+		};
+
+	property System::Object^ SyncRoot
+		{	// synchronizer
+		virtual System::Object^ get() sealed
+			= System::Collections::ICollection::SyncRoot::get
+			{	// get synchronizer
+			return (this);
+			}
+		};
+
+	virtual void CopyTo(System::Array^ _Dest_arg, int _First) sealed
+		= System::Collections::ICollection::CopyTo
+		{	// copy to _Dest_arg, beginning at _First
+		cli::array<System::Object^>^ _Dest =
+			(cli::array<System::Object ^>^)_Dest_arg;
+		node_type^ _Node = head_node();
+
+		for (int _Idx = size(); 0 <= --_Idx; )
+			{	// copy back to front
+			_Node = _Node->prev_node();
+			_Dest[_First + _Idx] = _Mymake_t::make_value(_Node->_Myval);
+			}
+		}
+
+	virtual System::Collections::IEnumerator^ GetEnumerator() sealed
+		= System::Collections::IEnumerable::GetEnumerator
+		{	// get enumerator for the container
+		return (gcnew _STLCLR ListEnumerator<_Value_t>(front_node()));
+		}
+
+	virtual unsigned long get_generation_virtual() sealed
+		= _Mycont_it::get_generation
+		{	// get underlying container generation
+		return (get_generation());
+		}
+
+//	virtual bool valid_bias_virtual(size_type _Bias);
+//	virtual reference at_virtual(size_type _Pos);
+//	virtual reference at_bias_virtual(size_type _Bias);
+
+	virtual reference front_virtual() sealed
+		= _Mycont_it::front
+		{	// get first element of mutable sequence
+		return (front());
+		}
+
+	virtual reference back_virtual() sealed
+		= _Mycont_it::back
+		{	// get last element of mutable sequence
+		return (back());
+		}
+
+	// iterator generators
+	virtual generic_iterator begin_virtual() sealed
+		= _Mycont_it::begin
+		{	// return iterator for beginning of mutable sequence
+		return (begin());
+		}
+	virtual generic_iterator end_virtual() sealed
+		= _Mycont_it::end
+		{	// return iterator for end of mutable sequence
+		return (end());
+		}
+
+	virtual generic_reverse_iterator rbegin_virtual() sealed
+		= _Mycont_it::rbegin
+		{	// return reverse iterator for beginning of mutable sequence
+		return (generic_reverse_iterator(end()));
+		}
+
+	virtual generic_reverse_iterator rend_virtual() sealed
+		= _Mycont_it::rend
+		{	// return reverse iterator for end of mutable sequence
+		return (generic_reverse_iterator(begin()));
+		}
+
+	// size controllers
+//	virtual void reserve_virtual(size_type _Capacity);
+//	virtual size_type capacity_virtual();
+
+	virtual void resize_virtual(size_type _Newsize) sealed
+		= _Mycont_it::resize
+		{	// determine new length, padding with value_type elements
+		resize(_Newsize);
+		}
+
+	virtual void resize_virtual(size_type _Newsize, value_type _Val) sealed
+		= _Mycont_it::resize
+		{	// determine new length, padding with _Val elements
+		resize(_Newsize, _Val);
+		}
+
+	virtual size_type size_virtual() sealed
+		= _Mycont_it::size
+		{	// return length of sequence
+		return (size());
+		}
+
+	virtual bool empty_virtual() sealed
+		= _Mycont_it::empty
+		{	// test if sequence is empty
+		return (empty());
+		}
+
+	// mutators
+	virtual void push_front_virtual(value_type _Val) sealed
+		= _Mycont_it::push_front
+		{	// insert element at end
+		push_front(_Val);
+		}
+
+	virtual void pop_front_virtual() sealed
+		= _Mycont_it::pop_front
+		{	// erase element at end
+		pop_front();
+		}
+
+	virtual void push_back_virtual(value_type _Val) sealed
+		= _Mycont_it::push_back
+		{	// insert element at end
+		push_back(_Val);
+		}
+
+	virtual void pop_back_virtual() sealed
+		= _Mycont_it::pop_back
+		{	// erase element at end
+		pop_back();
+		}
+
+	virtual void assign_virtual(size_type _Count, value_type _Val) sealed
+		= _Mycont_it::assign
+		{	// assign _Count * _Val
+		assign(_Count, _Val);
+		}
+
+	virtual void assign_virtual(
+		_STLCLR Generic::IInputIterator<_Value_t>^ _First,
+		_STLCLR Generic::IInputIterator<_Value_t>^ _Last) sealed
+		= _Mycont_it::assign
+		{	// initialize with [_First, _Last), input iterators
+		assign(_First, _Last);
+		}
+
+	virtual void assign_virtual(
+		System::Collections::IEnumerable^ _Right) sealed
+		= _Mycont_it::assign
+		{	// initialize with enumeration
+		assign(_Right);
+		}
+
+	virtual generic_iterator insert_virtual(generic_iterator _Where,
+		value_type _Val) sealed
+		= _Mycont_it::insert
+		{	// insert _Val at _Where
+		return (insert(iterator(_Where), _Val));
+		}
+
+	virtual void insert_virtual(generic_iterator _Where,
+		size_type _Count, value_type _Val) sealed
+			= _Mycont_it::insert
+		{	// insert _Count * _Val at _Where
+		return (insert(iterator(_Where), _Count, _Val));
+		}
+
+	virtual void insert_virtual(generic_iterator _Where_iter,
+		_STLCLR Generic::IInputIterator<_Value_t>^ _First,
+		_STLCLR Generic::IInputIterator<_Value_t>^ _Last) sealed
+			= _Mycont_it::insert
+		{	// insert [_First, _Last) at _Where, input iterators
+		insert(iterator(_Where_iter), _First, _Last);
+		}
+
+	virtual void insert_virtual(generic_iterator _Where_iter,
+		System::Collections::IEnumerable^ _Right) sealed
+			= _Mycont_it::insert
+		{	// insert enumeration at _Where, possibly from this container
+		insert(iterator(_Where_iter), _Right);
+		}
+
+	virtual generic_iterator erase_virtual(generic_iterator _Where) sealed
+		= _Mycont_it::erase
+		{	// erase element at _Where
+		return (erase(iterator(_Where)));
+		}
+
+	virtual generic_iterator erase_virtual(generic_iterator _First,
+		generic_iterator _Last) sealed
+		= _Mycont_it::erase
+		{	// erase [_First, _Last)
+		return (erase(iterator(_First), iterator(_Last)));
+		}
+
+	virtual void clear_virtual() sealed
+		= _Mycont_it::clear
+		{	// erase all
+		clear();
+		}
+
+	virtual void swap_virtual(_Mycont_it^ _Right) sealed
+		= _Mycont_it::swap
+		{	// exchange contents with _Right
+		swap(*(_Mytype_t^)_Right);
+		}
+
+	// special functions
+	virtual void splice_virtual(generic_iterator _Where,
+		_Mycont_it^ _Right) sealed
+			= _Mycont_it::splice
+		{	// splice all of _Right at _Where
+		splice(iterator(_Where), *(_Mytype_t^)_Right);
+		}
+
+	virtual void splice_virtual(generic_iterator _Where, _Mycont_it^ _Right,
+		generic_iterator _First) sealed
+			= _Mycont_it::splice
+		{	// splice _Right [_First, _First + 1) at _Where
+		splice(iterator(_Where), *(_Mytype_t^)_Right, iterator(_First));
+		}
+
+	virtual void splice_virtual(generic_iterator _Where, _Mycont_it^ _Right,
+		generic_iterator _First, generic_iterator _Last) sealed
+			= _Mycont_it::splice
+		{	// splice _Right [_First, _First + 1) at _Where
+		splice(iterator(_Where), *(_Mytype_t^)_Right,
+			iterator(_First), iterator(_Last));
+		}
+
+	virtual void remove_virtual(value_type _Val) sealed
+		= _Mycont_it::remove
+		{	// erase each element matching _Val
+		remove(_Val);
+		}
+
+	virtual void remove_if_virtual(_Valtest_dt^ _Pred) sealed
+		= _Mycont_it::remove_if
+		{	// erase each element satisfying _Pred
+		remove_if(_Pred);
+		}
+
+	virtual void unique_virtual(_Valcomp_dt^ _Pred) sealed
+		= _Mycont_it::unique
+		{	// erase each element satisfying _Pred with previous
+		unique(_Pred);
+		}
+
+	virtual void merge_virtual(_Mycont_it^ _Right, _Valcomp_dt^ _Pred) sealed
+		= _Mycont_it::merge
+		{	// merge in elements from _Right, both ordered by _Pred
+		merge(*(_Mytype_t^)_Right, _Pred);
+		}
+
+	virtual void sort_virtual(_Valcomp_dt^ _Pred) sealed
+		= _Mycont_it::sort
+		{	// order sequence, using _Pred
+		sort(_Pred);
+		}
+
+	virtual void reverse_virtual() sealed
+		= _Mycont_it::reverse
+		{	// reverse sequence
+		reverse();
+		}
+	};
+
+//
+// TEMPLATE REF CLASS list_base
+//
+template<typename _Value_t,
+	bool _Is_ref>
+	ref class list_base
+	:	public list_impl<_Value_t, _Is_ref>,
+			System::Collections::Generic::ICollection<_Value_t>,
+			System::Collections::Generic::IEnumerable<_Value_t>
+	{	// bidirectional linked list of elements
+public:
+	// types
+	typedef list_base<_Value_t, _Is_ref> _Mytype_t;
+	typedef list_impl<_Value_t, _Is_ref> _Mybase_t;
+//	typedef _STLCLR IList<_Value_t> _Mycont_it;
+	typedef _Cont_make_value<_Value_t, _Is_ref> _Mymake_t;
+
+//	typedef int size_type;
+//	typedef int difference_type;
+//	typedef _Value_t value_type;
+//	typedef value_type% reference;
+//	typedef value_type% const_reference;
+
+//	typedef _Mycont_it generic_container;
+//	typedef value_type generic_value;
+
+	// basics
+	list_base()
+		:	_Mybase_t()
+		{	// construct default
+		}
+
+	list_base(list_base% _Right)
+		:	_Mybase_t(%_Right)
+		{	// construct by copying a list
+		}
+
+	list_base% operator=(list_base% _Right)
+		{	// assign
+		_Mybase_t::operator=(_Right);
+		return (*this);
+		}
+
+	operator _Mycont_it^()
+		{	// convert to interface
+		return (this);
+		}
+
+	// constructors
+	explicit list_base(size_type _Count)
+		:	_Mybase_t(_Count)
+		{	// construct from _Count * value_type()
+		}
+
+	list_base(size_type _Count, value_type _Val)
+		:	_Mybase_t(_Count, _Val)
+		{	// construct from _Count * _Val
+		}
+
+	template<typename _InIt_t>
+		list_base(_InIt_t _First, _InIt_t _Last)
+		:	_Mybase_t(_First, _Last)
+		{	// construct from [_First, _Last)
+		}
+
+	list_base(_Myenum_it^ _Right)
+		:	_Mybase_t(_Right)
+		{	// initialize with enumeration
+		}
+
+	// mutators
+	template<typename _InIt_t>
+		void assign(_InIt_t _First, _InIt_t _Last)
+		{	// assign [_First, _Last)
+		_Assign(_First, _Last, _Iter_category(_First));
+		}
+
+	template<typename _InIt_t>
+		void _Assign(_InIt_t _Count, _InIt_t _Val,
+			_Int_iterator_tag%)
+		{	// assign _Count * _Val
+		clear();
+		insert_node(head_node(), (size_type)_Count, (value_type)_Val);
+		}
+
+	template<typename _InIt_t>
+		void _Assign(_InIt_t _First, _InIt_t _Last,
+			input_iterator_tag%)
+		{	// initialize with [_First, _Last), input iterators
+		if (_Iter_container(_First) != this)
+			clear();
+
+		size_type _Oldsize = size();
+
+		_Insert_safe(front_node(), _First, _Last);
+		for (; 0 < _Oldsize; --_Oldsize)
+			pop_back();	// discard old stuff
+		}
+
+	template<typename _InIt_t>
+		void insert(iterator _Where, _InIt_t _First, _InIt_t _Last)
+		{	// insert [_First, _Last) at _Where
+		_Insert(get_node(_Where), _First, _Last,
+			_Iter_category(_First));
+		}
+
+	template<typename _InIt_t>
+		void _Insert(node_type^ _Where, _InIt_t _First, _InIt_t _Last,
+			_Int_iterator_tag%)
+		{	// insert _Count * _Val at _Where
+		insert_node(_Where, (size_type)_First, (value_type)_Last);
+		}
+
+	template<typename _InIt_t>
+		void _Insert(node_type^ _Where, _InIt_t _First, _InIt_t _Last,
+			input_iterator_tag%)
+		{	// insert [_First, _Last) at _Where, input iterators
+		if (_Iter_container(_First) == this)
+			_Insert_safe(_Where, _First, _Last);
+		else
+			for (; _First != _Last; ++_First)
+				insert_node(_Where, 1, (value_type)*_First);
+		}
+
+	// interfaces
+private:
+	property size_type Count_generic
+		{	// element count
+		virtual size_type get() sealed
+			= System::Collections::Generic::ICollection<_Value_t>::Count::get
+			{	// get element count
+			return (size());
+			}
+		};
+
+	property bool IsReadOnly
+		{	// test if read only
+		virtual bool get() sealed
+			= System::Collections::Generic::ICollection<_Value_t>
+				::IsReadOnly::get
+			{	// test if read only
+			return (false);
+			}
+		};
+
+	virtual void CopyTo(_Myarray_t^ _Dest, int _First) sealed
+		= System::Collections::Generic::ICollection<_Value_t>::CopyTo
+		{	// copy to _Dest, beginning at _First
+		node_type^ _Node = head_node();
+
+		for (int _Idx = size(); 0 <= --_Idx; )
+			{	// copy back to front
+			_Node = _Node->prev_node();
+			_Dest[_First + _Idx] = _Mymake_t::make_value(_Node->_Myval);
+			}
+		}
+
+	virtual System::Collections::Generic::IEnumerator<_Value_t>^
+		GetEnumerator() sealed
+		= System::Collections::Generic::IEnumerable<_Value_t>::GetEnumerator
+		{	// get enumerator for the container
+		return (gcnew _STLCLR ListEnumerator<_Value_t>(front_node()));
+		}
+
+	virtual void Add(value_type _Val) sealed
+		= System::Collections::Generic::ICollection<_Value_t>::Add
+		{	// add element with value _Val
+		insert_node(head_node(), 1, _Val);
+		}
+
+	virtual void Clear() sealed
+		= System::Collections::Generic::ICollection<_Value_t>::Clear
+		{	// erase all elements
+		clear();
+		}
+
+	virtual bool Contains(value_type _Val) sealed
+		= System::Collections::Generic::ICollection<_Value_t>::Contains
+		{	// search for element matching value _Val
+		for (node_type^ _Node = front_node(); _Node != head_node();
+			_Node = _Node->next_node())
+			if (((System::Object^)_Val)->Equals(
+				(System::Object^)_Node->_Myval))
+				return (true);
+		return (false);
+		}
+
+	virtual bool Remove(value_type _Val) sealed
+		= System::Collections::Generic::ICollection<_Value_t>::Remove
+		{	// remove first element matching value _Val
+		for (node_type^ _Node = front_node(); _Node != head_node();
+			_Node = _Node->next_node())
+			if (((System::Object^)_Val)->Equals(
+				(System::Object^)_Node->_Myval))
+				{	// found a match, remove it
+				erase_node(_Node);
+				return (true);
+				}
+		return (false);
+		}
+	};
+
+//
+// TEMPLATE CLASS list_select
+//
+template<typename _Value_t,
+	bool _Is_ref>
+	ref class list_select
+	:	public list_base<_Value_t, _Is_ref>
+	{	// bidirectional linked list of elements
+public:
+	// types
+	typedef _Value_t _Gvalue_t;
+
+	typedef list_select<_Value_t, _Is_ref> _Mytype_t;
+	typedef list_base<_Gvalue_t, _Is_ref> _Mybase_t;
+//	typedef _STLCLR IList<_Gvalue_t> _Mycont_it;
+//	typedef System::Collections::Generic::IEnumerable<_Gvalue_t> _Myenum_it;
+
+//	typedef int size_type;
+//	typedef int difference_type;
+	typedef _Value_t value_type;
+	typedef value_type% reference;
+	typedef value_type% const_reference;
+
+//	typedef _Mycont_it generic_container;
+//	typedef typename _Mybase_t::value_type generic_value;
+
+	// basics
+	list_select()
+		:	_Mybase_t()
+		{	// construct default
+		}
+
+	list_select(list_select% _Right)
+		:	_Mybase_t(_Right)
+		{	// construct by copying a list
+		}
+
+	list_select% operator=(list_select% _Right)
+		{	// assign
+		_Mybase_t::operator=(_Right);
+		return (*this);
+		}
+
+	// constructors
+	explicit list_select(size_type _Count)
+		:	_Mybase_t(_Count)
+		{	// construct from _Count * value_type()
+		}
+
+	list_select(size_type _Count, value_type _Val)
+		:	_Mybase_t(_Count, _Val)
+		{	// construct from _Count * _Val
+		}
+
+	template<typename _InIt_t>
+		list_select(_InIt_t _First, _InIt_t _Last)
+		:	_Mybase_t(_First, _Last)
+		{	// construct from [_First, _Last)
+		}
+
+	list_select(_Myenum_it^ _Right)
+		:	_Mybase_t(_Right)
+		{	// initialize with enumeration
+		}
+	};
+
+//
+// TEMPLATE CLASS list_select: _Value_t REF SPECIALIZATION
+//
+template<typename _Value_t>
+	ref class list_select<_Value_t, true>
+	:	public list_base<_Value_t^, true>
+	{	// bidirectional linked list of elements
+public:
+	// types
+	typedef _Value_t^ _Gvalue_t;
+
+	typedef list_select<_Value_t, true> _Mytype_t;
+	typedef list_base<_Gvalue_t, true> _Mybase_t;
+//	typedef _STLCLR IList<_Gvalue_t> _Mycont_it;
+//	typedef System::Collections::Generic::IEnumerable<_Gvalue_t> _Myenum_it;
+
+//	typedef int size_type;
+//	typedef int difference_type;
+	typedef _Value_t value_type;
+	typedef value_type% reference;
+	typedef value_type% const_reference;
+
+//	typedef _Mycont_it generic_container;
+//	typedef typename _Mybase_t::value_type generic_value;
+
+	// basics
+	list_select()
+		:	_Mybase_t()
+		{	// construct default
+		}
+
+	list_select(list_select% _Right)
+		:	_Mybase_t(_Right)
+		{	// construct by copying a list
+		}
+
+	list_select% operator=(list_select% _Right)
+		{	// assign
+		_Mybase_t::operator=(_Right);
+		return (*this);
+		}
+
+	// constructors
+	explicit list_select(size_type _Count)
+		{	// construct from _Count * value_type()
+		resize(_Count);
+		}
+
+	list_select(size_type _Count, value_type _Val)
+		{	// construct from _Count * _Val
+		resize(_Count, _Val);
+		}
+
+	template<typename _InIt_t>
+		list_select(_InIt_t _First, _InIt_t _Last)
+		:	_Mybase_t(_First, _Last)
+		{	// construct from [_First, _Last)
+		}
+
+	list_select(_Myenum_it^ _Right)
+		:	_Mybase_t(_Right)
+		{	// initialize with enumeration
+		}
+
+	// size controllers
+	virtual void resize(size_type _Newsize) override
+		{	// determine new length, padding with value_type elements
+		value_type _Val;
+
+		_Mybase_t::resize(_Newsize, %_Val);
+		}
+
+	void resize(size_type _Newsize, value_type _Val)
+		{	// determine new length, padding with _Val elements
+		_Mybase_t::resize(_Newsize, %_Val);
+		}
+
+	// accessors
+	property value_type front_item
+		{	// get or set first element
+		virtual value_type get()
+			{	// get first element
+			return (*_Mybase_t::front_item);
+			}
+
+		virtual void set(value_type _Val)
+			{	// set first element
+			_Mybase_t::front_item = gcnew value_type(_Val);
+			}
+		};
+
+	property value_type back_item
+		{	// get or set last element
+		virtual value_type get()
+			{	// get last element
+			return (*_Mybase_t::back_item);
+			}
+
+		virtual void set(value_type _Val)
+			{	// set last element
+			_Mybase_t::back_item = gcnew value_type(_Val);
+			}
+		};
+
+	reference front() new
+		{	// get first element of mutable sequence
+		return (*_Mybase_t::front());
+		}
+
+	reference back() new
+		{	// get last element of mutable sequence
+		return (*_Mybase_t::back());
+		}
+
+	// mutators
+	void push_front(value_type _Val)
+		{	// insert element at beginning
+		_Mybase_t::push_front(%_Val);
+		}
+
+	void push_back(value_type _Val)
+		{	// insert element at end
+		_Mybase_t::push_back(%_Val);
+		}
+
+	void assign(size_type _Count, value_type _Val)
+		{	// assign _Count * _Val
+		_Mybase_t::assign(_Count, %_Val);
+		}
+
+	iterator insert(iterator _Where, value_type _Val)
+		{	// insert _Val at _Where
+		return (_Mybase_t::insert(_Where, %_Val));
+		}
+
+	void insert(iterator _Where,
+		size_type _Count, value_type _Val)
+		{	// insert _Count * _Val at _Where
+		return (_Mybase_t::insert(_Where, _Count, %_Val));
+		}
+
+	// special functions
+	void remove(value_type _Val)
+		{	// erase each element matching _Val
+		_Mybase_t::remove(%_Val);
+		}
+	};
+	}	// namespace cliext::impl
+
+//
+// TEMPLATE REF CLASS list
+//
+template<typename _Value_t>
+	ref class list
+	:	public impl::list_select<
+		_Value_t,
+		__is_ref_class(typename _Dehandle<_Value_t>::type)
+			&& !is_handle<_Value_t>::value>
+	{	// bidirectional linked list of elements
+public:
+	// types
+	typedef list<_Value_t> _Mytype_t;
+	typedef impl::list_select<_Value_t,
+		__is_ref_class(typename _Dehandle<_Value_t>::type)
+		&& !is_handle<_Value_t>::value> _Mybase_t;
+//	typedef impl::_STLCLR IList<_Value_t> _Mycont_it;
+
+//	typedef int size_type;
+//	typedef int difference_type;
+//	typedef _Value_t value_type;
+//	typedef value_type% reference;
+//	typedef value_type% const_reference;
+
+//	typedef _Mycont_it generic_container;
+//	typedef value_type generic_value;
+
+	// basics
+	list()
+		:	_Mybase_t()
+		{	// construct default
+		}
+
+	list(list% _Right)
+		:	_Mybase_t((_Mybase_t%)_Right)
+		{	// construct by copying a list
+		}
+
+	list(list^ _Right)
+		:	_Mybase_t((_Mybase_t%)*_Right)
+		{	// construct by copying a list
+		}
+
+	list% operator=(list% _Right)
+		{	// assign
+		_Mybase_t::operator=(_Right);
+		return (*this);
+		}
+
+	list% operator=(list^ _Right)
+		{	// assign
+		_Mybase_t::operator=(*_Right);
+		return (*this);
+		}
+
+	// constructors
+	explicit list(size_type _Count)
+		:	_Mybase_t(_Count)
+		{	// construct from _Count * value_type()
+		}
+
+	list(size_type _Count, value_type _Val)
+		:	_Mybase_t(_Count, _Val)
+		{	// construct from _Count * _Val
+		}
+
+	template<typename _InIt_t>
+		list(_InIt_t _First, _InIt_t _Last)
+		:	_Mybase_t(_First, _Last)
+		{	// construct from [_First, _Last)
+		}
+
+	list(_Myenum_it^ _Right)
+		:	_Mybase_t(_Right)
+		{	// initialize with enumeration
+		}
+
+	// converters
+	virtual System::Object^ Clone() override
+		{	// clone the vector
+		return (gcnew _Mytype_t(*this));
+		}
+
+	// mutators
+	void swap(list% _Right)
+		{	// exchange contents with _Right
+		_Mybase_t::swap(_Right);
+		}
+	};
+
+//
+// TEMPLATE COMPARISONS
+//
+template<typename _Value_t> inline
+	bool operator==(list<_Value_t>% _Left,
+		list<_Value_t>% _Right)
+	{	// test if _Left == _Right
+	typedef list<_Value_t> _Mytype_t;
+
+	_Mytype_t::size_type _Size = _Left.size();
+
+	if (_Size != _Right.size())
+		return (false);
+	else
+		{	// same length, compare elements
+		_Mytype_t::node_type^ _Pleft = _Left.front_node();
+		_Mytype_t::node_type^ _Pright = _Right.front_node();
+
+		for (; 0 < _Size; --_Size)
+			{	// compare next two elements
+			if (_Pleft->_Myval != _Pright->_Myval)
+				return (false);
+			_Pleft = _Pleft->_Next;
+			_Pright = _Pright->_Next;
+			}
+		return (true);
+		}
+	}
+
+template<typename _Value_t> inline
+	bool operator!=(list<_Value_t>% _Left,
+		list<_Value_t>% _Right)
+	{	// test if _Left != _Right
+	return (!(_Left == _Right));
+	}
+
+template<typename _Value_t> inline
+	bool operator<(list<_Value_t>% _Left,
+		list<_Value_t>% _Right)
+	{	// test if _Left < _Right
+	typedef list<_Value_t> _Mytype_t;
+
+	_Mytype_t::size_type _Idx = 0;
+	_Mytype_t::node_type^ _Pleft = _Left.front_node();
+	_Mytype_t::node_type^ _Pright = _Right.front_node();
+
+	for (; _Idx != _Left.size() && _Idx != _Right.size(); ++_Idx)
+		{	// compare next two elements
+		if (_Pleft->_Myval < _Pright->_Myval)
+			return (true);
+		else if (_Pright->_Myval < _Pleft->_Myval)
+			return (false);
+		_Pleft = _Pleft->_Next;
+		_Pright = _Pright->_Next;
+		}
+	return (_Idx == _Left.size() && _Idx != _Right.size());
+	}
+
+template<typename _Value_t> inline
+	bool operator>=(list<_Value_t>% _Left,
+		list<_Value_t>% _Right)
+	{	// test if _Left >= _Right
+	return (!(_Left < _Right));
+	}
+
+template<typename _Value_t> inline
+	bool operator>(list<_Value_t>% _Left,
+		list<_Value_t>% _Right)
+	{	// test if _Left > _Right
+	return (_Right < _Left);
+	}
+
+template<typename _Value_t> inline
+	bool operator<=(list<_Value_t>% _Left,
+		list<_Value_t>% _Right)
+	{	// test if _Left <= _Right
+	return (!(_Right < _Left));
+	}
+
+//
+// TEMPLATE FUNCTION swap
+//
+template<typename _Value_t> inline
+	void swap(list<_Value_t>% _Left,
+		list<_Value_t>% _Right)
+	{	// swap two lists
+	_Left.swap(_Right);
+	}
+
+}	// namespace cliext
+#endif // _CLI_LIST_
+
+/*
+ * Copyright (c) 2004-2007 by Dinkumware, Ltd.  ALL RIGHTS RESERVED.
+ * Consult your license regarding permissions and restrictions.
+V5.03:0009 */

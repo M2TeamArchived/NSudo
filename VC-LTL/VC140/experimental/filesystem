@@ -1,0 +1,15 @@
+// filesystem experimental header
+#pragma once
+#ifndef _EXPERIMENTAL_FILESYSTEM_
+#define _EXPERIMENTAL_FILESYSTEM_
+#ifndef RC_INVOKED
+
+#include <filesystem>
+
+#endif /* RC_INVOKED */
+#endif /* _EXPERIMENTAL_FILESYSTEM_ */
+
+/*
+ * Copyright (c) by P.J. Plauger. All rights reserved.
+ * Consult your license regarding permissions and restrictions.
+V6.50:0009 */

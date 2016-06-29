@@ -1,0 +1,356 @@
+/***
+*resumable
+*
+*       Copyright (c) Microsoft Corporation. All rights reserved.
+*
+*Purpose: Library support of stackless resumable functions
+*         http://isocpp.org/files/papers/N4134.pdf
+*
+*       [Public]
+*
+****/
+#pragma once
+#ifndef _EXPERIMENTAL_RESUMABLE_
+#define _EXPERIMENTAL_RESUMABLE_
+#ifndef RC_INVOKED
+#include <new>
+#include <memory>
+#if _HAS_EXCEPTIONS
+#include <exception>
+#endif
+#include <type_traits>
+
+#pragma pack(push,_CRT_PACKING)
+#pragma push_macro("new")
+#undef new
+
+// intrinsics used in implementation of coroutine_handle
+extern "C" size_t _coro_resume(void*);
+extern "C" void _coro_destroy(void*);
+extern "C" size_t _coro_done(void*);
+#pragma intrinsic(_coro_resume)
+#pragma intrinsic(_coro_destroy)
+#pragma intrinsic(_coro_done)
+
+_STD_BEGIN
+
+namespace experimental {
+
+	// TEMPLATE CLASS coroutine_traits
+	template <typename _Ret,
+		typename... _Ts>
+	struct coroutine_traits
+	{
+		using promise_type = typename _Ret::promise_type;
+	};
+
+	// TEMPLATE CLASS coroutine_handle
+	template <typename _PromiseT = void>
+	struct coroutine_handle;
+
+	// TEMPLATE CLASS coroutine_handle<void> - no promise access
+	template <>
+	struct coroutine_handle<void>
+	{
+		coroutine_handle() noexcept = default;
+
+		coroutine_handle(std::nullptr_t) noexcept
+			: _Ptr(nullptr)
+		{
+		}
+
+		coroutine_handle& operator=(nullptr_t) noexcept
+		{
+			_Ptr = nullptr;
+			return *this;
+		}
+
+		static coroutine_handle from_address(void* _Addr) noexcept
+		{
+			coroutine_handle _Result;
+			_Result._Ptr = reinterpret_cast<_Resumable_frame_prefix*>(_Addr);
+			return _Result;
+		}
+
+		void* to_address() const noexcept
+		{
+			return _Ptr;
+		}
+
+		void operator()() const noexcept
+		{
+			resume();
+		}
+
+		explicit operator bool() const noexcept
+		{
+			return _Ptr != nullptr;
+		}
+
+		void resume() const {
+			_coro_resume(_Ptr);
+		}
+
+		void destroy() {
+			_coro_destroy(_Ptr);
+		}
+
+		bool done() const {
+			// REVISIT: should return _coro_done() == 0; when intrinsic is hooked up
+			return (_Ptr->_Index == 0);
+		}
+
+		struct _Resumable_frame_prefix
+		{
+			typedef void (__cdecl *_Resume_fn)(void*);
+			_Resume_fn _Fn;
+			size_t _Index;
+		};
+
+	protected:
+		_Resumable_frame_prefix* _Ptr;
+	};
+
+	// TEMPLATE CLASS coroutine_handle<_PromiseT> - general form
+	template <typename _PromiseT>
+	struct coroutine_handle
+		: coroutine_handle<>
+	{
+		coroutine_handle() noexcept = default;
+
+		using coroutine_handle<>::coroutine_handle;
+
+		static coroutine_handle from_promise(_PromiseT* _Prom) noexcept
+		{
+			auto _FramePtr = reinterpret_cast<char*>(_Prom) + _ALIGNED_SIZE;
+			coroutine_handle<_PromiseT> _Result;
+			_Result._Ptr = reinterpret_cast<_Resumable_frame_prefix*>(_FramePtr);
+			return _Result;
+		}
+
+		coroutine_handle& operator=(nullptr_t) noexcept
+		{
+			_Ptr = nullptr;
+			return *this;
+		}
+
+		static const size_t _ALIGN_REQ = sizeof(void*) * 2;
+
+		static const size_t _ALIGNED_SIZE =
+			is_empty<_PromiseT>::value
+			? 0
+			: ((sizeof(_PromiseT) + _ALIGN_REQ - 1) & ~(_ALIGN_REQ - 1));
+
+		_PromiseT& promise() noexcept
+		{
+			return *reinterpret_cast<_PromiseT*>(reinterpret_cast<char*>(_Ptr) - _ALIGNED_SIZE);
+		}
+
+		_PromiseT const& promise() const noexcept
+		{
+			return *reinterpret_cast<_PromiseT const*>(reinterpret_cast<char const*>(_Ptr) - _ALIGNED_SIZE);
+		}
+	};
+
+	template <typename _PromiseT>
+	bool operator==(coroutine_handle<_PromiseT> const& _Left,
+		coroutine_handle<_PromiseT> const& _Right) noexcept
+	{
+		return _Left.to_address() == _Right.to_address();
+	}
+
+	template <typename _PromiseT>
+	bool operator!=(coroutine_handle<_PromiseT> const& _Left,
+		coroutine_handle<_PromiseT> const& _Right) noexcept
+	{
+		return !(_Left == _Right);
+	}
+
+	// trivial awaitables
+
+	struct suspend_if
+	{
+		bool _Ready;
+
+		explicit suspend_if(bool _Condition) noexcept
+			: _Ready(!_Condition)
+		{
+		}
+
+		bool await_ready() noexcept
+		{
+			return _Ready;
+		}
+
+		void await_suspend(coroutine_handle<>) noexcept
+		{
+		}
+
+		void await_resume() noexcept
+		{
+		}
+	};
+
+	struct suspend_always
+	{
+		bool await_ready() noexcept
+		{
+			return false;
+		}
+
+		void await_suspend(coroutine_handle<>) noexcept
+		{
+		}
+
+		void await_resume() noexcept
+		{
+		}
+	};
+
+	struct suspend_never
+	{
+		bool await_ready() noexcept
+		{
+			return true;
+		}
+
+		void await_suspend(coroutine_handle<>) noexcept
+		{
+		}
+
+		void await_resume() noexcept
+		{
+		}
+	};
+
+	// defaults to std::allocator<char> if _Traits::allocator_type does not exist
+
+	template<typename _Traits>
+	struct _Get_coroutine_allocator {
+		template<class _Uty, typename... _Ts>
+		static auto _Fn(int, _Identity<decltype(_Uty::get_allocator(declval<_Ts>()...))>*, _Ts&&... _Args) {
+			return _Traits::get_allocator(_STD forward<_Ts>(_Args)...);
+		}
+		template<class _Uty, typename... _Ts>
+		static auto _Fn(_Wrap_int, void*, _Ts&&...) {
+			return allocator<char>{};
+		}
+		template <typename... _Ts>
+		static auto _Get(_Ts&&... _Args) {
+			return _Fn<_Traits>(0, nullptr, _STD forward<_Ts>(_Args)...);
+		}
+	};
+
+	// _Resumable_helper_traits class isolates front-end from public surface naming changes
+
+		template <typename _Ret,
+			typename... _Ts>
+		struct _Resumable_helper_traits
+		{
+			using _Traits = coroutine_traits<_Ret, _Ts...>;
+			using _PromiseT = typename _Traits::promise_type;
+			using _Handle_type = coroutine_handle<_PromiseT>;
+
+			using _Alloc_type = decltype(_Get_coroutine_allocator<_Traits>::_Get(declval<_Ts>()...));
+			using _Alloc_traits = allocator_traits<_Alloc_type>;
+			using _Alloc_of_char_type = typename _Alloc_traits::template rebind_alloc<char>;
+			using _Alloc_char_traits = allocator_traits<_Alloc_of_char_type>;
+
+			static const size_t _ALIGN_REQ = sizeof(void*) * 2;
+
+			static const size_t _ALIGNED_ALLOCATOR_SIZE =
+				is_empty<_Alloc_type>::value
+				? 0
+				: ((sizeof(_Alloc_type) + _ALIGN_REQ - 1) & ~(_ALIGN_REQ - 1));
+
+			static const size_t _EXTRA_SIZE = _ALIGNED_ALLOCATOR_SIZE + _Handle_type::_ALIGNED_SIZE;
+
+			static _PromiseT * _Promise_from_frame(void* _Addr) noexcept
+			{
+				return reinterpret_cast<_PromiseT*>(reinterpret_cast<char*>(_Addr) - _Handle_type::_ALIGNED_SIZE);
+			}
+
+			static _Handle_type _Handle_from_frame(void* _Addr) noexcept
+			{
+				return _Handle_type::from_promise(_Promise_from_frame(_Addr));
+			}
+
+			static void _Set_exception(void* _Addr) {
+				_Promise_from_frame(_Addr)->set_exception(_STD current_exception());
+			}
+
+			static decltype(auto) _Initial_suspend(void* _Addr)
+			{
+				return _Promise_from_frame(_Addr)->initial_suspend();
+			}
+
+			static decltype(auto) _Final_suspend(void* _Addr)
+			{
+				return _Promise_from_frame(_Addr)->final_suspend();
+			}
+
+			template <typename... _Us>
+			static void * _Alloc(size_t _Size, _Us&&... _Args)
+			{
+				_Alloc_type _Al = _Get_coroutine_allocator<_Traits>::_Get(_STD forward<_Us>(_Args)...);
+				_Alloc_of_char_type _RealAlloc(_Al);
+
+				_Size += _EXTRA_SIZE;
+
+				auto _Ptr = _RealAlloc.allocate(_Size);
+				::new (static_cast<void*>(_Ptr)) _Alloc_of_char_type(_STD move(_RealAlloc));
+
+				_Ptr += _EXTRA_SIZE;
+				return _Ptr;
+			}
+
+			static void _Free(size_t _Size, void* _FramePointer) {
+				auto _Ptr = reinterpret_cast<char*>(_FramePointer);
+				_Ptr -= _EXTRA_SIZE;
+				_Size += _EXTRA_SIZE;
+				auto _AlPtr = reinterpret_cast<_Alloc_of_char_type*>(_Ptr);
+				_Alloc_of_char_type _Allocator(_STD move(*_AlPtr));
+				_Allocator.deallocate(_Ptr, _Size);
+			}
+
+			static void _ConstructPromise(void* _Addr, void* _Resume_addr) {
+				*reinterpret_cast<void**>(_Addr) = _Resume_addr;
+				*reinterpret_cast<uintptr_t*>(reinterpret_cast<uintptr_t>(_Addr) + sizeof(void*)) = 2;
+				auto _Prom = _Promise_from_frame(_Addr);
+				::new (static_cast<void*>(_Prom)) _PromiseT();
+			}
+
+			static void _DestructPromise(void* _Addr) {
+				_Promise_from_frame(_Addr)->~_PromiseT();
+			}
+		};
+} // namespace experimental
+
+_STD_END
+
+// resumable functions support intrinsics
+
+extern "C" size_t _coro_frame_size();
+extern "C" void* _coro_frame_ptr();
+extern "C" void _coro_init_block();
+extern "C" void* _coro_resume_addr();
+extern "C" void _coro_init_frame(void*);
+extern "C" void _coro_save(size_t);
+extern "C" void _coro_suspend(size_t);
+extern "C" void _coro_cancel();
+extern "C" void _coro_resume_block();
+
+#pragma intrinsic(_coro_frame_size)
+#pragma intrinsic(_coro_frame_ptr)
+#pragma intrinsic(_coro_init_block)
+#pragma intrinsic(_coro_resume_addr)
+#pragma intrinsic(_coro_init_frame)
+#pragma intrinsic(_coro_save)
+#pragma intrinsic(_coro_suspend)
+#pragma intrinsic(_coro_cancel)
+#pragma intrinsic(_coro_resume_block)
+
+#pragma pop_macro("new")
+#pragma pack(pop)
+#endif /* RC_INVOKED */
+#endif /* _EXPERIMENTAL_RESUMABLE_ */

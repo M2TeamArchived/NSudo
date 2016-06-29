@@ -1,0 +1,43 @@
+// new standard header for Microsoft
+#pragma once
+#ifndef _NEW_
+#define _NEW_
+#ifndef RC_INVOKED
+#include <exception>
+#include <vcruntime_new.h>
+
+ #pragma pack(push,_CRT_PACKING)
+ #pragma warning(push,3)
+ #pragma push_macro("new")
+
+  #undef new
+
+
+
+_STD_BEGIN
+
+		// SUPPORT TYPES
+ #if !defined(_INC_NEW) || !defined(_MSC_EXTENSIONS)
+// handler for operator new failures
+typedef void (__CLRCALL_PURE_OR_CDECL * new_handler) ();
+ #endif /* !defined(_INC_NEW) || !defined(_MSC_EXTENSIONS) */
+
+		// FUNCTION AND OBJECT DECLARATIONS
+_CRTIMP2 new_handler __cdecl set_new_handler(_In_opt_ new_handler)
+	_THROW0();	// establish alternate new handler
+
+_CRTIMP2 new_handler __cdecl get_new_handler()
+	_THROW0();	// get current new handler
+_STD_END
+
+ #pragma pop_macro("new")
+ #pragma warning(pop)
+ #pragma pack(pop)
+
+#endif /* RC_INVOKED */
+#endif /* _NEW_ */
+
+/*
+ * Copyright (c) by P.J. Plauger. All rights reserved.
+ * Consult your license regarding permissions and restrictions.
+V6.50:0009 */

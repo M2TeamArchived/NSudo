@@ -1,0 +1,18 @@
+// cstdarg standard header
+#pragma once
+#ifndef _CSTDARG_
+#define _CSTDARG_
+#include <yvals.h>
+#include <stdarg.h>
+
+ #if _GLOBAL_USING && !defined(RC_INVOKED)
+_STD_BEGIN
+using ::va_list;
+_STD_END
+ #endif /* _GLOBAL_USING */
+#endif /* _CSTDARG_ */
+
+/*
+ * Copyright (c) by P.J. Plauger. All rights reserved.
+ * Consult your license regarding permissions and restrictions.
+V6.50:0009 */

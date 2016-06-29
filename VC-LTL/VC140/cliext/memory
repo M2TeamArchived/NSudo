@@ -1,0 +1,904 @@
+// memory stl/clr header
+#ifndef _CLI_MEMORY_
+#define _CLI_MEMORY_
+#include <cliext/iterator>
+#include <cliext/utility>	// for pair
+
+#ifdef _M_CEE_SAFE
+ #define _PAIR_TYPE(iter_t)	cliext::pair<iter_t, iter_t>	// iterator pair
+ #define _PAIR_TYPE2(iter1_t, iter2_t)	\
+	cliext::pair<iter1_t, iter2_t>	// iterator pair
+
+ #define _STLCLRDB_ERROR(mesg)
+ #define _STLCLRDB_LT(left, right)	((left) < (right))
+ #define _STLCLRDB_LT_PRED(pred, left, right)	((pred)(left, right))
+
+ #define _STLCLRDB_POINTER(first)
+
+ #define _STLCLRDB_ORDER(first, last)
+ #define _STLCLRDB_ORDER_PRED(first, last, pred)
+
+ #define _STLCLRDB_RANGE(first, last)
+
+#else /* _M_CEE_SAFE */
+ #include <climits>	// for CHAR_MAX, UCHAR_MAX
+ #include <cstddef>	// for ptrdiff_t, size_t
+ #include <cstring>	// form mem* functions
+ #include <new>		// for placement new
+ #include <utility>	// for std::pair
+ #include <xutility>	// for CHAR_MAX, UCHAR_MAX, iterator debugging
+
+ #define _PAIR_TYPE(iter_t) typename cliext::_Pick_pair< \
+	__is_value_class(iter_t) || __is_ref_class(iter_t), \
+	iter_t, iter_t>::value_type
+ #define _PAIR_TYPE2(iter1_t, iter2_t) typename cliext::_Pick_pair< \
+	__is_value_class(iter1_t) || __is_ref_class(iter1_t), \
+	iter1_t, iter2_t>::value_type	// both managed or both unmanaged
+
+namespace cliext {
+template<bool _Is_managed,
+	typename _Value1_t,
+	typename _Value2_t>
+	class _Pick_pair;	// select managed or unmanaged type
+
+template<typename _Value1_t,
+	typename _Value2_t>
+	class _Pick_pair<false, _Value1_t, _Value2_t>
+	{	// define unmanaged type
+public:
+	typedef std::pair<_Value1_t, _Value2_t> value_type;
+	};
+
+template<typename _Value1_t,
+	typename _Value2_t>
+	class _Pick_pair<true, _Value1_t, _Value2_t>
+	{	// define managed type
+public:
+	typedef cliext::pair<_Value1_t, _Value2_t> value_type;
+	};
+}	// namespace cliext
+
+ #if _HAS_ITERATOR_DEBUGGING
+  #ifndef _STLCLRDB_REPORT
+   #define _STLCLRDB_REPORT(mesg, file, line)	\
+	std::_Debug_message(mesg, file, line)
+ #endif /* _STLCLRDB_REPORT */
+
+  #define _STLCLRDB_ERROR(mesg)	\
+	_STLCLRDB_REPORT(mesg, __FILEW__, __LINE__)
+
+  #define _STLCLRDB_LT(left, right)	\
+	cliext::_Stlclrdb_lt(left, right, __FILEW__, __LINE__)
+  #define _STLCLRDB_LT_PRED(pred, left, right)	\
+	cliext::_Stlclrdb_lt_pred(pred, left, right, __FILEW__, __LINE__)
+
+  #define _STLCLRDB_POINTER(first)	\
+	cliext::_Stlclrdb_pointer(first, __FILEW__, __LINE__)
+  #define _STLCLRDB_POINTER2(first, filew, line)	\
+	cliext::_Stlclrdb_pointer(first, filew, line)
+
+  #define _STLCLRDB_ORDER(first, last)	\
+	cliext::_Stlclrdb_order(first, last, __FILEW__, __LINE__)
+  #define _STLCLRDB_ORDER_PRED(first, last, pred)	\
+	cliext::_Stlclrdb_order(first, last, pred, __FILEW__, __LINE__)
+
+  #define _STLCLRDB_RANGE(first, last)	\
+	cliext::_Stlclrdb_range(first, last,  __FILEW__, __LINE__)
+  #define _STLCLRDB_RANGE2(first, last, filew, line)	\
+	cliext::_Stlclrdb_range(first, last, filew, line)
+
+namespace cliext {
+template<class _Ty1, class _Ty2> inline
+	bool _Stlclrdb_lt(_Ty1% _Left, _Ty2% _Right,
+		const wchar_t *_File, unsigned int _Line)
+	{	// test if _Left < _Right and operator< is strict weak ordering
+	if (!(_Left < _Right))
+		return (false);
+	else if (_Right < _Left)
+		_STLCLRDB_REPORT(L"invalid operator<", _File, _Line);
+	return (true);
+	}
+
+template<class _Pr, class _Ty1, class _Ty2> inline
+	bool _Stlclrdb_lt_pred(_Pr _Pred, _Ty1% _Left, _Ty2% _Right,
+		const wchar_t *_File, unsigned int _Line)
+	{	// test if _Pred(_Left, _Right) and _Pred is strict weak ordering
+	if (!_Pred(_Left, _Right))
+		return (false);
+	else if (_Pred(_Right, _Left))
+		_STLCLRDB_REPORT(L"invalid operator<", _File, _Line);
+	return (true);
+	}
+
+		// TEMPLATE FUNCTION _Stlclrdb_pointer
+template<class _InIt> inline
+	void _Stlclrdb_pointer(_InIt%, const wchar_t *, unsigned int)
+	{	// test pointer for non-singularity, arbitrary type
+	}
+
+template<class _Ty> inline
+	void _Stlclrdb_pointer(const _Ty *_First, const wchar_t *_File,
+		unsigned int _Line)
+	{	// test iterator for non-singularity, const pointers
+	if (_First == 0)
+		_STLCLRDB_REPORT(L"invalid null pointer", _File, _Line);
+	}
+
+template<class _Ty> inline
+	void _Stlclrdb_pointer(_Ty *_First, const wchar_t *_File,
+		unsigned int _Line)
+	{	// test iterator for non-singularity, pointers
+	if (_First == 0)
+		_STLCLRDB_REPORT(L"invalid null pointer", _File, _Line);
+	}
+
+		// TEMPLATE FUNCTION _Stlclrdb_order
+template<class _InIt> inline
+	void _Stlclrdb_order2(_InIt _First, _InIt _Last,
+		const wchar_t *_File, unsigned int _Line, input_iterator_tag)
+	{	// test if range is ordered by operator<, input iterators
+	}
+
+template<class _FwdIt> inline
+	void _Stlclrdb_order2(_FwdIt _First, _FwdIt _Last,
+		const wchar_t *_File, unsigned int _Line, forward_iterator_tag)
+	{	// test if range is ordered by operator<, forward iterators
+	for (_FwdIt _Next = _First; _First != _Last && ++_Next != _Last; ++_First)
+		if (_STLCLRDB_LT(*_Next, *_First))
+			_STLCLRDB_REPORT(L"sequence not ordered", _File, _Line);
+	}
+
+template<class _InIt> inline
+	void _Stlclrdb_order(_InIt _First, _InIt _Last,
+		const wchar_t *_File, unsigned int _Line)
+	{	// test is range is ordered by operator<
+	_STLCLRDB_RANGE2(_First, _Last, _File, _Line);
+	_Stlclrdb_order2(_First, _Last, _File, _Line, _Iter_category(_First));
+	}
+
+		// TEMPLATE FUNCTION _Stlclrdb_order WITH PRED
+template<class _InIt,
+	class _Pr> inline
+	void _Stlclrdb_order2(_InIt _First, _InIt _Last, _Pr _Pred,
+		const wchar_t *_File, unsigned int _Line, input_iterator_tag)
+	{	// test if range is ordered by predicate, input iterators
+	}
+
+template<class _FwdIt,
+	class _Pr> inline
+	void _Stlclrdb_order2(_FwdIt _First, _FwdIt _Last, _Pr _Pred,
+		const wchar_t *_File, unsigned int _Line, forward_iterator_tag)
+	{	// test if range is ordered by predicate, forward iterators
+	for (_FwdIt _Next = _First; _First != _Last && ++_Next != _Last; ++_First)
+		if (_STLCLRDB_LT_PRED(_Pred, *_Next, *_First))
+			_STLCLRDB_REPORT(L"sequence not ordered", _File, _Line);
+	}
+
+template<class _InIt,
+	class _Pr> inline
+	void _Stlclrdb_order(_InIt _First, _InIt _Last, _Pr _Pred,
+		const wchar_t *_File, unsigned int _Line)
+	{	// test if range is ordered by predicate
+	_STLCLRDB_RANGE2(_First, _Last, _File, _Line);
+	_STLCLRDB_POINTER2(_Pred, _File, _Line);
+	_Stlclrdb_order2(_First, _Last, _Pred, _File, _Line,
+		_Iter_category(_First));
+	}
+
+		// TEMPLATE FUNCTION _Stlclrdb_range
+template<class _InIt> inline
+	void _Stlclrdb_range2(_InIt, _InIt,
+		const wchar_t *, unsigned int, input_iterator_tag)
+	{	// test iterator pair for valid range, arbitrary iterators
+	}
+
+template<class _RanIt> inline
+	void _Stlclrdb_range2(_RanIt _First, _RanIt _Last,
+		const wchar_t *_Filew, unsigned int _Line,
+		random_access_iterator_tag)
+	{	// test iterator pair for valid range, random-access iterators
+	if (_First != _Last)
+		{	// check for non-null pointers, valid range
+		_STLCLRDB_POINTER2(_First, _Filew, _Line);
+		_STLCLRDB_POINTER2(_Last, _Filew, _Line);
+		if (_Last < _First)
+			_STLCLRDB_REPORT(L"invalid iterator range", _Filew, _Line);
+		}
+	}
+
+template<class _InIt> inline
+	void _Stlclrdb_range(_InIt _First, _InIt _Last,
+		const wchar_t *_Filew, unsigned int _Line)
+	{	// test iterator pair for valid range
+	_Stlclrdb_range2(_First, _Last, _Filew, _Line, _Iter_category(_First));
+	}
+} // namespace cliext
+
+ #else /* _HAS_ITERATOR_DEBUGGING */
+  #define _STLCLRDB_LT(left, right)	((left) < (right))
+  #define _STLCLRDB_LT_PRED(pred, left, right)	((pred)(left, right))
+
+  #define _STLCLRDB_POINTER(first)
+
+  #define _STLCLRDB_ORDER(first, last)
+  #define _STLCLRDB_ORDER_PRED(first, last, pred)
+
+  #define _STLCLRDB_RANGE(first, last)
+ #endif /* _HAS_ITERATOR_DEBUGGING */
+#endif /* _M_CEE_SAFE */
+
+namespace cliext {
+//
+// UN/MANAGED TEMP BUFFER SELECTOR
+//
+template<typename _Value_t>
+	value class _Temp_gc_iterator;
+
+template<typename _Value_t>
+	class _Temp_iterator;
+
+#ifdef _M_CEE_SAFE
+ #define _TEMP_ITER(iter_t, value_t) _Temp_gc_iterator<value_t>
+
+#else /* _M_CEE_SAFE */
+ #define _TEMP_ITER(iter_t, value_t) typename cliext::_Pick_tbuf< \
+	__is_value_class(iter_t) || __is_ref_class(iter_t), value_t>::value_type
+
+template<bool _Is_managed,
+	typename _Value_t>
+	class _Pick_tbuf;	// select managed or unmanaged type
+
+template<typename _Value_t>
+	class _Pick_tbuf<false, _Value_t>
+	{	// define unmanaged type
+public:
+	typedef cliext::_Temp_iterator<_Value_t> value_type;
+	};
+
+template<typename _Value_t>
+	class _Pick_tbuf<true, _Value_t>
+	{	// define managed type
+public:
+	typedef cliext::_Temp_gc_iterator<_Value_t> value_type;
+	};
+
+		// TEMPLATE FUNCTION get_temporary_buffer
+template<class _Ty> inline
+	pair<_Ty *, std::ptrdiff_t>
+		get_temporary_buffer(std::ptrdiff_t _Count)
+	{	// get raw temporary buffer of up to _Count elements
+	_Ty *_Pbuf;
+
+	if (_Count < 0)
+		_Count = 0;
+	for (_Pbuf = 0; 0 < _Count; _Count /= 2)
+		try
+			{	// try to allocate storage
+			_Pbuf = (_Ty *)::operator new(_Count * sizeof (_Ty));
+			break;
+			}
+		catch (...)
+			{	// loop if new fails
+			}
+
+	return (pair<_Ty *, std::ptrdiff_t>(_Pbuf, _Count));
+	}
+
+		// TEMPLATE FUNCTION return_temporary_buffer
+template<class _Ty> inline
+	void return_temporary_buffer(_Ty *_Pbuf)
+	{	// delete raw temporary buffer
+	::operator delete(_Pbuf);
+	}
+
+		// TEMPLATE CLASS _Temp_iterator
+template<class _Ty>
+	class _Temp_iterator
+	{	// wrap stores to unmanaged temporary buffer as output iterator
+public:
+	typedef _Temp_iterator<_Ty> _Mytype_t;
+	typedef _Ty *_Pty;
+	typedef output_iterator_tag iterator_category;
+
+	_Temp_iterator(std::ptrdiff_t _Count = 0)
+		{	// construct from desired temporary buffer size
+		_Buf._Begin = 0;
+		_Buf._Current = 0;
+		_Buf._Hiwater = 0;
+		_Buf._Size = _Count;	// memorize size for lazy allocation
+		_Pbuf = &_Buf;
+		}
+
+	_Temp_iterator(const _Temp_iterator& _Right)
+		{	// construct from _Right (share active buffer)
+		_Buf._Begin = 0;	// clear stored buffer, for safe destruction
+		_Buf._Current = 0;
+		_Buf._Hiwater = 0;
+		_Buf._Size = 0;
+		*this = _Right;
+		}
+
+	~_Temp_iterator()
+		{	// destroy the object
+		if (_Buf._Begin != 0)
+			{	// destroy any constructed elements in buffer
+			for (_Pty _Next = _Buf._Begin;
+				_Next != _Buf._Hiwater; ++_Next)
+				_Next->~_Ty();
+			return_temporary_buffer(_Buf._Begin);
+			}
+		}
+
+	_Temp_iterator& operator=(const _Temp_iterator& _Right)
+		{	// assign _Right (share active buffer)
+		_Pbuf = _Right._Pbuf;
+		return (*this);
+		}
+
+	_Temp_iterator& operator=(_Ty& _Val)
+		{	// assign or construct value into active buffer, and increment
+		if (_Pbuf->_Current < _Pbuf->_Hiwater)
+			*_Pbuf->_Current++ = _Val;	// below high water mark, assign
+		else
+			{	// above high water mark, construct
+			_Pty _Ptr = &*_Pbuf->_Current;
+			::new (_Ptr) _Ty(_Val);
+			_Pbuf->_Hiwater = ++_Pbuf->_Current;
+			}
+		return (*this);
+		}
+
+	_Temp_iterator& operator*()
+		{	// pretend to return designated value
+		return (*this);
+		}
+
+	_Temp_iterator& operator++()
+		{	// pretend to preincrement
+		return (*this);
+		}
+
+	_Temp_iterator& operator++(int)
+		{	// pretend to postincrement
+		return (*this);
+		}
+
+	_Temp_iterator& _Init()
+		{	// set pointer at beginning of buffer
+		_Pbuf->_Current = _Pbuf->_Begin;
+		return (*this);
+		}
+
+	_Pty _First() const
+		{	// return pointer to beginning of buffer
+		return (_Pbuf->_Begin);
+		}
+
+	_Pty _Last() const
+		{	// return pointer past end of buffer contents
+		return (_Pbuf->_Current);
+		}
+
+	std::ptrdiff_t _Maxlen()
+		{	// return size of buffer
+		if (_Pbuf->_Begin == 0 && 0 < _Pbuf->_Size)
+			{	// allocate buffer on first size query
+			pair<_Pty, std::ptrdiff_t> _Pair =
+				get_temporary_buffer<_Ty>(_Pbuf->_Size);
+
+			_Pbuf->_Begin = _Pair.first;
+			_Pbuf->_Current = _Pair.first;
+			_Pbuf->_Hiwater = _Pair.first;
+			_Pbuf->_Size = _Pair.second;
+			}
+		return (_Pbuf->_Size);
+		}
+
+//_STLCLR_FIELD_ACCESS:
+	struct _Bufpar
+		{	// control information for a temporary buffer
+		_Pty _Begin;	// pointer to beginning of buffer
+		_Pty _Current;	// pointer to next available element
+		_Pty _Hiwater;	// pointer to first unconstructed element
+		std::ptrdiff_t _Size;	// length of buffer
+		};
+
+	_Bufpar _Buf;	// buffer control stored in iterator
+	_Bufpar *_Pbuf;	// pointer to active buffer control
+	};
+#endif /* _M_CEE_SAFE */
+
+		// TEMPLATE CLASS _Temp_gc_iterator
+template<class _Ty>
+	value class _Temp_gc_iterator
+	{	// wrap stores to managed temporary buffer as output iterator
+public:
+	typedef _Temp_gc_iterator<_Ty> _Mytype_t;
+	typedef cli::array<_Ty> _Myarray_t;
+	typedef ArrayContainer<_Ty> _Mycont_t;
+	typedef typename _Mycont_t::iterator iterator;
+
+	_Temp_gc_iterator(int _Count)
+		:	_Mysize(_Count), _Mycont(nullptr), _Next(nullptr)
+		{	// construct from desired temporary buffer size
+		}
+
+	static _Ty% operator*(_Temp_gc_iterator% _Left)
+		{	// return designated value
+		return (_Left._Next->get_ref());
+		}
+
+	_Temp_gc_iterator operator++()
+		{	// preincrement
+		_Next->next();
+		return (*this);
+		}
+
+	iterator operator++(int)
+		{	// postincrement
+		iterator _Temp = *_Next;
+
+		_Next->next();
+		return (_Temp);
+		}
+
+	_Temp_gc_iterator _Init()
+		{	// set pointer at beginning of buffer
+		*_Next = _Mycont->begin();
+		return (*this);
+		}
+
+	iterator _First()
+		{	// return pointer to beginning of buffer
+		return (_Mycont->begin());
+		}
+
+	iterator _Last()
+		{	// return pointer past end of buffer contents
+		return (*_Next);
+		}
+
+	int _Maxlen()
+		{	// return size of buffer
+		if (_Mycont == nullptr)
+			{	// allocate buffer and iterator on first size query
+			_Mycont = gcnew _Mycont_t(_Mysize);
+			_Next = gcnew iterator;
+			}
+		return (_Mycont->size());
+		}
+
+_STLCLR_FIELD_ACCESS:
+	int _Mysize;		// size of desired buffer
+	_Mycont_t^ _Mycont;	// handle for buffer
+	iterator^ _Next;	// iterator into buffer
+	};
+
+//	ALGORITHM STUFF (from <algorithm>)
+
+		// TEMPLATE FUNCTION swap
+template<class _Ty> inline
+	void swap(_Ty% _Left, _Ty% _Right)
+	{	// exchange values stored at _Left and _Right
+	_Ty _Tmp = _Left;
+	_Left = _Right, _Right = _Tmp;
+	}
+
+		// TEMPLATE FUNCTION copy
+template<class _InIt,
+	class _OutIt> inline
+	_OutIt copy_unchecked(_InIt _First, _InIt _Last, _OutIt _Dest)
+	{	// copy [_First, _Last) to [_Dest, ...)
+	for (; _First != _Last; ++_Dest, ++_First)
+		*_Dest = *_First;
+	return (_Dest);
+	}
+
+template<class _InIt,
+	class _OutIt> inline
+	_OutIt copy(_InIt _First, _InIt _Last, _OutIt _Dest)
+	{	// copy [_First, _Last) to [_Dest, ...)
+ #if _HAS_ITERATOR_DEBUGGING
+	_STLCLRDB_RANGE(_First, _Last);
+	if (_First != _Last)
+		_STLCLRDB_POINTER(_Dest);
+ #endif /* _HAS_ITERATOR_DEBUGGING */
+	return (cliext::copy_unchecked(
+		_Unchecked(_First), _Unchecked(_Last),
+		_Unchecked(_Dest)));
+	}
+
+		// TEMPLATE FUNCTION copy_backward
+template<class _BidIt1,
+	class _BidIt2> inline
+	_BidIt2 copy_backward_unchecked(_BidIt1 _First, _BidIt1 _Last,
+		_BidIt2 _Dest)
+	{	// copy [_First, _Last) backwards to [..., _Dest)
+	while (_First != _Last)
+		*--_Dest = *--_Last;
+	return (_Dest);
+	}
+
+template<class _BidIt1,
+	class _BidIt2> inline
+	_BidIt2 copy_backward(_BidIt1 _First, _BidIt1 _Last, _BidIt2 _Dest)
+	{	// copy [_First, _Last) backwards to [..., _Dest)
+ #if _HAS_ITERATOR_DEBUGGING
+	_STLCLRDB_RANGE(_First, _Last);
+	if (_First != _Last)
+		_STLCLRDB_POINTER(_Dest);
+ #endif /* _HAS_ITERATOR_DEBUGGING */
+	return (cliext::copy_backward_unchecked(
+		_Unchecked(_First), _Unchecked(_Last),
+		_Unchecked(_Dest)));
+	}
+
+		// TEMPLATE FUNCTION mismatch
+template<class _InIt1,
+	class _InIt2> inline
+	_PAIR_TYPE2(_InIt1, _InIt2)
+		mismatch_unchecked(_InIt1 _First1, _InIt1 _Last1,
+			_InIt2 _First2)
+	{	// return [_First1, _Last1) and [_First2, _Last2) mismatch
+	for (; _First1 != _Last1 && *_First1 == *_First2; )
+		++_First1, ++_First2;
+	return (_PAIR_TYPE2(_InIt1, _InIt2)(_First1, _First2));
+	}
+
+template<class _InIt1,
+	class _InIt2> inline
+	_PAIR_TYPE2(_InIt1, _InIt2)
+		mismatch(_InIt1 _First1, _InIt1 _Last1,
+			_InIt2 _First2)
+	{	// return [_First1, _Last1) and [_First2, _Last2) mismatch
+ #if _HAS_ITERATOR_DEBUGGING
+	_STLCLRDB_RANGE(_First1, _Last1);
+	if (_First1 != _Last1)
+		_STLCLRDB_POINTER(_First2);
+ #endif /* _HAS_ITERATOR_DEBUGGING */
+
+	return (cliext::mismatch_unchecked(
+		_Unchecked(_First1), _Unchecked(_Last1),
+		_Unchecked(_First2)));
+	}
+
+		// TEMPLATE FUNCTION mismatch WITH PRED
+template<class _InIt1,
+	class _InIt2,
+	class _Pr> inline
+	_PAIR_TYPE2(_InIt1, _InIt2)
+		mismatch_unchecked(_InIt1 _First1, _InIt1 _Last1,
+			_InIt2 _First2, _Pr _Pred)
+	{	// return [_First1, _Last1) and [_First2, _Last2) mismatch using _Pred
+	for (; _First1 != _Last1 && _Pred(*_First1, *_First2); )
+		++_First1, ++_First2;
+	return (_PAIR_TYPE2(_InIt1, _InIt2)(_First1, _First2));
+	}
+
+template<class _InIt1,
+	class _InIt2,
+	class _Pr> inline
+	_PAIR_TYPE2(_InIt1, _InIt2)
+		mismatch(_InIt1 _First1, _InIt1 _Last1,
+			_InIt2 _First2, _Pr _Pred)
+	{	// return [_First1, _Last1) and [_First2, _Last2) mismatch using _Pred
+ #if _HAS_ITERATOR_DEBUGGING
+	_STLCLRDB_RANGE(_First1, _Last1);
+	if (_First1 != _Last1)
+		_STLCLRDB_POINTER(_First2);
+	_STLCLRDB_POINTER(_Pred);
+ #endif /* _HAS_ITERATOR_DEBUGGING */
+
+	return (cliext::mismatch_unchecked(
+		_Unchecked(_First1), _Unchecked(_Last1),
+		_Unchecked(_First2), _Pred));
+	}
+
+		// TEMPLATE FUNCTION equal
+template<class _InIt1,
+	class _InIt2> inline
+	bool equal_unchecked(_InIt1 _First1, _InIt1 _Last1,
+		_InIt2 _First2)
+	{	// compare [_First1, _Last1) to [First2, ...)
+	for (; _First1 != _Last1; ++_First1, ++_First2)
+		if (!(*_First1 == *_First2))
+			return (false);
+	return (true);
+	}
+
+template<class _InIt1,
+	class _InIt2> inline
+	bool equal(_InIt1 _First1, _InIt1 _Last1,
+		_InIt2 _First2)
+	{	// compare [_First1, _Last1) to [First2, ...)
+ #if _HAS_ITERATOR_DEBUGGING
+	_STLCLRDB_RANGE(_First1, _Last1);
+	if (_First1 != _Last1)
+		_STLCLRDB_POINTER(_First2);
+ #endif /* _HAS_ITERATOR_DEBUGGING */
+	return (cliext::equal_unchecked(
+		_Unchecked(_First1), _Unchecked(_Last1),
+		_Unchecked(_First2)));
+	}
+
+#ifdef _M_CEE_SAFE
+#else /* _M_CEE_SAFE */
+inline bool equal(const char *_First1, const char *_Last1,
+	const char *_First2)
+	{	// compare [_First1, _Last1) to [First2, ...), for chars
+ #if _HAS_ITERATOR_DEBUGGING
+	_STLCLRDB_RANGE(_First1, _Last1);
+	if (_First1 != _Last1)
+		_STLCLRDB_POINTER(_First2);
+ #endif /* _HAS_ITERATOR_DEBUGGING */
+
+	return (std::memcmp(_First1, _First2, _Last1 - _First1) == 0);
+	}
+
+inline bool equal(const signed char *_First1, const signed char *_Last1,
+	const signed char *_First2)
+	{	// compare [_First1, _Last1) to [First2, ...), for signed chars
+ #if _HAS_ITERATOR_DEBUGGING
+	_STLCLRDB_RANGE(_First1, _Last1);
+	if (_First1 != _Last1)
+		_STLCLRDB_POINTER(_First2);
+ #endif /* _HAS_ITERATOR_DEBUGGING */
+
+	return (std::memcmp(_First1, _First2, _Last1 - _First1) == 0);
+	}
+
+inline bool equal(const unsigned char *_First1, const unsigned char *_Last1,
+	const unsigned char *_First2)
+	{	// compare [_First1, _Last1) to [First2, ...), for unsigned chars
+ #if _HAS_ITERATOR_DEBUGGING
+	_STLCLRDB_RANGE(_First1, _Last1);
+	if (_First1 != _Last1)
+		_STLCLRDB_POINTER(_First2);
+ #endif /* _HAS_ITERATOR_DEBUGGING */
+
+	return (std::memcmp(_First1, _First2, _Last1 - _First1) == 0);
+	}
+#endif /* _M_CEE_SAFE */
+
+		// TEMPLATE FUNCTION equal WITH PRED
+template<class _InIt1,
+	class _InIt2,
+	class _Pr> inline
+	bool equal_unchecked(_InIt1 _First1, _InIt1 _Last1,
+		_InIt2 _First2, _Pr _Pred)
+	{	// compare [_First1, _Last1) to [First2, ...) using _Pred
+	for (; _First1 != _Last1; ++_First1, ++_First2)
+		if (!_Pred(*_First1, *_First2))
+			return (false);
+	return (true);
+	}
+
+template<class _InIt1,
+	class _InIt2,
+	class _Pr> inline
+	bool equal(_InIt1 _First1, _InIt1 _Last1,
+		_InIt2 _First2, _Pr _Pred)
+	{	// compare [_First1, _Last1) to [First2, ...) using _Pred
+ #if _HAS_ITERATOR_DEBUGGING
+	_STLCLRDB_RANGE(_First1, _Last1);
+	if (_First1 != _Last1)
+		_STLCLRDB_POINTER(_First2);
+	_STLCLRDB_POINTER(_Pred);
+ #endif /* _HAS_ITERATOR_DEBUGGING */
+	return (cliext::equal_unchecked(
+		_Unchecked(_First1), _Unchecked(_Last1),
+		_Unchecked(_First2), _Pred));
+	}
+
+		// TEMPLATE FUNCTION fill
+template<class _FwdIt,
+	class _Ty> inline
+	void fill_unchecked(_FwdIt _First, _FwdIt _Last, const _Ty% _Val)
+	{	// copy _Val through [_First, _Last)
+	for (; _First != _Last; ++_First)
+		*_First = _Val;
+	}
+
+#ifdef _M_CEE_SAFE
+#else /* _M_CEE_SAFE */
+
+inline void fill_unchecked(
+	_Out_writes_all_(_Last - _First) char *_First,
+	_In_opt_ char *_Last,
+	int _Val)
+	{	// copy char _Val through [_First, _Last)
+	std::memset(_First, _Val, _Last - _First);
+	}
+
+inline void fill_unchecked(
+	_Out_writes_all_(_Last - _First) signed char *_First,
+	_In_opt_ signed char *_Last,
+	int _Val)
+	{	// copy signed char _Val through [_First, _Last)
+	std::memset(_First, _Val, _Last - _First);
+	}
+
+inline void fill_unchecked(
+	_Out_writes_all_(_Last - _First) unsigned char *_First,
+	_In_opt_ unsigned char *_Last,
+	int _Val)
+	{	// copy unsigned char _Val through [_First, _Last)
+	std::memset(_First, _Val, _Last - _First);
+	}
+#endif /* _M_CEE_SAFE */
+
+template<class _FwdIt,
+	class _Ty> inline
+	void fill(_FwdIt _First, _FwdIt _Last, const _Ty% _Val)
+	{	// copy _Val through [_First, _Last)
+	_STLCLRDB_RANGE(_First, _Last);
+	cliext::fill_unchecked(_Unchecked(_First), _Unchecked(_Last), _Val);
+	}
+
+		// TEMPLATE FUNCTION fill_n
+template<class _OutIt,
+	class _Diff,
+	class _Ty> inline
+	void fill_n_unchecked(_OutIt _First, _Diff _Count, const _Ty% _Val)
+	{	// copy _Val _Count times through [_First, ...)
+	for (; 0 < _Count; --_Count, ++_First)
+		*_First = _Val;
+	}
+
+#ifdef _M_CEE_SAFE
+#else /* _M_CEE_SAFE */
+
+inline void fill_n_unchecked(
+	_Out_writes_all_(_Count) char *_First,
+	size_t _Count,
+	int _Val)
+	{	// copy char _Val _Count times through [_First, ...)
+	std::memset(_First, _Val, _Count);
+	}
+
+inline void fill_n_unchecked(
+	_Out_writes_all_(_Count) signed char *_First,
+	size_t _Count,
+	int _Val)
+	{	// copy signed char _Val _Count times through [_First, ...)
+	std::memset(_First, _Val, _Count);
+	}
+
+inline void fill_n_unchecked(
+	_Out_writes_all_(_Count) unsigned char *_First,
+	size_t _Count,
+	int _Val)
+	{	// copy unsigned char _Val _Count times through [_First, ...)
+	std::memset(_First, _Val, _Count);
+	}
+#endif /* _M_CEE_SAFE */
+
+template<class _OutIt,
+	class _Diff,
+	class _Ty> inline
+	void fill_n(_OutIt _First, _Diff _Count, const _Ty% _Val)
+	{	// copy _Val _Count times through [_First, ...)
+ #if _HAS_ITERATOR_DEBUGGING
+	if (0 < _Count)
+		_STLCLRDB_POINTER(_First);
+ #endif /* _HAS_ITERATOR_DEBUGGING */
+
+	cliext::fill_n_unchecked(_Unchecked(_First), _Count, _Val);
+	}
+
+		// TEMPLATE FUNCTION lexicographical_compare
+template<class _InIt1,
+	class _InIt2> inline
+	bool lexicographical_compare_unchecked(_InIt1 _First1, _InIt1 _Last1,
+		_InIt2 _First2, _InIt2 _Last2)
+	{	// order [_First1, _Last1) vs. [First2, Last2)
+	for (; _First1 != _Last1 && _First2 != _Last2; ++_First1, ++_First2)
+		if (_STLCLRDB_LT(*_First1, *_First2))
+			return (true);
+		else if (*_First2 < *_First1)
+			return (false);
+	return (_First1 == _Last1 && _First2 != _Last2);
+	}
+
+#ifdef _M_CEE_SAFE
+#else /* _M_CEE_SAFE */
+inline bool lexicographical_compare_unchecked(
+	const unsigned char *_First1, const unsigned char *_Last1,
+	const unsigned char *_First2, const unsigned char *_Last2)
+	{	// order [_First1, _Last1) vs. [First2, Last2), for unsigned char
+	std::ptrdiff_t _Num1 = _Last1 - _First1;
+	std::ptrdiff_t _Num2 = _Last2 - _First2;
+	int _Ans = std::memcmp(_First1, _First2, _Num1 < _Num2 ? _Num1 : _Num2);
+	return (_Ans < 0 || _Ans == 0 && _Num1 < _Num2);
+	}
+
+ #if CHAR_MAX == UCHAR_MAX
+inline bool lexicographical_compare_unchecked(
+	const char *_First1, const char *_Last1,
+	const char *_First2, const char *_Last2)
+	{	// order [_First1, _Last1) vs. [First2, Last2), for nonnegative char
+	std::ptrdiff_t _Num1 = _Last1 - _First1;
+	std::ptrdiff_t _Num2 = _Last2 - _First2;
+	int _Ans = std::memcmp(_First1, _First2, _Num1 < _Num2 ? _Num1 : _Num2);
+	return (_Ans < 0 || _Ans == 0 && _Num1 < _Num2);
+	}
+ #endif /* CHAR_MAX == UCHAR_MAX */
+#endif /* _M_CEE_SAFE */
+
+template<class _InIt1,
+	class _InIt2> inline
+	bool lexicographical_compare(_InIt1 _First1, _InIt1 _Last1,
+		_InIt2 _First2, _InIt2 _Last2)
+	{	// order [_First1, _Last1) vs. [First2, Last2)
+	_STLCLRDB_RANGE(_First1, _Last1);
+	_STLCLRDB_RANGE(_First2, _Last2);
+	return (cliext::lexicographical_compare_unchecked(
+		_Unchecked(_First1), _Unchecked(_Last1),
+		_Unchecked(_First2), _Unchecked(_Last2)));
+	}
+
+		// TEMPLATE FUNCTION lexicographical_compare WITH PRED
+template<class _InIt1,
+	class _InIt2,
+	class _Pr> inline
+	bool lexicographical_compare_unchecked(_InIt1 _First1, _InIt1 _Last1,
+		_InIt2 _First2, _InIt2 _Last2, _Pr _Pred)
+	{	// order [_First1, _Last1) vs. [First2, Last2) using _Pred
+	for (; _First1 != _Last1 && _First2 != _Last2; ++_First1, ++_First2)
+		if (_STLCLRDB_LT_PRED(_Pred, *_First1, *_First2))
+			return (true);
+		else if (_Pred(*_First2, *_First1))
+			return (false);
+	return (_First1 == _Last1 && _First2 != _Last2);
+	}
+
+template<class _InIt1,
+	class _InIt2,
+	class _Pr> inline
+	bool lexicographical_compare(_InIt1 _First1, _InIt1 _Last1,
+		_InIt2 _First2, _InIt2 _Last2, _Pr _Pred)
+	{	// order [_First1, _Last1) vs. [First2, Last2) using _Pred
+	_STLCLRDB_RANGE(_First1, _Last1);
+	_STLCLRDB_RANGE(_First2, _Last2);
+	_STLCLRDB_POINTER(_Pred);
+	return (cliext::lexicographical_compare_unchecked(
+		_Unchecked(_First1), _Unchecked(_Last1),
+		_Unchecked(_First2), _Unchecked(_Last2), _Pred));
+	}
+
+		// TEMPLATE FUNCTION max
+template<class _Ty> inline
+	const _Ty (max)(const _Ty% _Left, const _Ty% _Right)
+	{	// return larger of _Left and _Right
+	return (_STLCLRDB_LT(_Left, _Right) ? _Right : _Left);
+	}
+
+		// TEMPLATE FUNCTION max WITH PRED
+template<class _Ty,
+	class _Pr> inline
+	const _Ty (max)(const _Ty% _Left, const _Ty% _Right, _Pr _Pred)
+	{	// return larger of _Left and _Right using _Pred
+	return (_STLCLRDB_LT_PRED(_Pred, _Left, _Right) ? _Right : _Left);
+	}
+
+		// TEMPLATE FUNCTION min
+template<class _Ty> inline
+	const _Ty (min)(const _Ty% _Left, const _Ty% _Right)
+	{	// return smaller of _Left and _Right
+	return (_STLCLRDB_LT(_Right, _Left) ? _Right : _Left);
+	}
+
+		// TEMPLATE FUNCTION min WITH PRED
+template<class _Ty,
+	class _Pr> inline
+	const _Ty (min)(const _Ty% _Left, const _Ty% _Right, _Pr _Pred)
+	{	// return smaller of _Left and _Right using _Pred
+	return (_STLCLRDB_LT_PRED(_Pred, _Right, _Left) ? _Right : _Left);
+	}
+} // namespace cliext
+#endif /* _CLI_MEMORY_ */
+
+/*
+ * Copyright (c) 2004-2007 by Dinkumware, Ltd.  ALL RIGHTS RESERVED.
+ * Consult your license regarding permissions and restrictions.
+V5.03:0009 */

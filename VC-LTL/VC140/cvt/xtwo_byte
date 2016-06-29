@@ -1,0 +1,253 @@
+// xtwo_byte -- convert one- or two-byte code to 16-bit wide
+ #pragma once
+#ifndef _CVT_XTWO_BYTE_
+#define _CVT_XTWO_BYTE_
+#ifndef RC_INVOKED
+#include <locale>
+#include <locale>
+#include <cwchar>
+
+ #pragma pack(push,_CRT_PACKING)
+ #pragma warning(push,3)
+ #pragma push_macro("new")
+ #undef new
+
+ #pragma warning(disable: 4127 6326)
+
+namespace stdext {
+	namespace cvt {
+
+typedef _CSTD mbstate_t _Statype;
+
+		// TEMPLATE CLASS _Cvt_two_byte
+template<class _Elem,
+	class _Table,
+	unsigned long _Maxcode = 0xffff>
+	class _Cvt_two_byte
+	: public _STD codecvt<_Elem, char, _Statype>
+	{	// facet for converting between _Elem and one- or two-byte sequences
+public:
+ 	typedef _STD codecvt<_Elem, char, _Statype> _Mybase;
+	typedef typename _Mybase::result result;
+	typedef char _Byte;
+	typedef _Elem intern_type;
+	typedef _Byte extern_type;
+	typedef _Statype state_type;
+
+	explicit _Cvt_two_byte(size_t _Refs = 0)
+		: _Mybase(_Refs)
+		{	// construct with ref count
+		}
+
+	virtual ~_Cvt_two_byte() _NOEXCEPT
+		{	// destroy the object
+		}
+
+protected:
+	virtual result do_in(_Statype&,
+		const _Byte *_First1, const _Byte *_Last1, const _Byte *& _Mid1,
+		_Elem *_First2, _Elem *_Last2, _Elem *& _Mid2) const
+		{	// convert bytes [_First1, _Last1) to [_First2, _Last)
+		unsigned long _Maxc = _Maxcode;	// to quiet warnings
+
+		_Mid1 = _First1;
+		_Mid2 = _First2;
+		for (; _Mid1 != _Last1 && _Mid2 != _Last2; ++_Mid1)
+			{	// get a byte and map it
+			unsigned char _Bytecode = (unsigned char)*_Mid1;
+			unsigned short _Widecode;
+
+			if (_Bytecode < _Table::_Nlow)
+				_Widecode = _Bytecode;	// map byte to same wide value
+			else if ((_Widecode =
+				_Table::_Btw[_Bytecode - _Table::_Nlow]) != 0)
+				;	// map byte to wide value
+			else if (_Table::_Nbytes < 2)
+				return (_Mybase::error);	// no single-byte mapping
+			else if (_Mid1 + 1 == _Last1)
+				break;	// need another input byte
+			else
+				{	// form double-byte code and search for a valid mapping
+				_Widecode = (unsigned short)(_Bytecode << 8
+					| (unsigned char)*++_Mid1);
+				unsigned long _Lo = 0;
+				unsigned long _Hi = sizeof (_Table::_Dbvalid)
+					/ sizeof (_Table::_Dbvalid[0]);
+
+				for (; _Lo < _Hi; )
+					{	// test midpoint of remaining interval
+					unsigned long _Mid = (_Hi + _Lo) / 2;
+
+					if (_Widecode < _Table::_Dbvalid[_Mid])
+						_Hi = _Mid;
+					else if (_Widecode == _Table::_Dbvalid[_Mid])
+						{	// found the code, map it
+						_Widecode = _Table::_Dbtw[_Mid];
+						break;
+						}
+					else
+						_Lo = _Mid + 1;
+					}
+				if (_Hi <= _Lo)
+					return (_Mybase::error);
+				}
+			if (_Maxc < _Widecode)
+				return (_Mybase::error);	// value too large
+			else
+				*_Mid2++ = (_Elem)_Widecode;
+			}
+
+		return (_First1 == _Mid1 ? _Mybase::partial : _Mybase::ok);
+		}
+
+	virtual result do_out(_Statype&,
+		const _Elem *_First1, const _Elem *_Last1, const _Elem *& _Mid1,
+		_Byte *_First2, _Byte *_Last2, _Byte *& _Mid2) const
+		{	// convert [_First1, _Last1) to bytes [_First2, _Last)
+		unsigned long _Maxc = _Maxcode;	// to quiet warnings
+
+		_Mid1 = _First1;
+		_Mid2 = _First2;
+		for (; _Mid1 != _Last1 && _Mid2 != _Last2; ++_Mid1)
+			{	// get an element and map it
+			unsigned long _Hugecode = (unsigned long)*_Mid1;
+			unsigned short _Widecode = (unsigned short)_Hugecode;
+
+			if (_Maxc < _Widecode)
+				return (_Mybase::error);	// value too large
+			else if (_Widecode < _Table::_Nlow || (_Widecode < 0x100
+				&& _Table::_Btw[_Widecode - _Table::_Nlow] == _Widecode))
+				;	// map wide to same byte value
+			else
+				{	// search for a valid mapping
+				unsigned long _Lo = 0;
+				unsigned long _Hi = sizeof (_Table::_Wvalid)
+					/ sizeof (_Table::_Wvalid[0]);
+
+				for (; _Lo < _Hi; )
+					{	// test midpoint of remaining interval
+					unsigned long _Mid = (_Hi + _Lo) / 2;
+
+					if (_Widecode < _Table::_Wvalid[_Mid])
+						_Hi = _Mid;
+					else if (_Widecode == _Table::_Wvalid[_Mid])
+						{	// found the code, map it
+						_Widecode = _Table::_Wtb[_Mid];
+						break;
+						}
+					else
+						_Lo = _Mid + 1;
+					}
+				if (_Hi <= _Lo)
+					return (_Mybase::error);
+				}
+			if (_Widecode < 0x100)
+				;
+			else if (_Mid2 + 1 == _Last2)
+				return (_Mybase::partial);	// need room for another byte
+			else
+				*_Mid2++ = (_Byte)(_Widecode >> 8);	// put ms byte
+			*_Mid2++ = (_Byte)_Widecode;
+			}
+
+		return (_First1 == _Mid1 ? _Mybase::partial : _Mybase::ok);
+		}
+
+	virtual result do_unshift(_Statype&,
+		_Byte *_First2, _Byte *, _Byte *& _Mid2) const
+		{	// generate bytes to return to default shift state
+		_Mid2 = _First2;
+		return (_Mybase::ok);
+		}
+
+	virtual int do_length(_Statype& _State, const _Byte *_First1,
+		const _Byte *_Last1, size_t _Count) const _THROW0()
+		{	// return min(_Count, converted length of bytes [_First1, _Last1))
+		size_t _Wchars = 0;
+		_Statype _Mystate = _State;
+
+		for (; _Wchars < _Count && _First1 != _Last1; )
+			{	// convert another wide character
+			const _Byte *_Mid1;
+			_Elem *_Mid2;
+			_Elem _Ch;
+
+			switch (do_in(_Mystate, _First1, _Last1, _Mid1,
+				&_Ch, &_Ch + 1, _Mid2))
+				{	// test result of single wide-char conversion
+			case _Mybase::noconv:
+				return ((int)(_Wchars + (_Last1 - _First1)));
+
+			case  _Mybase::ok:
+				if (_Mid2 == &_Ch + 1)
+					++_Wchars;	// replacement do_in might not convert one
+				_First1 = _Mid1;
+				break;
+
+			default:
+				return ((int)_Wchars);	// error or partial
+				}
+			}
+		return ((int)_Wchars);
+		}
+
+	virtual bool do_always_noconv() const _THROW0()
+		{	// return true if conversions never change input
+		return (false);
+		}
+
+	virtual int do_max_length() const _THROW0()
+		{	// return maximum length required for a conversion
+		return (_Table::_Nbytes);	// length of sequence
+		}
+
+	virtual int do_encoding() const _THROW0()
+		{	// return length of code sequence (from codecvt)
+		return (0);	// 0 => varying length
+		}
+	};
+		}	// namespace cvt
+	}	// namespace stdext
+
+ #if 0 && defined(_TEST_IT)	/* disable standalone testing */
+  #define NCHARS	0x10000
+  #define MYWC_MAX	0xffff
+  #define MYFILE	"xtwo_byte"
+  #define MYNAME	stdext::cvt::_Cvt_two_byte<wchar_t, _TEST_TABLE >
+
+ #ifndef _TEST_TABLE
+  #define _TEST_TABLE	test_table
+struct test_table {
+	enum {
+		_Nlow = 0xfd,
+		_Nbytes = 2};
+	static unsigned short _Btw[0x03];
+	static unsigned short _Dbvalid[3];
+	static unsigned short _Dbtw[3];
+	static unsigned short _Wvalid[5];
+	static unsigned short _Wtb[5];
+	};
+
+unsigned short test_table::_Btw[0x03] = {0x0000, 0x3000, 0x2000};
+unsigned short test_table::_Dbvalid[3] = {0xfd02, 0xfd03, 0xfd05};
+unsigned short test_table::_Dbtw[3] = {0x0200, 0x0300, 0x0500};
+unsigned short test_table::_Wvalid[5] = {0x0200, 0x0300, 0x0500,
+	0x2000, 0x3000};
+unsigned short test_table::_Wtb[5] = {0xfd02, 0xfd03, 0xfd05,
+	0xff, 0xfe};
+ #endif /* _TEST_TABLE */
+
+ #include <cvt/xtest>
+ #endif /* 0 && defined(_TEST_IT) */
+
+ #pragma pop_macro("new")
+ #pragma warning(pop)
+ #pragma pack(pop)
+
+#endif /* RC_INVOKED */
+#endif /* _CVT_XTWO_BYTE_ */
+
+/*
+ * Copyright (c) by P.J. Plauger. All rights reserved.
+ * Consult your license regarding permissions and restrictions.
+V6.50:0009 */

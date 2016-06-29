@@ -1,0 +1,368 @@
+// ratio standard header
+#pragma once
+#ifndef _RATIO_
+#define _RATIO_
+#ifndef RC_INVOKED
+#include <stdint.h>
+#include <type_traits>
+
+ #pragma pack(push,_CRT_PACKING)
+ #pragma warning(push,3)
+ #pragma push_macro("new")
+ #undef new
+
+_STD_BEGIN
+	// CLASS TEMPLATE _Abs
+template<intmax_t _Val>
+	struct _Abs
+	{	// computes absolute value of _Val
+	static const intmax_t value = _Val < 0 ? -_Val : _Val;
+	};
+
+	// CLASS TEMPLATE _Safe_mult
+template<intmax_t _Ax,
+	intmax_t _Bx,
+	bool _Sfinae = false,
+	bool _Good = (_Abs<_Ax>::value
+		<= INTMAX_MAX / (_Bx == 0 ? 1 : _Abs<_Bx>::value))>
+	struct _Safe_mult
+		: integral_constant<intmax_t, _Ax * _Bx>
+	{	// computes _Ax * _Bx without overflow
+	};
+
+template<intmax_t _Ax,
+	intmax_t _Bx,
+	bool _Sfinae>
+	struct _Safe_mult<_Ax, _Bx, _Sfinae, false>
+	{	// _Ax * _Bx would overflow
+	static_assert(_Sfinae,
+		"integer arithmetic overflow");
+	};
+
+	// CLASS TEMPLATE _Sign_of
+template<intmax_t _Val>
+	struct _Sign_of
+	{	// computes sign of _Val
+	static const intmax_t value = _Val < 0 ? -1 : 1;
+	};
+
+	// CLASS TEMPLATE _Safe_add
+template<intmax_t _Ax,
+	intmax_t _Bx,
+	bool _Good,
+	bool _Also_good>
+	struct _Safe_addX
+	{	// computes _Ax + _Bx without overflow
+	static const intmax_t value = _Ax + _Bx;
+	};
+
+template<intmax_t _Ax,
+	intmax_t _Bx>
+	struct _Safe_addX<_Ax, _Bx, false, false>
+	{	// _Ax + _Bx would overflow
+	static_assert(_Always_false<_Safe_addX>::value,
+		"integer arithmetic overflow");
+	};
+
+template<intmax_t _Ax,
+	intmax_t _Bx>
+	struct _Safe_add
+	{	// computes _Ax + _Bx, forbids overflow
+	static const intmax_t value = _Safe_addX<_Ax, _Bx,
+		_Sign_of<_Ax>::value != _Sign_of<_Bx>::value,
+		(_Abs<_Ax>::value <= INTMAX_MAX - _Abs<_Bx>::value)>::value;
+	};
+
+	// CLASS TEMPLATE _Gcd
+template<intmax_t _Ax,
+	intmax_t _Bx>
+	struct _GcdX
+	{	// computes greatest common divisor of _Ax and _Bx
+	static const intmax_t value = _GcdX<_Bx, _Ax % _Bx>::value;
+	};
+
+template<intmax_t _Ax>
+	struct _GcdX<_Ax, 0>
+	{	// computes greatest common divisor of _Ax and 0
+	static const intmax_t value = _Ax;
+	};
+
+template<intmax_t _Ax,
+	intmax_t _Bx>
+	struct _Gcd
+	{	// computes greatest common divisor of abs(_Ax) and abs(_Bx)
+	static const intmax_t value =
+		_GcdX<_Abs<_Ax>::value, _Abs<_Bx>::value>::value;
+	};
+
+template<>
+	struct _Gcd<0, 0>
+	{	// avoids division by 0 in ratio_less
+	static const intmax_t value = 1;	// contrary to mathematical convention
+	};
+
+	// CLASS TEMPLATE ratio
+template<intmax_t _Nx,
+	intmax_t _Dx = 1>
+	struct ratio
+	{	// holds the ratio of _Nx to _Dx
+	static_assert(_Dx != 0,
+		"zero denominator");
+	static_assert(-INTMAX_MAX <= _Nx,
+		"numerator too negative");
+	static_assert(-INTMAX_MAX <= _Dx,
+		"denominator too negative");
+
+	static _CONST_DATA intmax_t num = _Sign_of<_Nx>::value
+		* _Sign_of<_Dx>::value * _Abs<_Nx>::value / _Gcd<_Nx, _Dx>::value;
+
+	static _CONST_DATA intmax_t den = _Abs<_Dx>::value / _Gcd<_Nx, _Dx>
+		::value;
+
+	typedef ratio<num, den> type;
+	};
+
+	// CLASS TEMPLATE _Are_ratios
+template<class _Ty1,
+	class _Ty2>
+	struct _Are_ratios
+		: false_type
+	{	// determine whether _Ty1 and _Ty2 are both ratios
+	};
+
+template<intmax_t _N1,
+	intmax_t _D1,
+	intmax_t _N2,
+	intmax_t _D2>
+	struct _Are_ratios<ratio<_N1, _D1>, ratio<_N2, _D2> >
+		: true_type
+	{	// determine whether _Ty1 and _Ty2 are both ratios
+	};
+
+	// ALIAS TEMPLATE ratio_add
+template<class _R1,
+	class _R2>
+	struct _Ratio_add
+	{	// add two ratios
+	static_assert(_Are_ratios<_R1, _R2>::value,
+		"ratio_add<R1, R2> requires R1 and R2 to be ratio<>s.");
+
+	static const intmax_t _N1 = _R1::num;
+	static const intmax_t _D1 = _R1::den;
+	static const intmax_t _N2 = _R2::num;
+	static const intmax_t _D2 = _R2::den;
+
+	static const intmax_t _Gx = _Gcd<_D1, _D2>::value;
+
+	// typename ratio<>::type is necessary here
+	typedef typename ratio<
+		_Safe_add<
+			_Safe_mult<_N1, _D2 / _Gx>::value,
+			_Safe_mult<_N2, _D1 / _Gx>::value
+			>::value,
+		_Safe_mult<_D1, _D2 / _Gx>::value
+		>::type type;
+	};
+
+template<class _R1,
+	class _R2>
+	using ratio_add = typename _Ratio_add<_R1, _R2>::type;
+
+	// ALIAS TEMPLATE ratio_subtract
+template<class _R1,
+	class _R2>
+	struct _Ratio_subtract
+	{	// subtract two ratios
+	static_assert(_Are_ratios<_R1, _R2>::value,
+		"ratio_subtract<R1, R2> requires R1 and R2 to be ratio<>s.");
+
+	static const intmax_t _N2 = _R2::num;
+	static const intmax_t _D2 = _R2::den;
+
+	typedef ratio_add<_R1, ratio<-_N2, _D2> > type;
+	};
+
+template<class _R1,
+	class _R2>
+	using ratio_subtract = typename _Ratio_subtract<_R1, _R2>::type;
+
+	// ALIAS TEMPLATE ratio_multiply
+template<class _R1,
+	class _R2>
+	struct _Ratio_multiply
+	{	// multiply two ratios
+	static_assert(_Are_ratios<_R1, _R2>::value,
+		"ratio_multiply<R1, R2> requires R1 and R2 to be ratio<>s.");
+
+	static const intmax_t _N1 = _R1::num;
+	static const intmax_t _D1 = _R1::den;
+	static const intmax_t _N2 = _R2::num;
+	static const intmax_t _D2 = _R2::den;
+
+	static const intmax_t _Gx = _Gcd<_N1, _D2>::value;
+	static const intmax_t _Gy = _Gcd<_N2, _D1>::value;
+
+	typedef _Safe_mult<_N1 / _Gx, _N2 / _Gy, true> _Num;
+	typedef _Safe_mult<_D1 / _Gy, _D2 / _Gx, true> _Den;
+	};
+
+template<class _R1,
+	class _R2,
+	bool _Sfinae = true,
+	class = void>
+	struct _Ratio_multiply_sfinae
+	{	// detect overflow during multiplication
+	static_assert(_Sfinae,
+		"integer arithmetic overflow");
+	};
+
+template<class _R1,
+	class _R2,
+	bool _Sfinae>
+	struct _Ratio_multiply_sfinae<_R1, _R2, _Sfinae, typename _Param_tester<
+		typename _Ratio_multiply<_R1, _R2>::_Num::type,
+		typename _Ratio_multiply<_R1, _R2>::_Den::type>::type>
+	{	// typename ratio<>::type is unnecessary here
+	typedef ratio<
+		_Ratio_multiply<_R1, _R2>::_Num::value,
+		_Ratio_multiply<_R1, _R2>::_Den::value> type;
+	};
+
+template<class _R1,
+	class _R2>
+	using ratio_multiply = typename _Ratio_multiply_sfinae<_R1, _R2, false>
+		::type;
+
+	// ALIAS TEMPLATE ratio_divide
+template<class _R1,
+	class _R2>
+	struct _Ratio_divide
+	{	// divide two ratios
+	static_assert(_Are_ratios<_R1, _R2>::value,
+		"ratio_divide<R1, R2> requires R1 and R2 to be ratio<>s.");
+
+	static const intmax_t _N2 = _R2::num;
+	static const intmax_t _D2 = _R2::den;
+
+	typedef ratio<_D2, _N2> _R2_inverse;
+	};
+
+template<class _R1,
+	class _R2,
+	bool _Sfinae = true>
+	using _Ratio_divide_sfinae = typename _Ratio_multiply_sfinae<
+		_R1, typename _Ratio_divide<_R1, _R2>::_R2_inverse, _Sfinae>::type;
+
+template<class _R1,
+	class _R2>
+	using ratio_divide = _Ratio_divide_sfinae<_R1, _R2, false>;
+
+	// CLASS TEMPLATE ratio_equal
+template<class _R1,
+	class _R2>
+	struct ratio_equal
+		: _Cat_base<_R1::num == _R2::num && _R1::den == _R2::den>
+	{	// tests if ratio == ratio
+	static_assert(_Are_ratios<_R1, _R2>::value,
+		"ratio_equal<R1, R2> requires R1 and R2 to be ratio<>s.");
+	};
+
+	// CLASS TEMPLATE ratio_not_equal
+template<class _R1,
+	class _R2>
+	struct ratio_not_equal
+		: integral_constant<bool, !ratio_equal<_R1, _R2>::value>
+	{	// tests if ratio != ratio
+	static_assert(_Are_ratios<_R1, _R2>::value,
+		"ratio_not_equal<R1, R2> requires R1 and R2 to be ratio<>s.");
+	};
+
+	// CLASS TEMPLATE ratio_less
+template<class _R1,
+	class _R2>
+	struct _Ratio_less
+	{	// tests if ratio < ratio
+	static const intmax_t _N1 = _R1::num;
+	static const intmax_t _D1 = _R1::den;
+	static const intmax_t _N2 = _R2::num;
+	static const intmax_t _D2 = _R2::den;
+
+	static const intmax_t _Gn = _Gcd<_N1, _N2>::value;
+	static const intmax_t _Gd = _Gcd<_D1, _D2>::value;
+
+	static const intmax_t _Left = _Safe_mult<_N1 / _Gn, _D2 / _Gd>::value;
+	static const intmax_t _Right = _Safe_mult<_N2 / _Gn, _D1 / _Gd>::value;
+
+	typedef integral_constant<bool, (_Left < _Right)> type;
+	};
+
+template<class _R1,
+	class _R2>
+	struct ratio_less
+		: _Ratio_less<_R1, _R2>::type
+	{	// tests if ratio < ratio
+	static_assert(_Are_ratios<_R1, _R2>::value,
+		"ratio_less<R1, R2> requires R1 and R2 to be ratio<>s.");
+	};
+
+	// CLASS TEMPLATE ratio_less_equal
+template<class _R1,
+	class _R2>
+	struct ratio_less_equal
+		: integral_constant<bool, !ratio_less<_R2, _R1>::value>
+	{	// tests if ratio <= ratio
+	static_assert(_Are_ratios<_R1, _R2>::value,
+		"ratio_less_equal<R1, R2> requires R1 and R2 to be ratio<>s.");
+	};
+
+	// CLASS TEMPLATE ratio_greater
+template<class _R1,
+	class _R2>
+	struct ratio_greater
+		: integral_constant<bool, ratio_less<_R2, _R1>::value>
+	{	// tests if ratio > ratio
+	static_assert(_Are_ratios<_R1, _R2>::value,
+		"ratio_greater<R1, R2> requires R1 and R2 to be ratio<>s.");
+	};
+
+	// CLASS TEMPLATE ratio_greater_equal
+template<class _R1,
+	class _R2>
+	struct ratio_greater_equal
+		: integral_constant<bool, !ratio_less<_R1, _R2>::value>
+	{	// tests if ratio >= ratio
+	static_assert(_Are_ratios<_R1, _R2>::value,
+		"ratio_greater_equal<R1, R2> requires R1 and R2 to be ratio<>s.");
+	};
+
+	// SI TYPEDEFS
+
+typedef ratio<1, 1000000000000000000LL> atto;
+typedef ratio<1, 1000000000000000LL> femto;
+typedef ratio<1, 1000000000000LL> pico;
+
+typedef ratio<1, 1000000000> nano;
+typedef ratio<1, 1000000> micro;
+typedef ratio<1, 1000> milli;
+typedef ratio<1, 100> centi;
+typedef ratio<1, 10> deci;
+typedef ratio<10, 1> deca;
+typedef ratio<100, 1> hecto;
+typedef ratio<1000, 1> kilo;
+typedef ratio<1000000, 1> mega;
+typedef ratio<1000000000, 1> giga;
+
+typedef ratio<1000000000000LL, 1> tera;
+typedef ratio<1000000000000000LL, 1> peta;
+typedef ratio<1000000000000000000LL, 1> exa;
+_STD_END
+ #pragma pop_macro("new")
+ #pragma warning(pop)
+ #pragma pack(pop)
+#endif /* RC_INVOKED */
+#endif /* _RATIO_ */
+
+/*
+ * Copyright (c) by P.J. Plauger. All rights reserved.
+ * Consult your license regarding permissions and restrictions.
+V6.50:0009 */

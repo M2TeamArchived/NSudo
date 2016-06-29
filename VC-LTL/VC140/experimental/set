@@ -1,0 +1,52 @@
+// set experimental header
+#pragma once
+#ifndef _EXPERIMENTAL_SET_
+#define _EXPERIMENTAL_SET_
+#ifndef RC_INVOKED
+
+#include <set>
+#include <experimental/xutility>
+
+ #pragma pack(push,_CRT_PACKING)
+ #pragma warning(push,3)
+ #pragma push_macro("new")
+ #undef new
+
+_STD_BEGIN
+namespace experimental {
+	inline namespace fundamentals_v2 {
+
+	// TEMPLATE FUNCTION erase_if
+template<class _Kty,
+	class _Keylt,
+	class _Alloc,
+	class _Pr> inline
+	void erase_if(set<_Kty, _Keylt, _Alloc>& _Cont, _Pr _Pred)
+	{	// erase each element satisfying _Pred
+	_Erase_nodes_if(_Cont, _Pred);
+	}
+
+template<class _Kty,
+	class _Keylt,
+	class _Alloc,
+	class _Pr> inline
+	void erase_if(multiset<_Kty, _Keylt, _Alloc>& _Cont, _Pr _Pred)
+	{	// erase each element satisfying _Pred
+	_Erase_nodes_if(_Cont, _Pred);
+	}
+
+	}	// inline namespace fundamentals_v2
+}	// namespace experimental
+_STD_END
+
+ #pragma pop_macro("new")
+ #pragma warning(pop)
+ #pragma pack(pop)
+
+#endif /* RC_INVOKED */
+#endif /* _EXPERIMENTAL_SET_ */
+
+/*
+ * Copyright (c) by P.J. Plauger. All rights reserved.
+ * Consult your license regarding permissions and restrictions.
+V6.50:0009 */

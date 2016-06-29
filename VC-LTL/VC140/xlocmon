@@ -1,0 +1,993 @@
+// xlocmon internal header (from <locale>)
+#pragma once
+#ifndef _XLOCMON_
+#define _XLOCMON_
+#ifndef RC_INVOKED
+#include <xlocnum>
+
+ #pragma pack(push,_CRT_PACKING)
+ #pragma warning(push,3)
+ #pragma push_macro("new")
+ #undef new
+
+ #pragma warning(disable: 4275)
+
+_STD_BEGIN
+		// STRUCT money_base
+struct money_base
+	: public locale::facet
+	{	// ultimate base class for moneypunct
+	enum
+		{	// constants for different format codes
+		symbol = '$', sign = '+', space = ' ', value = 'v', none = 'x'};
+	typedef int part;
+
+	struct pattern
+		{	// four-part formats for monetary text
+		char field[4];
+		};
+
+	money_base(size_t _Refs = 0)
+		: locale::facet(_Refs)
+		{	// default constructor
+		}
+	};
+
+		// TEMPLATE CLASS _Mpunct
+template<class _Elem>
+	class _Mpunct
+		: public money_base
+	{	// common base class for moneypunct<_Elem, false/true>
+public:
+	typedef _Elem char_type;
+	typedef basic_string<_Elem, char_traits<_Elem>, allocator<_Elem> >
+		string_type;
+
+	_Elem decimal_point() const
+		{	// return decimal point
+		return (do_decimal_point());
+		}
+
+	_Elem thousands_sep() const
+		{	// return thousands separator
+		return (do_thousands_sep());
+		}
+
+	string grouping() const
+		{	// return grouping string
+		return (do_grouping());
+		}
+
+	string_type curr_symbol() const
+		{	// return currency symbol string
+		return (do_curr_symbol());
+		}
+
+	string_type positive_sign() const
+		{	// return plus sign
+		return (do_positive_sign());
+		}
+
+	string_type negative_sign() const
+		{	// return minus sign
+		return (do_negative_sign());
+		}
+
+	int frac_digits() const
+		{	// return number of fraction digits
+		return (do_frac_digits());
+		}
+
+	pattern pos_format() const
+		{	// return format for positive values
+		return (do_pos_format());
+		}
+
+	pattern neg_format() const
+		{	// return format for negative values
+		return (do_neg_format());
+		}
+
+	explicit _Mpunct(size_t _Refs, bool _Intl)
+		: money_base(_Refs), _International(_Intl)
+		{	// construct from current locale
+		_BEGIN_LOCINFO(_Lobj)
+			_Init(_Lobj);
+		_END_LOCINFO()
+		}
+
+	_Mpunct(const _Locinfo& _Lobj, size_t _Refs, bool _Intl,
+		bool _Isdef = false)
+		: money_base(_Refs), _International(_Intl)
+		{	// construct from specified locale
+		_Init(_Lobj, _Isdef);
+		}
+
+protected:
+	_Mpunct(const char *_Locname, size_t _Refs,
+		bool _Intl, bool _Isdef = false)
+		: money_base(_Refs), _International(_Intl)
+		{	// construct from specified locale
+		_BEGIN_LOCINFO(_Lobj(_Locname))
+			_Init(_Lobj, _Isdef);
+		_END_LOCINFO()
+		}
+
+	virtual __CLR_OR_THIS_CALL ~_Mpunct() _NOEXCEPT
+		{	// destroy the object
+		_Tidy();
+		}
+
+	template<class _Elem2>
+		void _Getvals(_Elem2, const lconv *_Ptr)
+		{	// get values
+		_Currencysign = _MAKLOCSTR(_Elem2, _International
+			? _Ptr->int_curr_symbol : _Ptr->currency_symbol, _Cvt);
+		_Plussign = _MAKLOCSTR(_Elem2, 4 < (unsigned int)_Ptr->p_sign_posn
+			? "" : _Ptr->positive_sign, _Cvt);
+		_Minussign = _MAKLOCSTR(_Elem2, 4 < (unsigned int)_Ptr->n_sign_posn
+			? "-" : _Ptr->negative_sign, _Cvt);
+		_Decimalpoint = _MAKLOCCHR(_Elem2, _Ptr->mon_decimal_point[0], _Cvt);
+		_Kseparator = _MAKLOCCHR(_Elem2, _Ptr->mon_thousands_sep[0], _Cvt);
+		}
+
+	template<>
+		void _Getvals(wchar_t, const lconv *_Ptr)
+		{	// get values
+		_Currencysign = (const _Elem *)_Maklocwcs(_International
+			? _Ptr->_W_int_curr_symbol : _Ptr->_W_currency_symbol);
+		_Plussign = (const _Elem *)_Maklocwcs(
+			4 < (unsigned int)_Ptr->p_sign_posn
+				? L"" : _Ptr->_W_positive_sign);
+		_Minussign = (const _Elem *)_Maklocwcs(
+			4 < (unsigned int)_Ptr->n_sign_posn
+				? L"-" : _Ptr->_W_negative_sign);
+		_Decimalpoint = (_Elem)_Ptr->_W_mon_decimal_point[0];
+		_Kseparator = (_Elem)_Ptr->_W_mon_thousands_sep[0];
+		}
+
+	void _Init(const _Locinfo& _Lobj, bool _Isdef = false)
+		{	// initialize from _Lobj
+		_Cvt = _Lobj._Getcvt();
+		const lconv *_Ptr = _Lobj._Getlconv();
+
+		_Grouping = 0;
+		_Currencysign = 0;
+		_Plussign = 0;
+		_Minussign = 0;
+
+		_TRY_BEGIN
+		_Grouping = _MAKLOCSTR(char, _Ptr->mon_grouping, _Cvt);
+		_Getvals((_Elem)0, _Ptr);
+		_CATCH_ALL
+		_Tidy();
+		_RERAISE;
+		_CATCH_END
+
+		_Fracdigits = _International ? _Ptr->int_frac_digits
+			: _Ptr->frac_digits;
+		if (_Fracdigits < 0 || CHAR_MAX <= _Fracdigits)
+			_Fracdigits = 0;
+
+		_Makpat(_Plusformat, _Ptr->p_sep_by_space,
+			_Ptr->p_cs_precedes, _Ptr->p_sign_posn);
+		_Makpat(_Minusformat, _Ptr->n_sep_by_space,
+			_Ptr->n_cs_precedes, _Ptr->n_sign_posn);
+
+		if (_Isdef)
+			{	// apply defaults for required facets
+			_CSTD memcpy(&_Plusformat, "$+xv", 4);
+			_CSTD memcpy(&_Minusformat, "$+xv", 4);
+			}
+		}
+
+	virtual _Elem __CLR_OR_THIS_CALL do_decimal_point() const
+		{	// return decimal point
+		return (_Decimalpoint);
+		}
+
+	virtual _Elem __CLR_OR_THIS_CALL do_thousands_sep() const
+		{	// return thousands separator
+		return (_Kseparator);
+		}
+
+	virtual string __CLR_OR_THIS_CALL do_grouping() const
+		{	// return grouping string
+		return (string(_Grouping));
+		}
+
+	virtual string_type __CLR_OR_THIS_CALL do_curr_symbol() const
+		{	// return currency symbol string
+		return (string_type(_Currencysign));
+		}
+
+	virtual string_type __CLR_OR_THIS_CALL do_positive_sign() const
+		{	// return plus sign
+		return (string_type(_Plussign));
+		}
+
+	virtual string_type __CLR_OR_THIS_CALL do_negative_sign() const
+		{	// return minus sign
+		return (string_type(_Minussign));
+		}
+
+	virtual int __CLR_OR_THIS_CALL do_frac_digits() const
+		{	// return number of fraction digits
+		return (_Fracdigits);
+		}
+
+	virtual pattern __CLR_OR_THIS_CALL do_pos_format() const
+		{	// return format for positive values
+		return (_Plusformat);
+		}
+
+	virtual pattern __CLR_OR_THIS_CALL do_neg_format() const
+		{	// return format for negative values
+		return (_Minusformat);
+		}
+
+private:
+	void _Makpat(pattern& _Pattern, unsigned int _Sepbyspace,
+		unsigned int _Symbolprecedes, unsigned int _Signposition)
+		{	// make format pattern from locale information
+		const char *_Ptr = _International || 2 < _Sepbyspace
+			|| 1 < _Symbolprecedes || 4 < _Signposition
+				? "$+xv"	// international or bad parameters
+				: &(
+				"+v$x" "+v$x" "v$+x" "v+$x" "v$+x"
+				"+$vx" "+$vx" "$v+x" "+$vx" "$+vx"
+				"+v $" "+v $" "v $+" "v +$" "v $+"
+				"+$ v" "+$ v" "$ v+" "+$ v" "$+ v"
+				"+xv$" "+ v$" "v$ +" "v+ $" "v$ +"
+				"+x$v" "+ $v" "$v +" "+ $v" "$ +v")
+					[_Signposition * 4	// pick even/odd column
+					+ _Symbolprecedes * 20	// pick even/odd row
+					+ _Sepbyspace * 40];	// pick first/second/third group
+
+		_CRT_SECURE_MEMCPY(_Pattern.field, sizeof (_Pattern.field), _Ptr, 4);
+		}
+
+	void _Tidy()
+		{	// free all storage
+		_CSTD free((void *)_Grouping);
+		_CSTD free((void *)_Currencysign);
+		_CSTD free((void *)_Plussign);
+		_CSTD free((void *)_Minussign);
+		}
+
+	const char *_Grouping;	// grouping string, "" for "C" locale
+	_Elem _Decimalpoint;	// decimal point, '\0' for "C" locale
+	_Elem _Kseparator;	// thousands separator, '\0' for "C" locale
+	const _Elem *_Currencysign;	// currency symbol, "" for "C" locale
+	const _Elem *_Plussign;	// plus sign, "" for "C" locale
+	const _Elem *_Minussign;	// minus sign, "-" for "C" locale
+	int _Fracdigits;	// number of fraction digits, 0 for "C" locale
+	pattern _Plusformat;	// positive format, "$+vx" for "C" locale
+	pattern _Minusformat;	// negative format, "$+vx" for "C" locale
+	bool _International;	// true if international format
+
+	_Locinfo::_Cvtvec _Cvt;		// conversion information
+	};
+
+		// TEMPLATE CLASS moneypunct
+template<class _Elem,
+	bool _Intl = false>
+	class moneypunct
+		: public _Mpunct<_Elem>
+	{	// facet for defining monetary punctuation text
+public:
+	_PGLOBAL _CRTIMP2_PURE static const bool intl;	// true if international
+	__PURE_APPDOMAIN_GLOBAL _CRTIMP2_PURE static locale::id id;	// unique facet id
+
+	explicit moneypunct(size_t _Refs = 0)
+		: _Mpunct<_Elem>(_Refs, _Intl)
+		{	// construct from current locale
+		}
+
+	moneypunct(const _Locinfo& _Lobj, size_t _Refs = 0, bool _Isdef = false)
+		: _Mpunct<_Elem>(_Lobj, _Refs, _Intl, _Isdef)
+		{	// construct from specified locale
+		}
+
+	static size_t _Getcat(const locale::facet **_Ppf = 0,
+		const locale *_Ploc = 0)
+		{	// return locale category mask and construct standard facet
+		if (_Ppf != 0 && *_Ppf == 0)
+			*_Ppf = new moneypunct<_Elem, _Intl>(
+				_Locinfo(_Ploc->c_str()), 0, true);
+		return (_X_MONETARY);
+		}
+
+protected:
+	moneypunct(const char *_Locname, size_t _Refs = 0)
+		: _Mpunct<_Elem>(_Locname, _Refs, _Intl)
+		{	// construct from specified locale
+		}
+
+	virtual __CLR_OR_THIS_CALL ~moneypunct() _NOEXCEPT
+		{	// destroy the object
+		}
+	};
+
+		// STATIC moneypunct::intl OBJECT
+template<class _Elem,
+	bool _Intl>
+	_PGLOBAL const bool moneypunct<_Elem, _Intl>::intl = _Intl;
+
+		// STATIC moneypunct::id OBJECT
+template<class _Elem,
+	bool _Intl>
+	__PURE_APPDOMAIN_GLOBAL locale::id moneypunct<_Elem, _Intl>::id;
+
+		// TEMPLATE CLASS moneypunct_byname
+template<class _Elem,
+	bool _Intl = false>
+	class moneypunct_byname
+		: public moneypunct<_Elem, _Intl>
+	{	// moneypunct for named locale
+public:
+	explicit moneypunct_byname(const char *_Locname, size_t _Refs = 0)
+		: moneypunct<_Elem, _Intl>(_Locname, _Refs)
+		{	// construct for named locale
+		}
+
+	explicit moneypunct_byname(const string& _Str, size_t _Refs = 0)
+		: moneypunct<_Elem, _Intl>(_Str.c_str(), _Refs)
+		{	// construct for named locale
+		}
+
+protected:
+	virtual __CLR_OR_THIS_CALL ~moneypunct_byname() _NOEXCEPT
+		{	// destroy the object
+		}
+	};
+
+		// TEMPLATE CLASS money_get
+template<class _Elem,
+	class _InIt = istreambuf_iterator<_Elem, char_traits<_Elem> > >
+	class money_get
+		: public locale::facet
+	{	// facet for converting text to encoded monetary amounts
+	typedef moneypunct<_Elem, false> _Mypunct0;
+	typedef moneypunct<_Elem, true> _Mypunct1;
+
+public:
+	typedef _Elem char_type;
+	typedef _InIt iter_type;
+	typedef basic_string<_Elem, char_traits<_Elem>, allocator<_Elem> >
+		string_type;
+
+	_InIt get(_InIt _First, _InIt _Last,
+		bool _Intl, ios_base& _Iosbase, ios_base::iostate& _State,
+			long double& _Val) const
+		{	// get long double from [_First, _Last) into _Val
+		return (do_get(_First, _Last, _Intl, _Iosbase, _State, _Val));
+		}
+
+	_InIt get(_InIt _First, _InIt _Last,
+		bool _Intl, ios_base& _Iosbase, ios_base::iostate& _State,
+			string_type& _Val) const
+		{	// get string_type from [_First, _Last) into _Val
+		return (do_get(_First, _Last, _Intl, _Iosbase, _State, _Val));
+		}
+
+	__PURE_APPDOMAIN_GLOBAL _CRTIMP2_PURE static locale::id id;	// unique facet id
+
+	explicit money_get(size_t _Refs = 0)
+		: locale::facet(_Refs)
+		{	// construct from current locale
+		_BEGIN_LOCINFO(_Lobj)
+			_Init(_Lobj);
+		_END_LOCINFO()
+		}
+
+	money_get(const _Locinfo& _Lobj, size_t _Refs = 0)
+		: locale::facet(_Refs)
+		{	// construct from specified locale
+		_Init(_Lobj);
+		}
+
+	static size_t _Getcat(const locale::facet **_Ppf = 0,
+		const locale *_Ploc = 0)
+		{	// return locale category mask and construct standard facet
+		if (_Ppf != 0 && *_Ppf == 0)
+			*_Ppf = new money_get<_Elem, _InIt>(
+				_Locinfo(_Ploc->c_str()));
+		return (_X_MONETARY);
+		}
+
+protected:
+	virtual __CLR_OR_THIS_CALL ~money_get() _NOEXCEPT
+		{	// destroy the object
+		}
+
+	void _Init(const _Locinfo&)
+		{	// initialize from _Locinfo object
+		}
+
+	virtual _InIt __CLR_OR_THIS_CALL do_get(_InIt _First, _InIt _Last,
+		bool _Intl, ios_base& _Iosbase, ios_base::iostate& _State,
+			long double& _Val) const
+		{	// get long double from [_First, _Last) into _Val
+		_Elem _Atoms[sizeof ("0123456789-")];
+		string _Str = _Getmfld(_First, _Last, _Intl, _Iosbase, _Atoms);
+
+		if (_First == _Last)
+			_State |= ios_base::eofbit;
+		if (_Str.size() == 0)
+			_State |= ios_base::failbit;	// _Getmfld failed
+		else
+			{	// convert to long double
+			const char *_Eb = _Str.c_str();
+			char *_Ep;
+			int _Errno = 0;
+			const long double _Ans =
+				_CSTD _Stoldx(_Eb, &_Ep, 0, &_Errno);	// convert
+
+			if (_Ep == _Eb || _Errno != 0)
+				_State |= ios_base::failbit;
+			else
+				_Val = _Ans;	// deliver value
+			}
+		return (_First);
+		}
+
+	virtual _InIt __CLR_OR_THIS_CALL do_get(_InIt _First, _InIt _Last,
+		bool _Intl, ios_base& _Iosbase, ios_base::iostate& _State,
+			string_type& _Val) const
+		{	// get string_type from [_First, _Last) into _Val
+		_Elem _Atoms[sizeof ("0123456789-")];
+		string _Str = _Getmfld(_First, _Last, _Intl, _Iosbase, _Atoms);
+		size_t _Len = _Str.size();
+
+		if (_First == _Last)
+			_State |= ios_base::eofbit;
+		if (_Len == 0)
+			_State |= ios_base::failbit;	// _Getmfld failed
+		else
+			{	// deliver value
+			size_t _Idx = 0;
+			_Val.resize(_Len);
+			if (_Str[0] == '-')
+				_Val[_Idx++] = _Atoms[10];
+			for (; _Idx < _Len; ++_Idx)
+				_Val[_Idx] = _Atoms[_Str[_Idx] - '0'];	// map digits
+			}
+		return (_First);
+		}
+
+private:
+	string _Getmfld(_InIt& _First, _InIt& _Last,
+		bool _Intl, ios_base& _Iosbase, _Elem *_Atoms) const
+		{	// get monetary field from [_First, _Last) into string_type
+		_DEBUG_RANGE(_First, _Last);
+		const _Mpunct<_Elem> *_Ppunct_fac;
+		if (_Intl)
+			_Ppunct_fac =
+				&_USE(_Iosbase.getloc(), _Mypunct1);	// international
+		else
+			_Ppunct_fac =
+				&_USE(_Iosbase.getloc(), _Mypunct0);	// local
+
+		bool _Bad = false, _Neg = false;
+		string_type _Sign;
+		const money_base::pattern _Pattern = _Ppunct_fac->neg_format();
+		string _Val;
+		size_t _Idx;
+		static const char _Src[] = {"0123456789-"};
+		const ctype<_Elem>& _Ctype_fac =
+			_USE(_Iosbase.getloc(), ctype<_Elem>);
+		_Ctype_fac.widen(&_Src[0], &_Src[sizeof (_Src)], _Atoms);
+
+		for (size_t _Off = 0; !_Bad && _Off < 4; ++_Off)
+			switch (_Pattern.field[_Off])
+				{	// parse a format component
+			case money_base::symbol:
+				{	// parse currency symbol
+				string_type _Symbol = _Ppunct_fac->curr_symbol();
+				typename string_type::const_iterator _Source;
+
+				if (!(_Iosbase.flags() & ios_base::showbase)
+					&& _First != _Last && *_First != *_Symbol.c_str())
+					_Symbol.erase();	// showbase ==> mandatory symbol
+				else if (_Off == 3 && _Sign.size() <= 1
+					&& (_First == _Last || *_First != *_Symbol.c_str()))
+					_Symbol.erase();	// currency symbol optional at end
+
+				for (_Source = _Symbol.begin();
+					_First != _Last && _Source != _Symbol.end()
+						&& *_First == *_Source; ++_Source, ++_First)
+					;	// still matching currency symbol
+
+				if (_Source != _Symbol.end())
+					_Bad = true;	// currency symbol match failed
+				break;
+				}
+
+			case money_base::sign:	// parse sign
+				if (_First == _Last)
+					;	// assume no sign
+				else if (0 < (_Ppunct_fac->positive_sign()).size()
+					&& _Ppunct_fac->positive_sign()[0] == *_First)
+					{	// match positive sign
+					++_First;
+					_Sign = _Ppunct_fac->positive_sign();
+					}
+				else if (0 < (_Ppunct_fac->negative_sign()).size()
+					&& _Ppunct_fac->negative_sign()[0] == *_First)
+					{	// match negative sign
+					++_First;
+					_Sign = _Ppunct_fac->negative_sign();
+					_Neg = true;
+					}
+				else if (0 == (_Ppunct_fac->positive_sign()).size())
+					;
+				else if (0 == (_Ppunct_fac->negative_sign()).size())
+					_Neg = true;
+				break;	// sign match can't fail
+
+			case money_base::value:
+				{	// parse value field
+				int _Fracdigseen = 0;
+				int _Fracdigits = _Ppunct_fac->frac_digits();
+				const string _Grouping = _Ppunct_fac->grouping();
+				const _Elem _Kseparator = _Grouping.size() == 0
+					? (_Elem)0 : _Ppunct_fac->thousands_sep();
+
+				if (_Kseparator == (_Elem)0
+					|| CHAR_MAX <= (unsigned char)*_Grouping.c_str())
+					for (; _First != _Last
+						&& (_Idx = _Find_elem(_Atoms, *_First)) < 10;
+						++_First)
+					_Val += _Src[_Idx];	// no grouping, just gather digits
+				else
+					{	// grouping specified, gather digits and group sizes
+					string _Groups((size_t)1, '\0');
+					size_t _Group = 0;
+
+					for (; _First != _Last; ++_First)
+						if ((_Idx = _Find_elem(_Atoms, *_First)) < 10)
+							{	// got a digit, add to group size
+							_Val += _Src[_Idx];
+							if (_Groups[_Group] != CHAR_MAX)
+								++_Groups[_Group];
+							}
+						else if (_Groups[_Group] == '\0'
+							|| *_First != _Kseparator)
+							break;	// not a group separator, done
+						else
+							{	// add a new group to _Groups string
+							_Groups.append((size_t)1, '\0');
+							++_Group;
+							}
+
+					if (_Group == 0)
+						;	// no thousands separators seen
+					else if ('\0' < _Groups[_Group])
+						++_Group;	// add trailing group to group count
+					else
+						_Bad = true;	// trailing separator, fail
+
+					for (const char *_Pg = _Grouping.c_str();
+						!_Bad && 0 < _Group; )
+						if (*_Pg == CHAR_MAX)
+							break;	// end of grouping constraints to check
+						else if ((0 < --_Group && *_Pg != _Groups[_Group])
+							|| (0 == _Group && *_Pg < _Groups[_Group]))
+							_Bad = true;	// bad group size, fail
+						else if ('\0' < _Pg[1])
+							++_Pg;	// group size okay, advance to next test
+					if (_Bad)
+						break;	// bad grouping, give up
+					}
+
+				const _Elem _Point = _Ppunct_fac->decimal_point();
+				if (_First != _Last
+					&& _Point != (_Elem)0
+					&& *_First == _Point)
+					{	// seen decimal point, gather fraction digits
+					while (++_First != _Last
+						&& _Fracdigseen < _Fracdigits
+						&& (_Idx = _Find_elem(_Atoms, *_First)) < 10)
+						_Val += _Src[_Idx], ++_Fracdigseen;
+
+					if (_Fracdigseen < _Fracdigits)
+						_Bad = true;	// short fraction
+					}
+
+				if (_Val.size() == 0)
+					_Bad = true;	// fail if no elements parsed
+				else
+					for (; _Fracdigseen < _Fracdigits; ++_Fracdigseen)
+						_Val += '0';	// pad out fraction with zeros
+				break;
+				}
+
+			case money_base::space:
+			case money_base::none:
+				{	// parse optional space
+				if (_Off == 3)
+					break;	// ignore space at end
+
+				bool _Seen = false;
+
+				for (; _First != _Last
+					&& _Ctype_fac.is(ctype_base::space, *_First); ++_First)
+					_Seen = true;	// skip any space
+				if (_Pattern.field[_Off] == money_base::space && !_Seen)
+					_Bad = true;	// fail if no space seen
+				}
+				}
+
+		if (!_Bad && 1 < _Sign.size())
+			{	// match rest of sign string
+			typename string_type::const_iterator _Source;
+
+			for (_Source = _Sign.begin(); ++_Source != _Sign.end()
+				&& _First != _Last && *_First == *_Source; ++_First)
+				;
+			if (_Source != _Sign.end())
+				_Bad = true;	// rest of sign doesn't match, fail
+			}
+
+		if (_Bad)
+			_Val.erase();	// bad input, return empty string
+		else if (_Neg)
+			_Val.insert((size_t)0, (size_t)1, '-');	// minus sign
+		return (_Val);
+		}
+	};
+
+		// STATIC money_get::id OBJECT
+template<class _Elem,
+	class _InIt>
+	__PURE_APPDOMAIN_GLOBAL locale::id money_get<_Elem, _InIt>::id;
+
+		// TEMPLATE CLASS money_put
+template<class _Elem,
+	class _OutIt = ostreambuf_iterator<_Elem, char_traits<_Elem> > >
+	class money_put
+		: public locale::facet
+	{	// facet for converting encoded monetary amounts to text
+	typedef moneypunct<_Elem, false> _Mypunct0;
+	typedef moneypunct<_Elem, true> _Mypunct1;
+
+public:
+	typedef _Elem char_type;
+	typedef _OutIt iter_type;
+	typedef basic_string<_Elem, char_traits<_Elem>, allocator<_Elem> >
+		string_type;
+
+	_OutIt put(_OutIt _Dest,
+		bool _Intl, ios_base& _Iosbase, _Elem _Fill,
+			long double _Val) const
+		{	// put long double to _Dest
+		return (do_put(_Dest, _Intl, _Iosbase, _Fill, _Val));
+		}
+
+	_OutIt put(_OutIt _Dest,
+		bool _Intl, ios_base& _Iosbase, _Elem _Fill,
+			const string_type& _Val) const
+		{	// put string_type to _Dest
+		return (do_put(_Dest, _Intl, _Iosbase, _Fill, _Val));
+		}
+
+	__PURE_APPDOMAIN_GLOBAL _CRTIMP2_PURE static locale::id id;	// unique facet id
+
+	explicit money_put(size_t _Refs = 0)
+		: locale::facet(_Refs)
+		{	// construct from current locale
+		_BEGIN_LOCINFO(_Lobj)
+			_Init(_Lobj);
+		_END_LOCINFO()
+		}
+
+	money_put(const _Locinfo& _Lobj, size_t _Refs = 0)
+		: locale::facet(_Refs)
+		{	// construct from specified locale
+		_Init(_Lobj);
+		}
+
+	static size_t _Getcat(const locale::facet **_Ppf = 0,
+		const locale *_Ploc = 0)
+		{	// return locale category mask and construct standard facet
+		if (_Ppf != 0 && *_Ppf == 0)
+			*_Ppf = new money_put<_Elem, _OutIt>(
+				_Locinfo(_Ploc->c_str()));
+		return (_X_MONETARY);
+		}
+
+protected:
+	virtual __CLR_OR_THIS_CALL ~money_put() _NOEXCEPT
+		{	// destroy the object
+		}
+
+	void _Init(const _Locinfo&)
+		{	// initialize from _Locinfo object
+		}
+
+	virtual _OutIt __CLR_OR_THIS_CALL do_put(_OutIt _Dest,
+		bool _Intl, ios_base& _Iosbase, _Elem _Fill,
+			long double _Val) const
+		{	// put long double to _Dest
+		bool _Negative = false;
+		if (_Val < 0)
+			_Negative = true, _Val = -_Val;
+
+		size_t _Exp;
+		for (_Exp = 0; 1e35 <= _Val && _Exp < 5000; _Exp += 10)
+			_Val /= 1e10;	// drop 10 zeros before decimal point
+
+		char _Buf[40];
+
+		int _Count = _CSTD sprintf_s(_Buf, sizeof (_Buf), "%.0Lf",
+			_Val);	// convert to chars
+
+		if (_Count < 0)
+			return (_Dest);	// bad conversion, give up
+
+		const ctype<_Elem>& _Ctype_fac =
+			_USE(_Iosbase.getloc(), ctype<_Elem>);
+		const _Elem _E0 = _Ctype_fac.widen('0');
+
+		string_type _Val2(_Count, (_Elem)0);
+		_Ctype_fac.widen(&_Buf[0], &_Buf[_Count], &_Val2[0]);
+		_Val2.append(_Exp, _E0);	// scale by trailing zeros
+		return (_Putmfld(_Dest, _Intl, _Iosbase, _Fill,
+			_Negative, _Val2, _E0));
+		}
+
+	virtual _OutIt __CLR_OR_THIS_CALL do_put(_OutIt _Dest,
+		bool _Intl, ios_base& _Iosbase, _Elem _Fill,
+			const string_type& _Val) const
+		{	// put string_type to _Dest
+		static const char _Src[] = {"0123456789-"};
+		_Elem _Atoms[sizeof (_Src)];
+		const ctype<_Elem>& _Ctype_fac =
+			_USE(_Iosbase.getloc(), ctype<_Elem>);
+		_Ctype_fac.widen(&_Src[0], &_Src[sizeof (_Src)], _Atoms);
+
+		bool _Negative = false;
+		size_t _Idx0 = 0;
+		if (!_Val.empty() && _Val[0] == _Atoms[10])
+			_Negative = true, ++_Idx0;	// strip off '-'
+
+		size_t _Size = _Val.size();
+		size_t _Idx = _Idx0;
+		for (; _Idx < _Size && _Find_elem(_Atoms, _Val[_Idx]) < 10; ++_Idx)
+			;	// count digits
+		string_type _Val2(&_Val[_Idx0], (size_t)(_Idx - _Idx0));
+		if (_Val2.empty())	// replace empty digit string with '0'
+			_Val2.append((size_t)1, _Atoms[0]);
+
+		return (_Putmfld(_Dest, _Intl, _Iosbase, _Fill,
+			_Negative, _Val2, _Atoms[0]));
+		}
+
+private:
+	_OutIt _Putmfld(_OutIt _Dest,
+		bool _Intl, ios_base& _Iosbase, _Elem _Fill,
+			bool _Neg, string_type _Val, _Elem _E0) const
+		{	// put string_type with just digits to _Dest
+		_DEBUG_POINTER(_Dest);
+		const _Mpunct<_Elem> *_Ppunct_fac;
+		if (_Intl)
+			_Ppunct_fac =
+				&_USE(_Iosbase.getloc(), _Mypunct1);	// international
+		else
+			_Ppunct_fac =
+				&_USE(_Iosbase.getloc(), _Mypunct0);	// local
+
+		const string _Grouping = _Ppunct_fac->grouping();
+		int _Ifracdigits = _Ppunct_fac->frac_digits();
+		unsigned int _Fracdigits = _Ifracdigits < 0 ? -_Ifracdigits
+			: _Ifracdigits;
+
+		if (_Val.size() <= _Fracdigits)
+			_Val.insert((size_t)0, _Fracdigits - _Val.size() + 1, _E0);
+		else if (*_Grouping.c_str() != CHAR_MAX && '\0' < *_Grouping.c_str())
+			{	// grouping specified, add thousands separators
+			const _Elem _Kseparator = _Ppunct_fac->thousands_sep();
+			const char *_Pg = _Grouping.c_str();
+			size_t _Off = _Val.size() - _Fracdigits;	// start of fraction
+
+			while (*_Pg != CHAR_MAX && '\0' < *_Pg
+				&& (size_t)*_Pg < _Off)
+				{	// add a thousands separator, right to left
+				_Val.insert(_Off -= *_Pg, (size_t)1, _Kseparator);
+				if ('\0' < _Pg[1])
+					++_Pg;	// not last group, advance
+				}
+			}
+
+		money_base::pattern _Pattern;
+		string_type _Sign;
+		if (_Neg)
+			{	// negative value, choose appropriate format and sign
+			_Pattern = _Ppunct_fac->neg_format();
+			_Sign = _Ppunct_fac->negative_sign();
+			}
+		else
+			{	// positive value, choose appropriate format and sign
+			_Pattern = _Ppunct_fac->pos_format();
+			_Sign = _Ppunct_fac->positive_sign();
+			}
+
+		string_type _Symbol;
+		if (_Iosbase.flags() & ios_base::showbase)
+			_Symbol = _Ppunct_fac->curr_symbol();	// showbase ==> show $
+
+		bool _Intern = false;
+		size_t _Fillcount, _Off;
+		for (_Fillcount = 0, _Off = 0; _Off < 4; ++_Off)
+			switch (_Pattern.field[_Off])
+			{	// accumulate total length in _Fillcount
+			case money_base::symbol:	// count currency symbol size
+				_Fillcount += _Symbol.size();
+				break;
+
+			case money_base::sign:	// count sign size
+				_Fillcount += _Sign.size();
+				break;
+
+			case money_base::value:	// count value field size
+				_Fillcount += _Val.size() + (0 < _Fracdigits ? 1 : 0)
+					+ (_Val.size() <= _Fracdigits
+						? _Fracdigits - _Val.size() + 1 : 0);
+				break;
+
+			case money_base::space:	// count space size
+				++_Fillcount;	// at least one space
+				// fall through
+
+			case money_base::none:	// count space size
+				if (_Off != 3)
+					_Intern = true;	// optional internal fill
+				break;
+			}
+
+		_Fillcount = _Iosbase.width() <= 0
+			|| (size_t)_Iosbase.width() <= _Fillcount
+				? 0 : (size_t)_Iosbase.width() - _Fillcount;
+
+		ios_base::fmtflags _Afl =
+			_Iosbase.flags() & ios_base::adjustfield;
+		if (_Afl != ios_base::left
+			&& (_Afl != ios_base::internal || !_Intern))
+			{	// put leading fill
+			_Dest = _Rep(_Dest, _Fill, _Fillcount);
+			_Fillcount = 0;
+			}
+
+		for (_Off = 0; _Off < 4; ++_Off)
+			switch (_Pattern.field[_Off])
+				{	// put components as specified by _Pattern
+			case money_base::symbol:	// put currency symbol
+				_Dest = _Put(_Dest, _Symbol.begin(), _Symbol.size());
+				break;
+
+			case money_base::sign:	// put sign
+				if (0 < _Sign.size())
+					_Dest = _Put(_Dest, _Sign.begin(), 1);
+				break;
+
+			case money_base::value:	// put value field
+				if (_Fracdigits == 0)
+					_Dest = _Put(_Dest, _Val.begin(),
+						_Val.size());	// no fraction part
+				else if (_Val.size() <= _Fracdigits)
+					{	// put leading zero, all fraction digits
+					*_Dest++ = _E0;
+					*_Dest++ = _Ppunct_fac->decimal_point();
+					_Dest = _Rep(_Dest, _E0,
+						_Fracdigits - _Val.size());	// insert zeros
+					_Dest = _Put(_Dest, _Val.begin(), _Val.size());
+					}
+				else
+					{	// put both integer and fraction parts
+					_Dest = _Put(_Dest, _Val.begin(),
+						_Val.size() - _Fracdigits);	// put integer part
+					*_Dest++ = _Ppunct_fac->decimal_point();
+					_Dest = _Put(_Dest, _Val.end() - _Fracdigits,
+						_Fracdigits);	// put fraction part
+					}
+				break;
+
+			case money_base::space:	// put any internal fill
+				_Dest = _Rep(_Dest, _Fill, 1);
+				// fall through
+
+			case money_base::none:	// put any internal fill
+				if (_Afl == ios_base::internal)
+					{	// put internal fill
+					_Dest = _Rep(_Dest, _Fill, _Fillcount);
+					_Fillcount = 0;
+					}
+				}
+
+		if (1 < _Sign.size())
+			_Dest = _Put(_Dest, _Sign.begin() + 1,
+				_Sign.size() - 1);	// put remainder of sign
+		_Iosbase.width(0);
+		return (_Rep(_Dest, _Fill, _Fillcount));	// put trailing fill
+		}
+
+	static _OutIt _Put(_OutIt _Dest,
+		typename string_type::const_iterator _Source, size_t _Count)
+		{	// put [_Source, _Source + _Count) to _Dest
+		for (; 0 < _Count; --_Count, ++_Dest, ++_Source)
+			*_Dest = *_Source;
+		return (_Dest);
+		}
+
+	static _OutIt _Rep(_OutIt _Dest,
+		_Elem _Ch, size_t _Count)
+		{	// put _Count * _Ch to _Dest
+		for (; 0 < _Count; --_Count, ++_Dest)
+			*_Dest = _Ch;
+		return (_Dest);
+		}
+	};
+
+		// STATIC money_put::id OBJECT
+template<class _Elem,
+	class _OutIt>
+	__PURE_APPDOMAIN_GLOBAL locale::id money_put<_Elem, _OutIt>::id;
+
+ #if defined(_DLL_CPPLIB) && !defined(_M_CEE_PURE)
+
+  #if !defined(_CRTBLD) || defined(__FORCE_INSTANCE)
+template _PGLOBAL const bool moneypunct<char, true>::intl;
+template _PGLOBAL const bool moneypunct<char, false>::intl;
+template __PURE_APPDOMAIN_GLOBAL locale::id
+	moneypunct<char, true>::id;
+template __PURE_APPDOMAIN_GLOBAL locale::id
+	moneypunct<char, false>::id;
+template __PURE_APPDOMAIN_GLOBAL locale::id
+	money_get<char, istreambuf_iterator<char,
+		char_traits<char> > >::id;
+template __PURE_APPDOMAIN_GLOBAL locale::id
+	money_put<char, ostreambuf_iterator<char,
+		char_traits<char> > >::id;
+
+template _PGLOBAL const bool moneypunct<wchar_t, true>::intl;
+template _PGLOBAL const bool moneypunct<wchar_t, false>::intl;
+template __PURE_APPDOMAIN_GLOBAL locale::id
+	moneypunct<wchar_t, true>::id;
+template __PURE_APPDOMAIN_GLOBAL locale::id
+	moneypunct<wchar_t, false>::id;
+template __PURE_APPDOMAIN_GLOBAL locale::id
+	money_get<wchar_t, istreambuf_iterator<wchar_t,
+		char_traits<wchar_t> > >::id;
+template __PURE_APPDOMAIN_GLOBAL locale::id
+	money_put<wchar_t, ostreambuf_iterator<wchar_t,
+		char_traits<wchar_t> > >::id;
+  #endif /* !defined(_CRTBLD) || defined(__FORCE_INSTANCE) */
+
+  #ifdef __FORCE_INSTANCE
+template _PGLOBAL const bool moneypunct<unsigned short, true>::intl;
+template _PGLOBAL const bool moneypunct<unsigned short, false>::intl;
+template __PURE_APPDOMAIN_GLOBAL locale::id
+	moneypunct<unsigned short, true>::id;
+template __PURE_APPDOMAIN_GLOBAL locale::id
+	moneypunct<unsigned short, false>::id;
+template __PURE_APPDOMAIN_GLOBAL locale::id
+	money_get<unsigned short, istreambuf_iterator<unsigned short,
+		char_traits<unsigned short> > >::id;
+template __PURE_APPDOMAIN_GLOBAL locale::id
+	money_put<unsigned short, ostreambuf_iterator<unsigned short,
+		char_traits<unsigned short> > >::id;
+  #endif /* __FORCE_INSTANCE */
+ #endif /* defined(_DLL_CPPLIB) etc. */
+_STD_END
+
+ #pragma pop_macro("new")
+ #pragma warning(pop)
+ #pragma pack(pop)
+#endif /* RC_INVOKED */
+#endif /* _XLOCMON_ */
+
+/*
+ * Copyright (c) by P.J. Plauger. All rights reserved.
+ * Consult your license regarding permissions and restrictions.
+V6.50:0009 */

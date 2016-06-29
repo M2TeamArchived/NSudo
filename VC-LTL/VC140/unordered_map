@@ -1,0 +1,800 @@
+	// unordered_map standard header
+#pragma once
+#ifndef _UNORDERED_MAP_
+#define _UNORDERED_MAP_
+#ifndef RC_INVOKED
+#include <xhash>
+#include <tuple>
+
+ #pragma pack(push,_CRT_PACKING)
+ #pragma warning(push,3)
+ #pragma push_macro("new")
+ #undef new
+
+_STD_BEGIN
+		// TEMPLATE CLASS _Umap_traits
+template<class _Kty,	// key type
+	class _Ty,	// mapped type
+	class _Tr,	// comparator predicate type
+	class _Alloc,	// actual allocator type (should be value allocator)
+	bool _Mfl>	// true if multiple equivalent keys are permitted
+	class _Umap_traits
+		: public _Tr
+	{	// traits required to make _Hash behave like a map
+public:
+	typedef _Kty key_type;
+	typedef pair<const _Kty, _Ty> value_type;
+	typedef _Tr key_compare;
+	typedef _Alloc allocator_type;
+
+	enum
+		{	// make multi parameter visible as an enum constant
+		_Multi = _Mfl};
+
+	static const bool _Standard = true;
+
+	_Umap_traits(const _Tr& _Traits = _Tr())
+		: _Tr(_Traits)
+		{	// construct with specified comparator
+		}
+
+	class value_compare
+		{	// functor for comparing two element values
+	public:
+		typedef value_type first_argument_type;
+		typedef value_type second_argument_type;
+		typedef bool result_type;
+
+		bool operator()(const value_type& _Left,
+			const value_type& _Right) const
+			{	// test if _Left precedes _Right by comparing just keys
+			return (_Keycompobj(_Left.first, _Right.first));
+			}
+
+		value_compare(const key_compare& _Keycomparg)
+			: _Keycompobj(_Keycomparg)
+			{	// construct with specified predicate
+			}
+
+		key_compare _Keycompobj;
+		};
+
+	template<class _Ty1,
+		class _Ty2>
+		static const _Kty& _Kfn(const pair<_Ty1, _Ty2>& _Val)
+		{	// extract key from element value
+		return (_Val.first);
+		}
+
+	template<class _Ty1,
+		class _Ty2>
+		static const _Ty2& _Nonkfn(const pair<_Ty1, _Ty2>& _Val)
+		{	// extract non-key from element value
+		return (_Val.second);
+		}
+	};
+
+		// TEMPLATE CLASS unordered_map
+template<class _Kty,
+	class _Ty,
+	class _Hasher = hash<_Kty>,
+	class _Keyeq = equal_to<_Kty>,
+	class _Alloc = allocator<pair<const _Kty, _Ty> > >
+	class unordered_map
+		: public _Hash<_Umap_traits<_Kty, _Ty,
+			_Uhash_compare<_Kty, _Hasher, _Keyeq>, _Alloc, false> >
+	{	// hash table of {key, mapped} values, unique keys
+public:
+	typedef unordered_map<_Kty, _Ty, _Hasher, _Keyeq, _Alloc> _Myt;
+	typedef _Uhash_compare<_Kty, _Hasher, _Keyeq> _Mytraits;
+	typedef _Hash<_Umap_traits<_Kty, _Ty,
+		_Mytraits, _Alloc, false> > _Mybase;
+	typedef _Hasher hasher;
+	typedef _Kty key_type;
+	typedef _Ty mapped_type;
+	typedef _Keyeq key_equal;
+	typedef _Mytraits key_compare;	// extra
+
+//	typedef typename _Mybase::value_compare value_compare;
+	typedef typename _Mybase::allocator_type allocator_type;
+	typedef typename _Mybase::size_type size_type;
+	typedef typename _Mybase::difference_type difference_type;
+	typedef typename _Mybase::pointer pointer;
+	typedef typename _Mybase::const_pointer const_pointer;
+	typedef typename _Mybase::reference reference;
+	typedef typename _Mybase::const_reference const_reference;
+	typedef typename _Mybase::iterator iterator;
+	typedef typename _Mybase::const_iterator const_iterator;
+	typedef typename _Mybase::value_type value_type;
+
+	typedef typename _Mybase::iterator local_iterator;
+	typedef typename _Mybase::const_iterator const_local_iterator;
+
+	typedef typename _Mybase::_Alty _Alty;
+	typedef typename _Mybase::_Pairib _Pairib;
+
+	unordered_map()
+		: _Mybase(key_compare(), allocator_type())
+		{	// construct empty map from defaults
+		}
+
+	explicit unordered_map(const allocator_type& _Al)
+		: _Mybase(key_compare(), _Al)
+		{	// construct empty map from defaults, allocator
+		}
+
+	unordered_map(const _Myt& _Right)
+
+		: _Mybase(_Right,
+			_Right._List._Getal().select_on_container_copy_construction())
+
+
+		{	// construct map by copying _Right
+		}
+
+	unordered_map(const _Myt& _Right, const allocator_type& _Al)
+		: _Mybase(_Right, _Al)
+		{	// construct map by copying _Right, allocator
+		}
+
+	explicit unordered_map(size_type _Buckets)
+		: _Mybase(key_compare(), allocator_type())
+		{	// construct empty map from defaults, ignore initial size
+		_Mybase::rehash(_Buckets);
+		}
+
+	unordered_map(size_type _Buckets, const hasher& _Hasharg)
+		: _Mybase(key_compare(_Hasharg), allocator_type())
+		{	// construct empty map from hasher
+		_Mybase::rehash(_Buckets);
+		}
+
+	unordered_map(size_type _Buckets, const hasher& _Hasharg,
+		const _Keyeq& _Keyeqarg)
+		: _Mybase(key_compare(_Hasharg, _Keyeqarg), allocator_type())
+		{	// construct empty map from hasher and equality comparator
+		_Mybase::rehash(_Buckets);
+		}
+
+	unordered_map(size_type _Buckets, const hasher& _Hasharg,
+		const _Keyeq& _Keyeqarg, const allocator_type& _Al)
+		: _Mybase(key_compare(_Hasharg, _Keyeqarg), _Al)
+		{	// construct empty map from hasher and equality comparator
+		_Mybase::rehash(_Buckets);
+		}
+
+	template<class _Iter>
+		unordered_map(_Iter _First, _Iter _Last)
+		: _Mybase(key_compare(), allocator_type())
+		{	// construct map from sequence, defaults
+		_Mybase::insert(_First, _Last);
+		}
+
+	template<class _Iter>
+		unordered_map(_Iter _First, _Iter _Last,
+			size_type _Buckets)
+		: _Mybase(key_compare(), allocator_type())
+		{	// construct map from sequence, ignore initial size
+		_Mybase::rehash(_Buckets);
+		_Mybase::insert(_First, _Last);
+		}
+
+	template<class _Iter>
+		unordered_map(_Iter _First, _Iter _Last,
+			size_type _Buckets, const hasher& _Hasharg)
+		: _Mybase(key_compare(_Hasharg), allocator_type())
+		{	// construct map from sequence, comparator
+		_Mybase::rehash(_Buckets);
+		_Mybase::insert(_First, _Last);
+		}
+
+	template<class _Iter>
+		unordered_map(_Iter _First, _Iter _Last,
+			size_type _Buckets, const hasher& _Hasharg,
+			const _Keyeq& _Keyeqarg)
+		: _Mybase(key_compare(_Hasharg, _Keyeqarg), allocator_type())
+		{	// construct map from sequence, comparator, and allocator
+		_Mybase::rehash(_Buckets);
+		_Mybase::insert(_First, _Last);
+		}
+
+	template<class _Iter>
+		unordered_map(_Iter _First, _Iter _Last,
+			size_type _Buckets, const hasher& _Hasharg,
+			const _Keyeq& _Keyeqarg, const allocator_type& _Al)
+		: _Mybase(key_compare(_Hasharg, _Keyeqarg), _Al)
+		{	// construct map from sequence, comparator, and allocator
+		_Mybase::rehash(_Buckets);
+		_Mybase::insert(_First, _Last);
+		}
+
+	_Myt& operator=(const _Myt& _Right)
+		{	// assign by copying _Right
+		_Mybase::operator=(_Right);
+		return (*this);
+		}
+
+	unordered_map(_Myt&& _Right)
+		: _Mybase(_STD move(_Right), _STD move(_Right._List._Getal()))
+		{	// construct map by moving _Right
+		}
+
+	unordered_map(_Myt&& _Right, const allocator_type& _Al)
+		: _Mybase(_STD move(_Right), _Al)
+		{	// construct map by moving _Right, allocator
+		}
+
+	_Myt& operator=(_Myt&& _Right)
+		_NOEXCEPT_OP(_Alty::is_always_equal::value
+			&& is_nothrow_move_assignable<_Hasher>::value
+			&& is_nothrow_move_assignable<_Keyeq>::value)
+		{	// assign by moving _Right
+		_Mybase::operator=(_STD move(_Right));
+		return (*this);
+		}
+
+	mapped_type& operator[](key_type&& _Keyval)
+		{	// find element matching _Keyval or insert with default mapped
+		iterator _Where = _Mybase::lower_bound(_Keyval);
+		if (_Where == _Mybase::end())
+			_Where = _Mybase::emplace(
+				piecewise_construct,
+				_STD forward_as_tuple(_STD move(_Keyval)),
+				tuple<>()).first;
+		return (_Where->second);
+		}
+
+	void swap(_Myt& _Right)
+		_NOEXCEPT_OP(_Alty::is_always_equal::value
+			&& _NOEXCEPT_OP(_Swap_adl(_STD declval<_Hasher&>(),
+				_STD declval<_Hasher&>()))
+			&& _NOEXCEPT_OP(_Swap_adl(_STD declval<_Keyeq&>(),
+				_STD declval<_Keyeq&>())))
+		{	// exchange contents with non-movable _Right
+		_Mybase::swap(_Right);
+		}
+
+	template<class _Keyty,
+		class... _Mappedty>
+		_Pairib _Try_emplace(_Keyty&& _Keyval,
+			_Mappedty&&... _Mapval)
+		{	// fail if _Keyval present, else emplace
+		iterator _Where = _Mybase::find(_Keyval);
+		if (_Where == _Mybase::end())
+			return (_Mybase::emplace(
+				piecewise_construct,
+				_STD forward_as_tuple(_STD forward<_Keyty>(_Keyval)),
+				_STD forward_as_tuple(_STD forward<_Mappedty>(_Mapval)...)));
+		else
+			return (_Pairib(_Where, false));
+		}
+
+	template<class... _Mappedty>
+		_Pairib try_emplace(const key_type& _Keyval,
+			_Mappedty&&... _Mapval)
+		{	// fail if _Keyval present, else emplace
+		return (_Try_emplace(_Keyval, _STD forward<_Mappedty>(_Mapval)...));
+		}
+
+	template<class... _Mappedty>
+		iterator try_emplace(const_iterator, const key_type& _Keyval,
+			_Mappedty&&... _Mapval)
+		{	// fail if _Keyval present, else emplace, ignore hint
+		return (_Try_emplace(_Keyval,
+			_STD forward<_Mappedty>(_Mapval)...).first);
+		}
+
+	template<class... _Mappedty>
+		_Pairib try_emplace(key_type&& _Keyval,
+			_Mappedty&&... _Mapval)
+		{	// fail if _Keyval present, else emplace
+		return (_Try_emplace(_STD move(_Keyval),
+			_STD forward<_Mappedty>(_Mapval)...));
+		}
+
+	template<class... _Mappedty>
+		iterator try_emplace(const_iterator, key_type&& _Keyval,
+			_Mappedty&&... _Mapval)
+		{	// fail if _Keyval present, else emplace, ignore hint
+		return (_Try_emplace(_STD move(_Keyval),
+			_STD forward<_Mappedty>(_Mapval)...).first);
+		}
+
+	template<class _Keyty,
+		class _Mappedty>
+		_Pairib _Insert_or_assign(_Keyty&& _Keyval,
+			_Mappedty&& _Mapval)
+		{	// assign if _Keyval present, else insert
+		iterator _Where = _Mybase::find(_Keyval);
+		if (_Where == _Mybase::end())
+			return (_Mybase::emplace(
+				_STD forward<_Keyty>(_Keyval),
+				_STD forward<_Mappedty>(_Mapval)));
+		else
+			{	// _Keyval present, assign new value
+			_Where->second = _STD forward<_Mappedty>(_Mapval);
+			return (_Pairib(_Where, false));
+			}
+		}
+
+	template<class _Mappedty>
+		_Pairib insert_or_assign(const key_type& _Keyval,
+			_Mappedty&& _Mapval)
+		{	// assign if _Keyval present, else insert
+		return (_Insert_or_assign(_Keyval,
+			_STD forward<_Mappedty>(_Mapval)));
+		}
+
+	template<class _Mappedty>
+		iterator insert_or_assign(const_iterator, const key_type& _Keyval,
+			_Mappedty&& _Mapval)
+		{	// assign if _Keyval present, else insert, ignore hint
+		return (_Insert_or_assign(_Keyval,
+			_STD forward<_Mappedty>(_Mapval)).first);
+		}
+
+	template<class _Mappedty>
+		_Pairib insert_or_assign(key_type&& _Keyval,
+			_Mappedty&& _Mapval)
+		{	// assign if _Keyval present, else insert
+		return (_Insert_or_assign(_STD move(_Keyval),
+			_STD forward<_Mappedty>(_Mapval)));
+		}
+
+	template<class _Mappedty>
+		iterator insert_or_assign(const_iterator, key_type&& _Keyval,
+			_Mappedty&& _Mapval)
+		{	// assign if _Keyval present, else insert, ignore hint
+		return (_Insert_or_assign(_STD move(_Keyval),
+			_STD forward<_Mappedty>(_Mapval)).first);
+		}
+
+	unordered_map(_XSTD initializer_list<value_type> _Ilist)
+		: _Mybase(key_compare(), allocator_type())
+		{	// construct map from initializer_list, defaults
+		_Mybase::insert(_Ilist.begin(), _Ilist.end());
+		}
+
+	unordered_map(_XSTD initializer_list<value_type> _Ilist,
+		size_type _Buckets)
+		: _Mybase(key_compare(), allocator_type())
+		{	// construct map from initializer_list
+		_Mybase::rehash(_Buckets);
+		_Mybase::insert(_Ilist.begin(), _Ilist.end());
+		}
+
+	unordered_map(_XSTD initializer_list<value_type> _Ilist,
+		size_type _Buckets, const hasher& _Hasharg)
+		: _Mybase(key_compare(_Hasharg), allocator_type())
+		{	// construct map from initializer_list, hasher
+		_Mybase::rehash(_Buckets);
+		_Mybase::insert(_Ilist.begin(), _Ilist.end());
+		}
+
+	unordered_map(_XSTD initializer_list<value_type> _Ilist,
+		size_type _Buckets, const hasher& _Hasharg,
+			const _Keyeq& _Keyeqarg)
+		: _Mybase(key_compare(_Hasharg, _Keyeqarg), allocator_type())
+		{	// construct map from initializer_list, comparator
+		_Mybase::rehash(_Buckets);
+		_Mybase::insert(_Ilist.begin(), _Ilist.end());
+		}
+
+	unordered_map(_XSTD initializer_list<value_type> _Ilist,
+		size_type _Buckets, const hasher& _Hasharg,
+			const _Keyeq& _Keyeqarg, const allocator_type& _Al)
+		: _Mybase(key_compare(_Hasharg, _Keyeqarg), _Al)
+		{	// construct map from initializer_list, allocator
+		_Mybase::rehash(_Buckets);
+		_Mybase::insert(_Ilist.begin(), _Ilist.end());
+		}
+
+	_Myt& operator=(_XSTD initializer_list<value_type> _Ilist)
+		{	// assign initializer_list
+		_Mybase::clear();
+		_Mybase::insert(_Ilist.begin(), _Ilist.end());
+		return (*this);
+		}
+
+//	void insert(_XSTD initializer_list<value_type> _Ilist)
+//		{	// insert initializer_list
+//		_Mybase::insert(_Ilist.begin(), _Ilist.end());
+//		}
+
+	hasher hash_function() const
+		{	// return hasher object
+		return (_Mybase::_Traitsobj._Gethash());
+		}
+
+	key_equal key_eq() const
+		{	// return equality comparator object
+		return (_Mybase::_Traitsobj._Getkeyeq());
+		}
+
+	mapped_type& operator[](const key_type& _Keyval)
+		{	// find element matching _Keyval or insert with default mapped
+		iterator _Where = _Mybase::lower_bound(_Keyval);
+		if (_Where == _Mybase::end())
+
+			_Where = _Mybase::emplace(
+				piecewise_construct,
+				_STD forward_as_tuple(_Keyval),
+				tuple<>()).first;
+
+		return (_Where->second);
+		}
+
+	mapped_type& at(const key_type& _Keyval)
+		{	// find element matching _Keyval
+		iterator _Where = _Mybase::lower_bound(_Keyval);
+		if (_Where == _Mybase::end())
+			_Xout_of_range("invalid unordered_map<K, T> key");
+		return (_Where->second);
+		}
+
+	const mapped_type& at(const key_type& _Keyval) const
+		{	// find element matching _Keyval
+		const_iterator _Where = _Mybase::lower_bound(_Keyval);
+		if (_Where == _Mybase::end())
+			_Xout_of_range("invalid unordered_map<K, T> key");
+		return (_Where->second);
+		}
+	};
+
+template<class _Kty,
+	class _Ty,
+	class _Hasher,
+	class _Keyeq,
+	class _Alloc>
+	void swap(unordered_map<_Kty, _Ty, _Hasher, _Keyeq, _Alloc>& _Left,
+		unordered_map<_Kty, _Ty, _Hasher, _Keyeq, _Alloc>& _Right)
+		_NOEXCEPT_OP(_NOEXCEPT_OP(_Left.swap(_Right)))
+	{	// swap _Left and _Right unordered_maps
+	_Left.swap(_Right);
+	}
+
+template<class _Kty,
+	class _Ty,
+	class _Hasher,
+	class _Keyeq,
+	class _Alloc> inline
+	bool operator==(
+		const unordered_map<_Kty, _Ty, _Hasher, _Keyeq, _Alloc>& _Left,
+		const unordered_map<_Kty, _Ty, _Hasher, _Keyeq, _Alloc>& _Right)
+	{	// test for unordered_map equality
+	return (_Hash_equal(_Left, _Right));
+	}
+
+template<class _Kty,
+	class _Ty,
+	class _Hasher,
+	class _Keyeq,
+	class _Alloc> inline
+	bool operator!=(
+		const unordered_map<_Kty, _Ty, _Hasher, _Keyeq, _Alloc>& _Left,
+		const unordered_map<_Kty, _Ty, _Hasher, _Keyeq, _Alloc>& _Right)
+	{	// test for unordered_map inequality
+	return (!(_Left == _Right));
+	}
+
+		// TEMPLATE CLASS unordered_multimap
+template<class _Kty,
+	class _Ty,
+	class _Hasher = hash<_Kty>,
+	class _Keyeq = equal_to<_Kty>,
+	class _Alloc = allocator<pair<const _Kty, _Ty> > >
+	class unordered_multimap
+		: public _Hash<_Umap_traits<_Kty, _Ty,
+			_Uhash_compare<_Kty, _Hasher, _Keyeq>, _Alloc, true> >
+	{	// hash table of {key, mapped} values, non-unique keys
+public:
+	typedef unordered_multimap<_Kty, _Ty, _Hasher, _Keyeq, _Alloc> _Myt;
+	typedef _Uhash_compare<_Kty, _Hasher, _Keyeq> _Mytraits;
+	typedef _Hash<_Umap_traits<_Kty, _Ty,
+		_Mytraits, _Alloc, true> > _Mybase;
+	typedef _Hasher hasher;
+	typedef _Kty key_type;
+	typedef _Ty mapped_type;
+	typedef _Keyeq key_equal;
+	typedef _Mytraits key_compare;	// extra
+
+//	typedef typename _Mybase::value_compare value_compare;
+	typedef typename _Mybase::allocator_type allocator_type;
+	typedef typename _Mybase::size_type size_type;
+	typedef typename _Mybase::difference_type difference_type;
+	typedef typename _Mybase::pointer pointer;
+	typedef typename _Mybase::const_pointer const_pointer;
+	typedef typename _Mybase::reference reference;
+	typedef typename _Mybase::const_reference const_reference;
+	typedef typename _Mybase::iterator iterator;
+	typedef typename _Mybase::const_iterator const_iterator;
+	typedef typename _Mybase::value_type value_type;
+
+	typedef typename _Mybase::iterator local_iterator;
+	typedef typename _Mybase::const_iterator const_local_iterator;
+
+	typedef typename _Mybase::_Alty _Alty;
+
+	unordered_multimap()
+		: _Mybase(key_compare(), allocator_type())
+		{	// construct empty map from defaults
+		}
+
+	explicit unordered_multimap(const allocator_type& _Al)
+		: _Mybase(key_compare(), _Al)
+		{	// construct empty map from defaults, allocator
+		}
+
+	unordered_multimap(const _Myt& _Right)
+
+		: _Mybase(_Right,
+			_Right._List._Getal().select_on_container_copy_construction())
+
+
+		{	// construct map by copying _Right
+		}
+
+	unordered_multimap(const _Myt& _Right, const allocator_type& _Al)
+		: _Mybase(_Right, _Al)
+		{	// construct map by copying _Right, allocator
+		}
+
+	explicit unordered_multimap(size_type _Buckets)
+		: _Mybase(key_compare(), allocator_type())
+		{	// construct empty map from defaults, ignore initial size
+		_Mybase::rehash(_Buckets);
+		}
+
+	unordered_multimap(size_type _Buckets, const hasher& _Hasharg)
+		: _Mybase(key_compare(_Hasharg), allocator_type())
+		{	// construct empty map from hasher
+		_Mybase::rehash(_Buckets);
+		}
+
+	unordered_multimap(size_type _Buckets, const hasher& _Hasharg,
+		const _Keyeq& _Keyeqarg)
+		: _Mybase(key_compare(_Hasharg, _Keyeqarg), allocator_type())
+		{	// construct empty map from hasher and equality comparator
+		_Mybase::rehash(_Buckets);
+		}
+
+	unordered_multimap(size_type _Buckets, const hasher& _Hasharg,
+		const _Keyeq& _Keyeqarg, const allocator_type& _Al)
+		: _Mybase(key_compare(_Hasharg, _Keyeqarg), _Al)
+		{	// construct empty map from hasher and equality comparator
+		_Mybase::rehash(_Buckets);
+		}
+
+	template<class _Iter>
+		unordered_multimap(_Iter _First, _Iter _Last)
+		: _Mybase(key_compare(), allocator_type())
+		{	// construct map from sequence, defaults
+		_Mybase::insert(_First, _Last);
+		}
+
+	template<class _Iter>
+		unordered_multimap(_Iter _First, _Iter _Last,
+			size_type _Buckets)
+		: _Mybase(key_compare(), allocator_type())
+		{	// construct map from sequence, defaults, ignore initial size
+		_Mybase::rehash(_Buckets);
+		_Mybase::insert(_First, _Last);
+		}
+
+	template<class _Iter>
+		unordered_multimap(_Iter _First, _Iter _Last,
+			size_type _Buckets, const hasher& _Hasharg)
+		: _Mybase(key_compare(_Hasharg), allocator_type())
+		{	// construct map from sequence, comparator
+		_Mybase::rehash(_Buckets);
+		_Mybase::insert(_First, _Last);
+		}
+
+	template<class _Iter>
+		unordered_multimap(_Iter _First, _Iter _Last,
+			size_type _Buckets, const hasher& _Hasharg,
+			const _Keyeq& _Keyeqarg)
+		: _Mybase(key_compare(_Hasharg, _Keyeqarg), allocator_type())
+		{	// construct map from sequence, comparator, and allocator
+		_Mybase::rehash(_Buckets);
+		_Mybase::insert(_First, _Last);
+		}
+
+	template<class _Iter>
+		unordered_multimap(_Iter _First, _Iter _Last,
+			size_type _Buckets, const hasher& _Hasharg,
+			const _Keyeq& _Keyeqarg, const allocator_type& _Al)
+		: _Mybase(key_compare(_Hasharg, _Keyeqarg), _Al)
+		{	// construct map from sequence, comparator, and allocator
+		_Mybase::rehash(_Buckets);
+		_Mybase::insert(_First, _Last);
+		}
+
+	_Myt& operator=(const _Myt& _Right)
+		{	// assign by copying _Right
+		_Mybase::operator=(_Right);
+		return (*this);
+		}
+
+	unordered_multimap(_Myt&& _Right)
+		: _Mybase(_STD move(_Right), _STD move(_Right._List._Getal()))
+		{	// construct map by moving _Right
+		}
+
+	unordered_multimap(_Myt&& _Right, const allocator_type& _Al)
+		: _Mybase(_STD move(_Right), _Al)
+		{	// construct map by moving _Right, allocator
+		}
+
+	_Myt& operator=(_Myt&& _Right)
+		_NOEXCEPT_OP(_Alty::is_always_equal::value
+			&& is_nothrow_move_assignable<_Hasher>::value
+			&& is_nothrow_move_assignable<_Keyeq>::value)
+		{	// assign by moving _Right
+		_Mybase::operator=(_STD move(_Right));
+		return (*this);
+		}
+
+	template<class _Valty>
+		typename enable_if<is_convertible<_Valty, value_type>::value,
+			iterator>::type
+		insert(_Valty&& _Val)
+		{	// insert a {key, mapped} value
+		return (_Mybase::insert(_STD forward<_Valty>(_Val)).first);
+		}
+
+	template<class _Valty>
+		typename enable_if<is_convertible<_Valty, value_type>::value,
+			iterator>::type
+		insert(const_iterator _Where, _Valty&& _Val)
+		{	// insert a {key, mapped} value, with hint
+		return (_Mybase::insert(_Where, _STD forward<_Valty>(_Val)));
+		}
+
+	template<class... _Valty>
+		iterator emplace(_Valty&&... _Val)
+		{	// try to insert value_type(_Val...), favoring right side
+		return (_Mybase::emplace(_STD forward<_Valty>(_Val)...).first);
+		}
+
+
+	void swap(_Myt& _Right)
+		_NOEXCEPT_OP(_Alty::is_always_equal::value
+			&& _NOEXCEPT_OP(_Swap_adl(_STD declval<_Hasher&>(),
+				_STD declval<_Hasher&>()))
+			&& _NOEXCEPT_OP(_Swap_adl(_STD declval<_Keyeq&>(),
+				_STD declval<_Keyeq&>())))
+		{	// exchange contents with non-movable _Right
+		_Mybase::swap(_Right);
+		}
+
+	unordered_multimap(_XSTD initializer_list<value_type> _Ilist)
+		: _Mybase(key_compare(), allocator_type())
+		{	// construct map from initializer_list, defaults
+		_Mybase::insert(_Ilist.begin(), _Ilist.end());
+		}
+
+	unordered_multimap(_XSTD initializer_list<value_type> _Ilist,
+		size_type _Buckets)
+		: _Mybase(key_compare(), allocator_type())
+		{	// construct map from initializer_list
+		_Mybase::rehash(_Buckets);
+		_Mybase::insert(_Ilist.begin(), _Ilist.end());
+		}
+
+	unordered_multimap(_XSTD initializer_list<value_type> _Ilist,
+		size_type _Buckets, const hasher& _Hasharg)
+		: _Mybase(key_compare(_Hasharg), allocator_type())
+		{	// construct map from initializer_list, hasher
+		_Mybase::rehash(_Buckets);
+		_Mybase::insert(_Ilist.begin(), _Ilist.end());
+		}
+
+	unordered_multimap(_XSTD initializer_list<value_type> _Ilist,
+		size_type _Buckets, const hasher& _Hasharg,
+			const _Keyeq& _Keyeqarg)
+		: _Mybase(key_compare(_Hasharg, _Keyeqarg), allocator_type())
+		{	// construct map from initializer_list, comparator
+		_Mybase::rehash(_Buckets);
+		_Mybase::insert(_Ilist.begin(), _Ilist.end());
+		}
+
+	unordered_multimap(_XSTD initializer_list<value_type> _Ilist,
+		size_type _Buckets, const hasher& _Hasharg,
+			const _Keyeq& _Keyeqarg, const allocator_type& _Al)
+		: _Mybase(key_compare(_Hasharg, _Keyeqarg), _Al)
+		{	// construct map from initializer_list, allocator
+		_Mybase::rehash(_Buckets);
+		_Mybase::insert(_Ilist.begin(), _Ilist.end());
+		}
+
+	_Myt& operator=(_XSTD initializer_list<value_type> _Ilist)
+		{	// assign initializer_list
+		_Mybase::clear();
+		_Mybase::insert(_Ilist.begin(), _Ilist.end());
+		return (*this);
+		}
+
+	void insert(_XSTD initializer_list<value_type> _Ilist)
+		{	// insert initializer_list
+		_Mybase::insert(_Ilist.begin(), _Ilist.end());
+		}
+
+	hasher hash_function() const
+		{	// return hasher object
+		return (_Mybase::_Traitsobj._Gethash());
+		}
+
+	key_equal key_eq() const
+		{	// return equality comparator object
+		return (_Mybase::_Traitsobj._Getkeyeq());
+		}
+
+	iterator insert(const value_type& _Val)
+		{	// insert a {key, mapped} value
+		return (_Mybase::insert(_Val).first);
+		}
+
+	iterator insert(const_iterator _Where, const value_type& _Val)
+		{	// insert a {key, mapped} value, with hint
+		return (_Mybase::insert(_Where, _Val));
+		}
+
+	template<class _Iter>
+		void insert(_Iter _First, _Iter _Last)
+		{	// insert [_First, _Last), arbitrary iterators
+		_Mybase::insert(_First, _Last);
+		}
+	};
+
+template<class _Kty,
+	class _Ty,
+	class _Hasher,
+	class _Keyeq,
+	class _Alloc>
+	void swap(unordered_multimap<_Kty, _Ty, _Hasher, _Keyeq, _Alloc>& _Left,
+		unordered_multimap<_Kty, _Ty, _Hasher, _Keyeq, _Alloc>& _Right)
+		_NOEXCEPT_OP(_NOEXCEPT_OP(_Left.swap(_Right)))
+	{	// swap _Left and _Right unordered_multimaps
+	_Left.swap(_Right);
+	}
+
+template<class _Kty,
+	class _Ty,
+	class _Hasher,
+	class _Keyeq,
+	class _Alloc> inline
+	bool operator==(
+		const unordered_multimap<_Kty, _Ty, _Hasher, _Keyeq, _Alloc>& _Left,
+		const unordered_multimap<_Kty, _Ty, _Hasher, _Keyeq, _Alloc>& _Right)
+	{	// test for unordered_multimap equality
+	return (_Hash_equal(_Left, _Right));
+	}
+
+template<class _Kty,
+	class _Ty,
+	class _Hasher,
+	class _Keyeq,
+	class _Alloc> inline
+	bool operator!=(
+		const unordered_multimap<_Kty, _Ty, _Hasher, _Keyeq, _Alloc>& _Left,
+		const unordered_multimap<_Kty, _Ty, _Hasher, _Keyeq, _Alloc>& _Right)
+	{	// test for unordered_multimap inequality
+	return (!(_Left == _Right));
+	}
+
+namespace tr1 {	// TR1 IMPORTS
+using _STD unordered_map;
+using _STD unordered_multimap;
+}	// namespace tr1
+_STD_END
+ #pragma pop_macro("new")
+ #pragma warning(pop)
+ #pragma pack(pop)
+#endif /* RC_INVOKED */
+#endif /* _UNORDERED_MAP_ */
+
+/*
+ * Copyright (c) by P.J. Plauger. All rights reserved.
+ * Consult your license regarding permissions and restrictions.
+V6.50:0009 */

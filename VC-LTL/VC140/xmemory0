@@ -1,0 +1,1040 @@
+// xmemory0 internal header (from <memory>)
+#pragma once
+#ifndef _XMEMORY0_
+#define _XMEMORY0_
+#ifndef RC_INVOKED
+#include <cstdint>	/* for uintptr_t */
+#include <cstdlib>
+#include <limits>
+#include <new>
+#include <xutility>
+
+ #pragma pack(push,_CRT_PACKING)
+ #pragma warning(push,3)
+ #pragma push_macro("new")
+ #undef new
+
+ #if !defined(_DECLSPEC_ALLOCATOR)
+
+  #if 1900 <= _MSC_VER && !defined(__EDG__)
+   #define _DECLSPEC_ALLOCATOR	__declspec(allocator)
+
+  #else /* 1900 <= _MSC_VER, etc. */
+   #define _DECLSPEC_ALLOCATOR
+  #endif /* 1900 <= _MSC_VER, etc. */
+ #endif /* !defined(_DECLSPEC_ALLOCATOR) */
+
+ #pragma warning(disable: 4100)
+
+_STD_BEGIN
+#define _BIG_ALLOCATION_THRESHOLD	4096
+#define _BIG_ALLOCATION_ALIGNMENT	32
+
+ #ifdef _DEBUG
+#define _NON_USER_SIZE (2 * sizeof(void *) + _BIG_ALLOCATION_ALIGNMENT - 1)
+
+ #else /* _DEBUG */
+#define _NON_USER_SIZE (sizeof(void *) + _BIG_ALLOCATION_ALIGNMENT - 1)
+ #endif /* _DEBUG */
+
+ #ifdef _DEBUG
+
+  #if defined(_WIN64)
+#define _BIG_ALLOCATION_SENTINEL	0xFAFAFAFAFAFAFAFAULL
+
+  #else /* defined(_WIN64) */
+#define _BIG_ALLOCATION_SENTINEL	0xFAFAFAFAUL
+  #endif /* defined(_WIN64) */
+ #endif /* _DEBUG */
+
+		// TEMPLATE FUNCTION _Allocate
+template<class _Ty> inline
+	_DECLSPEC_ALLOCATOR _Ty *_Allocate(size_t _Count, _Ty *,
+		bool _Try_aligned_allocation = true)
+	{	// allocate storage for _Count elements of type _Ty
+	void *_Ptr = 0;
+
+	if (_Count == 0)
+		return (static_cast<_Ty *>(_Ptr));
+
+	// check overflow of multiply
+	//if ((size_t)(-1) / sizeof (_Ty) < _Count)
+	//	_Xbad_alloc();	// report no memory
+	const size_t _User_size = _Count * sizeof (_Ty);
+
+ #if defined(_M_IX86) || defined(_M_X64)
+	if (_Try_aligned_allocation
+		&& _BIG_ALLOCATION_THRESHOLD <= _User_size)
+		{	// allocate large block
+		//static_assert(sizeof (void *) < _BIG_ALLOCATION_ALIGNMENT,
+		//	"Big allocations should at least match vector register size");
+		const size_t _Block_size = _NON_USER_SIZE + _User_size;
+		//if (_Block_size <= _User_size)
+		//	_Xbad_alloc();	// report no memory
+		const uintptr_t _Ptr_container =
+			reinterpret_cast<uintptr_t>(::operator new(_Block_size));
+		_SCL_SECURE_ALWAYS_VALIDATE(_Ptr_container != 0);
+		_Ptr = reinterpret_cast<void *>((_Ptr_container + _NON_USER_SIZE)
+			& ~(_BIG_ALLOCATION_ALIGNMENT - 1));
+		static_cast<uintptr_t *>(_Ptr)[-1] = _Ptr_container;
+
+ #ifdef _DEBUG
+		static_cast<uintptr_t *>(_Ptr)[-2] = _BIG_ALLOCATION_SENTINEL;
+ #endif /* _DEBUG */
+		}
+	else
+ #endif /* defined(_M_IX86) || defined(_M_X64) */
+
+		{	// allocate normal block
+		_Ptr = ::operator new(_User_size);
+		_SCL_SECURE_ALWAYS_VALIDATE(_Ptr != 0);
+		}
+	return (static_cast<_Ty *>(_Ptr));
+	}
+
+		// TEMPLATE FUNCTION _Deallocate
+template<class _Ty> inline
+	void _Deallocate(_Ty * _Ptr, size_t _Count)
+	{	// deallocate storage for _Count elements of type _Ty
+ #if defined(_M_IX86) || defined(_M_X64)
+	_SCL_SECURE_ALWAYS_VALIDATE(_Count <= (size_t)(-1) / sizeof (_Ty));
+	const size_t _User_size = _Count * sizeof (_Ty);
+	if (_BIG_ALLOCATION_THRESHOLD <= _User_size)
+		{	// deallocate large block
+		const uintptr_t _Ptr_user = reinterpret_cast<uintptr_t>(_Ptr);
+		_SCL_SECURE_ALWAYS_VALIDATE(
+			(_Ptr_user & (_BIG_ALLOCATION_ALIGNMENT - 1)) == 0);
+		const uintptr_t _Ptr_ptr = _Ptr_user - sizeof(void *);
+		const uintptr_t _Ptr_container =
+			*reinterpret_cast<uintptr_t *>(_Ptr_ptr);
+
+ #ifdef _DEBUG
+		// If the following asserts, it likely means that we are performing
+		// an aligned delete on memory coming from an unaligned allocation.
+		_SCL_SECURE_ALWAYS_VALIDATE(
+			reinterpret_cast<uintptr_t *>(_Ptr_ptr)[-1] ==
+				_BIG_ALLOCATION_SENTINEL);
+ #endif /* _DEBUG */
+
+		// Extra paranoia on aligned allocation/deallocation
+		_SCL_SECURE_ALWAYS_VALIDATE(_Ptr_container < _Ptr_user);
+
+ #ifdef _DEBUG
+		_SCL_SECURE_ALWAYS_VALIDATE(2 * sizeof(void *)
+			<= _Ptr_user - _Ptr_container);
+
+ #else /* _DEBUG */
+		_SCL_SECURE_ALWAYS_VALIDATE(sizeof(void *)
+			<= _Ptr_user - _Ptr_container);
+ #endif /* _DEBUG */
+
+		_SCL_SECURE_ALWAYS_VALIDATE(_Ptr_user - _Ptr_container
+			<= _NON_USER_SIZE);
+
+		_Ptr = reinterpret_cast<_Ty *>(_Ptr_container);
+		}
+ #endif /* defined(_M_IX86) || defined(_M_X64) */
+
+	::operator delete(_Ptr);
+	}
+
+		// TEMPLATE FUNCTION _Construct
+template<class _Ty1,
+	class _Ty2> inline
+	void _Construct(_Ty1 *_Ptr, _Ty2&& _Val)
+	{	// construct object at _Ptr with value _Val
+	void *_Vptr = _Ptr;
+	::new (_Vptr) _Ty1(_STD forward<_Ty2>(_Val));
+	}
+
+template<class _Ty1> inline
+	void _Construct(_Ty1 *_Ptr)
+	{	// construct object at _Ptr with default value
+	void *_Vptr = _Ptr;
+
+	::new (_Vptr) _Ty1();
+	}
+
+		// TEMPLATE FUNCTION _Destroy
+template<class _Ty> inline
+	void _Destroy(_Ty *_Ptr)
+	{	// destroy object at _Ptr
+	_Ptr->~_Ty();
+	}
+
+		// TEMPLATE FUNCTION _Destroy_range
+template<class _Alloc> inline
+	void _Destroy_range(typename _Alloc::pointer _First,
+		typename _Alloc::pointer _Last, _Alloc& _Al,
+		_Nonscalar_ptr_iterator_tag)
+	{	// destroy [_First, _Last), arbitrary type
+	for (; _First != _Last; ++_First)
+		_Al.destroy(_STD addressof(*_First));
+	}
+
+template<class _Alloc> inline
+	void _Destroy_range(typename _Alloc::pointer _First,
+		typename _Alloc::pointer _Last, _Alloc& _Al,
+		_Scalar_ptr_iterator_tag)
+	{	// destroy [_First, _Last), scalar type (do nothing)
+	}
+
+template<class _Alloc> inline
+	void _Destroy_range(typename _Alloc::pointer _First,
+		typename _Alloc::pointer _Last, _Alloc& _Al)
+	{	// destroy [_First, _Last)
+	_Destroy_range(_First, _Last, _Al, _Ptr_cat(_First, _Last));
+	}
+
+		// TEMPLATE CLASS _Is_simple_alloc
+template<class _Alty>
+	struct _Is_simple_alloc
+		: _Cat_base<is_same<typename _Alty::size_type, size_t>::value
+		&& is_same<typename _Alty::difference_type, ptrdiff_t>::value
+		&& is_same<typename _Alty::pointer,
+			typename _Alty::value_type *>::value
+		&& is_same<typename _Alty::const_pointer,
+			const typename _Alty::value_type *>::value
+		&& is_same<typename _Alty::reference,
+			typename _Alty::value_type&>::value
+		&& is_same<typename _Alty::const_reference,
+			const typename _Alty::value_type&>::value>
+	{	// tests if allocator has simple addressing
+	};
+
+		// TEMPLATE CLASS _Simple_types
+template<class _Value_type>
+	struct _Simple_types
+	{	// wraps types needed by iterators
+	typedef _Value_type value_type;
+	typedef size_t size_type;
+	typedef ptrdiff_t difference_type;
+	typedef value_type *pointer;
+	typedef const value_type *const_pointer;
+	typedef value_type& reference;
+	typedef const value_type& const_reference;
+	};
+
+		// TEMPLATE CLASS _Get_voidptr
+template<class _Alty,
+	class _Pointer>
+	struct _Get_voidptr
+	{	// get void pointer for allocator
+	typedef typename _Alty::template rebind<void>::other _Alvoid;
+	typedef typename _Alvoid::pointer type;
+	};
+
+template<class _Alty,
+	class _Ty>
+	struct _Get_voidptr<_Alty, _Ty *>
+	{	// get raw void pointer for allocator
+	typedef void *type;
+	};
+
+		// TEMPLATE STRUCT _Get_first_parameter
+template<class _Ty>
+	struct _Get_first_parameter;
+
+template<template<class, class...> class _Ty,
+	class _First,
+	class... _Rest>
+	struct _Get_first_parameter<_Ty<_First, _Rest...> >
+	{	// given _Ty<_First, _Rest...>, extract _First
+	typedef _First type;
+	};
+
+		// TEMPLATE STRUCT _Replace_first_parameter
+template<class _Newfirst,
+	class _Ty>
+	struct _Replace_first_parameter;
+
+template<class _Newfirst,
+	template<class, class...> class _Ty,
+	class _First,
+	class... _Rest>
+	struct _Replace_first_parameter<_Newfirst, _Ty<_First, _Rest...> >
+	{	// given _Ty<_First, _Rest...>, replace _First
+	typedef _Ty<_Newfirst, _Rest...> type;
+	};
+
+		// TEMPLATE STRUCT _Get_element_type
+template<class _Ty>
+	struct _Get_element_type
+	_GET_TYPE_OR_DEFAULT(element_type,
+		typename _Get_first_parameter<_Uty>::type);
+
+		// TEMPLATE STRUCT _Get_ptr_difference_type
+template<class _Ty>
+	struct _Get_ptr_difference_type
+	_GET_TYPE_OR_DEFAULT(difference_type,
+		ptrdiff_t);
+
+		// TEMPLATE STRUCT _Get_rebind_type
+template<class _Ty,
+	class _Other>
+	struct _Get_rebind_type
+	_GET_TYPE_OR_DEFAULT(template rebind<_Other>::other,
+		typename _Replace_first_parameter<_Other _COMMA _Uty>::type);
+
+		// TEMPLATE CLASS pointer_traits
+template<class _Ty>
+	struct pointer_traits
+	{	// defines traits for arbitrary pointers
+	typedef typename _Get_element_type<_Ty>::type element_type;
+	typedef _Ty pointer;
+	typedef typename _Get_ptr_difference_type<_Ty>::type difference_type;
+
+	template<class _Other>
+		using rebind = typename _Get_rebind_type<_Ty, _Other>::type;
+
+	typedef typename _If<is_void<element_type>::value,
+		char&,
+		typename add_lvalue_reference<element_type>::type>::type _Reftype;
+
+	static pointer pointer_to(_Reftype _Val)
+		{	// convert raw reference to pointer
+		return (_Ty::pointer_to(_Val));
+		}
+	};
+
+		// TEMPLATE CLASS pointer_traits<_Ty *>
+template<class _Ty>
+	struct pointer_traits<_Ty *>
+	{	// defines traits for raw pointers
+	typedef _Ty element_type;
+	typedef _Ty *pointer;
+	typedef ptrdiff_t difference_type;
+
+	template<class _Other>
+		using rebind = _Other *;
+
+	typedef typename _If<is_void<_Ty>::value,
+		char&,
+		typename add_lvalue_reference<_Ty>::type>::type _Reftype;
+
+	static pointer pointer_to(_Reftype _Val)
+		{	// convert raw reference to pointer
+		return (_STD addressof(_Val));
+		}
+	};
+
+		// TEMPLATE STRUCT _Get_pointer_type
+template<class _Ty>
+	struct _Get_pointer_type
+	_GET_TYPE_OR_DEFAULT(pointer,
+		typename _Ty::value_type *);
+
+		// TEMPLATE STRUCT _Get_const_pointer_type
+template<class _Ty>
+	struct _Get_const_pointer_type
+	_GET_TYPE_OR_DEFAULT(const_pointer,
+		typename pointer_traits<typename _Get_pointer_type<_Ty>::type>
+			::template rebind<const typename _Ty::value_type>);
+
+		// TEMPLATE STRUCT _Get_void_pointer_type
+template<class _Ty>
+	struct _Get_void_pointer_type
+	_GET_TYPE_OR_DEFAULT(void_pointer,
+		typename pointer_traits<typename _Get_pointer_type<_Ty>::type>
+			::template rebind<void>);
+
+		// TEMPLATE STRUCT _Get_const_void_pointer_type
+template<class _Ty>
+	struct _Get_const_void_pointer_type
+	_GET_TYPE_OR_DEFAULT(const_void_pointer,
+		typename pointer_traits<typename _Get_pointer_type<_Ty>::type>
+			::template rebind<const void>);
+
+		// TEMPLATE STRUCT _Get_difference_type
+template<class _Ty>
+	struct _Get_difference_type
+	_GET_TYPE_OR_DEFAULT(difference_type,
+		typename _Get_ptr_difference_type<
+			typename _Get_pointer_type<_Ty>::type>::type);
+
+		// TEMPLATE STRUCT _Get_size_type
+template<class _Ty>
+	struct _Get_size_type
+	_GET_TYPE_OR_DEFAULT(size_type,
+		typename make_unsigned<
+			typename _Get_difference_type<_Ty>::type>::type);
+
+		// TEMPLATE STRUCT _Get_propagate_on_container_copy
+template<class _Ty>
+	struct _Get_propagate_on_container_copy
+	_GET_TYPE_OR_DEFAULT(propagate_on_container_copy_assignment,
+		false_type);
+
+		// TEMPLATE STRUCT _Get_propagate_on_container_move
+template<class _Ty>
+	struct _Get_propagate_on_container_move
+	_GET_TYPE_OR_DEFAULT(propagate_on_container_move_assignment,
+		false_type);
+
+		// TEMPLATE STRUCT _Get_propagate_on_container_swap
+template<class _Ty>
+	struct _Get_propagate_on_container_swap
+	_GET_TYPE_OR_DEFAULT(propagate_on_container_swap,
+		false_type);
+
+		// TEMPLATE STRUCT _Get_is_always_equal
+template<class _Ty>
+	struct _Get_is_always_equal
+	_GET_TYPE_OR_DEFAULT(is_always_equal,
+		typename is_empty<_Ty>::type);
+
+		// STRUCT _Alloc_allocate
+struct _Alloc_allocate
+	{	// determines allocator_traits<_Alloc>
+		// ::allocate(size_type, const_void_pointer)
+
+	template<class _Alloc,
+		class _Size_type,
+		class _Const_void_pointer>
+		static auto _Fn(int, _Alloc& _Al,
+			_Size_type _Count,
+			_Const_void_pointer _Hint)
+			-> decltype(_Al.allocate(_Count, _Hint))
+		{	// call allocator supplied version
+		return (_Al.allocate(_Count, _Hint));
+		}
+
+	template<class _Alloc,
+		class _Size_type,
+		class _Const_void_pointer>
+		static auto _Fn(_Wrap_int, _Alloc& _Al,
+			_Size_type _Count,
+			_Const_void_pointer)
+			-> decltype(_Al.allocate(_Count))
+		{	// call default version
+		return (_Al.allocate(_Count));
+		}
+	};
+
+		// STRUCT _Alloc_construct
+struct _Alloc_construct
+	{	// determines allocator_traits<_Ty>
+		// ::construct(_Ty&, _Objty *, _Types...)
+
+	template<class _Ty,
+		class _Objty,
+		class... _Types>
+		static auto _Fn(int, _Ty& _Al, _Objty *_Ptr,
+			_Types&&... _Args)
+			-> decltype(
+				_Al.construct(_Ptr, _STD forward<_Types>(_Args)...))
+		{	// call allocator supplied version
+		_Al.construct(_Ptr, _STD forward<_Types>(_Args)...);
+		}
+
+	template<class _Ty,
+		class _Objty,
+		class... _Types>
+		static auto _Fn(_Wrap_int, _Ty&, _Objty *_Ptr,
+			_Types&&... _Args)
+			-> void
+		{	// call default version
+		::new (static_cast<void *>(_Ptr))
+			_Objty(_STD forward<_Types>(_Args)...);
+		}
+
+	};
+
+		// STRUCT _Alloc_destroy
+struct _Alloc_destroy
+	{	// determines allocator_traits<_Ty>::destroy(_Ty&, _Objty *)
+	template<class _Ty,
+		class _Objty>
+		static auto _Fn(int, _Ty& _Al, _Objty *_Ptr)
+			-> decltype(_Al.destroy(_Ptr))
+		{	// call allocator supplied version
+		_Al.destroy(_Ptr);
+		}
+
+	template<class _Ty,
+		class _Objty>
+		static auto _Fn(_Wrap_int, _Ty&, _Objty *_Ptr)
+			-> void
+		{	// call default version
+		_Ptr->~_Objty();
+		}
+	};
+
+		// STRUCT _Alloc_max_size
+struct _Alloc_max_size
+	{	// determines allocator_traits<_Ty>::max_size(const _Ty&)
+	template<class _Ty>
+		static auto _Fn(int, const _Ty& _Al) _NOEXCEPT
+			-> decltype(_Al.max_size())
+		{	// call allocator supplied version
+		return (_Al.max_size());
+		}
+
+	template<class _Ty>
+		static auto _Fn(_Wrap_int, const _Ty&) _NOEXCEPT
+			-> typename _Get_size_type<_Ty>::type
+		{	// call default version
+		return ((numeric_limits<typename _Get_size_type<_Ty>::type>::max)());
+		}
+	};
+
+		// STRUCT _Alloc_select
+struct _Alloc_select
+	{	// determines allocator_traits<_Ty>
+		// ::select_on_container_copy_construction(const _Alloc&)
+
+	template<class _Ty>
+		static auto _Fn(int, const _Ty& _Al)
+			-> decltype((_Ty)_Al.select_on_container_copy_construction())
+		{	// call allocator supplied version
+		return (_Al.select_on_container_copy_construction());
+		}
+
+	template<class _Ty>
+		static auto _Fn(_Wrap_int, const _Ty& _Al)
+			-> _Ty
+		{	// call default version
+		return (_Al);
+		}
+	};
+
+		// TEMPLATE CLASS allocator_traits
+template<class _Alloc>
+	struct allocator_traits
+	{	// defines traits for allocators
+	typedef _Alloc allocator_type;
+	typedef typename _Alloc::value_type value_type;
+
+	typedef typename _Get_pointer_type<_Alloc>::type
+		pointer;
+	typedef typename _Get_const_pointer_type<_Alloc>::type
+		const_pointer;
+	typedef typename _Get_void_pointer_type<_Alloc>::type
+		void_pointer;
+	typedef typename _Get_const_void_pointer_type<_Alloc>::type
+		const_void_pointer;
+
+	typedef typename _Get_size_type<_Alloc>::type size_type;
+	typedef typename _Get_difference_type<_Alloc>::type difference_type;
+
+	typedef typename _Get_propagate_on_container_copy<_Alloc>::type
+		propagate_on_container_copy_assignment;
+	typedef typename _Get_propagate_on_container_move<_Alloc>::type
+		propagate_on_container_move_assignment;
+	typedef typename _Get_propagate_on_container_swap<_Alloc>::type
+		propagate_on_container_swap;
+	typedef typename _Get_is_always_equal<_Alloc>::type
+		is_always_equal;
+
+	template<class _Other>
+		using rebind_alloc = typename _Get_rebind_type<_Alloc, _Other>::type;
+
+	template<class _Other>
+		using rebind_traits = allocator_traits<rebind_alloc<_Other> >;
+
+	static _DECLSPEC_ALLOCATOR pointer allocate(_Alloc& _Al, size_type _Count)
+		{	// allocate array of _Count elements
+		return (_Al.allocate(_Count));
+		}
+
+	static _DECLSPEC_ALLOCATOR pointer allocate(_Alloc& _Al, size_type _Count,
+		const_void_pointer _Hint)
+		{	// allocate array of _Count elements, with hint
+		return (_Alloc_allocate::_Fn(0, _Al, _Count, _Hint));
+		}
+
+	static void deallocate(_Alloc& _Al,
+		pointer _Ptr, size_type _Count)
+		{	// deallocate _Count elements at _Ptr
+		_Al.deallocate(_Ptr, _Count);
+		}
+
+	template<class _Ty,
+		class... _Types>
+		static void construct(_Alloc& _Al, _Ty *_Ptr,
+			_Types&&... _Args)
+		{	// construct _Ty(_Types...) at _Ptr
+		_Alloc_construct::_Fn(0, _Al, _Ptr,
+			_STD forward<_Types>(_Args)...);
+		}
+
+
+	template<class _Ty>
+		static void destroy(_Alloc& _Al, _Ty *_Ptr)
+		{	// destroy object at _Ptr
+		_Alloc_destroy::_Fn(0, _Al, _Ptr);
+		}
+
+	static size_type max_size(const _Alloc& _Al) _NOEXCEPT
+		{	// get maximum size
+		return (_Alloc_max_size::_Fn(0, _Al));
+		}
+
+	static _Alloc select_on_container_copy_construction(
+		const _Alloc& _Al)
+		{	// get allocator to use
+		return (_Alloc_select::_Fn(0, _Al));
+		}
+	};
+
+		// TEMPLATE CLASS allocator
+template<class _Ty>
+	class allocator
+	{	// generic allocator for objects of class _Ty
+public:
+	static_assert(!is_const<_Ty>::value,
+		"The C++ Standard forbids containers of const elements "
+		"because allocator<const T> is ill-formed.");
+
+	typedef _Ty value_type;
+
+	typedef value_type *pointer;
+	typedef const value_type *const_pointer;
+
+	typedef value_type& reference;
+	typedef const value_type& const_reference;
+
+	typedef size_t size_type;
+	typedef ptrdiff_t difference_type;
+
+	typedef true_type propagate_on_container_move_assignment;
+	typedef true_type is_always_equal;
+
+	template<class _Other>
+		struct rebind
+		{	// convert this type to allocator<_Other>
+		typedef allocator<_Other> other;
+		};
+
+	pointer address(reference _Val) const _NOEXCEPT
+		{	// return address of mutable _Val
+		return (_STD addressof(_Val));
+		}
+
+	const_pointer address(const_reference _Val) const _NOEXCEPT
+		{	// return address of nonmutable _Val
+		return (_STD addressof(_Val));
+		}
+
+	allocator() _THROW0()
+		{	// construct default allocator (do nothing)
+		}
+
+	allocator(const allocator<_Ty>&) _THROW0()
+		{	// construct by copying (do nothing)
+		}
+
+	template<class _Other>
+		allocator(const allocator<_Other>&) _THROW0()
+		{	// construct from a related allocator (do nothing)
+		}
+
+	template<class _Other>
+		allocator<_Ty>& operator=(const allocator<_Other>&)
+		{	// assign from a related allocator (do nothing)
+		return (*this);
+		}
+
+	void deallocate(pointer _Ptr, size_type _Count)
+		{	// deallocate object at _Ptr
+		_Deallocate(_Ptr, _Count);
+		}
+
+	_DECLSPEC_ALLOCATOR pointer allocate(size_type _Count)
+		{	// allocate array of _Count elements
+		return (_Allocate(_Count, (pointer)0));
+		}
+
+	_DECLSPEC_ALLOCATOR pointer allocate(size_type _Count, const void *)
+		{	// allocate array of _Count elements, ignore hint
+		return (allocate(_Count));
+		}
+
+	template<class _Objty,
+		class... _Types>
+		void construct(_Objty *_Ptr, _Types&&... _Args)
+		{	// construct _Objty(_Types...) at _Ptr
+		::new ((void *)_Ptr) _Objty(_STD forward<_Types>(_Args)...);
+		}
+
+
+	template<class _Uty>
+		void destroy(_Uty *_Ptr)
+		{	// destroy object at _Ptr
+		_Ptr->~_Uty();
+		}
+
+	size_t max_size() const _NOEXCEPT
+		{	// estimate maximum array size
+		return ((size_t)(-1) / sizeof (_Ty));
+		}
+	};
+
+		// CLASS allocator<void>
+template<>
+	class allocator<void>
+	{	// generic allocator for type void
+public:
+	typedef void value_type;
+
+	typedef void *pointer;
+	typedef const void *const_pointer;
+
+	template<class _Other>
+		struct rebind
+		{	// convert this type to an allocator<_Other>
+		typedef allocator<_Other> other;
+		};
+
+	allocator() _THROW0()
+		{	// construct default allocator (do nothing)
+		}
+
+	allocator(const allocator<void>&) _THROW0()
+		{	// construct by copying (do nothing)
+		}
+
+	template<class _Other>
+		allocator(const allocator<_Other>&) _THROW0()
+		{	// construct from related allocator (do nothing)
+		}
+
+	template<class _Other>
+		allocator<void>& operator=(const allocator<_Other>&)
+		{	// assign from a related allocator (do nothing)
+		return (*this);
+		}
+	};
+
+template<class _Ty,
+	class _Other> inline
+	bool operator==(const allocator<_Ty>&,
+		const allocator<_Other>&) _THROW0()
+	{	// test for allocator equality
+	return (true);
+	}
+
+template<class _Ty,
+	class _Other> inline
+	bool operator!=(const allocator<_Ty>& _Left,
+		const allocator<_Other>& _Right) _THROW0()
+	{	// test for allocator inequality
+	return (false);
+	}
+
+		// TEMPLATE CLASS SPECIALIZATION allocator_traits
+template<class _Ty>
+	struct allocator_traits<allocator<_Ty> >
+	{	// defines traits for allocators (increases compiler speed)
+	typedef allocator<_Ty> _Alloc;
+
+	typedef _Alloc allocator_type;
+	typedef _Ty value_type;
+
+	typedef value_type *pointer;
+	typedef const value_type *const_pointer;
+	typedef void *void_pointer;
+	typedef const void *const_void_pointer;
+
+	typedef size_t size_type;
+	typedef ptrdiff_t difference_type;
+
+	typedef false_type propagate_on_container_copy_assignment;
+	typedef true_type propagate_on_container_move_assignment;
+	typedef false_type propagate_on_container_swap;
+	typedef true_type is_always_equal;
+
+	template<class _Other>
+		using rebind_alloc = allocator<_Other>;
+
+	template<class _Other>
+		using rebind_traits = allocator_traits<allocator<_Other> >;
+
+	static _DECLSPEC_ALLOCATOR pointer allocate(_Alloc& _Al, size_type _Count)
+		{	// allocate array of _Count elements
+		return (_Al.allocate(_Count));
+		}
+
+	static _DECLSPEC_ALLOCATOR pointer allocate(_Alloc& _Al, size_type _Count,
+		const_void_pointer _Hint)
+		{	// allocate array of _Count elements, with hint
+		return (_Al.allocate(_Count, _Hint));
+		}
+
+	static void deallocate(_Alloc& _Al,
+		pointer _Ptr, size_type _Count)
+		{	// deallocate _Count elements at _Ptr
+		_Al.deallocate(_Ptr, _Count);
+		}
+
+	template<class _Objty,
+		class... _Types>
+		static void construct(_Alloc& _Al, _Objty *_Ptr,
+			_Types&&... _Args)
+		{	// construct _Objty(_Types...) at _Ptr
+		_Al.construct(_Ptr, _STD forward<_Types>(_Args)...);
+		}
+
+
+	template<class _Uty>
+		static void destroy(_Alloc& _Al, _Uty *_Ptr)
+		{	// destroy object at _Ptr
+		_Al.destroy(_Ptr);
+		}
+
+	static size_type max_size(const _Alloc& _Al) _NOEXCEPT
+		{	// get maximum size
+		return (_Al.max_size());
+		}
+
+	static _Alloc select_on_container_copy_construction(
+		const _Alloc& _Al)
+		{	// get allocator to use
+		return (_Al);
+		}
+	};
+
+		// TEMPLATE CLASS _Wrap_alloc
+template<class _Alloc>
+	struct _Wrap_alloc
+		: public _Alloc
+	{	// defines traits for allocators
+	typedef _Alloc _Mybase;
+	typedef allocator_traits<_Alloc> _Mytraits;
+
+	typedef typename _Mytraits::value_type value_type;
+
+	typedef typename _Mytraits::pointer pointer;
+	typedef typename _Mytraits::const_pointer const_pointer;
+	typedef typename _Mytraits::void_pointer void_pointer;
+	typedef typename _Mytraits::const_void_pointer const_void_pointer;
+
+	typedef typename _If<is_void<value_type>::value,
+		int, value_type>::type& reference;
+	typedef typename _If<is_void<const value_type>::value,
+		const int, const value_type>::type& const_reference;
+
+	typedef typename _Mytraits::size_type size_type;
+	typedef typename _Mytraits::difference_type difference_type;
+
+	typedef typename _Mytraits::propagate_on_container_copy_assignment
+		propagate_on_container_copy_assignment;
+	typedef typename _Mytraits::propagate_on_container_move_assignment
+		propagate_on_container_move_assignment;
+	typedef typename _Mytraits::propagate_on_container_swap
+		propagate_on_container_swap;
+	typedef typename _Mytraits::is_always_equal
+		is_always_equal;
+
+	_Wrap_alloc select_on_container_copy_construction(_Nil = _Nil()) const
+		{	// get allocator to use
+		return (_Mytraits::select_on_container_copy_construction(*this));
+		}
+
+	template<class _Other>
+		struct rebind
+		{	// convert this type to allocator<_Other>
+		typedef typename _Mytraits::template rebind_alloc<_Other>
+			_Other_alloc;
+		typedef _Wrap_alloc<_Other_alloc> other;
+		};
+
+	pointer address(reference _Val) const
+		{	// return address of mutable _Val
+		return (_STD addressof(_Val));
+		}
+
+	const_pointer address(const_reference _Val) const
+		{	// return address of nonmutable _Val
+		return (_STD addressof(_Val));
+		}
+
+	_Wrap_alloc() _THROW0()
+		: _Mybase()
+		{	// construct default allocator (do nothing)
+		}
+
+	_Wrap_alloc(const _Mybase& _Right) _THROW0()
+		: _Mybase(_Right)
+		{	// construct by copying base
+		}
+
+	_Wrap_alloc(const _Wrap_alloc& _Right) _THROW0()
+		: _Mybase(_Right)
+		{	// construct by copying
+		}
+
+	template<class _Other>
+		_Wrap_alloc(const _Other& _Right) _THROW0()
+		: _Mybase(_Right)
+		{	// construct from a related allocator
+		}
+
+	template<class _Other>
+		_Wrap_alloc(_Other& _Right) _THROW0()
+		: _Mybase(_Right)
+		{	// construct from a related allocator
+		}
+
+	_Wrap_alloc& operator=(const _Mybase& _Right)
+		{	// construct by copying base
+		_Mybase::operator=(_Right);
+		return (*this);
+		}
+
+	_Wrap_alloc& operator=(const _Wrap_alloc& _Right)
+		{	// construct by copying
+		_Mybase::operator=(_Right);
+		return (*this);
+		}
+
+	template<class _Other>
+		_Wrap_alloc& operator=(const _Other& _Right)
+		{	// assign from a related allocator
+		_Mybase::operator=(_Right);
+		return (*this);
+		}
+
+	_DECLSPEC_ALLOCATOR pointer allocate(size_type _Count)
+		{	// allocate array of _Count elements
+		return (_Mybase::allocate(_Count));
+		}
+
+	_DECLSPEC_ALLOCATOR pointer allocate(size_type _Count,
+		const_void_pointer _Hint, _Nil = _Nil())
+		{	// allocate array of _Count elements, with hint
+		return (_Mytraits::allocate(*this, _Count, _Hint));
+		}
+
+	void deallocate(pointer _Ptr, size_type _Count)
+		{	// deallocate object at _Ptr, ignore size
+		_Mybase::deallocate(_Ptr, _Count);
+		}
+
+	template<class _Ty,
+		class... _Types>
+		void construct(_Ty *_Ptr,
+			_Types&&... _Args)
+		{	// construct _Ty(_Types...) at _Ptr
+		_Mytraits::construct(*this, _Ptr,
+			_STD forward<_Types>(_Args)...);
+		}
+
+
+	template<class _Ty>
+		void destroy(_Ty *_Ptr)
+		{	// destroy object at _Ptr
+		_Mytraits::destroy(*this, _Ptr);
+		}
+
+	size_type max_size(_Nil = _Nil()) const _NOEXCEPT
+		{	// get maximum size
+		return (_Mytraits::max_size(*this));
+		}
+	};
+
+template<class _Ty,
+	class _Other> inline
+	bool operator==(const _Wrap_alloc<_Ty>& _Left,
+		const _Wrap_alloc<_Other>& _Right) _THROW0()
+	{	// test for allocator equality
+	return (static_cast<const _Ty&>(_Left)
+		== static_cast<const _Other&>(_Right));
+	}
+
+template<class _Ty,
+	class _Other> inline
+	bool operator!=(const _Wrap_alloc<_Ty>& _Left,
+		const _Wrap_alloc<_Other>& _Right) _THROW0()
+	{	// test for allocator inequality
+	return (!(_Left == _Right));
+	}
+
+		// TEMPLATE FUNCTION _Pocca
+template<class _Alty> inline
+	void _Pocca(_Alty& _Left, const _Alty& _Right, true_type) _NOEXCEPT
+	{	// propagate on container copy assignment
+	_Left = _Right;
+	}
+
+template<class _Alty> inline
+	void _Pocca(_Alty&, const _Alty&, false_type) _NOEXCEPT
+	{	// (don't) propagate on container copy assignment
+	}
+
+template<class _Alty> inline
+	void _Pocca(_Alty& _Left, const _Alty& _Right) _NOEXCEPT
+	{	// (maybe) propagate on container copy assignment
+	typename _Alty::propagate_on_container_copy_assignment _Tag;
+	_Pocca(_Left, _Right, _Tag);
+	}
+
+		// TEMPLATE FUNCTION _Pocma
+template<class _Alty> inline
+	void _Pocma(_Alty& _Left, _Alty& _Right, true_type) _NOEXCEPT
+	{	// propagate on container move assignment
+	_Left = _STD move(_Right);
+	}
+
+template<class _Alty> inline
+	void _Pocma(_Alty&, _Alty&, false_type) _NOEXCEPT
+	{	// (don't) propagate on container move assignment
+	}
+
+template<class _Alty> inline
+	void _Pocma(_Alty& _Left, _Alty& _Right) _NOEXCEPT
+	{	// (maybe) propagate on container move assignment
+	typename _Alty::propagate_on_container_move_assignment _Tag;
+	_Pocma(_Left, _Right, _Tag);
+	}
+
+		// TEMPLATE FUNCTION _Pocs
+template<class _Alty> inline
+	void _Pocs(_Alty& _Left, _Alty& _Right, true_type) _NOEXCEPT
+	{	// propagate on container swap
+	_Swap_adl(_Left, _Right);
+	}
+
+template<class _Alty> inline
+	void _Pocs(_Alty&, _Alty&, false_type) _NOEXCEPT
+	{	// (don't) propagate on container swap
+	}
+
+template<class _Alty> inline
+	void _Pocs(_Alty& _Left, _Alty& _Right) _NOEXCEPT
+	{	// (maybe) propagate on container swap
+	typename _Alty::propagate_on_container_swap _Tag;
+	_Pocs(_Left, _Right, _Tag);
+	}
+_STD_END
+
+		// ATOMIC REFERENCE COUNTING PRIMITIVES
+
+  #if defined(_M_IX86) || defined(_M_X64) || defined(_M_CEE_PURE)
+   #include <xatomic0.h>
+   #include <intrin.h>
+
+   #define _MT_INCR(mtx, x) \
+	_InterlockedIncrement(reinterpret_cast<volatile long *>(&x))
+   #define _MT_DECR(mtx, x) \
+	_InterlockedDecrement(reinterpret_cast<volatile long *>(&x))
+
+  #else /* defined(_M_IX86) etc. */
+   #include <xatomic.h>
+
+   #define _MT_INCR(mtx, x) \
+	_Inc_atomic_counter_explicit(x, memory_order_relaxed)
+   #define _MT_DECR(mtx, x) \
+	_Dec_atomic_counter_explicit(x, memory_order_acq_rel)
+  #endif /* defined(_M_IX86) etc. */
+
+ #pragma pop_macro("new")
+ #pragma warning(pop)
+ #pragma pack(pop)
+#endif /* RC_INVOKED */
+#endif /* _XMEMORY0_ */
+
+/*
+ * Copyright (c) by P.J. Plauger. All rights reserved.
+ * Consult your license regarding permissions and restrictions.
+V6.50:0009 */

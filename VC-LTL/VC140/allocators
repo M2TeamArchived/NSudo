@@ -1,0 +1,907 @@
+//	allocators extension header
+#pragma once
+#ifndef _ALLOCATORS_
+#define _ALLOCATORS_
+#ifndef RC_INVOKED
+#include <new>
+#include <xutility>
+#include <stddef.h>
+
+ #pragma pack(push,_CRT_PACKING)
+ #pragma warning(push,3)
+ #pragma push_macro("new")
+ #undef new
+
+ #if !defined(_DECLSPEC_ALLOCATOR)
+  #if 1900 <= _MSC_VER && !defined(__EDG__)
+   #define _DECLSPEC_ALLOCATOR	__declspec(allocator)
+  #else /* 1900 <= _MSC_VER, etc. */
+   #define _DECLSPEC_ALLOCATOR
+  #endif /* 1900 <= _MSC_VER, etc. */
+ #endif /* !defined(_DECLSPEC_ALLOCATOR) */
+
+ #if !defined(_ALLOCATORS_NO_REBIND)
+  #define _ALLOCATORS_NO_REBIND  0
+ #endif /* !defined(_ALLOCATORS_NO_REBIND) */
+
+ #if !defined(_HAS_ALLOCATORS_IN_STD)
+  #define _HAS_ALLOCATORS_IN_STD  0
+ #endif /* !defined(_HAS_ALLOCATORS_IN_STD) */
+
+namespace stdext {
+	namespace threads { // MINITHREADS
+		_CRTIMP2_PURE void __CLRCALL_PURE_OR_CDECL _Mtx_new(void *&);
+		_CRTIMP2_PURE void __CLRCALL_PURE_OR_CDECL _Mtx_delete(void *);
+		_CRTIMP2_PURE void __CLRCALL_PURE_OR_CDECL _Mtx_lock(void *);
+		_CRTIMP2_PURE void __CLRCALL_PURE_OR_CDECL _Mtx_unlock(void *);
+
+class mutex
+	{
+public:
+	friend class _Scoped_lock;
+	typedef _Scoped_lock scoped_lock;
+
+	mutex()
+		: _Ptr(0)
+		{
+		_Mtx_new(_Ptr);
+		}
+
+	~mutex() _NOEXCEPT
+		{
+		_Mtx_delete(_Ptr);
+		}
+
+private:
+	mutex(const mutex&);
+	mutex& operator=(const mutex&);
+
+	void * _Ptr;
+	};
+
+class _Scoped_lock
+	{
+public:
+	explicit _Scoped_lock(mutex& _Mut)
+		: _Ptr(_Mut._Ptr)
+		{
+		_Mtx_lock(_Ptr);
+		}
+
+	~_Scoped_lock() _NOEXCEPT
+		{
+		_Mtx_unlock(_Ptr);
+		}
+
+private:
+	_Scoped_lock(const _Scoped_lock&);
+	_Scoped_lock& operator=(const _Scoped_lock&);
+
+	void * _Ptr;
+	};
+	} // namespace threads
+} // namespace stdext
+
+namespace stdext {
+	namespace allocators {
+		// SYNCHRONIZATION FILTERS
+template<class _Cache>
+	class sync_none
+	{	// cache with no synchronization
+public:
+	_DECLSPEC_ALLOCATOR void *allocate(size_t _Count)
+		{	// allocate from the cache
+		return (_Mycache.allocate(_Count));
+		}
+
+	void deallocate(void *_Ptr, size_t _Count)
+		{	// deallocate through the cache
+		_Mycache.deallocate(_Ptr, _Count);
+		}
+
+	bool equals(const sync_none<_Cache>& _Other) const
+		{	// compare two caches for equality
+		return (_Mycache.equals(_Other._Mycache));
+		}
+
+private:
+	static _Cache _Mycache;
+	};
+
+template<class _Cache>
+	_Cache sync_none<_Cache>::_Mycache;
+
+template<class _Cache>
+	class sync_per_container
+		: public _Cache
+	{	// cache with per-container synchronization
+public:
+	bool equals(const sync_per_container<_Cache>&) const
+		{	// per-container allocators never share memory blocks
+		return (false);
+		}
+	};
+
+  #define SYNC_DEFAULT stdext::allocators::sync_shared
+
+template<class _Cache>
+	class sync_shared
+	{	// cache with shared synchronization
+public:
+	_DECLSPEC_ALLOCATOR void *allocate(size_t _Count)
+		{	// allocate from the cache
+		threads::mutex::scoped_lock lock(_Mymtx);
+		return (_Mycache.allocate(_Count));
+		}
+
+	void deallocate(void *_Ptr, size_t _Count)
+		{	// deallocate through the cache
+		threads::mutex::scoped_lock lock(_Mymtx);
+		_Mycache.deallocate(_Ptr, _Count);
+		}
+
+	bool equals(const sync_shared<_Cache>& _Other) const
+		{	// compare two caches for equality
+		return (_Mycache.equals(_Other._Mycache));
+		}
+
+private:
+	static _Cache _Mycache;
+	static threads::mutex _Mymtx;
+	};
+
+template<class _Cache>
+	_Cache sync_shared<_Cache>::_Mycache;
+
+template<class _Cache>
+	threads::mutex sync_shared<_Cache>::_Mymtx;
+
+template<class _Cache>
+	class sync_per_thread
+	{	// cache with per-thread synchronization
+public:
+	_DECLSPEC_ALLOCATOR void *allocate(size_t _Count)
+		{	// allocate from cache
+		if (_Mycache_ptr == 0)
+			_Mycache_ptr = new _Cache();
+		return (_Mycache_ptr != 0 ? _Mycache_ptr->allocate(_Count) : 0);
+		}
+
+	void deallocate(void *_Ptr, size_t _Count)
+		{	// deallocate through cache
+		if (_Mycache_ptr != 0)
+			_Mycache_ptr->deallocate(_Ptr, _Count);
+		}
+
+	bool equals(const sync_per_thread<_Cache>& _Other) const
+		{	// compare two caches for equality
+		return (_Mycache_ptr != 0
+			&& _Other._Mycache_ptr != 0
+			&& _Mycache_ptr->equals(*_Other._Mycache_ptr));
+		}
+
+private:
+	static __declspec(thread) _Cache * _Mycache_ptr;
+	};
+
+template<class _Cache>
+	__declspec(thread) _Cache *
+		sync_per_thread<_Cache>::_Mycache_ptr;
+
+		//	MAX CLASSES AND TEMPLATES
+class max_none
+	{	// max class for no caching
+public:
+	bool full() const
+		{	// always full
+		return (true);
+		}
+
+	void saved()
+		{	// do nothing
+		}
+
+	void released()
+		{	// do nothing
+		}
+
+	void allocated(size_t = 1)
+		{	// do nothing
+		}
+
+	void deallocated(size_t = 1)
+		{	// do nothing
+		}
+	};
+
+class max_unbounded
+	{	// max class for free list with unlimited size
+public:
+	bool full() const
+		{	// never full
+		return (false);
+		}
+
+	void saved()
+		{	// do nothing
+		}
+
+	void released()
+		{	// do nothing
+		}
+
+	void allocated(size_t = 1)
+		{	// do nothing
+		}
+
+	void deallocated(size_t = 1)
+		{	// do nothing
+		}
+	};
+
+template<size_t _Max>
+	class max_fixed_size
+	{	// max class for free list with fixed size
+public:
+	max_fixed_size()
+		: _Nblocks(0)
+		{	// construct with no blocks
+		}
+
+	bool full() const
+		{	// test for full
+		return (_Max <= _Nblocks);
+		}
+
+	void saved()
+		{	// increment saved count
+		++_Nblocks;
+		}
+
+	void released()
+		{	// decrement saved count
+		--_Nblocks;
+		}
+
+	void allocated(size_t = 1)
+		{	// do nothing
+		}
+
+	void deallocated(size_t = 1)
+		{	// do nothing
+		}
+
+private:
+	unsigned long _Nblocks;
+	};
+
+class max_variable_size
+	{	// max class for free list with size proportional to allocations
+public:
+	max_variable_size()
+		: _Nblocks(0), _Nallocs(0)
+		{	// construct with no blocks or allocations
+		}
+
+	bool full() const
+		{	// test for full
+		return (_Nallocs / 16 + 16 <= _Nblocks);
+		}
+
+	void saved()
+		{	// increment saved count
+		++_Nblocks;
+		}
+
+	void released()
+		{	// decrement saved count
+		--_Nblocks;
+		}
+
+	void allocated(size_t _Nx = 1)
+		{	// increment allocated count
+		_Nallocs = (unsigned long)(_Nallocs + _Nx);
+		}
+
+	void deallocated(size_t _Nx = 1)
+		{	// decrement allocated count
+		_Nallocs = (unsigned long)(_Nallocs - _Nx);
+		}
+
+private:
+	unsigned long _Nblocks;
+	unsigned long _Nallocs;
+	};
+
+		//	CACHES
+template<size_t _Sz,
+	class _Max>
+	class freelist
+		: public _Max
+	{	// class for basic free list logic
+public:
+	freelist()
+		: _Head(0)
+		{	// construct with empty list
+		}
+
+	bool push(void *_Ptr)
+		{	// push onto free list depending on max
+		if (this->full())
+			return (false);
+		else
+			{	// push onto free list
+			((node*)_Ptr)->_Next = _Head;
+			_Head = (node*)_Ptr;
+			this->saved();
+			return (true);
+			}
+		}
+
+	void *pop()
+		{	// pop node from free list
+		void *_Ptr = _Head;
+		if (_Ptr != 0)
+			{	// relink
+			_Head = _Head->_Next;
+			this->released();
+			}
+		return (_Ptr);
+		}
+
+private:
+	struct node
+		{	// list node
+		node *_Next;
+		};
+	node *_Head;
+	};
+
+template<size_t _Sz,
+	class _Max>
+	class cache_freelist
+	{	// class for allocating from free store and caching in free list
+public:
+	~cache_freelist() _NOEXCEPT
+		{	// destroy the list
+		void *_Ptr;
+		while ((_Ptr = _Fl.pop()) != 0)
+			::operator delete(_Ptr);
+		}
+
+	_DECLSPEC_ALLOCATOR void *allocate(size_t _Count)
+		{	// pop from free list or allocate from free store
+		void *_Res = _Fl.pop();
+		if (_Res == 0)
+			{	// free list empty, allocate from free store
+			if (_Count < sizeof (void *))
+				_Res = ::operator new(sizeof (void *));
+			else
+				_Res = ::operator new(_Count);
+
+			_Fl.allocated();
+			}
+		return (_Res);
+		}
+
+	void deallocate(void *_Ptr, size_t)
+		{	// push onto free list or deallocate to free store
+		if (!_Fl.push(_Ptr))
+			{	// free list full, deallocate to free store
+			::operator delete(_Ptr);
+			_Fl.deallocated();
+			}
+		}
+
+	bool equals(const cache_freelist<_Sz, _Max>&) const
+		{	// report that caches can share data
+		return (true);
+		}
+
+private:
+	freelist<_Sz, _Max> _Fl;
+	};
+
+template<size_t _Sz,
+	size_t _Nelts = 20>
+	class cache_suballoc
+	{	// suballocate without reblocking
+		// NB: THIS CLASS INTENTIONALLY DOES *NOT* FREE STORAGE
+public:
+	cache_suballoc()
+		: _Begin(0), _End(0)
+		{	// construct with empty list
+		}
+
+	_DECLSPEC_ALLOCATOR void *allocate(size_t _Count)
+		{	// pop from free list or suballocate
+		void *_Res = _Helper.pop();
+		if (_Res == 0)
+			{	// free list empty, suballocate
+			if (_Begin == _End)
+				{	// no room in block, allocate new block
+				if (_Count * _Nelts < sizeof (void *))
+					_Begin = (char*)::operator new(sizeof (void *));
+				else
+					_Begin = (char*)::operator new(_Count * _Nelts);
+
+				_End = _Begin + _Count * _Nelts;
+				_Helper.allocated(_Nelts);
+				}
+			_Res = _Begin;
+			_Begin += _Count;
+			}
+		return (_Res);
+		}
+
+	void deallocate(void *_Ptr, size_t)
+		{	// push onto free list
+		_Helper.push(_Ptr);
+		}
+
+	bool equals(const cache_suballoc<_Sz, _Nelts>&) const
+		{	// report that caches can share data
+		return (true);
+		}
+
+private:
+	freelist<_Sz, max_unbounded> _Helper;
+	char *_Begin;
+	char *_End;
+	};
+
+template<size_t _Sz,
+	size_t _Nelts = 20>
+	class cache_chunklist
+	{	// suballocate with reblocking
+public:
+	cache_chunklist()
+		: _List(0), _Cached_block(0)
+		{	// construct with empty list
+		}
+
+	~cache_chunklist() _NOEXCEPT
+		{	// discard any cached block
+		delete _Cached_block;
+		}
+
+	_DECLSPEC_ALLOCATOR void *allocate(size_t _Count)
+		{	// suballocate
+		if (_List == 0)
+			{	// no list, allocate new item
+			_List = new _Data_block(_Count);
+			_List->_Next = _List->_Prev = _List;
+			}
+		else if (_List->_Free_count == 0)
+			{	// list empty, return cached or allocate
+			_Data_block *_Block;
+			if (_Cached_block != 0)
+				{	// return cached
+				_Block = _Cached_block;
+				_Cached_block = 0;
+				}
+			else
+				_Block = new _Data_block(_Count);
+
+			_Block->_Next = _List->_Next;
+			_Block->_Prev = _List;
+			_Block->_Next->_Prev = _Block;
+			_Block->_Prev->_Next = _Block;
+			_List = _Block;
+			}
+
+		void *_Res = _List->allocate();
+		if (_List->_Free_count == 0 && _List->_Next != _List)
+			{	// unlink head block with no available nodes
+			_List->_Next->_Prev = _List->_Prev;
+			_List->_Prev->_Next = _List->_Next;
+			_List = _List->_Next;
+			}
+		return (_Res);
+		}
+
+	void deallocate(void *_Ptr, size_t)
+		{	// deallocate node
+		_Data_block *_Block = _Data_block::deallocate(_Ptr);
+		if (_Block == _List->_Prev)
+			;
+		else if (_Block->_Free_count == 1)
+			{	// insert master block before tail block
+			_Data_block *tail = _List->_Prev;
+			tail->_Prev->_Next = _Block;
+			_Block->_Prev = tail->_Prev;
+			tail->_Prev = _Block;
+			_Block->_Next = tail;
+			if (_List->_Free_count == 0)
+				_List = _List->_Next;
+			}
+		else if (_Block->_Free_count == _Nelts)
+			{	// unlink and deallocate master block
+			_Block->_Next->_Prev = _Block->_Prev;
+			_Block->_Prev->_Next = _Block->_Next;
+			if (_List == _Block)
+				_List = _List->_Next;
+			if (_Cached_block == 0)
+				_Cached_block = _Block;
+			}
+		}
+
+	bool equals(const cache_chunklist<_Sz, _Nelts>&) const
+		{	// report that caches can share data
+		return (true);
+		}
+
+private:
+	class _Data_block;
+
+	struct _Data_node
+		{	//  memory block with pointer to parent
+		_Data_block *_Parent;
+		union
+			{	// ensure sufficient size
+			_Data_node *_Next;
+			char _Data[_Sz];
+			};
+		};
+
+ #if _ALLOCATORS_NO_REBIND
+	class _Data_array
+		{	// manage array of data
+	public:
+		_Data_array(size_t _Count)
+			{	// construct with _Count elements
+			_Size = _Count;
+			_Elts = (_Data_node*)::operator new(
+				(offsetof(_Data_node, _Data) + _Size) * _Nelts);
+			}
+
+		~_Data_array() _NOEXCEPT
+			{	// destroy the array
+			::operator delete(_Elts);
+			}
+
+		_Data_node& operator[](int _Idx)
+			{	// get reference to idx element
+			return (*(_Data_node*)((char*)_Elts + _Idx
+				* (offsetof(_Data_node, _Data) + _Size)));
+			}
+
+	private:
+		_Data_node *_Elts;
+		size_t _Size;
+		};
+
+ #else /* _ALLOCATORS_NO_REBIND */
+	class _Data_array
+		{	// manage array of data
+	public:
+		_Data_array(size_t)
+			{	// construct with _Nelts elements
+			}
+
+		_Data_node& operator[](int _Idx)
+			{	// get reference to idx element
+			return (_Elts[_Idx]);
+			}
+
+	private:
+		_Data_node _Elts[_Nelts];
+		};
+ #endif /* _ALLOCATORS_NO_REBIND */
+
+	class _Data_block
+		{	// chunk for suballocation
+	public:
+		_Data_block(size_t _Count)
+			: _Data(_Count)
+			{	// construct list
+			_Fl = &_Data[0];
+			_Free_count = _Nelts;
+			for (int i = 0; i < _Nelts - 1; ++i)
+				{	// set link and back pointer
+				_Data[i]._Parent = this;
+				_Data[i]._Next = &_Data[i + 1];
+				}
+			_Data[_Nelts - 1]._Parent = this;
+			_Data[_Nelts - 1]._Next = 0;
+			}
+
+		void *allocate()
+			{	// allocate from list
+			_Data_node *node = _Fl;
+			_Fl = _Fl->_Next;
+			--_Free_count;
+			return (&node->_Data);
+			}
+
+		static _Data_block *deallocate(void *_Ptr)
+			{	// deallocate to list
+			_Data_node *_Node =
+				(_Data_node*)((char*)_Ptr - offsetof(_Data_node, _Data));
+			_Data_block *_Block = _Node->_Parent;
+			_Node->_Next = _Block->_Fl;
+			_Block->_Fl = _Node;
+			++_Block->_Free_count;
+			return (_Block);
+			}
+
+	private:
+		_Data_array _Data;
+		_Data_node *_Fl;
+
+	public:
+		int _Free_count;
+		_Data_block *_Next, *_Prev;
+		};
+
+	_Data_block *_List;
+	_Data_block *_Cached_block;
+	};
+
+		//	RUNTIME SIZE DETERMINATION
+const int _WIDTH = 8;
+const int _COUNT = 16;
+
+template<class _Cache>
+	class rts_alloc
+	{	// determine cache size at runtime
+public:
+	_DECLSPEC_ALLOCATOR void *allocate(size_t _Count)
+		{	// allocate _Count bytes
+		_Count = _ALIGN(_Count);
+		return ((char *)(_Count < _WIDTH * _COUNT
+			? caches[_IDX(_Count)].allocate(_Count)
+			: ::operator new(_Count)));
+		}
+
+	void deallocate(void *_Ptr, size_t _Count)
+		{	// deallocate _Count bytes
+		_Count = _ALIGN(_Count);
+		if (_Count < _WIDTH * _COUNT)
+			caches[_IDX(_Count)].deallocate(_Ptr, _Count);
+		else
+			::operator delete(_Ptr);
+		}
+
+	bool equals(const rts_alloc<_Cache>& _Other) const
+		{	// caches can share data
+		return (caches[0].equals(_Other.caches[0]));
+		}
+
+private:
+	_Cache caches[_COUNT];
+
+	int _IDX(int _Sz)
+		{	// get index
+		return (_Sz / _WIDTH);
+		}
+
+	int _ALIGN(int _Sz)
+		{	// get alignment
+		return (_WIDTH * ((_Sz + _WIDTH - 1) / _WIDTH));
+		}
+};
+
+		//	ALLOCATOR BASE
+template<class _Ty,
+	class _Sync>
+	class allocator_base
+		: public _Sync
+	{	// class with allocator members common to all allocators
+public:
+	typedef size_t size_type;
+	typedef ptrdiff_t difference_type;
+	typedef _Ty *pointer;
+	typedef const _Ty *const_pointer;
+	typedef void *void_pointer;
+	typedef const void *const_void_pointer;
+	typedef _Ty& reference;
+	typedef const _Ty& const_reference;
+	typedef _Ty value_type;
+
+	allocator_base()
+		{	// default construct
+		}
+
+	template<class _Other>
+		allocator_base(const allocator_base<_Other, _Sync>& _Right)
+		: _Sync(_Right)
+		{	// construct by copying x
+		}
+
+	pointer address(reference _Val)
+		{	// get address of _Val
+		return (&_Val);
+		}
+
+	const_pointer address(const_reference _Val)
+		{	// get const address of _Val
+		return (&_Val);
+		}
+
+	template<class _Other>
+		_DECLSPEC_ALLOCATOR pointer allocate(size_type _Nx, const _Other *)
+		{	// allocate _Nx elements, ignore hint
+		return (allocate(_Nx));
+		}
+
+	_DECLSPEC_ALLOCATOR pointer allocate(size_type _Nx)
+		{	// allocate array of _Nx elements
+		if (_Nx <= 0)
+			_Nx = 0;
+		else if (((size_t)(-1) / sizeof (_Ty) < _Nx))
+			_STD _Xbad_alloc();
+
+		if (_Nx == 1)
+			return ((_Ty *)_Sync::allocate(sizeof (_Ty)));
+		else
+			return ((_Ty *)::operator new(_Nx * sizeof (_Ty)));
+		}
+
+	void deallocate(pointer _Ptr, size_type _Nx)
+		{	// deallocate array of _Nx elements
+		if (_Ptr == 0)
+			;
+		else if (_Nx == 1)
+			_Sync::deallocate(_Ptr, sizeof (_Ty));
+		else
+			::operator delete(_Ptr);
+		}
+
+ #if _ALLOCATORS_NO_REBIND
+	_DECLSPEC_ALLOCATOR char *_Charalloc(size_type _Count)
+		{	// allocate _Count bytes
+		return ((char *)_Sync::allocate(_Count));
+		}
+
+	void _Chardealloc(void *_Ptr, size_type _Count)
+		{	// deallocate _Count bytes
+		if (_Ptr != 0)
+			_Sync::deallocate(_Ptr, _Count);
+		}
+ #endif /* _ALLOCATORS_NO_REBIND */
+
+	template<class _Objty,
+		class... _Types>
+		void construct(_Objty *_Ptr, _Types&&... _Args)
+		{	// construct _Objty(_Types...) at _Ptr
+		::new ((void *)_Ptr) _Objty(_STD forward<_Types>(_Args)...);
+		}
+
+
+	template<class _Other>
+		void destroy(_Other *_Ptr)
+		{	// destroy *_Ptr
+		_Ptr->~_Other();
+		}
+
+	size_type max_size() const
+		{	// return maximum number of objects that could be allocated
+		return ((size_t)(-1) / sizeof (_Ty));
+		}
+	};
+
+template<class _Ty,
+	class _Sync>
+	inline bool operator==(const allocator_base<_Ty, _Sync>& _Left,
+		const allocator_base<_Ty, _Sync>& _Right)
+	{	// compare two allocators for equality
+	return (_Left.equals(_Right));
+	}
+
+template<class _Ty,
+	class _Sync>
+	inline bool operator!=(const allocator_base<_Ty, _Sync>& _Left,
+		const allocator_base<_Ty, _Sync>& _Right)
+	{	// compare two allocators for inequality
+	return (!(_Left == _Right));
+	}
+
+		//	ALLOCATORS
+#define _ALLOCATOR_VOID(name)  \
+	template<> \
+		class name<void>  \
+		{ \
+	public: \
+		name() {} \
+		template<class _Ty> \
+			name(const name<_Ty>&) {} \
+		template<class _Ty> \
+			name& operator=(const name<_Ty>&) \
+			{return (*this); } \
+		typedef void *pointer; \
+		typedef const void *const_pointer; \
+		typedef void *void_pointer; \
+		typedef const void *const_void_pointer; \
+		typedef void value_type; \
+		_ALLOCATOR_REBIND(name) \
+	}
+
+#define _ALLOCATOR_BODY(name) \
+	{ \
+	public: \
+	name() {} \
+	template<class _Other> \
+		name(const name<_Other>&) {} \
+	template<class _Other> \
+		name& operator=(const name<_Other>&) \
+		{return (*this); } \
+	_ALLOCATOR_REBIND(name) \
+	}
+
+ #if _ALLOCATORS_NO_REBIND
+  #define _ALLOCATOR_REBIND(name)
+  #define _ALLOCATOR_DECL(cache, sync, name) \
+	template<class _Ty> \
+		class name \
+			: public stdext::allocators::allocator_base<_Ty, \
+				sync<stdext::allocators::rts_alloc<cache > > > \
+_ALLOCATOR_BODY(name); \
+_ALLOCATOR_VOID(name);
+
+ #else /* _ALLOCATORS_NO_REBIND */
+  #define _ALLOCATOR_REBIND(name) \
+	template<class _Other> \
+		struct rebind \
+		{	/* convert a name<_Ty> to a name<_Other> */ \
+		typedef name<_Other> other; \
+		};
+  #define _ALLOCATOR_DECL(cache, sync, name) \
+	template<class _Ty> \
+		class name \
+			: public stdext::allocators::allocator_base<_Ty, \
+				sync<cache > > \
+_ALLOCATOR_BODY(name); \
+_ALLOCATOR_VOID(name)
+ #endif /* _ALLOCATORS_NO_REBIND */
+
+#define CACHE_FREELIST(max)	\
+	stdext::allocators::cache_freelist<sizeof (_Ty), max >
+#define CACHE_SUBALLOC	\
+	stdext::allocators::cache_suballoc<sizeof (_Ty)>
+#define CACHE_CHUNKLIST	\
+	stdext::allocators::cache_chunklist<sizeof (_Ty)>
+
+_ALLOCATOR_DECL(CACHE_FREELIST(stdext::allocators::max_none),
+	SYNC_DEFAULT, allocator_newdel);
+_ALLOCATOR_DECL(CACHE_FREELIST(stdext::allocators::max_unbounded),
+	SYNC_DEFAULT, allocator_unbounded);
+_ALLOCATOR_DECL(CACHE_FREELIST(stdext::allocators::max_fixed_size<10>),
+	SYNC_DEFAULT, allocator_fixed_size);
+_ALLOCATOR_DECL(CACHE_FREELIST(stdext::allocators::max_variable_size),
+	SYNC_DEFAULT, allocator_variable_size);
+_ALLOCATOR_DECL(CACHE_SUBALLOC,
+	SYNC_DEFAULT, allocator_suballoc);
+_ALLOCATOR_DECL(CACHE_CHUNKLIST,
+	SYNC_DEFAULT, allocator_chunklist);
+		}	// namespace allocators
+	}	// namespace stdext
+
+ #if _HAS_ALLOCATORS_IN_STD
+_STD_BEGIN
+using stdext::allocators::sync_none;
+using stdext::allocators::sync_per_container;
+using stdext::allocators::sync_shared;
+using stdext::allocators::sync_per_thread;
+using stdext::allocators::max_none;
+using stdext::allocators::max_unbounded;
+using stdext::allocators::max_fixed_size;
+using stdext::allocators::max_variable_size;
+using stdext::allocators::freelist;
+using stdext::allocators::cache_freelist;
+using stdext::allocators::cache_suballoc;
+using stdext::allocators::cache_chunklist;
+using stdext::allocators::rts_alloc;
+using stdext::allocators::allocator_base;
+_STD_END
+ #endif /* _HAS_ALLOCATORS_IN_STD */
+ #pragma pop_macro("new")
+ #pragma warning(pop)
+ #pragma pack(pop)
+#endif /* RC_INVOKED */
+#endif /* _ALLOCATORS_ */
+
+/*
+ * Copyright (c) by P.J. Plauger. All rights reserved.
+ * Consult your license regarding permissions and restrictions.
+V6.50:0009 */

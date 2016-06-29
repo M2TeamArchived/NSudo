@@ -1,0 +1,431 @@
+// numeric standard header
+#pragma once
+#ifndef _NUMERIC_
+#define _NUMERIC_
+#ifndef RC_INVOKED
+#include <xutility>
+
+ #pragma pack(push,_CRT_PACKING)
+ #pragma warning(push,3)
+ #pragma push_macro("new")
+ #undef new
+_STD_BEGIN
+		// TEMPLATE FUNCTION accumulate WITH BINOP
+template<class _InIt,
+	class _Ty,
+	class _Fn2> inline
+	_Ty _Accumulate(_InIt _First, _InIt _Last, _Ty _Val, _Fn2 _Func)
+	{	// return sum of _Val and all in [_First, _Last), using _Func
+	for (; _First != _Last; ++_First)
+		_Val = _Func(_Val, *_First);
+	return (_Val);
+	}
+
+template<class _InIt,
+	class _Ty,
+	class _Fn2> inline
+	_Ty accumulate(_InIt _First, _InIt _Last, _Ty _Val, _Fn2 _Func)
+	{	// return sum of _Val and all in [_First, _Last), using _Func
+	_DEBUG_RANGE_PTR(_First, _Last, _Func);
+	return (_Accumulate(_Unchecked(_First), _Unchecked(_Last), _Val, _Func));
+	}
+
+		// TEMPLATE FUNCTION accumulate
+template<class _InIt,
+	class _Ty> inline
+	_Ty accumulate(_InIt _First, _InIt _Last, _Ty _Val)
+	{	// return sum of _Val and all in [_First, _Last)
+	return (_STD accumulate(_First, _Last, _Val, plus<>()));
+	}
+
+		// TEMPLATE FUNCTION inner_product WITH BINOPS
+template<class _InIt1,
+	class _InIt2,
+	class _Ty,
+	class _Fn21,
+	class _Fn22> inline
+	_Ty _Inner_product(_InIt1 _First1, _InIt1 _Last1,
+		_InIt2 _First2, _Ty _Val,
+		_Fn21 _Func1, _Fn22 _Func2)
+	{	// return inner product of sequences, using _Func1 and _Func2
+	for (; _First1 != _Last1; ++_First1, (void)++_First2)
+		_Val = _Func1(_Val, _Func2(*_First1, *_First2));
+	return (_Val);
+	}
+
+ #if _ITERATOR_DEBUG_LEVEL == 0
+template<class _InIt1,
+	class _InIt2,
+	class _Ty,
+	class _Fn21,
+	class _Fn22> inline
+	_Ty inner_product(_InIt1 _First1, _InIt1 _Last1,
+		_InIt2 _First2, _Ty _Val,
+		_Fn21 _Func1, _Fn22 _Func2)
+	{	// return inner product of sequences, using _Func1 and _Func2
+	return (_Inner_product(_Unchecked(_First1), _Unchecked(_Last1),
+		_First2, _Val,
+		_Func1, _Func2));
+	}
+
+ #else /* _ITERATOR_DEBUG_LEVEL == 0 */
+template<class _InIt1,
+	class _InIt2,
+	class _Ty,
+	class _Fn21,
+	class _Fn22> inline
+	_Ty _Inner_product2(_InIt1 _First1, _InIt1 _Last1,
+		_InIt2 _First2, _Ty _Val,
+		_Fn21 _Func1, _Fn22 _Func2, true_type)
+	{	// return inner product of sequences, using _Func1 and _Func2
+	return (_Inner_product(_First1, _Last1,
+		_First2, _Val,
+		_Func1, _Func2));
+	}
+
+template<class _InIt1,
+	class _InIt2,
+	class _Ty,
+	class _Fn21,
+	class _Fn22> inline
+_SCL_INSECURE_DEPRECATE
+	_Ty _Inner_product2(_InIt1 _First1, _InIt1 _Last1,
+		_InIt2 _First2, _Ty _Val,
+		_Fn21 _Func1, _Fn22 _Func2, false_type)
+	{	// return inner product of sequences, using _Func1 and _Func2
+	return (_Inner_product(_First1, _Last1,
+		_First2, _Val,
+		_Func1, _Func2));
+	}
+
+template<class _InIt1,
+	class _InIt2,
+	class _Ty,
+	class _Fn21,
+	class _Fn22> inline
+	_Ty inner_product(_InIt1 _First1, _InIt1 _Last1,
+		_InIt2 _First2, _Ty _Val,
+		_Fn21 _Func1, _Fn22 _Func2)
+	{	// return inner product of sequences, using _Func1 and _Func2
+	_DEBUG_RANGE_PTR(_First1, _Last1, _First2);
+	_DEBUG_POINTER_IF(_First1 != _Last1, _Func1);
+	_DEBUG_POINTER_IF(_First1 != _Last1, _Func2);
+	return (_Inner_product2(_Unchecked(_First1), _Unchecked(_Last1),
+		_First2, _Val,
+		_Func1, _Func2, _Is_checked(_First2)));
+	}
+
+ #if _ITERATOR_DEBUG_ARRAY_OVERLOADS
+template<class _InIt1,
+	class _InTy,
+	size_t _InSize,
+	class _Ty,
+	class _Fn21,
+	class _Fn22> inline
+	_Ty inner_product(_InIt1 _First1, _InIt1 _Last1,
+		_InTy (&_First2)[_InSize], _Ty _Val,
+		_Fn21 _Func1, _Fn22 _Func2)
+	{	// return inner product of sequences, using _Func1 and _Func2
+	return (_STD inner_product(_First1, _Last1,
+		_Array_iterator<_InTy, _InSize>(_First2), _Val,
+		_Func1, _Func2));
+	}
+ #endif /* _ITERATOR_DEBUG_ARRAY_OVERLOADS */
+ #endif /* _ITERATOR_DEBUG_LEVEL == 0 */
+
+		// TEMPLATE FUNCTION inner_product
+template<class _InIt1,
+	class _InIt2,
+	class _Ty> inline
+	_Ty inner_product(_InIt1 _First1, _InIt1 _Last1,
+		_InIt2 _First2, _Ty _Val)
+	{	// return inner product of sequences
+	return (_STD inner_product(_First1, _Last1, _First2, _Val,
+		plus<>(), multiplies<>()));
+	}
+
+ #if _ITERATOR_DEBUG_ARRAY_OVERLOADS
+template<class _InIt1,
+	class _InTy,
+	size_t _InSize,
+	class _Ty> inline
+	_Ty inner_product(_InIt1 _First1, _InIt1 _Last1,
+		_InTy (&_First2)[_InSize], _Ty _Val)
+	{	// return inner product of sequences
+	return (_STD inner_product(_First1, _Last1, _First2, _Val,
+		plus<>(), multiplies<>()));
+	}
+ #endif /* _ITERATOR_DEBUG_ARRAY_OVERLOADS */
+
+		// TEMPLATE FUNCTION partial_sum WITH BINOP
+template<class _InIt,
+	class _OutIt,
+	class _Fn2,
+	class _Ty> inline
+	_OutIt _Partial_sum(_InIt _First, _InIt _Last,
+		_OutIt _Dest, _Fn2 _Func, _Ty *)
+	{	// compute partial sums into _Dest, using _Func
+	_Ty _Val = *_First;
+	for (*_Dest = _Val; ++_First != _Last; *++_Dest = _Val)
+		_Val = _Func(_Val, *_First);
+	return (++_Dest);
+	}
+
+ #if _ITERATOR_DEBUG_LEVEL == 0
+template<class _InIt,
+	class _OutIt,
+	class _Fn2> inline
+	_OutIt partial_sum(_InIt _First, _InIt _Last,
+		_OutIt _Dest, _Fn2 _Func)
+	{	// compute partial sums into _Dest, using _Func
+	return (_First == _Last ? _Dest
+		: _Partial_sum(_Unchecked(_First), _Unchecked(_Last),
+			_Dest, _Func, _Val_type(_First)));
+	}
+
+ #else /* _ITERATOR_DEBUG_LEVEL == 0 */
+template<class _InIt,
+	class _OutIt,
+	class _Fn2> inline
+	_OutIt _Partial_sum2(_InIt _First, _InIt _Last,
+		_OutIt _Dest, _Fn2 _Func,
+		input_iterator_tag, _Mutable_iterator_tag)
+	{	// compute partial sums into _Dest, arbitrary iterators
+	return (_Partial_sum(_First, _Last,
+		_Dest, _Func, _Val_type(_First)));
+	}
+
+template<class _InIt,
+	class _OutIt,
+	class _Fn2> inline
+	_OutIt _Partial_sum2(_InIt _First, _InIt _Last,
+		_OutIt _Dest, _Fn2 _Func,
+		random_access_iterator_tag, random_access_iterator_tag)
+	{	// compute partial sums into _Dest, random-access iterators
+	_OutIt _Ans = _Dest + (_Last - _First);	// also checks range
+	_Partial_sum(_First, _Last,
+		_Unchecked(_Dest), _Func, _Val_type(_First));
+	return (_Ans);
+	}
+
+template<class _InIt,
+	class _OutIt,
+	class _Fn2> inline
+	_OutIt _Partial_sum2(_InIt _First, _InIt _Last,
+		_OutIt _Dest, _Fn2 _Func, true_type)
+	{	// compute partial sums into _Dest, using _Func
+	return (_Partial_sum2(_First, _Last,
+		_Dest, _Func, _Iter_cat(_First), _Iter_cat(_Dest)));
+	}
+
+template<class _InIt,
+	class _OutIt,
+	class _Fn2> inline
+_SCL_INSECURE_DEPRECATE
+	_OutIt _Partial_sum2(_InIt _First, _InIt _Last,
+		_OutIt _Dest, _Fn2 _Func, false_type)
+	{	// compute partial sums into _Dest, using _Func
+	return (_Partial_sum2(_First, _Last,
+		_Dest, _Func, _Iter_cat(_First), _Iter_cat(_Dest)));
+	}
+
+template<class _InIt,
+	class _OutIt,
+	class _Fn2> inline
+	_OutIt partial_sum(_InIt _First, _InIt _Last,
+		_OutIt _Dest, _Fn2 _Func)
+	{	// compute partial sums into _Dest, using _Func
+	_DEBUG_RANGE_PTR(_First, _Last, _Dest);
+	_DEBUG_POINTER_IF(_First != _Last, _Func);
+	return (_First == _Last ? _Dest
+		: _Partial_sum2(_Unchecked(_First), _Unchecked(_Last),
+			_Dest, _Func, _Is_checked(_Dest)));
+	}
+
+ #if _ITERATOR_DEBUG_ARRAY_OVERLOADS
+template<class _InIt,
+	class _OutTy,
+	size_t _OutSize,
+	class _Fn2> inline
+	_OutTy *partial_sum(_InIt _First, _InIt _Last,
+		_OutTy (&_Dest)[_OutSize], _Fn2 _Func)
+	{	// compute partial sums into _Dest, using _Func
+	return (_Unchecked(
+		_STD partial_sum(_First, _Last,
+			_Array_iterator<_OutTy, _OutSize>(_Dest), _Func)));
+	}
+ #endif /* _ITERATOR_DEBUG_ARRAY_OVERLOADS */
+ #endif /* _ITERATOR_DEBUG_LEVEL == 0 */
+
+		// TEMPLATE FUNCTION partial_sum
+template<class _InIt,
+	class _OutIt> inline
+	_OutIt partial_sum(_InIt _First, _InIt _Last,
+		_OutIt _Dest)
+	{	// compute partial sums into _Dest
+	return (_STD partial_sum(_First, _Last, _Dest, plus<>()));
+	}
+
+ #if _ITERATOR_DEBUG_ARRAY_OVERLOADS
+template<class _InIt,
+	class _OutTy,
+	size_t _OutSize> inline
+	_OutTy *partial_sum(_InIt _First, _InIt _Last,
+		_OutTy (&_Dest)[_OutSize])
+	{	// compute partial sums into _Dest
+	return (_STD partial_sum(_First, _Last, _Dest, plus<>()));
+	}
+ #endif /* _ITERATOR_DEBUG_ARRAY_OVERLOADS */
+
+		// TEMPLATE FUNCTION adjacent_difference WITH BINOP
+template<class _InIt,
+	class _OutIt,
+	class _Fn2,
+	class _Ty> inline
+	_OutIt _Adjacent_difference(_InIt _First, _InIt _Last,
+		_OutIt _Dest, _Fn2 _Func, _Ty *)
+	{	// compute adjacent differences into _Dest, using _Func
+	_Ty _Val = *_First;
+	for (*_Dest = _Val; ++_First != _Last; )
+		{	// compute another difference
+		_Ty _Tmp = *_First;
+		*++_Dest = _Func(_Tmp, _Val);
+		_Val = _STD move(_Tmp);
+		}
+	return (++_Dest);
+	}
+
+ #if _ITERATOR_DEBUG_LEVEL == 0
+template<class _InIt,
+	class _OutIt,
+	class _Fn2> inline
+	_OutIt adjacent_difference(_InIt _First, _InIt _Last,
+		_OutIt _Dest, _Fn2 _Func)
+	{	// compute adjacent differences into _Dest, using _Func
+	return (_First == _Last ? _Dest
+		: _Adjacent_difference(_Unchecked(_First), _Unchecked(_Last),
+			_Dest, _Func, _Val_type(_First)));
+	}
+
+ #else /* _ITERATOR_DEBUG_LEVEL == 0 */
+template<class _InIt,
+	class _OutIt,
+	class _Fn2> inline
+	_OutIt _Adjacent_difference2(_InIt _First, _InIt _Last,
+		_OutIt _Dest, _Fn2 _Func,
+		input_iterator_tag, _Mutable_iterator_tag)
+	{	// compute adjacent differences into _Dest, arbitrary iterators
+	return (_Adjacent_difference(_First, _Last,
+		_Dest, _Func, _Val_type(_First)));
+	}
+
+template<class _InIt,
+	class _OutIt,
+	class _Fn2> inline
+	_OutIt _Adjacent_difference2(_InIt _First, _InIt _Last,
+		_OutIt _Dest, _Fn2 _Func,
+		random_access_iterator_tag, random_access_iterator_tag)
+	{	// compute adjacent differences into _Dest, random-access iterators
+	_OutIt _Ans = _Dest + (_Last - _First);	// also checks range
+	_Adjacent_difference(_First, _Last,
+		_Unchecked(_Dest), _Func, _Val_type(_First));
+	return (_Ans);
+	}
+
+template<class _InIt,
+	class _OutIt,
+	class _Fn2> inline
+	_OutIt _Adjacent_difference2(_InIt _First, _InIt _Last,
+		_OutIt _Dest, _Fn2 _Func, true_type)
+	{	// compute adjacent differences into _Dest, using _Func
+	return (_Adjacent_difference2(_First, _Last,
+		_Dest, _Func, _Iter_cat(_First), _Iter_cat(_Dest)));
+	}
+
+template<class _InIt,
+	class _OutIt,
+	class _Fn2> inline
+_SCL_INSECURE_DEPRECATE
+	_OutIt _Adjacent_difference2(_InIt _First, _InIt _Last,
+		_OutIt _Dest, _Fn2 _Func, false_type)
+	{	// compute adjacent differences into _Dest, using _Func
+	return (_Adjacent_difference2(_First, _Last,
+		_Dest, _Func, _Iter_cat(_First), _Iter_cat(_Dest)));
+	}
+
+template<class _InIt,
+	class _OutIt,
+	class _Fn2> inline
+	_OutIt adjacent_difference(_InIt _First, _InIt _Last,
+		_OutIt _Dest, _Fn2 _Func)
+	{	// compute adjacent differences into _Dest, using _Func
+	_DEBUG_RANGE_PTR(_First, _Last, _Dest);
+	_DEBUG_POINTER_IF(_First != _Last, _Func);
+	return (_First == _Last ? _Dest
+		: _Adjacent_difference2(_Unchecked(_First), _Unchecked(_Last),
+			_Dest, _Func, _Is_checked(_Dest)));
+	}
+
+ #if _ITERATOR_DEBUG_ARRAY_OVERLOADS
+template<class _InIt,
+	class _OutTy,
+	size_t _OutSize,
+	class _Fn2> inline
+	_OutTy *adjacent_difference(_InIt _First, _InIt _Last,
+		_OutTy (&_Dest)[_OutSize], _Fn2 _Func)
+	{	// compute adjacent differences into _Dest, using _Func
+	return (_Unchecked(
+		_STD adjacent_difference(_First, _Last,
+			_Array_iterator<_OutTy, _OutSize>(_Dest), _Func)));
+	}
+ #endif /* _ITERATOR_DEBUG_ARRAY_OVERLOADS */
+ #endif /* _ITERATOR_DEBUG_LEVEL == 0 */
+
+		// TEMPLATE FUNCTION adjacent_difference
+template<class _InIt,
+	class _OutIt> inline
+	_OutIt adjacent_difference(_InIt _First, _InIt _Last,
+		_OutIt _Dest)
+	{	// compute adjacent differences into _Dest
+	return (_STD adjacent_difference(_First, _Last, _Dest,
+		minus<>()));
+	}
+
+ #if _ITERATOR_DEBUG_ARRAY_OVERLOADS
+template<class _InIt,
+	class _OutTy,
+	size_t _OutSize> inline
+	_OutTy *adjacent_difference(_InIt _First, _InIt _Last,
+		_OutTy (&_Dest)[_OutSize])
+	{	// compute adjacent differences into _Dest
+	return (_STD adjacent_difference(_First, _Last, _Dest,
+		minus<>()));
+	}
+ #endif /* _ITERATOR_DEBUG_ARRAY_OVERLOADS */
+
+template<class _FwdIt,
+	class _Ty> inline
+	void _Iota(_FwdIt _First, _FwdIt _Last, _Ty _Val)
+	{	// compute increasing sequence into [_First, _Last)
+	for (; _First != _Last; ++_First, (void)++_Val)
+		*_First = _Val;
+	}
+
+template<class _FwdIt,
+	class _Ty> inline
+	void iota(_FwdIt _First, _FwdIt _Last, _Ty _Val)
+	{	// compute increasing sequence into [_First, _Last)
+	_DEBUG_RANGE(_First, _Last);
+	_Iota(_Unchecked(_First), _Unchecked(_Last), _Val);
+	}
+_STD_END
+ #pragma pop_macro("new")
+ #pragma warning(pop)
+ #pragma pack(pop)
+#endif /* RC_INVOKED */
+#endif /* _NUMERIC_ */
+
+/*
+ * Copyright (c) by P.J. Plauger. All rights reserved.
+ * Consult your license regarding permissions and restrictions.
+V6.50:0009 */

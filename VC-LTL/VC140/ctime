@@ -1,0 +1,30 @@
+// ctime standard header
+#pragma once
+#ifndef _CTIME_
+#define _CTIME_
+#include <yvals.h>
+
+#ifdef _STD_USING
+ #undef _STD_USING
+  #include <time.h>
+ #define _STD_USING
+
+#else /* _STD_USING */
+ #include <time.h>
+#endif /* _STD_USING */
+
+ #if _GLOBAL_USING && !defined(RC_INVOKED)
+_STD_BEGIN
+using _CSTD clock_t; using _CSTD size_t;
+using _CSTD time_t; using _CSTD tm;
+using _CSTD asctime; using _CSTD clock; using _CSTD ctime;
+using _CSTD difftime; using _CSTD gmtime; using _CSTD localtime;
+using _CSTD mktime; using _CSTD strftime; using _CSTD time;
+_STD_END
+ #endif /* _GLOBAL_USING */
+#endif /* _CTIME_ */
+
+/*
+ * Copyright (c) by P.J. Plauger. All rights reserved.
+ * Consult your license regarding permissions and restrictions.
+V6.50:0009 */
