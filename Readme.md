@@ -99,29 +99,33 @@ CommandLine=notepad
 ## 第三方库 3rd-party
 
 - VC-LTL
-> 项目首页：https://github.com/Chuyu-Team/VC-LTL
-> 介绍和授权：
-> VC LTL 是一个开源的第三方修改VC库，大家都可以免费，无条件，甚至是用于商业环境。
-> 本库基于VC140修改，所以也同样适用Common Public License协议。
-> 但我也希望如果你可以在程序的说明文件中声明下，使用了此库，来使更多人受益。
-> ——mingkuang
+```
+项目首页：https://github.com/Chuyu-Team/VC-LTL
+介绍和授权：
+VC LTL 是一个开源的第三方修改VC库，大家都可以免费，无条件，甚至是用于商业环境。
+本库基于VC140修改，所以也同样适用Common Public License协议。
+但我也希望如果你可以在程序的说明文件中声明下，使用了此库，来使更多人受益。
+——mingkuang
+```
 
 - Process Hacker的PHNT库
-> 项目首页：http://processhacker.sourceforge.net/
-> 介绍和授权：
-> PHNT这是一个非常全的Native API定义库；我通过邮件获取了作者许可
-> 
-> 附作者的回复（也许我是第一个询问许可的人）：
-> Nevertheless some say that headers cannot be copyrighted and have copied phnt
->  verbatim anyway without asking me. So do what you will...
-> 
-> PS：我对该库进行了大幅度修改
-> （去除了内核模式定义和整合了头文件，而且对里面的宏进行了标准化处理）
-> 
-> 为了对Process Hacker的作者Wen Jia Liu表示感谢，我会把我的整理成果单独发在github
-> 不会有任何协议限制；如果你想感激的话，就请感谢Process Hacker作者的大度吧
-> 
-> 附整理成果地址：https://github.com/Chuyu-Team/NativeLib
+```
+项目首页：http://processhacker.sourceforge.net/
+介绍和授权：
+PHNT这是一个非常全的Native API定义库；我通过邮件获取了作者许可
+
+附作者的回复（也许我是第一个询问许可的人）：
+Nevertheless some say that headers cannot be copyrighted and have copied phnt
+  verbatim anyway without asking me. So do what you will...
+
+PS：我对该库进行了大幅度修改
+（去除了内核模式定义和整合了头文件，而且对里面的宏进行了标准化处理）
+
+为了对Process Hacker的作者Wen Jia Liu表示感谢，我会把我的整理成果单独发在github
+不会有任何协议限制；如果你想感激的话，就请感谢Process Hacker作者的大度吧
+ 
+附整理成果地址：https://github.com/Chuyu-Team/NativeLib
+```
 
 ------------
 MDL论坛根据地 MDL Post
