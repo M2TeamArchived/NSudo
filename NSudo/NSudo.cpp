@@ -21,6 +21,11 @@ bool g_GUIMode;
 
 CNSudo *g_pNSudo = nullptr;
 
+namespace ProjectInfo
+{
+	wchar_t VersionText[] = L"NSudo 4.0 (Build 1607)";
+}
+
 bool SuCreateProcess(
 	_In_opt_ HANDLE hToken,
 	_Inout_ LPWSTR lpCommandLine)
@@ -91,13 +96,13 @@ void SuMUIPrintMsg(
 	_In_ UINT uID)
 {
 	DWORD result;
-	wchar_t* szBuffer = (wchar_t*)MemAlloc(2048 * sizeof(wchar_t));
-	if (szBuffer)
+	CPtr<wchar_t*> szBuffer;
+	if (szBuffer.Alloc(2048 * sizeof(wchar_t)))
 	{
 		LoadStringW(hInstance, uID, szBuffer, 2048);
-		if (g_GUIMode) MessageBoxW(hWnd, szBuffer, L"NSudo", NULL);
-		else WriteConsoleW(g_hOut, szBuffer, wcslen(szBuffer), &result, NULL);
-		MemFree(szBuffer);
+		if (g_GUIMode) TaskDialog(
+			hWnd, hInstance, L"NSudo", nullptr, szBuffer, 0, nullptr, nullptr);
+		else WriteConsoleW(g_hOut, szBuffer, wcslen(szBuffer), &result, nullptr);
 	}
 }
 
@@ -106,12 +111,11 @@ void SuMUIInsComboBox(
 	_In_opt_ HWND hWnd,
 	_In_ UINT uID)
 {
-	wchar_t* szBuffer = (wchar_t*)MemAlloc(260 * sizeof(wchar_t));
-	if (szBuffer)
+	CPtr<wchar_t*> szBuffer;
+	if (szBuffer.Alloc(260 * sizeof(wchar_t)))
 	{
 		LoadStringW(hInstance, uID, szBuffer, 260);
-		SendMessageW(hWnd, CB_INSERTSTRING, 0, (LPARAM)szBuffer);
-		MemFree(szBuffer);
+		SendMessageW(hWnd, CB_INSERTSTRING, 0, (LPARAM)(wchar_t*)szBuffer);
 	}
 }
 
@@ -137,12 +141,11 @@ bool SuMUICompare(
 	_In_ LPCWSTR lpText)
 {
 	bool bRet = false;
-	wchar_t* szBuffer = (wchar_t*)MemAlloc(2048 * sizeof(wchar_t));
-	if (szBuffer)
+	CPtr<wchar_t*> szBuffer;
+	if (szBuffer.Alloc(2048 * sizeof(wchar_t)))
 	{
 		LoadStringW(hInstance, uID, szBuffer, 2048);		
 		bRet = (_wcsicmp(szBuffer, lpText) == 0);
-		MemFree(szBuffer);
 	}
 	return bRet;
 }
@@ -254,6 +257,70 @@ void SuGUIRun(
 	}
 }
 
+HRESULT CALLBACK SuAboutDialogCallback(
+	HWND hWnd,
+	UINT uNotification,
+	WPARAM wParam,
+	LPARAM lParam,
+	LONG_PTR dwRefData)
+{
+	HRESULT hr = S_OK;
+
+	switch (uNotification)
+	{
+	case TDN_HYPERLINK_CLICKED:
+		ShellExecuteW(hWnd, L"open", (LPCWSTR)lParam, nullptr, nullptr, SW_SHOW);
+		break;
+	}
+
+	return hr;
+}
+
+HRESULT SuShowAboutDialog(
+	_In_ HWND hwndParent,
+	_In_ HINSTANCE hInstance)
+{
+	CPtr<wchar_t*> szAboutText;
+
+	CPtr<wchar_t*> szFooterTitle;
+	CPtr<wchar_t*> szFooterContent;
+
+	if (!szAboutText.Alloc(128 * sizeof(wchar_t))) return ERROR_NOT_ENOUGH_MEMORY;
+	LoadStringW(hInstance, IDS_ABOUT, szAboutText, 128);
+
+	if (!szFooterTitle.Alloc(32 * sizeof(wchar_t))) return ERROR_NOT_ENOUGH_MEMORY;
+	LoadStringW(hInstance, IDS_ABOUT_FOOTERTITLE, szFooterTitle, 32);
+
+	if (!szFooterContent.Alloc(512 * sizeof(wchar_t))) return ERROR_NOT_ENOUGH_MEMORY;
+	LoadStringW(hInstance, IDS_HELP, szFooterContent, 512);
+	
+	TASKDIALOGCONFIG tdConfig;
+	memset(&tdConfig, 0, sizeof(tdConfig));
+
+	tdConfig.cbSize = sizeof(TASKDIALOGCONFIG);
+	tdConfig.hwndParent = hwndParent;
+	tdConfig.hInstance = hInstance;
+	tdConfig.pfCallback = SuAboutDialogCallback;
+	tdConfig.cxWidth = 240;
+	tdConfig.pszWindowTitle = L"NSudo";
+	tdConfig.pszMainIcon = MAKEINTRESOURCE(IDI_NSUDO);
+	tdConfig.pszMainInstruction = ProjectInfo::VersionText;
+	tdConfig.pszContent = szAboutText;
+	tdConfig.pszFooterIcon = TD_INFORMATION_ICON;
+	tdConfig.pszFooter = 
+		L"<a href=\""
+		L"http://shang.qq.com/wpa/qunwpa?idkey=29940ed5c8b2363efcf8a1c376f280c4a46c4e356d5533af48541418ff13ada2"
+		L"\">官方群(Offical QQ Group): 466078631</a>\r\n"
+		L"<a href=\""
+		L"https://m2team.github.io/NSudo"
+		L"\">项目首页(Project Site): https://m2team.github.io/NSudo</a>";
+	tdConfig.pszExpandedControlText = szFooterTitle;
+	tdConfig.pszExpandedInformation = szFooterContent;
+	tdConfig.dwFlags = TDF_ALLOW_DIALOG_CANCELLATION |TDF_ENABLE_HYPERLINKS | TDF_EXPAND_FOOTER_AREA;
+
+	return TaskDialogIndirect(&tdConfig, nullptr, nullptr, nullptr);
+}
+
 
 INT_PTR CALLBACK DialogCallBack(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -266,6 +333,9 @@ INT_PTR CALLBACK DialogCallBack(HWND hDlg, UINT message, WPARAM wParam, LPARAM l
 	
 	switch (message)
 	{
+	case WM_CLOSE:
+		EndDialog(hDlg, 0);
+		break;
 	case WM_INITDIALOG:
 		// Show NSudo Logo
 		SendMessageW(
@@ -337,22 +407,19 @@ INT_PTR CALLBACK DialogCallBack(HWND hDlg, UINT message, WPARAM wParam, LPARAM l
 			SuGUIRun(hDlg, szUser, szPrivilege, szMandatory, szCMDLine);
 			break;
 		case IDC_About:
-			SuMUIPrintMsg(g_hInstance, hDlg, IDS_ABOUT);
+			SuShowAboutDialog(hDlg, g_hInstance);
 			break;
-		case IDC_Browse:
-			szBuffer[0] = L'\"';
+		case IDC_Browse:		
 			szBuffer[1] = L'\0';
 			NSudoBrowseDialog(hDlg, &szBuffer[1]);
-			wcscat_s(szBuffer, 512, L"\"");
-			SetDlgItemTextW(hDlg, IDC_szPath, szBuffer);		
-			break;
-		}
-		break;
-	case WM_SYSCOMMAND:
-		switch (LOWORD(wParam))
-		{
-		case SC_CLOSE:
-			PostQuitMessage(0);
+
+			if (szBuffer[1] != L'\0')
+			{
+				szBuffer[0] = L'\"';
+				wcscat_s(szBuffer, 512, L"\"");
+				SetDlgItemTextW(hDlg, IDC_szPath, szBuffer);
+			}
+
 			break;
 		}
 		break;
@@ -395,6 +462,10 @@ int main()
 	}
 	else
 	{
+		DWORD result;
+		WriteConsoleW(g_hOut, ProjectInfo::VersionText, wcslen(ProjectInfo::VersionText), &result, nullptr);
+		WriteConsoleW(g_hOut, L"\n", wcslen(L"\n"), &result, nullptr);
+
 		SuMUIPrintMsg(g_hInstance, NULL, IDS_ABOUT);
 
 		bool bCMDLineArgEnable = true;

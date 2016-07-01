@@ -19,7 +19,7 @@ int WINAPI wWinMain(
 	ofn.lStructSize = sizeof(OPENFILENAME);
 	ofn.nMaxFile = MAX_PATH;
 	ofn.nMaxFileTitle = MAX_PATH;
-	ofn.Flags = OFN_HIDEREADONLY | OFN_FORCESHOWHIDDEN;
+	ofn.Flags = OFN_HIDEREADONLY | OFN_FORCESHOWHIDDEN | OFN_ALLOWMULTISELECT | OFN_EXPLORER;
 	ofn.lpstrInitialDir = g_AppPath;
 
 	GetOpenFileNameW(&ofn);
