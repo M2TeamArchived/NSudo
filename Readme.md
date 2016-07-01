@@ -122,21 +122,5 @@ PS：我对该库进行了大幅度修改
 附整理成果地址：https://github.com/Chuyu-Team/NativeLib
 ```
 
-## 为何该工具叫NSudo? Why this tool is called NSudo?
-
-NSudo可以简单理解为N-Series Sudo
-
-N-Series是我从NKMSKit工具开始的前缀系列
-（叫N-Series的理由其实我也不知道，也许是希望该工具和Naruto一样硬派）
-Sudo可以参考Linux下Sudo的作用 
-
-当时NSudo还叫NTIShell，我想改名，与朋友Microsoft_Mars探讨
-朋友对我提出了N-Series概念，希望我的所有工具都能以N开头命名
-我当时想了很多名字都不完美，突然朋友发了个消息告诉我
-“也许NTIShell的作用和Linux下的Sudo命令差不多，都是拿到最高权限”
-于是敲定，使用NSudo作为NTIShell的新名字
-
-所以说Micrsoft_Mars是命名NSudo的人之一，是一点也不为过的
-
 ------------
 Have a good time -- M2-Team参上
