@@ -68,11 +68,6 @@ CommandLine=notepad
 如果您想捐赠此项目，请使用 支付宝 Alipay 向我们的帐号  wxh32lkk@live.cn  进行付款。你们的捐赠是我（们）开发的动力（之一，还有我们的爱好~）。
 
 
-下载 Download
-
-https://zh-cn.b0.upaiyun.com/lite/NSudo2016.1.zip 
-
-
 交流 Communication
 
 如果碰到什么问题，可以在NSudo官方群（QQ群： 466078631 ）探讨

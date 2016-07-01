@@ -17,8 +17,11 @@
 
 #include <Windows.h>
 
-#include<Userenv.h>
-#pragma comment(lib,"Userenv.lib")
+//#include<Userenv.h>
+//#pragma comment(lib,"Userenv.lib")
+
+#include <commctrl.h>
+#pragma comment(lib, "comctl32.lib")
 
 #include "..\NSudoSDK\M2.BaseLib.hpp"
 
