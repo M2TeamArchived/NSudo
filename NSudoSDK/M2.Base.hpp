@@ -147,7 +147,7 @@ namespace M2
 	static DWORD WINAPI M2StartService(
 		_In_ LPCWSTR lpServiceName)
 	{
-		DWORD dwPID = -1;
+		DWORD dwPID = (DWORD)-1;
 		SERVICE_STATUS_PROCESS ssStatus;
 		SC_HANDLE schSCManager = nullptr;
 		SC_HANDLE schService = nullptr;

@@ -8,10 +8,12 @@
 建议的Windows SDK版本：10.0.10586及以后
 ***************************************************************************/
 
-#pragma once
-
 #ifndef NATIVELIB
 #define NATIVELIB
+
+#if _MSC_VER > 1000
+#pragma once
+#endif
 
 // Process Hacker对phnt库的注释（仅供参考）
 
@@ -38,6 +40,17 @@
 
 // Version
 #include <SDKDDKVer.h>
+
+// Disable Warnings
+
+#if _MSC_VER >= 1200
+#pragma warning(push)
+#pragma warning(disable:4201) // nameless struct/union
+#pragma warning(disable:4214) // bit field types other than int
+#pragma warning(disable:4324) // structure was padded due to __declspec(align())
+#pragma warning(disable:4668) // #if not_defined treated as #if 0
+#pragma warning(disable:4820) // padding added after data member
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -11701,15 +11714,13 @@ extern "C" {
 		_In_ _Post_invalid_ PRTL_USER_PROCESS_PARAMETERS ProcessParameters
 	);
 
-	NTSYSAPI PRTL_USER_PROCESS_PARAMETERS
-		NTAPI RtlNormalizeProcessParams(
-			_Inout_ PRTL_USER_PROCESS_PARAMETERS ProcessParameters
-		);
+	NTSYSAPI PRTL_USER_PROCESS_PARAMETERS NTAPI RtlNormalizeProcessParams(
+		_Inout_ PRTL_USER_PROCESS_PARAMETERS ProcessParameters
+	);
 
-	NTSYSAPI PRTL_USER_PROCESS_PARAMETERS
-		NTAPI RtlDeNormalizeProcessParams(
-			_Inout_ PRTL_USER_PROCESS_PARAMETERS ProcessParameters
-		);
+	NTSYSAPI PRTL_USER_PROCESS_PARAMETERS NTAPI RtlDeNormalizeProcessParams(
+		_Inout_ PRTL_USER_PROCESS_PARAMETERS ProcessParameters
+	);
 
 	typedef struct _RTL_USER_PROCESS_INFORMATION
 	{
@@ -17926,6 +17937,10 @@ extern "C" {
 
 #ifdef __cplusplus
 }
+#endif
+
+#if _MSC_VER >= 1200
+#pragma warning(pop)
 #endif
 
 #endif

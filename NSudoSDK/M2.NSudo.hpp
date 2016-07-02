@@ -398,7 +398,7 @@ namespace M2
 			DWORD Length = 0;
 			CPtr<PTOKEN_PRIVILEGES> pTPs;
 			HANDLE hTemp = INVALID_HANDLE_VALUE;
-			DWORD Attributes = -1;
+			DWORD Attributes = (DWORD)-1;
 
 			// 执行操作
 			if (Option == RemoveMost)
@@ -571,7 +571,7 @@ namespace M2
 		}
 
 	private:
-		DWORD m_dwProcessId = -1;
+		DWORD m_dwProcessId = (DWORD)-1;
 		HANDLE m_hProcess = INVALID_HANDLE_VALUE;
 	};
 	
@@ -600,7 +600,7 @@ namespace M2
 			m_dwAvailableLevel++;
 
 			// 获取当前会话ID下的winlogon的PID
-			DWORD dwWinLogonPID = -1;
+			DWORD dwWinLogonPID = (DWORD)-1;
 
 			// 初始化进程遍历
 			CProcessSnapshot Snapshot(&m_Status);
@@ -749,14 +749,14 @@ namespace M2
 						*NewToken = nullptr;
 					}
 				}
-
-				return bRet;
 			}
+
+			return bRet;
 		}
 
 	private:
 		NTSTATUS m_Status = 0;
-		DWORD m_dwAvailableLevel = -1;
+		DWORD m_dwAvailableLevel = (DWORD)-1;
 		CToken *m_pCurrentToken = nullptr;
 		CToken *m_SystemToken = nullptr;
 	};
