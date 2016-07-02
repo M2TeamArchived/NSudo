@@ -122,7 +122,7 @@ void SuMUIPrintMsg(
 		LoadStringW(hInstance, uID, szBuffer, 2048);
 		if (g_GUIMode) TaskDialog(
 			hWnd, hInstance, L"NSudo", nullptr, szBuffer, 0, nullptr, nullptr);
-		else WriteConsoleW(g_hOut, szBuffer, wcslen(szBuffer), &result, nullptr);
+		else WriteConsoleW(g_hOut, szBuffer, (DWORD)wcslen(szBuffer), &result, nullptr);
 	}
 }
 
@@ -281,9 +281,9 @@ void SuGUIRun(
 HRESULT CALLBACK SuAboutDialogCallback(
 	HWND hWnd,
 	UINT uNotification,
-	WPARAM /*wParam*/,
+	WPARAM wParam,
 	LPARAM lParam,
-	LONG_PTR /*dwRefData*/)
+	LONG_PTR dwRefData)
 {
 	HRESULT hr = S_OK;
 
@@ -333,7 +333,7 @@ INT_PTR CALLBACK DialogCallBack(
 	HWND hDlg, 
 	UINT message,
 	WPARAM wParam,
-	LPARAM /*lParam*/)
+	LPARAM lParam)
 {
 	HWND hUserName = GetDlgItem(hDlg, IDC_UserName);
 	HWND hTokenPrivilege = GetDlgItem(hDlg, IDC_TokenPrivilege);
@@ -474,8 +474,8 @@ int main()
 	else
 	{
 		DWORD result;
-		WriteConsoleW(g_hOut, ProjectInfo::VersionText, wcslen(ProjectInfo::VersionText), &result, nullptr);
-		WriteConsoleW(g_hOut, L"\n", wcslen(L"\n"), &result, nullptr);
+		WriteConsoleW(g_hOut, ProjectInfo::VersionText, (DWORD)wcslen(ProjectInfo::VersionText), &result, nullptr);
+		WriteConsoleW(g_hOut, L"\n", (DWORD)wcslen(L"\n"), &result, nullptr);
 
 		SuMUIPrintMsg(g_hInstance, NULL, IDS_ABOUT);
 

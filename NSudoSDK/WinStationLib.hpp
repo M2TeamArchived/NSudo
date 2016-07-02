@@ -21,6 +21,12 @@
 // Version
 #include <SDKDDKVer.h>
 
+// Disable Warnings
+#if _MSC_VER >= 1200
+#pragma warning(push)
+#pragma warning(disable:4820) // padding added after data member
+#endif
+
 #ifdef __cplusplus
 extern "C"
 {
@@ -716,6 +722,10 @@ extern "C"
 	// end_msdn
 #ifdef __cplusplus
 }
+#endif
+
+#if _MSC_VER >= 1200
+#pragma warning(pop)
 #endif
 
 #endif // !M2_WINSTATION

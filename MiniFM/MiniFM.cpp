@@ -3,11 +3,21 @@
 
 #include "stdafx.h"
 
+// Disable Warnings
+#if _MSC_VER >= 1200
+#pragma warning(push)
+#pragma warning(disable:4820) // padding added after data member
+#endif
+
 #include <shobjidl.h>               // for IFileDialog/IFileOpenDialog/IFileSaveDialog
 
-#pragma comment(lib,"shlwapi.lib")
+#if _MSC_VER >= 1200
+#pragma warning(pop)
+#endif
 
+#ifndef _DEBUG
 #pragma comment(linker, "/ENTRY:EntryPoint") 
+#endif 
 
 void EntryPoint()
 {
@@ -17,10 +27,10 @@ void EntryPoint()
 		nullptr,
 		SW_SHOWNORMAL);
 	
-	ExitProcess(uExitCode);
+	ExitProcess((UINT)uExitCode);
 }
 
-int WINAPI wWinMain1(
+/*int WINAPI wWinMain(
 	_In_ HINSTANCE hInstance,
 	_In_opt_ HINSTANCE hPrevInstance,
 	_In_ LPWSTR lpCmdLine,
@@ -41,7 +51,7 @@ int WINAPI wWinMain1(
 	GetOpenFileNameW(&ofn);
 
 	return 0;
-}
+}*/
 
 int WINAPI wWinMain(
 	_In_ HINSTANCE hInstance,

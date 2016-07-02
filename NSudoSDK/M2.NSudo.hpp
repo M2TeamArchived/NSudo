@@ -10,6 +10,13 @@
 
 #pragma once
 
+// Disable Warnings
+#if _MSC_VER >= 1200
+#pragma warning(push)
+#pragma warning(disable:4312) // conversion from 'type1' to 'type2' of greater size
+#pragma warning(disable:4820) // padding added after data member
+#endif
+
 namespace M2
 {
 	// 令牌特权列表
@@ -134,7 +141,7 @@ namespace M2
 				lpTokenAttributes->nLength == sizeof(SECURITY_ATTRIBUTES))
 			{
 				ObjAttr.Attributes =
-					lpTokenAttributes->bInheritHandle ? OBJ_INHERIT : 0;
+					(ULONG)(lpTokenAttributes->bInheritHandle ? OBJ_INHERIT : 0);
 				ObjAttr.SecurityDescriptor =
 					lpTokenAttributes->lpSecurityDescriptor;
 			}
@@ -297,7 +304,7 @@ namespace M2
 
 			// 复制ACE
 
-			for (int i = 0;
+			for (ULONG i = 0;
 				NT_SUCCESS(RtlGetAce(pAcl, i, (PVOID*)&pTempAce));
 				i++)
 			{
@@ -377,7 +384,7 @@ namespace M2
 
 			TP.PrivilegeCount = 1;
 			TP.Privileges[0].Luid.LowPart = Privilege;
-			TP.Privileges[0].Attributes = bEnable ? SE_PRIVILEGE_ENABLED : 0;
+			TP.Privileges[0].Attributes = (DWORD)(bEnable ? SE_PRIVILEGE_ENABLED : 0);
 
 			// 设置令牌特权
 			status = NtAdjustPrivilegesToken(
@@ -633,7 +640,7 @@ namespace M2
 		}
 
 		// 获取可用等级（-1 不可用, 0 可用, 1 已提升, 2 已获取System令牌）
-		DWORD GetAvailableLevel()
+		long GetAvailableLevel()
 		{
 			return m_dwAvailableLevel;
 		}
@@ -756,9 +763,13 @@ namespace M2
 
 	private:
 		NTSTATUS m_Status = 0;
-		DWORD m_dwAvailableLevel = (DWORD)-1;
+		long m_dwAvailableLevel = -1;
 		CToken *m_pCurrentToken = nullptr;
 		CToken *m_SystemToken = nullptr;
 	};
 
 }
+
+#if _MSC_VER >= 1200
+#pragma warning(pop)
+#endif

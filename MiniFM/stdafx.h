@@ -5,6 +5,9 @@
 
 #pragma once
 
+#pragma warning(disable: 4100) // unreferenced formal parameter
+#pragma warning(disable: 4505) //Unreferenced local function has been removed
+
 #ifndef _DEBUG
 #define _CRT_SECURE_NO_WARNINGS
 #include <_msvcrt.h>
