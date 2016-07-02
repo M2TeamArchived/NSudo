@@ -8,15 +8,24 @@
 建议的Windows SDK版本：10.0.10586及以后
 ***************************************************************************/
 
-#pragma once
-
 #ifndef WINSTATIONLIB
 #define WINSTATIONLIB
 
+#if _MSC_VER > 1000
+#pragma once
+#endif
+
+// winsta.lib
 #pragma comment(lib,"winsta.lib")
 
+// Version
+#include <SDKDDKVer.h>
+
+#ifdef __cplusplus
 extern "C"
 {
+#endif
+
 	// begin_msdn:http://msdn.microsoft.com/en-us/library/cc248779%28PROT.10%29.aspx
 
 	// Access rights
@@ -705,6 +714,8 @@ extern "C"
 	);
 
 	// end_msdn
+#ifdef __cplusplus
 }
+#endif
 
 #endif // !M2_WINSTATION

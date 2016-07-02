@@ -34,12 +34,12 @@ bool SuCreateProcess(
 
 	const DWORD dwFlags = CREATE_NO_WINDOW | CREATE_UNICODE_ENVIRONMENT;
 
-	STARTUPINFOW SI = { 0 };
-	PROCESS_INFORMATION PI = { 0 };
+	STARTUPINFOW StartupInfo = { 0 };
+	PROCESS_INFORMATION ProcessInfo = { 0 };
 	wchar_t szBuf[512], szSystemDirectory[260];
 
 	//设置进程所在桌面
-	SI.lpDesktop = L"WinSta0\\Default";
+	StartupInfo.lpDesktop = L"WinSta0\\Default";
 
 	//获取系统目录
 	GetSystemDirectoryW(szSystemDirectory, 260);
@@ -50,9 +50,29 @@ bool SuCreateProcess(
 		szSystemDirectory, szSystemDirectory, lpCommandLine);
 
 	//启动进程
-	if (!CreateProcessAsUserW(hToken, nullptr, szBuf, nullptr, nullptr, FALSE, dwFlags, nullptr, g_AppPath, &SI, &PI))
+	if (!CreateProcessAsUserW(
+		hToken, 
+		nullptr, 
+		szBuf,
+		nullptr,
+		nullptr,
+		FALSE, 
+		dwFlags,
+		nullptr,
+		g_AppPath, 
+		&StartupInfo,
+		&ProcessInfo))
 	{
-		if (!CreateProcessWithTokenW(hToken, LOGON_WITH_PROFILE, nullptr, szBuf, dwFlags, nullptr, g_AppPath, &SI, &PI))
+		if (!CreateProcessWithTokenW(
+			hToken,
+			LOGON_WITH_PROFILE, 
+			nullptr,
+			szBuf,
+			dwFlags,
+			nullptr, 
+			g_AppPath, 
+			&StartupInfo,
+			&ProcessInfo))
 		{
 			bRet = false;
 		}
@@ -61,8 +81,8 @@ bool SuCreateProcess(
 	//关闭句柄
 	if (bRet)
 	{
-		NtClose(PI.hProcess);
-		NtClose(PI.hThread);
+		NtClose(ProcessInfo.hProcess);
+		NtClose(ProcessInfo.hThread);
 	}
 
 	//返回结果
@@ -167,7 +187,8 @@ void SuGUIRun(
 		wchar_t szBuffer[512] = { NULL };
 
 		wchar_t szPath[260];
-		DWORD dwLength = GetPrivateProfileStringW(szCMDLine, L"CommandLine", L"", szPath, 260, g_ShortCutListPath);
+		GetPrivateProfileStringW(
+			szCMDLine, L"CommandLine", L"", szPath, 260, g_ShortCutListPath);
 
 		if (wcscmp(szPath, L"") != 0)
 		{
@@ -260,9 +281,9 @@ void SuGUIRun(
 HRESULT CALLBACK SuAboutDialogCallback(
 	HWND hWnd,
 	UINT uNotification,
-	WPARAM wParam,
+	WPARAM /*wParam*/,
 	LPARAM lParam,
-	LONG_PTR dwRefData)
+	LONG_PTR /*dwRefData*/)
 {
 	HRESULT hr = S_OK;
 
@@ -280,20 +301,6 @@ HRESULT SuShowAboutDialog(
 	_In_ HWND hwndParent,
 	_In_ HINSTANCE hInstance)
 {
-	CPtr<wchar_t*> szAboutText;
-
-	CPtr<wchar_t*> szFooterTitle;
-	CPtr<wchar_t*> szFooterContent;
-
-	if (!szAboutText.Alloc(128 * sizeof(wchar_t))) return ERROR_NOT_ENOUGH_MEMORY;
-	LoadStringW(hInstance, IDS_ABOUT, szAboutText, 128);
-
-	if (!szFooterTitle.Alloc(32 * sizeof(wchar_t))) return ERROR_NOT_ENOUGH_MEMORY;
-	LoadStringW(hInstance, IDS_ABOUT_FOOTERTITLE, szFooterTitle, 32);
-
-	if (!szFooterContent.Alloc(512 * sizeof(wchar_t))) return ERROR_NOT_ENOUGH_MEMORY;
-	LoadStringW(hInstance, IDS_HELP, szFooterContent, 512);
-	
 	TASKDIALOGCONFIG tdConfig;
 	memset(&tdConfig, 0, sizeof(tdConfig));
 
@@ -305,7 +312,7 @@ HRESULT SuShowAboutDialog(
 	tdConfig.pszWindowTitle = L"NSudo";
 	tdConfig.pszMainIcon = MAKEINTRESOURCE(IDI_NSUDO);
 	tdConfig.pszMainInstruction = ProjectInfo::VersionText;
-	tdConfig.pszContent = szAboutText;
+	tdConfig.pszContent = MAKEINTRESOURCE(IDS_ABOUT);
 	tdConfig.pszFooterIcon = TD_INFORMATION_ICON;
 	tdConfig.pszFooter = 
 		L"<a href=\""
@@ -314,15 +321,19 @@ HRESULT SuShowAboutDialog(
 		L"<a href=\""
 		L"https://m2team.github.io/NSudo"
 		L"\">项目首页(Project Site): https://m2team.github.io/NSudo</a>";
-	tdConfig.pszExpandedControlText = szFooterTitle;
-	tdConfig.pszExpandedInformation = szFooterContent;
+	tdConfig.pszExpandedControlText = MAKEINTRESOURCE(IDS_ABOUT_FOOTERTITLE);
+	tdConfig.pszExpandedInformation = MAKEINTRESOURCE(IDS_HELP);
 	tdConfig.dwFlags = TDF_ALLOW_DIALOG_CANCELLATION |TDF_ENABLE_HYPERLINKS | TDF_EXPAND_FOOTER_AREA;
 
 	return TaskDialogIndirect(&tdConfig, nullptr, nullptr, nullptr);
 }
 
 
-INT_PTR CALLBACK DialogCallBack(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+INT_PTR CALLBACK DialogCallBack(
+	HWND hDlg, 
+	UINT message,
+	WPARAM wParam,
+	LPARAM /*lParam*/)
 {
 	HWND hUserName = GetDlgItem(hDlg, IDC_UserName);
 	HWND hTokenPrivilege = GetDlgItem(hDlg, IDC_TokenPrivilege);
@@ -382,15 +393,15 @@ INT_PTR CALLBACK DialogCallBack(HWND hDlg, UINT message, WPARAM wParam, LPARAM l
 
 			for (DWORD i = 0, j = 0; i < dwLength; i++, j++)
 			{
-				if (szBuf[i] != NULL)
+				if (szBuf[i] != L'\0')
 				{
 					szItem[j] = szBuf[i];
 				}
 				else
 				{
-					szItem[j] = NULL;
+					szItem[j] = L'\0';
 					SendMessageW(hszPath, CB_INSERTSTRING, 0, (LPARAM)szItem);
-					j = -1;
+					j = (DWORD)-1;				
 				}
 			}
 		}
@@ -496,7 +507,7 @@ int main()
 				case 'U':
 				case 'u':
 				{
-					if (g_argv[i][2] = L':')
+					if (g_argv[i][2] == L':')
 					{
 						switch (g_argv[i][3])
 						{
@@ -544,7 +555,7 @@ int main()
 				{
 					if (pToken)
 					{
-						if (g_argv[i][2] = L':')
+						if (g_argv[i][2] == L':')
 						{
 							switch (g_argv[i][3])
 							{
@@ -569,7 +580,7 @@ int main()
 				{
 					if (pToken)
 					{
-						if (g_argv[i][2] = L':')
+						if (g_argv[i][2] == L':')
 						{
 							switch (g_argv[i][3])
 							{
@@ -608,8 +619,8 @@ int main()
 				{
 					wchar_t szPath[260];
 
-					DWORD dwLength = GetPrivateProfileStringW(g_argv[i],
-						L"CommandLine", L"", szPath, 260, g_ShortCutListPath);
+					GetPrivateProfileStringW(
+						g_argv[i], L"CommandLine", L"", szPath, 260, g_ShortCutListPath);
 
 					wcscmp(szPath, L"") != 0 ?
 						szBuffer = szPath : szBuffer = (g_argv[i]);
