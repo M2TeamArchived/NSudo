@@ -42,12 +42,12 @@
 #include <SDKDDKVer.h>
 
 // Disable Warnings
-
 #if _MSC_VER >= 1200
 #pragma warning(push)
 #pragma warning(disable:4201) // nameless struct/union
 #pragma warning(disable:4214) // bit field types other than int
 #pragma warning(disable:4324) // structure was padded due to __declspec(align())
+#pragma warning(disable:4471) // for unscoped enumerations
 #pragma warning(disable:4668) // #if not_defined treated as #if 0
 #pragma warning(disable:4820) // padding added after data member
 #endif
@@ -3258,6 +3258,15 @@ extern "C" {
 #define NX_SUPPORT_POLICY_OPTIN 2
 #define NX_SUPPORT_POLICY_OPTOUT 3
 
+	// Disable Warning (/Wall) for KUSER_SHARED_DATA
+#if _MSC_VER >= 1200
+#pragma warning(push)
+#pragma warning(disable:4625)
+#pragma warning(disable:4626)
+#pragma warning(disable:5026)
+#pragma warning(disable:5027)
+#endif
+
 #include <pshpack4.h>
 	typedef struct _KUSER_SHARED_DATA
 	{
@@ -3406,6 +3415,10 @@ extern "C" {
 		XSTATE_CONFIGURATION XState;
 	} KUSER_SHARED_DATA, *PKUSER_SHARED_DATA;
 #include <poppack.h>
+
+#if _MSC_VER >= 1200
+#pragma warning(pop)
+#endif
 
 	C_ASSERT(FIELD_OFFSET(KUSER_SHARED_DATA, TickCountMultiplier) == 0x4);
 	C_ASSERT(FIELD_OFFSET(KUSER_SHARED_DATA, InterruptTime) == 0x8);
@@ -9866,7 +9879,7 @@ extern "C" {
 		_In_ PLIST_ENTRY ListHead
 	)
 	{
-		return ListHead->Flink == ListHead;
+		return (BOOLEAN)(ListHead->Flink == ListHead);
 	}
 
 	FORCEINLINE BOOLEAN RemoveEntryList(
@@ -9881,7 +9894,7 @@ extern "C" {
 		Blink->Flink = Flink;
 		Flink->Blink = Blink;
 
-		return Flink == Blink;
+		return (BOOLEAN)(Flink == Blink);
 	}
 
 	FORCEINLINE PLIST_ENTRY RemoveHeadList(
@@ -10803,7 +10816,7 @@ extern "C" {
 		if (SourceString)
 		{
 			DestinationString->Length = (USHORT)strlen(SourceString);
-			DestinationString->MaximumLength = DestinationString->Length + 1;
+			DestinationString->MaximumLength = (USHORT)(DestinationString->Length + 1);
 		}
 		else
 		{
@@ -12752,14 +12765,13 @@ extern "C" {
 #if (_WIN32_WINNT >= _WIN32_WINNT_VISTA)
 	// private
 	NTSYSAPI HANDLE NTAPI RtlGetCurrentTransaction(
-		VOID);
-#endif
+		VOID
+	);
 
-#if (_WIN32_WINNT >= _WIN32_WINNT_VISTA)
 	// private
-	NTSYSAPI LOGICAL
-		NTAPI RtlSetCurrentTransaction(
-			_In_ HANDLE TransactionHANDLE);
+	NTSYSAPI LOGICAL NTAPI RtlSetCurrentTransaction(
+		_In_ HANDLE TransactionHANDLE
+	);
 #endif
 
 	// LUIDs
@@ -12769,15 +12781,14 @@ extern "C" {
 		_In_ PLUID L2
 	)
 	{
-		return L1->LowPart == L2->LowPart &&
-			L1->HighPart == L2->HighPart;
+		return (BOOLEAN)(L1->LowPart == L2->LowPart && L1->HighPart == L2->HighPart);
 	}
 
 	FORCEINLINE BOOLEAN RtlIsZeroLuid(
 		_In_ PLUID L1
 	)
 	{
-		return (L1->LowPart | L1->HighPart) == 0;
+		return (BOOLEAN)((L1->LowPart | L1->HighPart) == 0);
 	}
 
 	FORCEINLINE LUID RtlConvertLongToLuid(
@@ -13357,7 +13368,7 @@ extern "C" {
 #ifdef _WIN64
 		return BitTest64((LONG64 const *)BitMapHeader->Buffer, (LONG64)BitPosition);
 #else
-		return (((PLONG)BitMapHeader->Buffer)[BitPosition / 32] >> (BitPosition % 32)) & 0x1;
+		return BOOLEAN((((PLONG)BitMapHeader->Buffer)[BitPosition / 32] >> (BitPosition % 32)) & 0x1);
 #endif
 	}
 

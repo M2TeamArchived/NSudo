@@ -5,6 +5,15 @@
 
 #pragma once
 
+// Disable Warnings
+#if _MSC_VER >= 1200
+//#pragma warning(disable:4018) // signed/unsigned mismatch
+#pragma warning(disable:4100) // unreferenced formal parameter
+#pragma warning(disable:4505) // Unreferenced local function has been removed
+#pragma warning(disable:4710) // function not inlined
+#pragma warning(disable:4711) // function 'function' selected for inline expansion
+#endif
+
 #ifndef _DEBUG
 #define _CRT_SECURE_NO_WARNINGS
 #include <_msvcrt.h>
@@ -17,13 +26,21 @@
 
 #include <Windows.h>
 
-//#include<Userenv.h>
-//#pragma comment(lib,"Userenv.lib")
+// Disable Warnings
+#if _MSC_VER >= 1200
+#pragma warning(push)
+#pragma warning(disable:4464) // relative include path contains '..'
+#endif
+
+// NSudoSDK
+#include "..\NSudoSDK\M2.BaseLib.hpp"
+
+#if _MSC_VER >= 1200
+#pragma warning(pop)
+#endif
 
 #include <commctrl.h>
 #pragma comment(lib, "comctl32.lib")
-
-#include "..\NSudoSDK\M2.BaseLib.hpp"
 
 #pragma comment(linker,"/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 
