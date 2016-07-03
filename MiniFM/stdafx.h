@@ -5,8 +5,15 @@
 
 #pragma once
 
-#pragma warning(disable: 4100) // unreferenced formal parameter
-#pragma warning(disable: 4505) //Unreferenced local function has been removed
+// 为编译通过而禁用的警告
+#if _MSC_VER >= 1200
+// 为了不去掉未使用的形参，于是禁用该警告
+#pragma warning(disable:4100) // 未使用的形参(等级 4)
+// 编译器优化可能出现的警告（去除未引用函数并适当对一些函数使用内联）
+#pragma warning(disable:4505) // 未引用的本地函数已移除(等级 4)
+#pragma warning(disable:4710) // 函数未内联(等级 4)
+#pragma warning(disable:4711) // 为自动内联扩展选定了函数(等级 1,只是提示信息)
+#endif
 
 #ifndef _DEBUG
 #define _CRT_SECURE_NO_WARNINGS
@@ -21,19 +28,3 @@
 #include <Windows.h>
 
 #pragma comment(linker,"/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
-
-//
-// Indices of file types
-//
-#define INDEX_WORDDOC 1
-#define INDEX_WEBPAGE 2
-#define INDEX_TEXTDOC 3
-
-//
-// Controls
-//
-#define CONTROL_GROUP           2000
-#define CONTROL_RADIOBUTTONLIST 2
-#define CONTROL_RADIOBUTTON1    1
-#define CONTROL_RADIOBUTTON2    2       // It is OK for this to have the same ID as CONTROL_RADIOBUTTONLIST, 
-// because it is a child control under CONTROL_RADIOBUTTONLIST

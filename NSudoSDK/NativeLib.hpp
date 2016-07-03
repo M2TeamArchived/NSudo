@@ -41,15 +41,16 @@
 // Version
 #include <SDKDDKVer.h>
 
-// Disable Warnings
+// 为编译通过而禁用的警告
 #if _MSC_VER >= 1200
 #pragma warning(push)
-#pragma warning(disable:4201) // nameless struct/union
-#pragma warning(disable:4214) // bit field types other than int
-#pragma warning(disable:4324) // structure was padded due to __declspec(align())
-#pragma warning(disable:4471) // for unscoped enumerations
-#pragma warning(disable:4668) // #if not_defined treated as #if 0
-#pragma warning(disable:4820) // padding added after data member
+// 以下是ntdef.h定义的为编译通过而禁用的警告
+#pragma warning(disable:4201) // 无名称的结构/联合(等级 4)
+#pragma warning(disable:4820) // 字节填充添加在数据成员后(等级 4)
+// 以下是ntisf.h定义的为编译通过而禁用的警告
+#pragma warning(disable:4324) // 由于对齐说明符，结构被填充(等级 4)
+// 为了定义未公开枚举的为编译通过而禁用的警告
+#pragma warning(disable:4471) // 不带范围的枚举的前向声明(等级 4)
 #endif
 
 #ifdef __cplusplus
@@ -3258,13 +3259,13 @@ extern "C" {
 #define NX_SUPPORT_POLICY_OPTIN 2
 #define NX_SUPPORT_POLICY_OPTOUT 3
 
-	// Disable Warning (/Wall) for KUSER_SHARED_DATA
+	// 为使KUSER_SHARED_DATA编译通过而禁用的警告 
 #if _MSC_VER >= 1200
 #pragma warning(push)
-#pragma warning(disable:4625)
-#pragma warning(disable:4626)
-#pragma warning(disable:5026)
-#pragma warning(disable:5027)
+#pragma warning(disable:4625) // 已将复制构造函数隐式定义为“已删除”(等级 4)
+#pragma warning(disable:4626) // 已将对齐运算符隐式定义为“已删除”(等级 4)
+#pragma warning(disable:5026) // 已将移动构造函数隐式定义为“已删除”(MSDN未定义)
+#pragma warning(disable:5027) // 已将移动赋值运算符隐式定义为“已删除”(MSDN未定义)
 #endif
 
 #include <pshpack4.h>

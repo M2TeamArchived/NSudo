@@ -21,10 +21,10 @@
 // Version
 #include <SDKDDKVer.h>
 
-// Disable Warnings
+// 为编译通过而禁用的警告
 #if _MSC_VER >= 1200
 #pragma warning(push)
-#pragma warning(disable:4820) // padding added after data member
+#pragma warning(disable:4820) // 字节填充添加在数据成员后(等级 4)
 #endif
 
 #ifdef __cplusplus

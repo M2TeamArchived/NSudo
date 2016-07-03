@@ -15,6 +15,7 @@
 - 使用TaskDialog替代MessageBox
 - 对关于界面进行调整，并在关于界面加入命令行帮助
 - 消除在编译时的警告(/wall和/wx两个参数同时使用)
+- 移除去除C4464, C4668, C4214, C4312警告宏的定义
 
 **NSudo 2016.1**
 - 修复TrustedInstaller下运行程序界面不显示问题（感谢abbodi1406）
