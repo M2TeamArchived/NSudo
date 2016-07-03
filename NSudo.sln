@@ -19,6 +19,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "文档", "文档", "{6600A8
 	EndProjectSection
 EndProject
 Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		NSudoSDK\NSudoSDK.vcxitems*{45d41acc-2c3c-43d2-bc10-02aa73ffc7c7}*SharedItemsImports = 9
+		VC-LTL\VC-LTL.vcxitems*{494ca48f-8bb6-4220-abeb-99e39bb457a9}*SharedItemsImports = 9
+		NSudoSDK\NSudoSDK.vcxitems*{dbc9a9ee-78ae-4260-80e8-67d4d04a92c8}*SharedItemsImports = 4
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
 		Debug|x86 = Debug|x86

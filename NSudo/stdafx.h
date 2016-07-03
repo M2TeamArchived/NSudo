@@ -5,13 +5,14 @@
 
 #pragma once
 
-// Disable Warnings
+// 为编译通过而禁用的警告
 #if _MSC_VER >= 1200
-//#pragma warning(disable:4018) // signed/unsigned mismatch
-#pragma warning(disable:4100) // unreferenced formal parameter
-#pragma warning(disable:4505) // Unreferenced local function has been removed
-#pragma warning(disable:4710) // function not inlined
-#pragma warning(disable:4711) // function 'function' selected for inline expansion
+// 为了不去掉未使用的形参，于是禁用该警告
+#pragma warning(disable:4100) // 未使用的形参(等级 4)
+// 编译器优化可能出现的警告（去除未引用函数并适当对一些函数使用内联）
+#pragma warning(disable:4505) // 未引用的本地函数已移除(等级 4)
+#pragma warning(disable:4710) // 函数未内联(等级 4)
+#pragma warning(disable:4711) // 为自动内联扩展选定了函数(等级 1,只是提示信息)
 #endif
 
 #ifndef _DEBUG
@@ -26,18 +27,8 @@
 
 #include <Windows.h>
 
-// Disable Warnings
-#if _MSC_VER >= 1200
-#pragma warning(push)
-#pragma warning(disable:4464) // relative include path contains '..'
-#endif
-
 // NSudoSDK
-#include "..\NSudoSDK\M2.BaseLib.hpp"
-
-#if _MSC_VER >= 1200
-#pragma warning(pop)
-#endif
+#include "M2.BaseLib.hpp"
 
 #include <commctrl.h>
 #pragma comment(lib, "comctl32.lib")

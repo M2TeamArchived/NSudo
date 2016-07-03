@@ -10,11 +10,10 @@
 
 #pragma once
 
-// Disable Warnings
+// 为编译通过而禁用的警告
 #if _MSC_VER >= 1200
 #pragma warning(push)
-#pragma warning(disable:4312) // conversion from 'type1' to 'type2' of greater size
-#pragma warning(disable:4820) // padding added after data member
+#pragma warning(disable:4820) // 字节填充添加在数据成员后(等级 4)
 #endif
 
 namespace M2
@@ -531,7 +530,7 @@ namespace M2
 			OBJECT_ATTRIBUTES ObjAttr;
 			CLIENT_ID ClientId =
 			{
-				(HANDLE)m_dwProcessId, // UniqueProcess;
+				UlongToHandle(m_dwProcessId), // UniqueProcess;
 				nullptr // UniqueThread;
 			};
 
