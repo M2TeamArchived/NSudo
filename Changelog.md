@@ -7,6 +7,7 @@
 - 在默认快捷命令列表加入host编辑
 - 增加NSudo和MiniFM的Per-Monitor DPI Aware支持
 - 采用VC-LTL大幅度减小程序体积
+- 更改图标（感谢20011010wo）
 - 精简并优化主界面（感谢 kCaRhC卡壳，さくら）
 - 使用TaskDialog替代MessageBox
 - 对关于界面进行调整，并在关于界面加入命令行帮助
