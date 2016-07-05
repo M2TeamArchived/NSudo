@@ -26,6 +26,29 @@ namespace ProjectInfo
 	wchar_t VersionText[] = L"NSudo 4.0 (Build 1607)";
 }
 
+// 为编译通过而禁用的警告
+#if _MSC_VER >= 1200
+#pragma warning(push)
+#pragma warning(disable:4191) // 从“type of expression”到“type required”的不安全转换(等级 3)
+#endif
+
+// 开启对话框Per-Monitor DPI Aware支持（Win10可用）
+inline int EnablePerMonitorDialogScaling()
+{
+	typedef int(WINAPI *PFN_EnablePerMonitorDialogScaling)();
+
+	PFN_EnablePerMonitorDialogScaling pEnablePerMonitorDialogScaling =
+		(PFN_EnablePerMonitorDialogScaling)GetProcAddress(
+			GetModuleHandleW(L"user32.dll"), (LPCSTR)2577);
+
+	if (pEnablePerMonitorDialogScaling) return pEnablePerMonitorDialogScaling();
+	return -1;
+}
+
+#if _MSC_VER >= 1200
+#pragma warning(pop)
+#endif
+
 bool SuCreateProcess(
 	_In_opt_ HANDLE hToken,
 	_Inout_ LPWSTR lpCommandLine)
@@ -285,6 +308,9 @@ HRESULT CALLBACK SuAboutDialogCallback(
 	LPARAM lParam,
 	LONG_PTR dwRefData)
 {
+	IIntendToIgnoreThisVariable(wParam);
+	IIntendToIgnoreThisVariable(dwRefData);
+	
 	HRESULT hr = S_OK;
 
 	switch (uNotification)
@@ -335,6 +361,8 @@ INT_PTR CALLBACK DialogCallBack(
 	WPARAM wParam,
 	LPARAM lParam)
 {
+	IIntendToIgnoreThisVariable(lParam);
+	
 	HWND hUserName = GetDlgItem(hDlg, IDC_UserName);
 	HWND hTokenPrivilege = GetDlgItem(hDlg, IDC_TokenPrivilege);
 	HWND hMandatoryLabel = GetDlgItem(hDlg, IDC_MandatoryLabel);
@@ -453,6 +481,8 @@ int main()
 		if (bElevated)
 		{
 			FreeConsole();
+
+			EnablePerMonitorDialogScaling();
 
 			DialogBoxParamW(
 				g_hInstance,

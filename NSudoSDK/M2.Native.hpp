@@ -1,45 +1,45 @@
 ﻿/**************************************************************************
-描述：本机API用户模式调用及其数据结构定义（包括方便调用本机API的内联函数）
+描述：用户模式本机API调用及其数据结构定义
 维护者：Mouri_Naruto
-版本：1.0 (2016-06-26)
+版本：1.1 (2016-07-05)
 基于项目：Process Hacker的phnt库
 协议：无（致敬Process Hacker作者）
-用法：直接Include此头文件即可(前提你要在这之前Include Windows.h)
+用法：直接Include此头文件即可
 建议的Windows SDK版本：10.0.10586及以后
 ***************************************************************************/
 
-#ifndef NATIVELIB
-#define NATIVELIB
+#ifndef NATIVEAPI
+#define NATIVEAPI
 
 #if _MSC_VER > 1000
 #pragma once
 #endif
 
-// Process Hacker对phnt库的注释（仅供参考）
+// 翻译自Process Hacker对phnt库的注释（仅供参考）
 
-// This header file provides access to NT APIs.
+// 该头文件提供本机API的定义
 
-// Definitions are annotated to indicate their source. If a definition is not annotated, it has been
-// retrieved from an official Microsoft source (NT headers, DDK headers, winnt.h).
+// 定义的注释会说明来源，以下是对该方面注释的说明
+// * 没有注释 代表该定义从微软官方头文件中获取（NT和DDK头文件, winnt.h） 
+// * "winbase" 代表该定义从Win32化的NT定义头文件(winbase.h)获取
+// * "rev" 代表该定义是通过逆向工程获取
+// * "dbg" 代表该定义通过Checked编译内核或者文件获取的调试信息和断点获取
 
-// * "winbase" indicates that a definition has been reconstructed from a Win32-ized NT definition in
-//   winbase.h.
-// * "rev" indicates that a definition has been reverse-engineered.
-// * "dbg" indicates that a definition has been obtained from a debug message or assertion in a
-//   checked build of the kernel or file.
-
-// Reliability:
-// 1. No annotation.
+// 可信度
+// 1. 没有注释
 // 2. dbg.
-// 3. symbols, private. Types may be incorrect.
-// 4. winbase. Names and types may be incorrect.
+// 3. symbols, private. 类型也许有误
+// 4. winbase. 名称和类型也许有误
 // 5. rev.
+
+// Windows 头文件
+#include <windows.h>
+
+// SDK 版本定义
+#include <SDKDDKVer.h>
 
 // ntdll.lib
 #pragma comment(lib,"ntdll.lib")
-
-// Version
-#include <SDKDDKVer.h>
 
 // 为编译通过而禁用的警告
 #if _MSC_VER >= 1200
@@ -57,14 +57,13 @@
 extern "C" {
 #endif
 
-#ifndef _NATIVELIB_NTDEF_H
-#define _NATIVELIB_NTDEF_H
+#ifndef _NATIVE_NTDEF_H
+#define _NATIVE_NTDEF_H
 
 #ifndef _NTDEF_
 #define _NTDEF_
 
-	// This header file provides basic NT types not included in Win32. If you have included winnt.h
-	// (perhaps indirectly), you must use this file instead of ntdef.h.
+	// 该部分提供Win32未定义NT类型的定义，该部分替代ntdef.h
 
 #ifndef NOTHING
 #define NOTHING

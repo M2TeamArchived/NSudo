@@ -77,6 +77,8 @@ void __CRTDECL operator delete[](
 		size_t _Size
 		) throw()
 	{
+		UNREFERENCED_PARAMETER(_Size);
+
 		operator delete(_Block);
 	}
 
@@ -85,6 +87,8 @@ void __CRTDECL operator delete[](
 		size_t _Size
 		) throw()
 	{
+		UNREFERENCED_PARAMETER(_Size);
+
 		operator delete[](_Block);
 	}
 

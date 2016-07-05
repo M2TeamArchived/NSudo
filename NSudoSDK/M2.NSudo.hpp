@@ -1,14 +1,23 @@
 ﻿/**************************************************************************
-描述：NSudo库(对M2.Native的封装)
+描述：NSudo库(对M2.Native, M2.WinSta, M2.Base的封装)
 维护者：Mouri_Naruto (M2-Team)
-版本：1.0 (2016-06-25)
+版本：1.2 (2016-07-05)
 基于项目：无
 协议：The MIT License
-用法：直接Include此头文件即可(前提你要在这之前Include Windows.h)
+用法：直接Include此头文件即可
 建议的Windows SDK版本：10.0.10586及以后
 ***************************************************************************/
 
 #pragma once
+
+#ifndef M2_NSUDO
+#define M2_NSUDO
+
+// Windows 头文件
+#include <windows.h>
+
+// 基本库
+#include "M2.Base.hpp"
 
 // 为编译通过而禁用的警告
 #if _MSC_VER >= 1200
@@ -451,7 +460,7 @@ namespace M2
 	private:
 		HANDLE m_hToken = INVALID_HANDLE_VALUE;
 	};
-	
+
 	class CProcessSnapshot
 	{
 	public:
@@ -580,8 +589,8 @@ namespace M2
 		DWORD m_dwProcessId = (DWORD)-1;
 		HANDLE m_hProcess = INVALID_HANDLE_VALUE;
 	};
-	
-	
+
+
 	class CNSudo
 	{
 	public:
@@ -589,7 +598,7 @@ namespace M2
 		CNSudo()
 		{
 			bool bRet = false;
-			
+
 			// 初始化当前令牌管理接口
 			m_pCurrentToken = new CToken();
 			if (!m_pCurrentToken) return;
@@ -650,7 +659,7 @@ namespace M2
 			_Out_ CToken **NewToken)
 		{
 			bool bRet = false;
-			
+
 			CProcess *Proc = new CProcess(dwProcessID);
 			if (Proc)
 			{
@@ -697,7 +706,7 @@ namespace M2
 
 		// 设置令牌的SessionID
 		bool SetTokenSessionID(
-			_Inout_ CToken **Token, 
+			_Inout_ CToken **Token,
 			_In_ ULONG SessionId)
 		{
 			return NT_SUCCESS((*Token)->SetInfo(
@@ -771,4 +780,6 @@ namespace M2
 
 #if _MSC_VER >= 1200
 #pragma warning(pop)
+#endif
+
 #endif

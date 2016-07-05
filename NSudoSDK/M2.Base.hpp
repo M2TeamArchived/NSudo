@@ -13,10 +13,19 @@
 #ifndef M2_BASE
 #define M2_BASE
 
+// Windows 头文件
+#include <windows.h>
+
+// 用户模式本机API调用及其数据结构定义
+#include "M2.Native.hpp"
+
+// 窗口站管理调用及其数据结构定义
+#include "M2.WinSta.hpp"
+
 namespace M2
 {
 	// 本机API内联调用(M2-Team编写的)
-#ifdef NATIVELIB
+#ifdef NATIVEAPI
 	// 获取KUSER_SHARED_DATA结构
 	inline PKUSER_SHARED_DATA M2GetKUserSharedData()
 	{
@@ -67,7 +76,7 @@ namespace M2
 	inline void* M2AllocMemory(
 		_In_ size_t Size)
 	{
-#ifdef NATIVELIB
+#ifdef NATIVEAPI
 		return RtlAllocateHeap(RtlProcessHeap(), 0, Size);
 #else
 		return malloc(Size);
@@ -78,7 +87,7 @@ namespace M2
 	inline void M2FreeMemory(
 		_In_ void* BaseAddress)
 	{
-#ifdef NATIVELIB
+#ifdef NATIVEAPI
 		RtlFreeHeap(RtlProcessHeap(), 0, BaseAddress);
 #else
 		free(BaseAddress);
@@ -202,7 +211,10 @@ namespace M2
 	}
 
 #pragma endregion
-	
+
+	// 忽略未调用变量警告
+	template<typename T> void IIntendToIgnoreThisVariable(const T&) {}
+
 }
 
 #endif
