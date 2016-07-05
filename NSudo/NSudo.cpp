@@ -197,8 +197,7 @@ bool SuMUICompare(
 void SuGUIRun(
 	_In_ HWND hDlg,
 	_In_ LPCWSTR szUser,
-	_In_ LPCWSTR szPrivilege,
-	_In_ LPCWSTR szMandatory,
+	_In_ bool bEnableAllPrivileges,
 	_In_ LPCWSTR szCMDLine)
 {
 	if (_wcsicmp(L"", szCMDLine) == 0)
@@ -207,7 +206,7 @@ void SuGUIRun(
 	}
 	else
 	{
-		wchar_t szBuffer[512] = { NULL };
+		wchar_t szBuffer[512] = { 0 };
 
 		wchar_t szPath[260];
 		GetPrivateProfileStringW(
@@ -223,8 +222,8 @@ void SuGUIRun(
 		}
 
 		CToken *pToken = nullptr;
-		CToken *pTempToken = nullptr;
 
+		// 获取用户令牌
 		if (SuMUICompare(g_hInstance,IDS_TI,szUser))
 		{
 			if (g_pNSudo->ImpersonateAsSystem())
@@ -249,43 +248,9 @@ void SuGUIRun(
 				RevertToSelf();
 			}
 		}
-		else if (SuMUICompare(g_hInstance, IDS_CURRENTPROCESSDROP, szUser))
-		{
-			if (g_pNSudo->GetCurrentToken(&pTempToken))
-			{
-				pToken->MakeLUA(&pToken);
-				delete pTempToken;
-			}
-		}
 
-		if (pToken)
-		{
-			if (SuMUICompare(g_hInstance, IDS_ENABLEALL, szPrivilege))
-			{
-				pToken->SetPrivilege(EnableAll);
-			}
-			else if (SuMUICompare(g_hInstance, IDS_REMOVEMAX, szPrivilege))
-			{
-				pToken->SetPrivilege(RemoveMost);
-			}
-
-			if (SuMUICompare(g_hInstance, IDS_ILLOW, szMandatory))
-			{
-				pToken->SetIL(IntegrityLevel::Low);
-			}
-			else if (SuMUICompare(g_hInstance, IDS_ILMEDIUM, szMandatory))
-			{
-				pToken->SetIL(IntegrityLevel::Medium);
-			}
-			else if (SuMUICompare(g_hInstance, IDS_ILHIGH, szMandatory))
-			{
-				pToken->SetIL(IntegrityLevel::High);
-			}
-			else if (SuMUICompare(g_hInstance, IDS_ILSYSTEM, szMandatory))
-			{
-				pToken->SetIL(IntegrityLevel::System);
-			}
-		}
+		// 如果勾选启用全部特权，则对令牌启用全部特权
+		if (pToken && bEnableAllPrivileges) pToken->SetPrivilege(EnableAll);
 
 		if (g_pNSudo->ImpersonateAsSystem())
 		{
@@ -334,7 +299,6 @@ HRESULT SuShowAboutDialog(
 	tdConfig.hwndParent = hwndParent;
 	tdConfig.hInstance = hInstance;
 	tdConfig.pfCallback = SuAboutDialogCallback;
-	tdConfig.cxWidth = 240;
 	tdConfig.pszWindowTitle = L"NSudo";
 	tdConfig.pszMainIcon = MAKEINTRESOURCE(IDI_NSUDO);
 	tdConfig.pszMainInstruction = ProjectInfo::VersionText;
@@ -364,11 +328,10 @@ INT_PTR CALLBACK DialogCallBack(
 	IIntendToIgnoreThisVariable(lParam);
 	
 	HWND hUserName = GetDlgItem(hDlg, IDC_UserName);
-	HWND hTokenPrivilege = GetDlgItem(hDlg, IDC_TokenPrivilege);
-	HWND hMandatoryLabel = GetDlgItem(hDlg, IDC_MandatoryLabel);
+	HWND hCheckBox = GetDlgItem(hDlg, IDC_Check_EnableAllPrivileges);
 	HWND hszPath = GetDlgItem(hDlg, IDC_szPath);
 
-	wchar_t szCMDLine[260], szUser[260], szPrivilege[260], szMandatory[260], szBuffer[512];
+	wchar_t szCMDLine[260], szUser[260], szBuffer[512];
 	
 	switch (message)
 	{
@@ -400,20 +363,7 @@ INT_PTR CALLBACK DialogCallBack(
 		SuMUIInsComboBox(g_hInstance, hUserName, IDS_SYSTEM);
 		SuMUIInsComboBox(g_hInstance, hUserName, IDS_CURRENTPROCESS);
 		SuMUIInsComboBox(g_hInstance, hUserName, IDS_CURRENTUSER);
-		SuMUIInsComboBox(g_hInstance, hUserName, IDS_CURRENTPROCESSDROP);
-		SendMessageW(hUserName, CB_SETCURSEL, 4, 0); //设置默认项"TrustedInstaller"
-
-		SuMUIInsComboBox(g_hInstance, hTokenPrivilege, IDS_DEFAULT);
-		SuMUIInsComboBox(g_hInstance, hTokenPrivilege, IDS_ENABLEALL);
-		SuMUIInsComboBox(g_hInstance, hTokenPrivilege, IDS_REMOVEMAX);
-		SendMessageW(hTokenPrivilege, CB_SETCURSEL, 2, 0); //设置默认项"默认"
-
-		SuMUIInsComboBox(g_hInstance, hMandatoryLabel, IDS_ILLOW);
-		SuMUIInsComboBox(g_hInstance, hMandatoryLabel, IDS_ILMEDIUM);
-		SuMUIInsComboBox(g_hInstance, hMandatoryLabel, IDS_ILHIGH);
-		SuMUIInsComboBox(g_hInstance, hMandatoryLabel, IDS_ILSYSTEM);
-		SuMUIInsComboBox(g_hInstance, hMandatoryLabel, IDS_DEFAULT);
-		SendMessageW(hMandatoryLabel, CB_SETCURSEL, 0, 0); //设置默认项"默认"
+		SendMessageW(hUserName, CB_SETCURSEL, 3, 0); //设置默认项"TrustedInstaller"
 
 		{
 			wchar_t szItem[260], szBuf[32768];
@@ -439,11 +389,9 @@ INT_PTR CALLBACK DialogCallBack(
 		{
 		case IDC_Run:
 			GetDlgItemTextW(hDlg, IDC_UserName, szUser, sizeof(szUser));
-			GetDlgItemTextW(hDlg, IDC_TokenPrivilege, szPrivilege, sizeof(szPrivilege));
-			GetDlgItemTextW(hDlg, IDC_MandatoryLabel, szMandatory, sizeof(szMandatory));
 			GetDlgItemTextW(hDlg, IDC_szPath, szCMDLine, sizeof(szCMDLine));
 
-			SuGUIRun(hDlg, szUser, szPrivilege, szMandatory, szCMDLine);
+			SuGUIRun(hDlg, szUser, (SendMessageW(hCheckBox, BM_GETCHECK, 0, 0) == BST_CHECKED), szCMDLine);
 			break;
 		case IDC_About:
 			SuShowAboutDialog(hDlg, g_hInstance);

@@ -1,22 +1,19 @@
 ﻿# 改进日志 Changelog
 
 **NSudo 4.0**
-- 重写代码，使代码容易使用在其他项目上
-- 采用VC-LTL大幅度减小程序体积
-- 修复命令行解析的一个潜在Bug
-- 在默认快捷命令列表加入host编辑
-- 更换MiniFM图标并集成入NSudo解决方案
-- NSudo项目首页变更
-- 缓解NSudo图形界面的空格问题（浏览功能自动给命令行加引号）
-- 更改图标（感谢 20011010wo）
+- 重写代码，提供NSudoSDK，使代码容易使用在其他项目上
 - 命令行下新增"/"前缀参数支持,例如: NSudo /U:T /P:E cmd (感谢 th1r5bvn23)
 - 支持默认参数，即以TrustedInstaller令牌且开启全部特权运行 (感谢 老九)
-- 修复弹出文件不存在的问题
+- 在默认快捷命令列表加入host编辑
+- 增加NSudo和MiniFM的Per-Monitor DPI Aware支持
+- 采用VC-LTL大幅度减小程序体积
+- 精简并优化主界面（感谢 kCaRhC卡壳，さくら）
 - 使用TaskDialog替代MessageBox
 - 对关于界面进行调整，并在关于界面加入命令行帮助
+- 修复弹出文件不存在的问题
+- 修复命令行解析的一个潜在Bug
+- 缓解NSudo图形界面的空格问题（浏览功能自动给命令行加引号）
 - 消除在编译时的警告(/Wall和/WX两个参数同时使用)
-- 移除去除C4464, C4668, C4214, C4312，C4100警告宏的定义
-- 增加NSudo和MiniFM的Per-Monitor DPI Aware支持
 
 **NSudo 2016.1**
 - 修复TrustedInstaller下运行程序界面不显示问题（感谢abbodi1406）
