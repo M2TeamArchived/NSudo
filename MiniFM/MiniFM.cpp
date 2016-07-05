@@ -21,6 +21,29 @@
 #pragma comment(linker, "/ENTRY:EntryPoint") 
 #endif 
 
+// 为编译通过而禁用的警告
+#if _MSC_VER >= 1200
+#pragma warning(push)
+#pragma warning(disable:4191) // 从“type of expression”到“type required”的不安全转换(等级 3)
+#endif
+
+// 开启对话框Per-Monitor DPI Aware支持（Win10可用）
+inline int EnablePerMonitorDialogScaling()
+{
+	typedef int(WINAPI *PFN_EnablePerMonitorDialogScaling)();
+
+	PFN_EnablePerMonitorDialogScaling pEnablePerMonitorDialogScaling =
+		(PFN_EnablePerMonitorDialogScaling)GetProcAddress(
+			GetModuleHandleW(L"user32.dll"), (LPCSTR)2577);
+
+	if (pEnablePerMonitorDialogScaling) return pEnablePerMonitorDialogScaling();
+	return -1;
+}
+
+#if _MSC_VER >= 1200
+#pragma warning(pop)
+#endif
+
 void EntryPoint()
 {
 	int uExitCode = wWinMain(
@@ -32,35 +55,19 @@ void EntryPoint()
 	ExitProcess((UINT)uExitCode);
 }
 
-/*int WINAPI wWinMain(
-	_In_ HINSTANCE hInstance,
-	_In_opt_ HINSTANCE hPrevInstance,
-	_In_ LPWSTR lpCmdLine,
-	_In_ int nShowCmd)
-{
-	wchar_t g_AppPath[260];
-	GetModuleFileNameW(nullptr, g_AppPath, 260);
-	wcsrchr(g_AppPath, L'\\')[0] = L'\0';
-
-	OPENFILENAMEW ofn = { 0 };
-
-	ofn.lStructSize = sizeof(OPENFILENAME);
-	ofn.nMaxFile = MAX_PATH;
-	ofn.nMaxFileTitle = MAX_PATH;
-	ofn.Flags = OFN_HIDEREADONLY | OFN_FORCESHOWHIDDEN | OFN_ALLOWMULTISELECT | OFN_EXPLORER;
-	ofn.lpstrInitialDir = g_AppPath;
-
-	GetOpenFileNameW(&ofn);
-
-	return 0;
-}*/
-
 int WINAPI wWinMain(
 	_In_ HINSTANCE hInstance,
 	_In_opt_ HINSTANCE hPrevInstance,
 	_In_ LPWSTR lpCmdLine,
 	_In_ int nShowCmd)
 {
+	IIntendToIgnoreThisVariable(hInstance);
+	IIntendToIgnoreThisVariable(hPrevInstance);
+	IIntendToIgnoreThisVariable(lpCmdLine);
+	IIntendToIgnoreThisVariable(nShowCmd);
+
+	EnablePerMonitorDialogScaling();
+	
 	HRESULT hr = S_OK;
 	IFileDialog *pFileDialog = nullptr;
 	IShellItem *pShellItemFolder = nullptr;

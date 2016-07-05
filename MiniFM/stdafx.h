@@ -8,7 +8,7 @@
 // 为编译通过而禁用的警告
 #if _MSC_VER >= 1200
 // 为了不去掉未使用的形参，于是禁用该警告
-#pragma warning(disable:4100) // 未使用的形参(等级 4)
+//#pragma warning(disable:4100) // 未使用的形参(等级 4)
 // 编译器优化可能出现的警告（去除未引用函数并适当对一些函数使用内联）
 #pragma warning(disable:4505) // 未引用的本地函数已移除(等级 4)
 #pragma warning(disable:4710) // 函数未内联(等级 4)
@@ -28,3 +28,6 @@
 #include <Windows.h>
 
 #pragma comment(linker,"/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
+
+// 忽略未调用变量警告
+template<typename T> void IIntendToIgnoreThisVariable(const T&) {}
