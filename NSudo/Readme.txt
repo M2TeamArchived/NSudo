@@ -81,8 +81,9 @@ Process Hacker作者(NSudo 4.0使用的Native API头文件定义的源头):Wen J
 捐赠: boyangpangzi,cjy__05,mhxkx,NotePad,tangmigoId,wondersnefu,xy137425740,月光光
 繁体中文翻译: Eugene Wang J.y
 日语翻译: Microsoft_Mars
-Bill: 新版Readme和Changelog建立者
+Readme和Changelog: Bill
 开发工作: 20011010wo，4071E95D-A09B-4AA3-8008，Microsoft_Mars
+命名者: Microsoft_Mars 和 Mouri_Naruto
 精神支持 O(∩_∩)O~: こうさか ほのか (a Japanese anime “Love Live” character)
 M2-Team 成员: 20011010wo,Bill,hortz,Eugene Wang J.y,Microsoft_Mars,Mouri_Naruto,杂货店的音符
 
@@ -104,20 +105,29 @@ PHNT这是一个非常全的Native API定义库；我通过邮件获取了作者
 
 附作者的回复（也许我是第一个询问许可的人）：
 Nevertheless some say that headers cannot be copyrighted and have copied phnt
- verbatim anyway without asking me. So do what you will...
+  verbatim anyway without asking me. So do what you will...
 
 PS：我对该库进行了大幅度修改
 （去除了内核模式定义和整合了头文件，而且对里面的宏进行了标准化处理）
 
 为了对Process Hacker的作者Wen Jia Liu表示感谢，我会把我的整理成果单独发在github
 不会有任何协议限制；如果你想感激的话，就请感谢Process Hacker作者的大度吧
+ 
+附整理成果（旧版）
+https://github.com/Chuyu-Team/NativeLib
 
-附整理成果地址：https://github.com/Chuyu-Team/NativeLib
+附整理成果（NSudoSDK,新版）
+https://github.com/M2Team/NSudo/blob/master/NSudoSDK/M2.Native.hpp
+https://github.com/M2Team/NSudo/blob/master/NSudoSDK/M2.WinSta.hpp
 
 
 MDL论坛根据地 MDL Post
 
-http://forums.mydigitallife.info/threads/59268-M2-Team-NSudo-(New-Version-2016)
+http://forums.mydigitallife.info/threads/59268-M2-Team-NSudo-(New-Version-4-0)
+
+更新日志 Changelog
+
+https://github.com/M2Team/NSudo/blob/master/Changelog.md
 
 
 Have a good time -- M2-Team参上
