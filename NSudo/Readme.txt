@@ -113,10 +113,10 @@ PS：我对该库进行了大幅度修改
 为了对Process Hacker的作者Wen Jia Liu表示感谢，我会把我的整理成果单独发在github
 不会有任何协议限制；如果你想感激的话，就请感谢Process Hacker作者的大度吧
  
-附整理成果（旧版）
+附整理成果（单独的NativeAPI定义）
 https://github.com/Chuyu-Team/NativeLib
 
-附整理成果（NSudoSDK,新版）
+附整理成果（NSudoSDK）
 https://github.com/M2Team/NSudo/blob/master/NSudoSDK/M2.Native.hpp
 https://github.com/M2Team/NSudo/blob/master/NSudoSDK/M2.WinSta.hpp
 
