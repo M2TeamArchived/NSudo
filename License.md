@@ -33,12 +33,17 @@ THE SOFTWARE.
 
 但也有例外（引用的第三方成果）
 
-首先NSudo使用了VC-LTL库，协议如下
+首先NSudo使用了VC-LTL库
 
+https://github.com/Chuyu-Team/VC-LTL
+
+协议如下
+```
 VC LTL 是一个开源的第三方修改VC库，大家都可以免费，无条件，甚至是用于商业环境。
 本库基于VC140修改，所以也同样适用Common Public License协议。
 但我也希望如果你可以在程序的说明文件中声明下，使用了此库，来使更多人受益。
 ——mingkuang
+```
 
 其次NSudoSDK使用了Process Hacker的PHNT库；
 
@@ -93,6 +98,8 @@ NSudo代码根/M2.WinSta.hpp
 
 希望你们可以安利（宣传）下Process Hacker项目
 
+http://processhacker.sourceforge.net/
+
 这是一个非常不错的进程查看器
 
 里面拥有除了微软外最齐全的ring3模式的Native API定义（即PHNT库）
@@ -143,7 +150,11 @@ I/We would be very happy if you want to thank me/us in Readme.
 
 Exceptions (The 3rd-Party License)
 
-First of all, NSudo uses the VC-LTL. Here are the VC-LTL license.
+First of all, NSudo uses the VC-LTL. 
+
+https://github.com/Chuyu-Team/VC-LTL
+
+Here are the VC-LTL license.
 ```
 VC LTL 是一个开源的第三方修改VC库，大家都可以免费，无条件，甚至是用于商业环境。
 本库基于VC140修改，所以也同样适用Common Public License协议。
@@ -191,6 +202,8 @@ NSudo Source Root/M2.WinSta.hpp
 So do what you will...
 
 I/We hope you can introduce the Process Hacker to others if you can.
+
+http://processhacker.sourceforge.net/
 
 Process Hacker is a good process list viewer.
 
