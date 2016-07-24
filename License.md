@@ -80,7 +80,7 @@ Nevertheless some say that headers cannot be copyrighted and have copied
 
 鉴于此（So do what you will...）
 
-由于对作者的感激；也出于想方便众人的考量（GPL有令人深恶痛绝的传染性）
+由于对作者的感激；也出于想方便众人的考量
 
 我（们）在以下使用到PHNT库成果的头文件不做任何的开源协议限制
 
@@ -183,7 +183,6 @@ I/We want to thank for the author and want to give others convenience.
 
 I/We don't distributed the following headers under any license.
 
-(I/We hate the GPL license because the GPL license will restrict me/us to help others)
 ```
 NSudo Source Root/NSudoSDK/M2.Native.hpp
 NSudo Source Root/M2.WinSta.hpp
