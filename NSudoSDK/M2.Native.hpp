@@ -1,7 +1,7 @@
 ﻿/**************************************************************************
 描述：用户模式本机API调用及其数据结构定义
 维护者：Mouri_Naruto
-版本：1.1 (2016-07-05)
+版本：1.2 (2016-07-27)
 基于项目：Process Hacker的phnt库
 协议：无（致敬Process Hacker作者）
 用法：直接Include此头文件即可
@@ -3551,13 +3551,10 @@ extern "C" {
 	// private
 	NTSYSCALLAPI NTSTATUS NTAPI NtIsUILanguageComitted(
 		VOID);
-#endif
 
 	// NLS
 
 	// begin_private
-
-#if (_WIN32_WINNT >= _WIN32_WINNT_VISTA)
 
 #if (_WIN32_WINNT >= _WIN32_WINNT_WIN7)
 	NTSYSCALLAPI NTSTATUS NTAPI NtInitializeNlsFiles(
@@ -5780,9 +5777,7 @@ extern "C" {
 		_In_ ULONG HandleAttributes,
 		_In_ ULONG Flags,
 		_Out_ PHANDLE NewProcessHANDLE);
-#endif
 
-#if (_WIN32_WINNT >= _WIN32_WINNT_WS03)
 	NTSYSCALLAPI NTSTATUS NTAPI NtGetNextThread(
 		_In_ HANDLE ProcessHandle,
 		_In_ HANDLE ThreadHandle,
@@ -7549,9 +7544,7 @@ extern "C" {
 		_In_opt_ PIO_STATUS_BLOCK IoRequestToCancel,
 		_Out_ PIO_STATUS_BLOCK IoStatusBlock
 	);
-#endif
 
-#if (_WIN32_WINNT >= _WIN32_WINNT_VISTA)
 	NTSYSCALLAPI NTSTATUS NTAPI NtCancelSynchronousIoFile(
 		_In_ HANDLE ThreadHandle,
 		_In_opt_ PIO_STATUS_BLOCK IoRequestToCancel,
@@ -9637,9 +9630,7 @@ extern "C" {
 		_In_ POBJECT_ATTRIBUTES ObjectAttributes,
 		_In_ ULONG OpenOptions
 	);
-#endif
 
-#if (_WIN32_WINNT >= _WIN32_WINNT_WIN7)
 	NTSYSCALLAPI NTSTATUS NTAPI NtOpenKeyTransactedEx(
 		_Out_ PHANDLE KeyHandle,
 		_In_ ACCESS_MASK DesiredAccess,
@@ -9853,9 +9844,7 @@ extern "C" {
 	NTSYSCALLAPI NTSTATUS NTAPI NtFreezeRegistry(
 		_In_ ULONG TimeOutInSeconds
 	);
-#endif
 
-#if (_WIN32_WINNT >= _WIN32_WINNT_VISTA)
 	// private
 	NTSYSCALLAPI NTSTATUS NTAPI NtThawRegistry(
 		VOID);
@@ -9869,22 +9858,19 @@ extern "C" {
 	// Linked lists
 
 	FORCEINLINE VOID InitializeListHead(
-		_Out_ PLIST_ENTRY ListHead
-	)
+		_Out_ PLIST_ENTRY ListHead)
 	{
 		ListHead->Flink = ListHead->Blink = ListHead;
 	}
 
 	_Check_return_ FORCEINLINE BOOLEAN IsListEmpty(
-		_In_ PLIST_ENTRY ListHead
-	)
+		_In_ PLIST_ENTRY ListHead)
 	{
 		return (BOOLEAN)(ListHead->Flink == ListHead);
 	}
 
 	FORCEINLINE BOOLEAN RemoveEntryList(
-		_In_ PLIST_ENTRY Entry
-	)
+		_In_ PLIST_ENTRY Entry)
 	{
 		PLIST_ENTRY Blink;
 		PLIST_ENTRY Flink;
@@ -9898,8 +9884,7 @@ extern "C" {
 	}
 
 	FORCEINLINE PLIST_ENTRY RemoveHeadList(
-		_Inout_ PLIST_ENTRY ListHead
-	)
+		_Inout_ PLIST_ENTRY ListHead)
 	{
 		PLIST_ENTRY Flink;
 		PLIST_ENTRY Entry;
@@ -9913,8 +9898,7 @@ extern "C" {
 	}
 
 	FORCEINLINE PLIST_ENTRY RemoveTailList(
-		_Inout_ PLIST_ENTRY ListHead
-	)
+		_Inout_ PLIST_ENTRY ListHead)
 	{
 		PLIST_ENTRY Blink;
 		PLIST_ENTRY Entry;
@@ -9929,8 +9913,7 @@ extern "C" {
 
 	FORCEINLINE VOID InsertTailList(
 		_Inout_ PLIST_ENTRY ListHead,
-		_Inout_ PLIST_ENTRY Entry
-	)
+		_Inout_ PLIST_ENTRY Entry)
 	{
 		PLIST_ENTRY Blink;
 
@@ -9943,8 +9926,7 @@ extern "C" {
 
 	FORCEINLINE VOID InsertHeadList(
 		_Inout_ PLIST_ENTRY ListHead,
-		_Inout_ PLIST_ENTRY Entry
-	)
+		_Inout_ PLIST_ENTRY Entry)
 	{
 		PLIST_ENTRY Flink;
 
@@ -9957,8 +9939,7 @@ extern "C" {
 
 	FORCEINLINE VOID AppendTailList(
 		_Inout_ PLIST_ENTRY ListHead,
-		_Inout_ PLIST_ENTRY ListToAppend
-	)
+		_Inout_ PLIST_ENTRY ListToAppend)
 	{
 		PLIST_ENTRY ListEnd = ListHead->Blink;
 
@@ -9969,8 +9950,7 @@ extern "C" {
 	}
 
 	FORCEINLINE PSINGLE_LIST_ENTRY PopEntryList(
-		_Inout_ PSINGLE_LIST_ENTRY ListHead
-	)
+		_Inout_ PSINGLE_LIST_ENTRY ListHead)
 	{
 		PSINGLE_LIST_ENTRY FirstEntry;
 
@@ -9984,8 +9964,7 @@ extern "C" {
 
 	FORCEINLINE VOID PushEntryList(
 		_Inout_ PSINGLE_LIST_ENTRY ListHead,
-		_Inout_ PSINGLE_LIST_ENTRY Entry
-	)
+		_Inout_ PSINGLE_LIST_ENTRY Entry)
 	{
 		Entry->Next = ListHead->Next;
 		ListHead->Next = Entry;
@@ -10384,80 +10363,63 @@ extern "C" {
 
 #if (_WIN32_WINNT >= _WIN32_WINNT_WIN7)
 
-	FORCEINLINE
-		VOID RtlInitHashTableContext(
-			_Inout_ PRTL_DYNAMIC_HASH_TABLE_CONTEXT Context
-		)
+	FORCEINLINE VOID RtlInitHashTableContext(
+		_Inout_ PRTL_DYNAMIC_HASH_TABLE_CONTEXT Context)
 	{
 		Context->ChainHead = NULL;
 		Context->PrevLinkage = NULL;
 	}
 
-	FORCEINLINE
-		VOID RtlInitHashTableContextFromEnumerator(
-			_Inout_ PRTL_DYNAMIC_HASH_TABLE_CONTEXT Context,
-			_In_ PRTL_DYNAMIC_HASH_TABLE_ENUMERATOR Enumerator
-		)
+	FORCEINLINE VOID RtlInitHashTableContextFromEnumerator(
+		_Inout_ PRTL_DYNAMIC_HASH_TABLE_CONTEXT Context,
+		_In_ PRTL_DYNAMIC_HASH_TABLE_ENUMERATOR Enumerator)
 	{
 		Context->ChainHead = Enumerator->ChainHead;
 		Context->PrevLinkage = Enumerator->HashEntry.Linkage.Blink;
 	}
 
-	FORCEINLINE
-		VOID RtlReleaseHashTableContext(
-			_Inout_ PRTL_DYNAMIC_HASH_TABLE_CONTEXT Context
-		)
+	FORCEINLINE VOID RtlReleaseHashTableContext(
+		_Inout_ PRTL_DYNAMIC_HASH_TABLE_CONTEXT Context)
 	{
 		UNREFERENCED_PARAMETER(Context);
 		return;
 	}
 
-	FORCEINLINE
-		ULONG RtlTotalBucketsHashTable(
-			_In_ PRTL_DYNAMIC_HASH_TABLE HashTable
-		)
+	FORCEINLINE ULONG RtlTotalBucketsHashTable(
+		_In_ PRTL_DYNAMIC_HASH_TABLE HashTable)
 	{
 		return HashTable->TableSize;
 	}
 
-	FORCEINLINE
-		ULONG RtlNonEmptyBucketsHashTable(
-			_In_ PRTL_DYNAMIC_HASH_TABLE HashTable
-		)
+	FORCEINLINE ULONG RtlNonEmptyBucketsHashTable(
+		_In_ PRTL_DYNAMIC_HASH_TABLE HashTable)
 	{
 		return HashTable->NonEmptyBuckets;
 	}
 
-	FORCEINLINE
-		ULONG RtlEmptyBucketsHashTable(
-			_In_ PRTL_DYNAMIC_HASH_TABLE HashTable
-		)
+	FORCEINLINE ULONG RtlEmptyBucketsHashTable(
+		_In_ PRTL_DYNAMIC_HASH_TABLE HashTable)
 	{
 		return HashTable->TableSize - HashTable->NonEmptyBuckets;
 	}
 
-	FORCEINLINE
-		ULONG RtlTotalEntriesHashTable(
-			_In_ PRTL_DYNAMIC_HASH_TABLE HashTable
-		)
+	FORCEINLINE ULONG RtlTotalEntriesHashTable(
+		_In_ PRTL_DYNAMIC_HASH_TABLE HashTable)
 	{
 		return HashTable->NumEntries;
 	}
 
-	FORCEINLINE
-		ULONG RtlActiveEnumeratorsHashTable(
-			_In_ PRTL_DYNAMIC_HASH_TABLE HashTable
-		)
+	FORCEINLINE ULONG RtlActiveEnumeratorsHashTable(
+		_In_ PRTL_DYNAMIC_HASH_TABLE HashTable)
 	{
 		return HashTable->NumEnumerators;
 	}
 
-	_Must_inspect_result_
-		NTSYSAPI BOOLEAN NTAPI RtlCreateHashTable(
-			_Inout_ _When_(*HashTable == NULL, __drv_allocatesMem(Mem)) PRTL_DYNAMIC_HASH_TABLE *HashTable,
-			_In_ ULONG Shift,
-			_In_ _Reserved_ ULONG Flags
-		);
+	_Must_inspect_result_ NTSYSAPI BOOLEAN NTAPI RtlCreateHashTable(
+		_Inout_ _When_(*HashTable == NULL, __drv_allocatesMem(Mem)) PRTL_DYNAMIC_HASH_TABLE *HashTable,
+		_In_ ULONG Shift,
+		_In_ _Reserved_ ULONG Flags
+	);
 
 	NTSYSAPI VOID NTAPI RtlDeleteHashTable(
 		_In_ PRTL_DYNAMIC_HASH_TABLE HashTable
@@ -10476,32 +10438,26 @@ extern "C" {
 		_Inout_opt_ PRTL_DYNAMIC_HASH_TABLE_CONTEXT Context
 	);
 
-	_Must_inspect_result_
-		NTSYSAPI PRTL_DYNAMIC_HASH_TABLE_ENTRY
-		NTAPI RtlLookupEntryHashTable(
-			_In_ PRTL_DYNAMIC_HASH_TABLE HashTable,
-			_In_ ULONG_PTR Signature,
-			_Out_opt_ PRTL_DYNAMIC_HASH_TABLE_CONTEXT Context
-		);
+	_Must_inspect_result_ NTSYSAPI PRTL_DYNAMIC_HASH_TABLE_ENTRY NTAPI RtlLookupEntryHashTable(
+		_In_ PRTL_DYNAMIC_HASH_TABLE HashTable,
+		_In_ ULONG_PTR Signature,
+		_Out_opt_ PRTL_DYNAMIC_HASH_TABLE_CONTEXT Context
+	);
 
-	_Must_inspect_result_
-		NTSYSAPI PRTL_DYNAMIC_HASH_TABLE_ENTRY
-		NTAPI RtlGetNextEntryHashTable(
-			_In_ PRTL_DYNAMIC_HASH_TABLE HashTable,
-			_In_ PRTL_DYNAMIC_HASH_TABLE_CONTEXT Context
-		);
+	_Must_inspect_result_ NTSYSAPI PRTL_DYNAMIC_HASH_TABLE_ENTRY NTAPI RtlGetNextEntryHashTable(
+		_In_ PRTL_DYNAMIC_HASH_TABLE HashTable,
+		_In_ PRTL_DYNAMIC_HASH_TABLE_CONTEXT Context
+	);
 
 	NTSYSAPI BOOLEAN NTAPI RtlInitEnumerationHashTable(
 		_In_ PRTL_DYNAMIC_HASH_TABLE HashTable,
 		_Out_ PRTL_DYNAMIC_HASH_TABLE_ENUMERATOR Enumerator
 	);
 
-	_Must_inspect_result_
-		NTSYSAPI PRTL_DYNAMIC_HASH_TABLE_ENTRY
-		NTAPI RtlEnumerateEntryHashTable(
-			_In_ PRTL_DYNAMIC_HASH_TABLE HashTable,
-			_Inout_ PRTL_DYNAMIC_HASH_TABLE_ENUMERATOR Enumerator
-		);
+	_Must_inspect_result_ NTSYSAPI PRTL_DYNAMIC_HASH_TABLE_ENTRY NTAPI RtlEnumerateEntryHashTable(
+		_In_ PRTL_DYNAMIC_HASH_TABLE HashTable,
+		_Inout_ PRTL_DYNAMIC_HASH_TABLE_ENUMERATOR Enumerator
+	);
 
 	NTSYSAPI VOID NTAPI RtlEndEnumerationHashTable(
 		_In_ PRTL_DYNAMIC_HASH_TABLE HashTable,
@@ -10513,12 +10469,10 @@ extern "C" {
 		_Out_ PRTL_DYNAMIC_HASH_TABLE_ENUMERATOR Enumerator
 	);
 
-	_Must_inspect_result_
-		NTSYSAPI PRTL_DYNAMIC_HASH_TABLE_ENTRY
-		NTAPI RtlWeaklyEnumerateEntryHashTable(
-			_In_ PRTL_DYNAMIC_HASH_TABLE HashTable,
-			_Inout_ PRTL_DYNAMIC_HASH_TABLE_ENUMERATOR Enumerator
-		);
+	_Must_inspect_result_ NTSYSAPI PRTL_DYNAMIC_HASH_TABLE_ENTRY NTAPI RtlWeaklyEnumerateEntryHashTable(
+		_In_ PRTL_DYNAMIC_HASH_TABLE HashTable,
+		_Inout_ PRTL_DYNAMIC_HASH_TABLE_ENUMERATOR Enumerator
+	);
 
 	NTSYSAPI VOID NTAPI RtlEndWeakEnumerationHashTable(
 		_In_ PRTL_DYNAMIC_HASH_TABLE HashTable,
@@ -10542,12 +10496,10 @@ extern "C" {
 		_Out_ PRTL_DYNAMIC_HASH_TABLE_ENUMERATOR Enumerator
 	);
 
-	_Must_inspect_result_
-		NTSYSAPI PRTL_DYNAMIC_HASH_TABLE_ENTRY
-		NTAPI RtlStronglyEnumerateEntryHashTable(
-			_In_ PRTL_DYNAMIC_HASH_TABLE HashTable,
-			_Inout_ PRTL_DYNAMIC_HASH_TABLE_ENUMERATOR Enumerator
-		);
+	_Must_inspect_result_ NTSYSAPI PRTL_DYNAMIC_HASH_TABLE_ENTRY NTAPI RtlStronglyEnumerateEntryHashTable(
+		_In_ PRTL_DYNAMIC_HASH_TABLE HashTable,
+		_Inout_ PRTL_DYNAMIC_HASH_TABLE_ENUMERATOR Enumerator
+	);
 
 	NTSYSAPI VOID NTAPI RtlEndStrongEnumerationHashTable(
 		_In_ PRTL_DYNAMIC_HASH_TABLE HashTable,
@@ -10581,20 +10533,17 @@ extern "C" {
 		_Inout_ PRTL_CRITICAL_SECTION CriticalSection
 	);
 
-	NTSYSAPI LOGICAL
-		NTAPI RtlTryEnterCriticalSection(
-			_Inout_ PRTL_CRITICAL_SECTION CriticalSection
-		);
+	NTSYSAPI LOGICAL NTAPI RtlTryEnterCriticalSection(
+		_Inout_ PRTL_CRITICAL_SECTION CriticalSection
+	);
 
-	NTSYSAPI LOGICAL
-		NTAPI RtlIsCriticalSectionLocked(
-			_In_ PRTL_CRITICAL_SECTION CriticalSection
-		);
+	NTSYSAPI LOGICAL NTAPI RtlIsCriticalSectionLocked(
+		_In_ PRTL_CRITICAL_SECTION CriticalSection
+	);
 
-	NTSYSAPI LOGICAL
-		NTAPI RtlIsCriticalSectionLockedByThread(
-			_In_ PRTL_CRITICAL_SECTION CriticalSection
-		);
+	NTSYSAPI LOGICAL NTAPI RtlIsCriticalSectionLockedByThread(
+		_In_ PRTL_CRITICAL_SECTION CriticalSection
+	);
 
 	NTSYSAPI ULONG NTAPI RtlGetCriticalSectionRecursionCount(
 		_In_ PRTL_CRITICAL_SECTION CriticalSection
@@ -10861,32 +10810,27 @@ extern "C" {
 		_In_opt_ PSTRING SourceString
 	);
 
-	NTSYSAPI CHAR
-		NTAPI RtlUpperChar(
-			_In_ CHAR Character
-		);
+	NTSYSAPI CHAR NTAPI RtlUpperChar(
+		_In_ CHAR Character
+	);
 
-	_Must_inspect_result_
-		NTSYSAPI LONG
-		NTAPI RtlCompareString(
-			_In_ PSTRING String1,
-			_In_ PSTRING String2,
-			_In_ BOOLEAN CaseInSensitive
-		);
+	_Must_inspect_result_ NTSYSAPI LONG NTAPI RtlCompareString(
+		_In_ PSTRING String1,
+		_In_ PSTRING String2,
+		_In_ BOOLEAN CaseInSensitive
+	);
 
-	_Must_inspect_result_
-		NTSYSAPI BOOLEAN NTAPI RtlEqualString(
-			_In_ PSTRING String1,
-			_In_ PSTRING String2,
-			_In_ BOOLEAN CaseInSensitive
-		);
+	_Must_inspect_result_ NTSYSAPI BOOLEAN NTAPI RtlEqualString(
+		_In_ PSTRING String1,
+		_In_ PSTRING String2,
+		_In_ BOOLEAN CaseInSensitive
+	);
 
-	_Must_inspect_result_
-		NTSYSAPI BOOLEAN NTAPI RtlPrefixString(
-			_In_ PSTRING String1,
-			_In_ PSTRING String2,
-			_In_ BOOLEAN CaseInSensitive
-		);
+	_Must_inspect_result_ NTSYSAPI BOOLEAN NTAPI RtlPrefixString(
+		_In_ PSTRING String1,
+		_In_ PSTRING String2,
+		_In_ BOOLEAN CaseInSensitive
+	);
 
 	NTSYSAPI NTSTATUS NTAPI RtlAppendStringToString(
 		_In_ PSTRING Destination,
@@ -10954,23 +10898,19 @@ extern "C" {
 		_In_ PUNICODE_STRING SourceString
 	);
 
-	NTSYSAPI WCHAR
-		NTAPI RtlUpcaseUnicodeChar(
-			_In_ WCHAR SourceCharacter
-		);
+	NTSYSAPI WCHAR NTAPI RtlUpcaseUnicodeChar(
+		_In_ WCHAR SourceCharacter
+	);
 
-	NTSYSAPI WCHAR
-		NTAPI RtlDowncaseUnicodeChar(
-			_In_ WCHAR SourceCharacter
-		);
+	NTSYSAPI WCHAR NTAPI RtlDowncaseUnicodeChar(
+		_In_ WCHAR SourceCharacter
+	);
 
-	_Must_inspect_result_
-		NTSYSAPI LONG
-		NTAPI RtlCompareUnicodeString(
-			_In_ PUNICODE_STRING String1,
-			_In_ PUNICODE_STRING String2,
-			_In_ BOOLEAN CaseInSensitive
-		);
+	_Must_inspect_result_ NTSYSAPI LONG NTAPI RtlCompareUnicodeString(
+		_In_ PUNICODE_STRING String1,
+		_In_ PUNICODE_STRING String2,
+		_In_ BOOLEAN CaseInSensitive
+	);
 
 #if (_WIN32_WINNT >= _WIN32_WINNT_VISTA)
 	_Must_inspect_result_
@@ -11190,9 +11130,7 @@ extern "C" {
 		_In_reads_bytes_(UTF8StringByteCount) PCH UTF8StringSource,
 		_In_ ULONG UTF8StringByteCount
 	);
-#endif
 
-#if (_WIN32_WINNT >= _WIN32_WINNT_WIN7)
 	NTSYSAPI NTSTATUS NTAPI RtlUnicodeToUTF8N(
 		_Out_writes_bytes_to_(UTF8StringMaxByteCount, *UTF8StringActualByteCount) PCHAR UTF8StringDestination,
 		_In_ ULONG UTF8StringMaxByteCount,
@@ -11275,9 +11213,7 @@ extern "C" {
 		_Out_writes_to_(*DestinationStringLength, *DestinationStringLength) PWSTR DestinationString,
 		_Inout_ PLONG DestinationStringLength
 	);
-#endif
 
-#if (_WIN32_WINNT >= _WIN32_WINNT_VISTA)
 	NTSYSAPI NTSTATUS NTAPI RtlIsNormalizedString(
 		_In_ ULONG NormForm, // RTL_NORM_FORM
 		_In_ PCWSTR SourceString,
@@ -11572,7 +11508,8 @@ extern "C" {
 
 	// private
 	NTSYSAPI VOID NTAPI RtlCleanUpTEBLangLists(
-		VOID);
+		VOID
+	);
 
 #endif
 
@@ -11590,16 +11527,18 @@ extern "C" {
 	// PEB
 
 	NTSYSAPI VOID NTAPI RtlAcquirePebLock(
-		VOID);
+		VOID
+	);
 
 	NTSYSAPI VOID NTAPI RtlReleasePebLock(
-		VOID);
+		VOID
+	);
 
 #if (_WIN32_WINNT >= _WIN32_WINNT_VISTA)
 	// private
-	NTSYSAPI LOGICAL
-		NTAPI RtlTryAcquirePebLock(
-			VOID);
+	NTSYSAPI LOGICAL NTAPI RtlTryAcquirePebLock(
+		VOID
+	);
 #endif
 
 	NTSYSAPI NTSTATUS NTAPI RtlAllocateFromPeb(
@@ -11759,18 +11698,15 @@ extern "C" {
 	);
 
 #if (_WIN32_WINNT >= _WIN32_WINNT_VISTA)
-	DECLSPEC_NORETURN
-		NTSYSAPI VOID NTAPI RtlExitUserProcess(
-			_In_ NTSTATUS ExitStatus
-		);
+	DECLSPEC_NORETURN NTSYSAPI VOID NTAPI RtlExitUserProcess(
+		_In_ NTSTATUS ExitStatus
+	);
 #else
 
 #define RtlExitUserProcess RtlExitUserProcess_R
 
-	DECLSPEC_NORETURN
-		FORCEINLINE VOID RtlExitUserProcess_R(
-			_In_ NTSTATUS ExitStatus
-		)
+	DECLSPEC_NORETURN FORCEINLINE VOID RtlExitUserProcess_R(
+		_In_ NTSTATUS ExitStatus)
 	{
 		ExitProcess(ExitStatus);
 	}
@@ -11828,16 +11764,16 @@ extern "C" {
 #endif
 
 	NTSYSAPI NTSTATUS STDAPIVCALLTYPE RtlSetProcessIsCritical(
-			_In_ BOOLEAN NewValue,
-			_Out_opt_ PBOOLEAN OldValue,
-			_In_ BOOLEAN CheckFlag
-		);
+		_In_ BOOLEAN NewValue,
+		_Out_opt_ PBOOLEAN OldValue,
+		_In_ BOOLEAN CheckFlag
+	);
 
 	NTSYSAPI NTSTATUS STDAPIVCALLTYPE RtlSetThreadIsCritical(
-			_In_ BOOLEAN NewValue,
-			_Out_opt_ PBOOLEAN OldValue,
-			_In_ BOOLEAN CheckFlag
-		);
+		_In_ BOOLEAN NewValue,
+		_Out_opt_ PBOOLEAN OldValue,
+		_In_ BOOLEAN CheckFlag
+	);
 
 	// Threads
 
@@ -11859,18 +11795,15 @@ extern "C" {
 	);
 
 #if (_WIN32_WINNT >= _WIN32_WINNT_VISTA) // should be _WIN32_WINNT_WINXP, but is _WIN32_WINNT_VISTA for consistency with RtlExitUserProcess
-	DECLSPEC_NORETURN
-		NTSYSAPI VOID NTAPI RtlExitUserThread(
-			_In_ NTSTATUS ExitStatus
-		);
+	DECLSPEC_NORETURN NTSYSAPI VOID NTAPI RtlExitUserThread(
+		_In_ NTSTATUS ExitStatus
+	);
 #else
 
 #define RtlExitUserThread RtlExitUserThread_R
 
-	DECLSPEC_NORETURN
-		FORCEINLINE VOID RtlExitUserThread_R(
-			_In_ NTSTATUS ExitStatus
-		)
+	DECLSPEC_NORETURN FORCEINLINE VOID RtlExitUserThread_R(
+		_In_ NTSTATUS ExitStatus)
 	{
 		ExitThread(ExitStatus);
 	}
@@ -12238,27 +12171,21 @@ extern "C" {
 		_Out_opt_ PWSTR *FilePart,
 		_Out_opt_ PRTL_RELATIVE_NAME_U RelativeName
 	);
-#endif
 
-#if (_WIN32_WINNT >= _WIN32_WINNT_WS03)
 	NTSYSAPI BOOLEAN NTAPI RtlDosPathNameToRelativeNtPathName_U(
 		_In_ PWSTR DosFileName,
 		_Out_ PUNICODE_STRING NtFileName,
 		_Out_opt_ PWSTR *FilePart,
 		_Out_opt_ PRTL_RELATIVE_NAME_U RelativeName
 	);
-#endif
 
-#if (_WIN32_WINNT >= _WIN32_WINNT_WS03)
 	NTSYSAPI NTSTATUS NTAPI RtlDosPathNameToRelativeNtPathName_U_WithStatus(
 		_In_ PWSTR DosFileName,
 		_Out_ PUNICODE_STRING NtFileName,
 		_Out_opt_ PWSTR *FilePart,
 		_Out_opt_ PRTL_RELATIVE_NAME_U RelativeName
 	);
-#endif
 
-#if (_WIN32_WINNT >= _WIN32_WINNT_WS03)
 	NTSYSAPI VOID NTAPI RtlReleaseRelativeName(
 		_Inout_ PRTL_RELATIVE_NAME_U RelativeName
 	);
@@ -12706,15 +12633,11 @@ extern "C" {
 		_In_ PVOID MemoryZone
 	);
 
-#endif
-
 	// end_private
 
 	// Memory block lookaside lists
 
 	// begin_private
-
-#if (_WIN32_WINNT >= _WIN32_WINNT_VISTA)
 
 	NTSYSAPI NTSTATUS NTAPI RtlCreateMemoryBlockLookaside(
 		_Out_ PVOID *MemoryBlockLookaside,
@@ -12756,13 +12679,10 @@ extern "C" {
 		_In_ PVOID MemoryBlockLookaside
 	);
 
-#endif
-
 	// end_private
 
 	// Transactions
 
-#if (_WIN32_WINNT >= _WIN32_WINNT_VISTA)
 	// private
 	NTSYSAPI HANDLE NTAPI RtlGetCurrentTransaction(
 		VOID
@@ -12778,22 +12698,19 @@ extern "C" {
 
 	FORCEINLINE BOOLEAN RtlIsEqualLuid(
 		_In_ PLUID L1,
-		_In_ PLUID L2
-	)
+		_In_ PLUID L2)
 	{
 		return (BOOLEAN)(L1->LowPart == L2->LowPart && L1->HighPart == L2->HighPart);
 	}
 
 	FORCEINLINE BOOLEAN RtlIsZeroLuid(
-		_In_ PLUID L1
-	)
+		_In_ PLUID L1)
 	{
 		return (BOOLEAN)((L1->LowPart | L1->HighPart) == 0);
 	}
 
 	FORCEINLINE LUID RtlConvertLongToLuid(
-		_In_ LONG Long
-	)
+		_In_ LONG Long)
 	{
 		LUID tempLuid;
 		LARGE_INTEGER tempLi;
@@ -12806,8 +12723,7 @@ extern "C" {
 	}
 
 	FORCEINLINE LUID RtlConvertUlongToLuid(
-		_In_ ULONG Ulong
-	)
+		_In_ ULONG Ulong)
 	{
 		LUID tempLuid;
 
@@ -12864,11 +12780,10 @@ extern "C" {
 		PVOID Reserved[4];
 	} RTL_DEBUG_INFORMATION, *PRTL_DEBUG_INFORMATION;
 
-	NTSYSAPI PRTL_DEBUG_INFORMATION
-		NTAPI RtlCreateQueryDebugBuffer(
-			_In_opt_ ULONG MaximumCommit,
-			_In_ BOOLEAN UseEventPair
-		);
+	NTSYSAPI PRTL_DEBUG_INFORMATION NTAPI RtlCreateQueryDebugBuffer(
+		_In_opt_ ULONG MaximumCommit,
+		_In_ BOOLEAN UseEventPair
+	);
 
 	NTSYSAPI NTSTATUS NTAPI RtlDestroyQueryDebugBuffer(
 		_In_ PRTL_DEBUG_INFORMATION Buffer
@@ -12997,7 +12912,8 @@ extern "C" {
 #define RTL_ERRORMODE_NOOPENFILEERRORBOX 0x0040
 
 	NTSYSAPI ULONG NTAPI RtlGetThreadErrorMode(
-		VOID);
+		VOID
+	);
 
 	NTSYSAPI NTSTATUS NTAPI RtlSetThreadErrorMode(
 		_In_ ULONG NewMode,
@@ -13013,9 +12929,7 @@ extern "C" {
 		_In_ PCONTEXT ContextRecord,
 		_In_ ULONG Flags
 	);
-#endif
 
-#if (_WIN32_WINNT >= _WIN32_WINNT_VISTA)
 	// private
 	NTSYSAPI NTSTATUS NTAPI RtlWerpReportException(
 		_In_ ULONG ProcessId,
@@ -13359,11 +13273,9 @@ extern "C" {
 		_Out_ PULONG StartingIndex
 	);
 
-	_Check_return_ FORCEINLINE
-		BOOLEAN RtlCheckBit(
-			_In_ PRTL_BITMAP BitMapHeader,
-			_In_range_(<, BitMapHeader->SizeOfBitMap) ULONG BitPosition
-		)
+	_Check_return_ FORCEINLINE BOOLEAN RtlCheckBit(
+		_In_ PRTL_BITMAP BitMapHeader,
+		_In_range_(<, BitMapHeader->SizeOfBitMap) ULONG BitPosition)
 	{
 #ifdef _WIN64
 		return BitTest64((LONG64 const *)BitMapHeader->Buffer, (LONG64)BitPosition);
@@ -13592,10 +13504,9 @@ extern "C" {
 		_In_ ULONG SubAuthority
 	);
 
-	NTSYSAPI PUCHAR
-		NTAPI RtlSubAuthorityCountSid(
-			_In_ PSID Sid
-		);
+	NTSYSAPI PUCHAR NTAPI RtlSubAuthorityCountSid(
+		_In_ PSID Sid
+	);
 
 	NTSYSAPI ULONG NTAPI RtlLengthSid(
 		_In_ PSID Sid
@@ -13613,27 +13524,21 @@ extern "C" {
 		_Out_writes_bytes_opt_(*ServiceSidLength) PSID ServiceSid,
 		_Inout_ PULONG ServiceSidLength
 	);
-#endif
 
-#if (_WIN32_WINNT >= _WIN32_WINNT_VISTA)
 	// private
 	NTSYSAPI NTSTATUS NTAPI RtlSidDominates(
 		_In_ PSID Sid1,
 		_In_ PSID Sid2,
 		_Out_ PBOOLEAN pbDominate
 	);
-#endif
 
-#if (_WIN32_WINNT >= _WIN32_WINNT_VISTA)
 	// private
 	NTSYSAPI NTSTATUS NTAPI RtlSidEqualLevel(
 		_In_ PSID Sid1,
 		_In_ PSID Sid2,
 		_Out_ PBOOLEAN pbEqual
 	);
-#endif
 
-#if (_WIN32_WINNT >= _WIN32_WINNT_VISTA)
 	// private
 	NTSYSAPI NTSTATUS NTAPI RtlSidIsHigherLevel(
 		_In_ PSID Sid1,
@@ -13649,9 +13554,7 @@ extern "C" {
 		_Out_writes_bytes_(*SidLength) PSID Sid,
 		_Inout_ PULONG SidLength
 	);
-#endif
 
-#if (_WIN32_WINNT >= _WIN32_WINNT_WIN7)
 	NTSYSAPI NTSTATUS NTAPI RtlReplaceSidInSd(
 		_Inout_ PSECURITY_DESCRIPTOR SecurityDescriptor,
 		_In_ PSID OldSid,
@@ -13675,15 +13578,12 @@ extern "C" {
 		_In_ ULONG SidCount,
 		_Out_ PSID_AND_ATTRIBUTES_HASH SidAttrHash
 	);
-#endif
 
-#if (_WIN32_WINNT >= _WIN32_WINNT_VISTA)
 	// private
-	NTSYSAPI PSID_AND_ATTRIBUTES
-		NTAPI RtlSidHashLookup(
-			_In_ PSID_AND_ATTRIBUTES_HASH SidAttrHash,
-			_In_ PSID Sid
-		);
+	NTSYSAPI PSID_AND_ATTRIBUTES NTAPI RtlSidHashLookup(
+		_In_ PSID_AND_ATTRIBUTES_HASH SidAttrHash,
+		_In_ PSID Sid
+	);
 #endif
 
 	// Security Descriptors
@@ -13900,9 +13800,7 @@ extern "C" {
 		_In_ UCHAR AceType,
 		_Out_opt_ PULONG pIndex
 	);
-#endif
 
-#if (_WIN32_WINNT >= _WIN32_WINNT_VISTA)
 	// private
 	NTSYSAPI BOOLEAN NTAPI RtlOwnerAcesPresent(
 		_In_ PACL pAcl
@@ -14397,19 +14295,17 @@ extern "C" {
 #define DBG_STATUS_DEBUG_CONTROL 6
 #define DBG_STATUS_WORKER 7
 
-	NTSYSAPI ULONG __cdecl
-		DbgPrint(
-			_In_z_ _Printf_format_string_ PSTR Format,
-			...
-		);
+	NTSYSAPI ULONG __cdecl DbgPrint(
+		_In_z_ _Printf_format_string_ PSTR Format,
+		...
+	);
 
-	NTSYSAPI ULONG __cdecl
-		DbgPrintEx(
-			_In_ ULONG ComponentId,
-			_In_ ULONG Level,
-			_In_z_ _Printf_format_string_ PSTR Format,
-			...
-		);
+	NTSYSAPI ULONG __cdecl DbgPrintEx(
+		_In_ ULONG ComponentId,
+		_In_ ULONG Level,
+		_In_z_ _Printf_format_string_ PSTR Format,
+		...
+	);
 
 	NTSYSAPI ULONG NTAPI vDbgPrintEx(
 		_In_ ULONG ComponentId,
@@ -14504,12 +14400,11 @@ extern "C" {
 	NTSYSAPI ULONG NTAPI RtlGetCurrentProcessorNumber(
 		VOID);
 
-	NTSYSAPI ULONG32
-		NTAPI RtlComputeCrc32(
-			_In_ ULONG32 PartialCrc,
-			_In_ PVOID Buffer,
-			_In_ ULONG Length
-		);
+	NTSYSAPI ULONG32 NTAPI RtlComputeCrc32(
+		_In_ ULONG32 PartialCrc,
+		_In_ PVOID Buffer,
+		_In_ ULONG Length
+	);
 
 	NTSYSAPI PVOID NTAPI RtlEncodePointer(
 		_In_ PVOID Ptr
@@ -14538,9 +14433,9 @@ extern "C" {
 		_In_ PTEB_ACTIVE_FRAME Frame
 	);
 
-	NTSYSAPI PTEB_ACTIVE_FRAME
-		NTAPI RtlGetFrame(
-			VOID);
+	NTSYSAPI PTEB_ACTIVE_FRAME NTAPI RtlGetFrame(
+		VOID
+	);
 
 	typedef ULONG(NTAPI *PRTLP_UNHANDLED_EXCEPTION_FILTER)(
 		struct _EXCEPTION_POINTERS *ExceptionInfo
@@ -14550,8 +14445,7 @@ extern "C" {
 		_In_ PRTLP_UNHANDLED_EXCEPTION_FILTER UnhandledExceptionFilter
 	);
 
-	// begin_private
-
+	// private
 	typedef union _RTL_ELEVATION_FLAGS
 	{
 		ULONG Flags;
@@ -14565,39 +14459,28 @@ extern "C" {
 	} RTL_ELEVATION_FLAGS, *PRTL_ELEVATION_FLAGS;
 
 #if (_WIN32_WINNT >= _WIN32_WINNT_VISTA)
+	// private
 	NTSYSAPI NTSTATUS NTAPI RtlQueryElevationFlags(
 		_Out_ PRTL_ELEVATION_FLAGS Flags
 	);
-#endif
 
-	// end_private
-
-#if (_WIN32_WINNT >= _WIN32_WINNT_VISTA)
 	// private
 	NTSYSAPI NTSTATUS NTAPI RtlRegisterThreadWithCsrss(
 		VOID);
-#endif
 
-#if (_WIN32_WINNT >= _WIN32_WINNT_VISTA)
 	// private
 	NTSYSAPI NTSTATUS NTAPI RtlLockCurrentThread(
 		VOID);
-#endif
 
-#if (_WIN32_WINNT >= _WIN32_WINNT_VISTA)
 	// private
 	NTSYSAPI NTSTATUS NTAPI RtlUnlockCurrentThread(
 		VOID);
-#endif
 
-#if (_WIN32_WINNT >= _WIN32_WINNT_VISTA)
 	// private
 	NTSYSAPI NTSTATUS NTAPI RtlLockModuleSection(
 		_In_ PVOID Address
 	);
-#endif
 
-#if (_WIN32_WINNT >= _WIN32_WINNT_VISTA)
 	// private
 	NTSYSAPI NTSTATUS NTAPI RtlUnlockModuleSection(
 		_In_ PVOID Address
@@ -14636,18 +14519,14 @@ extern "C" {
 
 #if (_WIN32_WINNT >= _WIN32_WINNT_WIN7)
 	// rev
-	NTSYSAPI LOGICAL
-		NTAPI RtlQueryPerformanceCounter(
-			_Out_ PLARGE_INTEGER PerformanceCounter
-		);
-#endif
+	NTSYSAPI LOGICAL NTAPI RtlQueryPerformanceCounter(
+		_Out_ PLARGE_INTEGER PerformanceCounter
+	);
 
-#if (_WIN32_WINNT >= _WIN32_WINNT_WIN7)
 	// rev
-	NTSYSAPI LOGICAL
-		NTAPI RtlQueryPerformanceFrequency(
-			_Out_ PLARGE_INTEGER PerformanceFrequency
-		);
+	NTSYSAPI LOGICAL NTAPI RtlQueryPerformanceFrequency(
+		_Out_ PLARGE_INTEGER PerformanceFrequency
+	);
 #endif
 
 #if (_WIN32_WINNT >= _WIN32_WINNT_WIN8)
@@ -14658,12 +14537,11 @@ extern "C" {
 		_In_ ULONG InitialCrc
 	);
 
-	NTSYSAPI ULONGLONG
-		NTAPI RtlCrc64(
-			_In_reads_bytes_(Size) const void *Buffer,
-			_In_ size_t Size,
-			_In_ ULONGLONG InitialCrc
-		);
+	NTSYSAPI ULONGLONG NTAPI RtlCrc64(
+		_In_reads_bytes_(Size) const void *Buffer,
+		_In_ size_t Size,
+		_In_ ULONGLONG InitialCrc
+	);
 
 #endif
 
@@ -14828,9 +14706,7 @@ extern "C" {
 		_In_ ULONG HandleCount,
 		_In_reads_opt_(HandleCount) HANDLE *Handles
 	);
-#endif
 
-#if (_WIN32_WINNT >= _WIN32_WINNT_WIN8)
 	NTSYSCALLAPI NTSTATUS NTAPI NtCreateTokenEx(
 		_Out_ PHANDLE TokenHandle,
 		_In_ ACCESS_MASK DesiredAccess,
@@ -15206,9 +15082,7 @@ extern "C" {
 		_In_opt_ ULONG CreateOptions,
 		_In_opt_ ULONG CommitStrength
 	);
-#endif
 
-#if (_WIN32_WINNT >= _WIN32_WINNT_VISTA)
 	NTSYSCALLAPI NTSTATUS NTAPI NtOpenTransactionManager(
 		_Out_ PHANDLE TmHandle,
 		_In_ ACCESS_MASK DesiredAccess,
@@ -15217,28 +15091,20 @@ extern "C" {
 		_In_opt_ LPGUID TmIdentity,
 		_In_opt_ ULONG OpenOptions
 	);
-#endif
 
-#if (_WIN32_WINNT >= _WIN32_WINNT_VISTA)
 	NTSYSCALLAPI NTSTATUS NTAPI NtRenameTransactionManager(
 		_In_ PUNICODE_STRING LogFileName,
 		_In_ LPGUID ExistingTransactionManagerGuid
 	);
-#endif
 
-#if (_WIN32_WINNT >= _WIN32_WINNT_VISTA)
 	NTSYSCALLAPI NTSTATUS NTAPI NtRollforwardTransactionManager(
 		_In_ HANDLE TransactionManagerHandle,
 		_In_opt_ PLARGE_INTEGER TmVirtualClock
 	);
-#endif
 
-#if (_WIN32_WINNT >= _WIN32_WINNT_VISTA)
 	NTSYSCALLAPI NTSTATUS NTAPI NtRecoverTransactionManager(
 		_In_ HANDLE TransactionManagerHANDLE);
-#endif
 
-#if (_WIN32_WINNT >= _WIN32_WINNT_VISTA)
 	NTSYSCALLAPI NTSTATUS NTAPI NtQueryInformationTransactionManager(
 		_In_ HANDLE TransactionManagerHandle,
 		_In_ TRANSACTIONMANAGER_INFORMATION_CLASS TransactionManagerInformationClass,
@@ -15246,18 +15112,14 @@ extern "C" {
 		_In_ ULONG TransactionManagerInformationLength,
 		_Out_opt_ PULONG ReturnLength
 	);
-#endif
 
-#if (_WIN32_WINNT >= _WIN32_WINNT_VISTA)
 	NTSYSCALLAPI NTSTATUS NTAPI NtSetInformationTransactionManager(
 		_In_opt_ HANDLE TmHandle,
 		_In_ TRANSACTIONMANAGER_INFORMATION_CLASS TransactionManagerInformationClass,
 		_In_reads_bytes_(TransactionManagerInformationLength) PVOID TransactionManagerInformation,
 		_In_ ULONG TransactionManagerInformationLength
 	);
-#endif
 
-#if (_WIN32_WINNT >= _WIN32_WINNT_VISTA)
 	NTSYSCALLAPI NTSTATUS NTAPI NtEnumerateTransactionObject(
 		_In_opt_ HANDLE RootObjectHandle,
 		_In_ KTMOBJECT_TYPE QueryType,
@@ -15265,9 +15127,7 @@ extern "C" {
 		_In_ ULONG ObjectCursorLength,
 		_Out_ PULONG ReturnLength
 	);
-#endif
 
-#if (_WIN32_WINNT >= _WIN32_WINNT_VISTA)
 	NTSYSCALLAPI NTSTATUS NTAPI NtCreateTransaction(
 		_Out_ PHANDLE TransactionHandle,
 		_In_ ACCESS_MASK DesiredAccess,
@@ -15280,18 +15140,14 @@ extern "C" {
 		_In_opt_ PLARGE_INTEGER Timeout,
 		_In_opt_ PUNICODE_STRING Description
 	);
-#endif
 
-#if (_WIN32_WINNT >= _WIN32_WINNT_VISTA)
 	NTSYSCALLAPI NTSTATUS NTAPI NtOpenTransaction(
 		_Out_ PHANDLE TransactionHandle,
 		_In_ ACCESS_MASK DesiredAccess,
 		_In_ POBJECT_ATTRIBUTES ObjectAttributes,
 		_In_ LPGUID Uow,
 		_In_opt_ HANDLE TmHANDLE);
-#endif
 
-#if (_WIN32_WINNT >= _WIN32_WINNT_VISTA)
 	NTSYSCALLAPI NTSTATUS NTAPI NtQueryInformationTransaction(
 		_In_ HANDLE TransactionHandle,
 		_In_ TRANSACTION_INFORMATION_CLASS TransactionInformationClass,
@@ -15299,32 +15155,24 @@ extern "C" {
 		_In_ ULONG TransactionInformationLength,
 		_Out_opt_ PULONG ReturnLength
 	);
-#endif
 
-#if (_WIN32_WINNT >= _WIN32_WINNT_VISTA)
 	NTSYSCALLAPI NTSTATUS NTAPI NtSetInformationTransaction(
 		_In_ HANDLE TransactionHandle,
 		_In_ TRANSACTION_INFORMATION_CLASS TransactionInformationClass,
 		_In_reads_bytes_(TransactionInformationLength) PVOID TransactionInformation,
 		_In_ ULONG TransactionInformationLength
 	);
-#endif
 
-#if (_WIN32_WINNT >= _WIN32_WINNT_VISTA)
 	NTSYSCALLAPI NTSTATUS NTAPI NtCommitTransaction(
 		_In_ HANDLE TransactionHandle,
 		_In_ BOOLEAN Wait
 	);
-#endif
 
-#if (_WIN32_WINNT >= _WIN32_WINNT_VISTA)
 	NTSYSCALLAPI NTSTATUS NTAPI NtRollbackTransaction(
 		_In_ HANDLE TransactionHandle,
 		_In_ BOOLEAN Wait
 	);
-#endif
 
-#if (_WIN32_WINNT >= _WIN32_WINNT_VISTA)
 	NTSYSCALLAPI NTSTATUS NTAPI NtCreateEnlistment(
 		_Out_ PHANDLE EnlistmentHandle,
 		_In_ ACCESS_MASK DesiredAccess,
@@ -15335,9 +15183,7 @@ extern "C" {
 		_In_ NOTIFICATION_MASK NotificationMask,
 		_In_opt_ PVOID EnlistmentKey
 	);
-#endif
 
-#if (_WIN32_WINNT >= _WIN32_WINNT_VISTA)
 	NTSYSCALLAPI NTSTATUS NTAPI NtOpenEnlistment(
 		_Out_ PHANDLE EnlistmentHandle,
 		_In_ ACCESS_MASK DesiredAccess,
@@ -15345,9 +15191,7 @@ extern "C" {
 		_In_ LPGUID EnlistmentGuid,
 		_In_opt_ POBJECT_ATTRIBUTES ObjectAttributes
 	);
-#endif
 
-#if (_WIN32_WINNT >= _WIN32_WINNT_VISTA)
 	NTSYSCALLAPI NTSTATUS NTAPI NtQueryInformationEnlistment(
 		_In_ HANDLE EnlistmentHandle,
 		_In_ ENLISTMENT_INFORMATION_CLASS EnlistmentInformationClass,
@@ -15355,95 +15199,69 @@ extern "C" {
 		_In_ ULONG EnlistmentInformationLength,
 		_Out_opt_ PULONG ReturnLength
 	);
-#endif
 
-#if (_WIN32_WINNT >= _WIN32_WINNT_VISTA)
 	NTSYSCALLAPI NTSTATUS NTAPI NtSetInformationEnlistment(
 		_In_opt_ HANDLE EnlistmentHandle,
 		_In_ ENLISTMENT_INFORMATION_CLASS EnlistmentInformationClass,
 		_In_reads_bytes_(EnlistmentInformationLength) PVOID EnlistmentInformation,
 		_In_ ULONG EnlistmentInformationLength
 	);
-#endif
 
-#if (_WIN32_WINNT >= _WIN32_WINNT_VISTA)
 	NTSYSCALLAPI NTSTATUS NTAPI NtRecoverEnlistment(
 		_In_ HANDLE EnlistmentHandle,
 		_In_opt_ PVOID EnlistmentKey
 	);
-#endif
 
-#if (_WIN32_WINNT >= _WIN32_WINNT_VISTA)
 	NTSYSCALLAPI NTSTATUS NTAPI NtPrePrepareEnlistment(
 		_In_ HANDLE EnlistmentHandle,
 		_In_opt_ PLARGE_INTEGER TmVirtualClock
 	);
-#endif
 
-#if (_WIN32_WINNT >= _WIN32_WINNT_VISTA)
 	NTSYSCALLAPI NTSTATUS NTAPI NtPrepareEnlistment(
 		_In_ HANDLE EnlistmentHandle,
 		_In_opt_ PLARGE_INTEGER TmVirtualClock
 	);
-#endif
 
-#if (_WIN32_WINNT >= _WIN32_WINNT_VISTA)
 	NTSYSCALLAPI NTSTATUS NTAPI NtCommitEnlistment(
 		_In_ HANDLE EnlistmentHandle,
 		_In_opt_ PLARGE_INTEGER TmVirtualClock
 	);
-#endif
 
-#if (_WIN32_WINNT >= _WIN32_WINNT_VISTA)
 	NTSYSCALLAPI NTSTATUS NTAPI NtRollbackEnlistment(
 		_In_ HANDLE EnlistmentHandle,
 		_In_opt_ PLARGE_INTEGER TmVirtualClock
 	);
-#endif
 
-#if (_WIN32_WINNT >= _WIN32_WINNT_VISTA)
 	NTSYSCALLAPI NTSTATUS NTAPI NtPrePrepareComplete(
 		_In_ HANDLE EnlistmentHandle,
 		_In_opt_ PLARGE_INTEGER TmVirtualClock
 	);
-#endif
 
-#if (_WIN32_WINNT >= _WIN32_WINNT_VISTA)
 	NTSYSCALLAPI NTSTATUS NTAPI NtPrepareComplete(
 		_In_ HANDLE EnlistmentHandle,
 		_In_opt_ PLARGE_INTEGER TmVirtualClock
 	);
-#endif
 
-#if (_WIN32_WINNT >= _WIN32_WINNT_VISTA)
 	NTSYSCALLAPI NTSTATUS NTAPI NtCommitComplete(
 		_In_ HANDLE EnlistmentHandle,
 		_In_opt_ PLARGE_INTEGER TmVirtualClock
 	);
-#endif
 
-#if (_WIN32_WINNT >= _WIN32_WINNT_VISTA)
 	NTSYSCALLAPI NTSTATUS NTAPI NtReadOnlyEnlistment(
 		_In_ HANDLE EnlistmentHandle,
 		_In_opt_ PLARGE_INTEGER TmVirtualClock
 	);
-#endif
 
-#if (_WIN32_WINNT >= _WIN32_WINNT_VISTA)
 	NTSYSCALLAPI NTSTATUS NTAPI NtRollbackComplete(
 		_In_ HANDLE EnlistmentHandle,
 		_In_opt_ PLARGE_INTEGER TmVirtualClock
 	);
-#endif
 
-#if (_WIN32_WINNT >= _WIN32_WINNT_VISTA)
 	NTSYSCALLAPI NTSTATUS NTAPI NtSinglePhaseReject(
 		_In_ HANDLE EnlistmentHandle,
 		_In_opt_ PLARGE_INTEGER TmVirtualClock
 	);
-#endif
 
-#if (_WIN32_WINNT >= _WIN32_WINNT_VISTA)
 	NTSYSCALLAPI NTSTATUS NTAPI NtCreateResourceManager(
 		_Out_ PHANDLE ResourceManagerHandle,
 		_In_ ACCESS_MASK DesiredAccess,
@@ -15453,9 +15271,7 @@ extern "C" {
 		_In_opt_ ULONG CreateOptions,
 		_In_opt_ PUNICODE_STRING Description
 	);
-#endif
 
-#if (_WIN32_WINNT >= _WIN32_WINNT_VISTA)
 	NTSYSCALLAPI NTSTATUS NTAPI NtOpenResourceManager(
 		_Out_ PHANDLE ResourceManagerHandle,
 		_In_ ACCESS_MASK DesiredAccess,
@@ -15463,14 +15279,10 @@ extern "C" {
 		_In_opt_ LPGUID ResourceManagerGuid,
 		_In_opt_ POBJECT_ATTRIBUTES ObjectAttributes
 	);
-#endif
 
-#if (_WIN32_WINNT >= _WIN32_WINNT_VISTA)
 	NTSYSCALLAPI NTSTATUS NTAPI NtRecoverResourceManager(
 		_In_ HANDLE ResourceManagerHANDLE);
-#endif
 
-#if (_WIN32_WINNT >= _WIN32_WINNT_VISTA)
 	NTSYSCALLAPI NTSTATUS NTAPI NtGetNotificationResourceManager(
 		_In_ HANDLE ResourceManagerHandle,
 		_Out_ PTRANSACTION_NOTIFICATION TransactionNotification,
@@ -15480,9 +15292,7 @@ extern "C" {
 		_In_ ULONG Asynchronous,
 		_In_opt_ ULONG_PTR AsynchronousContext
 	);
-#endif
 
-#if (_WIN32_WINNT >= _WIN32_WINNT_VISTA)
 	NTSYSCALLAPI NTSTATUS NTAPI NtQueryInformationResourceManager(
 		_In_ HANDLE ResourceManagerHandle,
 		_In_ RESOURCEMANAGER_INFORMATION_CLASS ResourceManagerInformationClass,
@@ -15490,18 +15300,14 @@ extern "C" {
 		_In_ ULONG ResourceManagerInformationLength,
 		_Out_opt_ PULONG ReturnLength
 	);
-#endif
 
-#if (_WIN32_WINNT >= _WIN32_WINNT_VISTA)
 	NTSYSCALLAPI NTSTATUS NTAPI NtSetInformationResourceManager(
 		_In_ HANDLE ResourceManagerHandle,
 		_In_ RESOURCEMANAGER_INFORMATION_CLASS ResourceManagerInformationClass,
 		_In_reads_bytes_(ResourceManagerInformationLength) PVOID ResourceManagerInformation,
 		_In_ ULONG ResourceManagerInformationLength
 	);
-#endif
 
-#if (_WIN32_WINNT >= _WIN32_WINNT_VISTA)
 	NTSYSCALLAPI NTSTATUS NTAPI NtRegisterProtocolAddressInformation(
 		_In_ HANDLE ResourceManager,
 		_In_ PCRM_PROTOCOL_ID ProtocolId,
@@ -15509,34 +15315,26 @@ extern "C" {
 		_In_ PVOID ProtocolInformation,
 		_In_opt_ ULONG CreateOptions
 	);
-#endif
 
-#if (_WIN32_WINNT >= _WIN32_WINNT_VISTA)
 	NTSYSCALLAPI NTSTATUS NTAPI NtPropagationComplete(
 		_In_ HANDLE ResourceManagerHandle,
 		_In_ ULONG RequestCookie,
 		_In_ ULONG BufferLength,
 		_In_ PVOID Buffer
 	);
-#endif
 
-#if (_WIN32_WINNT >= _WIN32_WINNT_VISTA)
 	NTSYSCALLAPI NTSTATUS NTAPI NtPropagationFailed(
 		_In_ HANDLE ResourceManagerHandle,
 		_In_ ULONG RequestCookie,
 		_In_ NTSTATUS PropStatus
 	);
-#endif
 
-#if (_WIN32_WINNT >= _WIN32_WINNT_VISTA)
 	// private
 	NTSYSCALLAPI NTSTATUS NTAPI NtFreezeTransactions(
 		_In_ PLARGE_INTEGER FreezeTimeout,
 		_In_ PLARGE_INTEGER ThawTimeout
 	);
-#endif
 
-#if (_WIN32_WINNT >= _WIN32_WINNT_VISTA)
 	// private
 	NTSYSCALLAPI NTSTATUS NTAPI NtThawTransactions(
 		VOID);
@@ -15596,9 +15394,7 @@ extern "C" {
 		_In_ PTP_POOL Pool,
 		_Out_ PTP_POOL_STACK_INFORMATION PoolStackInformation
 	);
-#endif
 
-#if (_WIN32_WINNT >= _WIN32_WINNT_WIN7)
 	// rev
 	NTSYSAPI NTSTATUS NTAPI TpSetPoolStackInformation(
 		_Inout_ PTP_POOL Pool,
@@ -16299,8 +16095,7 @@ extern "C" {
 
 	FORCEINLINE VOID UStr32ToUStr(
 		_Out_ PUNICODE_STRING Destination,
-		_In_ PUNICODE_STRING32 Source
-	)
+		_In_ PUNICODE_STRING32 Source)
 	{
 		Destination->Length = Source->Length;
 		Destination->MaximumLength = Source->MaximumLength;
@@ -16309,8 +16104,7 @@ extern "C" {
 
 	FORCEINLINE VOID UStrToUStr32(
 		_Out_ PUNICODE_STRING32 Destination,
-		_In_ PUNICODE_STRING Source
-	)
+		_In_ PUNICODE_STRING Source)
 	{
 		Destination->Length = Source->Length;
 		Destination->MaximumLength = Source->MaximumLength;
