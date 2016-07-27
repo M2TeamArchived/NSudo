@@ -53,13 +53,16 @@ PS：该邮件的中文只是我为了方便你们理解而加上去的
 ```
 Dear wj32
 
-I find the phnt lib when I was searching for information about Native API a few days ago.
+I find the phnt lib when I was searching for information about Native API a few
+ days ago.
 几天前我在查找Native API有关资料时发现了PHNT库
 
-I modify it and want to add it into my open source project which is distributed under The MIT License.
+I modify it and want to add it into my open source project which is distributed
+ under The MIT License.
 我修改了它并想添加到使用了MIT协议的开源项目中
 
-But the Process Hacker is distributed under the GNU GPL version 3. So I want to ask you for the permission.
+But the Process Hacker is distributed under the GNU GPL version 3. So I want to
+ ask you for the permission.
 但是Process Hacker使用GNU GPL version 3发行，所以我想请求你的许可
 
 I will add your permission text into the readme of my project
@@ -91,7 +94,7 @@ Nevertheless some say that headers cannot be copyrighted and have copied
 
 ```
 NSudo代码根/NSudoSDK/M2.Native.hpp
-NSudo代码根/M2.WinSta.hpp
+NSudo代码根/NSudoSDK/M2.WinSta.hpp
 ```
 
 随便你们用，当然如果可以的话，
@@ -171,10 +174,16 @@ I/We contact the author via e-mail.
 Dear wj32
 
 I find the phnt lib when I was searching for information about Native API a few
- days ago. I modify it and want to add it into my open source project which is
-  distributed under The MIT License. But the Process Hacker is distributed
-  under the GNU GPL version 3. So I want to ask you for the permission.
+ days ago.
+
+I modify it and want to add it into my open source project which is distributed
+ under The MIT License.
+
+But the Process Hacker is distributed under the GNU GPL version 3. So I want to
+ ask you for the permission.
+
 I will add your permission text into the readme of my project
+
 I am looking forward to hearing from you.
 
 Yours,Mouri
@@ -184,6 +193,7 @@ The author answered
 ```
 I'm not clear on the copyright status of API headers, 
 but sorry I will not relicense such a big part of the project under MIT.
+
 Nevertheless some say that headers cannot be copyrighted and have copied 
 phnt verbatim anyway without asking me. So do what you will...
 ```
@@ -196,7 +206,7 @@ I/We don't distributed the following headers under any license.
 
 ```
 NSudo Source Root/NSudoSDK/M2.Native.hpp
-NSudo Source Root/M2.WinSta.hpp
+NSudo Source Root/NSudoSDK/M2.WinSta.hpp
 ```
 
 So do what you will...

@@ -60,7 +60,13 @@ CommandLine=notepad
 
 开源许可协议 Open Source License
 
-本工具使用MIT协议，任何人都可以修改我（们）的工具（希望起一个好听的名字，因为那已经不是我（们）的工具）。协议内容参见  LICENSE.md 
+本工具使用MIT协议，任何人都可以修改我（们）的工具（希望起一个好听的名字，因为那已经不是我（们）的工具）。协议内容参见
+https://github.com/M2Team/NSudo/blob/master/License.md
+
+
+更新日志 Changelogs
+
+参见 https://github.com/M2Team/NSudo/blob/master/Changelog.md
 
 
 捐赠 Donate

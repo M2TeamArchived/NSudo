@@ -61,9 +61,11 @@ CommandLine=notepad
 如果要使用引号嵌套的话；请加转义符，例如：```NSudo -u:t "cmd /c ren \"E:\班级视频 《ONE》\d.txt\" x.exe"```
 
 ## 开源许可协议 Open Source License
-本工具使用MIT协议，任何人都可以修改我（们）的工具（希望起一个好听的名字，因为那已经不是我（们）的工具）。
-协议内容参见 ```LICENSE.md```
+本工具使用MIT协议，任何人都可以修改我（们）的工具（希望起一个好听的名字，因为那已经不是我（们）的工具）。协议内容参见 ```[LICENSE.md](https://github.com/M2Team/NSudo/blob/master/License.md "LICENSE.md")```
 第三方库协议内容参见本文档
+
+## 更新日志 Changelogs
+参见 ```[Changelog.md](https://github.com/M2Team/NSudo/blob/master/Changelog.md "Changelog.md")```
 
 ## 捐赠 Donate
 如果您想捐赠此项目，请使用 [支付宝 Alipay](https://alipay.com) 向我们的帐号  ```wxh32lkk@live.cn``` 进行付款。你们的捐赠是我（们）开发的动力（之一，还有我们的爱好~）。
