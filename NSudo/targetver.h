@@ -6,3 +6,6 @@
 // 将 _WIN32_WINNT 宏设置为要支持的平台，然后再包括 SDKDDKVer.h。
 
 #include <SDKDDKVer.h>
+
+#define _WIN32_WINNT_WIN10_TH2 _WIN32_WINNT_WIN10
+#define _WIN32_WINNT_WIN10_RS1 _WIN32_WINNT_WIN10

@@ -1,5 +1,10 @@
 ﻿# 改进日志 Changelog
 
+**NSudo 4.1**
+- 修复命令行使用-U:D导致程序奔溃的问题
+- 更正命令行的NSudoC残余描述（感谢NotePad）
+- 支持文件拖拽（感谢NotePad）
+
 **NSudo 4.0**
 - 重写代码，提供NSudoSDK，使代码容易使用在其他项目上
 - 命令行下新增"/"前缀参数支持,例如: NSudo /U:T /P:E cmd (感谢 th1r5bvn23)

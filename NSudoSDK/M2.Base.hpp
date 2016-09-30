@@ -22,6 +22,82 @@
 // 窗口站管理调用及其数据结构定义
 #include "M2.WinSta.hpp"
 
+#ifdef NATIVEAPI
+
+#define HeapAlloc RtlAllocateHeap
+#define HeapFree RtlFreeHeap
+
+#define GetProcessHeap RtlProcessHeap
+
+#endif
+
+#define malloc(_Size) HeapAlloc(GetProcessHeap(), 0, _Size)
+#define free(_Block) HeapFree(GetProcessHeap(), 0, _Block)
+
+// 为编译通过而禁用的警告
+#if _MSC_VER >= 1200
+#pragma warning(push)
+#pragma warning(disable: 4595) // 为了重定向new和delete操作符
+#endif
+
+#include <new>
+
+__forceinline void* __CRTDECL operator new(
+	size_t _Size)
+{
+	return malloc(_Size);
+}
+
+__forceinline void* __CRTDECL operator new[](
+	size_t _Size)
+{
+	return malloc(_Size);
+}
+
+__forceinline void __CRTDECL operator delete(
+	void* _Block) throw()
+{
+	free(_Block);
+}
+
+__forceinline void __CRTDECL operator delete[](
+	void* _Block) throw()
+{
+	free(_Block);
+}
+
+__forceinline void* __CRTDECL operator new(
+	size_t                _Size,
+	std::nothrow_t const&) throw()
+{
+	return malloc(_Size);
+}
+
+__forceinline void* __CRTDECL operator new[](
+	size_t                _Size,
+	std::nothrow_t const&) throw()
+{
+	return malloc(_Size);
+}
+
+__forceinline void __CRTDECL operator delete(
+	void* _Block,
+	std::nothrow_t const&) throw()
+{
+	free(_Block);
+}
+
+__forceinline void __CRTDECL operator delete[](
+	void* _Block,
+	std::nothrow_t const&) throw()
+{
+	free(_Block);
+}
+
+#if _MSC_VER >= 1200
+#pragma warning(pop)
+#endif
+
 namespace M2
 {
 	// 本机API内联调用(M2-Team编写的)
@@ -73,27 +149,25 @@ namespace M2
 #pragma region Heap
 
 	// 在当前堆上分配内存
-	inline void* M2AllocMemory(
+	__forceinline void* M2AllocMemory(
 		_In_ size_t Size)
 	{
-#ifdef NATIVEAPI
-		return RtlAllocateHeap(RtlProcessHeap(), 0, Size);
-#else
 		return malloc(Size);
-#endif
 	}
 
 	// 在当前堆上释放内存
-	inline void M2FreeMemory(
+	__forceinline void M2FreeMemory(
 		_In_ void* BaseAddress)
 	{
-#ifdef NATIVEAPI
-		RtlFreeHeap(RtlProcessHeap(), 0, BaseAddress);
-#else
 		free(BaseAddress);
-#endif
-		BaseAddress = nullptr;
 	}
+
+	// 分配初始化为零的内存
+	__forceinline void* M2AllocZeroedMemory(
+		_In_ size_t Size)
+	{
+		return HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, Size);
+	}	
 
 	// 内存指针模板类
 	template<typename PtrType> class CPtr
@@ -103,14 +177,15 @@ namespace M2
 		bool Alloc(_In_ size_t Size)
 		{
 			if (m_Ptr) this->Free();
-			m_Ptr = M2AllocMemory(Size);
+			m_Ptr = malloc(Size);
 			return (m_Ptr != nullptr);
 		}
 
 		// 释放内存
 		void Free()
 		{
-			M2FreeMemory(m_Ptr);
+			free(m_Ptr);
+			m_Ptr = nullptr;
 		}
 
 		// 获取内存指针

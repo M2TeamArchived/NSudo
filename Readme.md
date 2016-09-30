@@ -10,7 +10,7 @@
 > 使用 NSudo.exe -? 可以显示和这里一样的内容
 
 ```
-格式: NSudoC [ -U ] [ -P ] [ -M ] 命令行或常用任务名
+格式: NSudo [ -U ] [ -P ] [ -M ] 命令行或常用任务名
   -U:[ T | S | C | P | D ] 用户
         T TrustedInstaller
         S System
