@@ -22,7 +22,7 @@
     <ProjectGuid>{DBC9A9EE-78AE-4260-80E8-67D4D04A92C8}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>NSudo</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.10586.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.14393.0</WindowsTargetPlatformVersion>
     <SccProjectName>SAK</SccProjectName>
     <SccAuxPath>SAK</SccAuxPath>
     <SccLocalPath>SAK</SccLocalPath>

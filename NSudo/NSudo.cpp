@@ -23,7 +23,7 @@ CNSudo *g_pNSudo = nullptr;
 
 namespace ProjectInfo
 {
-	wchar_t VersionText[] = L"NSudo 4.0 (Build 1607)";
+	wchar_t VersionText[] = L"NSudo 4.1 (Build 1609)";
 }
 
 // 为编译通过而禁用的警告
@@ -114,7 +114,7 @@ bool SuCreateProcess(
 
 void SuInitialize()
 {
-	g_hInstance = GetModuleHandleW(NULL);
+	g_hInstance = GetModuleHandleW(nullptr);
 
 	g_hOut = GetStdHandle(STD_OUTPUT_HANDLE);
 	g_hIn = GetStdHandle(STD_INPUT_HANDLE);
@@ -122,11 +122,11 @@ void SuInitialize()
 
 	g_argv = CommandLineToArgvW(GetCommandLineW(), &g_argc);
 
-	GetModuleFileNameW(NULL, g_AppPath, 260);
-	wcsrchr(g_AppPath, L'\\')[0] = NULL;
+	GetModuleFileNameW(nullptr, g_AppPath, 260);
+	wcsrchr(g_AppPath, L'\\')[0] = L'\0';
 
-	wcscpy_s(g_ShortCutListPath, 260, g_AppPath);
-	wcscat_s(g_ShortCutListPath, 260, L"\\ShortCutList.ini");
+	StringCbCopyW(g_ShortCutListPath, sizeof(g_ShortCutListPath), g_AppPath);
+	StringCbCatW(g_ShortCutListPath, sizeof(g_ShortCutListPath), L"\\ShortCutList.ini");
 
 	g_GUIMode = (g_argc == 1);
 
@@ -206,20 +206,13 @@ void SuGUIRun(
 	}
 	else
 	{
-		wchar_t szBuffer[512] = { 0 };
+		wchar_t *szBuffer = nullptr;
 
 		wchar_t szPath[260];
 		GetPrivateProfileStringW(
 			szCMDLine, L"CommandLine", L"", szPath, 260, g_ShortCutListPath);
 
-		if (wcscmp(szPath, L"") != 0)
-		{
-			wcscat_s(szBuffer, 512, szPath);
-		}
-		else
-		{
-			wcscat_s(szBuffer, 512, szCMDLine);
-		}
+		szBuffer = (wcscmp(szPath, L"") != 0 ? szPath : const_cast<wchar_t*>(szCMDLine));
 
 		CToken *pToken = nullptr;
 
@@ -403,13 +396,30 @@ INT_PTR CALLBACK DialogCallBack(
 			if (szBuffer[1] != L'\0')
 			{
 				szBuffer[0] = L'\"';
-				wcscat_s(szBuffer, 512, L"\"");
+				StringCbCatW(szBuffer, sizeof(szBuffer), L"\"");
+
 				SetDlgItemTextW(hDlg, IDC_szPath, szBuffer);
 			}
 
 			break;
 		}
 		break;
+	case WM_DROPFILES:
+	{	
+		DragQueryFileW((HDROP)wParam, 0, &szBuffer[1], sizeof(szBuffer) - sizeof(wchar_t));
+
+		if (!(GetFileAttributesW(&szBuffer[1]) & FILE_ATTRIBUTE_DIRECTORY))
+		{
+			szBuffer[0] = L'\"';
+			StringCbCatW(szBuffer, sizeof(szBuffer), L"\"");
+
+			SetDlgItemTextW(hDlg, IDC_szPath, szBuffer);
+		}
+
+		DragFinish((HDROP)wParam);
+
+		break;
+	}
 	}
 
 	return 0;
@@ -418,11 +428,13 @@ INT_PTR CALLBACK DialogCallBack(
 
 int main()
 {
+	CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
+	
 	SuInitialize();
 
-	bool bElevated = (g_pNSudo->GetAvailableLevel() > 0);
-
 	if (!g_pNSudo) return 1;
+
+	bool bElevated = (g_pNSudo->GetAvailableLevel() > 0);
 
 	if (g_GUIMode)
 	{
@@ -431,6 +443,9 @@ int main()
 			FreeConsole();
 
 			EnablePerMonitorDialogScaling();
+
+			ChangeWindowMessageFilter(WM_DROPFILES, MSGFLT_ADD);
+			ChangeWindowMessageFilter(0x0049, MSGFLT_ADD); // WM_COPYGLOBALDATA
 
 			DialogBoxParamW(
 				g_hInstance,
@@ -442,11 +457,17 @@ int main()
 		else
 		{
 			wchar_t szExePath[260];
+			GetModuleFileNameW(nullptr, szExePath, 260);
+				
+			SHELLEXECUTEINFOW ExecInfo = { 0 };
+			ExecInfo.cbSize = sizeof(SHELLEXECUTEINFOW);
+			ExecInfo.lpFile = szExePath;
+			ExecInfo.lpVerb = L"runas";
+			ExecInfo.nShow = SW_NORMAL;
 
-			GetModuleFileNameW(NULL, szExePath, 260);
+			ShellExecuteExW(&ExecInfo);
 
-			ShellExecuteW(NULL, L"runas", szExePath, NULL, NULL, SW_SHOW);
-			return 0;
+			return (int)GetLastError();
 		}
 	}
 	else
@@ -517,7 +538,7 @@ int main()
 						case 'd':
 							if (g_pNSudo->GetCurrentToken(&pTempToken))
 							{
-								pToken->MakeLUA(&pToken);
+								pTempToken->MakeLUA(&pToken);
 								delete pTempToken;
 							}
 							break;
