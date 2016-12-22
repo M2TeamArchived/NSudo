@@ -32,12 +32,14 @@ inline int EnablePerMonitorDialogScaling()
 {
 	typedef int(WINAPI *PFN_EnablePerMonitorDialogScaling)();
 
-	PFN_EnablePerMonitorDialogScaling pEnablePerMonitorDialogScaling =
-		(PFN_EnablePerMonitorDialogScaling)GetProcAddress(
-			GetModuleHandleW(L"user32.dll"), (LPCSTR)2577);
+	PFN_EnablePerMonitorDialogScaling pFunc = nullptr;
 
-	if (pEnablePerMonitorDialogScaling) return pEnablePerMonitorDialogScaling();
-	return -1;
+	LdrGetProcedureAddress(
+		GetModuleHandleW(L"user32.dll"),
+		nullptr, 2577,
+		reinterpret_cast<PVOID*>(&pFunc));
+
+	return (pFunc ? pFunc() : -1);
 }
 
 #if _MSC_VER >= 1200
@@ -52,7 +54,7 @@ void EntryPoint()
 		nullptr,
 		SW_SHOWNORMAL);
 	
-	ExitProcess((UINT)uExitCode);
+	RtlExitUserProcess((NTSTATUS)uExitCode);
 }
 
 int WINAPI wWinMain(
@@ -117,5 +119,5 @@ FuncEnd:
 	if (pFileDialog) pFileDialog->Release();
 	CoUninitialize();
 
-	return 0;
+	return hr;
 }

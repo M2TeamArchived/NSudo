@@ -1,7 +1,7 @@
 ﻿/**************************************************************************
 描述：NSudo库(对M2.Native, M2.WinSta, M2.Base的封装)
 维护者：Mouri_Naruto (M2-Team)
-版本：1.2 (2016-07-05)
+版本：1.6 (2016-12-16)
 基于项目：无
 协议：The MIT License
 用法：直接Include此头文件即可
@@ -88,6 +88,220 @@ namespace M2
 		RemoveMost
 	};
 
+	// 复制令牌
+	static NTSTATUS SuDuplicateToken(
+		_Out_ PHANDLE phNewToken,
+		_In_ HANDLE hExistingToken,
+		_In_ DWORD dwDesiredAccess = MAXIMUM_ALLOWED,
+		_In_opt_ LPSECURITY_ATTRIBUTES lpTokenAttributes = nullptr,
+		_In_ SECURITY_IMPERSONATION_LEVEL ImpersonationLevel = SecurityIdentification,
+		_In_ TOKEN_TYPE TokenType = TokenPrimary)
+	{
+		// 变量定义
+
+		OBJECT_ATTRIBUTES ObjAttr;
+		SECURITY_QUALITY_OF_SERVICE SQOS;
+
+		// 参数初始化
+
+		M2InitObjectAttributes(
+			&ObjAttr, nullptr, 0, nullptr, nullptr, &SQOS);
+		M2InitSecurityQuailtyOfService(
+			&SQOS, ImpersonationLevel, FALSE, FALSE);
+
+		if (lpTokenAttributes &&
+			lpTokenAttributes->nLength == sizeof(SECURITY_ATTRIBUTES))
+		{
+			ObjAttr.Attributes =
+				(ULONG)(lpTokenAttributes->bInheritHandle ? OBJ_INHERIT : 0);
+			ObjAttr.SecurityDescriptor =
+				lpTokenAttributes->lpSecurityDescriptor;
+		}
+
+		// 复制令牌对象并返回运行结果
+		return NtDuplicateToken(
+			hExistingToken,
+			dwDesiredAccess,
+			&ObjAttr,
+			FALSE,
+			TokenType,
+			phNewToken);
+	}
+
+	// 通过进程ID获取进程句柄
+	__forceinline NTSTATUS SuOpenProcess(
+		_Out_ PHANDLE phProcess,
+		_In_ DWORD dwProcessID,
+		_In_ DWORD DesiredAccess = MAXIMUM_ALLOWED)
+	{
+		// 变量定义
+
+		OBJECT_ATTRIBUTES ObjAttr;
+		CLIENT_ID ClientID;
+
+		// 参数初始化
+
+		M2InitObjectAttributes(
+			&ObjAttr, nullptr, 0, nullptr, nullptr, nullptr);
+		M2InitClientID(
+			&ClientID, dwProcessID, 0);
+
+		// 根据进程ID获取进程句柄并返回运行结果
+		return NtOpenProcess(
+			phProcess, DesiredAccess, &ObjAttr, &ClientID);
+	}
+
+	// 通过进程ID获取进程令牌句柄
+	static NTSTATUS SuQueryProcessToken(
+		_Out_ PHANDLE phProcessToken,
+		_In_ DWORD dwProcessID,
+		_In_ DWORD DesiredAccess = MAXIMUM_ALLOWED)
+	{
+		// 变量定义	
+
+		NTSTATUS status = 0;
+		HANDLE hProcess = nullptr;
+
+		do
+		{
+			// 根据进程ID获取进程句柄
+			status = SuOpenProcess(&hProcess, dwProcessID);
+			if (!NT_SUCCESS(status)) break;
+
+			// 根据进程句柄获取进程令牌句柄
+			status = NtOpenProcessToken(
+				hProcess, DesiredAccess, phProcessToken);
+
+		} while (false);
+
+		NtClose(hProcess);
+
+		return status;
+	}
+
+	// 通过会话ID获取会话令牌
+	__forceinline HRESULT SuQuerySessionToken(
+		_Out_ PHANDLE phToken,
+		_In_ DWORD dwSessionID)
+	{
+		// 定义及初始化变量
+
+		WINSTATIONUSERTOKEN WSUT = { 0 };
+		DWORD ccbInfo = 0;
+
+		*phToken = nullptr;
+
+		// 通过会话ID获取会话令牌，如果获取失败则返回错误值
+		if (!WinStationQueryInformationW(
+			SERVERNAME_CURRENT,
+			dwSessionID,
+			WinStationUserToken,
+			&WSUT,
+			sizeof(WINSTATIONUSERTOKEN),
+			&ccbInfo))
+			return __HRESULT_FROM_WIN32(GetLastError());
+
+		// 如果获取成功，则设置返回的会话令牌并返回运行结果
+		*phToken = WSUT.UserToken;
+		return S_OK;
+	}
+
+	// 获取当前进程令牌
+	__forceinline NTSTATUS SuQueryCurrentProcessToken(
+		_Out_ PHANDLE phProcessToken,
+		_In_ DWORD DesiredAccess = MAXIMUM_ALLOWED)
+	{
+		return NtOpenProcessToken(
+			NtCurrentProcess(), DesiredAccess, phProcessToken);
+	}
+
+	// 令牌模拟
+	__forceinline NTSTATUS SuImpersonate(
+		_In_ HANDLE hExistingImpersonationToken)
+	{
+		return NtSetInformationThread(
+			NtCurrentThread(),
+			ThreadImpersonationToken,
+			&hExistingImpersonationToken,
+			sizeof(HANDLE));
+	}
+
+	// 撤销令牌模拟
+	__forceinline NTSTATUS SuRevertImpersonate()
+	{
+		return SuImpersonate(nullptr);
+	}
+
+	// 设置单个令牌特权
+	__forceinline NTSTATUS SuSetTokenPrivilege(
+		_In_ HANDLE hExistingToken,
+		_In_ TokenPrivilegesList Privilege,
+		_In_ bool bEnable)
+	{
+		// 变量定义
+
+		TOKEN_PRIVILEGES TP;
+
+		// 参数初始化
+
+		TP.PrivilegeCount = 1;
+		TP.Privileges[0].Luid.LowPart = Privilege;
+		TP.Privileges[0].Attributes = (DWORD)(bEnable ? SE_PRIVILEGE_ENABLED : 0);
+
+		// 设置令牌特权并返回结果
+		return NtAdjustPrivilegesToken(
+			hExistingToken, FALSE, &TP, NULL, nullptr, nullptr);
+	}
+
+	// 设置令牌全部特权
+	static NTSTATUS SuSetTokenAllPrivileges(
+		_In_ HANDLE hExistingToken,
+		_In_ DWORD dwAttributes)
+	{
+		// 定义变量
+
+		NTSTATUS status = 0;
+		CPtr<PTOKEN_PRIVILEGES> pTPs;
+		DWORD Length = 0;
+
+		do
+		{
+			// 获取特权信息大小
+			NtQueryInformationToken(
+				hExistingToken,
+				TokenPrivileges,
+				nullptr,
+				0,
+				&Length);
+
+			if (!pTPs.Alloc(Length))
+			{
+				status = STATUS_NO_MEMORY;
+				break;
+			}
+
+			// 获取特权信息
+			status = NtQueryInformationToken(
+				hExistingToken,
+				TokenPrivileges,
+				pTPs,
+				Length,
+				&Length);
+			if (!NT_SUCCESS(status)) break;
+
+			// 设置特权信息
+			for (DWORD i = 0; i < pTPs->PrivilegeCount; i++)
+				pTPs->Privileges[i].Attributes = dwAttributes;
+
+			// 开启全部特权
+			status = NtAdjustPrivilegesToken(
+				hExistingToken, FALSE, pTPs, 0, nullptr, nullptr);
+
+		} while (false);
+
+		return status;
+	}
+
 	class CToken
 	{
 	public:
@@ -131,37 +345,23 @@ namespace M2
 			_In_ SECURITY_IMPERSONATION_LEVEL ImpersonationLevel = SecurityIdentification,
 			_In_ TOKEN_TYPE TokenType = TokenPrimary)
 		{
+			
 			// 变量定义
-
-			OBJECT_ATTRIBUTES ObjAttr;
-			SECURITY_QUALITY_OF_SERVICE SQOS;
-			NTSTATUS status;
 			HANDLE hTemp = INVALID_HANDLE_VALUE;
 
-			// 参数初始化
-
-			M2InitObjectAttributes(
-				&ObjAttr, nullptr, 0, nullptr, nullptr, &SQOS);
-			M2InitSecurityQuailtyOfService(
-				&SQOS, ImpersonationLevel, FALSE, FALSE);
-
-			if (lpTokenAttributes &&
-				lpTokenAttributes->nLength == sizeof(SECURITY_ATTRIBUTES))
-			{
-				ObjAttr.Attributes =
-					(ULONG)(lpTokenAttributes->bInheritHandle ? OBJ_INHERIT : 0);
-				ObjAttr.SecurityDescriptor =
-					lpTokenAttributes->lpSecurityDescriptor;
-			}
-
 			// 复制令牌对象
+			NTSTATUS status = SuDuplicateToken(
+				&hTemp,
+				m_hToken,
+				dwDesiredAccess,
+				lpTokenAttributes,
+				ImpersonationLevel,
+				TokenType);
 
-			status = NtDuplicateToken(
-				m_hToken, dwDesiredAccess, &ObjAttr, FALSE, TokenType, &hTemp);
+			// 如果执行成功，则创建新令牌对象
 			if (NT_SUCCESS(status)) *ppNewToken = new CToken(hTemp);
-
+			
 			// 返回运行结果
-
 			return status;
 		}
 
@@ -195,12 +395,6 @@ namespace M2
 				m_hToken, TokenInformationClass, nullptr, 0, ReturnLength);
 		}
 
-		// 以当前令牌模拟
-		bool Impersonate()
-		{
-			return (ImpersonateLoggedOnUser(m_hToken) == TRUE);
-		}
-
 		// 设置令牌信息
 		NTSTATUS SetInfo(
 			_In_ TOKEN_INFORMATION_CLASS TokenInformationClass,
@@ -213,6 +407,34 @@ namespace M2
 				TokenInformation,
 				TokenInformationLength
 			);
+		}
+
+		// 以当前令牌模拟
+		bool Impersonate()
+		{	
+			bool bRet = false;
+			CToken *pNewToken = nullptr;
+
+			bRet = NT_SUCCESS(this->Duplicate(
+				&pNewToken,
+				MAXIMUM_ALLOWED, 
+				nullptr,
+				SecurityImpersonation,
+				TokenImpersonation));
+
+			if (bRet)
+			{
+				bRet = NT_SUCCESS(SuImpersonate(*pNewToken));
+				delete pNewToken;
+			}
+			
+			return bRet;
+		}
+
+		// 还原原令牌
+		bool RevertToSelf()
+		{		
+			return NT_SUCCESS(SuRevertImpersonate());
 		}
 
 		// 制作LUA令牌
@@ -235,6 +457,7 @@ namespace M2
 			PACCESS_ALLOWED_ACE pTempAce = nullptr;
 			TOKEN_DEFAULT_DACL NewTokenDacl = { 0 };
 			BOOL EnableTokenVirtualization = TRUE;
+			TOKEN_MANDATORY_POLICY policy = { 0 };
 
 			//创建受限令牌
 
@@ -338,6 +561,14 @@ namespace M2
 				sizeof(BOOL))))
 				goto FuncEnd;
 
+			policy.Policy = TOKEN_MANDATORY_POLICY_NO_WRITE_UP | TOKEN_MANDATORY_POLICY_NEW_PROCESS_MIN;
+
+			if (!NT_SUCCESS((*ppNewToken)->SetInfo(
+				TokenMandatoryPolicy,
+				&policy,
+				sizeof(TOKEN_MANDATORY_POLICY))))
+				goto FuncEnd;
+
 			// ********************************************************************
 
 			// 扫尾
@@ -383,20 +614,8 @@ namespace M2
 			_In_ TokenPrivilegesList Privilege,
 			_In_ bool bEnable)
 		{
-			// 变量定义
-
-			NTSTATUS status;
-			TOKEN_PRIVILEGES TP;
-
-			// 参数初始化
-
-			TP.PrivilegeCount = 1;
-			TP.Privileges[0].Luid.LowPart = Privilege;
-			TP.Privileges[0].Attributes = (DWORD)(bEnable ? SE_PRIVILEGE_ENABLED : 0);
-
 			// 设置令牌特权
-			status = NtAdjustPrivilegesToken(
-				m_hToken, FALSE, &TP, NULL, nullptr, nullptr);
+			NTSTATUS status = SuSetTokenPrivilege(m_hToken, Privilege, bEnable);
 
 			// 返回结果
 			return RtlNtStatusToDosError(status) == ERROR_SUCCESS;
@@ -438,18 +657,8 @@ namespace M2
 				if (Option == EnableAll) Attributes = SE_PRIVILEGE_ENABLED;
 				if (Option == RemoveAll) Attributes = SE_PRIVILEGE_REMOVED;
 
-				// 获取特权信息
-				status = this->GetInfo(
-					TokenPrivileges, pTPs, Length, &Length);
-				if (!NT_SUCCESS(status)) return result;
-
-				// 设置特权信息
-				for (DWORD i = 0; i < pTPs->PrivilegeCount; i++)
-					pTPs->Privileges[i].Attributes = Attributes;
-
-				// 开启全部特权
-				status = NtAdjustPrivilegesToken(
-					m_hToken, FALSE, pTPs, 0, nullptr, nullptr);
+				// 设置令牌全部特权
+				status = SuSetTokenAllPrivileges(m_hToken, Attributes);
 
 				result = NT_SUCCESS(status);
 			}
@@ -525,7 +734,7 @@ namespace M2
 		}
 
 		// 析构函数
-		~CProcess()
+		virtual ~CProcess()
 		{
 			this->Close();
 		}
@@ -536,18 +745,8 @@ namespace M2
 		{
 			if (m_hProcess != INVALID_HANDLE_VALUE) this->Close();
 
-			OBJECT_ATTRIBUTES ObjAttr;
-			CLIENT_ID ClientId =
-			{
-				UlongToHandle(m_dwProcessId), // UniqueProcess;
-				nullptr // UniqueThread;
-			};
-
-			M2InitObjectAttributes(
-				&ObjAttr, nullptr, 0, nullptr, nullptr, nullptr);
-
-			return NtOpenProcess(
-				&m_hProcess, DesiredAccess, &ObjAttr, &ClientId);
+			return SuOpenProcess(
+				&m_hProcess, m_dwProcessId, DesiredAccess);
 		}
 
 		// 关闭进程句柄
@@ -590,7 +789,6 @@ namespace M2
 		HANDLE m_hProcess = INVALID_HANDLE_VALUE;
 	};
 
-
 	class CNSudo
 	{
 	public:
@@ -598,14 +796,16 @@ namespace M2
 		CNSudo()
 		{
 			bool bRet = false;
-
-			// 初始化当前令牌管理接口
-			m_pCurrentToken = new CToken();
-			if (!m_pCurrentToken) return;
+			HANDLE hProcessToken = nullptr;
+			NTSTATUS status = 0;
 
 			// 打开当前进程令牌（判断NSudo接口是否可用）
-			bRet = NT_SUCCESS(m_pCurrentToken->Open());
+			bRet = NT_SUCCESS(SuQueryCurrentProcessToken(&hProcessToken));
 			if (!bRet) return;
+
+			// 初始化当前令牌管理接口
+			m_pCurrentToken = new CToken(hProcessToken);
+			if (!m_pCurrentToken) return;
 			m_dwAvailableLevel++;
 
 			// 开启调试特权（判断是否为管理员）
@@ -618,8 +818,8 @@ namespace M2
 			DWORD dwWinLogonPID = (DWORD)-1;
 
 			// 初始化进程遍历
-			CProcessSnapshot Snapshot(&m_Status);
-			if (!NT_SUCCESS(m_Status)) return;
+			CProcessSnapshot Snapshot(&status);
+			if (!NT_SUCCESS(status)) return;
 
 			// 遍历进程寻找winlogon进程并获取PID
 			PSYSTEM_PROCESS_INFORMATION pSPI = nullptr;
@@ -659,17 +859,11 @@ namespace M2
 			_Out_ CToken **NewToken)
 		{
 			bool bRet = false;
+			HANDLE hToken = nullptr;
 
-			CProcess *Proc = new CProcess(dwProcessID);
-			if (Proc)
+			if (NT_SUCCESS(SuQueryProcessToken(&hToken, dwProcessID)))
 			{
-				if (NT_SUCCESS(Proc->Open()))
-				{
-					CToken Token;
-					if (NT_SUCCESS(Token.Open(*Proc)))
-						bRet = NT_SUCCESS(Token.Duplicate(NewToken));
-				}
-				delete Proc;
+				bRet = NT_SUCCESS(CToken(hToken).Duplicate(NewToken));
 			}
 
 			return bRet;
@@ -720,22 +914,9 @@ namespace M2
 			_In_ ULONG SessionId,
 			_Out_ CToken **NewToken)
 		{
-			bool bRet = false;
-
-			WINSTATIONUSERTOKEN WSUT;
-			DWORD ccbInfo = 0;
-			if (WinStationQueryInformationW(
-				SERVERNAME_CURRENT,
-				SessionId,
-				WinStationUserToken,
-				&WSUT,
-				sizeof(WINSTATIONUSERTOKEN),
-				&ccbInfo))
-			{
-				bRet = NT_SUCCESS(
-					CToken(WSUT.UserToken).Duplicate(NewToken));
-			}
-
+			HANDLE hToken = nullptr;
+			bool bRet = SUCCEEDED(SuQuerySessionToken(&hToken, SessionId));
+			if (bRet) *NewToken = new CToken(hToken);
 			return bRet;
 		}
 
@@ -769,13 +950,83 @@ namespace M2
 			return bRet;
 		}
 
+		// 还原原令牌
+		bool RevertToSelf()
+		{
+			return NT_SUCCESS(SuRevertImpersonate());
+		}
+
 	private:
-		NTSTATUS m_Status = 0;
 		long m_dwAvailableLevel = -1;
 		CToken *m_pCurrentToken = nullptr;
 		CToken *m_SystemToken = nullptr;
 	};
 
+	//****************************************************************
+
+	// System令牌模拟
+	static NTSTATUS SuImpersonateAsSystem()
+	{
+		NTSTATUS status = 0;
+
+		// 获取当前会话ID下的winlogon的PID
+		DWORD dwWinLogonPID = (DWORD)-1;
+
+		// 初始化进程遍历
+		CProcessSnapshot Snapshot(&status);
+		if (!NT_SUCCESS(status)) return status;
+
+		// 遍历进程寻找winlogon进程并获取PID
+		PSYSTEM_PROCESS_INFORMATION pSPI = nullptr;
+		while (Snapshot.Next(&pSPI))
+		{
+			if (pSPI->SessionId == M2GetCurrentSessionID())
+			{
+				if (wcscmp(L"winlogon.exe", pSPI->ImageName.Buffer) == 0)
+				{
+					dwWinLogonPID = HandleToUlong(pSPI->UniqueProcessId);
+					break;
+				}
+			}
+		}
+		if (dwWinLogonPID == -1) 
+			return __HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND);
+
+		HANDLE hProcessToken = nullptr;
+		HANDLE hDuplicatedToken = nullptr;
+		
+		do
+		{
+			// 获取当前会话winlogon进程令牌
+			status = SuQueryProcessToken(&hProcessToken, dwWinLogonPID);
+			if (!NT_SUCCESS(status)) break;
+
+			// 复制一份模拟令牌
+			status = SuDuplicateToken(
+				&hDuplicatedToken,
+				hProcessToken, 
+				MAXIMUM_ALLOWED,
+				nullptr,
+				SecurityImpersonation,
+				TokenImpersonation);
+			if (!NT_SUCCESS(status)) break;
+
+			// 启用令牌全部特权
+			status = SuSetTokenAllPrivileges(
+				hDuplicatedToken,
+				SE_PRIVILEGE_ENABLED);
+			if (!NT_SUCCESS(status)) break;
+
+			// 模拟令牌
+			status = SuImpersonate(hDuplicatedToken);
+
+		} while (false);
+
+		NtClose(hDuplicatedToken);
+		NtClose(hProcessToken);
+
+		return status;
+	}
 }
 
 #if _MSC_VER >= 1200

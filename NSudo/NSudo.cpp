@@ -11,8 +11,9 @@ HANDLE g_hOut;
 HANDLE g_hIn;
 HANDLE g_hErr;
 
-wchar_t g_AppPath[260];
-wchar_t g_ShortCutListPath[260];
+wchar_t g_ExePath[MAX_PATH];
+wchar_t g_AppPath[MAX_PATH];
+wchar_t g_ShortCutListPath[MAX_PATH];
 
 int g_argc;
 wchar_t** g_argv;
@@ -23,8 +24,11 @@ CNSudo *g_pNSudo = nullptr;
 
 namespace ProjectInfo
 {
-	wchar_t VersionText[] = L"NSudo 4.1 (Build 1609)";
+	wchar_t VersionText[] = L"NSudo 4.2 (Build 1612)";
 }
+
+// CreateProcessWithToken 和 CreateProcessAsUser 的选项
+const DWORD dwFlags = CREATE_NO_WINDOW | CREATE_UNICODE_ENVIRONMENT;
 
 // 为编译通过而禁用的警告
 #if _MSC_VER >= 1200
@@ -37,17 +41,80 @@ inline int EnablePerMonitorDialogScaling()
 {
 	typedef int(WINAPI *PFN_EnablePerMonitorDialogScaling)();
 
-	PFN_EnablePerMonitorDialogScaling pEnablePerMonitorDialogScaling =
-		(PFN_EnablePerMonitorDialogScaling)GetProcAddress(
-			GetModuleHandleW(L"user32.dll"), (LPCSTR)2577);
+	PFN_EnablePerMonitorDialogScaling pFunc = nullptr;
 
-	if (pEnablePerMonitorDialogScaling) return pEnablePerMonitorDialogScaling();
-	return -1;
+	LdrGetProcedureAddress(
+		GetModuleHandleW(L"user32.dll"),
+		nullptr, 2577,
+		reinterpret_cast<PVOID*>(&pFunc));
+
+	return (pFunc ? pFunc() : -1);
 }
 
 #if _MSC_VER >= 1200
 #pragma warning(pop)
 #endif
+
+bool SuCreateProcessLegacy(
+	_In_opt_ HANDLE hToken,
+	_Inout_ LPWSTR lpCommandLine)
+{
+	bool bRet = true;
+
+	STARTUPINFOW StartupInfo = { 0 };
+	PROCESS_INFORMATION ProcessInfo = { 0 };
+	wchar_t szBuf[512], szSystemDirectory[MAX_PATH];
+
+	//设置进程所在桌面
+	StartupInfo.lpDesktop = L"WinSta0\\Default";
+
+	//获取系统目录
+	GetSystemDirectoryW(szSystemDirectory, MAX_PATH);
+
+	//生成命令行	
+	wsprintfW(szBuf,
+		L"%s\\cmd.exe /c start \"%s\\cmd.exe\" %s",
+		szSystemDirectory, szSystemDirectory, lpCommandLine);
+
+	//启动进程
+	if (!CreateProcessAsUserW(
+		hToken,
+		nullptr,
+		szBuf,
+		nullptr,
+		nullptr,
+		FALSE,
+		dwFlags,
+		nullptr,
+		g_AppPath,
+		&StartupInfo,
+		&ProcessInfo))
+	{
+		if (!CreateProcessWithTokenW(
+			hToken,
+			LOGON_WITH_PROFILE,
+			nullptr,
+			szBuf,
+			dwFlags,
+			nullptr,
+			g_AppPath,
+			&StartupInfo,
+			&ProcessInfo))
+		{
+			bRet = false;
+		}
+	}
+
+	//关闭句柄
+	if (bRet)
+	{
+		NtClose(ProcessInfo.hProcess);
+		NtClose(ProcessInfo.hThread);
+	}
+
+	//返回结果
+	return bRet;
+}
 
 bool SuCreateProcess(
 	_In_opt_ HANDLE hToken,
@@ -55,22 +122,15 @@ bool SuCreateProcess(
 {
 	bool bRet = true;
 
-	const DWORD dwFlags = CREATE_NO_WINDOW | CREATE_UNICODE_ENVIRONMENT;
-
 	STARTUPINFOW StartupInfo = { 0 };
 	PROCESS_INFORMATION ProcessInfo = { 0 };
-	wchar_t szBuf[512], szSystemDirectory[260];
+	wchar_t szBuf[512];
 
 	//设置进程所在桌面
 	StartupInfo.lpDesktop = L"WinSta0\\Default";
 
-	//获取系统目录
-	GetSystemDirectoryW(szSystemDirectory, 260);
-
 	//生成命令行	
-	wsprintfW(szBuf,
-		L"%s\\cmd.exe /c start \"%s\\cmd.exe\" %s",
-		szSystemDirectory, szSystemDirectory, lpCommandLine);
+	wsprintfW(szBuf, L"%s -Execute %s", g_ExePath, lpCommandLine);
 
 	//启动进程
 	if (!CreateProcessAsUserW(
@@ -122,11 +182,13 @@ void SuInitialize()
 
 	g_argv = CommandLineToArgvW(GetCommandLineW(), &g_argc);
 
-	GetModuleFileNameW(nullptr, g_AppPath, 260);
+	GetModuleFileNameW(nullptr, g_ExePath, MAX_PATH);
+
+	wcscpy_s(g_AppPath, MAX_PATH, g_ExePath);
 	wcsrchr(g_AppPath, L'\\')[0] = L'\0';
 
-	StringCbCopyW(g_ShortCutListPath, sizeof(g_ShortCutListPath), g_AppPath);
-	StringCbCatW(g_ShortCutListPath, sizeof(g_ShortCutListPath), L"\\ShortCutList.ini");
+	wcscpy_s(g_ShortCutListPath, MAX_PATH, g_AppPath);
+	wcscat_s(g_ShortCutListPath, MAX_PATH, L"\\ShortCutList.ini");
 
 	g_GUIMode = (g_argc == 1);
 
@@ -208,54 +270,47 @@ void SuGUIRun(
 	{
 		wchar_t *szBuffer = nullptr;
 
-		wchar_t szPath[260];
+		wchar_t szPath[MAX_PATH];
 		GetPrivateProfileStringW(
-			szCMDLine, L"CommandLine", L"", szPath, 260, g_ShortCutListPath);
+			szCMDLine, L"CommandLine", L"", szPath, MAX_PATH, g_ShortCutListPath);
 
 		szBuffer = (wcscmp(szPath, L"") != 0 ? szPath : const_cast<wchar_t*>(szCMDLine));
 
-		CToken *pToken = nullptr;
-
-		// 获取用户令牌
-		if (SuMUICompare(g_hInstance,IDS_TI,szUser))
-		{
-			if (g_pNSudo->ImpersonateAsSystem())
-			{
-				g_pNSudo->GetTrustedInstallerToken(&pToken);
-				RevertToSelf();
-			}
-		}
-		else if (SuMUICompare(g_hInstance, IDS_SYSTEM, szUser))
-		{
-			g_pNSudo->GetSystemToken(&pToken);
-		}
-		else if (SuMUICompare(g_hInstance, IDS_CURRENTPROCESS, szUser))
-		{
-			g_pNSudo->GetCurrentToken(&pToken);
-		}
-		else if (SuMUICompare(g_hInstance, IDS_CURRENTUSER, szUser))
-		{
-			if (g_pNSudo->ImpersonateAsSystem())
-			{
-				g_pNSudo->GetCurrentUserToken(M2GetCurrentSessionID(), &pToken);
-				RevertToSelf();
-			}
-		}
-
-		// 如果勾选启用全部特权，则对令牌启用全部特权
-		if (pToken && bEnableAllPrivileges) pToken->SetPrivilege(EnableAll);
-
+		// 模拟为System权限
 		if (g_pNSudo->ImpersonateAsSystem())
 		{
+			CToken *pToken = nullptr;
+
+			// 获取用户令牌
+			if (SuMUICompare(g_hInstance, IDS_TI, szUser))
+			{
+				g_pNSudo->GetTrustedInstallerToken(&pToken);
+			}
+			else if (SuMUICompare(g_hInstance, IDS_SYSTEM, szUser))
+			{
+				g_pNSudo->GetSystemToken(&pToken);
+			}
+			else if (SuMUICompare(g_hInstance, IDS_CURRENTPROCESS, szUser))
+			{
+				g_pNSudo->GetCurrentToken(&pToken);
+			}
+			else if (SuMUICompare(g_hInstance, IDS_CURRENTUSER, szUser))
+			{
+				g_pNSudo->GetCurrentUserToken(M2GetCurrentSessionID(), &pToken);
+			}
+
+			// 如果勾选启用全部特权，则对令牌启用全部特权
+			if (pToken && bEnableAllPrivileges) pToken->SetPrivilege(EnableAll);	
+			
 			if (!SuCreateProcess(*pToken, szBuffer))
 			{
 				SuMUIPrintMsg(g_hInstance, NULL, IDS_ERRSUDO);
 			}
 
-			RevertToSelf();
-		}
+			if (pToken) delete pToken;
 
-		if (pToken) delete pToken;
+			g_pNSudo->RevertToSelf();
+		}	
 	}
 }
 
@@ -324,7 +379,7 @@ INT_PTR CALLBACK DialogCallBack(
 	HWND hCheckBox = GetDlgItem(hDlg, IDC_Check_EnableAllPrivileges);
 	HWND hszPath = GetDlgItem(hDlg, IDC_szPath);
 
-	wchar_t szCMDLine[260], szUser[260], szBuffer[512];
+	wchar_t szCMDLine[MAX_PATH], szUser[260], szBuffer[512];
 	
 	switch (message)
 	{
@@ -396,7 +451,7 @@ INT_PTR CALLBACK DialogCallBack(
 			if (szBuffer[1] != L'\0')
 			{
 				szBuffer[0] = L'\"';
-				StringCbCatW(szBuffer, sizeof(szBuffer), L"\"");
+				wcscat_s(szBuffer, 512, L"\"");
 
 				SetDlgItemTextW(hDlg, IDC_szPath, szBuffer);
 			}
@@ -411,7 +466,7 @@ INT_PTR CALLBACK DialogCallBack(
 		if (!(GetFileAttributesW(&szBuffer[1]) & FILE_ATTRIBUTE_DIRECTORY))
 		{
 			szBuffer[0] = L'\"';
-			StringCbCatW(szBuffer, sizeof(szBuffer), L"\"");
+			wcscat_s(szBuffer, 512, L"\"");
 
 			SetDlgItemTextW(hDlg, IDC_szPath, szBuffer);
 		}
@@ -425,9 +480,8 @@ INT_PTR CALLBACK DialogCallBack(
 	return 0;
 }
 
-
 int main()
-{
+{	
 	CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
 	
 	SuInitialize();
@@ -455,13 +509,10 @@ int main()
 				0L);
 		}
 		else
-		{
-			wchar_t szExePath[260];
-			GetModuleFileNameW(nullptr, szExePath, 260);
-				
+		{				
 			SHELLEXECUTEINFOW ExecInfo = { 0 };
 			ExecInfo.cbSize = sizeof(SHELLEXECUTEINFOW);
-			ExecInfo.lpFile = szExePath;
+			ExecInfo.lpFile = g_ExePath;
 			ExecInfo.lpVerb = L"runas";
 			ExecInfo.nShow = SW_NORMAL;
 
@@ -472,11 +523,41 @@ int main()
 	}
 	else
 	{
+		// 执行宿主
+		if (wcscmp(L"-Execute", g_argv[1]) == 0)
+		{
+			SHELLEXECUTEINFOW ExecInfo = { 0 };
+			ExecInfo.cbSize = sizeof(SHELLEXECUTEINFOW);
+			ExecInfo.lpVerb = L"open";
+			ExecInfo.lpFile = g_argv[2];
+			ExecInfo.nShow = SW_NORMAL;
+
+			ShellExecuteExW(&ExecInfo);
+
+			return (int)GetLastError();
+		}
+		
 		DWORD result;
 		WriteConsoleW(g_hOut, ProjectInfo::VersionText, (DWORD)wcslen(ProjectInfo::VersionText), &result, nullptr);
 		WriteConsoleW(g_hOut, L"\n", (DWORD)wcslen(L"\n"), &result, nullptr);
 
 		SuMUIPrintMsg(g_hInstance, NULL, IDS_ABOUT);
+
+		// 如果参数是 /? 或 -?,则显示帮助
+		if (g_argc == 2 && 
+			(g_argv[1][0] == L'-' || g_argv[1][0] == L'/') && 
+			g_argv[1][1] == '?')
+		{
+			SuMUIPrintMsg(g_hInstance, NULL, IDS_HELP);
+			return 0;
+		}
+
+		// 如果未提权或者模拟System权限失败
+		if (!(bElevated && g_pNSudo->ImpersonateAsSystem()))
+		{
+			SuMUIPrintMsg(g_hInstance, NULL, IDS_ERRNOTHELD);
+			return 0;
+		}
 
 		bool bCMDLineArgEnable = true;
 		bool bArgErr = false;
@@ -491,18 +572,8 @@ int main()
 			//判断是参数还是要执行的命令行或常见任务
 			if (g_argv[i][0] == L'-' || g_argv[i][0] == L'/')
 			{
-				//如果未提权且参数不是显示帮助
-				if (!bElevated && g_argv[i][1] != '?')
-				{
-					SuMUIPrintMsg(g_hInstance, NULL, IDS_ERRNOTHELD);
-					return 0;
-				}
-
 				switch (g_argv[i][1])
-				{
-				case '?':
-					SuMUIPrintMsg(g_hInstance, NULL, IDS_HELP);
-					return 0;
+				{			
 				case 'U':
 				case 'u':
 				{
@@ -512,11 +583,7 @@ int main()
 						{
 						case 'T':
 						case 't':
-							if (g_pNSudo->ImpersonateAsSystem())
-							{
-								g_pNSudo->GetTrustedInstallerToken(&pToken);
-								RevertToSelf();
-							}
+							g_pNSudo->GetTrustedInstallerToken(&pToken);
 							break;
 						case 'S':
 						case 's':
@@ -524,11 +591,7 @@ int main()
 							break;
 						case 'C':
 						case 'c':
-							if (g_pNSudo->ImpersonateAsSystem())
-							{
-								g_pNSudo->GetCurrentUserToken(M2GetCurrentSessionID(), &pToken);
-								RevertToSelf();
-							}
+							g_pNSudo->GetCurrentUserToken(M2GetCurrentSessionID(), &pToken);
 							break;
 						case 'P':
 						case 'p':
@@ -605,7 +668,7 @@ int main()
 							}
 						}
 					}
-					
+
 					break;
 				}
 				default:
@@ -616,10 +679,10 @@ int main()
 			{
 				if (bCMDLineArgEnable)
 				{
-					wchar_t szPath[260];
+					wchar_t szPath[MAX_PATH];
 
 					GetPrivateProfileStringW(
-						g_argv[i], L"CommandLine", L"", szPath, 260, g_ShortCutListPath);
+						g_argv[i], L"CommandLine", L"", szPath, MAX_PATH, g_ShortCutListPath);
 
 					wcscmp(szPath, L"") != 0 ?
 						szBuffer = szPath : szBuffer = (g_argv[i]);
@@ -631,14 +694,9 @@ int main()
 
 		if (pToken == nullptr)
 		{
-			if (g_pNSudo->ImpersonateAsSystem())
+			if (g_pNSudo->GetTrustedInstallerToken(&pToken))
 			{
-				if (g_pNSudo->GetTrustedInstallerToken(&pToken))
-				{
-					pToken->SetPrivilege(EnableAll);
-				}
-
-				RevertToSelf();
+				pToken->SetPrivilege(EnableAll);
 			}
 		}
 
@@ -649,18 +707,15 @@ int main()
 		}
 		else
 		{
-			if (g_pNSudo->ImpersonateAsSystem())
+			if (!(pToken && SuCreateProcess(*pToken, szBuffer)))
 			{
-				if (!SuCreateProcess(*pToken, szBuffer))
-				{
-					SuMUIPrintMsg(g_hInstance, NULL, IDS_ERRSUDO);
-				}
-				
-				RevertToSelf();
+				SuMUIPrintMsg(g_hInstance, NULL, IDS_ERRSUDO);
 			}
 		}
 
 		if (pToken) delete pToken;
+
+		g_pNSudo->RevertToSelf();
 	}
 	
 	delete g_pNSudo;

@@ -12410,7 +12410,10 @@ extern "C" {
 		_In_ BOOLEAN MakeReadOnly
 	);
 
-#define RtlProcessHeap() (NtCurrentPeb()->ProcessHeap)
+	FORCEINLINE HANDLE RtlProcessHeap()
+	{
+		return NtCurrentPeb()->ProcessHeap;
+	}
 
 	NTSYSAPI BOOLEAN NTAPI RtlLockHeap(
 		_In_ PVOID HeapHANDLE
