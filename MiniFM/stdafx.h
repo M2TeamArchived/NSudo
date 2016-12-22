@@ -27,7 +27,10 @@
 
 #include <Windows.h>
 
-#pragma comment(linker,"/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
+// NSudoSDK
+#include "M2.NSudo.hpp"
 
 // 忽略未调用变量警告
 template<typename T> void IIntendToIgnoreThisVariable(const T&) {}
+
+#pragma comment(linker,"/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")

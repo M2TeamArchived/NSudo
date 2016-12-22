@@ -1,7 +1,7 @@
 ﻿/**************************************************************************
 描述：基本库(有些是对M2.Native的封装)
 维护者：Mouri_Naruto (M2-Team)
-版本：1.0 (2016-06-25)
+版本：1.5 (2016-11-27)
 基于项目：无
 协议：The MIT License
 用法：直接Include此头文件即可(前提你要在这之前Include Windows.h)
@@ -22,6 +22,13 @@
 // 窗口站管理调用及其数据结构定义
 #include "M2.WinSta.hpp"
 
+// COM类定义
+#include "M2.ComHelper.hpp"
+
+// 用宏实现内联GetLastError()
+#define GetLastError() NtCurrentTeb()->LastErrorValue
+
+// 用宏实现内联NativeAPI
 #ifdef NATIVEAPI
 
 #define HeapAlloc RtlAllocateHeap
@@ -30,6 +37,10 @@
 #define GetProcessHeap RtlProcessHeap
 
 #endif
+
+
+//GetProcessHeap()的速度比较慢，而且有大小上限限制。推荐新建一个堆或者直接使用C runtime
+#ifndef M2_Base_Not_Overload_New
 
 #define malloc(_Size) HeapAlloc(GetProcessHeap(), 0, _Size)
 #define free(_Block) HeapFree(GetProcessHeap(), 0, _Block)
@@ -98,6 +109,9 @@ __forceinline void __CRTDECL operator delete[](
 #pragma warning(pop)
 #endif
 
+#endif //M2_Base_Not_Overload_New
+
+
 namespace M2
 {
 	// 本机API内联调用(M2-Team编写的)
@@ -142,6 +156,16 @@ namespace M2
 		SecurityQuailtyOfService->ImpersonationLevel = ImpersonationLevel;
 		SecurityQuailtyOfService->ContextTrackingMode = ContextTrackingMode;
 		SecurityQuailtyOfService->EffectiveOnly = EffectiveOnly;
+	}
+
+	// 初始化CLIENT_ID结构
+	inline void M2InitClientID(
+		_Out_ PCLIENT_ID ClientID,
+		_In_opt_ DWORD ProcessID,
+		_In_opt_ DWORD ThreadID)
+	{
+		ClientID->UniqueProcess = UlongToHandle(ProcessID);
+		ClientID->UniqueThread = UlongToHandle(ThreadID);
 	}
 #endif
 
@@ -289,6 +313,64 @@ namespace M2
 
 	// 忽略未调用变量警告
 	template<typename T> void IIntendToIgnoreThisVariable(const T&) {}
+
+	// 转换Win32错误码为HRESULT值
+	inline HRESULT ConvertWin32ErrorToHResult(_In_ DWORD dwWin32Error)
+	{
+		// 如果错误代码为ERROR_SUCCESS, 则转换为非指定的错误
+		if (dwWin32Error == ERROR_SUCCESS) return E_FAIL;
+
+		// 如果错误代码已经是HRESULT值，则直接返回
+		if (dwWin32Error & 0xFFFF0000) return static_cast<HRESULT>(dwWin32Error);
+
+		// 否则把错误代码转换为HRESULT值
+		return static_cast<HRESULT>(
+			dwWin32Error | (FACILITY_WIN32 << 16) | 0x80000000);
+
+	}
+
+#ifdef NATIVEAPI
+
+	// 通过直接访问PEB结构获取当前进程模块,以替代GetModuleHandleW(NULL)
+	__forceinline HMODULE M2GetCurrentModuleHandle()
+	{
+		return reinterpret_cast<HMODULE>(NtCurrentPeb()->ImageBaseAddress);
+	}
+
+	// 加载dll
+	inline NTSTATUS M2LoadDll(
+		_In_ LPCWSTR lpDllName,
+		_Out_ PVOID &lpDllModule)
+	{
+		UNICODE_STRING usDllName = { 0 };
+		RtlInitUnicodeString(&usDllName, const_cast<PWSTR>(lpDllName));
+
+		return LdrLoadDll(
+			nullptr, nullptr, &usDllName, &lpDllModule);
+	}
+
+	// 卸载dll
+	inline NTSTATUS M2UnloadDll(
+		_In_ PVOID pDllModule)
+	{
+		return (pDllModule ? LdrUnloadDll(pDllModule) : 0);
+	}
+
+	// 获取dll函数入口
+	template<typename FuncType> inline NTSTATUS M2GetFunc(
+		_In_ PVOID lpDllModule,
+		_In_ LPSTR lpFuncName,
+		_Out_ FuncType &pFuncAddress)
+	{
+		ANSI_STRING asFuncName = { 0 };
+		RtlInitAnsiString(&asFuncName, lpFuncName);
+
+		return LdrGetProcedureAddress(
+			lpDllModule, &asFuncName, 0,
+			reinterpret_cast<PVOID*>(&pFuncAddress));
+	}
+
+#endif
 
 }
 

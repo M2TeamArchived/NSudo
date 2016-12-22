@@ -1,5 +1,12 @@
 ﻿# 改进日志 Changelog
 
+**NSudo 4.2**
+- 引入新NSudo API并且对已有NSudo API进行改善
+- 优化代码，以减少Windows API调用次数
+- 修复不带任何参数情况下可能的奔溃问题
+- 修复控制台部分不能在非管理员权限显示命令行帮助的问题
+- 基于ShellExecute自建调用宿主，以去除对cmd.exe的依赖
+
 **NSudo 4.1**
 - 修复命令行使用-U:D导致程序奔溃的问题
 - 更正命令行的NSudoC残余描述（感谢NotePad）

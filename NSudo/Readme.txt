@@ -91,7 +91,7 @@ Readme和Changelog: Bill
 开发工作: 20011010wo，4071E95D-A09B-4AA3-8008，Microsoft_Mars
 命名者: Microsoft_Mars 和 Mouri_Naruto
 精神支持 O(∩_∩)O~: こうさか ほのか (a Japanese anime “Love Live” character)
-M2-Team 成员: 20011010wo,Bill,hortz,Eugene Wang J.y,Microsoft_Mars,Mouri_Naruto,杂货店的音符
+M2-Team 成员: 20011010wo, Bill, hortz, Eugene Wang J.y, Microsoft_Mars, Mouri_Naruto
 
 
 第三方库 3rd-party library
