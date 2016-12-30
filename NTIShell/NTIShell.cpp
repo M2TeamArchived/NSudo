@@ -3,9 +3,7 @@
 
 #include "stdafx.h"
 
-#ifndef _DEBUG
 #pragma comment(linker, "/ENTRY:EntryPoint") 
-#endif 
 
 using namespace M2;
 
@@ -82,6 +80,7 @@ inline void SuMessageBox(
 void EntryPoint()
 {
 	DWORD dwTIPID = (DWORD)-1;
+	DWORD dwSessionID = M2GetCurrentSessionID();
 	HANDLE hProcessToken = nullptr;
 	HANDLE hDuplicatedToken = nullptr;
 
@@ -112,6 +111,17 @@ void EntryPoint()
 	{
 		SuMessageBox(L"SuDuplicateToken() Failed");
 		goto FuncEnd;	
+	}
+
+	// 设置令牌会话ID
+	if (NtSetInformationToken(
+		hDuplicatedToken,
+		TokenSessionId,
+		(PVOID)&dwSessionID, 
+		sizeof(DWORD)))
+	{
+		SuMessageBox(L"NtSetInformationToken() Failed");
+		goto FuncEnd;
 	}
 	
 	// 启用令牌全部特权
