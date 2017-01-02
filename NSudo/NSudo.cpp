@@ -482,6 +482,45 @@ INT_PTR CALLBACK DialogCallBack(
 
 int main()
 {	
+	SECURITY_CAPABILITIES SecurityCapabilities = { 0 };
+
+	SuGenerateRandomAppContainerSid(
+		&SecurityCapabilities.AppContainerSid);
+	
+	SuGenerateAppContainerCapabilitiy(
+		&SecurityCapabilities.Capabilities,
+		&SecurityCapabilities.CapabilityCount);
+
+
+
+
+
+
+	HANDLE hToken = nullptr,hNewToken=nullptr;
+
+	SuQueryCurrentProcessToken(&hToken);
+
+	NTSTATUS status = SuCreateAppContainerToken(&hNewToken, hToken, &SecurityCapabilities);
+
+	HRESULT hr = (HRESULT)RtlNtStatusToDosError(status);
+
+	wchar_t szCMD[] = L"cmd /k";
+
+	STARTUPINFOW StartupInfo = { 0 };
+	PROCESS_INFORMATION ProcessInfo = { 0 };
+
+	if (CreateProcessAsUserW(
+		hNewToken, NULL, szCMD, nullptr, nullptr, FALSE,
+		CREATE_NEW_CONSOLE,
+		nullptr, nullptr, &StartupInfo, &ProcessInfo))
+	{
+		
+	}
+
+
+	status = hr;
+	
+	
 	CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
 	
 	SuInitialize();
