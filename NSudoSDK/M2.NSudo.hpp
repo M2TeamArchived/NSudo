@@ -1,7 +1,7 @@
 ﻿/**************************************************************************
 描述：NSudo库(对M2.Native, M2.WinSta, M2.Base的封装)
 维护者：Mouri_Naruto (M2-Team)
-版本：1.6 (2016-12-16)
+版本：2.0 (2017-01-01)
 基于项目：无
 协议：The MIT License
 用法：直接Include此头文件即可
@@ -298,6 +298,97 @@ namespace M2
 				hExistingToken, FALSE, pTPs, 0, nullptr, nullptr);
 
 		} while (false);
+
+		return status;
+	}
+
+	// SID_IDENTIFIER_AUTHORITY结构长度
+	const SIZE_T SidAuth_Length = sizeof(SID_IDENTIFIER_AUTHORITY);
+
+	// SID_IDENTIFIER_AUTHORITY的预定义结构
+
+	static SID_IDENTIFIER_AUTHORITY SidAuth_NT = SECURITY_NT_AUTHORITY;
+	static SID_IDENTIFIER_AUTHORITY SidAuth_World = SECURITY_WORLD_SID_AUTHORITY;
+	static SID_IDENTIFIER_AUTHORITY SidAuth_App = SECURITY_APP_PACKAGE_AUTHORITY;
+	static SID_IDENTIFIER_AUTHORITY SIDAuth_IL = SECURITY_MANDATORY_LABEL_AUTHORITY;
+
+	//判断是否为登录SID
+	static bool WINAPI SuIsLogonSid(
+		_In_ PSID pSid)
+	{
+		// 获取pSid的SID_IDENTIFIER_AUTHORITY结构
+		PSID_IDENTIFIER_AUTHORITY pSidAuth = RtlIdentifierAuthoritySid(pSid);
+
+		// 如果不符合SID_IDENTIFIER_AUTHORITY结构长度，则返回false
+		if (!memcmp(pSidAuth, &SidAuth_NT, SidAuth_Length)) return false;
+
+		// 判断SID是否属于Logon SID
+		return (*RtlSubAuthorityCountSid(pSid) == SECURITY_LOGON_IDS_RID_COUNT
+			&& *RtlSubAuthoritySid(pSid, 0) == SECURITY_LOGON_IDS_RID);
+	}
+
+	// 设置内核对象完整性标签
+	static NTSTATUS WINAPI SuSetKernelObjectIL(
+		_In_ HANDLE Object,
+		_In_ IntegrityLevel IL)
+	{
+		//定义变量
+
+		const size_t AclLength = 88;
+		NTSTATUS status;
+		PSID pSID = nullptr;
+		PACL pAcl = nullptr;
+		SECURITY_DESCRIPTOR SD;
+		HANDLE hNewHandle = nullptr;
+
+		// 复制句柄
+		status = NtDuplicateObject(
+			NtCurrentProcess(),
+			Object,
+			NtCurrentProcess(),
+			&hNewHandle,
+			DIRECTORY_ALL_ACCESS,
+			0,
+			0);
+		if (!NT_SUCCESS(status)) goto FuncEnd;
+
+		//初始化SID
+		status = RtlAllocateAndInitializeSid(
+			&SIDAuth_IL, 1, IL, 0, 0, 0, 0, 0, 0, 0, &pSID);
+		if (!NT_SUCCESS(status)) goto FuncEnd;
+
+		//分配ACL结构内存
+		status = M2HeapAlloc(AclLength, pAcl);
+		if (!NT_SUCCESS(status)) goto FuncEnd;
+
+		// 创建SD
+		status = RtlCreateSecurityDescriptor(
+			&SD, SECURITY_DESCRIPTOR_REVISION);
+		if (!NT_SUCCESS(status)) goto FuncEnd;
+
+		// 创建ACL
+		status = RtlCreateAcl(pAcl, AclLength, ACL_REVISION);
+		if (!NT_SUCCESS(status)) goto FuncEnd;
+
+		// 添加完整性ACE
+		status = RtlAddMandatoryAce(
+			pAcl, ACL_REVISION, 0, pSID,
+			SYSTEM_MANDATORY_LABEL_ACE_TYPE, OBJECT_TYPE_CREATE);
+		if (!NT_SUCCESS(status)) goto FuncEnd;
+
+		// 设置SACL
+		status = RtlSetSaclSecurityDescriptor(&SD, TRUE, pAcl, FALSE);
+		if (!NT_SUCCESS(status)) goto FuncEnd;
+
+		// 设置内核对象
+		status = NtSetSecurityObject(
+			hNewHandle, LABEL_SECURITY_INFORMATION, &SD);
+
+	FuncEnd:
+		//释放内存
+		M2HeapFree(pAcl);
+		RtlFreeSid(pSID);
+		NtClose(hNewHandle);
 
 		return status;
 	}
@@ -1027,7 +1118,15 @@ namespace M2
 
 		return status;
 	}
+
+	//****************************************************************
+
+	
+
 }
+
+// NSudo AppContainer库
+#include "M2.NSudo.AppContainer.hpp"
 
 #if _MSC_VER >= 1200
 #pragma warning(pop)
