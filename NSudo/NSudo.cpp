@@ -482,7 +482,7 @@ INT_PTR CALLBACK DialogCallBack(
 
 int main()
 {	
-	SECURITY_CAPABILITIES SecurityCapabilities = { 0 };
+	/*SECURITY_CAPABILITIES SecurityCapabilities = { 0 };
 
 	SuGenerateRandomAppContainerSid(
 		&SecurityCapabilities.AppContainerSid);
@@ -518,7 +518,7 @@ int main()
 	}
 
 
-	status = hr;
+	status = hr;*/
 	
 	
 	CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
