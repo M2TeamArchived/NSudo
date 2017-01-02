@@ -171,20 +171,36 @@ namespace M2
 
 	// 堆
 #pragma region Heap
-
-	// 在当前堆上分配内存
-	__forceinline void* M2AllocMemory(
-		_In_ size_t Size)
+	
+	// 在默认堆上分配内存
+	FORCEINLINE PVOID M2HeapAlloc(
+		_In_ SIZE_T Size)
 	{
-		return malloc(Size);
+		return HeapAlloc(GetProcessHeap(), 0, Size);
 	}
 
-	// 在当前堆上释放内存
-	__forceinline void M2FreeMemory(
-		_In_ void* BaseAddress)
+	// 在默认堆上释放内存
+	FORCEINLINE VOID M2HeapFree(
+		_In_ PVOID BaseAddress)
 	{
-		free(BaseAddress);
+		HeapFree(GetProcessHeap(), 0, BaseAddress);
 	}
+
+
+#ifdef NATIVEAPI
+
+	// 在默认堆上分配内存
+	template<typename PtrType>
+	FORCEINLINE NTSTATUS M2HeapAlloc(
+		_In_ SIZE_T Size,
+		_Out_ PtrType &BaseAddress)
+	{
+		BaseAddress = (PtrType)RtlAllocateHeap(RtlProcessHeap(), 0, Size);
+		return (BaseAddress ? STATUS_SUCCESS : STATUS_NO_MEMORY);
+	}
+
+#endif
+
 
 	// 分配初始化为零的内存
 	__forceinline void* M2AllocZeroedMemory(
