@@ -519,6 +519,30 @@ int main()
 
 
 	status = hr;*/
+
+
+	HANDLE hToken = nullptr, hNewToken = nullptr;
+
+	SuQueryCurrentProcessToken(&hToken);
+
+	SuCreateLUAToken(&hNewToken, hToken);
+
+	
+
+	wchar_t szCMD[] = L"cmd /k";
+
+	STARTUPINFOW StartupInfo = { 0 };
+	PROCESS_INFORMATION ProcessInfo = { 0 };
+
+	if (CreateProcessAsUserW(
+		hNewToken, NULL, szCMD, nullptr, nullptr, FALSE,
+		CREATE_NEW_CONSOLE,
+		nullptr, nullptr, &StartupInfo, &ProcessInfo))
+	{
+
+	}
+
+
 	
 	
 	CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);

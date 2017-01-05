@@ -20,8 +20,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "文档", "文档", "{6600A8
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NTIShell", "NTIShell\NTIShell.vcxproj", "{97785B40-6011-4F43-ADCD-6BC83CB9A6F9}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NSudo.AppContainer", "NSudo.AppContainer\NSudo.AppContainer.vcxproj", "{1CA826E7-6D87-4790-A845-9E5E84CA056F}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		NSudoSDK\NSudoSDK.vcxitems*{1ca826e7-6d87-4790-a845-9e5e84ca056f}*SharedItemsImports = 4
 		NSudoSDK\NSudoSDK.vcxitems*{45d41acc-2c3c-43d2-bc10-02aa73ffc7c7}*SharedItemsImports = 9
 		VC-LTL\VC-LTL.vcxitems*{494ca48f-8bb6-4220-abeb-99e39bb457a9}*SharedItemsImports = 9
 		NSudoSDK\NSudoSDK.vcxitems*{97785b40-6011-4f43-adcd-6bc83cb9a6f9}*SharedItemsImports = 4
@@ -59,6 +62,14 @@ Global
 		{97785B40-6011-4F43-ADCD-6BC83CB9A6F9}.Release|x64.Build.0 = Release|x64
 		{97785B40-6011-4F43-ADCD-6BC83CB9A6F9}.Release|x86.ActiveCfg = Release|Win32
 		{97785B40-6011-4F43-ADCD-6BC83CB9A6F9}.Release|x86.Build.0 = Release|Win32
+		{1CA826E7-6D87-4790-A845-9E5E84CA056F}.Debug|x64.ActiveCfg = Debug|x64
+		{1CA826E7-6D87-4790-A845-9E5E84CA056F}.Debug|x64.Build.0 = Debug|x64
+		{1CA826E7-6D87-4790-A845-9E5E84CA056F}.Debug|x86.ActiveCfg = Debug|Win32
+		{1CA826E7-6D87-4790-A845-9E5E84CA056F}.Debug|x86.Build.0 = Debug|Win32
+		{1CA826E7-6D87-4790-A845-9E5E84CA056F}.Release|x64.ActiveCfg = Release|x64
+		{1CA826E7-6D87-4790-A845-9E5E84CA056F}.Release|x64.Build.0 = Release|x64
+		{1CA826E7-6D87-4790-A845-9E5E84CA056F}.Release|x86.ActiveCfg = Release|Win32
+		{1CA826E7-6D87-4790-A845-9E5E84CA056F}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

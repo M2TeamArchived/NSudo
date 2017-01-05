@@ -131,11 +131,11 @@ namespace M2
 	// 初始化OBJECT_ATTRIBUTES结构
 	inline void M2InitObjectAttributes(
 		_Out_ POBJECT_ATTRIBUTES ObjectAttributes,
-		_In_ PUNICODE_STRING ObjectName,
-		_In_ ULONG Attributes,
-		_In_ HANDLE RootDirectory,
-		_In_ PVOID SecurityDescriptor,
-		_In_ PVOID SecurityQualityOfService)
+		_In_ PUNICODE_STRING ObjectName = nullptr,
+		_In_ ULONG Attributes = 0,
+		_In_ HANDLE RootDirectory = nullptr,
+		_In_ PVOID SecurityDescriptor = nullptr,
+		_In_ PVOID SecurityQualityOfService = nullptr)
 	{
 		ObjectAttributes->Length = sizeof(OBJECT_ATTRIBUTES);
 		ObjectAttributes->RootDirectory = RootDirectory;

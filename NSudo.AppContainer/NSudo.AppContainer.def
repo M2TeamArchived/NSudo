@@ -1,0 +1,6 @@
+LIBRARY
+
+EXPORTS
+SuCreateAppContainerToken
+SuGenerateRandomAppContainerSid
+SuGenerateAppContainerCapabilities
