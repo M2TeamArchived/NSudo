@@ -1,7 +1,7 @@
 ﻿/**************************************************************************
 描述：NSudo库(对M2.Native, M2.WinSta, M2.Base的封装)
 维护者：Mouri_Naruto (M2-Team)
-版本：2.0 (2017-01-01)
+版本：2.1 (2017-01-05)
 基于项目：无
 协议：The MIT License
 用法：直接Include此头文件即可
@@ -159,7 +159,7 @@ namespace M2
 	{
 		// 变量定义	
 
-		NTSTATUS status = 0;
+		NTSTATUS status = STATUS_SUCCESS;
 		HANDLE hProcess = nullptr;
 
 		do
@@ -260,7 +260,7 @@ namespace M2
 	{
 		// 定义变量
 
-		NTSTATUS status = 0;
+		NTSTATUS status = STATUS_SUCCESS;
 		CPtr<PTOKEN_PRIVILEGES> pTPs;
 		DWORD Length = 0;
 
@@ -328,14 +328,14 @@ namespace M2
 	}
 
 	// 设置内核对象完整性标签
-	static NTSTATUS WINAPI SuSetKernelObjectIL(
+	static NTSTATUS WINAPI SuSetKernelObjectIntegrityLevel(
 		_In_ HANDLE Object,
 		_In_ IntegrityLevel IL)
 	{
 		//定义变量
 
 		const size_t AclLength = 88;
-		NTSTATUS status;
+		NTSTATUS status = STATUS_SUCCESS;
 		PSID pSID = nullptr;
 		PACL pAcl = nullptr;
 		SECURITY_DESCRIPTOR SD;
@@ -389,6 +389,187 @@ namespace M2
 		M2HeapFree(pAcl);
 		RtlFreeSid(pSID);
 		NtClose(hNewHandle);
+
+		return status;
+	}
+
+	// 设置令牌完整性标签
+	static NTSTATUS SuSetTokenIntegrityLevel(
+		_In_ HANDLE TokenHandle,
+		_In_ IntegrityLevel IL)
+	{
+		// 变量定义
+		NTSTATUS status = STATUS_SUCCESS;
+		TOKEN_MANDATORY_LABEL TML;
+
+		// 初始化SID
+		status = RtlAllocateAndInitializeSid(
+			&SIDAuth_IL, 1, IL, 0, 0, 0, 0, 0, 0, 0, &TML.Label.Sid);
+		if (NT_SUCCESS(status))
+		{
+			// 初始化TOKEN_MANDATORY_LABEL
+			TML.Label.Attributes = SE_GROUP_INTEGRITY;
+
+			// 设置令牌对象
+			status = NtSetInformationToken(
+				TokenHandle, TokenIntegrityLevel, &TML, sizeof(TML));
+
+			// 释放SID
+			RtlFreeSid(TML.Label.Sid);
+		}
+
+		return status;
+	}
+
+	// 获取令牌信息（该函数自动分配的内存需要使用M2HeapFree释放）
+	template<typename TokenInformationType>
+	static NTSTATUS SuQueryInformationToken(
+		_In_ HANDLE TokenHandle,
+		_In_ TOKEN_INFORMATION_CLASS TokenInformationClass,
+		_Out_ TokenInformationType &TokenInformation)
+	{
+		// 定义变量
+		NTSTATUS status = STATUS_SUCCESS;
+		ULONG ReturnLength = 0;
+
+		// 获取令牌信息大小，如果失败则返回
+		status = NtQueryInformationToken(
+			TokenHandle,
+			TokenInformationClass,
+			nullptr,
+			0,
+			&ReturnLength);
+		if (status != STATUS_BUFFER_TOO_SMALL) return status;
+
+		// 为令牌信息分配内存，如果失败则返回
+		status = M2HeapAlloc(ReturnLength, TokenInformation);
+		if (!NT_SUCCESS(status)) return status;
+
+		// 获取令牌信息，如果失败则释放刚刚分配的内存
+		status = NtQueryInformationToken(
+			TokenHandle,
+			TokenInformationClass,
+			TokenInformation,
+			ReturnLength,
+			&ReturnLength);
+		if (!NT_SUCCESS(status)) M2HeapFree(TokenInformation);
+
+		// 返回运行结果
+		return status;
+	}
+
+	// 根据已提权令牌创建一个降权为标准用户的令牌
+	static NTSTATUS SuCreateLUAToken(
+		_Out_ PHANDLE TokenHandle,
+		_In_ HANDLE ExistingTokenHandle)
+	{
+		// 变量定义
+
+		NTSTATUS status = STATUS_SUCCESS;
+		DWORD Length = 0;
+		BOOL EnableTokenVirtualization = TRUE;
+		TOKEN_OWNER Owner = { 0 };
+		TOKEN_DEFAULT_DACL NewTokenDacl = { 0 };
+		PTOKEN_USER pTokenUser = nullptr;
+		PTOKEN_DEFAULT_DACL pTokenDacl = nullptr;
+		PSID pAdminSid = nullptr;
+		PACCESS_ALLOWED_ACE pTempAce = nullptr;
+
+		//创建受限令牌
+		status = NtFilterToken(
+			ExistingTokenHandle, LUA_TOKEN,
+			nullptr, nullptr, nullptr, TokenHandle);
+		if (!NT_SUCCESS(status)) goto FuncEnd;
+
+		// 设置令牌完整性
+		status = SuSetTokenIntegrityLevel(
+			*TokenHandle, IntegrityLevel::Medium);
+		if (!NT_SUCCESS(status)) goto FuncEnd;
+
+		// 获取令牌对应的用户账户SID
+		status = SuQueryInformationToken(
+			*TokenHandle, TokenUser, pTokenUser);
+		if (!NT_SUCCESS(status)) goto FuncEnd;
+
+		// 设置令牌Owner为当前用户
+		Owner.Owner = pTokenUser->User.Sid;
+		status = NtSetInformationToken(
+			*TokenHandle, TokenOwner, &Owner, sizeof(TOKEN_OWNER));
+		if (!NT_SUCCESS(status)) goto FuncEnd;
+
+		//获取令牌的DACL
+		status = SuQueryInformationToken(
+			*TokenHandle, TokenDefaultDacl, pTokenDacl);
+		if (!NT_SUCCESS(status)) goto FuncEnd;
+
+		// 获取管理员组SID
+		status = RtlAllocateAndInitializeSid(
+			&SidAuth_NT, 2,
+			SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS,
+			0, 0, 0, 0, 0, 0, &pAdminSid);
+		if (!NT_SUCCESS(status)) goto FuncEnd;
+
+		// 计算新ACL大小
+		Length = pTokenDacl->DefaultDacl->AclSize;
+		Length += RtlLengthSid(pTokenUser->User.Sid);
+		Length += sizeof(ACCESS_ALLOWED_ACE);
+
+		// 分配ACL结构内存
+		status = M2HeapAlloc(Length, NewTokenDacl.DefaultDacl);
+		if (!NT_SUCCESS(status)) goto FuncEnd;
+
+		// 创建ACL
+		status = RtlCreateAcl(
+			NewTokenDacl.DefaultDacl,
+			Length, pTokenDacl->DefaultDacl->AclRevision);
+		if (!NT_SUCCESS(status)) goto FuncEnd;
+
+		// 添加ACE
+		status = RtlAddAccessAllowedAce(
+			NewTokenDacl.DefaultDacl,
+			pTokenDacl->DefaultDacl->AclRevision,
+			GENERIC_ALL,
+			pTokenUser->User.Sid);
+		if (!NT_SUCCESS(status)) goto FuncEnd;
+
+		// 复制ACE
+		for (ULONG i = 0;
+			NT_SUCCESS(RtlGetAce(pTokenDacl->DefaultDacl, i, (PVOID*)&pTempAce));
+			++i)
+		{
+			if (RtlEqualSid(pAdminSid, &pTempAce->SidStart)) continue;
+
+			RtlAddAce(
+				NewTokenDacl.DefaultDacl,
+				pTokenDacl->DefaultDacl->AclRevision, 0,
+				pTempAce, pTempAce->Header.AceSize);
+		}
+
+		// 设置令牌DACL
+		Length += sizeof(TOKEN_DEFAULT_DACL);
+		status = NtSetInformationToken(
+			*TokenHandle, TokenDefaultDacl, &NewTokenDacl, Length);
+		if (!NT_SUCCESS(status)) goto FuncEnd;
+
+		// 开启LUA虚拟化
+		status = NtSetInformationToken(
+			*TokenHandle,
+			TokenVirtualizationEnabled,
+			&EnableTokenVirtualization,
+			sizeof(BOOL));
+		if (!NT_SUCCESS(status)) goto FuncEnd;
+
+	FuncEnd: // 扫尾
+
+		if (NewTokenDacl.DefaultDacl) M2HeapFree(NewTokenDacl.DefaultDacl);
+		if (pAdminSid) RtlFreeSid(pAdminSid);
+		if (pTokenDacl) M2HeapFree(pTokenDacl);
+		if (pTokenUser) M2HeapFree(pTokenUser);
+		if (!NT_SUCCESS(status))
+		{
+			NtClose(*TokenHandle);
+			*TokenHandle = INVALID_HANDLE_VALUE;
+		}
 
 		return status;
 	}
@@ -532,139 +713,11 @@ namespace M2
 		NTSTATUS MakeLUA(
 			_Out_ CToken **ppNewToken)
 		{
-			// 变量定义
-
-			NTSTATUS status;
-			HANDLE hTemp = INVALID_HANDLE_VALUE;
-			DWORD Length = 0;
-			CPtr<PTOKEN_USER> pTokenUser;
-			CPtr<PTOKEN_OWNER> pTokenOwner;
-			CPtr<PTOKEN_DEFAULT_DACL> pTokenDacl;
-			PACL pAcl = nullptr;
-			SID_IDENTIFIER_AUTHORITY SIDAuthority = SECURITY_NT_AUTHORITY;
-			PSID TempSid = nullptr;
-			CPtr<PSID> AdminSid;
-			CPtr<PACL> pNewAcl;
-			PACCESS_ALLOWED_ACE pTempAce = nullptr;
-			TOKEN_DEFAULT_DACL NewTokenDacl = { 0 };
-			BOOL EnableTokenVirtualization = TRUE;
-			TOKEN_MANDATORY_POLICY policy = { 0 };
-
-			//创建受限令牌
-
-			status = NtFilterToken(
-				m_hToken, LUA_TOKEN, nullptr, nullptr, nullptr, &hTemp);
-			if (!NT_SUCCESS(status)) goto FuncEnd;
-			*ppNewToken = new CToken(hTemp);
-
-			// 以下代码仅适合管理员权限令牌（非强制性要求）
-			// ********************************************************************
-
-			// 设置令牌完整性
-
-			if (!NT_SUCCESS((*ppNewToken)->SetIL(Medium)))
-				goto FuncEnd;
-
-			// 获取令牌对应的用户账户SID
-
-			(*ppNewToken)->GetInfoSize(TokenUser, &Length);
-			if (!pTokenUser.Alloc(Length)) goto FuncEnd;
-			if (!NT_SUCCESS(
-				(*ppNewToken)->GetInfo(
-					TokenUser, pTokenUser, Length, &Length)))
-				goto FuncEnd;
-
-			// 设置令牌Owner为当前用户
-
-			if (!pTokenOwner.Alloc(sizeof(TOKEN_OWNER))) goto FuncEnd;
-			pTokenOwner->Owner = pTokenUser->User.Sid;
-			if (!NT_SUCCESS((*ppNewToken)->SetInfo(
-				TokenOwner, pTokenOwner, sizeof(TOKEN_OWNER))))
-				goto FuncEnd;
-
-			//获取令牌的DACL
-
-			(*ppNewToken)->GetInfoSize(TokenDefaultDacl, &Length);
-			if (!pTokenDacl.Alloc(Length)) goto FuncEnd;
-			if (!NT_SUCCESS(
-				(*ppNewToken)->GetInfo(
-					TokenDefaultDacl, pTokenDacl, Length, &Length)))
-				goto FuncEnd;
-			pAcl = pTokenDacl->DefaultDacl;
-
-			// 获取管理员组SID
-
-			if (!NT_SUCCESS(RtlAllocateAndInitializeSid(
-				&SIDAuthority, 2,
-				SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS,
-				0, 0, 0, 0, 0, 0, &TempSid)))
-				goto FuncEnd;
-			AdminSid = TempSid;
-			TempSid = nullptr;
-
-			// 计算新ACL大小
-
-			Length += RtlLengthSid(pTokenUser->User.Sid);
-			Length += sizeof(ACCESS_ALLOWED_ACE);
-
-			// 分配ACL结构内存
-
-			if (!pNewAcl.Alloc(Length)) goto FuncEnd;
-
-			// 创建ACL
-
-			if (!NT_SUCCESS(RtlCreateAcl(
-				pNewAcl, Length, pAcl->AclRevision)))
-				goto FuncEnd;
-
-			// 添加ACE
-
-			if (!NT_SUCCESS(RtlAddAccessAllowedAce(
-				pNewAcl, pAcl->AclRevision,
-				GENERIC_ALL, pTokenUser->User.Sid)))
-				goto FuncEnd;
-
-			// 复制ACE
-
-			for (ULONG i = 0;
-				NT_SUCCESS(RtlGetAce(pAcl, i, (PVOID*)&pTempAce));
-				i++)
-			{
-				if (RtlEqualSid(AdminSid, &pTempAce->SidStart)) continue;
-
-				RtlAddAce(pNewAcl, pAcl->AclRevision, 0,
-					pTempAce, pTempAce->Header.AceSize);
-			}
-
-			// 设置令牌DACL
-
-			Length += sizeof(TOKEN_DEFAULT_DACL);
-			NewTokenDacl.DefaultDacl = pNewAcl;
-			if (!NT_SUCCESS((*ppNewToken)->SetInfo(
-				TokenDefaultDacl, &NewTokenDacl, Length)))
-				goto FuncEnd;
-
-			// 打开LUA虚拟化
-
-			if (!NT_SUCCESS((*ppNewToken)->SetInfo(
-				TokenVirtualizationEnabled,
-				&EnableTokenVirtualization,
-				sizeof(BOOL))))
-				goto FuncEnd;
-
-			policy.Policy = TOKEN_MANDATORY_POLICY_NO_WRITE_UP | TOKEN_MANDATORY_POLICY_NEW_PROCESS_MIN;
-
-			if (!NT_SUCCESS((*ppNewToken)->SetInfo(
-				TokenMandatoryPolicy,
-				&policy,
-				sizeof(TOKEN_MANDATORY_POLICY))))
-				goto FuncEnd;
-
-			// ********************************************************************
-
-			// 扫尾
-
-		FuncEnd:
+			NTSTATUS status = STATUS_SUCCESS;
+			HANDLE hNewToken = INVALID_HANDLE_VALUE;
+					
+			status = SuCreateLUAToken(&hNewToken, m_hToken);
+			if (NT_SUCCESS(status)) *ppNewToken = new CToken(hNewToken);
 
 			return status;
 		}
@@ -672,32 +725,8 @@ namespace M2
 		// 设置令牌完整性
 		NTSTATUS SetIL(
 			_In_ IntegrityLevel IL)
-		{
-			// 变量定义
-			NTSTATUS status;
-			TOKEN_MANDATORY_LABEL TML;
-			SID_IDENTIFIER_AUTHORITY SIDAuthority = SECURITY_MANDATORY_LABEL_AUTHORITY;
-
-			// 初始化SID
-			status = RtlAllocateAndInitializeSid(
-				&SIDAuthority, 1, IL,
-				0, 0, 0, 0, 0, 0, 0, &TML.Label.Sid);
-			if (!NT_SUCCESS(status)) goto FuncEnd;
-
-			// 初始化TOKEN_MANDATORY_LABEL
-			TML.Label.Attributes = SE_GROUP_INTEGRITY;
-
-			// 设置令牌对象
-			status = NtSetInformationToken(
-				m_hToken, TokenIntegrityLevel, &TML, sizeof(TML));
-			if (!NT_SUCCESS(status)) goto FuncEnd;
-
-			// 扫尾
-
-		FuncEnd:
-			if (TML.Label.Sid) RtlFreeSid(TML.Label.Sid);
-
-			return status;
+		{		
+			return SuSetTokenIntegrityLevel(m_hToken, IL);
 		}
 
 		// 设置令牌特权
@@ -720,8 +749,6 @@ namespace M2
 
 			NTSTATUS status;
 			bool result = false;
-			DWORD Length = 0;
-			CPtr<PTOKEN_PRIVILEGES> pTPs;
 			HANDLE hTemp = INVALID_HANDLE_VALUE;
 			DWORD Attributes = (DWORD)-1;
 
@@ -742,9 +769,6 @@ namespace M2
 			}
 			else
 			{
-				this->GetInfoSize(TokenPrivileges, &Length);
-				if (!pTPs.Alloc(Length)) return result;
-
 				if (Option == EnableAll) Attributes = SE_PRIVILEGE_ENABLED;
 				if (Option == RemoveAll) Attributes = SE_PRIVILEGE_REMOVED;
 
@@ -774,7 +798,7 @@ namespace M2
 		// 刷新快照
 		NTSTATUS Refresh()
 		{
-			NTSTATUS Status;
+			NTSTATUS status = STATUS_SUCCESS;
 			DWORD dwLength = 0;
 
 			// 获取大小
@@ -785,13 +809,13 @@ namespace M2
 			if (lpBuffer.Alloc(dwLength))
 			{
 				// 获取进程信息
-				Status = NtQuerySystemInformation(
+				status = NtQuerySystemInformation(
 					SystemProcessInformation, lpBuffer, dwLength, &dwLength);
 				pTemp = (ULONG_PTR)(PVOID)lpBuffer;
 			}
-			else Status = STATUS_NO_MEMORY;
+			else status = STATUS_NO_MEMORY;
 
-			return Status;
+			return status;
 		}
 
 		// 遍历
@@ -1121,12 +1145,46 @@ namespace M2
 
 	//****************************************************************
 
-	
+	/*
+	const DWORD CapabilitiyTypeRID[] =
+	{
+	SECURITY_CAPABILITY_INTERNET_CLIENT,
+	SECURITY_CAPABILITY_PRIVATE_NETWORK_CLIENT_SERVER,
+	SECURITY_CAPABILITY_SHARED_USER_CERTIFICATES,
+	SECURITY_CAPABILITY_ENTERPRISE_AUTHENTICATION,
+	};
+
+	*/
+
+
+	//创建沙盒Job对象
+	/*static NTSTATUS WINAPI SuCreateSandBoxJobObject(
+	_Out_ PHANDLE JobObject)
+	{
+	//定义变量
+	NTSTATUS status = NULL;
+	OBJECT_ATTRIBUTES ObjectAttributes =
+	{
+	sizeof(OBJECT_ATTRIBUTES), // Length
+	NULL, // RootDirectory
+	NULL, // ObjectName
+	OBJ_OPENIF, // Attributes
+	NULL, // SecurityDescriptor
+	NULL // SecurityQualityOfService
+	};
+	JOBOBJECT_EXTENDED_LIMIT_INFORMATION JELI = { 0 };
+
+	//创建Job对象
+	status = NtCreateJobObject(JobObject, MAXIMUM_ALLOWED, &ObjectAttributes);
+	if (!NT_SUCCESS(status)) return status;
+
+	//添加限制并返回
+	JELI.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
+	return NtSetInformationJobObject(
+	*JobObject, JobObjectExtendedLimitInformation, &JELI, sizeof(JELI));
+	}*/
 
 }
-
-// NSudo AppContainer库
-#include "M2.NSudo.AppContainer.hpp"
 
 #if _MSC_VER >= 1200
 #pragma warning(pop)

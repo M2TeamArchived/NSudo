@@ -1,5 +1,8 @@
 ﻿# 改进日志 Changelog
 
+**NSudo 5.0**
+- 32位版本取消对SSE和SSE2指令集的依赖（为了保证完美的兼容性）
+
 **NSudo 4.2**
 - 引入新NSudoSDK API并且对已有NSudoSDK API进行改善
 - 优化代码，以减少Windows API调用次数
