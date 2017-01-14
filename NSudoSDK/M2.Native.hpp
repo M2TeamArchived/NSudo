@@ -11,11 +11,17 @@
 	无（致敬ProcessHacker作者Wen Jia Liu）
 用法：
 	直接Include此头文件即可，如果要在内核模式使用则需要定义KERNELMODE宏
+	如果出现C4668警告，则在预处理头文件定义加入以下内容
+		#define _WIN32_WINNT_WIN10_TH2 _WIN32_WINNT_WIN10
+		#define _WIN32_WINNT_WIN10_RS1 _WIN32_WINNT_WIN10
 建议的Windows SDK版本：
 	10.0.10586及以后
 维护者列表：
 	Mouri_Naruto (Mouri_Naruto@Outlook.com)
 修订日志：
+	2.2 (2017-01-06)
+	移除关于C4668警告的解决方案（因为不起作用），改为在用法提示解决方法
+
 	2.1 (2017-01-05)
 	使用新的代码标头
 
@@ -25,9 +31,7 @@
 	3.增加NTSTATUS的定义
 	4.扩充基本的NT结构定义
 	5.增添我和原作者的邮件内容（为什么不做任何的开源协议限制的原因）
-	6.内置解决由于14393SDK用到_WIN32_WINNT_WIN10_TH2和_WIN32_WINNT_WIN10_RS1两
-	  个未定义宏，而当全部开启警告且视警告为错误后编译失败的问题
-	7.内置包含Windows IO操作定义
+	6.内置包含Windows IO操作定义
 
 	1.0 (2016-06-26)
 	初始版本，对基于Process Hacker的PHNT库进行了大幅度修改
@@ -127,16 +131,6 @@
 //*****************************************************************************
 
 #include <SDKDDKVer.h> // WindowsSDK平台定义
-
-// 解决_WIN32_WINNT_WIN10_TH2和_WIN32_WINNT_WIN10_RS1未定义导致编译失败的问题
-
-#ifndef _WIN32_WINNT_WIN10_TH2
-#define _WIN32_WINNT_WIN10_TH2 _WIN32_WINNT_WIN10
-#endif
-
-#ifndef _WIN32_WINNT_WIN10_RS1
-#define _WIN32_WINNT_WIN10_RS1 _WIN32_WINNT_WIN10
-#endif
 
 #include <windows.h> // Windows 头文件
 #include <winioctl.h> // Windows IO操作定义

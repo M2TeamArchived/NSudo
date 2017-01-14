@@ -480,72 +480,195 @@ INT_PTR CALLBACK DialogCallBack(
 	return 0;
 }
 
+
+// 为编译通过而禁用的警告
+#if _MSC_VER >= 1200
+// 编译器优化可能出现的警告（去除未引用函数并适当对一些函数使用内联）
+#pragma warning(disable:4820) 
+#pragma warning(disable:4471)
+#endif
+
+
+#pragma region Includes and Imports
+
+#include <metahost.h>
+//#pragma comment(lib, "mscoree.lib")
+
+// Import mscorlib.tlb (Microsoft Common Language Runtime Class Library).
+#import "mscorlib.tlb" raw_interfaces_only				\
+    high_property_prefixes("_get","_put","_putref")		\
+    rename("ReportEvent", "InteropServices_ReportEvent")
+using namespace mscorlib;
+#pragma endregion
+
+// 执行.Net程序集
+HRESULT WINAPI SuCLRExecuteAssembly(
+	_In_ LPCWSTR pwzVersion,
+	_In_ LPCWSTR pwzAssemblyPath,
+	_In_ LPCWSTR pwzTypeName,
+	_In_ LPCWSTR pwzMethodName,
+	_In_ LPCWSTR pwzArgument)
+{
+	HRESULT hr = E_NOTIMPL;
+
+	ICLRMetaHost *pMetaHost = nullptr;
+	ICLRRuntimeInfo *pRuntimeInfo = nullptr;
+
+	// ICorRuntimeHost和ICLRRuntimeHost是CLR 4.0支持的两个CLR宿主接口
+	// 以下是使用.Net v2.0提供的ICLRRuntimeHost接口以支持CLR 2.0新功能的示例
+	// ICLRRuntimeHost不支持加载.NET v1.x运行时.
+	ICLRRuntimeHost *pClrRuntimeHost = nullptr;
+
+	// The static method in the .NET class to invoke.
+	DWORD pReturnValue = 0;
+
+	// 
+	// 加载并启动.NET运行时.
+	// 
+
+	wprintf(L"Load and start the .NET runtime %s \n", pwzVersion);
+
+	PVOID pDllModule = nullptr;
+
+	NTSTATUS status = STATUS_SUCCESS;
+	CLRCreateInstanceFnPtr pCLRCreateInstance = nullptr;
+
+	status = M2LoadDll(L"mscoree.dll", pDllModule);
+	
+	if (!NT_SUCCESS(status))
+	{
+		hr = __HRESULT_FROM_WIN32(RtlNtStatusToDosError(status));
+		goto Cleanup;
+	}
+
+	status = M2GetFunc(pDllModule, "CLRCreateInstance", pCLRCreateInstance);
+	if (!NT_SUCCESS(status))
+	{
+		hr = __HRESULT_FROM_WIN32(RtlNtStatusToDosError(status));
+		goto Cleanup;
+	}
+
+	hr = pCLRCreateInstance(CLSID_CLRMetaHost, IID_PPV_ARGS(&pMetaHost));
+	if (FAILED(hr))
+	{
+		wprintf(L"CLRCreateInstance failed w/hr 0x%08lx\n", hr);
+		goto Cleanup;
+	}
+
+	// 获取对应CLR版本的ICLRRuntimeInfo接口
+	hr = pMetaHost->GetRuntime(pwzVersion, IID_PPV_ARGS(&pRuntimeInfo));
+	if (FAILED(hr))
+	{
+		wprintf(L"ICLRMetaHost::GetRuntime failed w/hr 0x%08lx\n", hr);
+		goto Cleanup;
+	}
+
+	// 检测特定版本的运行时是否可以加载入当前进程
+	BOOL fLoadable = FALSE;
+	hr = pRuntimeInfo->IsLoadable(&fLoadable);
+	if (FAILED(hr))
+	{
+		wprintf(L"ICLRRuntimeInfo::IsLoadable failed w/hr 0x%08lx\n", hr);
+		goto Cleanup;
+	}
+
+	if (!fLoadable)
+	{
+		wprintf(L".NET runtime %s cannot be loaded\n", pwzVersion);
+		goto Cleanup;
+	}
+
+	// 加载特定版本CLR到当前进程，并获取ICLRRuntimeHost接口
+	hr = pRuntimeInfo->GetInterface(CLSID_CLRRuntimeHost,
+		IID_PPV_ARGS(&pClrRuntimeHost));
+	if (FAILED(hr))
+	{
+		wprintf(L"ICLRRuntimeInfo::GetInterface failed w/hr 0x%08lx\n", hr);
+		goto Cleanup;
+	}
+
+	// 启动CLR.
+	hr = pClrRuntimeHost->Start();
+	if (FAILED(hr))
+	{
+		wprintf(L"CLR failed to start w/hr 0x%08lx\n", hr);
+		goto Cleanup;
+	}
+
+	wprintf(L"Load the assembly %s\n", pwzAssemblyPath);
+
+	// 调用pwzAssemblyPath程序集pwzTypeName类的方法并在pReturnValue返回运行结果
+	// 方法格式为 static int pwzMethodName(String pwzArgument)
+	hr = pClrRuntimeHost->ExecuteInDefaultAppDomain(
+		pwzAssemblyPath,
+		pwzTypeName,
+		pwzMethodName,
+		pwzArgument,
+		&pReturnValue);
+	if (FAILED(hr))
+	{
+		wprintf(L"Failed to call %s w/hr 0x%08lx\n", pwzMethodName, hr);
+		goto Cleanup;
+	}
+
+	// Print the call result of the static method.
+	wprintf(L"Call %s.%s(\"%s\") => %d\n", pwzTypeName, pwzMethodName,
+		pwzArgument, (int)pReturnValue);
+
+Cleanup:
+
+	if (pMetaHost)
+	{
+		pMetaHost->Release();
+		pMetaHost = nullptr;
+	}
+	if (pRuntimeInfo)
+	{
+		pRuntimeInfo->Release();
+		pRuntimeInfo = nullptr;
+	}
+	if (pClrRuntimeHost)
+	{
+		pClrRuntimeHost->Release();
+		pClrRuntimeHost = nullptr;
+	}
+
+	if (pDllModule)
+	{
+		M2UnloadDll(pDllModule);
+		pDllModule = nullptr;
+	}
+
+	return hr;
+}
+
+EXTERN_C void WINAPI Test()
+{
+	SuShowAboutDialog(nullptr,nullptr);
+}
+
+#pragma warning(disable:4191)
+
 int main()
 {	
-	/*SECURITY_CAPABILITIES SecurityCapabilities = { 0 };
+	wprintf(
+		L"M2-Team NSudo [Version 5.0.1701]\n"
+		L"(C) 2017 M2-Team. All Rights Reserved.\n"
+		L"\n");
 
-	SuGenerateRandomAppContainerSid(
-		&SecurityCapabilities.AppContainerSid);
-	
-	SuGenerateAppContainerCapabilitiy(
-		&SecurityCapabilities.Capabilities,
-		&SecurityCapabilities.CapabilityCount);
+	wprintf(
+		L"ERROR: Under Construction\n");
 
-
-
-
-
-
-	HANDLE hToken = nullptr,hNewToken=nullptr;
-
-	SuQueryCurrentProcessToken(&hToken);
-
-	NTSTATUS status = SuCreateAppContainerToken(&hNewToken, hToken, &SecurityCapabilities);
-
-	HRESULT hr = (HRESULT)RtlNtStatusToDosError(status);
-
-	wchar_t szCMD[] = L"cmd /k";
-
-	STARTUPINFOW StartupInfo = { 0 };
-	PROCESS_INFORMATION ProcessInfo = { 0 };
-
-	if (CreateProcessAsUserW(
-		hNewToken, NULL, szCMD, nullptr, nullptr, FALSE,
-		CREATE_NEW_CONSOLE,
-		nullptr, nullptr, &StartupInfo, &ProcessInfo))
-	{
-		
-	}
-
-
-	status = hr;*/
-
-
-	HANDLE hToken = nullptr, hNewToken = nullptr;
-
-	SuQueryCurrentProcessToken(&hToken);
-
-	SuCreateLUAToken(&hNewToken, hToken);
-
-	
-
-	wchar_t szCMD[] = L"cmd /k";
-
-	STARTUPINFOW StartupInfo = { 0 };
-	PROCESS_INFORMATION ProcessInfo = { 0 };
-
-	if (CreateProcessAsUserW(
-		hNewToken, NULL, szCMD, nullptr, nullptr, FALSE,
-		CREATE_NEW_CONSOLE,
-		nullptr, nullptr, &StartupInfo, &ProcessInfo))
-	{
-
-	}
-
-
-	
+	wprintf(
+		L"Initialize COM\n");
 	
 	CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
+
+	//*************************************************************************
+
+	//SuCLRExecuteAssembly(L"v4.0.30319", L"NSudo.ModernUI.dll",L"NSudo.ModernUI.Program",L"ModernUIEntry",L"");
+	
+	//*************************************************************************
 	
 	SuInitialize();
 

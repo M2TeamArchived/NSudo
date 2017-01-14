@@ -7,3 +7,4 @@
 *.sdf
 *.opendb
 /ipch
+/NSudo.ModernUI/obj

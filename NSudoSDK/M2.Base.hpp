@@ -356,13 +356,13 @@ namespace M2
 	// 加载dll
 	inline NTSTATUS M2LoadDll(
 		_In_ LPCWSTR lpDllName,
-		_Out_ PVOID &lpDllModule)
+		_Out_ PVOID &pDllModule)
 	{
 		UNICODE_STRING usDllName = { 0 };
 		RtlInitUnicodeString(&usDllName, const_cast<PWSTR>(lpDllName));
 
 		return LdrLoadDll(
-			nullptr, nullptr, &usDllName, &lpDllModule);
+			nullptr, nullptr, &usDllName, &pDllModule);
 	}
 
 	// 卸载dll

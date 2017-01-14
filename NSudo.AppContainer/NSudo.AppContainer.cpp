@@ -662,63 +662,6 @@ Error: // 错误处理
 
 #pragma endregion
 
-
-
-
-
-/*#include <AccCtrl.h>
-#include <Aclapi.h>
-
-#include <UserEnv.h>
-#pragma comment(lib,"userenv.lib")*/
-
-
-
-//设定一个指定目录在指定的AppContainer下完全访问权限
-/*bool SetFileGrantAccessInAppContainer(
-	_In_ PSID pAppContainerSID, 
-	_In_ LPWSTR pObjectName)
-{
-	bool bRet = false;
-
-	EXPLICIT_ACCESS ea;
-
-	ea.grfAccessMode = GRANT_ACCESS;
-	ea.grfAccessPermissions = FILE_ALL_ACCESS;
-	ea.grfInheritance = OBJECT_INHERIT_ACE | CONTAINER_INHERIT_ACE;
-	ea.Trustee.MultipleTrusteeOperation = NO_MULTIPLE_TRUSTEE;
-	ea.Trustee.pMultipleTrustee = NULL;
-	ea.Trustee.TrusteeForm = TRUSTEE_IS_SID;
-	ea.Trustee.TrusteeType = TRUSTEE_IS_WELL_KNOWN_GROUP;
-	ea.Trustee.ptstrName = (LPTSTR)pAppContainerSID;
-
-	PACL pNewDacl = NULL, pOldDacl = NULL;
-
-	// 获取文件(夹)安全对象的DACL列表
-	if (ERROR_SUCCESS == GetNamedSecurityInfoW(
-		pObjectName,
-		SE_FILE_OBJECT, DACL_SECURITY_INFORMATION,
-		NULL, NULL, &pOldDacl, NULL, NULL))
-	{
-		// 创建新的ACL对象(合并已有的ACL对象和刚生成的用户帐户访问控制信息)
-		if (ERROR_SUCCESS == SetEntriesInAclW(1, &ea, pOldDacl, &pNewDacl))
-		{
-			// 设置文件(夹)安全对象的DACL列表
-			if (ERROR_SUCCESS == SetNamedSecurityInfoW(
-				pObjectName,
-				SE_FILE_OBJECT, DACL_SECURITY_INFORMATION,
-				NULL, NULL, pNewDacl, NULL))
-			{
-				bRet = true;
-			}
-			LocalFree(pNewDacl);
-		}
-		//LocalFree(pOldDacl);
-	}
-
-	return bRet;
-}*/
-
 //删除指定的AppContainer
 /*bool NSudoDeleteAppContainer(
 	_In_ PCWSTR pszAppContainerName)
@@ -730,6 +673,8 @@ Error: // 错误处理
 
 
 //*****************************************************************************
+
+//#pragma comment(linker, "/ENTRY:DllMain") 
 
 // DLL入口
 BOOL APIENTRY DllMain(
