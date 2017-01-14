@@ -141,10 +141,8 @@ namespace M2
 
 		// 参数初始化
 
-		M2InitObjectAttributes(
-			&ObjAttr, nullptr, 0, nullptr, nullptr, nullptr);
-		M2InitClientID(
-			&ClientID, dwProcessID, 0);
+		M2InitObjectAttributes(&ObjAttr);
+		M2InitClientID(&ClientID, dwProcessID, 0);
 
 		// 根据进程ID获取进程句柄并返回运行结果
 		return NtOpenProcess(

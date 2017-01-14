@@ -1,0 +1,210 @@
+﻿<Window x:Class="NSudo.ModernUI.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+        xmlns:local="clr-namespace:NSudo.ModernUI"
+        mc:Ignorable="d" 
+        Title="NSudo" FontSize="16"  Width="800" Height="450">
+    <Window.Resources>
+        <SolidColorBrush x:Key="TabItem.Selected.Background" Color="#FFFFFF"/>
+        <SolidColorBrush x:Key="TabItem.Selected.Border" Color="#ACACAC"/>
+        <Style x:Key="TabControlStyle" TargetType="{x:Type TabControl}">
+            <Setter Property="Padding" Value="2"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Background" Value="{StaticResource TabItem.Selected.Background}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource TabItem.Selected.Border}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type TabControl}">
+                        <Grid x:Name="templateRoot" ClipToBounds="true" SnapsToDevicePixels="true" KeyboardNavigation.TabNavigation="Local">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition x:Name="ColumnDefinition0"/>
+                                <ColumnDefinition x:Name="ColumnDefinition1" Width="0"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition x:Name="RowDefinition0" Height="Auto"/>
+                                <RowDefinition x:Name="RowDefinition1" Height="*"/>
+                            </Grid.RowDefinitions>
+                            <UniformGrid HorizontalAlignment="Stretch" Height="32" Margin="0" Grid.Row="0" VerticalAlignment="Top" Width="Auto" IsItemsHost="True" Rows="1" d:LayoutOverrides="VerticalAlignment" Background="{x:Null}"/>
+                            <Border x:Name="contentPanel" Grid.Column="0" KeyboardNavigation.DirectionalNavigation="Contained" Grid.Row="1" KeyboardNavigation.TabIndex="2" KeyboardNavigation.TabNavigation="Local" Background="White" BorderThickness="0,0,0,1">
+                                <ContentPresenter x:Name="PART_SelectedContentHost" ContentSource="SelectedContent" Margin="{TemplateBinding Padding}" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                            </Border>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="TabStripPlacement" Value="Bottom">
+                                <Setter Property="Grid.Row" TargetName="contentPanel" Value="0"/>
+                                <Setter Property="Height" TargetName="RowDefinition0" Value="*"/>
+                                <Setter Property="Height" TargetName="RowDefinition1" Value="Auto"/>
+                            </Trigger>
+                            <Trigger Property="TabStripPlacement" Value="Left">
+                                <Setter Property="Grid.Row" TargetName="contentPanel" Value="0"/>
+                                <Setter Property="Grid.Column" TargetName="contentPanel" Value="1"/>
+                                <Setter Property="Width" TargetName="ColumnDefinition0" Value="Auto"/>
+                                <Setter Property="Width" TargetName="ColumnDefinition1" Value="*"/>
+                                <Setter Property="Height" TargetName="RowDefinition0" Value="*"/>
+                                <Setter Property="Height" TargetName="RowDefinition1" Value="0"/>
+                            </Trigger>
+                            <Trigger Property="TabStripPlacement" Value="Right">
+                                <Setter Property="Grid.Row" TargetName="contentPanel" Value="0"/>
+                                <Setter Property="Grid.Column" TargetName="contentPanel" Value="0"/>
+                                <Setter Property="Width" TargetName="ColumnDefinition0" Value="*"/>
+                                <Setter Property="Width" TargetName="ColumnDefinition1" Value="Auto"/>
+                                <Setter Property="Height" TargetName="RowDefinition0" Value="*"/>
+                                <Setter Property="Height" TargetName="RowDefinition1" Value="0"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="false">
+                                <Setter Property="TextElement.Foreground" TargetName="templateRoot" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+    <Grid>
+        <Grid Height="80" VerticalAlignment="Bottom">
+            <Label Content="打开：" HorizontalAlignment="Left" VerticalAlignment="Top" Height="32"/>
+            <TextBox x:Name="tbCommand" Height="32" TextWrapping="Wrap" VerticalAlignment="Top" Margin="56,0,100,0" FontSize="18.667"/>
+            <Button x:Name="btnBrowse" Content="..." HorizontalAlignment="Right" VerticalAlignment="Top" Width="20" Height="32" Margin="0,0,80,0"/>
+            <Button x:Name="btnRun" Content="执行" HorizontalAlignment="Right" VerticalAlignment="Top" Width="80" Height="32" Click="btnRun_Click"/>
+            <Label Content="提示：请谨慎使用 请谨慎使用 请谨慎使用 （重要的事情说三遍）" VerticalAlignment="Bottom" Margin="10,0,10,10" Foreground="Red"/>
+        </Grid>
+        <TabControl Margin="0,0,0,81" Style="{DynamicResource TabControlStyle}">
+            <TabItem Header="主页">
+                <Grid>
+                    <Label Content="欢迎使用NSudo，你可以通过本标签页看到你选择的所有选项" VerticalAlignment="Top" Margin="6,0,0,0" FontSize="21.333" HorizontalAlignment="Left"/>
+                    <Label Content="用户: TrustedInstaller （凭据: 不需要）" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="20,42,0,0"/>
+                    <Label Content="特权: 默认" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="20,71,0,0"/>
+                    <Label Content="完整性: 默认" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="20,100,0,0"/>
+                    <Label Content="降权方式: NtFilterToken" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="20,129,0,0"/>
+                    <Label Content="沙盒: 禁用 （允许访问网络: 选项不可用）" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="20,158,0,0"/>
+                </Grid>
+            </TabItem>
+            <TabItem Header="用户">
+                <Grid>
+                    <Grid Height="50" VerticalAlignment="Top" Margin="10,10,10,0">
+                        <RadioButton x:Name="rbTrustedInstaller" Content="TrustedInstaller" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                        <Label Content="这个用户是用于Windows组件管理服务，所以可以修改系统组件（NSudo招牌功能）" Margin="15,20,0,0" VerticalAlignment="Top"/>
+                    </Grid>
+                    <Grid Height="50" VerticalAlignment="Top" Margin="10,65,10,0">
+                        <RadioButton x:Name="rbSystem" Content="System" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                        <Label Content="系统权限，常用于系统服务，你懂的" Margin="15,20,0,0" VerticalAlignment="Top"/>
+                    </Grid>
+                    <Grid Height="50" VerticalAlignment="Top" Margin="10,120,10,0">
+                        <RadioButton x:Name="rbCurrentUser" Content="当前用户" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                        <Label Content="如果想用你当前登录的用户，请选这个" Margin="15,20,0,0" VerticalAlignment="Top"/>
+                    </Grid>
+                    <Grid Height="50" VerticalAlignment="Top" Margin="10,175,10,0">
+                        <RadioButton x:Name="rbOtherUser" Content="其他" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                        <Label Content="如果以上选项都不如你所愿，可以选这个（需要在凭据选项卡输入账户和密码）" Margin="15,20,0,0" VerticalAlignment="Top"/>
+                    </Grid>
+                </Grid>
+            </TabItem>
+            <TabItem Header="凭据">
+                <Grid>
+                    <Label Content="当你在用户选项卡选择其他选项时，请在这里输入凭据" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="6,6,0,0" FontSize="21.333"/>
+                    <Label Content="提示: 为了安全,NSudo不会保存此页面的任何信息,也不提供保存此页面信息的选项" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="6,48,0,0" Foreground="Red"/>
+                    <Label Content="用户名：" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,97,0,0"/>
+                    <Label Content="密码：" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,134,0,0"/>
+                    <TextBox x:Name="tbUsername" Height="32" TextWrapping="Wrap" VerticalAlignment="Top" Margin="86,97,0,0" FontSize="18.667" HorizontalAlignment="Left" Width="400"/>
+                    <PasswordBox x:Name="tbPassword" Height="32" VerticalAlignment="Top" Margin="86,134,0,0" FontSize="18.667" HorizontalAlignment="Left" Width="400"/>
+                </Grid>
+            </TabItem>
+            <TabItem Header="特权">
+                <Grid>
+                    <ListView x:Name="lvPrivileges" Margin="10,0,10,42">
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn>
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <CheckBox IsThreeState="False"/>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                                <GridViewColumn Header="LUID" Width="50"/>
+                                <GridViewColumn Header="名称" Width="150"/>
+                                <GridViewColumn Header="注释" Width="400"/>
+                            </GridView>
+                        </ListView.View>
+                        <ComboBoxItem Content="Test1"/>
+                        <ComboBoxItem Content="Test2"/>
+                    </ListView>
+                    <Grid HorizontalAlignment="Right" Height="32" VerticalAlignment="Bottom" Width="250" Margin="0,0,10,5">
+                        <Button x:Name="btnDefault" Content="默认" HorizontalAlignment="Left" VerticalAlignment="Top" Width="80" Height="32" RenderTransformOrigin="0.212,0.531"/>
+                        <Button x:Name="btnAll" Content="全选" VerticalAlignment="Top" Height="32" Margin="85,0,0,0" HorizontalAlignment="Left" Width="80"/>
+                        <Button x:Name="btnNone" Content="全不选" HorizontalAlignment="Left" VerticalAlignment="Top" Width="80" Height="32" Margin="170,0,0,0"/>
+                    </Grid>
+                </Grid>
+            </TabItem>
+            <TabItem Header="完整性">
+                <Grid>
+                    <Grid Height="50" VerticalAlignment="Top" Margin="10,10,10,0">
+                        <RadioButton x:Name="rbILLow" Content="Low" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                        <Label Content="低完整性 - 常见于IE保护模式和现代风格应用" Margin="15,20,0,0" VerticalAlignment="Top"/>
+                    </Grid>
+                    <Grid Height="50" VerticalAlignment="Top" Margin="10,65,10,0">
+                        <RadioButton x:Name="rbILMedium" Content="Medium" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                        <Label Content="中完整性 - 常见于未经过UAC提权的应用" Margin="15,20,0,0" VerticalAlignment="Top"/>
+                    </Grid>
+                    <Grid Height="50" VerticalAlignment="Top" Margin="10,120,10,0">
+                        <RadioButton x:Name="rbILHigh" Content="High" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                        <Label Content="高完整性 - 常见于经过UAC提权的应用" Margin="15,20,0,0" VerticalAlignment="Top"/>
+                    </Grid>
+                    <Grid Height="50" VerticalAlignment="Top" Margin="10,175,10,0">
+                        <RadioButton x:Name="rbILSystem" Content="System" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                        <Label Content="系统完整性 - 常见于系统进程和系统服务" Margin="15,20,0,0" VerticalAlignment="Top"/>
+                    </Grid>
+                </Grid>
+            </TabItem>
+            <TabItem Header="降权方式">
+                <Grid>
+                    <Grid Height="50" VerticalAlignment="Top" Margin="10,10,10,0">
+                        <RadioButton x:Name="rbDropWTS" Content="获取当前登录用户令牌" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                        <Label Content="通过终端服务获取当前登录的用户令牌实现降权(只适用于UAC打开且不是超级管理员模式)" Margin="15,20,0,0" VerticalAlignment="Top"/>
+                    </Grid>
+                    <Grid Height="50" VerticalAlignment="Top" Margin="10,65,10,0">
+                        <RadioButton x:Name="rbDropFilter" Content="对当前令牌进行降权(LUA模式)" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                        <Label Content="可以在任意情况下任意令牌进行降权，原理通过逆向IE获知（但与第一种方法还是有差距）" Margin="15,20,0,0" VerticalAlignment="Top"/>
+                    </Grid>
+                    <Grid Height="50" VerticalAlignment="Top" Margin="10,120,10,0">
+                        <RadioButton x:Name="rbDropSafer" Content="对当前令牌进行降权(Safer模式)" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                        <Label Content="可以在任意情况下任意令牌进行降权，XP时代的降权方法（但与前两种方法还是有差距）" Margin="15,20,0,0" VerticalAlignment="Top"/>
+                    </Grid>
+                </Grid>
+            </TabItem>
+            <TabItem Header="沙盒">
+                <Grid>
+                    <CheckBox x:Name="cbLowBoxMode" Content="在沙盒中运行" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,10,0,0"/>
+                </Grid>
+            </TabItem>
+            <TabItem Header="配置">
+                <Grid>
+                    <Grid HorizontalAlignment="Left" Height="29" VerticalAlignment="Top" Width="310" Margin="10,10,0,0">
+                        <Label Content="语言：" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                        <ComboBox x:Name="cbLanguage" HorizontalAlignment="Left" VerticalAlignment="Top" Width="250" Margin="60,0,0,0" Height="29"/>
+                    </Grid>
+                    <CheckBox x:Name="cbClassicMode" Content="经典模式" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,44,0,0"/>
+                    <CheckBox x:Name="cbCheckUpdate" Content="启动时检查更新" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,67,0,0"/>
+                </Grid>
+            </TabItem>
+            <TabItem Header="关于">
+                <Grid>
+                    <Viewbox Stretch="Uniform" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Height="128" Width="128">
+                        <Canvas Width="512" Height="512" >
+                            <Path Fill="#FF2481D2" Data="M 0 256 0 0 l 256 0 256 0 0 256 0 256 -256 0 -256 0 0 -256 z"/>
+                            <Path Fill="White" Data="M 0 256 0 0 l 256 0 256 0 0 256 0 256 -256 0 -256 0 0 -256 z m 442.23899 73.91649 c 0.14355 -47.34593 0.0735 -86.27093 -0.15566 -86.5 C 441.85417 243.18742 386.84167 243 319.83333 243 L 198 243 l 0 86.5 0 86.5 121.98899 0 121.98898 0 0.26102 -86.08351 z M 241.5 385.90019 c -5.5 -4.99828 -10.30742 -9.38308 -10.68316 -9.74399 -0.37574 -0.36091 1.04314 -2.67299 3.15306 -5.13795 l 3.83621 -4.48175 7.18331 6.38414 7.1833 6.38414 16.39557 -16.37298 16.39557 -16.37298 4.03735 3.94236 4.03735 3.94236 -20.26013 20.27823 C 261.63535 385.8748 252.28918 394.99729 252.00915 394.99399 251.72912 394.99068 247 390.89847 241.5 385.90019 Z M 294 381 l 0 -10 58 0 58 0 0 10 0 10 -58 0 -58 0 0 -10 z M 240.76411 322.70414 230.02823 312.5 l 4.0652 -4.29631 4.0652 -4.2963 6.99185 6.59576 6.99186 6.59576 16.17883 -16.57021 16.17883 -16.57022 4.35599 4.15575 4.35599 4.15574 -20.34684 20.36501 c -11.19077 11.20076 -20.57596 20.34438 -20.85599 20.31916 -0.28003 -0.0252 -5.3403 -4.63772 -11.24504 -10.25 z M 294 318.5 l 0 -9.5 58 0 58 0 0 9.5 0 9.5 -58 0 -58 0 0 -9.5 z m -64 -54 0 -7.5 90 0 90 0 0 7.5 0 7.5 -90 0 -90 0 0 -7.5 z m -37 35.46862 c 0 -35.17683 -0.27355 -45.10591 -1.25 -45.37191 -15.33021 -4.17625 -21.33497 -8.45186 -26.75 -19.04694 -3.15059 -6.16447 -3.5 -7.65893 -3.5 -14.96997 0 -7.16089 0.38888 -8.91179 3.28675 -14.79819 7.88934 -16.02552 25.87263 -22.99661 42.89475 -16.62782 9.86015 3.68916 18.80083 14.51471 20.72664 25.09621 l 0.68249 3.75 45.45468 0 45.45469 0 0 -11 0 -11 -17.41847 0 -17.41847 0 -2.12849 -6.25 c -1.17067 -3.4375 -3.20178 -8.275 -4.51356 -10.75 l -2.38507 -4.5 12.43044 -12.51231 12.43043 -12.51231 -17.49625 -17.47483 -17.49626 -17.47483 -12.39152 12.36177 -12.39153 12.36177 -6.38571 -3.0171 c -3.51214 -1.65941 -8.27682 -3.58369 -10.58817 -4.27619 l -4.20246 -1.25909 -0.27245 -17.59844 L 219.5 95.5 l -24.5 0 -24.5 0 -0.27246 17.59844 -0.27245 17.59844 -4.08253 1.22316 c -2.24539 0.67273 -6.99343 2.61361 -10.55121 4.31306 l -6.46868 3.08991 -12.42848 -12.39864 -12.42849 -12.39865 -17.49626 17.47483 -17.496254 17.47483 12.374994 12.51231 12.37499 12.51231 -3.02578 6.5 c -1.66418 3.575 -3.57041 8.3 -4.23607 10.5 l -1.21029 4 -17.640516 0.27307 L 70 196.04615 70 220.5 l 0 24.45385 17.580272 0.27308 17.580268 0.27307 2.28173 6.52758 c 1.25495 3.59016 3.21385 8.31516 4.3531 10.5 l 2.07137 3.97242 -12.43178 12.51231 -12.431774 12.51231 17.496254 17.47483 17.49626 17.47483 12.43627 -12.40642 12.43628 -12.40641 7.8874 3.60543 c 4.33808 1.98299 9.09272 3.90794 10.56588 4.27768 l 2.67847 0.67226 0 17.39159 0 17.39159 11.5 0 11.5 0 0 -45.03138 z M 442.5 229.5 l 0 -6 -122.25 -0.25397 -122.25 -0.25396 0 6.50793 0 6.50793 122.25 -0.25396 122.25 -0.25397 0 -6 z"/>
+                        </Canvas>
+                    </Viewbox>
+                    <Label Content="NSudo" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="143,5,0,0" FontSize="21.333"/>
+                    <Label Content="版本 4.0.1_Alpha&#xD;&#xA;(c) 2016 M2-Team. All rights reserved.&#xD;&#xA;捐赠支付宝账号: wxh32lkk@live.cn&#xD;&#xA;官方QQ群: 466078631" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="143,42,0,0"/>
+                    <TextBlock Margin="10,143,0,0" TextWrapping="Wrap" Text="感谢boyangpangzi、cjy__05、mhxkx、NotePad、tangmigoId、wondersnefu、xy137425740、月光光在资金上的大力支持（按照字母排序）" VerticalAlignment="Top" HorizontalAlignment="Left"/>
+                </Grid>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</Window>

@@ -5,6 +5,7 @@
 #pragma comment(linker, "/nodefaultlib:msvcrt.lib")
 #pragma comment(linker, "/nodefaultlib:msvcprt.lib")
 
+//#pragma comment(lib,"ntdllp.lib")
 #pragma comment(lib,"msvcrt_vista.lib")
 #pragma comment(lib,"msvcrt_140.lib")
 
