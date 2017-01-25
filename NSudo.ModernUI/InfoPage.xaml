@@ -1,0 +1,60 @@
+﻿<Page x:Class="NSudo.ModernUI.InfoPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:NSudo.ModernUI"
+      mc:Ignorable="d" 
+      Width="320"
+      Height="420" 
+      Title="InfoPage">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="128"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="138"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Viewbox Stretch="Uniform" Height="128" Width="128" Grid.Column="1" Grid.Row="0" VerticalAlignment="Bottom">
+            <Canvas Width="256" Height="256" >
+                <Path Fill="#FF2481D2"
+                      Data="M 42.34 78.00 C 41.43 73.67 35.32 71.60 38.62 66.00 40.55 62.72 48.90 53.88 53.00 54.74 57.95 55.78 57.86 61.05 65.00 58.80 68.26 57.77 73.01 56.27 74.40 52.89 75.43 50.40 74.49 46.54 76.02 44.60 77.37 42.90 80.05 43.04 82.00 43.00 84.82 42.95 94.48 42.50 96.40 44.02 99.23 46.26 96.73 51.21 99.60 54.50 101.68 56.90 109.96 60.24 113.00 59.02 115.87 57.87 118.27 53.95 122.00 54.74 126.10 55.62 137.02 66.53 135.60 71.00 134.64 74.04 130.60 76.27 130.54 79.28 130.48 82.08 134.46 90.27 137.13 91.40 139.86 92.55 144.10 91.22 145.98 93.60 147.30 95.27 147.00 99.86 147.00 102.00 147.00 102.00 105.00 102.00 105.00 102.00 102.66 80.04 72.20 79.79 68.15 99.91 66.86 106.34 69.32 113.26 74.18 117.61 81.18 123.86 84.92 118.92 85.00 130.00 85.00 130.00 85.00 164.00 85.00 164.00 82.17 164.00 77.07 164.68 75.60 161.69 74.41 159.26 75.83 155.20 73.40 152.56 73.40 152.56 60.00 146.00 60.00 146.00 58.66 148.81 56.47 152.49 53.00 152.95 49.31 153.44 39.43 143.27 38.08 140.00 36.09 135.20 41.52 132.91 42.34 129.00 42.90 126.37 39.96 122.11 39.00 116.00 35.99 116.00 29.77 116.58 27.60 114.40 25.26 112.07 25.98 103.36 26.00 100.00 26.02 97.87 25.74 94.49 27.60 93.02 29.45 91.56 36.46 92.00 39.00 92.00 39.73 83.92 43.03 81.26 42.34 78.00 Z M 228.00 105.00 C 228.00 105.00 228.00 111.00 228.00 111.00 228.00 111.00 88.00 111.00 88.00 111.00 88.00 111.00 88.00 105.00 88.00 105.00 88.00 105.00 228.00 105.00 228.00 105.00 Z M 228.00 115.00 C 228.00 115.00 228.00 211.00 228.00 211.00 228.00 211.00 88.00 211.00 88.00 211.00 88.00 211.00 88.00 115.00 88.00 115.00 88.00 115.00 228.00 115.00 228.00 115.00 Z M 98.00 128.00 C 98.00 128.00 98.00 138.00 98.00 138.00 98.00 138.00 217.00 138.00 217.00 138.00 217.00 138.00 217.00 128.00 217.00 128.00 217.00 128.00 98.00 128.00 98.00 128.00 Z M 107.00 164.00 C 107.00 164.00 103.00 160.00 103.00 160.00 103.00 160.00 100.00 164.00 100.00 164.00 100.00 164.00 108.00 171.00 108.00 171.00 108.00 171.00 123.00 155.00 123.00 155.00 123.00 155.00 120.00 152.00 120.00 152.00 120.00 152.00 107.00 164.00 107.00 164.00 Z M 133.00 155.00 C 133.00 155.00 133.00 168.00 133.00 168.00 133.00 168.00 216.00 168.00 216.00 168.00 216.00 168.00 216.00 155.00 216.00 155.00 216.00 155.00 133.00 155.00 133.00 155.00 Z M 107.00 192.00 C 107.00 192.00 103.00 188.00 103.00 188.00 103.00 188.00 100.00 192.00 100.00 192.00 100.00 192.00 108.00 199.00 108.00 199.00 108.00 199.00 123.00 183.00 123.00 183.00 123.00 183.00 120.00 180.00 120.00 180.00 120.00 180.00 107.00 192.00 107.00 192.00 Z M 133.00 184.00 C 133.00 184.00 133.00 197.00 133.00 197.00 133.00 197.00 216.00 197.00 216.00 197.00 216.00 197.00 216.00 184.00 216.00 184.00 216.00 184.00 133.00 184.00 133.00 184.00 Z"/>
+            </Canvas>
+        </Viewbox>
+
+        <StackPanel Grid.Column="0"  Grid.Row="0" VerticalAlignment="Bottom">
+            <TextBlock FontSize="24" Text="NSudo"/>
+            <TextBlock FontSize="16" Text="版本 5.0.1701 (Alpha)"/>
+        </StackPanel>
+
+        <StackPanel Grid.Column="0"  Grid.Row="1" Grid.ColumnSpan="2">
+            <TextBlock FontSize="16" TextWrapping="Wrap" Text="(c) 2017 M2-Team. All rights reserved."/>
+            <TextBlock FontSize="16"/>
+            <TextBlock FontSize="16" TextWrapping="Wrap" Text="捐赠支付宝账号: wxh32lkk@live.cn"/>
+            <TextBlock FontSize="16" TextWrapping="Wrap" Text="官方QQ群: 466078631"/>
+            <TextBlock FontSize="16"/>
+            <TextBlock FontSize="16" TextWrapping="Wrap" Text="感谢以下用户在资金上的大力支持（按照字母排序）"/>
+            <TextBlock FontSize="16" TextWrapping="Wrap" Text="boyangpangzi、cjy__05、mhxkx、NotePad、tangmigoId、wondersnefu、xy137425740、月光光"/>
+            <TextBlock FontSize="16"/>
+            <TextBlock FontSize="16">
+                <Hyperlink NavigateUri="http://shang.qq.com/wpa/qunwpa?idkey=29940ed5c8b2363efcf8a1c376f280c4a46c4e356d5533af48541418ff13ada2"
+                           RequestNavigate="Hyperlink_RequestNavigate">
+                    官方群: 466078631
+                </Hyperlink>
+            </TextBlock>
+
+            <TextBlock FontSize="16">
+                <Hyperlink NavigateUri="https://github.com/M2Team/NSudo"
+                           RequestNavigate="Hyperlink_RequestNavigate">
+                项目首页: github.com/M2Team/NSudo
+                </Hyperlink>
+            </TextBlock>
+
+        </StackPanel>
+        
+        
+    </Grid>
+</Page>

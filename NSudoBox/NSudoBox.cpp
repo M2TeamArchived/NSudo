@@ -10,8 +10,9 @@ The MIT License
 维护者列表：
 Mouri_Naruto (Mouri_Naruto@Outlook.com)
 修订日志：
-1.2 (2017-01-13)
+1.2 (2017-01-14)
 1.从NSudo.AppContainer项目fork出来
+2.增加 SuCreateSandboxJobObject API
 
 1.1 (2017-01-05)
 1.为了解决系统的兼容性问题，从NSudoSDK项目独立出来
@@ -839,6 +840,14 @@ status = pcat(hToken, &SecurityCapabilities, &hNewToken);*/
 //*****************************************************************************
 
 // DLL入口点
+#pragma region DllMain
+
+//#pragma comment(linker, "/ENTRY:DllMain") 
+
+#pragma comment(linker, "/merge:.pdata=.rdata")
+#pragma comment(linker, "/merge:.gfids=.rdata")
+
+// DLL入口点
 BOOL APIENTRY DllMain(HMODULE hModule,
 	DWORD  ul_reason_for_call,
 	LPVOID lpReserved
@@ -854,3 +863,5 @@ BOOL APIENTRY DllMain(HMODULE hModule,
 	}
 	return TRUE;
 }
+
+#pragma endregion

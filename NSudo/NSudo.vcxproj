@@ -79,24 +79,26 @@
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)Build\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)Temp\$(Configuration)\NSudo\</IntDir>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(NETFXKitsDir)Include\um</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)Build\$(Configuration)64\</OutDir>
     <IntDir>$(SolutionDir)Temp\$(Configuration)64\NSudo\</IntDir>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(NETFXKitsDir)Include\um</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)Build\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)Temp\$(Configuration)\NSudo\</IntDir>
-    <IncludePath>$(VSInstallDir)VC\atlmfc\include;$(WindowsSDK_IncludePath);$(SolutionDir)VC-LTL\VC140;$(SolutionDir)VC-LTL</IncludePath>
+    <IncludePath>$(VSInstallDir)VC\atlmfc\include;$(WindowsSDK_IncludePath);$(SolutionDir)VC-LTL\VC140;$(SolutionDir)VC-LTL;$(NETFXKitsDir)Include\um</IncludePath>
     <LibraryPath>$(SolutionDir)VC-LTL\$(PlatformShortName);$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)Build\$(Configuration)64\</OutDir>
     <IntDir>$(SolutionDir)Temp\$(Configuration)64\NSudo\</IntDir>
-    <IncludePath>$(VSInstallDir)VC\atlmfc\include;$(WindowsSDK_IncludePath);$(SolutionDir)VC-LTL\VC140;$(SolutionDir)VC-LTL</IncludePath>
+    <IncludePath>$(VSInstallDir)VC\atlmfc\include;$(WindowsSDK_IncludePath);$(SolutionDir)VC-LTL\VC140;$(SolutionDir)VC-LTL;$(NETFXKitsDir)Include\um</IncludePath>
     <LibraryPath>$(SolutionDir)VC-LTL\$(PlatformShortName);$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
