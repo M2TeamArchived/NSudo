@@ -1,18 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
+﻿using System.Windows;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace NSudo.ModernUI
 {
@@ -26,28 +13,20 @@ namespace NSudo.ModernUI
             InitializeComponent();
         }
 
-        private void button_Click(object sender, RoutedEventArgs e)
+        private void Tilte_MouseMove(object sender, MouseEventArgs e)
         {
-            MessageBox.Show(
-                "NSudo.WPF load by NSudo.Win32",
-                "NSudo",
-                MessageBoxButton.OK,
-                MessageBoxImage.Information);
+            if (e.LeftButton == MouseButtonState.Pressed)
+                DragMove();
         }
 
-        [DllImport("NSudo.exe")]
-        private static extern void Test();
-
-
-        private void btnRun_Click(object sender, RoutedEventArgs e)
+        private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
-            Test();
+            Close();
+        }
 
-            MessageBox.Show(
-                System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName,
-                "NSudo",
-                MessageBoxButton.OK,
-                MessageBoxImage.Information);
+        private void MinimizeButton_Click(object sender, RoutedEventArgs e)
+        {   
+            WindowState = WindowState.Minimized;
         }
     }
 }

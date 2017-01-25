@@ -665,6 +665,28 @@ int main()
 	CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
 
 	//*************************************************************************
+	
+	/*HANDLE hToken = nullptr, hDuplicatedToken=nullptr;
+
+	LogonUserExW(L"Test", L"MouriNaruto-PC", L"123", LOGON32_LOGON_INTERACTIVE, LOGON32_PROVIDER_DEFAULT, &hToken, nullptr, nullptr, nullptr, nullptr);
+
+	wchar_t szCMD[] = L"cmd /k";
+
+	STARTUPINFOW StartupInfo = { 0 };
+	PROCESS_INFORMATION ProcessInfo = { 0 };
+
+	SuDuplicateToken(&hDuplicatedToken, hToken);
+
+	if (CreateProcessAsUserW(
+		hDuplicatedToken, NULL, szCMD, nullptr, nullptr, FALSE,
+		CREATE_NEW_CONSOLE,
+		nullptr, nullptr, &StartupInfo, &ProcessInfo))
+	{
+
+	}
+	HRESULT hr = (HRESULT)GetLastError();
+
+	hr = (HRESULT)GetLastError();*/
 
 	//SuCLRExecuteAssembly(L"v4.0.30319", L"NSudo.ModernUI.dll",L"NSudo.ModernUI.Program",L"ModernUIEntry",L"");
 	
