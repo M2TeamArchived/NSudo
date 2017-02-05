@@ -21,8 +21,10 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documents", "Documents", "{6600A859-6064-4644-AC11-49DB1755B58A}"
 	ProjectSection(SolutionItems) = preProject
 		Changelog.md = Changelog.md
-		License.md = License.md
+		Documents\License.txt = Documents\License.txt
+		Documents\PHNT Library Permission.msg = Documents\PHNT Library Permission.msg
 		Readme.md = Readme.md
+		Documents\Thanks.txt = Documents\Thanks.txt
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NTIShell", "NTIShell\NTIShell.vcxproj", "{97785B40-6011-4F43-ADCD-6BC83CB9A6F9}"
