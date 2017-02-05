@@ -21,9 +21,10 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)M2.Base.hpp" />
     <ClInclude Include="$(MSBuildThisFileDirectory)M2.ComHelper.hpp" />
     <ClInclude Include="$(MSBuildThisFileDirectory)M2.NSudo.hpp" />
-    <ClInclude Include="$(MSBuildThisFileDirectory)M2.Native.hpp">
+    <ClInclude Include="$(MSBuildThisFileDirectory)M2.NativeAPI.h">
       <FileType>CppHeader</FileType>
     </ClInclude>
-    <ClInclude Include="$(MSBuildThisFileDirectory)M2.WinSta.hpp" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)M2.NSudoLib.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)M2.WindowsStationAPI.h" />
   </ItemGroup>
 </Project>

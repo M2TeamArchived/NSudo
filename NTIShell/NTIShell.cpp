@@ -3,8 +3,6 @@
 
 #include "stdafx.h"
 
-#pragma comment(linker, "/ENTRY:EntryPoint") 
-
 using namespace M2;
 
 wchar_t AppTitle[] = L"NTIShell 4.2 (Build 1612)";
@@ -27,7 +25,7 @@ bool SuRunCommandShell(
 	//生成命令行
 	_swprintf_c(
 		szBuf, 512, 
-		L"%s\\cmd.exe /k title %s && echo %s && echo © 2016 M2-Team. All rights reserved.", 
+		L"%s\\cmd.exe /k title %s && echo %s && echo (c) 2016 M2-Team. All rights reserved.", 
 		szSystemDir, AppTitle, AppTitle);
 
 	//启动进程
@@ -77,8 +75,17 @@ inline void SuMessageBox(
 	MessageBoxW(nullptr, lpText, AppTitle, 0);
 }
 
-void EntryPoint()
+int WINAPI wWinMain(
+	_In_ HINSTANCE hInstance,
+	_In_opt_ HINSTANCE hPrevInstance,
+	_In_ LPWSTR lpCmdLine,
+	_In_ int nShowCmd)
 {
+	IIntendToIgnoreThisVariable(hInstance);
+	IIntendToIgnoreThisVariable(hPrevInstance);
+	IIntendToIgnoreThisVariable(lpCmdLine);
+	IIntendToIgnoreThisVariable(nShowCmd);
+
 	DWORD dwTIPID = (DWORD)-1;
 	DWORD dwSessionID = M2GetCurrentSessionID();
 	HANDLE hProcessToken = nullptr;
@@ -92,7 +99,7 @@ void EntryPoint()
 	}
 
 	//启动TrustedInstaller服务并获取SID
-	dwTIPID = M2StartService(L"TrustedInstaller");
+	dwTIPID = SuStartService(L"TrustedInstaller");
 	if (dwTIPID == -1)
 	{
 		SuMessageBox(L"M2StartService() Failed");
@@ -142,6 +149,19 @@ FuncEnd:
 	NtClose(hProcessToken);
 	SuRevertImpersonate();
 
-	RtlExitUserProcess((NTSTATUS)0);
+	return 0;
 }
 
+#ifndef _DEBUG
+#pragma comment(linker, "/ENTRY:EntryPoint") 
+
+void EntryPoint()
+{
+	RtlExitUserProcess((NTSTATUS)wWinMain(
+		GetModuleHandleW(nullptr),
+		nullptr,
+		nullptr,
+		SW_SHOWNORMAL));
+}
+
+#endif

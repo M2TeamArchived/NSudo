@@ -8,6 +8,14 @@
       Width="320"
       Height="420" 
       Title="InfoPage">
+    <Page.Resources>
+        <ResourceDictionary>
+            <!--这个节点就是配置默认语言的-->
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/NSudo.ModernUI;component/Languages/zh-cn.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Page.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
@@ -33,12 +41,11 @@
         <StackPanel Grid.Column="0"  Grid.Row="1" Grid.ColumnSpan="2">
             <TextBlock FontSize="16" TextWrapping="Wrap" Text="(c) 2017 M2-Team. All rights reserved."/>
             <TextBlock FontSize="16"/>
-            <TextBlock FontSize="16" TextWrapping="Wrap" Text="捐赠支付宝账号: wxh32lkk@live.cn"/>
-            <TextBlock FontSize="16" TextWrapping="Wrap" Text="官方QQ群: 466078631"/>
-            <TextBlock FontSize="16"/>
             <TextBlock FontSize="16" TextWrapping="Wrap" Text="感谢以下用户在资金上的大力支持（按照字母排序）"/>
             <TextBlock FontSize="16" TextWrapping="Wrap" Text="boyangpangzi、cjy__05、mhxkx、NotePad、tangmigoId、wondersnefu、xy137425740、月光光"/>
             <TextBlock FontSize="16"/>
+            <TextBlock FontSize="16" TextWrapping="Wrap" Text="捐赠支付宝账号: wxh32lkk@live.cn"/>
+            <TextBlock FontSize="16" TextWrapping="Wrap" Text="{DynamicResource OfficalQQGroupDescription}"/>
             <TextBlock FontSize="16">
                 <Hyperlink NavigateUri="http://shang.qq.com/wpa/qunwpa?idkey=29940ed5c8b2363efcf8a1c376f280c4a46c4e356d5533af48541418ff13ada2"
                            RequestNavigate="Hyperlink_RequestNavigate">
