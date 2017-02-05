@@ -1,0 +1,42 @@
+﻿感谢以下人士的大力支持(按字母顺序排列)
+Thank the following people for the strong support(In alphabetical order)
+
+反馈者 Advicers
+===============================================================================
+20011010wo
+4071E95D-A09B-4AA3-8008
+abbodi1406
+imadlatch
+kCaRhC卡壳
+Microsoft_Mars
+NotePad
+th1r5bvn23
+老九
+さくら
+
+贡献者 Contributors
+===============================================================================
+20011010wo
+Bill
+Eugene Wang J.y 
+Microsoft_Mars
+
+原型作者 Prototype author
+===============================================================================
+raymai97
+
+赞助者 Sponsors
+===============================================================================
+boyangpangzi
+cjy__05
+mhxkx
+NotePad
+tangmigoId
+wondersnefu
+xy137425740
+月光光
+
+第三方库作者 Third Party Libraries Authors
+===============================================================================
+mingkuang
+Wen Jia Liu

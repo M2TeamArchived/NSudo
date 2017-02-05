@@ -60,9 +60,7 @@ CommandLine=notepad
 ```
 如果要使用引号嵌套的话；请加转义符，例如：```NSudo -u:t "cmd /c ren \"E:\班级视频 《ONE》\d.txt\" x.exe"```
 
-## NSudo 许可协议 (NSudo License)
-[NSudo 许可协议 (简体中文)](https://github.com/M2Team/NSudo/wiki/NSudo-%E8%AE%B8%E5%8F%AF%E5%8D%8F%E8%AE%AE-(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87))
-[NSudo License (English)](https://github.com/M2Team/NSudo/wiki/NSudo-License-(English))
+## NSudo 许可协议参见 Documents\\License.txt
 
 ## 更新日志 Changelogs
 参见 ```[Changelog.md](https://github.com/M2Team/NSudo/blob/master/Changelog.md "Changelog.md")```
@@ -79,8 +77,6 @@ CommandLine=notepad
 ## 交流 Communication
 如果碰到什么问题，可以在NSudo官方群（QQ群：```466078631```）探讨
 
-## 感谢名单 (Thanks)
-[感谢名单 (简体中文)](https://github.com/M2Team/NSudo/wiki/%E6%84%9F%E8%B0%A2%E5%90%8D%E5%8D%95-(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87))
-[Thanks (English)](https://github.com/M2Team/NSudo/wiki/Thanks-(English))
+## 感谢名单参见 Documents\\Thanks.txt
 
 ##Have a good time -- M2-Team参上
