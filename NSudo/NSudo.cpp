@@ -534,7 +534,6 @@ HRESULT WINAPI SuCLRExecuteAssembly(
 	CLRCreateInstanceFnPtr pCLRCreateInstance = nullptr;
 
 	status = M2LoadDll(L"mscoree.dll", pDllModule);
-	
 	if (!NT_SUCCESS(status))
 	{
 		hr = __HRESULT_FROM_WIN32(RtlNtStatusToDosError(status));
@@ -647,7 +646,21 @@ EXTERN_C void WINAPI Test()
 	SuShowAboutDialog(nullptr,nullptr);
 }
 
+typedef struct _NSUDO_SESSION_HANDLE
+{
+	
+
+} NSUDO_SESSION_HANDLE, *PNSUDO_SESSION_HANDLE;
+
+NTSTATUS SuCreateInstance()
+{
+	return STATUS_SUCCESS;
+}
+
 #pragma warning(disable:4191)
+
+#include <wincred.h>
+#pragma comment(lib, "Credui.lib")
 
 int main()
 {	
@@ -688,10 +701,57 @@ int main()
 
 	hr = (HRESULT)GetLastError();*/
 
-	//SuCLRExecuteAssembly(L"v4.0.30319", L"NSudo.ModernUI.dll",L"NSudo.ModernUI.Program",L"ModernUIEntry",L"");
+	SuCLRExecuteAssembly(L"v4.0.30319", L"NSudo.ModernUI.exe",L"NSudo.ModernUI.Program",L"ModernUIEntry",L"");
 	
 	//*************************************************************************
+
+	CREDUI_INFOW UiInfo = { 0 };
+
+	UiInfo.cbSize = sizeof(CREDUI_INFOW);
+	UiInfo.pszCaptionText = L"NSudo";
+	UiInfo.pszMessageText = L"Ask you for a credential";
+
+	DWORD dwAuthError = ERROR_SUCCESS;
+	ULONG ulAuthPackage = 0;
+	LPVOID pvOutAuthBuffer = nullptr;
+	ULONG ulOutAuthBufferSize = 0;
+	BOOL save = FALSE;
+
+	CredUIPromptForWindowsCredentialsW(
+		&UiInfo,
+		dwAuthError,
+		&ulAuthPackage,
+		nullptr,
+		0,
+		&pvOutAuthBuffer,
+		&ulOutAuthBufferSize,
+		&save,
+		CREDUIWIN_GENERIC);
+
+	WCHAR wszUsername[CREDUI_MAX_USERNAME_LENGTH + 1];
+	DWORD cchUsername = _countof(wszUsername);
+	WCHAR wszPassword[CREDUI_MAX_PASSWORD_LENGTH + 1];
+	DWORD cchPassword = _countof(wszPassword);
+	WCHAR wszDomain[CRED_MAX_DOMAIN_TARGET_NAME_LENGTH + 1];
+	DWORD cchDomain = 0;
+
+	// Attempt to decrypt the user's password
+	CredUnPackAuthenticationBufferW(
+		CRED_PACK_PROTECTED_CREDENTIALS,
+		pvOutAuthBuffer,
+		ulOutAuthBufferSize,
+		wszUsername,
+		&cchUsername,
+		wszDomain,
+		&cchDomain,
+		wszPassword,
+		&cchPassword);
+
+	RtlSecureZeroMemory(pvOutAuthBuffer, ulOutAuthBufferSize);
+
 	
+
+
 	SuInitialize();
 
 	if (!g_pNSudo) return 1;

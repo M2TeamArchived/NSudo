@@ -21,26 +21,13 @@
     <ClInclude Include="stdafx.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="resource.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="NSudoBox.cpp">
+    <ClCompile Include="NSudoLib.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="NSudoBox.def">
-      <Filter>源文件</Filter>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="NSudoBox.rc">
-      <Filter>资源文件</Filter>
-    </ResourceCompile>
   </ItemGroup>
 </Project>

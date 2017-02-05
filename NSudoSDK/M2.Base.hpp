@@ -17,10 +17,10 @@
 #include <windows.h>
 
 // 用户模式本机API调用及其数据结构定义
-#include "M2.Native.hpp"
+#include "M2.NativeAPI.h"
 
 // 窗口站管理调用及其数据结构定义
-#include "M2.WinSta.hpp"
+#include "M2.WindowsStationAPI.h"
 
 // COM类定义
 #include "M2.ComHelper.hpp"
@@ -261,69 +261,6 @@ namespace M2
 		//指针内部变量
 		void *m_Ptr = nullptr;
 	};
-
-#pragma endregion
-
-	// 服务
-#pragma region Services
-
-	//启动一个服务并返回服务进程ID
-	static DWORD WINAPI M2StartService(
-		_In_ LPCWSTR lpServiceName)
-	{
-		DWORD dwPID = (DWORD)-1;
-		SERVICE_STATUS_PROCESS ssStatus;
-		SC_HANDLE schSCManager = nullptr;
-		SC_HANDLE schService = nullptr;
-		DWORD dwBytesNeeded;
-		bool bStarted = false;
-
-		// 打开SCM管理器句柄
-		schSCManager = OpenSCManagerW(nullptr, nullptr, GENERIC_EXECUTE);
-		if (!schSCManager) goto FuncEnd;
-
-		// 打开服务句柄
-		schService = OpenServiceW(
-			schSCManager, lpServiceName,
-			SERVICE_START | SERVICE_QUERY_STATUS | SERVICE_STOP);
-		if (!schService) goto FuncEnd;
-
-		// 查询状态
-		while (QueryServiceStatusEx(
-			schService,
-			SC_STATUS_PROCESS_INFO,
-			(LPBYTE)&ssStatus,
-			sizeof(SERVICE_STATUS_PROCESS),
-			&dwBytesNeeded))
-		{
-			// 如果服务处于停止状态并且没有调用StartServiceW
-			if (ssStatus.dwCurrentState == SERVICE_STOPPED && !bStarted)
-			{
-				bStarted = true;
-				if (StartServiceW(schService, 0, nullptr)) continue;
-			}
-			// 如果服务在加载和卸载过程中，你需要等待
-			else if (ssStatus.dwCurrentState == SERVICE_START_PENDING
-				|| ssStatus.dwCurrentState == SERVICE_STOP_PENDING)
-			{
-				Sleep(ssStatus.dwWaitHint);
-				continue;
-			}
-			// 在其他情况下break
-			break;
-		}
-
-		// 如果服务启用或正在运行，则返回服务对应进程PID
-		if (ssStatus.dwCurrentState != SERVICE_STOPPED &&
-			ssStatus.dwCurrentState != SERVICE_STOP_PENDING)
-			dwPID = ssStatus.dwProcessId;
-
-	FuncEnd: //退出时关闭句柄并返回
-
-		if (schService) CloseServiceHandle(schService);
-		if (schSCManager) CloseServiceHandle(schSCManager);
-		return dwPID;
-	}
 
 #pragma endregion
 
