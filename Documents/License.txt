@@ -16,8 +16,8 @@ NSudo is distributed under the MIT License, with the following exception:
    thank for the PHNT library author and want to give others convenience. So 
    the following header files can be used freely.
 
-   //NSudoSDK//M2.NSudoLib.h
-   //NSudoSDK//M2.WindowsStationAPI.h
+     //NSudoSDK//M2.NSudoLib.h
+     //NSudoSDK//M2.WindowsStationAPI.h
 
    你可以从 PHNT Library Permission.msg 查看许可邮件内容。
    You can view promission email content from PHNT Library Permission.msg.
@@ -47,13 +47,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
-
-
-
-
-
-
-
-
-
-
