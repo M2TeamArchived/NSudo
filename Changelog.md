@@ -2,6 +2,7 @@
 
 **NSudo 5.0**
 - 32位版本取消对SSE和SSE2指令集的依赖（为了保证完美的兼容性）
+- (未修复)在Windows 10 RS2下以System及衍生令牌运行控制台应用出现乱码(感谢 diy371)
 
 **NSudo 4.2**
 - 引入新NSudoSDK API并且对已有NSudoSDK API进行改善

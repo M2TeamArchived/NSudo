@@ -662,10 +662,12 @@ NTSTATUS SuCreateInstance()
 #include <wincred.h>
 #pragma comment(lib, "Credui.lib")
 
+
+
 int main()
 {	
 	wprintf(
-		L"M2-Team NSudo [Version 5.0.1701]\n"
+		L"M2-Team NSudo [Version 5.0.1702]\n"
 		L"(C) 2017 M2-Team. All Rights Reserved.\n"
 		L"\n");
 
@@ -701,11 +703,11 @@ int main()
 
 	hr = (HRESULT)GetLastError();*/
 
-	SuCLRExecuteAssembly(L"v4.0.30319", L"NSudo.ModernUI.exe",L"NSudo.ModernUI.Program",L"ModernUIEntry",L"");
+	//SuCLRExecuteAssembly(L"v4.0.30319", L"NSudo.ModernUI.exe",L"NSudo.ModernUI.Program",L"ModernUIEntry",L"");
 	
 	//*************************************************************************
 
-	CREDUI_INFOW UiInfo = { 0 };
+	/*CREDUI_INFOW UiInfo = { 0 };
 
 	UiInfo.cbSize = sizeof(CREDUI_INFOW);
 	UiInfo.pszCaptionText = L"NSudo";
@@ -747,9 +749,9 @@ int main()
 		wszPassword,
 		&cchPassword);
 
-	RtlSecureZeroMemory(pvOutAuthBuffer, ulOutAuthBufferSize);
+	RtlSecureZeroMemory(pvOutAuthBuffer, ulOutAuthBufferSize);*/
 
-	
+
 
 
 	SuInitialize();

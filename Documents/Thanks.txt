@@ -16,14 +16,17 @@ th1r5bvn23
 
 贡献者 Contributors
 ===============================================================================
-20011010wo
-Bill
-Eugene Wang J.y 
-Microsoft_Mars
+20011010wo (FTP Maintainer)
+Bill (New Style for Readme and Changelog)
+Eugene Wang J.y (Traditional Chinese Translator)
+Microsoft_Mars (Japanese Translator)
+mingkuang (3rd-Party Libraries Author)(VC-LTL)
+Mouri_Naruto (NSudo's Main Developer)
+Wen Jia Liu (3rd-Party Libraries Author)(PHNT library)
 
 原型作者 Prototype author
 ===============================================================================
-raymai97
+raymai97 (SuperCMD's author)
 
 赞助者 Sponsors
 ===============================================================================
@@ -35,8 +38,3 @@ tangmigoId
 wondersnefu
 xy137425740
 月光光
-
-第三方库作者 Third Party Libraries Authors
-===============================================================================
-mingkuang
-Wen Jia Liu
