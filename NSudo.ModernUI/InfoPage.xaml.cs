@@ -36,5 +36,23 @@ namespace NSudo.ModernUI
 
             e.Handled = true;
         }
+
+        private void NSudoOpenOfficalQQGroupEvent(object sender, MouseButtonEventArgs e)
+        {
+            try
+            {
+                Process.Start(new ProcessStartInfo("http://shang.qq.com/wpa/qunwpa?idkey=29940ed5c8b2363efcf8a1c376f280c4a46c4e356d5533af48541418ff13ada2"));
+            }
+            catch (Exception) { }
+        }
+
+        private void NSudoOpenProjectWebSiteEvent(object sender, MouseButtonEventArgs e)
+        {
+            try
+            {
+                Process.Start(new ProcessStartInfo("https://github.com/M2Team/NSudo"));
+            }
+            catch (Exception) { }
+        }
     }
 }

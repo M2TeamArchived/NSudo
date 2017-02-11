@@ -25,8 +25,7 @@
 // COM类定义
 #include "M2.ComHelper.hpp"
 
-// 用宏实现内联GetLastError()
-#define GetLastError() NtCurrentTeb()->LastErrorValue
+
 
 // 用宏实现内联NativeAPI
 #ifdef NATIVEAPI
@@ -126,6 +125,12 @@ namespace M2
 	inline DWORD M2GetCurrentSessionID()
 	{
 		return M2GetKUserSharedData()->ActiveConsoleId;
+	}
+
+	// GetLastError()的未公开内联实现
+	inline DWORD M2GetLastError()
+	{
+		return NtCurrentTeb()->LastErrorValue;
 	}
 
 	// 初始化OBJECT_ATTRIBUTES结构

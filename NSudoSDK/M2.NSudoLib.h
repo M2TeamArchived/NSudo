@@ -181,4 +181,11 @@ namespace M2
 	// 启动一个服务并返回服务进程ID
 	DWORD SuStartService(
 		_In_ LPCWSTR lpServiceName);
+
+	// 获取进程信息（该函数自动分配的内存需要使用M2HeapFree释放）
+	NTSTATUS SuQuerySystemProcessInformation(
+		_Out_ PSYSTEM_PROCESS_INFORMATION *ppSystemProcessInformation);
+
+	// 模仿System令牌
+	NTSTATUS SuImpersonateAsSystem();
 }

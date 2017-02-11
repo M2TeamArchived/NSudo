@@ -751,9 +751,6 @@ int main()
 
 	RtlSecureZeroMemory(pvOutAuthBuffer, ulOutAuthBufferSize);*/
 
-
-
-
 	SuInitialize();
 
 	if (!g_pNSudo) return 1;
