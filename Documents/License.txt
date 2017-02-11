@@ -18,10 +18,9 @@ NSudo is distributed under the MIT License, with the following exception:
 
      //NSudoSDK//M2.NSudoLib.h
      //NSudoSDK//M2.WindowsStationAPI.h
-
-   你可以从 PHNT Library Permission.msg 查看许可邮件内容。
-   You can view promission email content from PHNT Library Permission.msg.
-
+   
+   你可以从 Windows Undocument API Definations.txt 了解更多信息。
+   For more information, you can open Windows Undocument API Definations.txt.
 
 附录 - MIT协议
 Appendix - The MIT License

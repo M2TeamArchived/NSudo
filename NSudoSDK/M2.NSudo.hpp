@@ -532,73 +532,7 @@ namespace M2
 		long m_dwAvailableLevel = -1;
 		CToken *m_pCurrentToken = nullptr;
 		CToken *m_SystemToken = nullptr;
-	};
-
-	//****************************************************************
-
-	// System令牌模拟
-	static NTSTATUS SuImpersonateAsSystem()
-	{
-		NTSTATUS status = 0;
-
-		// 获取当前会话ID下的winlogon的PID
-		DWORD dwWinLogonPID = (DWORD)-1;
-
-		// 初始化进程遍历
-		CProcessSnapshot Snapshot(&status);
-		if (!NT_SUCCESS(status)) return status;
-
-		// 遍历进程寻找winlogon进程并获取PID
-		PSYSTEM_PROCESS_INFORMATION pSPI = nullptr;
-		while (Snapshot.Next(&pSPI))
-		{
-			if (pSPI->SessionId == M2GetCurrentSessionID())
-			{
-				if (wcscmp(L"winlogon.exe", pSPI->ImageName.Buffer) == 0)
-				{
-					dwWinLogonPID = HandleToUlong(pSPI->UniqueProcessId);
-					break;
-				}
-			}
-		}
-		if (dwWinLogonPID == -1) 
-			return __HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND);
-
-		HANDLE hProcessToken = nullptr;
-		HANDLE hDuplicatedToken = nullptr;
-		
-		do
-		{
-			// 获取当前会话winlogon进程令牌
-			status = SuQueryProcessToken(&hProcessToken, dwWinLogonPID);
-			if (!NT_SUCCESS(status)) break;
-
-			// 复制一份模拟令牌
-			status = SuDuplicateToken(
-				&hDuplicatedToken,
-				hProcessToken, 
-				MAXIMUM_ALLOWED,
-				nullptr,
-				SecurityImpersonation,
-				TokenImpersonation);
-			if (!NT_SUCCESS(status)) break;
-
-			// 启用令牌全部特权
-			status = SuSetTokenAllPrivileges(
-				hDuplicatedToken,
-				SE_PRIVILEGE_ENABLED);
-			if (!NT_SUCCESS(status)) break;
-
-			// 模拟令牌
-			status = SuImpersonate(hDuplicatedToken);
-
-		} while (false);
-
-		NtClose(hDuplicatedToken);
-		NtClose(hProcessToken);
-
-		return status;
-	}
+	};	
 
 	//****************************************************************
 
