@@ -69,7 +69,7 @@ VC-LTL       | 初雨团队 | Common Public License
 
 
 ## 更新日志 Changelogs
-参见 ```[Changelog.md](https://github.com/M2Team/NSudo/blob/master/Changelog.md "Changelog.md")```
+参见 https://github.com/M2Team/NSudo/blob/master/Changelog.md
 
 ## 捐赠 Donate
 如果您想捐赠此项目，请使用 [支付宝 Alipay](https://alipay.com) 向我们的帐号  ```wxh32lkk@live.cn``` 进行付款。你们的捐赠是我（们）开发的动力（之一，还有我们的爱好~）。
@@ -78,12 +78,12 @@ VC-LTL       | 初雨团队 | Common Public License
 下载地址：http://zh-cn.b0.upaiyun.com/NSudo/NSudo%204.0.zip
 
 ## MDL论坛根据地 MDL Post
-(http://forums.mydigitallife.info/threads/59268-M2-Team-NSudo-(New-Version-4-0)
+http://forums.mydigitallife.info/threads/59268-M2-Team-NSudo-(New-Version-4-0)
 
 ## 交流 Communication
 如果碰到什么问题，可以在NSudo官方群（QQ群：```466078631```）探讨
 
 ## 感谢名单 Thanks
-参见 ```[Thanks.txt](https://github.com/M2Team/NSudo/blob/master/Thanks.txt "Thanks.txt")```
+参见 https://github.com/M2Team/NSudo/blob/master/Thanks.txt
 
 ##Have a good time -- M2-Team参上
