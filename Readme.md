@@ -83,6 +83,7 @@ VC-LTL       | 初雨团队 | Common Public License
 ## 交流 Communication
 如果碰到什么问题，可以在NSudo官方群（QQ群：```466078631```）探讨
 
-## 感谢名单参见 Documents\\Thanks.txt
+## 感谢名单 Thanks
+参见 ```[Thanks.txt](https://github.com/M2Team/NSudo/blob/master/Thanks.txt "Thanks.txt")```
 
 ##Have a good time -- M2-Team参上

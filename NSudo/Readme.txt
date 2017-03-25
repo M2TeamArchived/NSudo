@@ -75,7 +75,8 @@ NSudo 许可协议参见 License.txt
 如果碰到什么问题，可以在NSudo官方群（QQ群： 466078631 ）探讨
 
 
-感谢名单参见 Thanks.txt
+感谢名单 Thanks
+参见 https://github.com/M2Team/NSudo/blob/master/Thanks.txt
 
 
 MDL论坛根据地 MDL Post
