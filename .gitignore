@@ -2,9 +2,4 @@
 # 此 .gitignore 文件已由 Microsoft(R) Visual Studio 自动创建。
 ################################################################################
 
-/Build
-/Temp
-*.sdf
-*.opendb
-/ipch
-/NSudo.ModernUI/obj
+/.vs
