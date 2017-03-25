@@ -86,4 +86,4 @@ http://forums.mydigitallife.info/threads/59268-M2-Team-NSudo-(New-Version-4-0)
 ## 感谢名单 Thanks
 参见 https://github.com/M2Team/NSudo/blob/master/Thanks.txt
 
-##Have a good time -- M2-Team参上
+## Have a good time -- M2-Team参上
