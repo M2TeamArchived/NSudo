@@ -17,7 +17,7 @@ wchar_t g_ShortCutListPath[MAX_PATH];
 
 namespace ProjectInfo
 {
-	wchar_t VersionText[] = L"M2-Team NSudo 4.3.1703.25";
+	wchar_t VersionText[] = L"M2-Team NSudo 4.4.1704.28";
 }
 
 //HRESULT WINAPI SuExecuteCommandLine(
