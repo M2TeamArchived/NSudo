@@ -16,6 +16,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Properties", "Properties", 
 	ProjectSection(SolutionItems) = preProject
 		Properties\M2-SDK.props = Properties\M2-SDK.props
 		Properties\VC-LTL.props = Properties\VC-LTL.props
+		Properties\VC-LTL_Debug.props = Properties\VC-LTL_Debug.props
 	EndProjectSection
 EndProject
 Global
