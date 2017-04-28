@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26228.9
+VisualStudioVersion = 15.0.26403.7
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NSudo", "NSudo\NSudo.vcxproj", "{DBC9A9EE-78AE-4260-80E8-67D4D04A92C8}"
 EndProject
@@ -10,6 +10,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Changelog.md = Changelog.md
 		Readme.md = Readme.md
 		Thanks.txt = Thanks.txt
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Properties", "Properties", "{0347633D-F6A3-4AB4-A8C2-8BFDA17D4741}"
+	ProjectSection(SolutionItems) = preProject
+		Properties\M2-SDK.props = Properties\M2-SDK.props
+		Properties\VC-LTL.props = Properties\VC-LTL.props
 	EndProjectSection
 EndProject
 Global

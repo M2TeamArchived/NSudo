@@ -273,17 +273,18 @@ inline HRESULT GetDpiForMonitorInternal(
 	
 	do
 	{
-		if (!NT_SUCCESS(M2LoadDll(L"SHCore.dll", pDllHandle)))
+		if (!NT_SUCCESS(M2LoadModule(pDllHandle, L"SHCore.dll")))
 			break;
 
-		if (!NT_SUCCESS(M2GetFunc(pDllHandle, "GetDpiForMonitor", pFunc)))
+		if (!NT_SUCCESS(M2GetProcedureAddress(
+			pFunc, pDllHandle, "GetDpiForMonitor")))
 			break;
 
 		hr = pFunc(hmonitor, dpiType, dpiX, dpiY);
 
-		M2UnloadDll(pDllHandle);
 	} while (false);
 
+	M2FreeModule(pDllHandle);
 	return hr;
 }
 
@@ -495,7 +496,7 @@ int WINAPI wWinMain(
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	UNREFERENCED_PARAMETER(lpCmdLine);
 	UNREFERENCED_PARAMETER(nShowCmd);
-	
+
 	CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
 
 	int argc = 0;

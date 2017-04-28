@@ -1,5 +1,10 @@
 ﻿# 改进日志 Changelog
 
+**NSudo 4.4.1704.28**
+- 适配最新版M2-SDK
+- 适配最新版VC-LTL
+- 修改编译选项
+
 **NSudo 4.3.1703.25**
 - 开始使用Visual Studio 2017编译
 - 移除NSudo-GUI项目
