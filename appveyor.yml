@@ -1,7 +1,4 @@
-version: 1.0.{build}
-pull_requests:
-  do_not_increment_build_number: true
-image: Visual Studio 2017
+version: 4.4.1704.{Build}
 configuration: Release
 platform:
 - x86
@@ -13,11 +10,9 @@ install:
     git submodule update --recursive
 build:
   project: NSudo.sln
-  verbosity: minimal
+  verbosity: normal
 after_build:
 - cmd: >-
     7z a -mx9 -r release.7z *.dll
 
     7z a -mx9 -r release.7z *.exe
-artifacts:
-- path: release.7z

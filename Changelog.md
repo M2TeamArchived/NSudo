@@ -1,9 +1,11 @@
 ﻿# 改进日志 Changelog
 
-**NSudo 4.4.1704.28**
+**NSudo 4.4.1704.29**
 - 适配最新版M2-SDK
 - 适配最新版VC-LTL
 - 修改编译选项
+- 使用git子模块机制（由 myfreeer 实现）
+- 配置AppVeyor（由 myfreeer 提供灵感）
 
 **NSudo 4.3.1703.25**
 - 开始使用Visual Studio 2017编译
