@@ -3,8 +3,8 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
-    <IncludePath>$(SolutionDir)..\VC-LTL;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)..\VC-LTL\$(PlatformShortName);$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)VC-LTL;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)VC-LTL\$(PlatformShortName);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup />
   <ItemGroup />

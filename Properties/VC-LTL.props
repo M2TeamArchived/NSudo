@@ -3,8 +3,8 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
-    <IncludePath>$(SolutionDir)..\VC-LTL\VC\$(PlatformToolsetVersion)\include;$(SolutionDir)..\VC-LTL\VC\$(PlatformToolsetVersion)\atlmfc\include;$(SolutionDir)..\VC-LTL\ucrt\$(TargetUniversalCRTVersion);$(SolutionDir)..\VC-LTL;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)..\VC-LTL\$(PlatformShortName);$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)VC-LTL\VC\$(PlatformToolsetVersion)\include;$(SolutionDir)VC-LTL\VC\$(PlatformToolsetVersion)\atlmfc\include;$(SolutionDir)VC-LTL\ucrt\$(TargetUniversalCRTVersion);$(SolutionDir)VC-LTL;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)VC-LTL\$(PlatformShortName);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup />
   <ItemGroup />
