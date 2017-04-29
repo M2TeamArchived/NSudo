@@ -10,7 +10,7 @@
 > 使用 NSudo.exe -? 可以显示和这里一样的内容
 
 ```
-格式: NSudoC [ -U ] [ -P ] [ -M ] 命令行或常用任务名
+格式: NSudo [ -U ] [ -P ] [ -M ] 命令行或常用任务名
   -U:[ T | S | C | P | D ] 用户
         T TrustedInstaller
         S System
@@ -60,67 +60,30 @@ CommandLine=notepad
 ```
 如果要使用引号嵌套的话；请加转义符，例如：```NSudo -u:t "cmd /c ren \"E:\班级视频 《ONE》\d.txt\" x.exe"```
 
-## 开源许可协议 Open Source License
-本工具使用MIT协议，任何人都可以修改我（们）的工具（希望起一个好听的名字，因为那已经不是我（们）的工具）。协议内容参见 ```LICENSE.md```
+## NSudo 许可协议
+NSudo与M2-SDK的NSudo库皆使用The MIT License发行。
+
+第三方库名称 | 开发者   | 许可协议
+-------------|----------|----------------------
+VC-LTL       | 初雨团队 | Common Public License
+
+
+## 更新日志 Changelogs
+参见 https://github.com/M2Team/NSudo/blob/master/Changelog.md
 
 ## 捐赠 Donate
 如果您想捐赠此项目，请使用 [支付宝 Alipay](https://alipay.com) 向我们的帐号  ```wxh32lkk@live.cn``` 进行付款。你们的捐赠是我（们）开发的动力（之一，还有我们的爱好~）。
 
-## 下载 Download
-下载地址：http://zh-cn.b0.upaiyun.com/lite/NSudo2016.1.zip 
+## 下载 Download (4.3暂不提供下载)
+下载地址：http://zh-cn.b0.upaiyun.com/NSudo/NSudo%204.0.zip
 
 ## MDL论坛根据地 MDL Post
-http://forums.mydigitallife.info/threads/59268-M2-Team-NSudo-(New-Version-2016)
+http://forums.mydigitallife.info/threads/59268-M2-Team-NSudo-(New-Version-4-0)
 
 ## 交流 Communication
 如果碰到什么问题，可以在NSudo官方群（QQ群：```466078631```）探讨
 
-------------
-## 感谢（排名不分先后） Thanks
-```
-SuperCMD作者(NSudo原型): raymai97
-VC-LTL作者及团队(NSudo 4.0开始所用C运行时):mingkuang(初雨团队)
-Process Hacker作者(NSudo 4.0使用的Native API头文件定义的源头):Wen Jia Liu
-捐赠: boyangpangzi,cjy__05,mhxkx,NotePad,tangmigoId,wondersnefu,xy137425740,月光光
-繁体中文翻译: Eugene Wang J.y
-日语翻译: Microsoft_Mars
-Bill: 新版Readme和Changelog建立者
-开发工作: 20011010wo，4071E95D-A09B-4AA3-8008，Microsoft_Mars
-命名者: Microsoft_Mars 和 Mouri_Naruto
-精神支持 O(∩_∩)O~: こうさか ほのか (a Japanese anime “Love Live” character)
-M2-Team 成员: 20011010wo,Bill,hortz,Eugene Wang J.y,Microsoft_Mars,Mouri_Naruto,杂货店的音符
-```
+## 感谢名单 Thanks
+参见 https://github.com/M2Team/NSudo/blob/master/Thanks.txt
 
-## 第三方库 3rd-party
-
-- VC-LTL
-```
-项目首页：https://github.com/Chuyu-Team/VC-LTL
-介绍和授权：
-VC LTL 是一个开源的第三方修改VC库，大家都可以免费，无条件，甚至是用于商业环境。
-本库基于VC140修改，所以也同样适用Common Public License协议。
-但我也希望如果你可以在程序的说明文件中声明下，使用了此库，来使更多人受益。
-——mingkuang
-```
-
-- Process Hacker的PHNT库
-```
-项目首页：http://processhacker.sourceforge.net/
-介绍和授权：
-PHNT这是一个非常全的Native API定义库；我通过邮件获取了作者许可
-
-附作者的回复（也许我是第一个询问许可的人）：
-Nevertheless some say that headers cannot be copyrighted and have copied phnt
-  verbatim anyway without asking me. So do what you will...
-
-PS：我对该库进行了大幅度修改
-（去除了内核模式定义和整合了头文件，而且对里面的宏进行了标准化处理）
-
-为了对Process Hacker的作者Wen Jia Liu表示感谢，我会把我的整理成果单独发在github
-不会有任何协议限制；如果你想感激的话，就请感谢Process Hacker作者的大度吧
- 
-附整理成果地址：https://github.com/Chuyu-Team/NativeLib
-```
-
-------------
-Have a good time -- M2-Team参上
+## Have a good time -- M2-Team参上

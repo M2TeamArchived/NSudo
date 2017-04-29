@@ -32,10 +32,10 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="stdafx.cpp">
+    <ClCompile Include="NSudo.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="NSudo.cpp">
+    <ClCompile Include="stdafx.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -52,6 +52,9 @@
   <ItemGroup>
     <None Include="res\ShortCutList.ini">
       <Filter>资源文件\资源</Filter>
+    </None>
+    <None Include="NSudo.def">
+      <Filter>源文件</Filter>
     </None>
   </ItemGroup>
 </Project>
