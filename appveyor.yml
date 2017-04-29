@@ -1,0 +1,23 @@
+version: 1.0.{build}
+pull_requests:
+  do_not_increment_build_number: true
+image: Visual Studio 2017
+configuration: Release
+platform:
+- x86
+- x64
+install:
+- cmd: >-
+    git submodule init
+
+    git submodule update --recursive
+build:
+  project: NSudo.sln
+  verbosity: minimal
+after_build:
+- cmd: >-
+    7z a -mx9 -r release.7z *.dll
+
+    7z a -mx9 -r release.7z *.exe
+artifacts:
+- path: release.7z
