@@ -1,6 +1,10 @@
 version: 4.4.1705.{Build}
+pull_requests:
+  do_not_increment_build_number: true
 image: Visual Studio 2017
-configuration: Release
+configuration:
+- Debug
+- Release
 platform:
 - x86
 - x64
@@ -9,11 +13,24 @@ install:
     git submodule init
 
     git submodule update --recursive
+before_build:
+- cmd: >-
+    echo #define NSUDO_VERSION_MAJOR 4> %APPVEYOR_BUILD_FOLDER%\NSudo\VersionDefine.h
+
+    echo #define NSUDO_VERSION_MINOR 4>> %APPVEYOR_BUILD_FOLDER%\NSudo\VersionDefine.h
+
+    echo #define NSUDO_VERSION_BUILD 1705>> %APPVEYOR_BUILD_FOLDER%\NSudo\VersionDefine.h
+
+    echo #define NSUDO_VERSION_REVISION %APPVEYOR_BUILD_NUMBER%>> %APPVEYOR_BUILD_FOLDER%\NSudo\VersionDefine.h
 build:
   project: NSudo.sln
   verbosity: normal
 after_build:
 - cmd: >-
-    7z a -mx9 -r release.7z *.dll
+    7z a -r NSudo_%APPVEYOR_BUILD_VERSION%_%PLATFORM%_%CONFIGURATION%.zip %APPVEYOR_BUILD_FOLDER%\Build\*.exe
 
-    7z a -mx9 -r release.7z *.exe
+    7z a -r NSudo_%APPVEYOR_BUILD_VERSION%_%PLATFORM%_%CONFIGURATION%.zip %APPVEYOR_BUILD_FOLDER%\Build\*.pdb
+
+    7z a -r NSudo_%APPVEYOR_BUILD_VERSION%_%PLATFORM%_%CONFIGURATION%.zip %APPVEYOR_BUILD_FOLDER%\Build\*.ini
+artifacts:
+- path: NSudo_%APPVEYOR_BUILD_VERSION%_%PLATFORM%_%CONFIGURATION%.zip
