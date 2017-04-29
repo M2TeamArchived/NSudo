@@ -3,7 +3,7 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
-    <IncludePath>$(SolutionDir)..\M2-SDK;$(NETFXKitsDir)Include\um;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)M2-SDK;$(NETFXKitsDir)Include\um;$(IncludePath)</IncludePath>
     <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup />

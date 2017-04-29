@@ -1,0 +1,6 @@
+[submodule "VC-LTL"]
+	path = VC-LTL
+	url = https://github.com/Chuyu-Team/VC-LTL
+[submodule "M2-SDK"]
+	path = M2-SDK
+	url = https://github.com/M2Team/M2-SDK
