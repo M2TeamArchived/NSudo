@@ -1,4 +1,5 @@
-version: 4.4.1704.{Build}
+version: 4.4.1705.{Build}
+image: Visual Studio 2017
 configuration: Release
 platform:
 - x86
