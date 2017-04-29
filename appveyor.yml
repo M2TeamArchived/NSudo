@@ -1,6 +1,4 @@
 version: 4.4.1705.{Build}
-pull_requests:
-  do_not_increment_build_number: true
 image: Visual Studio 2017
 configuration:
 - Debug
