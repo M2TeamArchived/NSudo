@@ -1,5 +1,8 @@
 ﻿# 改进日志 Changelog
 
+**NSudo 4.4.1705.0**
+- 开始使用AppVeyor自动编译
+
 **NSudo 4.4.1704.29**
 - 适配最新版M2-SDK
 - 适配最新版VC-LTL
