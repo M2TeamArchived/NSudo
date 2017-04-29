@@ -1,4 +1,4 @@
-version: 4.4.1705.{Build}
+ version: 4.4.1705.{Build}
 pull_requests:
   do_not_increment_build_number: true
 image: Visual Studio 2017
@@ -15,13 +15,13 @@ install:
     git submodule update --recursive
 before_build:
 - cmd: >-
-    echo #define NSUDO_VERSION_MAJOR 4> %APPVEYOR_BUILD_FOLDER%\NSudo\VersionDefine.h
+    echo #define NSUDO_VERSION_MAJOR 4 > %APPVEYOR_BUILD_FOLDER%\NSudo\VersionDefine.h
 
-    echo #define NSUDO_VERSION_MINOR 4>> %APPVEYOR_BUILD_FOLDER%\NSudo\VersionDefine.h
+    echo #define NSUDO_VERSION_MINOR 4 >> %APPVEYOR_BUILD_FOLDER%\NSudo\VersionDefine.h
 
-    echo #define NSUDO_VERSION_BUILD 1705>> %APPVEYOR_BUILD_FOLDER%\NSudo\VersionDefine.h
+    echo #define NSUDO_VERSION_BUILD 1705 >> %APPVEYOR_BUILD_FOLDER%\NSudo\VersionDefine.h
 
-    echo #define NSUDO_VERSION_REVISION %APPVEYOR_BUILD_NUMBER%>> %APPVEYOR_BUILD_FOLDER%\NSudo\VersionDefine.h
+    echo #define NSUDO_VERSION_REVISION %APPVEYOR_BUILD_NUMBER% >> %APPVEYOR_BUILD_FOLDER%\NSudo\VersionDefine.h
 build:
   project: NSudo.sln
   verbosity: normal
