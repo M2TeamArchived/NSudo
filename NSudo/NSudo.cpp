@@ -11,13 +11,12 @@ wchar_t g_ExePath[MAX_PATH];
 wchar_t g_AppPath[MAX_PATH];
 wchar_t g_ShortCutListPath[MAX_PATH];
 
-/*
-
-*/
+#include "VersionDefine.h"
+#include "VersionMacro.h"
 
 namespace ProjectInfo
 {
-	wchar_t VersionText[] = L"M2-Team NSudo 4.4.1704.28";
+	wchar_t VersionText[] = L"M2-Team NSudo " NSUDO_VERSION_STRING ;
 }
 
 //HRESULT WINAPI SuExecuteCommandLine(
