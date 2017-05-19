@@ -1,5 +1,9 @@
 ﻿# 改进日志 Changelog
 
+**NSudo 4.4.1705.19**
+- 更新M2-SDK和VC-LTL子模块
+- 命令行解析从main函数拆分
+
 **NSudo 4.4.1705.0**
 - 开始使用AppVeyor自动编译
 
