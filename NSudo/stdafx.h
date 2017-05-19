@@ -5,8 +5,17 @@
 
 #pragma once
 
+#if _MSC_VER >= 1200
+#pragma warning(push)
+#pragma warning(disable:4083) // 应输入“token”；找到标识符“identifier”(等级 1)
+#endif
+
 #define _CRT_SECURE_NO_WARNINGS
 #include <_msvcrt.h>
+
+#if _MSC_VER >= 1200
+#pragma warning(pop)
+#endif
 
 // 为编译通过而禁用的警告
 #if _MSC_VER >= 1200
@@ -20,8 +29,18 @@
 
 #include "targetver.h"
 
+#if _MSC_VER >= 1200
+#pragma warning(push)
+#pragma warning(disable:4244) // 从“type1”转换到“type2”，可能丢失数据(等级 3 与等级 4)
+#endif
+
 // M2-SDK
 #include <M2.SDK.h>
+
+#if _MSC_VER >= 1200
+#pragma warning(pop)
+#endif
+
 
 // C++ 运行时库
 #include <stdio.h>
