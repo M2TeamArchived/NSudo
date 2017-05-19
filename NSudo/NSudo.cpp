@@ -11,8 +11,7 @@ wchar_t g_ExePath[MAX_PATH];
 wchar_t g_AppPath[MAX_PATH];
 wchar_t g_ShortCutListPath[MAX_PATH];
 
-#include "VersionDefine.h"
-#include "VersionMacro.h"
+#include "Version.h"
 
 namespace ProjectInfo
 {
