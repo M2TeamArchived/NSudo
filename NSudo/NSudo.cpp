@@ -19,12 +19,6 @@ namespace ProjectInfo
 	wchar_t VersionText[] = L"M2-Team NSudo " NSUDO_VERSION_STRING ;
 }
 
-//HRESULT WINAPI SuExecuteCommandLine(
-	//_In_ LPCWSTR CommandLine)
-//{
-
-//}
-
 bool SuCreateProcess(
 	_In_opt_ HANDLE hToken,
 	_Inout_ LPWSTR lpCommandLine)
@@ -417,8 +411,26 @@ INT_PTR CALLBACK DialogCallBack(
 		RECT Rect = { 0 };
 
 		GetClientRect(hDlg, &Rect);
-		DrawIconEx(hdc, MulDiv(16, g_xDPI, USER_DEFAULT_SCREEN_DPI), MulDiv(16, g_yDPI, USER_DEFAULT_SCREEN_DPI), hNSudoIcon, MulDiv(64, g_xDPI, USER_DEFAULT_SCREEN_DPI), MulDiv(64, g_yDPI, USER_DEFAULT_SCREEN_DPI), 0, nullptr, DI_NORMAL | DI_COMPAT);
-		DrawIconEx(hdc, MulDiv(16, g_xDPI, USER_DEFAULT_SCREEN_DPI), (Rect.bottom - Rect.top) - MulDiv(40, g_yDPI, USER_DEFAULT_SCREEN_DPI), hWarningIcon, MulDiv(24, g_xDPI, USER_DEFAULT_SCREEN_DPI), MulDiv(24, g_yDPI, USER_DEFAULT_SCREEN_DPI), 0, nullptr, DI_NORMAL | DI_COMPAT);
+		DrawIconEx(
+			hdc,
+			MulDiv(16, g_xDPI, USER_DEFAULT_SCREEN_DPI),
+			MulDiv(16, g_yDPI, USER_DEFAULT_SCREEN_DPI),
+			hNSudoIcon,
+			MulDiv(64, g_xDPI, USER_DEFAULT_SCREEN_DPI),
+			MulDiv(64, g_yDPI, USER_DEFAULT_SCREEN_DPI),
+			0,
+			nullptr,
+			DI_NORMAL | DI_COMPAT);
+		DrawIconEx(
+			hdc,
+			MulDiv(16, g_xDPI, USER_DEFAULT_SCREEN_DPI),
+			(Rect.bottom - Rect.top) - MulDiv(40, g_yDPI, USER_DEFAULT_SCREEN_DPI),
+			hWarningIcon,
+			MulDiv(24, g_xDPI, USER_DEFAULT_SCREEN_DPI),
+			MulDiv(24, g_yDPI, USER_DEFAULT_SCREEN_DPI),
+			0,
+			nullptr,
+			DI_NORMAL | DI_COMPAT);
 		ReleaseDC(hDlg, hdc);
 		
 		break;
@@ -482,6 +494,231 @@ INT_PTR CALLBACK DialogCallBack(
 		break;
 	}
 	}
+
+	return 0;
+}
+
+int NSudoCommandLineParser(
+	_In_ bool bElevated,
+	_In_ int argc,
+	_In_ wchar_t **argv)
+{
+	// 如果参数是 /? 或 -?,则显示帮助
+	if (argc == 2 &&
+		(argv[1][0] == L'-' || argv[1][0] == L'/') &&
+		argv[1][1] == '?')
+	{
+		SuShowAboutDialog(nullptr, g_hInstance);
+		return 0;
+	}
+
+	// 如果未提权或者模拟System权限失败
+	if (!(bElevated && NT_SUCCESS(SuImpersonateAsSystem())))
+	{
+		SuMUIPrintMsg(g_hInstance, NULL, IDS_ERRNOTHELD);
+		return 0;
+	}
+
+	bool bCMDLineArgEnable = true;
+	bool bArgErr = false;
+
+	wchar_t *szBuffer = nullptr;
+
+	HANDLE hToken = INVALID_HANDLE_VALUE;
+	HANDLE hTempToken = INVALID_HANDLE_VALUE;
+
+	for (int i = 1; i < argc; i++)
+	{
+		//判断是参数还是要执行的命令行或常见任务
+		if (argv[i][0] == L'-' || argv[i][0] == L'/')
+		{
+			switch (argv[i][1])
+			{
+			case 'U':
+			case 'u':
+			{
+				if (argv[i][2] == L':')
+				{
+					switch (argv[i][3])
+					{
+					case 'T':
+					case 't':
+						if (NT_SUCCESS(SuGetServiceProcessTokenCopy(
+							L"TrustedInstaller",
+							MAXIMUM_ALLOWED,
+							nullptr,
+							SecurityIdentification,
+							TokenPrimary,
+							&hToken)))
+						{
+							DWORD dwSessionID = M2GetCurrentSessionID();
+							NtSetInformationToken(
+								hToken,
+								TokenSessionId,
+								(PVOID)&dwSessionID,
+								sizeof(DWORD));
+						}
+						break;
+					case 'S':
+					case 's':
+						SuGetSystemTokenCopy(
+							MAXIMUM_ALLOWED,
+							nullptr,
+							SecurityIdentification,
+							TokenPrimary,
+							&hToken);
+						break;
+					case 'C':
+					case 'c':
+						SuGetSessionTokenCopy(
+							M2GetCurrentSessionID(),
+							MAXIMUM_ALLOWED,
+							nullptr,
+							SecurityIdentification,
+							TokenPrimary,
+							&hToken);
+						break;
+					case 'P':
+					case 'p':
+						SuOpenCurrentProcessToken(&hToken, MAXIMUM_ALLOWED);
+						break;
+					case 'D':
+					case 'd':
+						if (NT_SUCCESS(SuOpenCurrentProcessToken(
+							&hTempToken, MAXIMUM_ALLOWED)))
+						{
+							SuCreateLUAToken(&hToken, hTempToken);
+							NtClose(hTempToken);
+						}
+						break;
+					default:
+						bArgErr = true;
+						break;
+					}
+				}
+				break;
+			}
+			case 'P':
+			case 'p':
+			{
+				if (hToken != INVALID_HANDLE_VALUE)
+				{
+					if (argv[i][2] == L':')
+					{
+						switch (argv[i][3])
+						{
+						case 'E':
+						case 'e':
+							SuSetTokenAllPrivileges(hToken, true);
+							break;
+						case 'D':
+						case 'd':
+							SuSetTokenAllPrivileges(hToken, false);
+							break;
+						default:
+							bArgErr = true;
+							break;
+						}
+					}
+				}
+				break;
+			}
+			case 'M':
+			case 'm':
+			{
+				if (hToken != INVALID_HANDLE_VALUE)
+				{
+					if (argv[i][2] == L':')
+					{
+						switch (argv[i][3])
+						{
+						case 'S':
+						case 's':
+							SuSetTokenIntegrityLevel(hToken, SystemLevel);
+							break;
+						case 'H':
+						case 'h':
+							SuSetTokenIntegrityLevel(hToken, HighLevel);
+							break;
+						case 'M':
+						case 'm':
+							SuSetTokenIntegrityLevel(hToken, MediumLevel);
+							break;
+						case 'L':
+						case 'l':
+							SuSetTokenIntegrityLevel(hToken, LowLevel);
+							break;
+						default:
+							bArgErr = true;
+							break;
+						}
+					}
+				}
+
+				break;
+			}
+			default:
+				bArgErr = true;
+				break;
+			}
+		}
+		else
+		{
+			if (bCMDLineArgEnable)
+			{
+				wchar_t szPath[MAX_PATH];
+
+				GetPrivateProfileStringW(
+					argv[i], L"CommandLine", L"",
+					szPath, MAX_PATH, g_ShortCutListPath);
+
+				wcscmp(szPath, L"") != 0 ?
+					szBuffer = szPath : szBuffer = (argv[i]);
+
+				if (szBuffer) bCMDLineArgEnable = false;
+			}
+		}
+	}
+
+	if (hToken == INVALID_HANDLE_VALUE)
+	{
+		if (NT_SUCCESS(SuGetServiceProcessTokenCopy(
+			L"TrustedInstaller",
+			MAXIMUM_ALLOWED,
+			nullptr,
+			SecurityIdentification,
+			TokenPrimary,
+			&hToken)))
+		{
+			DWORD dwSessionID = M2GetCurrentSessionID();
+			if (NT_SUCCESS(NtSetInformationToken(
+				hToken,
+				TokenSessionId,
+				(PVOID)&dwSessionID,
+				sizeof(DWORD))))
+			{
+				SuSetTokenAllPrivileges(hToken, true);
+			}
+		}
+	}
+
+	if (bCMDLineArgEnable || bArgErr)
+	{
+		SuMUIPrintMsg(g_hInstance, NULL, IDS_ERRARG);
+		return -1;
+	}
+	else
+	{
+		if (hToken == INVALID_HANDLE_VALUE ||
+			!SuCreateProcess(hToken, szBuffer))
+		{
+			SuMUIPrintMsg(g_hInstance, NULL, IDS_ERRSUDO);
+		}
+	}
+
+	NtClose(hToken);
+
+	SuRevertToSelf();
 
 	return 0;
 }
@@ -551,222 +788,7 @@ int WINAPI wWinMain(
 	}
 	else
 	{
-		// 如果参数是 /? 或 -?,则显示帮助
-		if (argc == 2 && 
-			(argv[1][0] == L'-' || argv[1][0] == L'/') && 
-			argv[1][1] == '?')
-		{
-			SuShowAboutDialog(nullptr, g_hInstance);
-			return 0;
-		}
-
-		// 如果未提权或者模拟System权限失败
-		if (!(bElevated && NT_SUCCESS(SuImpersonateAsSystem())))
-		{
-			SuMUIPrintMsg(g_hInstance, NULL, IDS_ERRNOTHELD);
-			return 0;
-		}
-
-		bool bCMDLineArgEnable = true;
-		bool bArgErr = false;
-
-		wchar_t *szBuffer = nullptr;
-
-		HANDLE hToken = INVALID_HANDLE_VALUE;
-		HANDLE hTempToken = INVALID_HANDLE_VALUE;
-
-		for (int i = 1; i < argc; i++)
-		{
-			//判断是参数还是要执行的命令行或常见任务
-			if (argv[i][0] == L'-' || argv[i][0] == L'/')
-			{
-				switch (argv[i][1])
-				{			
-				case 'U':
-				case 'u':
-				{
-					if (argv[i][2] == L':')
-					{
-						switch (argv[i][3])
-						{
-						case 'T':
-						case 't':
-							if (NT_SUCCESS(SuGetServiceProcessTokenCopy(
-								L"TrustedInstaller",
-								MAXIMUM_ALLOWED,
-								nullptr,
-								SecurityIdentification,
-								TokenPrimary,
-								&hToken)))
-							{
-								DWORD dwSessionID = M2GetCurrentSessionID();
-								NtSetInformationToken(
-									hToken,
-									TokenSessionId,
-									(PVOID)&dwSessionID,
-									sizeof(DWORD));
-							}
-							break;
-						case 'S':
-						case 's':
-							SuGetSystemTokenCopy(
-								MAXIMUM_ALLOWED,
-								nullptr,
-								SecurityIdentification,
-								TokenPrimary,
-								&hToken);
-							break;
-						case 'C':
-						case 'c':
-							SuGetSessionTokenCopy(
-								M2GetCurrentSessionID(),
-								MAXIMUM_ALLOWED,
-								nullptr,
-								SecurityIdentification,
-								TokenPrimary,
-								&hToken);
-							break;
-						case 'P':
-						case 'p':
-							SuOpenCurrentProcessToken(&hToken, MAXIMUM_ALLOWED);
-							break;
-						case 'D':
-						case 'd':
-							if (NT_SUCCESS(SuOpenCurrentProcessToken(
-								&hTempToken, MAXIMUM_ALLOWED)))
-							{
-								SuCreateLUAToken(&hToken, hTempToken);
-								NtClose(hTempToken);
-							}
-							break;
-						default:
-							bArgErr = true;
-							break;
-						}
-					}
-					break;
-				}
-				case 'P':
-				case 'p':
-				{
-					if (hToken != INVALID_HANDLE_VALUE)
-					{
-						if (argv[i][2] == L':')
-						{
-							switch (argv[i][3])
-							{
-							case 'E':
-							case 'e':
-								SuSetTokenAllPrivileges(hToken, true);
-								break;
-							case 'D':
-							case 'd':
-								SuSetTokenAllPrivileges(hToken, false);
-								break;
-							default:
-								bArgErr = true;
-								break;
-							}
-						}
-					}
-					break;
-				}
-				case 'M':
-				case 'm':
-				{
-					if (hToken != INVALID_HANDLE_VALUE)
-					{
-						if (argv[i][2] == L':')
-						{
-							switch (argv[i][3])
-							{
-							case 'S':
-							case 's':
-								SuSetTokenIntegrityLevel(hToken, SystemLevel);
-								break;
-							case 'H':
-							case 'h':
-								SuSetTokenIntegrityLevel(hToken, HighLevel);
-								break;
-							case 'M':
-							case 'm':
-								SuSetTokenIntegrityLevel(hToken, MediumLevel);
-								break;
-							case 'L':
-							case 'l':
-								SuSetTokenIntegrityLevel(hToken, LowLevel);
-								break;
-							default:
-								bArgErr = true;
-								break;
-							}
-						}
-					}
-
-					break;
-				}
-				default:
-					bArgErr = true;
-					break;
-				}
-			}
-			else
-			{
-				if (bCMDLineArgEnable)
-				{
-					wchar_t szPath[MAX_PATH];
-
-					GetPrivateProfileStringW(
-						argv[i], L"CommandLine", L"", 
-						szPath, MAX_PATH, g_ShortCutListPath);
-
-					wcscmp(szPath, L"") != 0 ?
-						szBuffer = szPath : szBuffer = (argv[i]);
-
-					if (szBuffer) bCMDLineArgEnable = false;
-				}
-			}
-		}
-
-		if (hToken == INVALID_HANDLE_VALUE)
-		{
-			if (NT_SUCCESS(SuGetServiceProcessTokenCopy(
-				L"TrustedInstaller",
-				MAXIMUM_ALLOWED,
-				nullptr,
-				SecurityIdentification,
-				TokenPrimary,
-				&hToken)))
-			{
-				DWORD dwSessionID = M2GetCurrentSessionID();
-				if (NT_SUCCESS(NtSetInformationToken(
-					hToken,
-					TokenSessionId,
-					(PVOID)&dwSessionID,
-					sizeof(DWORD))))
-				{		
-					SuSetTokenAllPrivileges(hToken, true);
-				}		
-			}
-		}
-
-		if (bCMDLineArgEnable || bArgErr)
-		{
-			SuMUIPrintMsg(g_hInstance, NULL, IDS_ERRARG);
-			return -1;
-		}
-		else
-		{
-			if (hToken == INVALID_HANDLE_VALUE ||
-				!SuCreateProcess(hToken, szBuffer))
-			{
-				SuMUIPrintMsg(g_hInstance, NULL, IDS_ERRSUDO);
-			}
-		}
-
-		NtClose(hToken);
-
-		SuRevertToSelf();
+		NSudoCommandLineParser(bElevated, argc, argv);
 	}
 
 	return 0;
