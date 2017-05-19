@@ -12,8 +12,7 @@ install:
 
     git submodule update --recursive
 before_build:
-- cmd: >-
-    echo #define NSUDO_CI_BUILD L"(CI Build %path%)" >> %APPVEYOR_BUILD_FOLDER%\NSudo\CIBuild.h
+- cmd: 'echo #define NSUDO_CI_BUILD L"(CI Build %path%)" >> %APPVEYOR_BUILD_FOLDER%\NSudo\CIBuild.h'
 build:
   project: NSudo.sln
   verbosity: normal
