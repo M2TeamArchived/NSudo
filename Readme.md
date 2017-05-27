@@ -78,7 +78,9 @@ VC-LTL       | 初雨团队 | Common Public License
 如果您想捐赠此项目，请使用 [支付宝 Alipay](https://alipay.com) 向我们的帐号  ```wxh32lkk@live.cn``` 进行付款。你们的捐赠是我（们）开发的动力（之一，还有我们的爱好~）。
 
 ## 下载 Download (4.3暂不提供下载)
-下载地址：http://zh-cn.b0.upaiyun.com/NSudo/NSudo%204.0.zip
+[![Latest Release](https://img.shields.io/github/release/M2Team/NSudo.svg)](https://github.com/myfreeer/M2Team/NSudo/latest)
+[![Download](https://img.shields.io/github/downloads/M2Team/NSudo/total.svg)](https://github.com/M2Team/NSudo/releases)
+4.0版本下载地址：http://zh-cn.b0.upaiyun.com/NSudo/NSudo%204.0.zip
 
 ## MDL论坛根据地 MDL Post
 http://forums.mydigitallife.info/threads/59268-M2-Team-NSudo-(New-Version-4-0)
