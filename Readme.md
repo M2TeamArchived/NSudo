@@ -80,6 +80,7 @@ VC-LTL       | 初雨团队 | Common Public License
 ## 下载 Download (4.3暂不提供下载)
 [![Latest Release](https://img.shields.io/github/release/M2Team/NSudo.svg)](https://github.com/myfreeer/M2Team/NSudo/latest)
 [![Download](https://img.shields.io/github/downloads/M2Team/NSudo/total.svg)](https://github.com/M2Team/NSudo/releases)
+
 4.0版本下载地址：http://zh-cn.b0.upaiyun.com/NSudo/NSudo%204.0.zip
 
 ## MDL论坛根据地 MDL Post
