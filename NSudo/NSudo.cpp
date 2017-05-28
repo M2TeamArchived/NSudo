@@ -15,7 +15,7 @@ wchar_t g_ShortCutListPath[MAX_PATH];
 
 namespace ProjectInfo
 {
-	wchar_t VersionText[] = L"M2-Team NSudo " NSUDO_VERSION_STRING ;
+	wchar_t VersionText[] = L"M2-Team NSudo " NSUDO_VERSION_STRING;
 }
 
 bool SuCreateProcess(
@@ -103,7 +103,7 @@ bool SuMUICompare(
 	CPtr<wchar_t*> szBuffer;
 	if (szBuffer.Alloc(2048 * sizeof(wchar_t)))
 	{
-		LoadStringW(hInstance, uID, szBuffer, 2048);		
+		LoadStringW(hInstance, uID, szBuffer, 2048);
 		bRet = (_wcsicmp(szBuffer, lpText) == 0);
 	}
 	return bRet;
@@ -129,68 +129,73 @@ void SuGUIRun(
 
 		szBuffer = (wcscmp(szPath, L"") != 0 ? szPath : const_cast<wchar_t*>(szCMDLine));
 
-		// 模拟为System权限
-		if (NT_SUCCESS(SuImpersonateAsSystem()))
+		DWORD dwSessionID = (DWORD)-1;
+
+		// 获取当前进程会话ID
+		if (NT_SUCCESS(SuGetCurrentProcessSessionID(&dwSessionID)))
 		{
-			HANDLE hToken = INVALID_HANDLE_VALUE;
-
-			// 获取用户令牌
-			if (SuMUICompare(g_hInstance, IDS_TI, szUser))
+			// 模拟为System权限
+			if (NT_SUCCESS(SuImpersonateAsSystem()))
 			{
-				if (NT_SUCCESS(SuGetServiceProcessTokenCopy(
-					L"TrustedInstaller",
-					MAXIMUM_ALLOWED,
-					nullptr,
-					SecurityIdentification,
-					TokenPrimary,
-					&hToken)))
+				HANDLE hToken = INVALID_HANDLE_VALUE;
+
+				// 获取用户令牌
+				if (SuMUICompare(g_hInstance, IDS_TI, szUser))
 				{
-					DWORD dwSessionID = M2GetCurrentSessionID();
-					NtSetInformationToken(
-						hToken,
-						TokenSessionId,
-						(PVOID)&dwSessionID,
-						sizeof(DWORD));
+					if (NT_SUCCESS(SuGetServiceProcessTokenCopy(
+						L"TrustedInstaller",
+						MAXIMUM_ALLOWED,
+						nullptr,
+						SecurityIdentification,
+						TokenPrimary,
+						&hToken)))
+					{
+						NtSetInformationToken(
+							hToken,
+							TokenSessionId,
+							(PVOID)&dwSessionID,
+							sizeof(DWORD));
+					}
 				}
-			}
-			else if (SuMUICompare(g_hInstance, IDS_SYSTEM, szUser))
-			{
-				SuGetSystemTokenCopy(
-					MAXIMUM_ALLOWED,
-					nullptr,
-					SecurityIdentification,
-					TokenPrimary,
-					&hToken);
-			}
-			else if (SuMUICompare(g_hInstance, IDS_CURRENTPROCESS, szUser))
-			{
-				SuOpenCurrentProcessToken(&hToken, MAXIMUM_ALLOWED);
-			}
-			else if (SuMUICompare(g_hInstance, IDS_CURRENTUSER, szUser))
-			{
-				SuGetSessionTokenCopy(
-					M2GetCurrentSessionID(),
-					MAXIMUM_ALLOWED,
-					nullptr,
-					SecurityIdentification,
-					TokenPrimary,
-					&hToken);
-			}
+				else if (SuMUICompare(g_hInstance, IDS_SYSTEM, szUser))
+				{
+					SuGetSystemTokenCopy(
+						MAXIMUM_ALLOWED,
+						nullptr,
+						SecurityIdentification,
+						TokenPrimary,
+						&hToken);
+				}
+				else if (SuMUICompare(g_hInstance, IDS_CURRENTPROCESS, szUser))
+				{
+					SuOpenCurrentProcessToken(&hToken, MAXIMUM_ALLOWED);
+				}
+				else if (SuMUICompare(g_hInstance, IDS_CURRENTUSER, szUser))
+				{
+					SuGetSessionTokenCopy(
+						dwSessionID,
+						MAXIMUM_ALLOWED,
+						nullptr,
+						SecurityIdentification,
+						TokenPrimary,
+						&hToken);
+				}
 
-			// 如果勾选启用全部特权，则对令牌启用全部特权
-			if (hToken != INVALID_HANDLE_VALUE && bEnableAllPrivileges)
-				SuSetTokenAllPrivileges(hToken, true);	
-			
-			if (!(hToken != INVALID_HANDLE_VALUE && 
-				SuCreateProcess(hToken, szBuffer)))
-			{
-				SuMUIPrintMsg(g_hInstance, NULL, IDS_ERRSUDO);
+				// 如果勾选启用全部特权，则对令牌启用全部特权
+				if (hToken != INVALID_HANDLE_VALUE && bEnableAllPrivileges)
+					SuSetTokenAllPrivileges(hToken, true);
+
+				if (!(hToken != INVALID_HANDLE_VALUE &&
+					SuCreateProcess(hToken, szBuffer)))
+				{
+					SuMUIPrintMsg(g_hInstance, NULL, IDS_ERRSUDO);
+				}
+
+				NtClose(hToken);
+
+				SuRevertToSelf();
 			}
-
-			NtClose(hToken);
-
-			SuRevertToSelf();
-		}	
+		}
 	}
 }
 
@@ -221,7 +226,7 @@ HRESULT SuShowAboutDialog(
 		UNREFERENCED_PARAMETER(lpRefData);
 
 		if (TDN_HYPERLINK_CLICKED == msg)
-		{		
+		{
 			SHELLEXECUTEINFOW ExecInfo = { 0 };
 			ExecInfo.cbSize = sizeof(SHELLEXECUTEINFOW);
 			ExecInfo.lpVerb = L"open";
@@ -262,7 +267,7 @@ inline HRESULT GetDpiForMonitorInternal(
 	PVOID pDllHandle = nullptr;
 	decltype(GetDpiForMonitor)* pFunc = nullptr;
 	HRESULT hr = E_NOINTERFACE;
-	
+
 	do
 	{
 		if (!NT_SUCCESS(M2LoadModule(pDllHandle, L"SHCore.dll")))
@@ -285,6 +290,7 @@ inline HRESULT GetDpiForMonitorInternal(
 #endif
 
 
+
 // 全局变量
 int g_xDPI = USER_DEFAULT_SCREEN_DPI;
 int g_yDPI = USER_DEFAULT_SCREEN_DPI;
@@ -293,19 +299,19 @@ HICON hNSudoIcon = nullptr;
 HICON hWarningIcon = nullptr;
 
 INT_PTR CALLBACK DialogCallBack(
-	HWND hDlg, 
+	HWND hDlg,
 	UINT message,
 	WPARAM wParam,
 	LPARAM lParam)
 {
 	UNREFERENCED_PARAMETER(lParam);
-	
+
 	HWND hUserName = GetDlgItem(hDlg, IDC_UserName);
 	HWND hCheckBox = GetDlgItem(hDlg, IDC_Check_EnableAllPrivileges);
 	HWND hszPath = GetDlgItem(hDlg, IDC_szPath);
 
 	wchar_t szCMDLine[MAX_PATH], szUser[260], szBuffer[512];
-	
+
 	switch (message)
 	{
 	case WM_CLOSE:
@@ -403,7 +409,7 @@ INT_PTR CALLBACK DialogCallBack(
 		}
 
 		return (INT_PTR)TRUE;
-	}	
+	}
 	case WM_PAINT:
 	{
 		HDC hdc = GetDC(hDlg);
@@ -431,7 +437,7 @@ INT_PTR CALLBACK DialogCallBack(
 			nullptr,
 			DI_NORMAL | DI_COMPAT);
 		ReleaseDC(hDlg, hdc);
-		
+
 		break;
 	}
 	case WM_DPICHANGED:
@@ -449,15 +455,15 @@ INT_PTR CALLBACK DialogCallBack(
 			GetDlgItemTextW(hDlg, IDC_szPath, szCMDLine, sizeof(szCMDLine));
 
 			SuGUIRun(
-				hDlg, 
-				szUser, 
+				hDlg,
+				szUser,
 				(SendMessageW(hCheckBox, BM_GETCHECK, 0, 0) == BST_CHECKED),
 				szCMDLine);
 			break;
 		case IDC_About:
 			SuShowAboutDialog(hDlg, g_hInstance);
 			break;
-		case IDC_Browse:		
+		case IDC_Browse:
 			szBuffer[1] = L'\0';
 			NSudoBrowseDialog(hDlg, &szBuffer[1]);
 
@@ -473,11 +479,11 @@ INT_PTR CALLBACK DialogCallBack(
 		}
 		break;
 	case WM_DROPFILES:
-	{	
+	{
 		DragQueryFileW(
 			(HDROP)wParam,
 			0,
-			&szBuffer[1], 
+			&szBuffer[1],
 			sizeof(szBuffer) - sizeof(wchar_t));
 
 		if (!(GetFileAttributesW(&szBuffer[1]) & FILE_ATTRIBUTE_DIRECTORY))
@@ -508,6 +514,15 @@ int NSudoCommandLineParser(
 		argv[1][1] == '?')
 	{
 		SuShowAboutDialog(nullptr, g_hInstance);
+		return 0;
+	}
+
+	DWORD dwSessionID = (DWORD)-1;
+
+	// 获取当前进程会话ID
+	if (!NT_SUCCESS(SuGetCurrentProcessSessionID(&dwSessionID)))
+	{
+		SuMUIPrintMsg(g_hInstance, NULL, IDS_ERRSUDO);
 		return 0;
 	}
 
@@ -550,7 +565,6 @@ int NSudoCommandLineParser(
 							TokenPrimary,
 							&hToken)))
 						{
-							DWORD dwSessionID = M2GetCurrentSessionID();
 							NtSetInformationToken(
 								hToken,
 								TokenSessionId,
@@ -570,7 +584,7 @@ int NSudoCommandLineParser(
 					case 'C':
 					case 'c':
 						SuGetSessionTokenCopy(
-							M2GetCurrentSessionID(),
+							dwSessionID,
 							MAXIMUM_ALLOWED,
 							nullptr,
 							SecurityIdentification,
@@ -689,7 +703,6 @@ int NSudoCommandLineParser(
 			TokenPrimary,
 			&hToken)))
 		{
-			DWORD dwSessionID = M2GetCurrentSessionID();
 			if (NT_SUCCESS(NtSetInformationToken(
 				hToken,
 				TokenSessionId,
@@ -773,7 +786,7 @@ int WINAPI wWinMain(
 				0L);
 		}
 		else
-		{				
+		{
 			SHELLEXECUTEINFOW ExecInfo = { 0 };
 			ExecInfo.cbSize = sizeof(SHELLEXECUTEINFOW);
 			ExecInfo.lpFile = g_ExePath;
