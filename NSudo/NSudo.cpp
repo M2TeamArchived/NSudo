@@ -129,68 +129,73 @@ void SuGUIRun(
 
 		szBuffer = (wcscmp(szPath, L"") != 0 ? szPath : const_cast<wchar_t*>(szCMDLine));
 
-		// 模拟为System权限
-		if (NT_SUCCESS(SuImpersonateAsSystem()))
+		DWORD dwSessionID = (DWORD)-1;
+
+		// 获取当前进程会话ID
+		if (NT_SUCCESS(SuGetCurrentProcessSessionID(&dwSessionID)))
 		{
-			HANDLE hToken = INVALID_HANDLE_VALUE;
-
-			// 获取用户令牌
-			if (SuMUICompare(g_hInstance, IDS_TI, szUser))
+			// 模拟为System权限
+			if (NT_SUCCESS(SuImpersonateAsSystem()))
 			{
-				if (NT_SUCCESS(SuGetServiceProcessTokenCopy(
-					L"TrustedInstaller",
-					MAXIMUM_ALLOWED,
-					nullptr,
-					SecurityIdentification,
-					TokenPrimary,
-					&hToken)))
+				HANDLE hToken = INVALID_HANDLE_VALUE;
+
+				// 获取用户令牌
+				if (SuMUICompare(g_hInstance, IDS_TI, szUser))
 				{
-					DWORD dwSessionID = M2GetCurrentSessionID();
-					NtSetInformationToken(
-						hToken,
-						TokenSessionId,
-						(PVOID)&dwSessionID,
-						sizeof(DWORD));
+					if (NT_SUCCESS(SuGetServiceProcessTokenCopy(
+						L"TrustedInstaller",
+						MAXIMUM_ALLOWED,
+						nullptr,
+						SecurityIdentification,
+						TokenPrimary,
+						&hToken)))
+					{
+						NtSetInformationToken(
+							hToken,
+							TokenSessionId,
+							(PVOID)&dwSessionID,
+							sizeof(DWORD));
+					}
 				}
-			}
-			else if (SuMUICompare(g_hInstance, IDS_SYSTEM, szUser))
-			{
-				SuGetSystemTokenCopy(
-					MAXIMUM_ALLOWED,
-					nullptr,
-					SecurityIdentification,
-					TokenPrimary,
-					&hToken);
-			}
-			else if (SuMUICompare(g_hInstance, IDS_CURRENTPROCESS, szUser))
-			{
-				SuOpenCurrentProcessToken(&hToken, MAXIMUM_ALLOWED);
-			}
-			else if (SuMUICompare(g_hInstance, IDS_CURRENTUSER, szUser))
-			{
-				SuGetSessionTokenCopy(
-					M2GetCurrentSessionID(),
-					MAXIMUM_ALLOWED,
-					nullptr,
-					SecurityIdentification,
-					TokenPrimary,
-					&hToken);
-			}
+				else if (SuMUICompare(g_hInstance, IDS_SYSTEM, szUser))
+				{
+					SuGetSystemTokenCopy(
+						MAXIMUM_ALLOWED,
+						nullptr,
+						SecurityIdentification,
+						TokenPrimary,
+						&hToken);
+				}
+				else if (SuMUICompare(g_hInstance, IDS_CURRENTPROCESS, szUser))
+				{
+					SuOpenCurrentProcessToken(&hToken, MAXIMUM_ALLOWED);
+				}
+				else if (SuMUICompare(g_hInstance, IDS_CURRENTUSER, szUser))
+				{
+					SuGetSessionTokenCopy(
+						dwSessionID,
+						MAXIMUM_ALLOWED,
+						nullptr,
+						SecurityIdentification,
+						TokenPrimary,
+						&hToken);
+				}
 
-			// 如果勾选启用全部特权，则对令牌启用全部特权
-			if (hToken != INVALID_HANDLE_VALUE && bEnableAllPrivileges)
-				SuSetTokenAllPrivileges(hToken, true);	
-			
-			if (!(hToken != INVALID_HANDLE_VALUE && 
-				SuCreateProcess(hToken, szBuffer)))
-			{
-				SuMUIPrintMsg(g_hInstance, NULL, IDS_ERRSUDO);
+				// 如果勾选启用全部特权，则对令牌启用全部特权
+				if (hToken != INVALID_HANDLE_VALUE && bEnableAllPrivileges)
+					SuSetTokenAllPrivileges(hToken, true);
+
+				if (!(hToken != INVALID_HANDLE_VALUE &&
+					SuCreateProcess(hToken, szBuffer)))
+				{
+					SuMUIPrintMsg(g_hInstance, NULL, IDS_ERRSUDO);
+				}
+
+				NtClose(hToken);
+
+				SuRevertToSelf();
 			}
-
-			NtClose(hToken);
-
-			SuRevertToSelf();
-		}	
+		}
 	}
 }
 
@@ -283,6 +288,7 @@ inline HRESULT GetDpiForMonitorInternal(
 #if _MSC_VER >= 1200
 #pragma warning(pop)
 #endif
+
 
 
 // 全局变量
@@ -511,6 +517,15 @@ int NSudoCommandLineParser(
 		return 0;
 	}
 
+	DWORD dwSessionID = (DWORD)-1;
+
+	// 获取当前进程会话ID
+	if (!NT_SUCCESS(SuGetCurrentProcessSessionID(&dwSessionID)))
+	{
+		SuMUIPrintMsg(g_hInstance, NULL, IDS_ERRSUDO);
+		return 0;
+	}
+
 	// 如果未提权或者模拟System权限失败
 	if (!(bElevated && NT_SUCCESS(SuImpersonateAsSystem())))
 	{
@@ -550,7 +565,6 @@ int NSudoCommandLineParser(
 							TokenPrimary,
 							&hToken)))
 						{
-							DWORD dwSessionID = M2GetCurrentSessionID();
 							NtSetInformationToken(
 								hToken,
 								TokenSessionId,
@@ -570,7 +584,7 @@ int NSudoCommandLineParser(
 					case 'C':
 					case 'c':
 						SuGetSessionTokenCopy(
-							M2GetCurrentSessionID(),
+							dwSessionID,
 							MAXIMUM_ALLOWED,
 							nullptr,
 							SecurityIdentification,
@@ -689,7 +703,6 @@ int NSudoCommandLineParser(
 			TokenPrimary,
 			&hToken)))
 		{
-			DWORD dwSessionID = M2GetCurrentSessionID();
 			if (NT_SUCCESS(NtSetInformationToken(
 				hToken,
 				TokenSessionId,
