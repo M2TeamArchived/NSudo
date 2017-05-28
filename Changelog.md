@@ -1,11 +1,5 @@
 ﻿# 改进日志 Changelog
 
-**NSudo 4.4.1705.28**
-- 更新 Readme.md（感谢 myfreeer 大力帮忙）
-- 更新 ShortCutList.ini（由 myfreeer 实现）
-- 更新 appveyor.yml
-- 使用新的获取会话ID方法尝试解决在Server系统的远程桌面会话上使用NSudo运行应用可能无法显示界面的问题（感谢 sebus）
-
 **NSudo 4.4.1705.19**
 - 更新M2-SDK和VC-LTL子模块
 - 命令行解析从main函数拆分
