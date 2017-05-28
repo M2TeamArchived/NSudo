@@ -9,7 +9,7 @@
     <RemoteDebuggerServerName>192.168.1.110</RemoteDebuggerServerName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+    <DebuggerFlavor>WindowsRemoteDebugger</DebuggerFlavor>
     <RemoteDebuggerWorkingDirectory>C:\Users\Mouri\Desktop\Debug\$(MSBuildProjectName)</RemoteDebuggerWorkingDirectory>
     <RemoteDebuggerConnection>RemoteWithoutAuthentication</RemoteDebuggerConnection>
     <DeploymentDirectory>C:\Users\Mouri\Desktop\Debug\$(MSBuildProjectName)</DeploymentDirectory>
