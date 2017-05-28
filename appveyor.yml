@@ -1,4 +1,4 @@
-version: 4.4.1705.{Build}
+version: CI Build {Build}
 image: Visual Studio 2017
 configuration:
 - Debug
