@@ -1,5 +1,9 @@
 ﻿# 改进日志 Changelog
 
+**NSudo 5.0.1706.2**
+- 更新许可协议
+- 移除VC-LTL，虽然在二进制大小增加80KB，但源代码大小缩小57.6MB
+
 **NSudo 4.4.1706.2**
 - 在 M2-SDK 的 M2.NSudo.h 添加 CM2EnumProcess 迭代器
 - .gitignore文件更新(由 fcharlie 实现)
