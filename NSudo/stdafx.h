@@ -15,13 +15,17 @@
 
 #include "targetver.h"
 
+#include <NSudoAPI.h>
+
 #if _MSC_VER >= 1200
 #pragma warning(push)
 #pragma warning(disable:4244) // 从“type1”转换到“type2”，可能丢失数据(等级 3 与等级 4)
 #endif
 
-// M2-SDK
-#include <M2.SDK.h>
+#include <M2.Windows.h>
+#include <M2.Base.h>
+
+#include "NSudo.Legacy.h"
 
 #if _MSC_VER >= 1200
 #pragma warning(pop)
