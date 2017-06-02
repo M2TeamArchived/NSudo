@@ -1,11 +1,16 @@
 ﻿# 改进日志 Changelog
 
+**NSudo 4.4.1706.2**
+- 在 M2-SDK 的 M2.NSudo.h 添加 CM2EnumProcess 迭代器
+- .gitignore文件更新(由 fcharlie 实现)
+- 改进版本定义头文件
+
 **NSudo 4.4.1705.28**
 - 更新 Readme.md（感谢 myfreeer 大力帮忙）
 - 更新 ShortCutList.ini（由 myfreeer 实现）
 - 更新 appveyor.yml
 - 在Visual Studio解决方案增加M2-SDK和VC-LTL子项目项
-- 使用新的获取会话ID方法尝试解决在Server系统的远程桌面会话上使用NSudo运行应用可能无法显示界面的问题（感谢 sebus）
+- 使用新的获取会话ID方法解决在Server系统的远程桌面会话上使用NSudo运行应用可能无法显示界面的问题（感谢 sebus）
 
 **NSudo 4.4.1705.19**
 - 更新M2-SDK和VC-LTL子模块
