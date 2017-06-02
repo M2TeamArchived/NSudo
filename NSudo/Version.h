@@ -15,8 +15,8 @@ License: The MIT License
 #ifndef NSUDO_VER
 #define NSUDO_VER
 
-#define NSUDO_VER_MAJOR 4
-#define NSUDO_VER_MINOR 4
+#define NSUDO_VER_MAJOR 5
+#define NSUDO_VER_MINOR 0
 #define NSUDO_VER_BUILD 1706
 #define NSUDO_VER_REV 2
 #endif
