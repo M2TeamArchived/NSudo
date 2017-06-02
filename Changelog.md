@@ -1,5 +1,12 @@
 ﻿# 改进日志 Changelog
 
+**NSudo 5.0.1706.3**
+- 修复 Version.h 头描述
+- 增加 NSudoSDK 项目
+- 在 NSudoSDK 项目增加 NSudoAPI.h
+- 创建 M2.NSudo.h 副本 NSudo.Legacy.h 以方便重构
+- 移除 NSudo.Legacy.h 中 NSudo 没有用到的部分
+
 **NSudo 5.0.1706.2**
 - 更新许可协议
 - 移除VC-LTL（由 fcharlie 建议），理由如下：

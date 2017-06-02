@@ -4,9 +4,9 @@
 文件名：Version.h
 许可协议：The MIT License
 
-Project: M2-SDK
+Project: NSudo
 Description: NSudo Version Definition
-File Name: M2.NSudo.h
+File Name: Version.h
 License: The MIT License
 ******************************************************************************/
 
