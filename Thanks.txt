@@ -22,6 +22,7 @@ Eugene Wang J.y (Traditional Chinese Translator)
 Microsoft_Mars (Japanese Translator)
 Mouri_Naruto (NSudo's Main Developer)
 myfreeer (NSudo's Developer)
+fcharlie (NSudo's Developer)
 
 原型作者 Prototype author
 ===============================================================================
