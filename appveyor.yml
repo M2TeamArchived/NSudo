@@ -6,11 +6,6 @@ configuration:
 platform:
 - x86
 - x64
-install:
-- cmd: >-
-    git submodule init
-
-    git submodule update --recursive
 before_build:
 - cmd: 'echo #define NSUDO_CI_BUILD L"(CI Build %APPVEYOR_BUILD_NUMBER%)" >> %APPVEYOR_BUILD_FOLDER%\NSudo\CIBuild.h'
 build:
