@@ -36,9 +36,6 @@
     <ClInclude Include="CIBuild.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="NSudo.Legacy.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="NSudo.cpp">
