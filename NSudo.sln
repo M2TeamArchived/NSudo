@@ -16,20 +16,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documents", "Documents", "{
 		Thanks.txt = Thanks.txt
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Properties", "Properties", "{0347633D-F6A3-4AB4-A8C2-8BFDA17D4741}"
-	ProjectSection(SolutionItems) = preProject
-		Properties\M2-SDK.props = Properties\M2-SDK.props
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "M2-SDK", "M2-SDK\M2-SDK.vcxitems", "{F5293936-7405-49BE-B7AB-9B6E8E5600AB}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NSudoSDK", "NSudoSDK\NSudoSDK.vcxitems", "{864F35B9-789C-4DA9-8906-649DFE3705F7}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		NSudoSDK\NSudoSDK.vcxitems*{864f35b9-789c-4da9-8906-649dfe3705f7}*SharedItemsImports = 9
 		NSudoSDK\NSudoSDK.vcxitems*{dbc9a9ee-78ae-4260-80e8-67d4d04a92c8}*SharedItemsImports = 4
-		M2-SDK\M2-SDK.vcxitems*{f5293936-7405-49be-b7ab-9b6e8e5600ab}*SharedItemsImports = 9
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64

@@ -3,8 +3,6 @@
 
 #include "stdafx.h"
 
-using namespace M2;
-
 HINSTANCE g_hInstance;
 
 wchar_t g_ExePath[MAX_PATH];
@@ -18,12 +16,63 @@ namespace ProjectInfo
 	wchar_t VersionText[] = L"M2-Team NSudo " NSUDO_VERSION_STRING;
 }
 
+// 内存指针模板类
+template<typename PtrType> class CPtr
+{
+public:
+	// 分配内存
+	bool Alloc(_In_ size_t Size)
+	{
+		if (m_Ptr) this->Free();
+		m_Ptr = malloc(Size);
+		return (m_Ptr != nullptr);
+	}
+
+	// 释放内存
+	void Free()
+	{
+		free(m_Ptr);
+		m_Ptr = nullptr;
+	}
+
+	// 获取内存指针
+	operator PtrType() const
+	{
+		return (PtrType)m_Ptr;
+	}
+
+	// 获取内存指针(->运算符)
+	PtrType operator->() const
+	{
+		return (PtrType)m_Ptr;
+	}
+
+	// 设置内存指针
+	CPtr& operator=(_In_ PtrType Ptr)
+	{
+		if (Ptr != m_Ptr) // 如果值相同返回自身,否则赋新值
+		{
+			if (m_Ptr) this->Free(); // 如果内存已分配则释放			
+			m_Ptr = Ptr; // 设置内存指针
+		}
+		return *this; // 返回自身
+	}
+
+	// 退出时释放内存
+	~CPtr()
+	{
+		if (m_Ptr) this->Free();
+	}
+
+private:
+	//指针内部变量
+	void *m_Ptr = nullptr;
+};
+
 bool SuCreateProcess(
 	_In_opt_ HANDLE hToken,
 	_Inout_ LPWSTR lpCommandLine)
 {
-	bool bRet = true;
-
 	STARTUPINFOW StartupInfo = { 0 };
 	PROCESS_INFORMATION ProcessInfo = { 0 };
 	wchar_t szBuf[512];
@@ -40,7 +89,8 @@ bool SuCreateProcess(
 		L"%s\\cmd.exe /c start \"%s\\cmd.exe\" %s",
 		szSystemDirectory, szSystemDirectory, lpCommandLine);
 
-	HRESULT hr = SuCreateProcess(
+	//启动进程
+	BOOL result = NSudoCreateProcess(
 		hToken,
 		nullptr,
 		szBuf,
@@ -50,18 +100,15 @@ bool SuCreateProcess(
 		&StartupInfo,
 		&ProcessInfo);
 
-	//启动进程
-	bRet = SUCCEEDED(hr);
-
 	//关闭句柄
-	if (bRet)
+	if (result)
 	{
-		NtClose(ProcessInfo.hProcess);
-		NtClose(ProcessInfo.hThread);
+		CloseHandle(ProcessInfo.hProcess);
+		CloseHandle(ProcessInfo.hThread);
 	}
 
 	//返回结果
-	return bRet;
+	return result;
 }
 
 void SuMUIPrintMsg(
@@ -132,25 +179,25 @@ void SuGUIRun(
 		DWORD dwSessionID = (DWORD)-1;
 
 		// 获取当前进程会话ID
-		if (NT_SUCCESS(SuGetCurrentProcessSessionID(&dwSessionID)))
+		if (NSudoGetCurrentProcessSessionID(&dwSessionID))
 		{
 			// 模拟为System权限
-			if (NT_SUCCESS(SuImpersonateAsSystem()))
+			if (NSudoImpersonateAsSystem())
 			{
 				HANDLE hToken = INVALID_HANDLE_VALUE;
 
 				// 获取用户令牌
 				if (SuMUICompare(g_hInstance, IDS_TI, szUser))
 				{
-					if (NT_SUCCESS(SuGetServiceProcessTokenCopy(
+					if (NSudoDuplicateServiceToken(
 						L"TrustedInstaller",
 						MAXIMUM_ALLOWED,
 						nullptr,
 						SecurityIdentification,
 						TokenPrimary,
-						&hToken)))
+						&hToken))
 					{
-						NtSetInformationToken(
+						SetTokenInformation(
 							hToken,
 							TokenSessionId,
 							(PVOID)&dwSessionID,
@@ -159,7 +206,7 @@ void SuGUIRun(
 				}
 				else if (SuMUICompare(g_hInstance, IDS_SYSTEM, szUser))
 				{
-					SuGetSystemTokenCopy(
+					NSudoDuplicateSystemToken(
 						MAXIMUM_ALLOWED,
 						nullptr,
 						SecurityIdentification,
@@ -168,11 +215,12 @@ void SuGUIRun(
 				}
 				else if (SuMUICompare(g_hInstance, IDS_CURRENTPROCESS, szUser))
 				{
-					SuOpenCurrentProcessToken(&hToken, MAXIMUM_ALLOWED);
+					OpenProcessToken(
+						GetCurrentProcess(), MAXIMUM_ALLOWED, &hToken);
 				}
 				else if (SuMUICompare(g_hInstance, IDS_CURRENTUSER, szUser))
 				{
-					SuGetSessionTokenCopy(
+					NSudoDuplicateSessionToken(
 						dwSessionID,
 						MAXIMUM_ALLOWED,
 						nullptr,
@@ -181,9 +229,9 @@ void SuGUIRun(
 						&hToken);
 				}
 
-				// 如果勾选启用全部特权，则对令牌启用全部特权
+				// 如果勾选启用全部特权，则尝试对令牌启用全部特权
 				if (hToken != INVALID_HANDLE_VALUE && bEnableAllPrivileges)
-					SuSetTokenAllPrivileges(hToken, true);
+					NSudoSetTokenAllPrivileges(hToken, true);
 
 				if (!(hToken != INVALID_HANDLE_VALUE &&
 					SuCreateProcess(hToken, szBuffer)))
@@ -191,9 +239,9 @@ void SuGUIRun(
 					SuMUIPrintMsg(g_hInstance, NULL, IDS_ERRSUDO);
 				}
 
-				NtClose(hToken);
+				CloseHandle(hToken);
 
-				SuRevertToSelf();
+				RevertToSelf();
 			}
 		}
 	}
@@ -264,32 +312,51 @@ inline HRESULT GetDpiForMonitorInternal(
 	_Out_ UINT *dpiX,
 	_Out_ UINT *dpiY)
 {
-	PVOID pDllHandle = nullptr;
+	HMODULE hModule = nullptr;
 	decltype(GetDpiForMonitor)* pFunc = nullptr;
 	HRESULT hr = E_NOINTERFACE;
 
-	do
-	{
-		if (!NT_SUCCESS(M2LoadModule(pDllHandle, L"SHCore.dll")))
-			break;
+	hModule = LoadLibraryW(L"SHCore.dll");
+	if (!hModule) return NSudoGetLastCOMError();
 
-		if (!NT_SUCCESS(M2GetProcedureAddress(
-			pFunc, pDllHandle, "GetDpiForMonitor")))
-			break;
+	pFunc = (decltype(pFunc))GetProcAddress(hModule, "GetDpiForMonitor");
+	if (!pFunc) return NSudoGetLastCOMError();
 
-		hr = pFunc(hmonitor, dpiType, dpiX, dpiY);
+	hr = pFunc(hmonitor, dpiType, dpiX, dpiY);
 
-	} while (false);
+	FreeLibrary(hModule);
 
-	M2FreeModule(pDllHandle);
 	return hr;
+}
+
+typedef INT(WINAPI *PFN_EnablePerMonitorDialogScaling)();
+
+/*
+EnablePerMonitorDialogScaling函数为指定对话框启用Per-Monitor DPI Aware支
+持。
+The EnablePerMonitorDialogScaling function enables the Per-Monitor DPI
+Aware for the specified dialog.
+
+你需要在Windows 10 Threshold 1 及以后的版本使用该函数。
+You need to use this function in Windows 10 Threshold 1 or later.
+*/
+FORCEINLINE INT EnablePerMonitorDialogScaling()
+{
+	HMODULE hModule = nullptr;
+	PFN_EnablePerMonitorDialogScaling pFunc = nullptr;
+
+	hModule = GetModuleHandleW(L"user32.dll");
+	if (!hModule) return -1;
+
+	pFunc = (decltype(pFunc))GetProcAddress(hModule, (LPCSTR)2577);
+	if (!pFunc) return -1;
+
+	return pFunc();
 }
 
 #if _MSC_VER >= 1200
 #pragma warning(pop)
 #endif
-
-
 
 // 全局变量
 int g_xDPI = USER_DEFAULT_SCREEN_DPI;
@@ -520,14 +587,14 @@ int NSudoCommandLineParser(
 	DWORD dwSessionID = (DWORD)-1;
 
 	// 获取当前进程会话ID
-	if (!NT_SUCCESS(SuGetCurrentProcessSessionID(&dwSessionID)))
+	if (!NSudoGetCurrentProcessSessionID(&dwSessionID))
 	{
 		SuMUIPrintMsg(g_hInstance, NULL, IDS_ERRSUDO);
 		return 0;
 	}
 
 	// 如果未提权或者模拟System权限失败
-	if (!(bElevated && NT_SUCCESS(SuImpersonateAsSystem())))
+	if (!(bElevated && NSudoImpersonateAsSystem()))
 	{
 		SuMUIPrintMsg(g_hInstance, NULL, IDS_ERRNOTHELD);
 		return 0;
@@ -557,15 +624,15 @@ int NSudoCommandLineParser(
 					{
 					case 'T':
 					case 't':
-						if (NT_SUCCESS(SuGetServiceProcessTokenCopy(
+						if (NSudoDuplicateServiceToken(
 							L"TrustedInstaller",
 							MAXIMUM_ALLOWED,
 							nullptr,
 							SecurityIdentification,
 							TokenPrimary,
-							&hToken)))
+							&hToken))
 						{
-							NtSetInformationToken(
+							SetTokenInformation(
 								hToken,
 								TokenSessionId,
 								(PVOID)&dwSessionID,
@@ -574,7 +641,7 @@ int NSudoCommandLineParser(
 						break;
 					case 'S':
 					case 's':
-						SuGetSystemTokenCopy(
+						NSudoDuplicateSystemToken(
 							MAXIMUM_ALLOWED,
 							nullptr,
 							SecurityIdentification,
@@ -583,7 +650,7 @@ int NSudoCommandLineParser(
 						break;
 					case 'C':
 					case 'c':
-						SuGetSessionTokenCopy(
+						NSudoDuplicateSessionToken(
 							dwSessionID,
 							MAXIMUM_ALLOWED,
 							nullptr,
@@ -593,15 +660,16 @@ int NSudoCommandLineParser(
 						break;
 					case 'P':
 					case 'p':
-						SuOpenCurrentProcessToken(&hToken, MAXIMUM_ALLOWED);
+						OpenProcessToken(
+							GetCurrentProcess(), MAXIMUM_ALLOWED, &hToken);
 						break;
 					case 'D':
 					case 'd':
-						if (NT_SUCCESS(SuOpenCurrentProcessToken(
-							&hTempToken, MAXIMUM_ALLOWED)))
+						if (OpenProcessToken(
+							GetCurrentProcess(), MAXIMUM_ALLOWED, &hTempToken))
 						{
-							SuCreateLUAToken(&hToken, hTempToken);
-							NtClose(hTempToken);
+							NSudoCreateLUAToken(&hToken, hTempToken);
+							CloseHandle(hTempToken);
 						}
 						break;
 					default:
@@ -622,11 +690,11 @@ int NSudoCommandLineParser(
 						{
 						case 'E':
 						case 'e':
-							SuSetTokenAllPrivileges(hToken, true);
+							NSudoSetTokenAllPrivileges(hToken, true);
 							break;
 						case 'D':
 						case 'd':
-							SuSetTokenAllPrivileges(hToken, false);
+							NSudoSetTokenAllPrivileges(hToken, false);
 							break;
 						default:
 							bArgErr = true;
@@ -647,19 +715,19 @@ int NSudoCommandLineParser(
 						{
 						case 'S':
 						case 's':
-							SuSetTokenIntegrityLevel(hToken, SystemLevel);
+							NSudoSetTokenIntegrityLevel(hToken, SystemLevel);
 							break;
 						case 'H':
 						case 'h':
-							SuSetTokenIntegrityLevel(hToken, HighLevel);
+							NSudoSetTokenIntegrityLevel(hToken, HighLevel);
 							break;
 						case 'M':
 						case 'm':
-							SuSetTokenIntegrityLevel(hToken, MediumLevel);
+							NSudoSetTokenIntegrityLevel(hToken, MediumLevel);
 							break;
 						case 'L':
 						case 'l':
-							SuSetTokenIntegrityLevel(hToken, LowLevel);
+							NSudoSetTokenIntegrityLevel(hToken, LowLevel);
 							break;
 						default:
 							bArgErr = true;
@@ -695,21 +763,21 @@ int NSudoCommandLineParser(
 
 	if (hToken == INVALID_HANDLE_VALUE)
 	{
-		if (NT_SUCCESS(SuGetServiceProcessTokenCopy(
+		if (NSudoDuplicateServiceToken(
 			L"TrustedInstaller",
 			MAXIMUM_ALLOWED,
 			nullptr,
 			SecurityIdentification,
 			TokenPrimary,
-			&hToken)))
+			&hToken))
 		{
-			if (NT_SUCCESS(NtSetInformationToken(
+			if (SetTokenInformation(
 				hToken,
 				TokenSessionId,
 				(PVOID)&dwSessionID,
-				sizeof(DWORD))))
+				sizeof(DWORD)))
 			{
-				SuSetTokenAllPrivileges(hToken, true);
+				NSudoSetTokenAllPrivileges(hToken, true);
 			}
 		}
 	}
@@ -728,9 +796,9 @@ int NSudoCommandLineParser(
 		}
 	}
 
-	NtClose(hToken);
+	CloseHandle(hToken);
 
-	SuRevertToSelf();
+	RevertToSelf();
 
 	return 0;
 }
@@ -763,10 +831,10 @@ int WINAPI wWinMain(
 	HANDLE hCurrentToken = INVALID_HANDLE_VALUE;
 
 	bool bElevated = false;
-	if (NT_SUCCESS(SuOpenCurrentProcessToken(&hCurrentToken, MAXIMUM_ALLOWED)))
+	if (OpenProcessToken(GetCurrentProcess(), MAXIMUM_ALLOWED, &hCurrentToken))
 	{
-		bElevated = (SuSetTokenPrivilege(
-			hCurrentToken, SeDebugPrivilege, true) == STATUS_SUCCESS);
+		bElevated = NSudoSetTokenPrivilege(
+			hCurrentToken, SeDebugPrivilege, true);
 	}
 
 	if (argc == 1)
@@ -795,7 +863,7 @@ int WINAPI wWinMain(
 
 			ShellExecuteExW(&ExecInfo);
 
-			return (int)M2GetLastError();
+			return (int)GetLastError();
 		}
 	}
 	else
