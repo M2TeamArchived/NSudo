@@ -5,9 +5,10 @@
 
 HINSTANCE g_hInstance;
 
-wchar_t g_ExePath[MAX_PATH];
-wchar_t g_AppPath[MAX_PATH];
-wchar_t g_ShortCutListPath[MAX_PATH];
+std::wstring nsudo_app_path;
+
+nlohmann::json nsudo_config;
+nlohmann::json nsudo_shortcut_list_v2;
 
 #include "Version.h"
 
@@ -16,87 +17,44 @@ namespace ProjectInfo
 	wchar_t VersionText[] = L"M2-Team NSudo " NSUDO_VERSION_STRING;
 }
 
-// 内存指针模板类
-template<typename PtrType> class CPtr
-{
-public:
-	// 分配内存
-	bool Alloc(_In_ size_t Size)
-	{
-		if (m_Ptr) this->Free();
-		m_Ptr = malloc(Size);
-		return (m_Ptr != nullptr);
-	}
-
-	// 释放内存
-	void Free()
-	{
-		free(m_Ptr);
-		m_Ptr = nullptr;
-	}
-
-	// 获取内存指针
-	operator PtrType() const
-	{
-		return (PtrType)m_Ptr;
-	}
-
-	// 获取内存指针(->运算符)
-	PtrType operator->() const
-	{
-		return (PtrType)m_Ptr;
-	}
-
-	// 设置内存指针
-	CPtr& operator=(_In_ PtrType Ptr)
-	{
-		if (Ptr != m_Ptr) // 如果值相同返回自身,否则赋新值
-		{
-			if (m_Ptr) this->Free(); // 如果内存已分配则释放			
-			m_Ptr = Ptr; // 设置内存指针
-		}
-		return *this; // 返回自身
-	}
-
-	// 退出时释放内存
-	~CPtr()
-	{
-		if (m_Ptr) this->Free();
-	}
-
-private:
-	//指针内部变量
-	void *m_Ptr = nullptr;
-};
-
 bool SuCreateProcess(
 	_In_opt_ HANDLE hToken,
 	_Inout_ LPWSTR lpCommandLine)
 {
 	STARTUPINFOW StartupInfo = { 0 };
 	PROCESS_INFORMATION ProcessInfo = { 0 };
-	wchar_t szBuf[512];
-	wchar_t szSystemDirectory[MAX_PATH];
+
+	std::wstring final_command_line;
+	std::wstring system_directory;
+
+	//获取系统目录
+	system_directory.resize(MAX_PATH);
+	GetSystemDirectoryW(&system_directory[0], MAX_PATH);
+	system_directory.resize(wcslen(system_directory.c_str()));
+
+	//生成命令行
+	final_command_line = L"/c start \"" + system_directory + L"\\cmd.exe\" ";
+
+	try
+	{
+		final_command_line += m2_base_utf8_to_utf16(nsudo_shortcut_list_v2[m2_base_utf16_to_utf8(lpCommandLine).c_str()].get<std::string>());
+	}
+	catch (const std::exception&)
+	{
+		final_command_line += lpCommandLine;
+	}
 
 	//设置进程所在桌面
 	StartupInfo.lpDesktop = L"WinSta0\\Default";
 
-	//获取系统目录
-	GetSystemDirectoryW(szSystemDirectory, MAX_PATH);
-
-	//生成命令行	
-	wsprintfW(szBuf,
-		L"%s\\cmd.exe /c start \"%s\\cmd.exe\" %s",
-		szSystemDirectory, szSystemDirectory, lpCommandLine);
-
 	//启动进程
 	BOOL result = NSudoCreateProcess(
 		hToken,
-		nullptr,
-		szBuf,
+		(system_directory + L"\\cmd.exe").c_str(),
+		&final_command_line[0],
 		CREATE_NO_WINDOW | CREATE_UNICODE_ENVIRONMENT,
 		nullptr,
-		g_AppPath,
+		nsudo_app_path.c_str(),
 		&StartupInfo,
 		&ProcessInfo);
 
@@ -116,13 +74,12 @@ void SuMUIPrintMsg(
 	_In_opt_ HWND hWnd,
 	_In_ UINT uID)
 {
-	CPtr<wchar_t*> szBuffer;
-	if (szBuffer.Alloc(2048 * sizeof(wchar_t)))
-	{
-		LoadStringW(hInstance, uID, szBuffer, 2048);
-		TaskDialog(
-			hWnd, hInstance, L"NSudo", nullptr, szBuffer, 0, nullptr, nullptr);
-	}
+	std::wstring buffer;
+	buffer.resize(2048);
+
+	LoadStringW(hInstance, uID, &buffer[0], 2048);
+	TaskDialog(
+		hWnd, hInstance, L"NSudo", nullptr, buffer.c_str(), 0, nullptr, nullptr);
 }
 
 void NSudoBrowseDialog(
@@ -146,14 +103,12 @@ bool SuMUICompare(
 	_In_ UINT uID,
 	_In_ LPCWSTR lpText)
 {
-	bool bRet = false;
-	CPtr<wchar_t*> szBuffer;
-	if (szBuffer.Alloc(2048 * sizeof(wchar_t)))
-	{
-		LoadStringW(hInstance, uID, szBuffer, 2048);
-		bRet = (_wcsicmp(szBuffer, lpText) == 0);
-	}
-	return bRet;
+	std::wstring buffer;
+	buffer.resize(2048);
+
+	LoadStringW(hInstance, uID, &buffer[0], 2048);
+
+	return (_wcsicmp(buffer.c_str(), lpText) == 0);
 }
 
 void SuGUIRun(
@@ -168,14 +123,6 @@ void SuGUIRun(
 	}
 	else
 	{
-		wchar_t *szBuffer = nullptr;
-
-		wchar_t szPath[MAX_PATH];
-		GetPrivateProfileStringW(
-			szCMDLine, L"CommandLine", L"", szPath, MAX_PATH, g_ShortCutListPath);
-
-		szBuffer = (wcscmp(szPath, L"") != 0 ? szPath : const_cast<wchar_t*>(szCMDLine));
-
 		DWORD dwSessionID = (DWORD)-1;
 
 		// 获取当前进程会话ID
@@ -234,7 +181,7 @@ void SuGUIRun(
 					NSudoSetTokenAllPrivileges(hToken, true);
 
 				if (!(hToken != INVALID_HANDLE_VALUE &&
-					SuCreateProcess(hToken, szBuffer)))
+					SuCreateProcess(hToken, const_cast<wchar_t*>(szCMDLine))))
 				{
 					SuMUIPrintMsg(g_hInstance, NULL, IDS_ERRSUDO);
 				}
@@ -300,12 +247,6 @@ HRESULT SuShowAboutDialog(
 
 #include <ShellScalingApi.h>
 
-// 为编译通过而禁用的警告
-#if _MSC_VER >= 1200
-#pragma warning(push)
-#pragma warning(disable:4191) // 从“type of expression”到“type required”的不安全转换(等级 3)
-#endif
-
 inline HRESULT GetDpiForMonitorInternal(
 	_In_ HMONITOR hmonitor,
 	_In_ MONITOR_DPI_TYPE dpiType,
@@ -354,10 +295,6 @@ FORCEINLINE INT EnablePerMonitorDialogScaling()
 	return pFunc();
 }
 
-#if _MSC_VER >= 1200
-#pragma warning(pop)
-#endif
-
 // 全局变量
 int g_xDPI = USER_DEFAULT_SCREEN_DPI;
 int g_yDPI = USER_DEFAULT_SCREEN_DPI;
@@ -388,29 +325,23 @@ INT_PTR CALLBACK DialogCallBack(
 	{
 		SetWindowTextW(hDlg, ProjectInfo::VersionText);
 
-		LoadStringW(g_hInstance, IDS_ENABLEALLPRIVILEGES, szBuffer, 512);
-		SetWindowTextW(hCheckBox, szBuffer);
-
-		LoadStringW(g_hInstance, IDS_WARNINGTEXT, szBuffer, 512);
-		SetWindowTextW(GetDlgItem(hDlg, IDC_WARNINGTEXT), szBuffer);
-
-		LoadStringW(g_hInstance, IDS_SETTINGSGROUPTEXT, szBuffer, 512);
-		SetWindowTextW(GetDlgItem(hDlg, IDC_SETTINGSGROUPTEXT), szBuffer);
-
-		LoadStringW(g_hInstance, IDS_STATIC_USER, szBuffer, 512);
-		SetWindowTextW(GetDlgItem(hDlg, IDC_STATIC_USER), szBuffer);
-
-		LoadStringW(g_hInstance, IDS_STATIC_OPEN, szBuffer, 512);
-		SetWindowTextW(GetDlgItem(hDlg, IDC_STATIC_OPEN), szBuffer);
-
-		LoadStringW(g_hInstance, IDS_BUTTON_ABOUT, szBuffer, 512);
-		SetWindowTextW(GetDlgItem(hDlg, IDC_About), szBuffer);
-
-		LoadStringW(g_hInstance, IDS_BUTTON_BROWSE, szBuffer, 512);
-		SetWindowTextW(GetDlgItem(hDlg, IDC_Browse), szBuffer);
-
-		LoadStringW(g_hInstance, IDS_BUTTON_RUN, szBuffer, 512);
-		SetWindowTextW(GetDlgItem(hDlg, IDC_Run), szBuffer);
+		struct { UINT uID; HWND hWnd; } x[] =
+		{
+			{ IDS_ENABLEALLPRIVILEGES ,hCheckBox },
+			{ IDS_WARNINGTEXT , GetDlgItem(hDlg, IDC_WARNINGTEXT) },
+			{ IDS_SETTINGSGROUPTEXT ,GetDlgItem(hDlg, IDC_SETTINGSGROUPTEXT) },
+			{ IDS_STATIC_USER,GetDlgItem(hDlg, IDC_STATIC_USER) },
+			{ IDS_STATIC_OPEN, GetDlgItem(hDlg, IDC_STATIC_OPEN) },
+			{ IDS_BUTTON_ABOUT, GetDlgItem(hDlg, IDC_About) },
+			{ IDS_BUTTON_BROWSE, GetDlgItem(hDlg, IDC_Browse) },
+			{ IDS_BUTTON_RUN, GetDlgItem(hDlg, IDC_Run) }
+		};
+		
+		for (size_t i = 0; i < sizeof(x) / sizeof(x[0]); ++i)
+		{
+			LoadStringW(g_hInstance, x[i].uID, szBuffer, 512);
+			SetWindowTextW(x[i].hWnd, szBuffer);
+		}
 
 		HRESULT hr = E_FAIL;
 
@@ -442,37 +373,29 @@ INT_PTR CALLBACK DialogCallBack(
 			0,
 			LR_SHARED);
 
-		LoadStringW(g_hInstance, IDS_TI, szBuffer, 512);
-		SendMessageW(hUserName, CB_INSERTSTRING, 0, (LPARAM)szBuffer);
+		UINT y[] = { IDS_TI ,IDS_SYSTEM ,IDS_CURRENTPROCESS ,IDS_CURRENTUSER };
 
-		LoadStringW(g_hInstance, IDS_SYSTEM, szBuffer, 512);
-		SendMessageW(hUserName, CB_INSERTSTRING, 0, (LPARAM)szBuffer);
-
-		LoadStringW(g_hInstance, IDS_CURRENTPROCESS, szBuffer, 512);
-		SendMessageW(hUserName, CB_INSERTSTRING, 0, (LPARAM)szBuffer);
-
-		LoadStringW(g_hInstance, IDS_CURRENTUSER, szBuffer, 512);
-		SendMessageW(hUserName, CB_INSERTSTRING, 0, (LPARAM)szBuffer);
+		for (size_t i = 0; i < sizeof(y) / sizeof(y[0]); ++i)
+		{
+			LoadStringW(g_hInstance, y[i], szBuffer, 512);
+			SendMessageW(hUserName, CB_INSERTSTRING, 0, (LPARAM)szBuffer);
+		}
 
 		//设置默认项"TrustedInstaller"
 		SendMessageW(hUserName, CB_SETCURSEL, 3, 0);
 
-		wchar_t szItem[260], szBuf[32768];
-		DWORD dwLength = GetPrivateProfileSectionNamesW(
-			szBuf, 32768, g_ShortCutListPath);
-
-		for (DWORD i = 0, j = 0; i < dwLength; i++, j++)
+		try
 		{
-			if (szBuf[i] != L'\0')
+			auto shortcut_list_v2 = nsudo_shortcut_list_v2.get<std::unordered_map<std::string, nlohmann::json>>();
+
+			for (auto shortcut_item : shortcut_list_v2)
 			{
-				szItem[j] = szBuf[i];
+				SendMessageW(hszPath, CB_INSERTSTRING, 0, (LPARAM)m2_base_utf8_to_utf16(shortcut_item.first).c_str());
 			}
-			else
-			{
-				szItem[j] = L'\0';
-				SendMessageW(hszPath, CB_INSERTSTRING, 0, (LPARAM)szItem);
-				j = (DWORD)-1;
-			}
+		}
+		catch (const std::exception&)
+		{
+
 		}
 
 		return (INT_PTR)TRUE;
@@ -570,7 +493,7 @@ INT_PTR CALLBACK DialogCallBack(
 	return 0;
 }
 
-int NSudoCommandLineParser(
+int NSudoCommandLineParserLegacy(
 	_In_ bool bElevated,
 	_In_ int argc,
 	_In_ wchar_t **argv)
@@ -747,14 +670,7 @@ int NSudoCommandLineParser(
 		{
 			if (bCMDLineArgEnable)
 			{
-				wchar_t szPath[MAX_PATH];
-
-				GetPrivateProfileStringW(
-					argv[i], L"CommandLine", L"",
-					szPath, MAX_PATH, g_ShortCutListPath);
-
-				wcscmp(szPath, L"") != 0 ?
-					szBuffer = szPath : szBuffer = (argv[i]);
+				szBuffer = argv[i];
 
 				if (szBuffer) bCMDLineArgEnable = false;
 			}
@@ -820,13 +736,29 @@ int WINAPI wWinMain(
 
 	g_hInstance = hInstance;
 
-	GetModuleFileNameW(nullptr, g_ExePath, MAX_PATH);
+	std::wstring nsudo_exe_path;
 
-	wcscpy_s(g_AppPath, MAX_PATH, g_ExePath);
-	wcsrchr(g_AppPath, L'\\')[0] = L'\0';
+	nsudo_exe_path.resize(MAX_PATH);
+	GetModuleFileNameW(nullptr, &nsudo_exe_path[0], MAX_PATH);
 
-	wcscpy_s(g_ShortCutListPath, MAX_PATH, g_AppPath);
-	wcscat_s(g_ShortCutListPath, MAX_PATH, L"\\ShortCutList.ini");
+	nsudo_app_path = nsudo_exe_path;
+	wcsrchr(&nsudo_app_path[0], L'\\')[0] = L'\0';
+	nsudo_app_path.resize(wcslen(nsudo_app_path.c_str()));
+
+	try
+	{
+		std::ifstream fs;
+		fs.open(nsudo_app_path + L"\\NSudo.json");
+
+		nsudo_config = nlohmann::json::parse(fs);
+		nsudo_shortcut_list_v2 = nsudo_config["ShortCutList_V2"];
+	}
+	catch (const std::exception&)
+	{
+		
+	}
+
+	
 
 	HANDLE hCurrentToken = INVALID_HANDLE_VALUE;
 
@@ -857,7 +789,7 @@ int WINAPI wWinMain(
 		{
 			SHELLEXECUTEINFOW ExecInfo = { 0 };
 			ExecInfo.cbSize = sizeof(SHELLEXECUTEINFOW);
-			ExecInfo.lpFile = g_ExePath;
+			ExecInfo.lpFile = nsudo_exe_path.c_str();
 			ExecInfo.lpVerb = L"runas";
 			ExecInfo.nShow = SW_NORMAL;
 
@@ -868,7 +800,7 @@ int WINAPI wWinMain(
 	}
 	else
 	{
-		NSudoCommandLineParser(bElevated, argc, argv);
+		NSudoCommandLineParserLegacy(bElevated, argc, argv);
 	}
 
 	return 0;

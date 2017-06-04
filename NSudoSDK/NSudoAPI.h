@@ -15,26 +15,15 @@ License: The MIT License
 #ifndef _NSUDOAPI_
 #define _NSUDOAPI_
 
-// 为编译通过而禁用的警告
-#if _MSC_VER >= 1200
-#pragma warning(push)
-#pragma warning(disable:4820) // 字节填充添加在数据成员后(等级 4)
-#endif
-
 #include <Windows.h>
 #include <WtsApi32.h>
 
 #pragma comment(lib,"WtsApi32.lib")
 
-#if _MSC_VER >= 1200
-#pragma warning(pop)
-#endif
-
 // 为编译通过而禁用的警告
 #if _MSC_VER >= 1200
 #pragma warning(push)
 #pragma warning(disable:4505) // 未引用的本地函数已移除(等级 4)
-#pragma warning(disable:4711) // 为自动内联扩展选定了函数(等级 1,只是提示信息)
 #endif
 
 #ifdef __cplusplus
