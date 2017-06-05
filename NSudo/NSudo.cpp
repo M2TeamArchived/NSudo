@@ -36,8 +36,8 @@ bool SuCreateProcess(
 	final_command_line = L"/c start \"" + system_directory + L"\\cmd.exe\" ";
 
 	try
-	{
-		final_command_line += m2_base_utf8_to_utf16(nsudo_shortcut_list_v2[m2_base_utf16_to_utf8(lpCommandLine).c_str()].get<std::string>());
+	{		
+		final_command_line += m2_base_utf8_to_utf16(nsudo_shortcut_list_v2[m2_base_utf16_to_utf8(lpCommandLine)].get<std::string>());
 	}
 	catch (const std::exception&)
 	{
@@ -314,7 +314,10 @@ INT_PTR CALLBACK DialogCallBack(
 	HWND hCheckBox = GetDlgItem(hDlg, IDC_Check_EnableAllPrivileges);
 	HWND hszPath = GetDlgItem(hDlg, IDC_szPath);
 
-	wchar_t szCMDLine[MAX_PATH], szUser[260], szBuffer[512];
+	std::wstring buffer, username, cmdline;
+	buffer.resize(512);
+	username.resize(MAX_PATH);
+	cmdline.resize(MAX_PATH);
 
 	switch (message)
 	{
@@ -339,8 +342,8 @@ INT_PTR CALLBACK DialogCallBack(
 		
 		for (size_t i = 0; i < sizeof(x) / sizeof(x[0]); ++i)
 		{
-			LoadStringW(g_hInstance, x[i].uID, szBuffer, 512);
-			SetWindowTextW(x[i].hWnd, szBuffer);
+			LoadStringW(g_hInstance, x[i].uID, &buffer[0], buffer.capacity());
+			SetWindowTextW(x[i].hWnd, buffer.c_str());
 		}
 
 		HRESULT hr = E_FAIL;
@@ -377,8 +380,8 @@ INT_PTR CALLBACK DialogCallBack(
 
 		for (size_t i = 0; i < sizeof(y) / sizeof(y[0]); ++i)
 		{
-			LoadStringW(g_hInstance, y[i], szBuffer, 512);
-			SendMessageW(hUserName, CB_INSERTSTRING, 0, (LPARAM)szBuffer);
+			LoadStringW(g_hInstance, y[i], &buffer[0], buffer.capacity());
+			SendMessageW(hUserName, CB_INSERTSTRING, 0, (LPARAM)buffer.c_str());
 		}
 
 		//设置默认项"TrustedInstaller"
@@ -441,47 +444,43 @@ INT_PTR CALLBACK DialogCallBack(
 		switch (LOWORD(wParam))
 		{
 		case IDC_Run:
-			GetDlgItemTextW(hDlg, IDC_UserName, szUser, sizeof(szUser));
-			GetDlgItemTextW(hDlg, IDC_szPath, szCMDLine, sizeof(szCMDLine));
+			GetDlgItemTextW(hDlg, IDC_UserName, &username[0], username.capacity());
+			username.resize(wcslen(username.c_str()));
+			GetDlgItemTextW(hDlg, IDC_szPath, &cmdline[0], cmdline.capacity());
+			cmdline.resize(wcslen(cmdline.c_str()));
 
 			SuGUIRun(
 				hDlg,
-				szUser,
+				username.c_str(),
 				(SendMessageW(hCheckBox, BM_GETCHECK, 0, 0) == BST_CHECKED),
-				szCMDLine);
+				cmdline.c_str());
 			break;
 		case IDC_About:
 			SuShowAboutDialog(hDlg, g_hInstance);
 			break;
 		case IDC_Browse:
-			szBuffer[1] = L'\0';
-			NSudoBrowseDialog(hDlg, &szBuffer[1]);
+			NSudoBrowseDialog(hDlg, &buffer[0]);
+			buffer.resize(wcslen(buffer.c_str()));
 
-			if (szBuffer[1] != L'\0')
-			{
-				szBuffer[0] = L'\"';
-				wcscat_s(szBuffer, 512, L"\"");
-
-				SetDlgItemTextW(hDlg, IDC_szPath, szBuffer);
-			}
+			SetDlgItemTextW(
+				hDlg,
+				IDC_szPath,
+				(std::wstring(L"\"") + buffer + L"\"").c_str());
 
 			break;
 		}
 		break;
 	case WM_DROPFILES:
-	{
-		DragQueryFileW(
-			(HDROP)wParam,
-			0,
-			&szBuffer[1],
-			sizeof(szBuffer) - sizeof(wchar_t));
+	{	
+		DragQueryFileW((HDROP)wParam, 0, &buffer[0], buffer.capacity());
+		buffer.resize(wcslen(buffer.c_str()));
 
-		if (!(GetFileAttributesW(&szBuffer[1]) & FILE_ATTRIBUTE_DIRECTORY))
+		if (!(GetFileAttributesW(buffer.c_str()) & FILE_ATTRIBUTE_DIRECTORY))
 		{
-			szBuffer[0] = L'\"';
-			wcscat_s(szBuffer, 512, L"\"");
-
-			SetDlgItemTextW(hDlg, IDC_szPath, szBuffer);
+			SetDlgItemTextW(
+				hDlg, 
+				IDC_szPath, 
+				(std::wstring(L"\"") + buffer + L"\"").c_str());
 		}
 
 		DragFinish((HDROP)wParam);
@@ -757,8 +756,6 @@ int WINAPI wWinMain(
 	{
 		
 	}
-
-	
 
 	HANDLE hCurrentToken = INVALID_HANDLE_VALUE;
 
