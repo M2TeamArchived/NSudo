@@ -56,11 +56,11 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="res\ShortCutList.ini">
-      <Filter>资源文件\资源</Filter>
-    </None>
     <None Include="NSudo.def">
       <Filter>源文件</Filter>
+    </None>
+    <None Include="res\NSudo.json">
+      <Filter>资源文件\资源</Filter>
     </None>
   </ItemGroup>
 </Project>
