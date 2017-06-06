@@ -74,8 +74,7 @@ void SuMUIPrintMsg(
 	_In_opt_ HWND hWnd,
 	_In_ UINT uID)
 {
-	std::wstring buffer;
-	buffer.resize(2048);
+	std::wstring buffer(2048, L'\0');
 
 	LoadStringW(hInstance, uID, &buffer[0], 2048);
 	TaskDialog(
@@ -103,8 +102,7 @@ bool SuMUICompare(
 	_In_ UINT uID,
 	_In_ LPCWSTR lpText)
 {
-	std::wstring buffer;
-	buffer.resize(2048);
+	std::wstring buffer(2048, L'\0');
 
 	LoadStringW(hInstance, uID, &buffer[0], 2048);
 
@@ -314,11 +312,6 @@ INT_PTR CALLBACK DialogCallBack(
 	HWND hCheckBox = GetDlgItem(hDlg, IDC_Check_EnableAllPrivileges);
 	HWND hszPath = GetDlgItem(hDlg, IDC_szPath);
 
-	std::wstring buffer, username, cmdline;
-	buffer.resize(512);
-	username.resize(MAX_PATH);
-	cmdline.resize(MAX_PATH);
-
 	switch (message)
 	{
 	case WM_CLOSE:
@@ -342,7 +335,9 @@ INT_PTR CALLBACK DialogCallBack(
 		
 		for (size_t i = 0; i < sizeof(x) / sizeof(x[0]); ++i)
 		{
-			LoadStringW(g_hInstance, x[i].uID, &buffer[0], buffer.capacity());
+			std::wstring buffer(512, L'\0');
+			auto length = LoadStringW(g_hInstance, x[i].uID, &buffer[0], (int)buffer.size());
+			buffer.resize(length);
 			SetWindowTextW(x[i].hWnd, buffer.c_str());
 		}
 
@@ -380,7 +375,9 @@ INT_PTR CALLBACK DialogCallBack(
 
 		for (size_t i = 0; i < sizeof(y) / sizeof(y[0]); ++i)
 		{
-			LoadStringW(g_hInstance, y[i], &buffer[0], buffer.capacity());
+			std::wstring buffer(512, L'\0');
+			auto length = LoadStringW(g_hInstance, y[i], &buffer[0], (int)buffer.size());
+			buffer.resize(length);
 			SendMessageW(hUserName, CB_INSERTSTRING, 0, (LPARAM)buffer.c_str());
 		}
 
@@ -389,12 +386,11 @@ INT_PTR CALLBACK DialogCallBack(
 
 		try
 		{
-			auto shortcut_list_v2 = nsudo_shortcut_list_v2.get<std::unordered_map<std::string, nlohmann::json>>();
-
-			for (auto shortcut_item : shortcut_list_v2)
+			for (auto it = nsudo_shortcut_list_v2.begin(); it != nsudo_shortcut_list_v2.end(); ++it)
 			{
-				SendMessageW(hszPath, CB_INSERTSTRING, 0, (LPARAM)m2_base_utf8_to_utf16(shortcut_item.first).c_str());
+				SendMessageW(hszPath, CB_INSERTSTRING, 0, (LPARAM)m2_base_utf8_to_utf16(it.key()).c_str());
 			}
+
 		}
 		catch (const std::exception&)
 		{
@@ -441,13 +437,18 @@ INT_PTR CALLBACK DialogCallBack(
 		break;
 	}
 	case WM_COMMAND:
+	{
 		switch (LOWORD(wParam))
 		{
 		case IDC_Run:
-			GetDlgItemTextW(hDlg, IDC_UserName, &username[0], username.capacity());
-			username.resize(wcslen(username.c_str()));
-			GetDlgItemTextW(hDlg, IDC_szPath, &cmdline[0], cmdline.capacity());
-			cmdline.resize(wcslen(cmdline.c_str()));
+		{
+			std::wstring username(MAX_PATH, L'\0');
+			std::wstring cmdline(MAX_PATH, L'\0');
+			
+			auto username_length = GetDlgItemTextW(hDlg, IDC_UserName, &username[0], (int)username.size());
+			username.resize(username_length);
+			auto cmdline_length = GetDlgItemTextW(hDlg, IDC_szPath, &cmdline[0], (int)cmdline.size());
+			cmdline.resize(cmdline_length);
 
 			SuGUIRun(
 				hDlg,
@@ -455,38 +456,52 @@ INT_PTR CALLBACK DialogCallBack(
 				(SendMessageW(hCheckBox, BM_GETCHECK, 0, 0) == BST_CHECKED),
 				cmdline.c_str());
 			break;
+		}
 		case IDC_About:
 			SuShowAboutDialog(hDlg, g_hInstance);
 			break;
 		case IDC_Browse:
-			NSudoBrowseDialog(hDlg, &buffer[0]);
+		{
+			std::wstring buffer(MAX_PATH + 2, L'\0');
+			
+			buffer[0] = L'\"';
+
+			NSudoBrowseDialog(hDlg, &buffer[1]);
 			buffer.resize(wcslen(buffer.c_str()));
 
-			SetDlgItemTextW(
-				hDlg,
-				IDC_szPath,
-				(std::wstring(L"\"") + buffer + L"\"").c_str());
+			buffer[buffer.size()] = L'\"';
+
+			SetDlgItemTextW(hDlg, IDC_szPath, buffer.c_str());
 
 			break;
 		}
+		default:
+			break;
+		}
+
 		break;
+	}
 	case WM_DROPFILES:
 	{	
-		DragQueryFileW((HDROP)wParam, 0, &buffer[0], buffer.capacity());
+		std::wstring buffer(MAX_PATH + 2, L'\0');
+		
+		buffer[0] = L'\"';
+		
+		DragQueryFileW((HDROP)wParam, 0, &buffer[1], (int)(buffer.size() - 2));
 		buffer.resize(wcslen(buffer.c_str()));
 
-		if (!(GetFileAttributesW(buffer.c_str()) & FILE_ATTRIBUTE_DIRECTORY))
+		if (!(GetFileAttributesW(&buffer[1]) & FILE_ATTRIBUTE_DIRECTORY))
 		{
-			SetDlgItemTextW(
-				hDlg, 
-				IDC_szPath, 
-				(std::wstring(L"\"") + buffer + L"\"").c_str());
+			buffer[buffer.size()] = L'\"';
+			SetDlgItemTextW(hDlg, IDC_szPath, buffer.c_str());
 		}
 
 		DragFinish((HDROP)wParam);
 
 		break;
 	}
+	default:
+		break;
 	}
 
 	return 0;
