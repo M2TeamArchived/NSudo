@@ -487,8 +487,9 @@ INT_PTR CALLBACK DialogCallBack(
 		
 		buffer[0] = L'\"';
 		
-		DragQueryFileW((HDROP)wParam, 0, &buffer[1], (int)(buffer.size() - 2));
-		buffer.resize(wcslen(buffer.c_str()));
+		auto length = DragQueryFileW(
+			(HDROP)wParam, 0, &buffer[1], (int)(buffer.size() - 2));
+		buffer.resize(length + 1);
 
 		if (!(GetFileAttributesW(&buffer[1]) & FILE_ATTRIBUTE_DIRECTORY))
 		{
