@@ -13,10 +13,10 @@ build:
   verbosity: normal
 after_build:
 - cmd: >-
-    7z a -r NSudo_%APPVEYOR_BUILD_VERSION%_%PLATFORM%_%CONFIGURATION%.zip %APPVEYOR_BUILD_FOLDER%\Output\Binary\*.exe
+    7z a -r NSudo_CI_Build_%APPVEYOR_BUILD_NUMBER%.zip %APPVEYOR_BUILD_FOLDER%\Output\Binary\*.exe
 
-    7z a -r NSudo_%APPVEYOR_BUILD_VERSION%_%PLATFORM%_%CONFIGURATION%.zip %APPVEYOR_BUILD_FOLDER%\Output\Binary\*.pdb
+    7z a -r NSudo_CI_Build_%APPVEYOR_BUILD_NUMBER%.zip %APPVEYOR_BUILD_FOLDER%\Output\Binary\*.pdb
 
-    7z a -r NSudo_%APPVEYOR_BUILD_VERSION%_%PLATFORM%_%CONFIGURATION%.zip %APPVEYOR_BUILD_FOLDER%\Output\Binary\*.json
+    7z a -r NSudo_CI_Build_%APPVEYOR_BUILD_NUMBER%.zip %APPVEYOR_BUILD_FOLDER%\Output\Binary\*.json
 artifacts:
-- path: NSudo_%APPVEYOR_BUILD_VERSION%_%PLATFORM%_%CONFIGURATION%.zip
+- path: NSudo_CI_Build_%APPVEYOR_BUILD_NUMBER%.zip
