@@ -1,5 +1,9 @@
 ﻿# 改进日志 Changelog
 
+**NSudo 5.0.1707.14**
+- 修改LICENSE以符合实际情况
+- 同步Nagisa项目的m2base.h
+
 **NSudo 5.0.1706.7**
 - 更新CI编译配置文件
 - 按照 fcharlie 的建议修改了代码
