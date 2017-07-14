@@ -293,6 +293,37 @@ FORCEINLINE INT EnablePerMonitorDialogScaling()
 	return pFunc();
 }
 
+
+
+
+/*class CNSudoMainWindow
+{
+public:
+	CNSudoMainWindow();
+	~CNSudoMainWindow();
+
+private:
+
+};
+
+CNSudoMainWindow::CNSudoMainWindow()
+{
+}
+
+CNSudoMainWindow::~CNSudoMainWindow()
+{
+}
+
+INT_PTR CALLBACK DialogProc(
+	_In_ HWND hwndDlg,
+	_In_ UINT uMsg,
+	_In_ WPARAM wParam,
+	_In_ LPARAM lParam)
+{
+
+}*/
+
+
 // 全局变量
 int g_xDPI = USER_DEFAULT_SCREEN_DPI;
 int g_yDPI = USER_DEFAULT_SCREEN_DPI;

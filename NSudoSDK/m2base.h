@@ -20,6 +20,9 @@ License: The MIT License
 #include <string>
 #include <Windows.h>
 
+/*
+The m2_base_utf8_to_utf16 function converts from UTF-8 string to UTF-16 string.
+*/
 static std::wstring m2_base_utf8_to_utf16(const std::string& utf8_string)
 {
 	std::wstring utf16_string;
@@ -46,6 +49,9 @@ static std::wstring m2_base_utf8_to_utf16(const std::string& utf8_string)
 	return utf16_string;
 }
 
+/*
+The m2_base_utf16_to_utf8 function converts from UTF-16 string to UTF-8 string.
+*/
 static std::string m2_base_utf16_to_utf8(const std::wstring& utf16_string)
 {
 	std::string utf8_string;
