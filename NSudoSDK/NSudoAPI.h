@@ -26,6 +26,92 @@ License: The MIT License
 #pragma warning(disable:4505) // 未引用的本地函数已移除(等级 4)
 #endif
 
+namespace M2
+{
+	template<typename TObject, const TObject InvalidValue, typename TCloseFunction, TCloseFunction CloseFunction>
+	class CObject
+	{
+	private:
+		TObject m_Object;
+	public:
+		CObject(TObject Object = InvalidValue) : m_Object(Object)
+		{
+
+		}
+
+		~CObject()
+		{
+			this->Close();
+		}
+
+		TObject* operator&()
+		{
+			return &this->m_Object;
+		}
+
+		TObject operator=(TObject Object)
+		{
+			this->Close();
+			return (this->m_Object = Object);
+		}
+
+		operator TObject()
+		{
+			return this->m_Object;
+		}
+
+		bool IsInvalid()
+		{
+			return (this->m_Object == InvalidValue);
+		}
+
+		TObject Detach()
+		{
+			TObject Object = this->m_Object;
+			this->m_Object = InvalidValue;
+			return Object;
+		}
+
+		void Close()
+		{
+			if (!this->IsInvalid())
+			{
+				CloseFunction(this->m_Object);
+				this->m_Object = InvalidValue;
+			}
+		}
+	};
+
+	typedef CObject<SC_HANDLE, nullptr, decltype(CloseServiceHandle), CloseServiceHandle> CServiceHandle;
+	
+	typedef CObject<HANDLE, INVALID_HANDLE_VALUE, decltype(CloseHandle), CloseHandle> CHandle;
+
+
+	class CNSudoInstance
+	{
+	private:
+		DWORD m_SessionID;
+
+
+
+	public:
+		CNSudoInstance()
+			: m_SessionID(-1)
+		{
+
+		}
+		~CNSudoInstance()
+		{
+
+		}
+
+		DWORD get_SessionID()
+		{
+			return m_SessionID;
+		}
+	};
+}
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -134,8 +220,9 @@ extern "C" {
 		_In_ LPCWSTR lpServiceName,
 		_Out_ LPSERVICE_STATUS_PROCESS lpServiceStatus)
 	{
-		SC_HANDLE hSCM = nullptr;
-		SC_HANDLE hService = nullptr;
+		M2::CServiceHandle hSCM;
+		M2::CServiceHandle hService;
+		
 		DWORD nBytesNeeded = 0;
 		DWORD nOldCheckPoint = 0;
 		ULONGLONG nCurrentTick = 0;
@@ -225,8 +312,6 @@ extern "C" {
 			memset(lpServiceStatus, 0, sizeof(SERVICE_STATUS_PROCESS));
 
 	FuncEnd:
-		if (hService) CloseServiceHandle(hService);
-		if (hSCM) CloseServiceHandle(hSCM);
 
 		return bSucceed;
 	}

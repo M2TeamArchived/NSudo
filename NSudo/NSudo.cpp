@@ -10,6 +10,9 @@ std::wstring nsudo_app_path;
 nlohmann::json nsudo_config;
 nlohmann::json nsudo_shortcut_list_v2;
 
+#include <Userenv.h>
+#pragma comment(lib, "Userenv.lib")
+
 #include "Version.h"
 
 namespace ProjectInfo
@@ -24,16 +27,16 @@ bool SuCreateProcess(
 	STARTUPINFOW StartupInfo = { 0 };
 	PROCESS_INFORMATION ProcessInfo = { 0 };
 
-	std::wstring final_command_line;
-	std::wstring system_directory;
+	
+	
+	std::wstring ComSpec;
 
-	//获取系统目录
-	system_directory.resize(MAX_PATH);
-	GetSystemDirectoryW(&system_directory[0], MAX_PATH);
-	system_directory.resize(wcslen(system_directory.c_str()));
+	ComSpec.resize(MAX_PATH);
+	GetEnvironmentVariableW(L"ComSpec", &ComSpec[0], (DWORD)ComSpec.size());
+	ComSpec.resize(wcslen(ComSpec.c_str()));
 
 	//生成命令行
-	final_command_line = L"/c start \"" + system_directory + L"\\cmd.exe\" ";
+	std::wstring final_command_line = L"/c start \"" + ComSpec + L"\" ";
 
 	try
 	{		
@@ -47,22 +50,34 @@ bool SuCreateProcess(
 	//设置进程所在桌面
 	StartupInfo.lpDesktop = L"WinSta0\\Default";
 
-	//启动进程
-	BOOL result = NSudoCreateProcess(
-		hToken,
-		(system_directory + L"\\cmd.exe").c_str(),
-		&final_command_line[0],
-		CREATE_NO_WINDOW | CREATE_UNICODE_ENVIRONMENT,
-		nullptr,
-		nsudo_app_path.c_str(),
-		&StartupInfo,
-		&ProcessInfo);
+	LPVOID lpEnvironment = nullptr;
 
-	//关闭句柄
-	if (result)
+	BOOL result = FALSE;
+
+	if (CreateEnvironmentBlock(&lpEnvironment, hToken, FALSE))
 	{
-		CloseHandle(ProcessInfo.hProcess);
-		CloseHandle(ProcessInfo.hThread);
+		//启动进程
+		result = CreateProcessAsUserW(
+				hToken,
+				ComSpec.c_str(),
+				&final_command_line[0],
+				nullptr,
+				nullptr,
+				FALSE,
+				CREATE_NO_WINDOW | CREATE_UNICODE_ENVIRONMENT,
+				lpEnvironment,
+				nsudo_app_path.c_str(),
+				&StartupInfo,
+				&ProcessInfo);
+
+		//关闭句柄
+		if (result)
+		{
+			CloseHandle(ProcessInfo.hProcess);
+			CloseHandle(ProcessInfo.hThread);
+		}
+
+		DestroyEnvironmentBlock(lpEnvironment);
 	}
 
 	//返回结果
@@ -765,6 +780,11 @@ int NSudoCommandLineParserLegacy(
 	return 0;
 }
 
+
+
+
+
+
 int WINAPI wWinMain(
 	_In_ HINSTANCE hInstance,
 	_In_opt_ HINSTANCE hPrevInstance,
@@ -774,7 +794,7 @@ int WINAPI wWinMain(
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	UNREFERENCED_PARAMETER(lpCmdLine);
 	UNREFERENCED_PARAMETER(nShowCmd);
-
+	
 	CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
 
 	int argc = 0;
