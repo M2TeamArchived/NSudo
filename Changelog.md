@@ -1,5 +1,9 @@
 ﻿# 改进日志 Changelog
 
+**NSudo 5.0.1707.30**
+- 进程创建时添加环境块以改善兼容性
+- 同步Nagisa项目的m2base.h
+
 **NSudo 5.0.1707.14**
 - 修改LICENSE以符合实际情况
 - 同步Nagisa项目的m2base.h
