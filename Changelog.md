@@ -1,8 +1,11 @@
 ﻿# 改进日志 Changelog
 
-**NSudo 5.0.1707.30**
+**NSudo 5.0.1707.31**
 - 进程创建时添加环境块以改善兼容性
 - 同步Nagisa项目的m2base.h
+- NSudoSDK移除NSudoCreateProcess函数(因为有更好的实现)
+- 使用M2::Object模板类简化资源释放
+- 将界面实现移入CNSudoMainWindow类
 
 **NSudo 5.0.1707.14**
 - 修改LICENSE以符合实际情况
