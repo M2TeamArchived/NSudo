@@ -20,6 +20,14 @@ namespace ProjectInfo
 	wchar_t VersionText[] = L"M2-Team NSudo " NSUDO_VERSION_STRING;
 }
 
+/*
+SuCreateProcess函数创建一个新进程和对应的主线程
+The SuCreateProcess function creates a new process and its primary thread.
+
+如果函数执行失败，返回值为NULL。调用GetLastError可获取详细错误码。
+If the function fails, the return value is NULL. To get extended error
+information, call GetLastError.
+*/
 bool SuCreateProcess(
 	_In_opt_ HANDLE hToken,
 	_Inout_ LPWSTR lpCommandLine)
@@ -144,7 +152,7 @@ void SuGUIRun(
 			// 模拟为System权限
 			if (NSudoImpersonateAsSystem())
 			{
-				HANDLE hToken = INVALID_HANDLE_VALUE;
+				M2::CHandle hToken;
 
 				// 获取用户令牌
 				if (SuMUICompare(g_hInstance, IDS_TI, szUser))
@@ -199,63 +207,10 @@ void SuGUIRun(
 					SuMUIPrintMsg(g_hInstance, NULL, IDS_ERRSUDO);
 				}
 
-				CloseHandle(hToken);
-
 				RevertToSelf();
 			}
 		}
 	}
-}
-
-HRESULT SuShowAboutDialog(
-	_In_ HWND hwndParent,
-	_In_ HINSTANCE hInstance)
-{
-	TASKDIALOGCONFIG config = { 0 };
-
-	config.cbSize = sizeof(config);
-	config.dwFlags = TDF_ALLOW_DIALOG_CANCELLATION | TDF_ENABLE_HYPERLINKS;
-	config.hwndParent = hwndParent;
-	config.hInstance = hInstance;
-	config.pszMainIcon = MAKEINTRESOURCEW(IDI_NSUDO);
-	config.pszMainInstruction = ProjectInfo::VersionText;
-	config.pszContent = MAKEINTRESOURCE(IDS_ABOUT);
-	config.pszWindowTitle = L"NSudo";
-	config.pfCallback = [](
-		_In_ HWND hwnd,
-		_In_ UINT msg,
-		_In_ WPARAM wParam,
-		_In_ LPARAM lParam,
-		_In_ LONG_PTR lpRefData)
-		-> HRESULT
-	{
-		UNREFERENCED_PARAMETER(hwnd);
-		UNREFERENCED_PARAMETER(wParam);
-		UNREFERENCED_PARAMETER(lpRefData);
-
-		if (TDN_HYPERLINK_CLICKED == msg)
-		{
-			SHELLEXECUTEINFOW ExecInfo = { 0 };
-			ExecInfo.cbSize = sizeof(SHELLEXECUTEINFOW);
-			ExecInfo.lpVerb = L"open";
-			ExecInfo.nShow = SW_SHOW;
-
-			if (_wcsicmp((LPCWSTR)lParam, L"NSudo://OfficalQQGroupJoinLink") == 0)
-			{
-				ExecInfo.lpFile = L"http://shang.qq.com/wpa/qunwpa?idkey=29940ed5c8b2363efcf8a1c376f280c4a46c4e356d5533af48541418ff13ada2";
-			}
-			else
-			{
-				ExecInfo.lpFile = (LPCWSTR)lParam;
-			}
-
-			ShellExecuteExW(&ExecInfo);
-		}
-
-		return S_OK;
-	};
-
-	return TaskDialogIndirect(&config, nullptr, nullptr, nullptr);
 }
 
 #include <ShellScalingApi.h>
@@ -308,20 +263,47 @@ FORCEINLINE INT EnablePerMonitorDialogScaling()
 	return pFunc();
 }
 
-
-
-
-/*class CNSudoMainWindow
+class CNSudoMainWindow
 {
-public:
-	CNSudoMainWindow();
-	~CNSudoMainWindow();
+private:
+	static INT_PTR CALLBACK s_DialogProc(
+		_In_ HWND hDlg,
+		_In_ UINT uMsg,
+		_In_ WPARAM wParam,
+		_In_ LPARAM lParam);
+
+private:
+	HICON m_hNSudoIcon = nullptr;
+	HICON m_hWarningIcon = nullptr;
+
+	int m_xDPI = USER_DEFAULT_SCREEN_DPI;
+	int m_yDPI = USER_DEFAULT_SCREEN_DPI;
+
+	HINSTANCE m_hInstance;
 
 private:
 
+
+public:
+	CNSudoMainWindow(HINSTANCE hInstance = nullptr);
+	~CNSudoMainWindow();
+
+	INT_PTR Show();
+
+	HRESULT ShowAboutDialog(
+		_In_ HWND hwndParent);
+
+	INT_PTR DialogProc(
+		_In_ HWND hDlg,
+		_In_ UINT uMsg,
+		_In_ WPARAM wParam,
+		_In_ LPARAM lParam);
+
+
 };
 
-CNSudoMainWindow::CNSudoMainWindow()
+CNSudoMainWindow::CNSudoMainWindow(HINSTANCE hInstance) :
+	m_hInstance(hInstance)
 {
 }
 
@@ -329,28 +311,105 @@ CNSudoMainWindow::~CNSudoMainWindow()
 {
 }
 
-INT_PTR CALLBACK DialogProc(
-	_In_ HWND hwndDlg,
+INT_PTR CNSudoMainWindow::s_DialogProc(
+	_In_ HWND hDlg,
 	_In_ UINT uMsg,
 	_In_ WPARAM wParam,
 	_In_ LPARAM lParam)
 {
+	CNSudoMainWindow* pThis;
 
-}*/
+	if (uMsg == WM_INITDIALOG)
+	{
+		pThis = reinterpret_cast<CNSudoMainWindow*>(lParam);
 
+		SetWindowLongPtrW(hDlg, DWLP_USER,
+			reinterpret_cast<LONG_PTR>(pThis));
+	}
+	else
+	{
+		pThis = reinterpret_cast<CNSudoMainWindow*>(
+			GetWindowLongPtrW(hDlg, DWLP_USER));
+	}
 
-// 全局变量
-int g_xDPI = USER_DEFAULT_SCREEN_DPI;
-int g_yDPI = USER_DEFAULT_SCREEN_DPI;
+	if (pThis)
+	{
+		return pThis->DialogProc(hDlg, uMsg, wParam, lParam);
+	}
 
-HICON hNSudoIcon = nullptr;
-HICON hWarningIcon = nullptr;
+	return FALSE;
+}
 
-INT_PTR CALLBACK DialogCallBack(
-	HWND hDlg,
-	UINT message,
-	WPARAM wParam,
-	LPARAM lParam)
+INT_PTR CNSudoMainWindow::Show()
+{
+	EnablePerMonitorDialogScaling();
+
+	ChangeWindowMessageFilter(WM_DROPFILES, MSGFLT_ADD);
+	ChangeWindowMessageFilter(0x0049, MSGFLT_ADD); // WM_COPYGLOBALDATA
+
+	return DialogBoxParamW(
+		this->m_hInstance,
+		MAKEINTRESOURCEW(IDD_NSudoDlg),
+		nullptr,
+		this->s_DialogProc,
+		reinterpret_cast<LPARAM>(this));
+}
+
+HRESULT CNSudoMainWindow::ShowAboutDialog(
+	_In_ HWND hwndParent)
+{
+	TASKDIALOGCONFIG config = { 0 };
+
+	config.cbSize = sizeof(config);
+	config.dwFlags = TDF_ALLOW_DIALOG_CANCELLATION | TDF_ENABLE_HYPERLINKS;
+	config.hwndParent = hwndParent;
+	config.hInstance = this->m_hInstance;
+	config.pszMainIcon = MAKEINTRESOURCEW(IDI_NSUDO);
+	config.pszMainInstruction = ProjectInfo::VersionText;
+	config.pszContent = MAKEINTRESOURCE(IDS_ABOUT);
+	config.pszWindowTitle = L"NSudo";
+	config.pfCallback = [](
+		_In_ HWND hwnd,
+		_In_ UINT msg,
+		_In_ WPARAM wParam,
+		_In_ LPARAM lParam,
+		_In_ LONG_PTR lpRefData)
+		-> HRESULT
+	{
+		UNREFERENCED_PARAMETER(hwnd);
+		UNREFERENCED_PARAMETER(wParam);
+		UNREFERENCED_PARAMETER(lpRefData);
+
+		if (TDN_HYPERLINK_CLICKED == msg)
+		{
+			SHELLEXECUTEINFOW ExecInfo = { 0 };
+			ExecInfo.cbSize = sizeof(SHELLEXECUTEINFOW);
+			ExecInfo.lpVerb = L"open";
+			ExecInfo.nShow = SW_SHOW;
+
+			if (_wcsicmp((LPCWSTR)lParam, L"NSudo://OfficalQQGroupJoinLink") == 0)
+			{
+				ExecInfo.lpFile = L"http://shang.qq.com/wpa/qunwpa?idkey=29940ed5c8b2363efcf8a1c376f280c4a46c4e356d5533af48541418ff13ada2";
+			}
+			else
+			{
+				ExecInfo.lpFile = (LPCWSTR)lParam;
+			}
+
+			ShellExecuteExW(&ExecInfo);
+		}
+
+		return S_OK;
+	};
+
+	return TaskDialogIndirect(&config, nullptr, nullptr, nullptr);
+}
+
+INT_PTR CNSudoMainWindow::DialogProc(
+	_In_ HWND hDlg,
+	_In_ UINT uMsg,
+	_In_ WPARAM wParam,
+	_In_ LPARAM lParam)
 {
 	UNREFERENCED_PARAMETER(lParam);
 
@@ -358,7 +417,7 @@ INT_PTR CALLBACK DialogCallBack(
 	HWND hCheckBox = GetDlgItem(hDlg, IDC_Check_EnableAllPrivileges);
 	HWND hszPath = GetDlgItem(hDlg, IDC_szPath);
 
-	switch (message)
+	switch (uMsg)
 	{
 	case WM_CLOSE:
 		EndDialog(hDlg, 0);
@@ -378,11 +437,11 @@ INT_PTR CALLBACK DialogCallBack(
 			{ IDS_BUTTON_BROWSE, GetDlgItem(hDlg, IDC_Browse) },
 			{ IDS_BUTTON_RUN, GetDlgItem(hDlg, IDC_Run) }
 		};
-		
+
 		for (size_t i = 0; i < sizeof(x) / sizeof(x[0]); ++i)
 		{
 			std::wstring buffer(512, L'\0');
-			auto length = LoadStringW(g_hInstance, x[i].uID, &buffer[0], (int)buffer.size());
+			auto length = LoadStringW(this->m_hInstance, x[i].uID, &buffer[0], (int)buffer.size());
 			buffer.resize(length);
 			SetWindowTextW(x[i].hWnd, buffer.c_str());
 		}
@@ -391,25 +450,25 @@ INT_PTR CALLBACK DialogCallBack(
 
 		hr = GetDpiForMonitorInternal(
 			MonitorFromWindow(hDlg, MONITOR_DEFAULTTONEAREST),
-			MDT_EFFECTIVE_DPI, (UINT*)&g_xDPI, (UINT*)&g_yDPI);
+			MDT_EFFECTIVE_DPI, (UINT*)&this->m_xDPI, (UINT*)&this->m_yDPI);
 		if (hr != S_OK)
 		{
-			g_xDPI = GetDeviceCaps(GetDC(hDlg), LOGPIXELSX);
-			g_yDPI = GetDeviceCaps(GetDC(hDlg), LOGPIXELSY);
+			this->m_xDPI = GetDeviceCaps(GetDC(hDlg), LOGPIXELSX);
+			this->m_yDPI = GetDeviceCaps(GetDC(hDlg), LOGPIXELSY);
 		}
 
-		hNSudoIcon = (HICON)LoadImageW(
-			g_hInstance,
+		this->m_hNSudoIcon = (HICON)LoadImageW(
+			this->m_hInstance,
 			MAKEINTRESOURCE(IDI_NSUDO),
 			IMAGE_ICON,
 			256,
 			256,
 			LR_SHARED);
 
-		SendMessageW(hDlg, WM_SETICON, ICON_SMALL, (LPARAM)hNSudoIcon);
-		SendMessageW(hDlg, WM_SETICON, ICON_BIG, (LPARAM)hNSudoIcon);
+		SendMessageW(hDlg, WM_SETICON, ICON_SMALL, (LPARAM)this->m_hNSudoIcon);
+		SendMessageW(hDlg, WM_SETICON, ICON_BIG, (LPARAM)this->m_hNSudoIcon);
 
-		hWarningIcon = (HICON)LoadImageW(
+		this->m_hWarningIcon = (HICON)LoadImageW(
 			nullptr,
 			IDI_WARNING,
 			IMAGE_ICON,
@@ -422,7 +481,7 @@ INT_PTR CALLBACK DialogCallBack(
 		for (size_t i = 0; i < sizeof(y) / sizeof(y[0]); ++i)
 		{
 			std::wstring buffer(512, L'\0');
-			auto length = LoadStringW(g_hInstance, y[i], &buffer[0], (int)buffer.size());
+			auto length = LoadStringW(this->m_hInstance, y[i], &buffer[0], (int)buffer.size());
 			buffer.resize(length);
 			SendMessageW(hUserName, CB_INSERTSTRING, 0, (LPARAM)buffer.c_str());
 		}
@@ -453,21 +512,21 @@ INT_PTR CALLBACK DialogCallBack(
 		GetClientRect(hDlg, &Rect);
 		DrawIconEx(
 			hdc,
-			MulDiv(16, g_xDPI, USER_DEFAULT_SCREEN_DPI),
-			MulDiv(16, g_yDPI, USER_DEFAULT_SCREEN_DPI),
-			hNSudoIcon,
-			MulDiv(64, g_xDPI, USER_DEFAULT_SCREEN_DPI),
-			MulDiv(64, g_yDPI, USER_DEFAULT_SCREEN_DPI),
+			MulDiv(16, this->m_xDPI, USER_DEFAULT_SCREEN_DPI),
+			MulDiv(16, this->m_yDPI, USER_DEFAULT_SCREEN_DPI),
+			this->m_hNSudoIcon,
+			MulDiv(64, this->m_xDPI, USER_DEFAULT_SCREEN_DPI),
+			MulDiv(64, this->m_yDPI, USER_DEFAULT_SCREEN_DPI),
 			0,
 			nullptr,
 			DI_NORMAL | DI_COMPAT);
 		DrawIconEx(
 			hdc,
-			MulDiv(16, g_xDPI, USER_DEFAULT_SCREEN_DPI),
-			(Rect.bottom - Rect.top) - MulDiv(40, g_yDPI, USER_DEFAULT_SCREEN_DPI),
-			hWarningIcon,
-			MulDiv(24, g_xDPI, USER_DEFAULT_SCREEN_DPI),
-			MulDiv(24, g_yDPI, USER_DEFAULT_SCREEN_DPI),
+			MulDiv(16, this->m_xDPI, USER_DEFAULT_SCREEN_DPI),
+			(Rect.bottom - Rect.top) - MulDiv(40, this->m_yDPI, USER_DEFAULT_SCREEN_DPI),
+			this->m_hWarningIcon,
+			MulDiv(24, this->m_xDPI, USER_DEFAULT_SCREEN_DPI),
+			MulDiv(24, this->m_yDPI, USER_DEFAULT_SCREEN_DPI),
 			0,
 			nullptr,
 			DI_NORMAL | DI_COMPAT);
@@ -477,8 +536,8 @@ INT_PTR CALLBACK DialogCallBack(
 	}
 	case WM_DPICHANGED:
 	{
-		g_xDPI = LOWORD(wParam);
-		g_yDPI = HIWORD(wParam);
+		this->m_xDPI = LOWORD(wParam);
+		this->m_yDPI = HIWORD(wParam);
 
 		break;
 	}
@@ -490,7 +549,7 @@ INT_PTR CALLBACK DialogCallBack(
 		{
 			std::wstring username(MAX_PATH, L'\0');
 			std::wstring cmdline(MAX_PATH, L'\0');
-			
+
 			auto username_length = GetDlgItemTextW(hDlg, IDC_UserName, &username[0], (int)username.size());
 			username.resize(username_length);
 			auto cmdline_length = GetDlgItemTextW(hDlg, IDC_szPath, &cmdline[0], (int)cmdline.size());
@@ -504,12 +563,12 @@ INT_PTR CALLBACK DialogCallBack(
 			break;
 		}
 		case IDC_About:
-			SuShowAboutDialog(hDlg, g_hInstance);
+			this->ShowAboutDialog(hDlg);
 			break;
 		case IDC_Browse:
 		{
 			std::wstring buffer(MAX_PATH + 2, L'\0');
-			
+
 			buffer[0] = L'\"';
 
 			NSudoBrowseDialog(hDlg, &buffer[1]);
@@ -528,11 +587,11 @@ INT_PTR CALLBACK DialogCallBack(
 		break;
 	}
 	case WM_DROPFILES:
-	{	
+	{
 		std::wstring buffer(MAX_PATH + 2, L'\0');
-		
+
 		buffer[0] = L'\"';
-		
+
 		auto length = DragQueryFileW(
 			(HDROP)wParam, 0, &buffer[1], (int)(buffer.size() - 2));
 		buffer.resize(length + 1);
@@ -550,9 +609,10 @@ INT_PTR CALLBACK DialogCallBack(
 	default:
 		break;
 	}
-
-	return 0;
+	
+	return FALSE;
 }
+
 
 int NSudoCommandLineParserLegacy(
 	_In_ bool bElevated,
@@ -564,7 +624,7 @@ int NSudoCommandLineParserLegacy(
 		(argv[1][0] == L'-' || argv[1][0] == L'/') &&
 		argv[1][1] == '?')
 	{
-		SuShowAboutDialog(nullptr, g_hInstance);
+		CNSudoMainWindow(g_hInstance).ShowAboutDialog(nullptr);
 		return 0;
 	}
 
@@ -589,8 +649,8 @@ int NSudoCommandLineParserLegacy(
 
 	wchar_t *szBuffer = nullptr;
 
-	HANDLE hToken = INVALID_HANDLE_VALUE;
-	HANDLE hTempToken = INVALID_HANDLE_VALUE;
+	M2::CHandle hToken;
+	M2::CHandle hTempToken;
 
 	for (int i = 1; i < argc; i++)
 	{
@@ -653,7 +713,6 @@ int NSudoCommandLineParserLegacy(
 							GetCurrentProcess(), MAXIMUM_ALLOWED, &hTempToken))
 						{
 							NSudoCreateLUAToken(&hToken, hTempToken);
-							CloseHandle(hTempToken);
 						}
 						break;
 					default:
@@ -773,17 +832,10 @@ int NSudoCommandLineParserLegacy(
 		}
 	}
 
-	CloseHandle(hToken);
-
 	RevertToSelf();
 
 	return 0;
 }
-
-
-
-
-
 
 int WINAPI wWinMain(
 	_In_ HINSTANCE hInstance,
@@ -837,17 +889,7 @@ int WINAPI wWinMain(
 	{
 		if (bElevated)
 		{
-			EnablePerMonitorDialogScaling();
-
-			ChangeWindowMessageFilter(WM_DROPFILES, MSGFLT_ADD);
-			ChangeWindowMessageFilter(0x0049, MSGFLT_ADD); // WM_COPYGLOBALDATA
-
-			DialogBoxParamW(
-				g_hInstance,
-				MAKEINTRESOURCEW(IDD_NSudoDlg),
-				nullptr,
-				DialogCallBack,
-				0L);
+			CNSudoMainWindow(hInstance).Show();
 		}
 		else
 		{

@@ -31,7 +31,7 @@ namespace M2
 	template<typename TObject, const TObject InvalidValue, typename TCloseFunction, TCloseFunction CloseFunction>
 	class CObject
 	{
-	private:
+	protected:
 		TObject m_Object;
 	public:
 		CObject(TObject Object = InvalidValue) : m_Object(Object)
@@ -51,8 +51,12 @@ namespace M2
 
 		TObject operator=(TObject Object)
 		{
-			this->Close();
-			return (this->m_Object = Object);
+			if (Object != this->m_Object)
+			{
+				this->Close();
+				this->m_Object = Object;
+			}
+			return (this->m_Object);
 		}
 
 		operator TObject()
@@ -80,35 +84,40 @@ namespace M2
 				this->m_Object = InvalidValue;
 			}
 		}
+
+		TObject operator->() const
+		{
+			return this->m_Object;
+		}
 	};
 
 	typedef CObject<SC_HANDLE, nullptr, decltype(CloseServiceHandle), CloseServiceHandle> CServiceHandle;
 	
 	typedef CObject<HANDLE, INVALID_HANDLE_VALUE, decltype(CloseHandle), CloseHandle> CHandle;
 
+	typedef CObject<PSID, nullptr, decltype(FreeSid), FreeSid> CSID;
 
-	class CNSudoInstance
+	template<typename TMemoryBlock>
+	class CMemory : public CObject<TMemoryBlock, nullptr, decltype(free), free>
 	{
-	private:
-		DWORD m_SessionID;
-
-
-
 	public:
-		CNSudoInstance()
-			: m_SessionID(-1)
-		{
 
-		}
-		~CNSudoInstance()
+		bool Alloc(size_t Size)
 		{
-
+			this->Free();
+			return (this->m_Object = (TMemoryBlock)malloc(Size));
 		}
 
-		DWORD get_SessionID()
+		void Free()
 		{
-			return m_SessionID;
+			this->Close();
 		}
+	};
+
+	template<typename TMemoryBlock>
+	class CWTSMemory : public CObject<TMemoryBlock, nullptr, decltype(WTSFreeMemory), WTSFreeMemory>
+	{
+
 	};
 }
 
@@ -329,7 +338,7 @@ extern "C" {
 		_Out_ PDWORD SessionID)
 	{
 		BOOL result = FALSE;
-		HANDLE hToken = INVALID_HANDLE_VALUE;
+		M2::CHandle hToken;
 		DWORD ReturnLength = 0;
 
 		result = OpenProcessToken(
@@ -392,7 +401,7 @@ extern "C" {
 		_In_ bool bEnable)
 	{
 		BOOL result = FALSE;
-		PTOKEN_PRIVILEGES pTPs = nullptr;
+		M2::CMemory<PTOKEN_PRIVILEGES> pTPs;
 		DWORD Length = 0;
 
 		// 获取特权信息大小
@@ -402,8 +411,7 @@ extern "C" {
 		if (result)
 		{
 			// 分配内存
-			pTPs = (PTOKEN_PRIVILEGES)malloc(Length);
-			if (pTPs)
+			if (pTPs.Alloc(Length))
 			{
 				// 获取特权信息
 				result = GetTokenInformation(
@@ -420,9 +428,6 @@ extern "C" {
 						hExistingToken, FALSE, pTPs, 0, nullptr, nullptr);
 					result = (GetLastError() == ERROR_SUCCESS);
 				}
-
-				// 释放内存
-				free(pTPs);
 			}
 			else SetLastError(ERROR_NOT_ENOUGH_MEMORY);
 		}
@@ -445,21 +450,20 @@ extern "C" {
 	{
 		BOOL result = FALSE;
 		TOKEN_MANDATORY_LABEL TML;
+		M2::CSID Sid;
 
 		// 初始化SID
 		result = AllocateAndInitializeSid(
-			&SIA_IL, 1, IL, 0, 0, 0, 0, 0, 0, 0, &TML.Label.Sid);
+			&SIA_IL, 1, IL, 0, 0, 0, 0, 0, 0, 0, &Sid);
 		if (result)
 		{
 			// 初始化TOKEN_MANDATORY_LABEL
 			TML.Label.Attributes = SE_GROUP_INTEGRITY;
+			TML.Label.Sid = Sid;
 
 			// 设置令牌对象
 			result = SetTokenInformation(
 				TokenHandle, TokenIntegrityLevel, &TML, sizeof(TML));
-
-			// 释放SID
-			FreeSid(TML.Label.Sid);
 		}
 
 		return result;
@@ -483,9 +487,11 @@ extern "C" {
 		BOOL EnableTokenVirtualization = TRUE;
 		TOKEN_OWNER Owner = { 0 };
 		TOKEN_DEFAULT_DACL NewTokenDacl = { 0 };
-		PTOKEN_USER pTokenUser = nullptr;
-		PTOKEN_DEFAULT_DACL pTokenDacl = nullptr;
-		PSID pAdminSid = nullptr;
+		M2::CHandle hToken;
+		M2::CMemory<PTOKEN_USER> pTokenUser;
+		M2::CMemory<PTOKEN_DEFAULT_DACL> pTokenDacl;
+		M2::CSID pAdminSid;
+		M2::CMemory<PACL> NewDefaultDacl;
 		PACCESS_ALLOWED_ACE pTempAce = nullptr;
 
 		//创建受限令牌
@@ -495,23 +501,22 @@ extern "C" {
 			0, nullptr,
 			0, nullptr,
 			0, nullptr,
-			TokenHandle);
+			&hToken);
 		if (!result) goto FuncEnd;
 
 		// 设置令牌完整性
 		result = NSudoSetTokenIntegrityLevel(
-			*TokenHandle, TOKEN_INTEGRITY_LEVELS_LIST::MediumLevel);
+			hToken, TOKEN_INTEGRITY_LEVELS_LIST::MediumLevel);
 		if (!result) goto FuncEnd;
 
 		// 获取令牌对应的用户账户SID信息大小
 		GetTokenInformation(
-			*TokenHandle, TokenUser, nullptr, 0, &Length);
+			hToken, TokenUser, nullptr, 0, &Length);
 		result = (GetLastError() == ERROR_INSUFFICIENT_BUFFER);
 		if (!result) goto FuncEnd;
 
 		// 为令牌对应的用户账户SID信息分配内存
-		pTokenUser = (PTOKEN_USER)malloc(Length);
-		if (!pTokenUser)
+		if (!pTokenUser.Alloc(Length))
 		{
 			SetLastError(ERROR_NOT_ENOUGH_MEMORY);
 			goto FuncEnd;
@@ -519,24 +524,23 @@ extern "C" {
 
 		// 获取令牌对应的用户账户SID信息
 		result = GetTokenInformation(
-			*TokenHandle, TokenUser, pTokenUser, Length, &Length);
+			hToken, TokenUser, pTokenUser, Length, &Length);
 		if (!result) goto FuncEnd;
 
 		// 设置令牌Owner为当前用户
 		Owner.Owner = pTokenUser->User.Sid;
 		result = SetTokenInformation(
-			*TokenHandle, TokenOwner, &Owner, sizeof(TOKEN_OWNER));
+			hToken, TokenOwner, &Owner, sizeof(TOKEN_OWNER));
 		if (!result) goto FuncEnd;
 
 		// 获取令牌的DACL信息大小
 		GetTokenInformation(
-			*TokenHandle, TokenDefaultDacl, nullptr, 0, &Length);
+			hToken, TokenDefaultDacl, nullptr, 0, &Length);
 		result = (GetLastError() == ERROR_INSUFFICIENT_BUFFER);
 		if (!result) goto FuncEnd;
 
 		// 为令牌的DACL信息分配内存
-		pTokenDacl = (PTOKEN_DEFAULT_DACL)malloc(Length);
-		if (!pTokenDacl)
+		if (!pTokenDacl.Alloc(Length))
 		{
 			SetLastError(ERROR_NOT_ENOUGH_MEMORY);
 			goto FuncEnd;
@@ -544,7 +548,7 @@ extern "C" {
 
 		// 获取令牌的DACL信息
 		result = GetTokenInformation(
-			*TokenHandle, TokenDefaultDacl, pTokenDacl, Length, &Length);
+			hToken, TokenDefaultDacl, pTokenDacl, Length, &Length);
 		if (!result) goto FuncEnd;
 
 		// 获取管理员组SID
@@ -560,12 +564,12 @@ extern "C" {
 		Length += sizeof(ACCESS_ALLOWED_ACE);
 
 		// 分配ACL结构内存
-		NewTokenDacl.DefaultDacl = (PACL)malloc(Length);
-		if (!NewTokenDacl.DefaultDacl)
+		if (!NewDefaultDacl.Alloc(Length))
 		{
 			SetLastError(ERROR_NOT_ENOUGH_MEMORY);
 			goto FuncEnd;
 		}
+		NewTokenDacl.DefaultDacl = NewDefaultDacl;
 
 		// 创建ACL
 		result = InitializeAcl(
@@ -600,12 +604,12 @@ extern "C" {
 		// 设置令牌DACL
 		Length += sizeof(TOKEN_DEFAULT_DACL);
 		result = SetTokenInformation(
-			*TokenHandle, TokenDefaultDacl, &NewTokenDacl, Length);
+			hToken, TokenDefaultDacl, &NewTokenDacl, Length);
 		if (!result) goto FuncEnd;
 
 		// 开启LUA虚拟化
 		result = SetTokenInformation(
-			*TokenHandle,
+			hToken,
 			TokenVirtualizationEnabled,
 			&EnableTokenVirtualization,
 			sizeof(BOOL));
@@ -613,64 +617,9 @@ extern "C" {
 
 	FuncEnd: // 扫尾
 
-		if (NewTokenDacl.DefaultDacl) free(NewTokenDacl.DefaultDacl);
-		if (pAdminSid) free(pAdminSid);
-		if (pTokenDacl) free(pTokenDacl);
-		if (pTokenUser) free(pTokenUser);
-		if (!result)
+		if (result)
 		{
-			CloseHandle(*TokenHandle);
-			*TokenHandle = INVALID_HANDLE_VALUE;
-		}
-
-		return result;
-	}
-
-	/*
-	NSudoCreateProcess函数创建一个新进程和对应的主线程
-	The NSudoCreateProcess function creates a new process and its primary thread.
-
-	如果函数执行失败，返回值为NULL。调用GetLastError可获取详细错误码。
-	If the function fails, the return value is NULL. To get extended error
-	information, call GetLastError.
-	*/
-	static BOOL WINAPI NSudoCreateProcess(
-		_In_opt_ HANDLE hToken,
-		_In_opt_ LPCWSTR lpApplicationName,
-		_Inout_opt_ LPWSTR lpCommandLine,
-		_In_ DWORD dwCreationFlags,
-		_In_opt_ LPVOID lpEnvironment,
-		_In_opt_ LPCWSTR lpCurrentDirectory,
-		_In_ LPSTARTUPINFOW lpStartupInfo,
-		_Out_ LPPROCESS_INFORMATION lpProcessInformation)
-	{
-		BOOL result = FALSE;
-
-		result = CreateProcessAsUserW(
-			hToken,
-			lpApplicationName,
-			lpCommandLine,
-			nullptr,
-			nullptr,
-			FALSE,
-			dwCreationFlags,
-			lpEnvironment,
-			lpCurrentDirectory,
-			lpStartupInfo,
-			lpProcessInformation);
-
-		if (!result)
-		{
-			result = CreateProcessWithTokenW(
-				hToken,
-				LOGON_WITH_PROFILE,
-				lpApplicationName,
-				lpCommandLine,
-				dwCreationFlags,
-				lpEnvironment,
-				lpCurrentDirectory,
-				lpStartupInfo,
-				lpProcessInformation);
+			*TokenHandle = hToken.Detach();
 		}
 
 		return result;
@@ -694,8 +643,9 @@ extern "C" {
 		_Outptr_ PHANDLE phToken)
 	{
 		BOOL result = FALSE;
-		HANDLE hProcess = nullptr;
-		HANDLE hToken = nullptr;
+
+		M2::CHandle hProcess;
+		M2::CHandle hToken;
 
 		// 打开进程对象
 		hProcess = OpenProcess(MAXIMUM_ALLOWED, FALSE, dwProcessID);
@@ -713,10 +663,7 @@ extern "C" {
 					ImpersonationLevel,
 					TokenType,
 					phToken);
-
-				CloseHandle(hToken);
 			}
-			CloseHandle(hProcess);
 		}
 
 		return result;
@@ -741,8 +688,7 @@ extern "C" {
 		BOOL result = FALSE;
 		DWORD dwWinLogonPID = (DWORD)-1;
 		DWORD dwSessionID = (DWORD)-1;
-
-		PWTS_PROCESS_INFOW pProcesses = nullptr;
+		M2::CWTSMemory<PWTS_PROCESS_INFOW> pProcesses;
 		DWORD dwProcessCount = 0;
 
 		do
@@ -759,7 +705,6 @@ extern "C" {
 				&pProcesses,
 				&dwProcessCount))
 			{
-
 				for (DWORD i = 0; i < dwProcessCount; ++i)
 				{
 					PWTS_PROCESS_INFOW pProcess = &pProcesses[i];
@@ -773,8 +718,6 @@ extern "C" {
 						break;
 					}
 				}
-
-				WTSFreeMemory(pProcesses);
 			}
 
 			// 如果没找到进程，则返回错误
@@ -853,7 +796,7 @@ extern "C" {
 		_Outptr_ PHANDLE phToken)
 	{
 		BOOL result = FALSE;
-		HANDLE hToken = nullptr;
+		M2::CHandle hToken;
 
 		// 打开会话令牌
 		result = WTSQueryUserToken(dwSessionID, &hToken);
@@ -867,8 +810,6 @@ extern "C" {
 				ImpersonationLevel,
 				TokenType,
 				phToken);
-
-			CloseHandle(hToken);
 		}
 
 		return result;
@@ -888,7 +829,7 @@ extern "C" {
 	static BOOL WINAPI NSudoImpersonateAsSystem()
 	{
 		BOOL result = FALSE;
-		HANDLE hToken = nullptr;
+		M2::CHandle hToken;
 
 		// 获取当前会话SYSTEM用户令牌副本
 		result = NSudoDuplicateSystemToken(
@@ -906,8 +847,6 @@ extern "C" {
 				// 模拟令牌
 				result = SetThreadToken(nullptr, hToken);
 			}
-
-			CloseHandle(hToken);
 		}
 
 		return result;
