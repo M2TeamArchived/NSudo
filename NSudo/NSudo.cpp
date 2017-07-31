@@ -35,11 +35,7 @@ bool SuCreateProcess(
 	STARTUPINFOW StartupInfo = { 0 };
 	PROCESS_INFORMATION ProcessInfo = { 0 };
 
-	
-	
-	std::wstring ComSpec;
-
-	ComSpec.resize(MAX_PATH);
+	std::wstring ComSpec(MAX_PATH, L'\0');
 	GetEnvironmentVariableW(L"ComSpec", &ComSpec[0], (DWORD)ComSpec.size());
 	ComSpec.resize(wcslen(ComSpec.c_str()));
 
@@ -281,8 +277,16 @@ private:
 
 	HINSTANCE m_hInstance;
 
-private:
+	HWND m_hUserName = nullptr;
+	HWND m_hCheckBox = nullptr;
+	HWND m_hszPath = nullptr;
 
+private:
+	INT_PTR DialogProc(
+		_In_ HWND hDlg,
+		_In_ UINT uMsg,
+		_In_ WPARAM wParam,
+		_In_ LPARAM lParam);
 
 public:
 	CNSudoMainWindow(HINSTANCE hInstance = nullptr);
@@ -293,11 +297,7 @@ public:
 	HRESULT ShowAboutDialog(
 		_In_ HWND hwndParent);
 
-	INT_PTR DialogProc(
-		_In_ HWND hDlg,
-		_In_ UINT uMsg,
-		_In_ WPARAM wParam,
-		_In_ LPARAM lParam);
+	
 
 
 };
@@ -413,10 +413,6 @@ INT_PTR CNSudoMainWindow::DialogProc(
 {
 	UNREFERENCED_PARAMETER(lParam);
 
-	HWND hUserName = GetDlgItem(hDlg, IDC_UserName);
-	HWND hCheckBox = GetDlgItem(hDlg, IDC_Check_EnableAllPrivileges);
-	HWND hszPath = GetDlgItem(hDlg, IDC_szPath);
-
 	switch (uMsg)
 	{
 	case WM_CLOSE:
@@ -424,11 +420,15 @@ INT_PTR CNSudoMainWindow::DialogProc(
 		break;
 	case WM_INITDIALOG:
 	{
+		this->m_hUserName = GetDlgItem(hDlg, IDC_UserName);
+		this->m_hCheckBox = GetDlgItem(hDlg, IDC_Check_EnableAllPrivileges);
+		this->m_hszPath = GetDlgItem(hDlg, IDC_szPath);
+		
 		SetWindowTextW(hDlg, ProjectInfo::VersionText);
 
 		struct { UINT uID; HWND hWnd; } x[] =
 		{
-			{ IDS_ENABLEALLPRIVILEGES ,hCheckBox },
+			{ IDS_ENABLEALLPRIVILEGES , this->m_hCheckBox },
 			{ IDS_WARNINGTEXT , GetDlgItem(hDlg, IDC_WARNINGTEXT) },
 			{ IDS_SETTINGSGROUPTEXT ,GetDlgItem(hDlg, IDC_SETTINGSGROUPTEXT) },
 			{ IDS_STATIC_USER,GetDlgItem(hDlg, IDC_STATIC_USER) },
@@ -483,17 +483,17 @@ INT_PTR CNSudoMainWindow::DialogProc(
 			std::wstring buffer(512, L'\0');
 			auto length = LoadStringW(this->m_hInstance, y[i], &buffer[0], (int)buffer.size());
 			buffer.resize(length);
-			SendMessageW(hUserName, CB_INSERTSTRING, 0, (LPARAM)buffer.c_str());
+			SendMessageW(this->m_hUserName, CB_INSERTSTRING, 0, (LPARAM)buffer.c_str());
 		}
 
 		//设置默认项"TrustedInstaller"
-		SendMessageW(hUserName, CB_SETCURSEL, 3, 0);
+		SendMessageW(this->m_hUserName, CB_SETCURSEL, 3, 0);
 
 		try
 		{
 			for (auto it = nsudo_shortcut_list_v2.begin(); it != nsudo_shortcut_list_v2.end(); ++it)
 			{
-				SendMessageW(hszPath, CB_INSERTSTRING, 0, (LPARAM)m2_base_utf8_to_utf16(it.key()).c_str());
+				SendMessageW(this->m_hszPath, CB_INSERTSTRING, 0, (LPARAM)m2_base_utf8_to_utf16(it.key()).c_str());
 			}
 
 		}
@@ -550,15 +550,15 @@ INT_PTR CNSudoMainWindow::DialogProc(
 			std::wstring username(MAX_PATH, L'\0');
 			std::wstring cmdline(MAX_PATH, L'\0');
 
-			auto username_length = GetDlgItemTextW(hDlg, IDC_UserName, &username[0], (int)username.size());
+			auto username_length = GetWindowTextW(this->m_hUserName, &username[0], (int)username.size());
 			username.resize(username_length);
-			auto cmdline_length = GetDlgItemTextW(hDlg, IDC_szPath, &cmdline[0], (int)cmdline.size());
+			auto cmdline_length = GetWindowTextW(this->m_hszPath, &cmdline[0], (int)cmdline.size());
 			cmdline.resize(cmdline_length);
 
 			SuGUIRun(
 				hDlg,
 				username.c_str(),
-				(SendMessageW(hCheckBox, BM_GETCHECK, 0, 0) == BST_CHECKED),
+				(SendMessageW(this->m_hCheckBox, BM_GETCHECK, 0, 0) == BST_CHECKED),
 				cmdline.c_str());
 			break;
 		}
@@ -576,7 +576,8 @@ INT_PTR CNSudoMainWindow::DialogProc(
 
 			buffer[buffer.size()] = L'\"';
 
-			SetDlgItemTextW(hDlg, IDC_szPath, buffer.c_str());
+			if (wcslen(buffer.c_str()) > 2)
+				SetWindowTextW(this->m_hszPath, buffer.c_str());
 
 			break;
 		}
@@ -599,7 +600,7 @@ INT_PTR CNSudoMainWindow::DialogProc(
 		if (!(GetFileAttributesW(&buffer[1]) & FILE_ATTRIBUTE_DIRECTORY))
 		{
 			buffer[buffer.size()] = L'\"';
-			SetDlgItemTextW(hDlg, IDC_szPath, buffer.c_str());
+			SetWindowTextW(this->m_hszPath, buffer.c_str());
 		}
 
 		DragFinish((HDROP)wParam);
