@@ -1,72 +1,26 @@
 ﻿# 改进日志 Changelog
 
-**NSudo 5.0.1707.31**
-- 进程创建时添加环境块以改善兼容性
-- 同步Nagisa项目的m2base.h
-- NSudoSDK移除NSudoCreateProcess函数(因为有更好的实现)
-- 使用M2::Object模板类简化资源释放
-- 将界面实现移入CNSudoMainWindow类
-
-**NSudo 5.0.1707.14**
-- 修改LICENSE以符合实际情况
-- 同步Nagisa项目的m2base.h
-
-**NSudo 5.0.1706.7**
-- 更新CI编译配置文件
-- 按照 fcharlie 的建议修改了代码
-
-**NSudo 5.0.1706.6**
-- 优化代码
-- 按照 fcharlie 的建议修改了代码
-- 调整编译输出目录
-- 更新解决方案内容
-
-**NSudo 5.0.1706.5**
-- 优化代码
-
-**NSudo 5.0.1706.4**
-- 根据VC编译器文档的建议，使用/W4 /WX 编译，去除了以下警告的屏蔽宏：
-  - C4820 字节填充添加在数据成员后(等级 4)
-  - C4710 函数未内联(等级 4)
-  - C4711 为自动内联扩展选定了函数(等级 1,只是提示信息)
-  - C4191 从“type of expression”到“type required”的不安全转换(等级 3)
-- NSudo快捷列表文件格式从ini迁移到json
-- 移除 CPtr 模板依赖
-- 优化代码
-
-**NSudo 5.0.1706.3**
-- 修复 Version.h 头描述
-- 增加 NSudoSDK 项目
-- 在 NSudoSDK 项目增加 NSudoAPI.h
-- 完全使用MSDN文档化API实现NSudoAPI.h以方便人们调用
-- 移除 M2-SDK 依赖
-- 修改文档
-- 启用 SDL 检查
-- 整理屏蔽的警告，该版本NSudo屏蔽了以下警告实现 /Wall /WX 编译
-  - C4820 字节填充添加在数据成员后(等级 4)
-  - C4505 未引用的本地函数已移除(等级 4)
-  - C4710 函数未内联(等级 4)
-  - C4711 为自动内联扩展选定了函数(等级 1,只是提示信息)
-  - C4191 从“type of expression”到“type required”的不安全转换(等级 3)
-
-**NSudo 5.0.1706.2**
-- 更新许可协议
+**NSudo 5.0 (4.4.1705.28 - 5.0.1707.31)**
+- 使用新的获取会话ID方法解决在Server系统的远程桌面会话上使用NSudo运行应用可能无法显示界面的问题（感谢 sebus）
+- 更新文档和许可协议以符合实际情况
 - 移除VC-LTL（由 fcharlie 建议），理由如下：
   - 虽然二进制大小增加80KB，但源代码大小缩小57.6MB
   - 源代码大小缩小后，NSudo的云编译速度大幅提升
   - 可以少屏蔽大量编译警告
-
-**NSudo 4.4.1706.2**
-- 在 M2-SDK 的 M2.NSudo.h 添加 CM2EnumProcess 迭代器
-- .gitignore文件更新(由 fcharlie 实现)
+- 使用 NSudoSDK 项目代替 M2-SDK 项目
 - 改进版本定义头文件
-
-**NSudo 4.4.1705.28**
-- 更新 Readme.md（感谢 myfreeer 大力帮忙）
-- 更新 ShortCutList.ini（由 myfreeer 实现）
-- 更新 appveyor.yml
-- 在Visual Studio解决方案增加M2-SDK和VC-LTL子项目项
-- 使用新的获取会话ID方法解决在Server系统的远程桌面会话上使用NSudo运行应用可能无法显示界面的问题（感谢 sebus）
+- 编译器启用 SDL 检查、调整编译输出目录和更新CI编译配置文件
+- 调整并优化代码(感谢 fcharlie 的建议)
+- .gitignore文件更新(由 fcharlie 实现)
+- 完全使用MSDN文档化API实现NSudoAPI.h以方便人们调用
+- 与Nagisa项目共用m2base.h
+- 整理屏蔽的警告，该版本NSudo屏蔽了以下警告实现 /W4 /WX 编译
+  - C4505 未引用的本地函数已移除(等级 4)
+- NSudo快捷列表文件格式从ini迁移到json并更新列表内容
+- 进程创建时添加环境块以改善兼容性
+- 把Windows XP控件支持声明和Per-Monitor DPI Aware V1支持移入清单文件
+- 在清单文件添加兼容性GUID定义和Per-Monitor DPI Aware V2支持
+- 修复当未在浏览窗口选择文件的情况下命令行文本框出现""的问题
 
 **NSudo 4.4.1705.19**
 - 更新M2-SDK和VC-LTL子模块

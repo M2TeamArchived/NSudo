@@ -63,4 +63,9 @@
       <Filter>资源文件\资源</Filter>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="NSudo.manifest">
+      <Filter>资源文件</Filter>
+    </Manifest>
+  </ItemGroup>
 </Project>

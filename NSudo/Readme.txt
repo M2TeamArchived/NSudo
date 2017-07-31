@@ -36,23 +36,18 @@ Notice: NSudo is based on SuperCMD by Raymai97.Visit http://bbs.pcbeta.com/viewt
                 NSudo -U:T -P:E cmd
 
 
-例子：以TrustedInstaller权限，启用所有特权，完整性默认运行命令提示符 NSudo -U:T -P:E cmd  关于常用列表的自定义,可以使用记事本等工具编辑ShortCutList.ini；格式如下
-[标题]
- CommandLine=命令行
+例子：以TrustedInstaller权限，启用所有特权，完整性默认运行命令提示符 NSudo -U:T -P:E cmd 
 
-PS：NSudo已经支持调用当前程序目录下的可执行文件啦！ 
+关于常用列表的自定义,可以使用记事本等工具编辑NSudo.json。你可以照着示例的做法添加你的自定义项目：
 
-举个例子：我要建立一个标题为"记事本",命令行为"c:\windows\system32\notepad.exe"的项目，可以这样做
-[记事本]
-CommandLine=c:\windows\system32\notepad.exe
-
-或
-[记事本]
-CommandLine=%SYSTEMROOT%\notepad.exe
-
-甚至
-[记事本]
-CommandLine=notepad
+{
+  "ShortCutList_V2": {
+    "命令提示符": "cmd",
+    "PowerShell": "powershell",
+    "PowerShell ISE": "powershell_ise",
+    "Hosts编辑": "notepad %windir%\\System32\\Drivers\\etc\\hosts"
+  }
+}
 
 如果要使用引号嵌套的话；请加转义符，例如： NSudo -u:t "cmd /c ren \"E:\班级视频 《ONE》\d.txt\" x.exe" 
 
