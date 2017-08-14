@@ -110,6 +110,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ModuleDefinitionFile>NSudo.def</ModuleDefinitionFile>
       <AdditionalLibraryDirectories>$(OutDir)</AdditionalLibraryDirectories>
+      <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
     </Link>
     <Manifest>
       <AdditionalManifestFiles>NSudo.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
@@ -135,6 +136,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ModuleDefinitionFile>NSudo.def</ModuleDefinitionFile>
       <AdditionalLibraryDirectories>$(OutDir)</AdditionalLibraryDirectories>
+      <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
     </Link>
     <Manifest>
       <AdditionalManifestFiles>NSudo.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
@@ -168,6 +170,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ModuleDefinitionFile>NSudo.def</ModuleDefinitionFile>
       <AdditionalLibraryDirectories>$(OutDir)</AdditionalLibraryDirectories>
+      <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
     </Link>
     <Manifest>
       <AdditionalManifestFiles>NSudo.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
@@ -200,6 +203,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ModuleDefinitionFile>NSudo.def</ModuleDefinitionFile>
       <AdditionalLibraryDirectories>$(OutDir)</AdditionalLibraryDirectories>
+      <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
     </Link>
     <Manifest>
       <AdditionalManifestFiles>NSudo.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
@@ -231,9 +235,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="NSudo.ico" />
-  </ItemGroup>
-  <ItemGroup>
     <ResourceCompile Include="NSudo.rc" />
   </ItemGroup>
   <ItemGroup>
@@ -241,7 +242,9 @@
     <None Include="res\NSudo.json" />
   </ItemGroup>
   <ItemGroup>
-    <Manifest Include="NSudo.manifest" />
+    <Manifest Include="NSudo.manifest">
+      <SubType>Designer</SubType>
+    </Manifest>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -58,10 +58,16 @@ bool SuCreateProcess(
 
 	BOOL result = FALSE;
 
-	if (CreateEnvironmentBlock(&lpEnvironment, hToken, FALSE))
+	M2::CHandle hCurrentToken;
+	if (OpenProcessToken(
+		GetCurrentProcess(),
+		MAXIMUM_ALLOWED,
+		&hCurrentToken))
 	{
-		//启动进程
-		result = CreateProcessAsUserW(
+		if (CreateEnvironmentBlock(&lpEnvironment, hCurrentToken, TRUE))
+		{
+			//启动进程
+			result = CreateProcessAsUserW(
 				hToken,
 				ComSpec.c_str(),
 				&final_command_line[0],
@@ -74,15 +80,18 @@ bool SuCreateProcess(
 				&StartupInfo,
 				&ProcessInfo);
 
-		//关闭句柄
-		if (result)
-		{
-			CloseHandle(ProcessInfo.hProcess);
-			CloseHandle(ProcessInfo.hThread);
-		}
+			//关闭句柄
+			if (result)
+			{
+				CloseHandle(ProcessInfo.hProcess);
+				CloseHandle(ProcessInfo.hThread);
+			}
 
-		DestroyEnvironmentBlock(lpEnvironment);
+			DestroyEnvironmentBlock(lpEnvironment);
+		}
 	}
+
+	
 
 	//返回结果
 	return result;
@@ -888,22 +897,7 @@ int WINAPI wWinMain(
 
 	if (argc == 1)
 	{
-		if (bElevated)
-		{
-			CNSudoMainWindow(hInstance).Show();
-		}
-		else
-		{
-			SHELLEXECUTEINFOW ExecInfo = { 0 };
-			ExecInfo.cbSize = sizeof(SHELLEXECUTEINFOW);
-			ExecInfo.lpFile = nsudo_exe_path.c_str();
-			ExecInfo.lpVerb = L"runas";
-			ExecInfo.nShow = SW_NORMAL;
-
-			ShellExecuteExW(&ExecInfo);
-
-			return (int)GetLastError();
-		}
+		CNSudoMainWindow(hInstance).Show();
 	}
 	else
 	{
