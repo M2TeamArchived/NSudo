@@ -58,6 +58,10 @@
 ## 许可协议 License
 NSudo使用The MIT License发行，详情参见 https://github.com/M2Team/NSudo/blob/master/LICENSE
 
+第三方库名称        | 开发者        | 许可协议
+--------------------|---------------|-----------------
+JSON for Modern C++ | Niels Lohmann | The MIT License
+
 ## 更新日志 Changelogs
 参见 https://github.com/M2Team/NSudo/blob/master/Changelog.md
 
