@@ -15,6 +15,7 @@
     <DeploymentDirectory>C:\Users\Mouri\Desktop\Debug\$(MSBuildProjectName)</DeploymentDirectory>
     <RemoteDebuggerCommand>C:\Users\Mouri\Desktop\Debug\$(MSBuildProjectName)\$(ProjectName).exe</RemoteDebuggerCommand>
     <RemoteDebuggerServerName>192.168.1.110</RemoteDebuggerServerName>
+    <LocalDebuggerCommandArguments>/U:T "dir \"C:\Program Files\""</LocalDebuggerCommandArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>

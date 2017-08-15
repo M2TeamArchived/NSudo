@@ -30,7 +30,7 @@ information, call GetLastError.
 */
 bool SuCreateProcess(
 	_In_opt_ HANDLE hToken,
-	_Inout_ LPWSTR lpCommandLine)
+	_Inout_ LPCWSTR lpCommandLine)
 {
 	STARTUPINFOW StartupInfo = { 0 };
 	PROCESS_INFORMATION ProcessInfo = { 0 };
@@ -623,7 +623,7 @@ INT_PTR CNSudoMainWindow::DialogProc(
 	return FALSE;
 }
 
-
+/*
 int NSudoCommandLineParserLegacy(
 	_In_ bool bElevated,
 	_In_ int argc,
@@ -846,6 +846,263 @@ int NSudoCommandLineParserLegacy(
 
 	return 0;
 }
+*/
+
+// 分割获取的命令行以方便解析
+std::vector<std::wstring> NSudoSplitCommandLine(LPCWSTR lpCommandLine)
+{
+	std::vector<std::wstring> result;
+	
+	int argc = 0;
+	wchar_t **argv = CommandLineToArgvW(lpCommandLine, &argc);
+
+	size_t arg_size = 0;
+
+	for (int i = 0; i < argc; ++i)
+	{
+		// 如果是程序路径或者为命令参数
+		if (i == 0 || (argv[i][0] == L'-' || argv[i][0] == L'/'))
+		{
+			std::wstring arg(argv[i]);
+
+			// 累加长度 (包括空格)
+			// 为最后成功保存用户要执行的命令或快捷命令名打基础
+			arg_size += arg.size() + 1;
+
+			// 保存入解析器
+			result.push_back(arg);
+		}
+		else
+		{
+			// 获取搜索用户要执行的命令或快捷命令名的位置（大致位置）
+			// 对arg_size减1是为了留出空格，保证程序路径没有引号时也能正确解析
+			wchar_t* search_start = 
+				const_cast<wchar_t*>(lpCommandLine) + (arg_size - 1);
+			
+			// 获取用户要执行的命令或快捷命令名
+			// 搜索第一个参数分隔符（即空格）开始的位置			
+			// 最后对结果增1是因为该返回值是空格开始出，而最开始的空格需要排除
+			wchar_t* command = wcsstr(search_start, L" ") + 1;
+
+			std::wstring final_command;
+
+			// 如果最外层有引号则去除，否则直接生成
+			if (command[0] == L'\"' || command[0] == L'\'')
+			{
+				final_command = std::wstring(command + 1);
+				final_command.resize(final_command.size() - 1);
+			}
+			else
+			{
+				final_command = std::wstring(command);
+			}
+
+			// 保存入解析器
+			result.push_back(final_command);
+
+			break;
+		}
+	}
+
+	return result;
+}
+
+// 解析命令行
+int NSudoCommandLineParser(
+	_In_ bool bElevated,
+	_In_ std::vector<std::wstring>& args)
+{
+	// 如果参数是 /? 或 -?,则显示帮助
+	if (args.size() == 2 &&
+		(args[1][0] == L'-' || args[1][0] == L'/') &&
+		args[1][1] == '?')
+	{
+		CNSudoMainWindow(g_hInstance).ShowAboutDialog(nullptr);
+		return 0;
+	}
+
+	DWORD dwSessionID = (DWORD)-1;
+
+	// 获取当前进程会话ID
+	if (!NSudoGetCurrentProcessSessionID(&dwSessionID))
+	{
+		SuMUIPrintMsg(g_hInstance, NULL, IDS_ERRSUDO);
+		return 0;
+	}
+
+	// 如果未提权或者模拟System权限失败
+	if (!(bElevated && NSudoImpersonateAsSystem()))
+	{
+		SuMUIPrintMsg(g_hInstance, NULL, IDS_ERRNOTHELD);
+		return 0;
+	}
+
+	bool bArgErr = false;
+
+	bool bGetUser = false;
+	bool bGetPrivileges = false;
+	bool bGetIntegrityLevel = false;
+
+	M2::CHandle hToken;
+	M2::CHandle hTempToken;
+
+	// 解析参数，忽略第一项（必定是程序路径）和最后一项（因为必定是命令行）
+	for (size_t i = 1; i < args.size() - 1; ++i)
+	{
+		const wchar_t* arg = args[i].c_str() + 1;
+		
+		// 如果参数不满足条件，则返回错误
+		if (!(wcslen(arg) == 3 && arg[1] == L':'))
+		{
+			bArgErr = true;
+			break;
+		}
+		
+		if (!bGetUser && (arg[0] == L'U' || arg[0] == L'u'))
+		{
+			if (arg[2] == L'T' || arg[2] == L't')
+			{
+				if (NSudoDuplicateServiceToken(
+					L"TrustedInstaller",
+					MAXIMUM_ALLOWED,
+					nullptr,
+					SecurityIdentification,
+					TokenPrimary,
+					&hToken))
+				{
+					SetTokenInformation(
+						hToken,
+						TokenSessionId,
+						(PVOID)&dwSessionID,
+						sizeof(DWORD));
+				}
+			}
+			else if (arg[2] == L'S' || arg[2] == L's')
+			{
+				NSudoDuplicateSystemToken(
+					MAXIMUM_ALLOWED,
+					nullptr,
+					SecurityIdentification,
+					TokenPrimary,
+					&hToken);
+			}
+			else if (arg[2] == L'C' || arg[2] == L'c')
+			{
+				NSudoDuplicateSessionToken(
+					dwSessionID,
+					MAXIMUM_ALLOWED,
+					nullptr,
+					SecurityIdentification,
+					TokenPrimary,
+					&hToken);
+			}
+			else if (arg[2] == L'P' || arg[2] == L'p')
+			{
+				OpenProcessToken(
+					GetCurrentProcess(), MAXIMUM_ALLOWED, &hToken);
+			}
+			else if (arg[2] == L'D' || arg[2] == L'd')
+			{
+				if (OpenProcessToken(
+					GetCurrentProcess(), MAXIMUM_ALLOWED, &hTempToken))
+				{
+					NSudoCreateLUAToken(&hToken, hTempToken);
+				}
+			}
+			else
+			{
+				bArgErr = true;
+				break;
+			}
+
+			bGetUser = true;
+		}
+
+		if (!bGetPrivileges && (arg[0] == L'P' || arg[0] == L'p'))
+		{
+			if (arg[2] == L'E' || arg[2] == L'e')
+			{
+				NSudoSetTokenAllPrivileges(hToken, true);
+			}
+			else if (arg[2] == L'D' || arg[2] == L'd')
+			{
+				NSudoSetTokenAllPrivileges(hToken, false);
+			}
+			else
+			{
+				bArgErr = true;
+				break;
+			}
+
+			bGetPrivileges = true;
+		}
+
+		if (!bGetIntegrityLevel && (arg[0] == L'M' || arg[0] == L'm'))
+		{
+			if (arg[2] == L'S' || arg[2] == L's')
+			{
+				NSudoSetTokenIntegrityLevel(hToken, SystemLevel);
+			}
+			else if (arg[2] == L'H' || arg[2] == L'h')
+			{
+				NSudoSetTokenIntegrityLevel(hToken, HighLevel);
+			}
+			else if (arg[2] == L'M' || arg[2] == L'm')
+			{
+				NSudoSetTokenIntegrityLevel(hToken, MediumLevel);
+			}
+			else if (arg[2] == L'L' || arg[2] == L'l')
+			{
+				NSudoSetTokenIntegrityLevel(hToken, LowLevel);
+			}
+			else
+			{
+				bArgErr = true;
+				break;
+			}
+
+			bGetIntegrityLevel = true;
+		}
+	}
+
+	if (bArgErr)
+	{
+		SuMUIPrintMsg(g_hInstance, NULL, IDS_ERRARG);
+		return -1;
+	}
+	else
+	{
+		if (!bGetUser)
+		{
+			if (NSudoDuplicateServiceToken(
+				L"TrustedInstaller",
+				MAXIMUM_ALLOWED,
+				nullptr,
+				SecurityIdentification,
+				TokenPrimary,
+				&hToken))
+			{
+				if (SetTokenInformation(
+					hToken,
+					TokenSessionId,
+					(PVOID)&dwSessionID,
+					sizeof(DWORD)))
+				{
+					NSudoSetTokenAllPrivileges(hToken, true);
+				}
+			}
+		}
+
+		if (!SuCreateProcess(hToken, args[args.size() - 1].c_str()))
+		{
+			SuMUIPrintMsg(g_hInstance, NULL, IDS_ERRSUDO);
+		}
+	}
+
+	RevertToSelf();
+
+	return 0;
+}
 
 int WINAPI wWinMain(
 	_In_ HINSTANCE hInstance,
@@ -856,11 +1113,24 @@ int WINAPI wWinMain(
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	UNREFERENCED_PARAMETER(lpCmdLine);
 	UNREFERENCED_PARAMETER(nShowCmd);
+
+	//wchar_t Text[] = L"Fuck World.\n";
+	//AttachConsole(ATTACH_PARENT_PROCESS);
+	//WriteConsoleW(GetStdHandle(STD_OUTPUT_HANDLE), Text, wcslen(Text), nullptr, nullptr);
+
+	/*std::vector<std::wstring> command_args2 = NSudoSplitCommandLine(
+		
+		//L"\"C:\\Test Folder\\NSudo.exe\" -U:T -P:E -M:S \"reg add HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced\\Folder\\Hidden\\SHOWALL  / v checkedValue  / t REG_DWORD  / d 00000001\""
+		//L"\"C:\\Test Folder\\NSudo.exe\" -U:T -P:E -M:S reg add HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced\\Folder\\Hidden\\SHOWALL  / v checkedValue  / t REG_DWORD  / d 00000001"
+		//L"NSudo /U:T \"dir \"C:\\Program Files\"\""
+	);*/
 	
+	std::vector<std::wstring> command_args = NSudoSplitCommandLine(GetCommandLineW());
+
 	CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
 
-	int argc = 0;
-	wchar_t **argv = CommandLineToArgvW(GetCommandLineW(), &argc);
+	//int argc = 0;
+	//wchar_t **argv = CommandLineToArgvW(GetCommandLineW(), &argc);
 
 	g_hInstance = hInstance;
 
@@ -895,13 +1165,13 @@ int WINAPI wWinMain(
 			hCurrentToken, SeDebugPrivilege, true);
 	}
 
-	if (argc == 1)
+	if (command_args.size() == 1)
 	{
 		CNSudoMainWindow(hInstance).Show();
 	}
 	else
 	{
-		NSudoCommandLineParserLegacy(bElevated, argc, argv);
+		NSudoCommandLineParser(bElevated, command_args);
 	}
 
 	return 0;
