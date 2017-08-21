@@ -53,7 +53,7 @@
 }
 ```
 
-如果要使用引号嵌套的话；请加转义符，例如：```NSudo -u:t "cmd /c ren \"E:\班级视频 《ONE》\d.txt\" x.exe"```
+从 NSudo 5.0.1708.16 开始命令行支持嵌套引号，例如：```NSudo -U:T cmd /c "dir "C:\Program Files" & pause"```
 
 ## 许可协议 License
 NSudo使用The MIT License发行，详情参见 https://github.com/M2Team/NSudo/blob/master/LICENSE

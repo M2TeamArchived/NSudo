@@ -1,5 +1,5 @@
 ﻿感谢以下人士的大力支持(按字母顺序排列)
-Thank the following people for the strong support(In alphabetical order)
+Thank the following people for the strong support (In alphabetical order)
 
 反馈者 Advicers
 ===============================================================================
@@ -10,8 +10,11 @@ imadlatch
 kCaRhC卡壳
 Microsoft_Mars
 NotePad
+sebus
 th1r5bvn23
 老九
+芈员外
+鸢一雨音
 さくら
 
 贡献者 Contributors
@@ -42,4 +45,5 @@ NotePad
 tangmigoId
 wondersnefu
 xy137425740
+上善若水
 月光光
