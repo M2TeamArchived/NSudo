@@ -78,7 +78,7 @@ http://forums.mydigitallife.info/threads/59268-M2-Team-NSudo-(New-Version-4-0)
 ## 交流 Communication
 如果碰到什么问题，可以在NSudo官方群（QQ群：```466078631```）探讨
 
-## 感谢名单 Thanks
-参见 https://github.com/M2Team/NSudo/blob/master/Thanks.txt
+## 相关人士 People
+参见 https://github.com/M2Team/NSudo/blob/master/People.md
 
 ## Have a good time -- M2-Team参上

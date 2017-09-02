@@ -76,8 +76,8 @@ JSON for Modern C++ | Niels Lohmann | The MIT License
 如果碰到什么问题，可以在NSudo官方群（QQ群： 466078631 ）探讨
 
 
-感谢名单 Thanks
-参见 https://github.com/M2Team/NSudo/blob/master/Thanks.txt
+相关人士 People
+参见 https://github.com/M2Team/NSudo/blob/master/People.md
 
 
 MDL论坛根据地 MDL Post
