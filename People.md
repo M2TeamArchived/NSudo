@@ -30,14 +30,14 @@
 - 月光光
 
 ## 反馈者 Advicers
-4071E95D-A09B-4AA3-8008
-abbodi1406
-imadlatch
-kCaRhC卡壳
-NotePad
-sebus
-th1r5bvn23
-老九
-芈员外
-鸢一雨音 (https://github.com/TobiichiAmane)
-さくら
+- 4071E95D-A09B-4AA3-8008
+- abbodi1406
+- imadlatch
+- kCaRhC卡壳
+- NotePad
+- sebus
+- th1r5bvn23
+- 老九
+- 芈员外
+- 鸢一雨音 (https://github.com/TobiichiAmane)
+- さくら
