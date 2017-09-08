@@ -4,14 +4,14 @@
 [![Latest Release](https://img.shields.io/github/release/M2Team/NSudo.svg)](https://github.com/M2Team/NSudo/releases/latest)
 [![Download](https://img.shields.io/github/downloads/M2Team/NSudo/total.svg)](https://github.com/M2Team/NSudo/releases/latest)
 
-> 注意：NSudo基于raymai97的超级命令提示符，关于raymai97的超级命令提示符，请参阅 [这里](http://bbs.pcbeta.com/viewthread-1508863-1-1.html "这里")
-> Notice: NSudo is based on SuperCMD by Raymai97.Visit [here](http://bbs.pcbeta.com/viewthread-1508863-1-1.html "here") for more information about SuperCMD
+- 注意：NSudo基于raymai97的超级命令提示符，请参阅 [这里](http://bbs.pcbeta.com/viewthread-1508863-1-1.html "这里") 以获取更多关于超级命令提示符的信息。
+- Notice: NSudo is based on SuperCMD by Raymai97.Visit [here](http://bbs.pcbeta.com/viewthread-1508863-1-1.html "here") for more information about SuperCMD，
 
 ## 使用方法 Usage
 双击 ```NSudo.bat``` 自动打开相应架构的 NSudo ，根据提示操作即可
 
 ## 命令行选项 Command Line Options
-> 使用 NSudo.exe -? 可以显示和这里一样的内容
+使用 NSudo.exe -? 可以显示和这里一样的内容
 
 ```
 格式: NSudo [ -U ] [ -P ] [ -M ] 命令行或常用任务名
