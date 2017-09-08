@@ -44,7 +44,8 @@ bool SuCreateProcess(
 
 	try
 	{		
-		final_command_line += m2_base_utf8_to_utf16(nsudo_shortcut_list_v2[m2_base_utf16_to_utf8(lpCommandLine)].get<std::string>());
+		final_command_line += m2_base_utf8_to_utf16(
+			nsudo_shortcut_list_v2[m2_base_utf16_to_utf8(lpCommandLine)].get<std::string>());
 	}
 	catch (const std::exception&)
 	{
@@ -326,7 +327,7 @@ INT_PTR CNSudoMainWindow::s_DialogProc(
 	_In_ WPARAM wParam,
 	_In_ LPARAM lParam)
 {
-	CNSudoMainWindow* pThis;
+	CNSudoMainWindow* pThis = nullptr;
 
 	if (uMsg == WM_INITDIALOG)
 	{
@@ -623,231 +624,6 @@ INT_PTR CNSudoMainWindow::DialogProc(
 	return FALSE;
 }
 
-/*
-int NSudoCommandLineParserLegacy(
-	_In_ bool bElevated,
-	_In_ int argc,
-	_In_ wchar_t **argv)
-{
-	// 如果参数是 /? 或 -?,则显示帮助
-	if (argc == 2 &&
-		(argv[1][0] == L'-' || argv[1][0] == L'/') &&
-		argv[1][1] == '?')
-	{
-		CNSudoMainWindow(g_hInstance).ShowAboutDialog(nullptr);
-		return 0;
-	}
-
-	DWORD dwSessionID = (DWORD)-1;
-
-	// 获取当前进程会话ID
-	if (!NSudoGetCurrentProcessSessionID(&dwSessionID))
-	{
-		SuMUIPrintMsg(g_hInstance, NULL, IDS_ERRSUDO);
-		return 0;
-	}
-
-	// 如果未提权或者模拟System权限失败
-	if (!(bElevated && NSudoImpersonateAsSystem()))
-	{
-		SuMUIPrintMsg(g_hInstance, NULL, IDS_ERRNOTHELD);
-		return 0;
-	}
-
-	bool bCMDLineArgEnable = true;
-	bool bArgErr = false;
-
-	wchar_t *szBuffer = nullptr;
-
-	M2::CHandle hToken;
-	M2::CHandle hTempToken;
-
-	for (int i = 1; i < argc; i++)
-	{
-		//判断是参数还是要执行的命令行或常见任务
-		if (argv[i][0] == L'-' || argv[i][0] == L'/')
-		{
-			switch (argv[i][1])
-			{
-			case 'U':
-			case 'u':
-			{
-				if (argv[i][2] == L':')
-				{
-					switch (argv[i][3])
-					{
-					case 'T':
-					case 't':
-						if (NSudoDuplicateServiceToken(
-							L"TrustedInstaller",
-							MAXIMUM_ALLOWED,
-							nullptr,
-							SecurityIdentification,
-							TokenPrimary,
-							&hToken))
-						{
-							SetTokenInformation(
-								hToken,
-								TokenSessionId,
-								(PVOID)&dwSessionID,
-								sizeof(DWORD));
-						}
-						break;
-					case 'S':
-					case 's':
-						NSudoDuplicateSystemToken(
-							MAXIMUM_ALLOWED,
-							nullptr,
-							SecurityIdentification,
-							TokenPrimary,
-							&hToken);
-						break;
-					case 'C':
-					case 'c':
-						NSudoDuplicateSessionToken(
-							dwSessionID,
-							MAXIMUM_ALLOWED,
-							nullptr,
-							SecurityIdentification,
-							TokenPrimary,
-							&hToken);
-						break;
-					case 'P':
-					case 'p':
-						OpenProcessToken(
-							GetCurrentProcess(), MAXIMUM_ALLOWED, &hToken);
-						break;
-					case 'D':
-					case 'd':
-						if (OpenProcessToken(
-							GetCurrentProcess(), MAXIMUM_ALLOWED, &hTempToken))
-						{
-							NSudoCreateLUAToken(&hToken, hTempToken);
-						}
-						break;
-					default:
-						bArgErr = true;
-						break;
-					}
-				}
-				break;
-			}
-			case 'P':
-			case 'p':
-			{
-				if (hToken != INVALID_HANDLE_VALUE)
-				{
-					if (argv[i][2] == L':')
-					{
-						switch (argv[i][3])
-						{
-						case 'E':
-						case 'e':
-							NSudoSetTokenAllPrivileges(hToken, true);
-							break;
-						case 'D':
-						case 'd':
-							NSudoSetTokenAllPrivileges(hToken, false);
-							break;
-						default:
-							bArgErr = true;
-							break;
-						}
-					}
-				}
-				break;
-			}
-			case 'M':
-			case 'm':
-			{
-				if (hToken != INVALID_HANDLE_VALUE)
-				{
-					if (argv[i][2] == L':')
-					{
-						switch (argv[i][3])
-						{
-						case 'S':
-						case 's':
-							NSudoSetTokenIntegrityLevel(hToken, SystemLevel);
-							break;
-						case 'H':
-						case 'h':
-							NSudoSetTokenIntegrityLevel(hToken, HighLevel);
-							break;
-						case 'M':
-						case 'm':
-							NSudoSetTokenIntegrityLevel(hToken, MediumLevel);
-							break;
-						case 'L':
-						case 'l':
-							NSudoSetTokenIntegrityLevel(hToken, LowLevel);
-							break;
-						default:
-							bArgErr = true;
-							break;
-						}
-					}
-				}
-
-				break;
-			}
-			default:
-				bArgErr = true;
-				break;
-			}
-		}
-		else
-		{
-			if (bCMDLineArgEnable)
-			{
-				szBuffer = argv[i];
-
-				if (szBuffer) bCMDLineArgEnable = false;
-			}
-		}
-	}
-
-	if (hToken == INVALID_HANDLE_VALUE)
-	{
-		if (NSudoDuplicateServiceToken(
-			L"TrustedInstaller",
-			MAXIMUM_ALLOWED,
-			nullptr,
-			SecurityIdentification,
-			TokenPrimary,
-			&hToken))
-		{
-			if (SetTokenInformation(
-				hToken,
-				TokenSessionId,
-				(PVOID)&dwSessionID,
-				sizeof(DWORD)))
-			{
-				NSudoSetTokenAllPrivileges(hToken, true);
-			}
-		}
-	}
-
-	if (bCMDLineArgEnable || bArgErr)
-	{
-		SuMUIPrintMsg(g_hInstance, NULL, IDS_ERRARG);
-		return -1;
-	}
-	else
-	{
-		if (hToken == INVALID_HANDLE_VALUE ||
-			!SuCreateProcess(hToken, szBuffer))
-		{
-			SuMUIPrintMsg(g_hInstance, NULL, IDS_ERRSUDO);
-		}
-	}
-
-	RevertToSelf();
-
-	return 0;
-}
-*/
-
 // 分割获取的命令行以方便解析
 std::vector<std::wstring> NSudoSplitCommandLine(LPCWSTR lpCommandLine)
 {
@@ -1112,25 +888,11 @@ int WINAPI wWinMain(
 {
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	UNREFERENCED_PARAMETER(lpCmdLine);
-	UNREFERENCED_PARAMETER(nShowCmd);
-
-	//wchar_t Text[] = L"Fuck World.\n";
-	//AttachConsole(ATTACH_PARENT_PROCESS);
-	//WriteConsoleW(GetStdHandle(STD_OUTPUT_HANDLE), Text, wcslen(Text), nullptr, nullptr);
-
-	/*std::vector<std::wstring> command_args2 = NSudoSplitCommandLine(
-		
-		//L"\"C:\\Test Folder\\NSudo.exe\" -U:T -P:E -M:S \"reg add HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced\\Folder\\Hidden\\SHOWALL  / v checkedValue  / t REG_DWORD  / d 00000001\""
-		//L"\"C:\\Test Folder\\NSudo.exe\" -U:T -P:E -M:S reg add HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced\\Folder\\Hidden\\SHOWALL  / v checkedValue  / t REG_DWORD  / d 00000001"
-		//L"NSudo /U:T \"dir \"C:\\Program Files\"\""
-	);*/
-	
-	std::vector<std::wstring> command_args = NSudoSplitCommandLine(GetCommandLineW());
+	UNREFERENCED_PARAMETER(nShowCmd);	
 
 	CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
 
-	//int argc = 0;
-	//wchar_t **argv = CommandLineToArgvW(GetCommandLineW(), &argc);
+	std::vector<std::wstring> command_args = NSudoSplitCommandLine(GetCommandLineW());
 
 	g_hInstance = hInstance;
 
@@ -1156,13 +918,13 @@ int WINAPI wWinMain(
 		
 	}
 
-	HANDLE hCurrentToken = INVALID_HANDLE_VALUE;
+	M2::CHandle CurrentToken;
 
 	bool bElevated = false;
-	if (OpenProcessToken(GetCurrentProcess(), MAXIMUM_ALLOWED, &hCurrentToken))
+	if (OpenProcessToken(GetCurrentProcess(), MAXIMUM_ALLOWED, &CurrentToken))
 	{
 		bElevated = NSudoSetTokenPrivilege(
-			hCurrentToken, SeDebugPrivilege, true);
+			CurrentToken, SeDebugPrivilege, true);
 	}
 
 	if (command_args.size() == 1)
