@@ -21,7 +21,6 @@ Format: NSudo [ -U ] [ -P ] [ -M ] Command line or ShortCut Command
   P Current Process
   D Current Process (Drop right)
 
-
   -P:[ E | D ] Privilege
   E Enable All Privileges
   D Disable All Privileges
@@ -53,7 +52,8 @@ You can edit NSudo.json to custom the Shortcut list, here are the demo (NSudo.js
   }
 }
 ```
-Starting from NSudo 5.0.1708.16, the command line nested quotes is supported. For example: ```NSudo -U:T cmd /c "dir "C:\Program Files" & pause"```
+Starting from NSudo 5.0.1708.16, the command line nested quotes is supported. For example: 
+> NSudo -U:T cmd /c "dir "C:\Program Files" & pause"
 
 ## License
 NSudo is distributed under the MIT License, see [LICENSE](LICENSE) for more details.
@@ -65,19 +65,22 @@ JSON for Modern C++           | Niels Lohmann | The MIT License
 ## Changelogs
 See [Changelog.md](Changelog.md) for more details.
 
-## Donate
-If you want to support this project, you can use the [Alipay](https://alipay.com) for payment to our account ```wxh32lkk@live.cn```. Your donation is one of driving forces for our development.
+## Relevant People 
+See [People.md](People.md) for more details.
 
 ## Git Repositories
-- GitHub Repository (The main repository, contains source code of NSudo >= 4.0) : https://github.com/M2Team/NSudo
-- GitHub Repository (The history repository, contains source code of NSudo < 4.0) : https://github.com/MouriNaruto/NSudo-Legacy-Repository
-- OSChina Repository (The mirror repository, contains source code of NSudo >= 4.0) : ：https://git.oschina.net/Mouri_Naruto/NSudo
+- GitHub Repository (The main repository, contains source code of NSudo >= 4.0)
+  - https://github.com/M2Team/NSudo
+- GitHub Repository (The history repository, contains source code of NSudo < 4.0)
+  - https://github.com/MouriNaruto/NSudo-Legacy-Repository
+- OSChina Repository (The mirror repository, contains source code of NSudo >= 4.0) 
+  - https://git.oschina.net/Mouri_Naruto/NSudo
 
 ## Communication
 - MDL Post : https://forums.mydigitallife.net/threads/nsudo-a-powerful-system-administration-tool.59268/
 - QQ Group : 466078631
 
-## Relevant People 
-See [People.md](People.md) for more details.
+## Donate
+If you want to support this project, you can use the [Alipay](https://alipay.com) for payment to our account ```wxh32lkk@live.cn```. Your donation is one of driving forces for our development.
 
 ## Have a good time -- M2-Team
