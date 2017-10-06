@@ -4,7 +4,7 @@
 [![Latest Release](https://img.shields.io/github/release/M2Team/NSudo.svg)](https://github.com/M2Team/NSudo/releases/latest)
 [![Download](https://img.shields.io/github/downloads/M2Team/NSudo/total.svg)](https://github.com/M2Team/NSudo/releases/latest)
 
-- [简体中文](Readme_SC.md)
+- [简体中文](自述.md)
 
 - Notice: NSudo is based on SuperCMD by Raymai97.Visit [here](http://bbs.pcbeta.com/viewthread-1508863-1-1.html "here") for more information about SuperCMD.
 
