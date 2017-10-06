@@ -14,7 +14,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documents", "Documents", "{
 		LICENSE = LICENSE
 		People.md = People.md
 		Readme.md = Readme.md
-		Readme_SC.md = Readme_SC.md
+		自述.md = 自述.md
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NSudoSDK", "NSudoSDK\NSudoSDK.vcxitems", "{864F35B9-789C-4DA9-8906-649DFE3705F7}"
