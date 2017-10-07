@@ -81,6 +81,7 @@ See [People.md](People.md) for more details.
 - QQ Group : 466078631
 
 ## Donate
-If you want to support this project, you can use the [Alipay](https://alipay.com) for payment to our account ```wxh32lkk@live.cn```. Your donation is one of driving forces for our development.
+- Paypal : https://www.paypal.me/MouriNaruto
+If you want to support this project, you can use the PayPal for payment to our account. Your donation is one of driving forces for our development.
 
 ## Have a good time -- M2-Team
