@@ -8,6 +8,38 @@
     <RemoteDebuggerCommand>C:\Users\Mouri\Desktop\Debug\$(MSBuildProjectName)\$(ProjectName).exe</RemoteDebuggerCommand>
     <RemoteDebuggerServerName>192.168.1.102</RemoteDebuggerServerName>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
+    <DebuggerFlavor>WindowsRemoteDebugger</DebuggerFlavor>
+    <RemoteDebuggerWorkingDirectory>C:\Users\Mouri\Desktop\Debug\$(MSBuildProjectName)</RemoteDebuggerWorkingDirectory>
+    <RemoteDebuggerConnection>RemoteWithoutAuthentication</RemoteDebuggerConnection>
+    <DeploymentDirectory>C:\Users\Mouri\Desktop\Debug\$(MSBuildProjectName)</DeploymentDirectory>
+    <RemoteDebuggerCommand>C:\Users\Mouri\Desktop\Debug\$(MSBuildProjectName)\$(ProjectName).exe</RemoteDebuggerCommand>
+    <RemoteDebuggerServerName>192.168.1.102</RemoteDebuggerServerName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
+    <DebuggerFlavor>WindowsRemoteDebugger</DebuggerFlavor>
+    <RemoteDebuggerWorkingDirectory>C:\Users\Mouri\Desktop\Debug\$(MSBuildProjectName)</RemoteDebuggerWorkingDirectory>
+    <RemoteDebuggerConnection>RemoteWithoutAuthentication</RemoteDebuggerConnection>
+    <DeploymentDirectory>C:\Users\Mouri\Desktop\Debug\$(MSBuildProjectName)</DeploymentDirectory>
+    <RemoteDebuggerCommand>C:\Users\Mouri\Desktop\Debug\$(MSBuildProjectName)\$(ProjectName).exe</RemoteDebuggerCommand>
+    <RemoteDebuggerServerName>192.168.1.102</RemoteDebuggerServerName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
+    <DebuggerFlavor>WindowsRemoteDebugger</DebuggerFlavor>
+    <RemoteDebuggerWorkingDirectory>C:\Users\Mouri\Desktop\Debug\$(MSBuildProjectName)</RemoteDebuggerWorkingDirectory>
+    <RemoteDebuggerConnection>RemoteWithoutAuthentication</RemoteDebuggerConnection>
+    <DeploymentDirectory>C:\Users\Mouri\Desktop\Debug\$(MSBuildProjectName)</DeploymentDirectory>
+    <RemoteDebuggerCommand>C:\Users\Mouri\Desktop\Debug\$(MSBuildProjectName)\$(ProjectName).exe</RemoteDebuggerCommand>
+    <RemoteDebuggerServerName>192.168.1.102</RemoteDebuggerServerName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
+    <DebuggerFlavor>WindowsRemoteDebugger</DebuggerFlavor>
+    <RemoteDebuggerWorkingDirectory>C:\Users\Mouri\Desktop\Debug\$(MSBuildProjectName)</RemoteDebuggerWorkingDirectory>
+    <RemoteDebuggerConnection>RemoteWithoutAuthentication</RemoteDebuggerConnection>
+    <DeploymentDirectory>C:\Users\Mouri\Desktop\Debug\$(MSBuildProjectName)</DeploymentDirectory>
+    <RemoteDebuggerCommand>C:\Users\Mouri\Desktop\Debug\$(MSBuildProjectName)\$(ProjectName).exe</RemoteDebuggerCommand>
+    <RemoteDebuggerServerName>192.168.1.102</RemoteDebuggerServerName>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <DebuggerFlavor>WindowsRemoteDebugger</DebuggerFlavor>
     <RemoteDebuggerWorkingDirectory>C:\Users\Mouri\Desktop\Debug\$(MSBuildProjectName)</RemoteDebuggerWorkingDirectory>
@@ -26,6 +58,38 @@
     <RemoteDebuggerServerName>192.168.1.102</RemoteDebuggerServerName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <DebuggerFlavor>WindowsRemoteDebugger</DebuggerFlavor>
+    <RemoteDebuggerWorkingDirectory>C:\Users\Mouri\Desktop\Debug\$(MSBuildProjectName)</RemoteDebuggerWorkingDirectory>
+    <RemoteDebuggerConnection>RemoteWithoutAuthentication</RemoteDebuggerConnection>
+    <DeploymentDirectory>C:\Users\Mouri\Desktop\Debug\$(MSBuildProjectName)</DeploymentDirectory>
+    <RemoteDebuggerCommand>C:\Users\Mouri\Desktop\Debug\$(MSBuildProjectName)\$(ProjectName).exe</RemoteDebuggerCommand>
+    <RemoteDebuggerServerName>192.168.1.102</RemoteDebuggerServerName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
+    <DebuggerFlavor>WindowsRemoteDebugger</DebuggerFlavor>
+    <RemoteDebuggerWorkingDirectory>C:\Users\Mouri\Desktop\Debug\$(MSBuildProjectName)</RemoteDebuggerWorkingDirectory>
+    <RemoteDebuggerConnection>RemoteWithoutAuthentication</RemoteDebuggerConnection>
+    <DeploymentDirectory>C:\Users\Mouri\Desktop\Debug\$(MSBuildProjectName)</DeploymentDirectory>
+    <RemoteDebuggerCommand>C:\Users\Mouri\Desktop\Debug\$(MSBuildProjectName)\$(ProjectName).exe</RemoteDebuggerCommand>
+    <RemoteDebuggerServerName>192.168.1.102</RemoteDebuggerServerName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
+    <DebuggerFlavor>WindowsRemoteDebugger</DebuggerFlavor>
+    <RemoteDebuggerWorkingDirectory>C:\Users\Mouri\Desktop\Debug\$(MSBuildProjectName)</RemoteDebuggerWorkingDirectory>
+    <RemoteDebuggerConnection>RemoteWithoutAuthentication</RemoteDebuggerConnection>
+    <DeploymentDirectory>C:\Users\Mouri\Desktop\Debug\$(MSBuildProjectName)</DeploymentDirectory>
+    <RemoteDebuggerCommand>C:\Users\Mouri\Desktop\Debug\$(MSBuildProjectName)\$(ProjectName).exe</RemoteDebuggerCommand>
+    <RemoteDebuggerServerName>192.168.1.102</RemoteDebuggerServerName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
+    <DebuggerFlavor>WindowsRemoteDebugger</DebuggerFlavor>
+    <RemoteDebuggerWorkingDirectory>C:\Users\Mouri\Desktop\Debug\$(MSBuildProjectName)</RemoteDebuggerWorkingDirectory>
+    <RemoteDebuggerConnection>RemoteWithoutAuthentication</RemoteDebuggerConnection>
+    <DeploymentDirectory>C:\Users\Mouri\Desktop\Debug\$(MSBuildProjectName)</DeploymentDirectory>
+    <RemoteDebuggerCommand>C:\Users\Mouri\Desktop\Debug\$(MSBuildProjectName)\$(ProjectName).exe</RemoteDebuggerCommand>
+    <RemoteDebuggerServerName>192.168.1.102</RemoteDebuggerServerName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
     <DebuggerFlavor>WindowsRemoteDebugger</DebuggerFlavor>
     <RemoteDebuggerWorkingDirectory>C:\Users\Mouri\Desktop\Debug\$(MSBuildProjectName)</RemoteDebuggerWorkingDirectory>
     <RemoteDebuggerConnection>RemoteWithoutAuthentication</RemoteDebuggerConnection>
