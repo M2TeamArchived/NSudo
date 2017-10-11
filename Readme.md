@@ -55,6 +55,10 @@ You can edit NSudo.json to custom the Shortcut list, here are the demo (NSudo.js
 Starting from NSudo 5.0.1708.16, the command line nested quotes is supported. For example: 
 > NSudo -U:T cmd /c "dir "C:\Program Files" & pause"
 
+## System Requirements
+- Supported OS Version: Windows NT 6.0 or later
+- Supported CPU Architecture: x86, x86-64(AMD64), ARM, ARM64
+
 ## License
 NSudo is distributed under the MIT License, see [LICENSE](LICENSE) for more details.
 
