@@ -1,4 +1,4 @@
-﻿# NSudo - 相关人士 People
+﻿# NSudo - 相关人士 Relevant People
 
 ## 提示 Notice
 - 本列表按字母顺序排列。
