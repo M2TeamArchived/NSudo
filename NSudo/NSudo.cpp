@@ -393,20 +393,280 @@ std::vector<std::wstring> NSudoSplitCommandLine(LPCWSTR lpCommandLine)
 	return result;
 }
 
+DWORD M2RegSetStringValue(
+	_In_ HKEY hKey,
+	_In_opt_ LPCWSTR lpValueName,
+	_In_opt_ LPCWSTR lpValueData)
+{
+	return RegSetValueExW(
+		hKey,
+		lpValueName,
+		0,
+		REG_SZ,
+		reinterpret_cast<CONST BYTE*>(lpValueData),
+		(DWORD)(wcslen(lpValueData) + 1) * sizeof(wchar_t));
+}
+
+DWORD M2RegCreateKey(
+	_In_ HKEY hKey,
+	_In_ LPCWSTR lpSubKey,
+	_In_ REGSAM samDesired,
+	_Out_ PHKEY phkResult)
+{
+	return RegCreateKeyExW(
+		hKey,
+		lpSubKey,
+		0,
+		nullptr,
+		REG_OPTION_NON_VOLATILE,
+		samDesired,
+		nullptr,
+		phkResult,
+		nullptr);
+}
+
+DWORD CreateCommandStoreItem(
+	_In_ HKEY CommandStoreRoot,
+	_In_ LPCWSTR ItemName,
+	_In_ LPCWSTR ItemDescription,
+	_In_ LPCWSTR ItemCommand,
+	_In_ bool HasLUAShield)
+{
+	DWORD dwError = ERROR_SUCCESS;
+	HKEY hCommandStoreItem = nullptr;
+	HKEY hCommandStoreItemCommand = nullptr;
+
+	do
+	{
+		dwError = M2RegCreateKey(
+			CommandStoreRoot,
+			ItemName,
+			KEY_ALL_ACCESS | KEY_WOW64_64KEY,
+			&hCommandStoreItem);
+		if (ERROR_SUCCESS != dwError)
+			break;
+
+		dwError = M2RegSetStringValue(
+			hCommandStoreItem,
+			L"",
+			ItemDescription);
+		if (ERROR_SUCCESS != dwError)
+			break;
+
+		if (HasLUAShield)
+		{
+			dwError = M2RegSetStringValue(
+				hCommandStoreItem,
+				L"HasLUAShield",
+				L"");
+			if (ERROR_SUCCESS != dwError)
+				break;
+		}
+
+		dwError = M2RegCreateKey(
+			hCommandStoreItem,
+			L"command",
+			KEY_ALL_ACCESS | KEY_WOW64_64KEY,
+			&hCommandStoreItemCommand);
+		if (ERROR_SUCCESS != dwError)
+			break;
+
+		dwError = M2RegSetStringValue(
+			hCommandStoreItemCommand,
+			L"",
+			ItemCommand);
+		if (ERROR_SUCCESS != dwError)
+			break;
+
+	} while (false);
+
+	if (hCommandStoreItemCommand)
+		RegCloseKey(hCommandStoreItemCommand);
+
+	if (hCommandStoreItem)
+		RegCloseKey(hCommandStoreItem);
+
+	return dwError;
+}
+
+std::wstring M2GetWindowsDirectory()
+{
+	std::wstring result(MAX_PATH, L'\0');
+	GetSystemWindowsDirectoryW(&result[0], (UINT)(result.capacity()));
+	result.resize(wcslen(result.c_str()));
+	return result;
+}
+
+std::wstring M2GetCurrentModulePath()
+{
+	std::wstring result(MAX_PATH, L'\0');
+	GetModuleFileNameW(nullptr, &result[0], (DWORD)(result.capacity()));
+	result.resize(wcslen(result.c_str()));
+	return result;
+}
+
+DWORD NSudoInstall()
+{
+	std::wstring NSudoPath(M2GetWindowsDirectory() + L"\\NSudo.exe");
+
+	CopyFileW(M2GetCurrentModulePath().c_str(), NSudoPath.c_str(), FALSE);
+
+	DWORD dwError = ERROR_SUCCESS;
+	HKEY hCommandStoreRoot = nullptr;
+	HKEY hNSudoItem = nullptr;
+
+	do
+	{
+		dwError = RegOpenKeyExW(
+			HKEY_LOCAL_MACHINE,
+			L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\CommandStore\\shell",
+			0,
+			KEY_ALL_ACCESS | KEY_WOW64_64KEY,
+			&hCommandStoreRoot);
+		if (ERROR_SUCCESS != dwError)
+			break;
+
+		dwError = CreateCommandStoreItem(
+			hCommandStoreRoot,
+			L"NSudo.RunAs.TrustedInstaller",
+			L"Run As TrustedInstaller",
+			(std::wstring(L"\"") + NSudoPath + L"\" -U:T \"\"%1\"\"").c_str(),
+			true);
+		if (ERROR_SUCCESS != dwError)
+			break;
+
+		dwError = CreateCommandStoreItem(
+			hCommandStoreRoot,
+			L"NSudo.RunAs.System",
+			L"Run As System",
+			(std::wstring(L"\"") + NSudoPath + L"\" -U:S \"\"%1\"\"").c_str(),
+			true);
+		if (ERROR_SUCCESS != dwError)
+			break;
+
+		dwError = M2RegCreateKey(
+			HKEY_CLASSES_ROOT,
+			L"*\\shell\\NSudo",
+			KEY_ALL_ACCESS | KEY_WOW64_64KEY,
+			&hNSudoItem);
+		if (ERROR_SUCCESS != dwError)
+			break;
+
+		dwError = M2RegSetStringValue(
+			hNSudoItem,
+			L"SubCommands",
+			L"NSudo.RunAs.TrustedInstaller;NSudo.RunAs.System");
+		if (ERROR_SUCCESS != dwError)
+			break;
+
+		dwError = M2RegSetStringValue(
+			hNSudoItem,
+			L"MUIVerb",
+			L"NSudo");
+		if (ERROR_SUCCESS != dwError)
+			break;
+
+		dwError = M2RegSetStringValue(
+			hNSudoItem,
+			L"Icon",
+			(std::wstring(L"\"") + NSudoPath + L"\"").c_str());
+		if (ERROR_SUCCESS != dwError)
+			break;
+
+		dwError = M2RegSetStringValue(
+			hNSudoItem,
+			L"Position",
+			L"1");
+		if (ERROR_SUCCESS != dwError)
+			break;
+
+	} while (false);
+
+	if (hCommandStoreRoot)
+		RegCloseKey(hCommandStoreRoot);
+
+	if (hNSudoItem)
+		RegCloseKey(hNSudoItem);
+
+	return dwError;
+}
+
+DWORD NSudoUninstall()
+{
+	DeleteFileW((M2GetWindowsDirectory() + L"\\NSudo.exe").c_str());
+
+	DWORD dwError = ERROR_SUCCESS;
+	HKEY hCommandStoreRoot = nullptr;
+
+	dwError = RegOpenKeyExW(
+		HKEY_LOCAL_MACHINE,
+		L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\CommandStore\\shell",
+		0,
+		KEY_ALL_ACCESS | KEY_WOW64_64KEY,
+		&hCommandStoreRoot);
+	if (ERROR_SUCCESS == dwError)
+	{
+		dwError = RegDeleteTreeW(
+			hCommandStoreRoot, L"NSudo.RunAs.TrustedInstaller");
+		if (ERROR_SUCCESS == dwError)
+		{
+			dwError = RegDeleteTreeW(
+				hCommandStoreRoot, L"NSudo.RunAs.System");
+		}
+
+		RegCloseKey(hCommandStoreRoot);
+	}
+
+	dwError = RegDeleteTreeW(
+		HKEY_CLASSES_ROOT,
+		L"*\\shell\\NSudo");
+
+	return dwError;
+}
+
 // 解析命令行
 int NSudoCommandLineParser(
 	_In_ bool bElevated,
 	_In_ std::vector<std::wstring>& args)
 {
-	// 如果参数是 /? 或 -?,则显示帮助
-	if (args.size() == 2 &&
-		(args[1][0] == L'-' || args[1][0] == L'/') &&
-		args[1][1] == '?')
+	if (2 == args.size())
 	{
-		CNSudoMainWindow(g_hInstance).ShowAboutDialog(nullptr);
-		return 0;
-	}
+		// 如果参数不满足条件，则返回错误
+		if (!(args[1][0] == L'-' || args[1][0] == L'/'))
+		{
+			SuMUIPrintMsg(g_hInstance, NULL, IDS_ERRARG);
+			return -1;
+		}
 
+		const wchar_t* arg = args[1].c_str() + 1;
+
+		// 如果参数是 /? 或 -?，则显示帮助
+		if (0 == _wcsicmp(arg, L"?"))
+		{
+			CNSudoMainWindow(g_hInstance).ShowAboutDialog(nullptr);
+			return 0;
+		}
+
+		// 如果参数是 /Install 或 -Install，则安装NSudo到系统
+		if (0 == _wcsicmp(arg, L"Install"))
+		{
+			if (ERROR_SUCCESS != NSudoInstall())
+			{
+				NSudoUninstall();
+			}
+
+			return 0;
+		}
+
+		// 如果参数是 /Uninstall 或 -Uninstall，则移除安装到系统的NSudo
+		if (0 == _wcsicmp(arg, L"Uninstall"))
+		{
+			NSudoUninstall();
+
+			return 0;
+		}
+	}
+	
 	DWORD dwSessionID = (DWORD)-1;
 
 	// 获取当前进程会话ID
@@ -435,18 +695,18 @@ int NSudoCommandLineParser(
 	// 解析参数，忽略第一项（必定是程序路径）和最后一项（因为必定是命令行）
 	for (size_t i = 1; i < args.size() - 1; ++i)
 	{
-		const wchar_t* arg = args[i].c_str() + 1;
-
 		// 如果参数不满足条件，则返回错误
-		if (!(wcslen(arg) == 3 && arg[1] == L':'))
+		if (!(args[i][0] == L'-' || args[i][0] == L'/'))
 		{
 			bArgErr = true;
 			break;
 		}
 
-		if (!bGetUser && (arg[0] == L'U' || arg[0] == L'u'))
+		const wchar_t* arg = args[i].c_str() + 1;
+
+		if (!bGetUser)
 		{
-			if (arg[2] == L'T' || arg[2] == L't')
+			if (0 == _wcsicmp(arg, L"U:T"))
 			{
 				if (NSudoDuplicateServiceToken(
 					L"TrustedInstaller",
@@ -463,7 +723,7 @@ int NSudoCommandLineParser(
 						sizeof(DWORD));
 				}
 			}
-			else if (arg[2] == L'S' || arg[2] == L's')
+			else if (0 == _wcsicmp(arg, L"U:S"))
 			{
 				NSudoDuplicateSystemToken(
 					MAXIMUM_ALLOWED,
@@ -472,7 +732,7 @@ int NSudoCommandLineParser(
 					TokenPrimary,
 					&hToken);
 			}
-			else if (arg[2] == L'C' || arg[2] == L'c')
+			else if (0 == _wcsicmp(arg, L"U:C"))
 			{
 				NSudoDuplicateSessionToken(
 					dwSessionID,
@@ -482,12 +742,12 @@ int NSudoCommandLineParser(
 					TokenPrimary,
 					&hToken);
 			}
-			else if (arg[2] == L'P' || arg[2] == L'p')
+			else if (0 == _wcsicmp(arg, L"U:P"))
 			{
 				OpenProcessToken(
 					GetCurrentProcess(), MAXIMUM_ALLOWED, &hToken);
 			}
-			else if (arg[2] == L'D' || arg[2] == L'd')
+			else if (0 == _wcsicmp(arg, L"U:D"))
 			{
 				if (OpenProcessToken(
 					GetCurrentProcess(), MAXIMUM_ALLOWED, &hTempToken))
@@ -503,14 +763,13 @@ int NSudoCommandLineParser(
 
 			bGetUser = true;
 		}
-
-		if (!bGetPrivileges && (arg[0] == L'P' || arg[0] == L'p'))
+		else if (!bGetPrivileges)
 		{
-			if (arg[2] == L'E' || arg[2] == L'e')
+			if (0 == _wcsicmp(arg, L"P:E"))
 			{
 				NSudoSetTokenAllPrivileges(hToken, true);
 			}
-			else if (arg[2] == L'D' || arg[2] == L'd')
+			else if (0 == _wcsicmp(arg, L"P:D"))
 			{
 				NSudoSetTokenAllPrivileges(hToken, false);
 			}
@@ -522,22 +781,21 @@ int NSudoCommandLineParser(
 
 			bGetPrivileges = true;
 		}
-
-		if (!bGetIntegrityLevel && (arg[0] == L'M' || arg[0] == L'm'))
+		else if (!bGetIntegrityLevel)
 		{
-			if (arg[2] == L'S' || arg[2] == L's')
+			if (0 == _wcsicmp(arg, L"M:S"))
 			{
 				NSudoSetTokenIntegrityLevel(hToken, SystemLevel);
 			}
-			else if (arg[2] == L'H' || arg[2] == L'h')
+			else if (0 == _wcsicmp(arg, L"M:H"))
 			{
 				NSudoSetTokenIntegrityLevel(hToken, HighLevel);
 			}
-			else if (arg[2] == L'M' || arg[2] == L'm')
+			else if (0 == _wcsicmp(arg, L"M:M"))
 			{
 				NSudoSetTokenIntegrityLevel(hToken, MediumLevel);
 			}
-			else if (arg[2] == L'L' || arg[2] == L'l')
+			else if (0 == _wcsicmp(arg, L"M:L"))
 			{
 				NSudoSetTokenIntegrityLevel(hToken, LowLevel);
 			}

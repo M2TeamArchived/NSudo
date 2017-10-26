@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27004.2002
+VisualStudioVersion = 15.0.27004.2005
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NSudo", "NSudo\NSudo.vcxproj", "{DBC9A9EE-78AE-4260-80E8-67D4D04A92C8}"
 EndProject
@@ -11,9 +11,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documents", "Documents", "{
 		.gitmodules = .gitmodules
 		appveyor.yml = appveyor.yml
 		Changelog.md = Changelog.md
+		How to add NSudo to the Context Menu.txt = How to add NSudo to the Context Menu.txt
 		LICENSE = LICENSE
 		People.md = People.md
 		Readme.md = Readme.md
+		如何添加NSudo到上下文菜单.txt = 如何添加NSudo到上下文菜单.txt
 		自述.md = 自述.md
 	EndProjectSection
 EndProject
