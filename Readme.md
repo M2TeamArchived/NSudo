@@ -5,6 +5,7 @@
 [![latestdownloads.badge]][latestdownloads.link]
 [![totaldownloads.badge]][totaldownloads.link]
 [![license.badge]][license.link]
+[![donate.badge]][donate.link]
 
 - [简体中文](自述.md)
 
@@ -47,7 +48,8 @@ You can edit NSudo.json to custom the Shortcut list, here are the demo (NSudo.js
 ```
 {
   "ShortCutList_V2": {
-    "Command Prompt": "cmd",
+
+    "Command Prompt": "cmd",
     "PowerShell": "powershell",
     "PowerShell ISE": "powershell_ise",
     "Edit Hosts": "notepad %windir%\\System32\\Drivers\\etc\\hosts"
@@ -84,9 +86,6 @@ See [People.md](People.md) for more details.
 - MDL Post : https://forums.mydigitallife.net/threads/nsudo-a-powerful-system-administration-tool.59268/
 - QQ Group : 466078631
 
-## Donate
-If you want to support this project, you can use the PayPal (https://www.paypal.me/MouriNaruto) for payment to our account. Your donation is one of driving forces for our development.
-
 ## Have a good time -- M2-Team
 
 [appveyor.badge]: https://ci.appveyor.com/api/projects/status/github/M2Team/NSudo?branch=master&svg=true
@@ -99,3 +98,5 @@ If you want to support this project, you can use the PayPal (https://www.paypal.
 [totaldownloads.link]: https://github.com/M2Team/NSudo/releases
 [license.badge]: https://img.shields.io/github/license/M2Team/NSudo.svg
 [license.link]: LICENSE
+[donate.badge]: https://img.shields.io/badge/PayPal-Donate-blue.svg
+[donate.link]: https://www.paypal.me/MouriNaruto
