@@ -1,8 +1,10 @@
 ﻿# NSudo - A Powerful System Administration Tool
 
-[![Build status](https://ci.appveyor.com/api/projects/status/gaxfn27d0yjmt8q7?svg=true)](https://ci.appveyor.com/project/MouriNaruto/nsudo)
-[![Latest Release](https://img.shields.io/github/release/M2Team/NSudo.svg)](https://github.com/M2Team/NSudo/releases/latest)
-[![Download](https://img.shields.io/github/downloads/M2Team/NSudo/total.svg)](https://github.com/M2Team/NSudo/releases/latest)
+[![appveyor.badge]][appveyor.link] 
+[![release.badge]][release.link]
+[![latestdownloads.badge]][latestdownloads.link]
+[![totaldownloads.badge]][totaldownloads.link]
+[![license.badge]][license.link]
 
 - [简体中文](自述.md)
 
@@ -59,10 +61,8 @@ Starting from NSudo 5.0.1708.16, the command line nested quotes is supported. Fo
 - Supported OS Version: Windows NT 6.0 or later
 - Supported CPU Architecture: x86, x86-64(AMD64), ARM, ARM64
 
-## License
-NSudo is distributed under the MIT License, see [LICENSE](LICENSE) for more details.
-
-The name of 3rd-party library | Developer     | License
+## 3rd-party libraries which used
+Name                          | Developer     | License
 ------------------------------|---------------|-----------------
 JSON for Modern C++           | Niels Lohmann | The MIT License
 
@@ -88,3 +88,14 @@ See [People.md](People.md) for more details.
 If you want to support this project, you can use the PayPal (https://www.paypal.me/MouriNaruto) for payment to our account. Your donation is one of driving forces for our development.
 
 ## Have a good time -- M2-Team
+
+[appveyor.badge]: https://ci.appveyor.com/api/projects/status/github/M2Team/NSudo?branch=master&svg=true
+[appveyor.link]: https://ci.appveyor.com/project/MouriNaruto/nsudo
+[release.badge]: https://img.shields.io/github/release/M2Team/NSudo.svg
+[release.link]: https://github.com/M2Team/NSudo/releases/latest
+[latestdownloads.badge]: https://img.shields.io/github/downloads/M2Team/NSudo/latest/total.svg
+[latestdownloads.link]: https://github.com/M2Team/NSudo/releases/latest
+[totaldownloads.badge]: https://img.shields.io/github/downloads/M2Team/NSudo/total.svg
+[totaldownloads.link]: https://github.com/M2Team/NSudo/releases
+[license.badge]: https://img.shields.io/github/license/M2Team/NSudo.svg
+[license.link]: LICENSE
