@@ -28,13 +28,13 @@ License: The MIT License
 
 namespace M2
 {
-	template<typename TObject, const TObject InvalidValue, typename TCloseFunction, TCloseFunction CloseFunction>
+	template<typename TObject, typename TObjectDefiner>
 	class CObject
 	{
 	protected:
 		TObject m_Object;
 	public:
-		CObject(TObject Object = InvalidValue) : m_Object(Object)
+		CObject(TObject Object = TObjectDefiner::GetInvalidValue()) : m_Object(Object)
 		{
 
 		}
@@ -66,13 +66,13 @@ namespace M2
 
 		bool IsInvalid()
 		{
-			return (this->m_Object == InvalidValue);
+			return (this->m_Object == TObjectDefiner::GetInvalidValue());
 		}
 
 		TObject Detach()
 		{
 			TObject Object = this->m_Object;
-			this->m_Object = InvalidValue;
+			this->m_Object = TObjectDefiner::GetInvalidValue();
 			return Object;
 		}
 
@@ -80,8 +80,8 @@ namespace M2
 		{
 			if (!this->IsInvalid())
 			{
-				CloseFunction(this->m_Object);
-				this->m_Object = InvalidValue;
+				TObjectDefiner::Close(this->m_Object);
+				this->m_Object = TObjectDefiner::GetInvalidValue();
 			}
 		}
 
@@ -91,14 +91,67 @@ namespace M2
 		}
 	};
 
-	typedef CObject<SC_HANDLE, nullptr, decltype(CloseServiceHandle), CloseServiceHandle> CServiceHandle;
-	
-	typedef CObject<HANDLE, INVALID_HANDLE_VALUE, decltype(CloseHandle), CloseHandle> CHandle;
+	struct CServiceHandleDefiner
+	{
+		static inline SC_HANDLE GetInvalidValue()
+		{
+			return nullptr;
+		}
 
-	typedef CObject<PSID, nullptr, decltype(FreeSid), FreeSid> CSID;
+		static inline void Close(SC_HANDLE Object)
+		{
+			CloseServiceHandle(Object);
+		}
+	};
+
+	typedef CObject<SC_HANDLE, CServiceHandleDefiner> CServiceHandle;
+
+	struct CHandleDefiner
+	{
+		static inline HANDLE GetInvalidValue()
+		{
+			return INVALID_HANDLE_VALUE;
+		}
+
+		static inline void Close(HANDLE Object)
+		{
+			CloseHandle(Object);
+		}
+	};
+	
+	typedef CObject<HANDLE, CHandleDefiner> CHandle;
+
+	struct CSIDDefiner
+	{
+		static inline PSID GetInvalidValue()
+		{
+			return nullptr;
+		}
+
+		static inline void Close(PSID Object)
+		{
+			FreeSid(Object);
+		}
+	};
+
+	typedef CObject<PSID, CSIDDefiner> CSID;
 
 	template<typename TMemoryBlock>
-	class CMemory : public CObject<TMemoryBlock, nullptr, decltype(free), free>
+	struct CMemoryDefiner
+	{
+		static inline TMemoryBlock GetInvalidValue()
+		{
+			return nullptr;
+		}
+
+		static inline void Close(TMemoryBlock Object)
+		{
+			free(Object);
+		}
+	};
+
+	template<typename TMemoryBlock>
+	class CMemory : public CObject<TMemoryBlock, CMemoryDefiner<TMemoryBlock>>
 	{
 	public:
 
@@ -115,7 +168,21 @@ namespace M2
 	};
 
 	template<typename TMemoryBlock>
-	class CWTSMemory : public CObject<TMemoryBlock, nullptr, decltype(WTSFreeMemory), WTSFreeMemory>
+	struct CWTSMemoryDefiner
+	{
+		static inline TMemoryBlock GetInvalidValue()
+		{
+			return nullptr;
+		}
+
+		static inline void Close(TMemoryBlock Object)
+		{
+			WTSFreeMemory(Object);
+		}
+	};
+
+	template<typename TMemoryBlock>
+	class CWTSMemory : public CObject<TMemoryBlock, CWTSMemoryDefiner<TMemoryBlock>>
 	{
 
 	};
@@ -712,7 +779,7 @@ extern "C" {
 					if (pProcess->SessionId != dwSessionID) continue;
 					if (pProcess->pProcessName == nullptr) continue;
 
-					if (wcscmp(L"winlogon.exe", pProcess->pProcessName) == 0)
+					if (_wcsicmp(L"winlogon.exe", pProcess->pProcessName) == 0)
 					{
 						dwWinLogonPID = pProcess->ProcessId;
 						break;

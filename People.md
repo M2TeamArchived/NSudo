@@ -34,6 +34,7 @@
 - abbodi1406
 - imadlatch
 - kCaRhC卡壳
+- mingkuang (https://github.com/mingkuang-Chuyu)
 - NotePad
 - sebus
 - th1r5bvn23

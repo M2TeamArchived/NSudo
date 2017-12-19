@@ -1,5 +1,8 @@
 ﻿# 改进日志 Changelog
 
+**NSudo 5.3 (5.3.1712.19 - 5.32.1712.19)**
+- 修复获取System令牌函数的一个潜在Bug（感谢 mingkuang）
+
 **NSudo 5.2 (5.2.1709.8 - 5.2.1710.26)**
 - 整理代码，修复若干Bugs
 - 更新文档，增加英文自述
@@ -102,7 +105,7 @@
 - 支持默认参数，即以TrustedInstaller令牌且开启全部特权运行 (感谢 老九)
 - 在默认快捷命令列表加入host编辑
 - 增加NSudo和MiniFM的Per-Monitor DPI Aware支持
-- 采用VC-LTL大幅度减小程序体积
+- 采用VC-LTL大幅度减小程序体积（感谢 mingkuang）
 - 更改图标（感谢20011010wo）
 - 精简并优化主界面（感谢 kCaRhC卡壳，さくら）
 - 使用TaskDialog替代MessageBox

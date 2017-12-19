@@ -3,7 +3,9 @@
   <ItemGroup>
     <ClInclude Include="$(MSBuildThisFileDirectory)NSudoAPI.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)m2base.h" />
-    <ClInclude Include="$(MSBuildThisFileDirectory)ThirdParty\json.hpp" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ThirdParty\json.hpp">
+      <Filter>ThirdParty</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ThirdParty">
