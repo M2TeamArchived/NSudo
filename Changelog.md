@@ -2,6 +2,8 @@
 
 **NSudo 5.3 (5.3.1712.19 - 5.32.1712.19)**
 - 修复获取System令牌函数的一个潜在Bug（感谢 mingkuang）
+- 对x86和x86-64(AMD64)的Release编译配置提供VC-LTL库支持（感谢 mingkuang）
+  - PS：把NSudo和VC-LTL一起使用可以减小NSudo二进制的体积
 
 **NSudo 5.2 (5.2.1709.8 - 5.2.1710.26)**
 - 整理代码，修复若干Bugs

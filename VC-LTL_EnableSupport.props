@@ -1,0 +1,58 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+作者：mingkuang
+修改日期：2017-12-19
+
+
+用于统一加载配置，建议你将此文件单独复制到你的工程再使用，该文件能自动识别当前环境是否存在VC-LTL，并且自动应用。
+
+复制到你的工程后，你可以修改此文件，添加你其他需要添加的属性表。
+
+
+VC-LTL默认搜索顺序
+
+1：当前项目根目录，即$(ProjectDir)
+2：前解决方案根目录，即$(SolutionDir)
+3：当前项目父目录，即$(ProjectDir)..\
+4：当前解决方案父目录，即$(SolutionDir)..\
+5：注册表HKEY_CURRENT_USER\Code\VC-LTL@Root
+
+把VC-LTL放在其中一个位置即可，VC-LTL就能被自动引用。
+
+如果你对默认搜索顺序不满，你可以修改此文件。你也可以直接指定$(VC_LTL_Root)宏更加任性的去加载VC-LTL。
+
+-->
+
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <!--当前项目根目录存在VC-LTL？-->
+    <VC_LTL_Root Condition=" ('$(VC_LTL_Root)'=='') And (Exists('$(ProjectDir)VC-LTL\_msvcrt.h')) ">$(ProjectDir)VC-LTL</VC_LTL_Root>
+
+    <!--当前解决方案根目录存在VC-LTL？-->
+    <VC_LTL_Root Condition=" ('$(VC_LTL_Root)'=='') And ('$(SolutionDir)'!='') And (Exists('$(SolutionDir)VC-LTL\_msvcrt.h')) ">$(SolutionDir)VC-LTL</VC_LTL_Root>
+
+    <!--当前项目父目录存在VC-LTL？-->
+    <VC_LTL_Root Condition=" ('$(VC_LTL_Root)'=='') And (Exists('$(ProjectDir)..\VC-LTL\_msvcrt.h')) ">$(ProjectDir)..\VC-LTL</VC_LTL_Root>
+
+    <!--当前解决方案父目录存在VC-LTL？-->
+    <VC_LTL_Root Condition=" ('$(VC_LTL_Root)'=='') And ('$(SolutionDir)'!='') And (Exists('$(SolutionDir)..\VC-LTL\_msvcrt.h')) ">$(SolutionDir)..\VC-LTL</VC_LTL_Root>
+
+    <!--如果本地工程没有，那么继续尝试通过注册表获取VC-LTL路径，双击Install.cmd可以自动产生此注册表。-->
+    <VC_LTL_Root Condition=" '$(VC_LTL_Root)'=='' ">$(Registry:HKEY_CURRENT_USER\Code\VC-LTL@Root)</VC_LTL_Root>
+
+    <!--取消下方注释可以开启VC-LTL轻量模式，轻量模式更加注重体积控制，但是CRT规范将会维持在VS2008。如果你需要高度兼容微软UCRT，那么请不要打开此选项！！！-->
+    <!--<DisableAdvancedSupport>true</DisableAdvancedSupport>-->
+
+    <!--取消下方注释可以开启强制XP兼容模式，默认情况下仅在选择WinXP工具集时才开启。-->
+    <!--<SupportWinXP>true</SupportWinXP>-->
+    
+    <RuntimeLibrary Condition=" '$(VC_LTL_Root)'=='' ">MultiThreaded</RuntimeLibrary>
+    <RuntimeLibrary Condition=" '$(VC_LTL_Root)'!='' ">MultiThreadedDLL</RuntimeLibrary>
+    
+  </PropertyGroup>
+  
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(VC_LTL_Root)\ltlvcrt.props" Condition=" '$(VC_LTL_Root)'!='' "/>
+  </ImportGroup>
+</Project>
