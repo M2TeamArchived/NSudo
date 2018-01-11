@@ -11,8 +11,17 @@
 
 - Notice: NSudo is based on SuperCMD by Raymai97.Visit [here](http://bbs.pcbeta.com/viewthread-1508863-1-1.html "here") for more information about SuperCMD.
 
+## System Requirements
+- Supported OS Version: Windows NT 6.0 or later
+- Supported CPU Architecture: x86, x86-64(AMD64), ARM, ARM64
+
 ## Usage
-Double click the NSudo.bat, it will start the NSudo according to the CPU architecture. Follow the prompts.
+- Please go to the [CPU Architecture] folder and click NSudo.exe. Follow the prompts.
+  - For example, if you want to use 64-bit NSudo on your Intel or AMD device, you need to go to the x64 folder and click NSudo.exe
+- PS: All NSudo command arguments is case-insensitive.
+- How to add NSudo to the Context Menu
+  - Using /Install or -Install to copy NSudo to the Windows directory and remove the context menu.
+  - Using /Uninstall or -Uninstall to remove NSudo in the Windows directory and remove the context menu.
 
 ## Command Line Options
 ```
@@ -59,10 +68,6 @@ You can edit NSudo.json to custom the Shortcut list, here are the demo (NSudo.js
 Starting from NSudo 5.0.1708.16, the command line nested quotes is supported. For example: 
 > NSudo -U:T cmd /c "dir "C:\Program Files" & pause"
 
-## System Requirements
-- Supported OS Version: Windows NT 6.0 or later
-- Supported CPU Architecture: x86, x86-64(AMD64), ARM, ARM64
-
 ## 3rd-party libraries which used
 Name                          | Developer     | License
 ------------------------------|---------------|-----------------
@@ -85,6 +90,7 @@ See [People.md](People.md) for more details.
 ## Communication
 - MDL Post : https://forums.mydigitallife.net/threads/nsudo-a-powerful-system-administration-tool.59268/
 - QQ Group : 466078631
+- E-mail : Mouri_Naruto@Outlook.com
 
 ## Have a good time -- M2-Team
 
