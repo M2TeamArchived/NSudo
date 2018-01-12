@@ -47,9 +47,9 @@ VC-LTL默认搜索顺序
     <!--取消下方注释可以开启强制XP兼容模式，默认情况下仅在选择WinXP工具集时才开启。-->
     <!--<SupportWinXP>true</SupportWinXP>-->
     
-    <RuntimeLibrary Condition=" '$(VC_LTL_Root)'=='' ">MultiThreaded</RuntimeLibrary>
-    <RuntimeLibrary Condition=" '$(VC_LTL_Root)'!='' ">MultiThreadedDLL</RuntimeLibrary>
-    
+    <VC_LTL_RuntimeLibrary Condition=" '$(VC_LTL_Root)'=='' ">MultiThreaded</VC_LTL_RuntimeLibrary>
+    <VC_LTL_RuntimeLibrary Condition=" '$(VC_LTL_Root)'!='' ">MultiThreadedDLL</VC_LTL_RuntimeLibrary>
+
   </PropertyGroup>
   
   <ImportGroup Label="PropertySheets">
