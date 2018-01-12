@@ -13,9 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="资源文件\资源">
-      <UniqueIdentifier>{df97e053-65a8-4c48-8298-0d791df90d55}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -29,30 +26,17 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="NSudo.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="stdafx.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="NSudoG.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="NSudo.rc">
+    <ResourceCompile Include="NSudoG.rc">
       <Filter>资源文件</Filter>
     </ResourceCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="NSudo.def">
-      <Filter>源文件</Filter>
-    </None>
-    <None Include="res\NSudo.json">
-      <Filter>资源文件\资源</Filter>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Manifest Include="NSudo.manifest">
-      <Filter>资源文件</Filter>
-    </Manifest>
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\NSudo.Icon\NSudo.ico">
