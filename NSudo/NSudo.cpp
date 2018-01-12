@@ -13,7 +13,7 @@ nlohmann::json nsudo_shortcut_list_v2;
 #include <Userenv.h>
 #pragma comment(lib, "Userenv.lib")
 
-#include "Version.h"
+#include "NSudoVersion.h"
 
 namespace ProjectInfo
 {
@@ -864,8 +864,6 @@ void SuGUIRun(
 
 		result.push_back(L"NSudo");
 
-		M2::CHandle hToken;
-
 		// 获取用户令牌
 		if (SuMUICompare(g_hInstance, IDS_TI, szUser))
 		{
@@ -885,7 +883,7 @@ void SuGUIRun(
 		}
 
 		// 如果勾选启用全部特权，则尝试对令牌启用全部特权
-		if (hToken != INVALID_HANDLE_VALUE && bEnableAllPrivileges)
+		if (bEnableAllPrivileges)
 		{
 			result.push_back(L"-P:E");
 		}

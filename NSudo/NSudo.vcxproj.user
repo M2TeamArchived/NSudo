@@ -47,7 +47,6 @@
     <DeploymentDirectory>C:\Users\Mouri\Desktop\Debug\$(MSBuildProjectName)</DeploymentDirectory>
     <RemoteDebuggerCommand>C:\Users\Mouri\Desktop\Debug\$(MSBuildProjectName)\$(ProjectName).exe</RemoteDebuggerCommand>
     <RemoteDebuggerServerName>192.168.1.102</RemoteDebuggerServerName>
-    <LocalDebuggerCommandArguments>-U:T K:\OSBackup\Windows 10 Pro.wim</LocalDebuggerCommandArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
@@ -56,7 +55,6 @@
     <DeploymentDirectory>C:\Users\Mouri\Desktop\Debug\$(MSBuildProjectName)</DeploymentDirectory>
     <RemoteDebuggerCommand>C:\Users\Mouri\Desktop\Debug\$(MSBuildProjectName)\$(ProjectName).exe</RemoteDebuggerCommand>
     <RemoteDebuggerServerName>192.168.1.102</RemoteDebuggerServerName>
-    <LocalDebuggerCommandArguments>-U:T K:\OSBackup\Windows 10 Pro.wim</LocalDebuggerCommandArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <DebuggerFlavor>WindowsRemoteDebugger</DebuggerFlavor>
