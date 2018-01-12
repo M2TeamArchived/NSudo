@@ -6,6 +6,8 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)ThirdParty\json.hpp">
       <Filter>ThirdParty</Filter>
     </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)NSudoVersion.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)CIBuild.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ThirdParty">

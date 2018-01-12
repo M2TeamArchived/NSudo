@@ -1,9 +1,4 @@
 ﻿/******************************************************************************
-项目：NSudo
-描述：NSudo 版本定义
-文件名：Version.h
-许可协议：The MIT License
-
 Project: NSudo
 Description: NSudo Version Definition
 File Name: Version.h
@@ -15,8 +10,8 @@ License: The MIT License
 #ifndef NSUDO_VER
 #define NSUDO_VER
 
-#define NSUDO_VER_MAJOR 5
-#define NSUDO_VER_MINOR 3
+#define NSUDO_VER_MAJOR 6
+#define NSUDO_VER_MINOR 0
 #define NSUDO_VER_BUILD 1801
 #define NSUDO_VER_REV 11
 #endif

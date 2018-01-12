@@ -1,9 +1,4 @@
 ﻿/******************************************************************************
-项目：NSudoSDK
-描述：NSudo库
-文件名：NSudoAPI.h
-许可协议：The MIT License
-
 Project: NSudoSDK
 Description: NSudo Library
 File Name: NSudoAPI.h
@@ -854,7 +849,7 @@ extern "C" {
 	If the function fails, the return value is NULL. To get extended error
 	information, call GetLastError.
 	*/
-	static HRESULT WINAPI NSudoDuplicateSessionToken(
+	static BOOL WINAPI NSudoDuplicateSessionToken(
 		_In_ DWORD dwSessionID,
 		_In_ DWORD dwDesiredAccess,
 		_In_opt_ LPSECURITY_ATTRIBUTES lpTokenAttributes,

@@ -14,8 +14,10 @@
     <ProjectCapability Include="SourceItemsFromImports" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="$(MSBuildThisFileDirectory)CIBuild.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)m2base.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)NSudoAPI.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)NSudoVersion.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ThirdParty\json.hpp" />
   </ItemGroup>
 </Project>
