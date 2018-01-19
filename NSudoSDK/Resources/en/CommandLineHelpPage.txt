@@ -1,0 +1,31 @@
+﻿Format: NSudo [ -U ] [ -P ] [ -M ] Command line or ShortCut Command
+
+-U:[ T | S | C | P | D ] User
+    T TrustedInstaller
+    S System
+    C Current User
+    P Current Process
+    D Current Process (Drop right)
+
+-P:[ E | D ] Privilege
+    E Enable All Privileges
+    D Disable All Privileges
+PS:
+    If you want to use the default privileges, please do not include the "-P"
+    parameter.
+
+-M:[ S | H | M | L ] Integrity Level
+    S System
+    H High
+    M Medium
+    L Low
+PS:
+    If you want to use the default Integrity Level, please do not include the 
+    "-M" parameter
+
+-? Show this content
+
+Example：
+    If you want to run Command Prompt with TrustedInstaller, enable all 
+    privileges and the default Integrity Level.
+        NSudo -U:T -P:E cmd
