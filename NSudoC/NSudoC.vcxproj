@@ -323,6 +323,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="resource.h" />
+    <ClInclude Include="resource1.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
@@ -341,6 +342,7 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="NSudoC.rc" />
+    <ResourceCompile Include="Version.rc" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\NSudo.Icon\NSudo.ico" />

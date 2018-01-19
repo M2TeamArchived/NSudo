@@ -20,4 +20,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)NSudoVersion.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ThirdParty\json.hpp" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="$(MSBuildThisFileDirectory)Resources\en\CommandLineHelpPage.txt" />
+  </ItemGroup>
 </Project>

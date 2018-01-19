@@ -13,5 +13,16 @@
     <Filter Include="ThirdParty">
       <UniqueIdentifier>{fbdb5e99-1ac3-445a-8120-4ec9e83aad0f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{bae262bf-0cb3-4f13-abfc-287904e63e4e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources\en">
+      <UniqueIdentifier>{1d7fa200-3b0e-4141-ba3b-ac95092919d1}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="$(MSBuildThisFileDirectory)Resources\en\CommandLineHelpPage.txt">
+      <Filter>Resources\en</Filter>
+    </Text>
   </ItemGroup>
 </Project>
