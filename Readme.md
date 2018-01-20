@@ -1,7 +1,7 @@
 ﻿# NSudo - A Powerful System Administration Tool
 
 [![appveyor.badge]][appveyor.link] 
-[![Coverage Status](CoverageStatus.badge)](CoverageStatus.link)
+[![CoverageStatus.badge]](CoverageStatus.link)
 [![release.badge]][release.link]
 [![latestdownloads.badge]][latestdownloads.link]
 [![totaldownloads.badge]][totaldownloads.link]
