@@ -1,7 +1,7 @@
 ﻿# NSudo - A Powerful System Administration Tool
 
 [![appveyor.badge]][appveyor.link] 
-[![Coverage Status](CoverageStatusBadge.link)](https://coveralls.io/github/M2Team/NSudo?branch=master)
+[![Coverage Status](CoverageStatus.badge)](CoverageStatus.link)
 [![release.badge]][release.link]
 [![latestdownloads.badge]][latestdownloads.link]
 [![totaldownloads.badge]][totaldownloads.link]
@@ -107,4 +107,5 @@ See [People.md](People.md) for more details.
 [license.link]: LICENSE
 [donate.badge]: https://img.shields.io/badge/PayPal-Donate-blue.svg
 [donate.link]: https://www.paypal.me/MouriNaruto
-[CoverageStatusBadge.link]: https://coveralls.io/repos/github/M2Team/NSudo/badge.svg?branch=master
+[CoverageStatus.badge]: https://coveralls.io/repos/github/M2Team/NSudo/badge.svg?branch=master
+[CoverageStatus.link]: https://coveralls.io/github/M2Team/NSudo?branch=master
