@@ -20,7 +20,3 @@ after_build:
     7z a -r NSudo_CI_Build_%APPVEYOR_BUILD_NUMBER%.zip %APPVEYOR_BUILD_FOLDER%\Output\Binary\*.json
 artifacts:
 - path: NSudo_CI_Build_%APPVEYOR_BUILD_NUMBER%.zip
-environment:
-  COVERALLS_SERVICE_NAME: appveyor
-  COVERALLS_REPO_TOKEN:
-    secure: 4ZHCSC8j97Qg0prnX1chpbJHMpO8xdguT0/YbeyL6RTRuo4PLhi5sOA07CIu+oxM
