@@ -42,7 +42,7 @@ public:
 	{
 
 	}
-	
+
 	LPVOID Get()
 	{
 		return LockResource(LoadResource(this->m_Module, this->m_Resource));
@@ -55,19 +55,15 @@ public:
 
 };
 
-
-
-
-
 std::wstring NSudoGetUTF8WithBOMStringResources(
 	_In_ UINT uID)
 {
 	CResource Resource(L"String", uID);
-	
+
 	std::string RawString(
 		reinterpret_cast<const char*>(Resource.Get()),
 		Resource.Size());
-	
+
 	// Raw string without the UTF-8 BOM. (0xEF,0xBB,0xBF)	
 	return m2_base_utf8_to_utf16(RawString.c_str() + 3);
 }
@@ -81,10 +77,10 @@ void NSudoPrintMsg(
 		hWnd,
 		hInstance,
 		L"NSudo",
-		nullptr, 
+		nullptr,
 		lpContent,
-		0, 
-		nullptr, 
+		0,
+		nullptr,
 		nullptr);
 }
 
@@ -94,11 +90,6 @@ std::wstring NSudoGetTranslation(
 	return m2_base_utf8_to_utf16(
 		NSudo_String_Translations[Key].get<std::string>());
 }
-
-
-
-
-
 
 /*
 SuCreateProcess函数创建一个新进程和对应的主线程
@@ -341,7 +332,7 @@ HRESULT CNSudoMainWindow::ShowAboutDialog(
 		NSudoGetUTF8WithBOMStringResources(IDR_String_Logo) +
 		NSudoGetUTF8WithBOMStringResources(IDR_String_CommandLineHelp) +
 		NSudoGetUTF8WithBOMStringResources(IDR_String_Links);
-	
+
 	TASKDIALOGCONFIG config = { 0 };
 
 	config.cbSize = sizeof(config);
@@ -722,7 +713,7 @@ int NSudoCommandLineParser(
 			return 0;
 		}
 	}
-	
+
 	DWORD dwSessionID = (DWORD)-1;
 
 	// 获取当前进程会话ID
@@ -925,13 +916,13 @@ void SuGUIRun(
 
 		result.push_back(L"NSudo");
 
-		std::wstring Buffer_TI = 
+		std::wstring Buffer_TI =
 			NSudoGetTranslation("TI");
-		std::wstring Buffer_System = 
+		std::wstring Buffer_System =
 			NSudoGetTranslation("System");
-		std::wstring Buffer_CurrentProcess = 
+		std::wstring Buffer_CurrentProcess =
 			NSudoGetTranslation("CurrentProcess");
-		std::wstring Buffer_CurrentUser = 
+		std::wstring Buffer_CurrentUser =
 			NSudoGetTranslation("CurrentUser");
 
 		// 获取用户令牌
@@ -982,19 +973,19 @@ INT_PTR CNSudoMainWindow::DialogProc(
 		this->m_hUserName = GetDlgItem(hDlg, IDC_UserName);
 		this->m_hCheckBox = GetDlgItem(hDlg, IDC_Check_EnableAllPrivileges);
 		this->m_hszPath = GetDlgItem(hDlg, IDC_szPath);
-		
+
 		SetWindowTextW(hDlg, ProjectInfo::VersionText);
 
 		struct { const char* ID; HWND hWnd; } x[] =
 		{
 			{ "EnableAllPrivileges" , this->m_hCheckBox },
-			{ "WarningText" , GetDlgItem(hDlg, IDC_WARNINGTEXT) },
-			{ "SettingsGroupText" ,GetDlgItem(hDlg, IDC_SETTINGSGROUPTEXT) },
-			{ "Static.User",GetDlgItem(hDlg, IDC_STATIC_USER) },
-			{ "Static.Open", GetDlgItem(hDlg, IDC_STATIC_OPEN) },
-			{ "Button.About", GetDlgItem(hDlg, IDC_About) },
-			{ "Button.Browse", GetDlgItem(hDlg, IDC_Browse) },
-			{ "Button.Run", GetDlgItem(hDlg, IDC_Run) }
+		{ "WarningText" , GetDlgItem(hDlg, IDC_WARNINGTEXT) },
+		{ "SettingsGroupText" ,GetDlgItem(hDlg, IDC_SETTINGSGROUPTEXT) },
+		{ "Static.User",GetDlgItem(hDlg, IDC_STATIC_USER) },
+		{ "Static.Open", GetDlgItem(hDlg, IDC_STATIC_OPEN) },
+		{ "Button.About", GetDlgItem(hDlg, IDC_About) },
+		{ "Button.Browse", GetDlgItem(hDlg, IDC_Browse) },
+		{ "Button.Run", GetDlgItem(hDlg, IDC_Run) }
 		};
 
 		for (size_t i = 0; i < sizeof(x) / sizeof(x[0]); ++i)
@@ -1036,7 +1027,7 @@ INT_PTR CNSudoMainWindow::DialogProc(
 		const char* UserNameID[] = { "TI" ,"System" ,"CurrentProcess" ,"CurrentUser" };
 		for (size_t i = 0; i < sizeof(UserNameID) / sizeof(*UserNameID); ++i)
 		{
-			std::wstring Buffer = NSudoGetTranslation(UserNameID[i]); 
+			std::wstring Buffer = NSudoGetTranslation(UserNameID[i]);
 			SendMessageW(this->m_hUserName, CB_INSERTSTRING, 0, (LPARAM)Buffer.c_str());
 		}
 
@@ -1164,7 +1155,7 @@ INT_PTR CNSudoMainWindow::DialogProc(
 	default:
 		break;
 	}
-	
+
 	return FALSE;
 }
 
@@ -1176,7 +1167,7 @@ int WINAPI wWinMain(
 {
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	UNREFERENCED_PARAMETER(lpCmdLine);
-	UNREFERENCED_PARAMETER(nShowCmd);	
+	UNREFERENCED_PARAMETER(nShowCmd);
 
 	CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
 
@@ -1184,10 +1175,7 @@ int WINAPI wWinMain(
 
 	g_hInstance = hInstance;
 
-	std::wstring nsudo_exe_path;
-
-	nsudo_exe_path.resize(MAX_PATH);
-	GetModuleFileNameW(nullptr, &nsudo_exe_path[0], MAX_PATH);
+	std::wstring nsudo_exe_path = M2GetCurrentModulePath();
 
 	nsudo_app_path = nsudo_exe_path;
 	wcsrchr(&nsudo_app_path[0], L'\\')[0] = L'\0';
@@ -1210,7 +1198,7 @@ int WINAPI wWinMain(
 	}
 	catch (const std::exception&)
 	{
-		
+
 	}
 
 	M2::CHandle CurrentToken;

@@ -137,42 +137,42 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)Output\Binary\$(MSBuildProjectName)_$(Configuration)\$(Platform)\</OutDir>
+    <OutDir>$(SolutionDir)Output\Binary\$(Configuration)\$(Platform)\</OutDir>
     <IntDir>$(SolutionDir)Output\Temp\$(MSBuildProjectName)_$(Configuration)\$(Platform)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)Output\Binary\$(MSBuildProjectName)_$(Configuration)\$(Platform)\</OutDir>
+    <OutDir>$(SolutionDir)Output\Binary\$(Configuration)\$(Platform)\</OutDir>
     <IntDir>$(SolutionDir)Output\Temp\$(MSBuildProjectName)_$(Configuration)\$(Platform)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)Output\Binary\$(MSBuildProjectName)_$(Configuration)\$(Platform)\</OutDir>
+    <OutDir>$(SolutionDir)Output\Binary\$(Configuration)\$(Platform)\</OutDir>
     <IntDir>$(SolutionDir)Output\Temp\$(MSBuildProjectName)_$(Configuration)\$(Platform)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)Output\Binary\$(MSBuildProjectName)_$(Configuration)\$(Platform)\</OutDir>
+    <OutDir>$(SolutionDir)Output\Binary\$(Configuration)\$(Platform)\</OutDir>
     <IntDir>$(SolutionDir)Output\Temp\$(MSBuildProjectName)_$(Configuration)\$(Platform)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)Output\Binary\$(MSBuildProjectName)_$(Configuration)\$(Platform)\</OutDir>
+    <OutDir>$(SolutionDir)Output\Binary\$(Configuration)\$(Platform)\</OutDir>
     <IntDir>$(SolutionDir)Output\Temp\$(MSBuildProjectName)_$(Configuration)\$(Platform)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)Output\Binary\$(MSBuildProjectName)_$(Configuration)\$(Platform)\</OutDir>
+    <OutDir>$(SolutionDir)Output\Binary\$(Configuration)\$(Platform)\</OutDir>
     <IntDir>$(SolutionDir)Output\Temp\$(MSBuildProjectName)_$(Configuration)\$(Platform)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)Output\Binary\$(MSBuildProjectName)_$(Configuration)\$(Platform)\</OutDir>
+    <OutDir>$(SolutionDir)Output\Binary\$(Configuration)\$(Platform)\</OutDir>
     <IntDir>$(SolutionDir)Output\Temp\$(MSBuildProjectName)_$(Configuration)\$(Platform)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)Output\Binary\$(MSBuildProjectName)_$(Configuration)\$(Platform)\</OutDir>
+    <OutDir>$(SolutionDir)Output\Binary\$(Configuration)\$(Platform)\</OutDir>
     <IntDir>$(SolutionDir)Output\Temp\$(MSBuildProjectName)_$(Configuration)\$(Platform)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
