@@ -1,0 +1,22 @@
+﻿{
+  "Translations": {
+    "Button.About": "&About",
+    "Button.Browse": "&Browse",
+    "Button.Run": "&Run",
+    "CurrentProcess": "Current Process",
+    "CurrentUser": "Current User",
+    "Default": "Default",
+    "EnableAllPrivileges": "&Enable All Privileges",
+    "Error.Arg": "\nInvalid command line parameters,Please modify.(Show help by -? parameter)\n",
+    "Error.NotHeld": "Failed to get SE_DEBUG_NAME privilege.(Please run as Administrator)\n",
+    "Error.Sudo": "Failed to create a process.\n",
+    "Error.TextBox": "Please enter the command line or select a shortcut command in the drop-down box.\n",
+    "LanguageID": "en",
+    "SettingsGroupText": "Mode Settings",
+    "Static.Open": "&Open:",
+    "Static.User": "&User: ",
+    "System": "System",
+    "TI": "TrustedInstaller",
+    "WarningText": "Warning: Please use NSudo CAREFULLY !"
+  }
+}

@@ -8,6 +8,7 @@
     </ClInclude>
     <ClInclude Include="$(MSBuildThisFileDirectory)NSudoVersion.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)CIBuild.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)M2Object.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ThirdParty">
@@ -19,10 +20,36 @@
     <Filter Include="Resources\en">
       <UniqueIdentifier>{1d7fa200-3b0e-4141-ba3b-ac95092919d1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resources\zh-Hans">
+      <UniqueIdentifier>{ae3b283b-e0be-4312-b09f-d0ce2a86ea49}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="$(MSBuildThisFileDirectory)Resources\en\CommandLineHelpPage.txt">
+    <Text Include="$(MSBuildThisFileDirectory)Resources\en\Links.txt">
       <Filter>Resources\en</Filter>
     </Text>
+    <Text Include="$(MSBuildThisFileDirectory)Resources\zh-Hans\CommandLineHelp.txt">
+      <Filter>Resources\zh-Hans</Filter>
+    </Text>
+    <Text Include="$(MSBuildThisFileDirectory)Resources\zh-Hans\Links.txt">
+      <Filter>Resources\zh-Hans</Filter>
+    </Text>
+    <Text Include="$(MSBuildThisFileDirectory)Resources\zh-Hans\Logo.txt">
+      <Filter>Resources\zh-Hans</Filter>
+    </Text>
+    <Text Include="$(MSBuildThisFileDirectory)Resources\en\CommandLineHelp.txt">
+      <Filter>Resources\en</Filter>
+    </Text>
+    <Text Include="$(MSBuildThisFileDirectory)Resources\en\Logo.txt">
+      <Filter>Resources\en</Filter>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)Resources\en\Translations.json">
+      <Filter>Resources\en</Filter>
+    </None>
+    <None Include="$(MSBuildThisFileDirectory)Resources\zh-Hans\Translations.json">
+      <Filter>Resources\zh-Hans</Filter>
+    </None>
   </ItemGroup>
 </Project>

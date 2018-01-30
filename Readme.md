@@ -18,37 +18,48 @@
 ## Usage
 - Please go to the [CPU Architecture] folder and click NSudo.exe. Follow the prompts.
   - For example, if you want to use 64-bit NSudo on your Intel or AMD device, you need to go to the x64 folder and click NSudo.exe
-- PS: All NSudo command arguments is case-insensitive.
-- How to add NSudo to the Context Menu
-  - Using /Install or -Install to copy NSudo to the Windows directory and remove the context menu.
-  - Using /Uninstall or -Uninstall to remove NSudo in the Windows directory and remove the context menu.
 
 ## Command Line Options
 ```
 Format: NSudo [ -U ] [ -P ] [ -M ] Command line or ShortCut Command
-  -U:[ T | S | C | P | D ] User
-  T TrustedInstaller
-  S System
-  C Current User
-  P Current Process
-  D Current Process (Drop right)
 
-  -P:[ E | D ] Privilege
-  E Enable All Privileges
-  D Disable All Privileges
-  PS: If you want to use the default privileges, please do not include the -P parameter.
+-U:[ T | S | C | P | D ] User
+    T TrustedInstaller
+    S System
+    C Current User
+    P Current Process
+    D Current Process (Drop right)
 
-  -M:[ S | H | M | L ] Integrity Level
-  S System
-  H High
-  M Medium
-  L Low
-  PS: If you want to use the default Integrity Level, please do not include the -M parameter
+-P:[ E | D ] Privilege
+    E Enable All Privileges
+    D Disable All Privileges
+PS:
+    If you want to use the default privileges, please do not include the "-P"
+    parameter.
 
-  -? Show this content
+-M:[ S | H | M | L ] Integrity Level
+    S System
+    H High
+    M Medium
+    L Low
+PS:
+    If you want to use the default Integrity Level, please do not include the 
+    "-M" parameter.
 
-  Example：If you want to run Command Prompt with TrustedInstaller, enable all privileges and the default Integrity Level
-  NSudo -U:T -P:E cmd
+-Install   Copy NSudo to the Windows directory and add the context menu.
+-Uninstall Remove NSudo in the Windows directory and the context menu.
+
+-? Show this content
+
+PS:
+    1. All NSudo command arguments is case-insensitive.
+    2. You can use the "/" override "-" in the command line parameters. For 
+       example, "/u:t" and "-u:t" are equivalent.
+
+Example:
+    If you want to run Command Prompt with TrustedInstaller, enable all 
+    privileges and the default Integrity Level.
+        NSudo -U:T -P:E cmd
 ```
 Example：If you want to run Command Prompt with TrustedInstaller, enable all privileges and the default Integrity Level
 > NSudo -U:T -P:E cmd

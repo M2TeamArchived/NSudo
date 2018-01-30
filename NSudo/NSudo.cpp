@@ -10,6 +10,8 @@ std::wstring nsudo_app_path;
 nlohmann::json nsudo_config;
 nlohmann::json nsudo_shortcut_list_v2;
 
+nlohmann::json NSudo_String_Translations;
+
 #include <Userenv.h>
 #pragma comment(lib, "Userenv.lib")
 
@@ -19,6 +21,84 @@ namespace ProjectInfo
 {
 	wchar_t VersionText[] = L"M2-Team NSudo " NSUDO_VERSION_STRING;
 }
+
+class CResource
+{
+private:
+	HMODULE m_Module = nullptr;
+	HRSRC m_Resource = nullptr;
+
+
+public:
+	CResource(
+		_In_ LPCWSTR lpType,
+		_In_ UINT uID) :
+		m_Module(GetModuleHandleW(nullptr)),
+		m_Resource(FindResourceExW(
+			this->m_Module,
+			lpType,
+			MAKEINTRESOURCEW(uID),
+			MAKELANGID(LANG_NEUTRAL, SUBLANG_NEUTRAL)))
+	{
+
+	}
+	
+	LPVOID Get()
+	{
+		return LockResource(LoadResource(this->m_Module, this->m_Resource));
+	}
+
+	DWORD Size()
+	{
+		return SizeofResource(this->m_Module, this->m_Resource);
+	}
+
+};
+
+
+
+
+
+std::wstring NSudoGetUTF8WithBOMStringResources(
+	_In_ UINT uID)
+{
+	CResource Resource(L"String", uID);
+	
+	std::string RawString(
+		reinterpret_cast<const char*>(Resource.Get()),
+		Resource.Size());
+	
+	// Raw string without the UTF-8 BOM. (0xEF,0xBB,0xBF)	
+	return m2_base_utf8_to_utf16(RawString.c_str() + 3);
+}
+
+void NSudoPrintMsg(
+	_In_opt_ HINSTANCE hInstance,
+	_In_opt_ HWND hWnd,
+	_In_ LPCWSTR lpContent)
+{
+	TaskDialog(
+		hWnd,
+		hInstance,
+		L"NSudo",
+		nullptr, 
+		lpContent,
+		0, 
+		nullptr, 
+		nullptr);
+}
+
+std::wstring NSudoGetTranslation(
+	_In_ const char* Key)
+{
+	return m2_base_utf8_to_utf16(
+		NSudo_String_Translations[Key].get<std::string>());
+}
+
+
+
+
+
 
 /*
 SuCreateProcess函数创建一个新进程和对应的主线程
@@ -43,7 +123,7 @@ bool SuCreateProcess(
 	std::wstring final_command_line = L"/c start \"" + ComSpec + L"\" ";
 
 	try
-	{		
+	{
 		final_command_line += m2_base_utf8_to_utf16(
 			nsudo_shortcut_list_v2[m2_base_utf16_to_utf8(lpCommandLine)].get<std::string>());
 	}
@@ -53,7 +133,7 @@ bool SuCreateProcess(
 	}
 
 	//设置进程所在桌面
-	StartupInfo.lpDesktop = L"WinSta0\\Default";
+	StartupInfo.lpDesktop = const_cast<LPWSTR>(L"WinSta0\\Default");
 
 	LPVOID lpEnvironment = nullptr;
 
@@ -92,22 +172,8 @@ bool SuCreateProcess(
 		}
 	}
 
-	
-
 	//返回结果
 	return result;
-}
-
-void SuMUIPrintMsg(
-	_In_opt_ HINSTANCE hInstance,
-	_In_opt_ HWND hWnd,
-	_In_ UINT uID)
-{
-	std::wstring buffer(2048, L'\0');
-
-	LoadStringW(hInstance, uID, &buffer[0], 2048);
-	TaskDialog(
-		hWnd, hInstance, L"NSudo", nullptr, buffer.c_str(), 0, nullptr, nullptr);
 }
 
 void NSudoBrowseDialog(
@@ -124,18 +190,6 @@ void NSudoBrowseDialog(
 	ofn.Flags = OFN_HIDEREADONLY | OFN_CREATEPROMPT;
 
 	GetOpenFileNameW(&ofn);
-}
-
-bool SuMUICompare(
-	_In_opt_ HINSTANCE hInstance,
-	_In_ UINT uID,
-	_In_ LPCWSTR lpText)
-{
-	std::wstring buffer(2048, L'\0');
-
-	LoadStringW(hInstance, uID, &buffer[0], 2048);
-
-	return (_wcsicmp(buffer.c_str(), lpText) == 0);
 }
 
 #include <ShellScalingApi.h>
@@ -225,10 +279,6 @@ public:
 
 	HRESULT ShowAboutDialog(
 		_In_ HWND hwndParent);
-
-	
-
-
 };
 
 CNSudoMainWindow::CNSudoMainWindow(HINSTANCE hInstance) :
@@ -287,6 +337,11 @@ INT_PTR CNSudoMainWindow::Show()
 HRESULT CNSudoMainWindow::ShowAboutDialog(
 	_In_ HWND hwndParent)
 {
+	std::wstring DialogContent =
+		NSudoGetUTF8WithBOMStringResources(IDR_String_Logo) +
+		NSudoGetUTF8WithBOMStringResources(IDR_String_CommandLineHelp) +
+		NSudoGetUTF8WithBOMStringResources(IDR_String_Links);
+	
 	TASKDIALOGCONFIG config = { 0 };
 
 	config.cbSize = sizeof(config);
@@ -295,7 +350,7 @@ HRESULT CNSudoMainWindow::ShowAboutDialog(
 	config.hInstance = this->m_hInstance;
 	config.pszMainIcon = MAKEINTRESOURCEW(IDI_NSUDO);
 	config.pszMainInstruction = ProjectInfo::VersionText;
-	config.pszContent = MAKEINTRESOURCE(IDS_ABOUT);
+	config.pszContent = DialogContent.c_str();
 	config.pszWindowTitle = L"NSudo";
 	config.pfCallback = [](
 		_In_ HWND hwnd,
@@ -634,7 +689,8 @@ int NSudoCommandLineParser(
 		// 如果参数不满足条件，则返回错误
 		if (!(args[1][0] == L'-' || args[1][0] == L'/'))
 		{
-			SuMUIPrintMsg(g_hInstance, NULL, IDS_ERRARG);
+			std::wstring Buffer = NSudoGetTranslation("Error.Arg");
+			NSudoPrintMsg(g_hInstance, nullptr, Buffer.c_str());
 			return -1;
 		}
 
@@ -672,14 +728,16 @@ int NSudoCommandLineParser(
 	// 获取当前进程会话ID
 	if (!NSudoGetCurrentProcessSessionID(&dwSessionID))
 	{
-		SuMUIPrintMsg(g_hInstance, NULL, IDS_ERRSUDO);
+		std::wstring Buffer = NSudoGetTranslation("Error.Sudo");
+		NSudoPrintMsg(g_hInstance, nullptr, Buffer.c_str());
 		return 0;
 	}
 
 	// 如果未提权或者模拟System权限失败
 	if (!(bElevated && NSudoImpersonateAsSystem()))
 	{
-		SuMUIPrintMsg(g_hInstance, NULL, IDS_ERRNOTHELD);
+		std::wstring Buffer = NSudoGetTranslation("Error.NotHeld");
+		NSudoPrintMsg(g_hInstance, nullptr, Buffer.c_str());
 		return 0;
 	}
 
@@ -811,7 +869,8 @@ int NSudoCommandLineParser(
 
 	if (bArgErr)
 	{
-		SuMUIPrintMsg(g_hInstance, NULL, IDS_ERRARG);
+		std::wstring Buffer = NSudoGetTranslation("Error.Arg");
+		NSudoPrintMsg(g_hInstance, nullptr, Buffer.c_str());
 		return -1;
 	}
 	else
@@ -839,7 +898,8 @@ int NSudoCommandLineParser(
 
 		if (!SuCreateProcess(hToken, args[args.size() - 1].c_str()))
 		{
-			SuMUIPrintMsg(g_hInstance, NULL, IDS_ERRSUDO);
+			std::wstring Buffer = NSudoGetTranslation("Error.Sudo");
+			NSudoPrintMsg(g_hInstance, nullptr, Buffer.c_str());
 		}
 	}
 
@@ -856,7 +916,8 @@ void SuGUIRun(
 {
 	if (_wcsicmp(L"", szCMDLine) == 0)
 	{
-		SuMUIPrintMsg(g_hInstance, hDlg, IDS_ERRTEXTBOX);
+		std::wstring Buffer = NSudoGetTranslation("Error.TextBox");
+		NSudoPrintMsg(g_hInstance, hDlg, Buffer.c_str());
 	}
 	else
 	{
@@ -864,20 +925,29 @@ void SuGUIRun(
 
 		result.push_back(L"NSudo");
 
+		std::wstring Buffer_TI = 
+			NSudoGetTranslation("TI");
+		std::wstring Buffer_System = 
+			NSudoGetTranslation("System");
+		std::wstring Buffer_CurrentProcess = 
+			NSudoGetTranslation("CurrentProcess");
+		std::wstring Buffer_CurrentUser = 
+			NSudoGetTranslation("CurrentUser");
+
 		// 获取用户令牌
-		if (SuMUICompare(g_hInstance, IDS_TI, szUser))
+		if (_wcsicmp(Buffer_TI.c_str(), szUser) == 0)
 		{
 			result.push_back(L"-U:T");
 		}
-		else if (SuMUICompare(g_hInstance, IDS_SYSTEM, szUser))
+		else if (_wcsicmp(Buffer_System.c_str(), szUser) == 0)
 		{
 			result.push_back(L"-U:S");
 		}
-		else if (SuMUICompare(g_hInstance, IDS_CURRENTPROCESS, szUser))
+		else if (_wcsicmp(Buffer_CurrentProcess.c_str(), szUser) == 0)
 		{
 			result.push_back(L"-U:P");
 		}
-		else if (SuMUICompare(g_hInstance, IDS_CURRENTUSER, szUser))
+		else if (_wcsicmp(Buffer_CurrentUser.c_str(), szUser) == 0)
 		{
 			result.push_back(L"-U:C");
 		}
@@ -915,24 +985,22 @@ INT_PTR CNSudoMainWindow::DialogProc(
 		
 		SetWindowTextW(hDlg, ProjectInfo::VersionText);
 
-		struct { UINT uID; HWND hWnd; } x[] =
+		struct { const char* ID; HWND hWnd; } x[] =
 		{
-			{ IDS_ENABLEALLPRIVILEGES , this->m_hCheckBox },
-			{ IDS_WARNINGTEXT , GetDlgItem(hDlg, IDC_WARNINGTEXT) },
-			{ IDS_SETTINGSGROUPTEXT ,GetDlgItem(hDlg, IDC_SETTINGSGROUPTEXT) },
-			{ IDS_STATIC_USER,GetDlgItem(hDlg, IDC_STATIC_USER) },
-			{ IDS_STATIC_OPEN, GetDlgItem(hDlg, IDC_STATIC_OPEN) },
-			{ IDS_BUTTON_ABOUT, GetDlgItem(hDlg, IDC_About) },
-			{ IDS_BUTTON_BROWSE, GetDlgItem(hDlg, IDC_Browse) },
-			{ IDS_BUTTON_RUN, GetDlgItem(hDlg, IDC_Run) }
+			{ "EnableAllPrivileges" , this->m_hCheckBox },
+			{ "WarningText" , GetDlgItem(hDlg, IDC_WARNINGTEXT) },
+			{ "SettingsGroupText" ,GetDlgItem(hDlg, IDC_SETTINGSGROUPTEXT) },
+			{ "Static.User",GetDlgItem(hDlg, IDC_STATIC_USER) },
+			{ "Static.Open", GetDlgItem(hDlg, IDC_STATIC_OPEN) },
+			{ "Button.About", GetDlgItem(hDlg, IDC_About) },
+			{ "Button.Browse", GetDlgItem(hDlg, IDC_Browse) },
+			{ "Button.Run", GetDlgItem(hDlg, IDC_Run) }
 		};
 
 		for (size_t i = 0; i < sizeof(x) / sizeof(x[0]); ++i)
 		{
-			std::wstring buffer(512, L'\0');
-			auto length = LoadStringW(this->m_hInstance, x[i].uID, &buffer[0], (int)buffer.size());
-			buffer.resize(length);
-			SetWindowTextW(x[i].hWnd, buffer.c_str());
+			std::wstring Buffer = NSudoGetTranslation(x[i].ID);
+			SetWindowTextW(x[i].hWnd, Buffer.c_str());
 		}
 
 		HRESULT hr = E_FAIL;
@@ -965,14 +1033,11 @@ INT_PTR CNSudoMainWindow::DialogProc(
 			0,
 			LR_SHARED);
 
-		UINT y[] = { IDS_TI ,IDS_SYSTEM ,IDS_CURRENTPROCESS ,IDS_CURRENTUSER };
-
-		for (size_t i = 0; i < sizeof(y) / sizeof(y[0]); ++i)
+		const char* UserNameID[] = { "TI" ,"System" ,"CurrentProcess" ,"CurrentUser" };
+		for (size_t i = 0; i < sizeof(UserNameID) / sizeof(*UserNameID); ++i)
 		{
-			std::wstring buffer(512, L'\0');
-			auto length = LoadStringW(this->m_hInstance, y[i], &buffer[0], (int)buffer.size());
-			buffer.resize(length);
-			SendMessageW(this->m_hUserName, CB_INSERTSTRING, 0, (LPARAM)buffer.c_str());
+			std::wstring Buffer = NSudoGetTranslation(UserNameID[i]); 
+			SendMessageW(this->m_hUserName, CB_INSERTSTRING, 0, (LPARAM)Buffer.c_str());
 		}
 
 		//设置默认项"TrustedInstaller"
@@ -1127,6 +1192,13 @@ int WINAPI wWinMain(
 	nsudo_app_path = nsudo_exe_path;
 	wcsrchr(&nsudo_app_path[0], L'\\')[0] = L'\0';
 	nsudo_app_path.resize(wcslen(nsudo_app_path.c_str()));
+
+	CResource Resource(L"String", IDR_String_Translations);
+	std::string RawString(
+		reinterpret_cast<const char*>(Resource.Get()),
+		Resource.Size());
+	NSudo_String_Translations =
+		nlohmann::json::parse(RawString)["Translations"];
 
 	try
 	{

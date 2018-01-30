@@ -15,6 +15,8 @@ License: The MIT License
 
 #pragma comment(lib,"WtsApi32.lib")
 
+#include "M2Object.h"
+
 // 为编译通过而禁用的警告
 #if _MSC_VER >= 1200
 #pragma warning(push)
@@ -23,69 +25,6 @@ License: The MIT License
 
 namespace M2
 {
-	template<typename TObject, typename TObjectDefiner>
-	class CObject
-	{
-	protected:
-		TObject m_Object;
-	public:
-		CObject(TObject Object = TObjectDefiner::GetInvalidValue()) : m_Object(Object)
-		{
-
-		}
-
-		~CObject()
-		{
-			this->Close();
-		}
-
-		TObject* operator&()
-		{
-			return &this->m_Object;
-		}
-
-		TObject operator=(TObject Object)
-		{
-			if (Object != this->m_Object)
-			{
-				this->Close();
-				this->m_Object = Object;
-			}
-			return (this->m_Object);
-		}
-
-		operator TObject()
-		{
-			return this->m_Object;
-		}
-
-		bool IsInvalid()
-		{
-			return (this->m_Object == TObjectDefiner::GetInvalidValue());
-		}
-
-		TObject Detach()
-		{
-			TObject Object = this->m_Object;
-			this->m_Object = TObjectDefiner::GetInvalidValue();
-			return Object;
-		}
-
-		void Close()
-		{
-			if (!this->IsInvalid())
-			{
-				TObjectDefiner::Close(this->m_Object);
-				this->m_Object = TObjectDefiner::GetInvalidValue();
-			}
-		}
-
-		TObject operator->() const
-		{
-			return this->m_Object;
-		}
-	};
-
 	struct CServiceHandleDefiner
 	{
 		static inline SC_HANDLE GetInvalidValue()
@@ -100,21 +39,6 @@ namespace M2
 	};
 
 	typedef CObject<SC_HANDLE, CServiceHandleDefiner> CServiceHandle;
-
-	struct CHandleDefiner
-	{
-		static inline HANDLE GetInvalidValue()
-		{
-			return INVALID_HANDLE_VALUE;
-		}
-
-		static inline void Close(HANDLE Object)
-		{
-			CloseHandle(Object);
-		}
-	};
-	
-	typedef CObject<HANDLE, CHandleDefiner> CHandle;
 
 	struct CSIDDefiner
 	{
@@ -149,6 +73,11 @@ namespace M2
 	class CMemory : public CObject<TMemoryBlock, CMemoryDefiner<TMemoryBlock>>
 	{
 	public:
+		CMemory(TMemoryBlock Object = CMemoryDefiner<TMemoryBlock>::GetInvalidValue()) :
+			CObject<TMemoryBlock, CMemoryDefiner<TMemoryBlock>>(Object)
+		{
+
+		}
 
 		bool Alloc(size_t Size)
 		{

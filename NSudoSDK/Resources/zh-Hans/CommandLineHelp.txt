@@ -1,0 +1,35 @@
+﻿格式: NSudo [ -U ] [ -P ] [ -M ] 命令行或常用任务名
+
+-U:[ T | S | C | P | D ] 用户
+    T TrustedInstaller
+    S System
+    C 当前用户
+    P 当前进程
+    D 当前进程(降权)
+
+-P:[ E | D ] 特权
+    E 启用全部特权
+    D 禁用所有特权
+PS：
+    如果想以默认特权方式的话，请不要包含-P参数。
+
+-M:[ S | H | M | L ] 完整性
+    S 系统
+    H 高
+    M 中
+    L 低
+PS：
+    如果想以默认完整性方式的话，请不要包含-M参数。
+
+-Install   把NSudo拷贝到Windows目录并且添加上下文菜单。
+-Uninstall 移除在Windows目录的NSudo和上下文菜单。
+
+-? 显示该内容
+
+PS：
+    1、所有的NSudo命令行参数不区分大小写。
+    2、可以在命令行参数中使用”/“代替“-”。例如“/U:T”和“-U:T”是等价的。
+
+例子：
+    以TrustedInstaller权限，启用所有特权，完整性默认运行命令提示符
+        NSudo -U:T -P:E cmd
