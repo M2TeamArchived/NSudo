@@ -16,11 +16,21 @@
   <ItemGroup>
     <ClInclude Include="$(MSBuildThisFileDirectory)CIBuild.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)m2base.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)M2Object.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)NSudoAPI.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)NSudoVersion.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ThirdParty\json.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="$(MSBuildThisFileDirectory)Resources\en\CommandLineHelpPage.txt" />
+    <Text Include="$(MSBuildThisFileDirectory)Resources\en\CommandLineHelp.txt" />
+    <Text Include="$(MSBuildThisFileDirectory)Resources\en\Links.txt" />
+    <Text Include="$(MSBuildThisFileDirectory)Resources\en\Logo.txt" />
+    <Text Include="$(MSBuildThisFileDirectory)Resources\zh-Hans\CommandLineHelp.txt" />
+    <Text Include="$(MSBuildThisFileDirectory)Resources\zh-Hans\Links.txt" />
+    <Text Include="$(MSBuildThisFileDirectory)Resources\zh-Hans\Logo.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)Resources\en\Translations.json" />
+    <None Include="$(MSBuildThisFileDirectory)Resources\zh-Hans\Translations.json" />
   </ItemGroup>
 </Project>

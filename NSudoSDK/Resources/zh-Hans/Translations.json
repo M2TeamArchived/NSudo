@@ -1,0 +1,22 @@
+﻿{
+  "Translations": {
+    "Button.About": "关于(&A)",
+    "Button.Browse": "浏览(&B)",
+    "Button.Run": "运行(&R)",
+    "CurrentProcess": "当前进程",
+    "CurrentUser": "当前用户",
+    "Default": "默认",
+    "EnableAllPrivileges": "启用全部特权(&E)",
+    "Error.Arg": "\n命令行参数有误，请修改(使用 -? 参数查看帮助)\n",
+    "Error.NotHeld": "获取SE_DEBUG_NAME特权失败(请以管理员权限运行)\n",
+    "Error.Sudo": "进程创建失败\n",
+    "Error.TextBox": "请在下拉框中输入命令行或选择快捷命令\n",
+    "LanguageID": "zh-Hans",
+    "SettingsGroupText": "权限设置",
+    "Static.Open": "打开(&O):",
+    "Static.User": "用户(&U):",
+    "System": "System",
+    "TI": "TrustedInstaller",
+    "WarningText": "警告：使用本工具需要有一定的计算机基础"
+  }
+}
