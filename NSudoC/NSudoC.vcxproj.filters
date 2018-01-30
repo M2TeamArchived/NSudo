@@ -46,4 +46,9 @@
       <Filter>资源文件</Filter>
     </Image>
   </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="NSudoC.manifest">
+      <Filter>资源文件</Filter>
+    </Manifest>
+  </ItemGroup>
 </Project>
