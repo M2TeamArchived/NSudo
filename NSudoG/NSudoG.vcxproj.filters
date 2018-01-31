@@ -37,6 +37,9 @@
     <ResourceCompile Include="NSudoG.rc">
       <Filter>资源文件</Filter>
     </ResourceCompile>
+    <ResourceCompile Include="Version.rc">
+      <Filter>资源文件</Filter>
+    </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\NSudo.Icon\NSudo.ico">

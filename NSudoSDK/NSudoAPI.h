@@ -23,6 +23,8 @@ License: The MIT License
 #pragma warning(disable:4505) // 未引用的本地函数已移除(等级 4)
 #endif
 
+#include <string>
+
 namespace M2
 {
 	struct CServiceHandleDefiner
@@ -110,6 +112,124 @@ namespace M2
 	{
 
 	};
+
+	struct CHKeyDefiner
+	{
+		static inline HKEY GetInvalidValue()
+		{
+			return nullptr;
+		}
+
+		static inline void Close(HKEY Object)
+		{
+			RegCloseKey(Object);
+		}
+	};
+
+	typedef CObject<HKEY, CHKeyDefiner> CHKey;
+}
+
+static DWORD M2RegSetStringValue(
+	_In_ HKEY hKey,
+	_In_opt_ LPCWSTR lpValueName,
+	_In_opt_ LPCWSTR lpValueData)
+{
+	return RegSetValueExW(
+		hKey,
+		lpValueName,
+		0,
+		REG_SZ,
+		reinterpret_cast<CONST BYTE*>(lpValueData),
+		(DWORD)(wcslen(lpValueData) + 1) * sizeof(wchar_t));
+}
+
+static DWORD M2RegCreateKey(
+	_In_ HKEY hKey,
+	_In_ LPCWSTR lpSubKey,
+	_In_ REGSAM samDesired,
+	_Out_ PHKEY phkResult)
+{
+	return RegCreateKeyExW(
+		hKey,
+		lpSubKey,
+		0,
+		nullptr,
+		REG_OPTION_NON_VOLATILE,
+		samDesired,
+		nullptr,
+		phkResult,
+		nullptr);
+}
+
+static DWORD CreateCommandStoreItem(
+	_In_ HKEY CommandStoreRoot,
+	_In_ LPCWSTR ItemName,
+	_In_ LPCWSTR ItemDescription,
+	_In_ LPCWSTR ItemCommand,
+	_In_ bool HasLUAShield)
+{
+	DWORD dwError = ERROR_SUCCESS;
+	M2::CHKey hCommandStoreItem;
+	M2::CHKey hCommandStoreItemCommand;
+
+	dwError = M2RegCreateKey(
+		CommandStoreRoot,
+		ItemName,
+		KEY_ALL_ACCESS | KEY_WOW64_64KEY,
+		&hCommandStoreItem);
+	if (ERROR_SUCCESS != dwError)
+		return dwError;
+
+	dwError = M2RegSetStringValue(
+		hCommandStoreItem,
+		L"",
+		ItemDescription);
+	if (ERROR_SUCCESS != dwError)
+		return dwError;
+
+	if (HasLUAShield)
+	{
+		dwError = M2RegSetStringValue(
+			hCommandStoreItem,
+			L"HasLUAShield",
+			L"");
+		if (ERROR_SUCCESS != dwError)
+			return dwError;
+	}
+
+	dwError = M2RegCreateKey(
+		hCommandStoreItem,
+		L"command",
+		KEY_ALL_ACCESS | KEY_WOW64_64KEY,
+		&hCommandStoreItemCommand);
+	if (ERROR_SUCCESS != dwError)
+		return dwError;
+
+	dwError = M2RegSetStringValue(
+		hCommandStoreItemCommand,
+		L"",
+		ItemCommand);
+	if (ERROR_SUCCESS != dwError)
+		return dwError;
+
+
+	return dwError;
+}
+
+static std::wstring M2GetWindowsDirectory()
+{
+	std::wstring result(MAX_PATH, L'\0');
+	GetSystemWindowsDirectoryW(&result[0], (UINT)(result.capacity()));
+	result.resize(wcslen(result.c_str()));
+	return result;
+}
+
+static std::wstring M2GetCurrentModulePath()
+{
+	std::wstring result(MAX_PATH, L'\0');
+	GetModuleFileNameW(nullptr, &result[0], (DWORD)(result.capacity()));
+	result.resize(wcslen(result.c_str()));
+	return result;
 }
 
 #ifdef __cplusplus

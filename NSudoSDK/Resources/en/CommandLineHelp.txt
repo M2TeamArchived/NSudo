@@ -23,15 +23,17 @@ PS:
     If you want to use the default Integrity Level, please do not include the 
     "-M" parameter.
 
--Install   Copy NSudo to the Windows directory and add the context menu.
--Uninstall Remove NSudo in the Windows directory and the context menu.
-
 -? Show this content
+
+Context Menu:
+  -Install   Copy NSudo to the Windows directory and add the context menu.
+  -Uninstall Remove NSudo in the Windows directory and the context menu. 
 
 PS:
     1. All NSudo command arguments is case-insensitive.
     2. You can use the "/" override "-" in the command line parameters. For 
        example, "/u:t" and "-u:t" are equivalent.
+    3. To ensure the best experience, NSudoC does not support context menu.
 
 Example:
     If you want to run Command Prompt with TrustedInstaller, enable all 
