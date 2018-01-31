@@ -17,7 +17,6 @@ License: The MIT License
 std::wstring NSudoGetTranslation(
 	_In_ const char* Key);
 
-
 class CNSudoContextMenuManagement
 {
 private:
@@ -35,12 +34,12 @@ private:
 		NSudoGetTranslation("ContextMenu.System.EnableAllPrivileges")
 	};
 
-	std::wstring m_ItemCommands[4] = 
+	const wchar_t* m_ItemCommandParameters[4] =
 	{ 
-		std::wstring(L"\"") + this->m_NSudoPath + L"\" -U:T \"\"%1\"\"" ,
-		std::wstring(L"\"") + this->m_NSudoPath + L"\" -U:T -P:E \"\"%1\"\"",
-		std::wstring(L"\"") + this->m_NSudoPath + L"\" -U:S \"\"%1\"\"",
-		std::wstring(L"\"") + this->m_NSudoPath + L"\" -U:S -P:E \"\"%1\"\"" 
+		L" -U:T \"\"%1\"\"" ,
+		L" -U:T -P:E \"\"%1\"\"",
+		L" -U:S \"\"%1\"\"",
+		L" -U:S -P:E \"\"%1\"\""
 	};
 
 	struct CommandStoreItemsType

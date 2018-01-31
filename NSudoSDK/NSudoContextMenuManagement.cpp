@@ -45,7 +45,7 @@ DWORD CNSudoContextMenuManagement::Install()
 			this->m_CommandStoreRoot,
 			this->m_CommandStoreItems[i].ItemName,
 			this->m_ItemDescription[i].c_str(),
-			this->m_ItemCommands[i].c_str(),
+			(this->m_NSudoPathWithQuotation + this->m_ItemCommandParameters[i]).c_str(),
 			this->m_CommandStoreItems[i].HasLUAShield);
 		if (ERROR_SUCCESS != dwError)
 			return dwError;
