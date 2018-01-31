@@ -381,6 +381,7 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="NSudoG.rc" />
+    <ResourceCompile Include="Version.rc" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\NSudo.Icon\NSudo.ico" />

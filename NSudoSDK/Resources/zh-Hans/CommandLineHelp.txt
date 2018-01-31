@@ -21,14 +21,16 @@ PS：
 PS：
     如果想以默认完整性方式的话，请不要包含-M参数。
 
--Install   把NSudo拷贝到Windows目录并且添加上下文菜单。
--Uninstall 移除在Windows目录的NSudo和上下文菜单。
-
 -? 显示该内容
+
+上下文菜单管理：
+  -Install   把NSudo拷贝到Windows目录并且添加上下文菜单。
+  -Uninstall 移除在Windows目录的NSudo和上下文菜单。
 
 PS：
     1、所有的NSudo命令行参数不区分大小写。
     2、可以在命令行参数中使用”/“代替“-”。例如“/U:T”和“-U:T”是等价的。
+    3、为了保证最佳体验，NSudoC不支持上下文菜单。
 
 例子：
     以TrustedInstaller权限，启用所有特权，完整性默认运行命令提示符

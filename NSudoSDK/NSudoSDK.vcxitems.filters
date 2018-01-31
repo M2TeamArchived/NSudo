@@ -9,6 +9,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)NSudoVersion.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)CIBuild.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)M2Object.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)NSudoContextMenuManagement.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ThirdParty">
@@ -51,5 +52,8 @@
     <None Include="$(MSBuildThisFileDirectory)Resources\zh-Hans\Translations.json">
       <Filter>Resources\zh-Hans</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="$(MSBuildThisFileDirectory)NSudoContextMenuManagement.cpp" />
   </ItemGroup>
 </Project>

@@ -17,6 +17,8 @@ nlohmann::json NSudo_String_Translations;
 
 #include "NSudoVersion.h"
 
+#include "NSudoContextMenuManagement.h"
+
 namespace ProjectInfo
 {
 	wchar_t VersionText[] = L"M2-Team NSudo " NSUDO_VERSION_STRING;
@@ -439,237 +441,6 @@ std::vector<std::wstring> NSudoSplitCommandLine(LPCWSTR lpCommandLine)
 	return result;
 }
 
-DWORD M2RegSetStringValue(
-	_In_ HKEY hKey,
-	_In_opt_ LPCWSTR lpValueName,
-	_In_opt_ LPCWSTR lpValueData)
-{
-	return RegSetValueExW(
-		hKey,
-		lpValueName,
-		0,
-		REG_SZ,
-		reinterpret_cast<CONST BYTE*>(lpValueData),
-		(DWORD)(wcslen(lpValueData) + 1) * sizeof(wchar_t));
-}
-
-DWORD M2RegCreateKey(
-	_In_ HKEY hKey,
-	_In_ LPCWSTR lpSubKey,
-	_In_ REGSAM samDesired,
-	_Out_ PHKEY phkResult)
-{
-	return RegCreateKeyExW(
-		hKey,
-		lpSubKey,
-		0,
-		nullptr,
-		REG_OPTION_NON_VOLATILE,
-		samDesired,
-		nullptr,
-		phkResult,
-		nullptr);
-}
-
-DWORD CreateCommandStoreItem(
-	_In_ HKEY CommandStoreRoot,
-	_In_ LPCWSTR ItemName,
-	_In_ LPCWSTR ItemDescription,
-	_In_ LPCWSTR ItemCommand,
-	_In_ bool HasLUAShield)
-{
-	DWORD dwError = ERROR_SUCCESS;
-	HKEY hCommandStoreItem = nullptr;
-	HKEY hCommandStoreItemCommand = nullptr;
-
-	do
-	{
-		dwError = M2RegCreateKey(
-			CommandStoreRoot,
-			ItemName,
-			KEY_ALL_ACCESS | KEY_WOW64_64KEY,
-			&hCommandStoreItem);
-		if (ERROR_SUCCESS != dwError)
-			break;
-
-		dwError = M2RegSetStringValue(
-			hCommandStoreItem,
-			L"",
-			ItemDescription);
-		if (ERROR_SUCCESS != dwError)
-			break;
-
-		if (HasLUAShield)
-		{
-			dwError = M2RegSetStringValue(
-				hCommandStoreItem,
-				L"HasLUAShield",
-				L"");
-			if (ERROR_SUCCESS != dwError)
-				break;
-		}
-
-		dwError = M2RegCreateKey(
-			hCommandStoreItem,
-			L"command",
-			KEY_ALL_ACCESS | KEY_WOW64_64KEY,
-			&hCommandStoreItemCommand);
-		if (ERROR_SUCCESS != dwError)
-			break;
-
-		dwError = M2RegSetStringValue(
-			hCommandStoreItemCommand,
-			L"",
-			ItemCommand);
-		if (ERROR_SUCCESS != dwError)
-			break;
-
-	} while (false);
-
-	if (hCommandStoreItemCommand)
-		RegCloseKey(hCommandStoreItemCommand);
-
-	if (hCommandStoreItem)
-		RegCloseKey(hCommandStoreItem);
-
-	return dwError;
-}
-
-std::wstring M2GetWindowsDirectory()
-{
-	std::wstring result(MAX_PATH, L'\0');
-	GetSystemWindowsDirectoryW(&result[0], (UINT)(result.capacity()));
-	result.resize(wcslen(result.c_str()));
-	return result;
-}
-
-std::wstring M2GetCurrentModulePath()
-{
-	std::wstring result(MAX_PATH, L'\0');
-	GetModuleFileNameW(nullptr, &result[0], (DWORD)(result.capacity()));
-	result.resize(wcslen(result.c_str()));
-	return result;
-}
-
-DWORD NSudoInstall()
-{
-	std::wstring NSudoPath(M2GetWindowsDirectory() + L"\\NSudo.exe");
-
-	CopyFileW(M2GetCurrentModulePath().c_str(), NSudoPath.c_str(), FALSE);
-
-	DWORD dwError = ERROR_SUCCESS;
-	HKEY hCommandStoreRoot = nullptr;
-	HKEY hNSudoItem = nullptr;
-
-	do
-	{
-		dwError = RegOpenKeyExW(
-			HKEY_LOCAL_MACHINE,
-			L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\CommandStore\\shell",
-			0,
-			KEY_ALL_ACCESS | KEY_WOW64_64KEY,
-			&hCommandStoreRoot);
-		if (ERROR_SUCCESS != dwError)
-			break;
-
-		dwError = CreateCommandStoreItem(
-			hCommandStoreRoot,
-			L"NSudo.RunAs.TrustedInstaller",
-			L"Run As TrustedInstaller",
-			(std::wstring(L"\"") + NSudoPath + L"\" -U:T \"\"%1\"\"").c_str(),
-			true);
-		if (ERROR_SUCCESS != dwError)
-			break;
-
-		dwError = CreateCommandStoreItem(
-			hCommandStoreRoot,
-			L"NSudo.RunAs.System",
-			L"Run As System",
-			(std::wstring(L"\"") + NSudoPath + L"\" -U:S \"\"%1\"\"").c_str(),
-			true);
-		if (ERROR_SUCCESS != dwError)
-			break;
-
-		dwError = M2RegCreateKey(
-			HKEY_CLASSES_ROOT,
-			L"*\\shell\\NSudo",
-			KEY_ALL_ACCESS | KEY_WOW64_64KEY,
-			&hNSudoItem);
-		if (ERROR_SUCCESS != dwError)
-			break;
-
-		dwError = M2RegSetStringValue(
-			hNSudoItem,
-			L"SubCommands",
-			L"NSudo.RunAs.TrustedInstaller;NSudo.RunAs.System");
-		if (ERROR_SUCCESS != dwError)
-			break;
-
-		dwError = M2RegSetStringValue(
-			hNSudoItem,
-			L"MUIVerb",
-			L"NSudo");
-		if (ERROR_SUCCESS != dwError)
-			break;
-
-		dwError = M2RegSetStringValue(
-			hNSudoItem,
-			L"Icon",
-			(std::wstring(L"\"") + NSudoPath + L"\"").c_str());
-		if (ERROR_SUCCESS != dwError)
-			break;
-
-		dwError = M2RegSetStringValue(
-			hNSudoItem,
-			L"Position",
-			L"1");
-		if (ERROR_SUCCESS != dwError)
-			break;
-
-	} while (false);
-
-	if (hCommandStoreRoot)
-		RegCloseKey(hCommandStoreRoot);
-
-	if (hNSudoItem)
-		RegCloseKey(hNSudoItem);
-
-	return dwError;
-}
-
-DWORD NSudoUninstall()
-{
-	DeleteFileW((M2GetWindowsDirectory() + L"\\NSudo.exe").c_str());
-
-	DWORD dwError = ERROR_SUCCESS;
-	HKEY hCommandStoreRoot = nullptr;
-
-	dwError = RegOpenKeyExW(
-		HKEY_LOCAL_MACHINE,
-		L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\CommandStore\\shell",
-		0,
-		KEY_ALL_ACCESS | KEY_WOW64_64KEY,
-		&hCommandStoreRoot);
-	if (ERROR_SUCCESS == dwError)
-	{
-		dwError = RegDeleteTreeW(
-			hCommandStoreRoot, L"NSudo.RunAs.TrustedInstaller");
-		if (ERROR_SUCCESS == dwError)
-		{
-			dwError = RegDeleteTreeW(
-				hCommandStoreRoot, L"NSudo.RunAs.System");
-		}
-
-		RegCloseKey(hCommandStoreRoot);
-	}
-
-	dwError = RegDeleteTreeW(
-		HKEY_CLASSES_ROOT,
-		L"*\\shell\\NSudo");
-
-	return dwError;
-}
-
 // 解析命令行
 int NSudoCommandLineParser(
 	_In_ bool bElevated,
@@ -694,23 +465,29 @@ int NSudoCommandLineParser(
 			return 0;
 		}
 
-		// 如果参数是 /Install 或 -Install，则安装NSudo到系统
+		CNSudoContextMenuManagement ContextMenuManagement;
+
 		if (0 == _wcsicmp(arg, L"Install"))
 		{
-			if (ERROR_SUCCESS != NSudoInstall())
+			// 如果参数是 /Install 或 -Install，则安装NSudo到系统
+			if (ERROR_SUCCESS != ContextMenuManagement.Install())
 			{
-				NSudoUninstall();
+				ContextMenuManagement.Uninstall();
 			}
 
 			return 0;
 		}
-
-		// 如果参数是 /Uninstall 或 -Uninstall，则移除安装到系统的NSudo
-		if (0 == _wcsicmp(arg, L"Uninstall"))
+		else if (0 == _wcsicmp(arg, L"Uninstall"))
 		{
-			NSudoUninstall();
-
+			// 如果参数是 /Uninstall 或 -Uninstall，则移除安装到系统的NSudo
+			ContextMenuManagement.Uninstall();
 			return 0;
+		}
+		else
+		{
+			std::wstring Buffer = NSudoGetTranslation("Error.Arg");
+			NSudoPrintMsg(g_hInstance, nullptr, Buffer.c_str());
+			return -1;
 		}
 	}
 
