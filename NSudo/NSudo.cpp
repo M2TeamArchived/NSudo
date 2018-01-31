@@ -18,10 +18,17 @@ nlohmann::json NSudo_String_Translations;
 #include "NSudoVersion.h"
 
 #include "NSudoContextMenuManagement.h"
+#include "M2DPIScaling.h"
+#include "M2MessageDialog.h"
 
 namespace ProjectInfo
 {
-	wchar_t VersionText[] = L"M2-Team NSudo " NSUDO_VERSION_STRING;
+	const wchar_t VersionText[] = L"M2-Team NSudo " NSUDO_VERSION_STRING;
+
+	const wchar_t LogoText[] =
+		L"M2-Team NSudo " NSUDO_VERSION_STRING L"\r\n"
+		L"© M2-Team. All rights reserved.\r\n"
+		L"\r\n";
 }
 
 class CResource
@@ -75,15 +82,17 @@ void NSudoPrintMsg(
 	_In_opt_ HWND hWnd,
 	_In_ LPCWSTR lpContent)
 {
-	TaskDialog(
-		hWnd,
+	std::wstring DialogContent =
+		std::wstring(ProjectInfo::LogoText) +
+		lpContent +
+		NSudoGetUTF8WithBOMStringResources(IDR_String_Links);
+
+	M2MessageDialog(
 		hInstance,
+		hWnd,
+		MAKEINTRESOURCE(IDI_NSUDO),
 		L"NSudo",
-		nullptr,
-		lpContent,
-		0,
-		nullptr,
-		nullptr);
+		DialogContent.c_str());
 }
 
 std::wstring NSudoGetTranslation(
@@ -210,31 +219,6 @@ inline HRESULT GetDpiForMonitorInternal(
 	return hr;
 }
 
-typedef INT(WINAPI *PFN_EnablePerMonitorDialogScaling)();
-
-/*
-EnablePerMonitorDialogScaling函数为指定对话框启用Per-Monitor DPI Aware支
-持。
-The EnablePerMonitorDialogScaling function enables the Per-Monitor DPI
-Aware for the specified dialog.
-
-你需要在Windows 10 Threshold 1 及以后的版本使用该函数。
-You need to use this function in Windows 10 Threshold 1 or later.
-*/
-FORCEINLINE INT EnablePerMonitorDialogScaling()
-{
-	HMODULE hModule = nullptr;
-	PFN_EnablePerMonitorDialogScaling pFunc = nullptr;
-
-	hModule = GetModuleHandleW(L"user32.dll");
-	if (!hModule) return -1;
-
-	pFunc = (decltype(pFunc))GetProcAddress(hModule, (LPCSTR)2577);
-	if (!pFunc) return -1;
-
-	return pFunc();
-}
-
 class CNSudoMainWindow
 {
 private:
@@ -314,7 +298,7 @@ INT_PTR CNSudoMainWindow::s_DialogProc(
 
 INT_PTR CNSudoMainWindow::Show()
 {
-	EnablePerMonitorDialogScaling();
+	M2EnablePerMonitorDialogScaling();
 
 	ChangeWindowMessageFilter(WM_DROPFILES, MSGFLT_ADD);
 	ChangeWindowMessageFilter(0x0049, MSGFLT_ADD); // WM_COPYGLOBALDATA
@@ -331,55 +315,20 @@ HRESULT CNSudoMainWindow::ShowAboutDialog(
 	_In_ HWND hwndParent)
 {
 	std::wstring DialogContent =
-		NSudoGetUTF8WithBOMStringResources(IDR_String_Logo) +
+		std::wstring(ProjectInfo::LogoText) +
 		NSudoGetUTF8WithBOMStringResources(IDR_String_CommandLineHelp) +
 		NSudoGetUTF8WithBOMStringResources(IDR_String_Links);
 
-	TASKDIALOGCONFIG config = { 0 };
+	SetLastError(ERROR_SUCCESS);
 
-	config.cbSize = sizeof(config);
-	config.dwFlags = TDF_ALLOW_DIALOG_CANCELLATION | TDF_ENABLE_HYPERLINKS;
-	config.hwndParent = hwndParent;
-	config.hInstance = this->m_hInstance;
-	config.pszMainIcon = MAKEINTRESOURCEW(IDI_NSUDO);
-	config.pszMainInstruction = ProjectInfo::VersionText;
-	config.pszContent = DialogContent.c_str();
-	config.pszWindowTitle = L"NSudo";
-	config.pfCallback = [](
-		_In_ HWND hwnd,
-		_In_ UINT msg,
-		_In_ WPARAM wParam,
-		_In_ LPARAM lParam,
-		_In_ LONG_PTR lpRefData)
-		-> HRESULT
-	{
-		UNREFERENCED_PARAMETER(hwnd);
-		UNREFERENCED_PARAMETER(wParam);
-		UNREFERENCED_PARAMETER(lpRefData);
+	M2MessageDialog(
+		g_hInstance,
+		hwndParent,
+		MAKEINTRESOURCE(IDI_NSUDO),
+		L"NSudo",
+		DialogContent.c_str());
 
-		if (TDN_HYPERLINK_CLICKED == msg)
-		{
-			SHELLEXECUTEINFOW ExecInfo = { 0 };
-			ExecInfo.cbSize = sizeof(SHELLEXECUTEINFOW);
-			ExecInfo.lpVerb = L"open";
-			ExecInfo.nShow = SW_SHOW;
-
-			if (_wcsicmp((LPCWSTR)lParam, L"NSudo://OfficalQQGroupJoinLink") == 0)
-			{
-				ExecInfo.lpFile = L"http://shang.qq.com/wpa/qunwpa?idkey=29940ed5c8b2363efcf8a1c376f280c4a46c4e356d5533af48541418ff13ada2";
-			}
-			else
-			{
-				ExecInfo.lpFile = (LPCWSTR)lParam;
-			}
-
-			ShellExecuteExW(&ExecInfo);
-		}
-
-		return S_OK;
-	};
-
-	return TaskDialogIndirect(&config, nullptr, nullptr, nullptr);
+	return NSudoGetLastCOMError();
 }
 
 // 分割获取的命令行以方便解析

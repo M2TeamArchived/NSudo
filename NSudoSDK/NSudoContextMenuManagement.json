@@ -1,0 +1,11 @@
+﻿{
+  "ContextMenu": [
+    {
+      "ItemName": "NSudo.RunAs.TrustedInstaller",
+      "ItemDescription": "ContextMenu.TI",
+      "ItemCommandsParameter": "",
+      "HasLUAShield": ""
+    },
+
+  ]
+}

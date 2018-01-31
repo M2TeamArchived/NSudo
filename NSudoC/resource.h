@@ -5,7 +5,6 @@
 #define IDI_NSUDO                       101
 
 #define IDR_String_Translations 2000
-#define IDR_String_Logo 2001
 #define IDR_String_CommandLineHelp 2002
 #define IDR_String_Links 2003
 
