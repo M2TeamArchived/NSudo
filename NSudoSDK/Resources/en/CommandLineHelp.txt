@@ -32,7 +32,7 @@ Context Menu:
 PS:
     1. All NSudo command arguments is case-insensitive.
     2. You can use the "/" override "-" in the command line parameters. For 
-       example, "/u:t" and "-u:t" are equivalent.
+       example, "/U:T" and "-U:T" are equivalent.
     3. To ensure the best experience, NSudoC does not support context menu.
 
 Example:

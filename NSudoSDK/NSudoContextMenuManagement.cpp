@@ -12,8 +12,12 @@ License: The MIT License
 #include <string>
 
 #include "NSudoAPI.h"
+#include "m2base.h"
 
 #include "NSudoContextMenuManagement.h"
+#include "NSudoContextMenuManagementResource.h"
+
+#include "M2ResourceManagement.h"
 
 CNSudoContextMenuManagement::CNSudoContextMenuManagement()
 {
@@ -25,6 +29,11 @@ CNSudoContextMenuManagement::CNSudoContextMenuManagement()
 		&this->m_CommandStoreRoot);
 	if (ERROR_SUCCESS != this->m_ConstructorError)
 		return;
+
+	this->m_ContextMenuItems = M2LoadJsonFromResource(
+		GetModuleHandleW(nullptr),
+		L"Config",
+		MAKEINTRESOURCEW(IDR_CONFIG_CONTEXT_MENU))["ContextMenu"];
 }
 
 DWORD CNSudoContextMenuManagement::Install()
@@ -36,21 +45,40 @@ DWORD CNSudoContextMenuManagement::Install()
 
 	DWORD dwError = ERROR_SUCCESS;
 	
+	std::wstring NSudoPathWithQuotation = std::wstring(L"\"") + this->m_NSudoPath + L"\"";
+
 	M2::CHKey hNSudoItem;
 	std::wstring SubCommands;
 
-	for (size_t i = 0; i < this->m_CommandStoreItemsSize; ++i)
+	for (nlohmann::json& Item : this->m_ContextMenuItems)
 	{
+		std::wstring GeneratedItemName = m2_base_utf8_to_utf16(
+			Item["ItemName"].get<std::string>());
+
+		std::wstring GeneratedItemDescription = NSudoGetTranslation(
+			Item["ItemDescriptionID"].get<std::string>().c_str());
+
+		std::wstring GeneratedItemCommandParameters = m2_base_utf8_to_utf16(
+				Item["ItemCommandParameters"].get<std::string>());
+
+		std::wstring GeneratedItemCommand =
+			NSudoPathWithQuotation +
+			L" " + GeneratedItemCommandParameters + L" " +
+			L"\"\"%1\"\"";
+
+		bool GeneratedHasLUAShield = Item["HasLUAShield"].get<bool>();
+
 		dwError = CreateCommandStoreItem(
 			this->m_CommandStoreRoot,
-			this->m_CommandStoreItems[i].ItemName,
-			this->m_ItemDescription[i].c_str(),
-			(this->m_NSudoPathWithQuotation + this->m_ItemCommandParameters[i]).c_str(),
-			this->m_CommandStoreItems[i].HasLUAShield);
+			GeneratedItemName.c_str(),
+			GeneratedItemDescription.c_str(),
+			GeneratedItemCommand.c_str(),
+			GeneratedHasLUAShield);
 		if (ERROR_SUCCESS != dwError)
 			return dwError;
 
-		SubCommands += std::wstring(this->m_CommandStoreItems[i].ItemName) + L";";
+		SubCommands += GeneratedItemName + L";";
+
 	}
 
 	dwError = M2RegCreateKey(
@@ -75,7 +103,7 @@ DWORD CNSudoContextMenuManagement::Install()
 			L"NSudo"
 		},{
 			L"Icon",
-			this->m_NSudoPathWithQuotation.c_str()
+			NSudoPathWithQuotation.c_str()
 		},{
 			L"Position",
 			L"1"
@@ -116,11 +144,14 @@ DWORD CNSudoContextMenuManagement::Uninstall()
 
 	DWORD dwError = ERROR_SUCCESS;
 
-	for (size_t i = 0; i < this->m_CommandStoreItemsSize; ++i)
+	for (nlohmann::json& Item : this->m_ContextMenuItems)
 	{
+		std::wstring GeneratedItemName = m2_base_utf8_to_utf16(
+			Item["ItemName"].get<std::string>());
+
 		dwError = RegDeleteTreeW(
 			this->m_CommandStoreRoot,
-			this->m_CommandStoreItems[i].ItemName);
+			GeneratedItemName.c_str());
 		if (ERROR_SUCCESS != dwError)
 			break;
 	}

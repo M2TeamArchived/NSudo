@@ -20,6 +20,7 @@ nlohmann::json NSudo_String_Translations;
 #include "NSudoContextMenuManagement.h"
 #include "M2DPIScaling.h"
 #include "M2MessageDialog.h"
+#include "M2ResourceManagement.h"
 
 namespace ProjectInfo
 {
@@ -31,50 +32,24 @@ namespace ProjectInfo
 		L"\r\n";
 }
 
-class CResource
-{
-private:
-	HMODULE m_Module = nullptr;
-	HRSRC m_Resource = nullptr;
-
-
-public:
-	CResource(
-		_In_ LPCWSTR lpType,
-		_In_ UINT uID) :
-		m_Module(GetModuleHandleW(nullptr)),
-		m_Resource(FindResourceExW(
-			this->m_Module,
-			lpType,
-			MAKEINTRESOURCEW(uID),
-			MAKELANGID(LANG_NEUTRAL, SUBLANG_NEUTRAL)))
-	{
-
-	}
-
-	LPVOID Get()
-	{
-		return LockResource(LoadResource(this->m_Module, this->m_Resource));
-	}
-
-	DWORD Size()
-	{
-		return SizeofResource(this->m_Module, this->m_Resource);
-	}
-
-};
-
 std::wstring NSudoGetUTF8WithBOMStringResources(
 	_In_ UINT uID)
 {
-	CResource Resource(L"String", uID);
+	M2_RESOURCE_INFO ResourceInfo = { 0 };
+	if (SUCCEEDED(M2LoadResource(
+		&ResourceInfo,
+		GetModuleHandleW(nullptr),
+		L"String",
+		MAKEINTRESOURCEW(uID))))
+	{
+		std::string RawString(
+			reinterpret_cast<const char*>(ResourceInfo.Pointer),
+			ResourceInfo.Size);
+		// Raw string without the UTF-8 BOM. (0xEF,0xBB,0xBF)	
+		return m2_base_utf8_to_utf16(RawString.c_str() + 3);
+	}
 
-	std::string RawString(
-		reinterpret_cast<const char*>(Resource.Get()),
-		Resource.Size());
-
-	// Raw string without the UTF-8 BOM. (0xEF,0xBB,0xBF)	
-	return m2_base_utf8_to_utf16(RawString.c_str() + 3);
+	return L"";
 }
 
 void NSudoPrintMsg(
@@ -907,12 +882,10 @@ int WINAPI wWinMain(
 	wcsrchr(&nsudo_app_path[0], L'\\')[0] = L'\0';
 	nsudo_app_path.resize(wcslen(nsudo_app_path.c_str()));
 
-	CResource Resource(L"String", IDR_String_Translations);
-	std::string RawString(
-		reinterpret_cast<const char*>(Resource.Get()),
-		Resource.Size());
-	NSudo_String_Translations =
-		nlohmann::json::parse(RawString)["Translations"];
+	NSudo_String_Translations = M2LoadJsonFromResource(
+		GetModuleHandleW(nullptr),
+		L"String",
+		MAKEINTRESOURCEW(IDR_String_Translations))["Translations"];
 
 	try
 	{
