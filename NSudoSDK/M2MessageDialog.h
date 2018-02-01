@@ -35,7 +35,7 @@ License: The MIT License
 //   compatibility with previous versions of Windows. If the function fails for
 //   any other reason, the return value is –1. To get extended error 
 //   information, call GetLastError.
-INT_PTR M2MessageDialog(
+INT_PTR WINAPI M2MessageDialog(
 	_In_opt_ HINSTANCE hInstance,
 	_In_opt_ HWND hWndParent,
 	_In_opt_ LPCWSTR lpIconName,
