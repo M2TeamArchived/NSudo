@@ -1,4 +1,4 @@
-/******************************************************************************
+﻿/******************************************************************************
 Project: M2-Team Common Library
 Description: Definition for the DPI scaling.
 File Name: M2DPIScaling.h
