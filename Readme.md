@@ -9,15 +9,19 @@
 
 - [简体中文](自述.md)
 
-- Notice: NSudo is based on SuperCMD by Raymai97.Visit [here](http://bbs.pcbeta.com/viewthread-1508863-1-1.html "here") for more information about SuperCMD.
+- Notice: NSudo is based on SuperCMD by Raymai97.Visit 
+  [here](http://bbs.pcbeta.com/viewthread-1508863-1-1.html "here") for more 
+  information about SuperCMD.
 
 ## System Requirements
 - Supported OS Version: Windows NT 6.0 or later
 - Supported CPU Architecture: x86, x86-64(AMD64), ARM, ARM64
 
 ## Usage
-- Please go to the [CPU Architecture] folder and click NSudo.exe. Follow the prompts.
-  - For example, if you want to use 64-bit NSudo on your Intel or AMD device, you need to go to the x64 folder and click NSudo.exe
+- Please go to the [CPU Architecture] folder and click NSudo.exe. Follow the 
+  prompts.
+  - For example, if you want to use 64-bit NSudo on your Intel or AMD device,
+    you need to go to the x64 folder and click NSudo.exe
 
 ## Command Line Options
 ```
@@ -46,25 +50,29 @@ PS:
     If you want to use the default Integrity Level, please do not include the 
     "-M" parameter.
 
--Install   Copy NSudo to the Windows directory and add the context menu.
--Uninstall Remove NSudo in the Windows directory and the context menu.
-
 -? Show this content
+
+Context Menu:
+  -Install   Copy NSudo to the Windows directory and add the context menu.
+  -Uninstall Remove NSudo in the Windows directory and the context menu. 
 
 PS:
     1. All NSudo command arguments is case-insensitive.
     2. You can use the "/" override "-" in the command line parameters. For 
-       example, "/u:t" and "-u:t" are equivalent.
+       example, "/U:T" and "-U:T" are equivalent.
+    3. To ensure the best experience, NSudoC does not support context menu.
 
 Example:
     If you want to run Command Prompt with TrustedInstaller, enable all 
     privileges and the default Integrity Level.
         NSudo -U:T -P:E cmd
 ```
-Example：If you want to run Command Prompt with TrustedInstaller, enable all privileges and the default Integrity Level
+Example：If you want to run Command Prompt with TrustedInstaller, enable all 
+privileges and the default Integrity Level
 > NSudo -U:T -P:E cmd
 
-You can edit NSudo.json to custom the Shortcut list, here are the demo (NSudo.json in the NSudo.exe's folder):
+You can edit NSudo.json to custom the Shortcut list, here are the demo 
+(NSudo.json in the NSudo.exe's folder):
 ```
 {
   "ShortCutList_V2": {
@@ -76,7 +84,8 @@ You can edit NSudo.json to custom the Shortcut list, here are the demo (NSudo.js
   }
 }
 ```
-Starting from NSudo 5.0.1708.16, the command line nested quotes is supported. For example: 
+Starting from NSudo 5.0.1708.16, the command line nested quotes is supported. 
+For example: 
 > NSudo -U:T cmd /c "dir "C:\Program Files" & pause"
 
 ## 3rd-party libraries which used
@@ -99,9 +108,9 @@ See [People.md](People.md) for more details.
   - https://git.oschina.net/Mouri_Naruto/NSudo
 
 ## Communication
-- MDL Post : https://forums.mydigitallife.net/threads/nsudo-a-powerful-system-administration-tool.59268/
-- QQ Group : 466078631
-- E-mail : Mouri_Naruto@Outlook.com
+- MDL Post: https://forums.mydigitallife.net/threads/59268/
+- QQ Group: 466078631
+- E-mail: Mouri_Naruto@Outlook.com
 
 ## Have a good time -- M2-Team
 

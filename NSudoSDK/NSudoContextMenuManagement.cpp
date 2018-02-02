@@ -18,6 +18,7 @@ License: The MIT License
 #include "NSudoContextMenuManagementResource.h"
 
 #include "M2ResourceManagement.h"
+#include "NSudoResourceManagement.h"
 
 CNSudoContextMenuManagement::CNSudoContextMenuManagement()
 {
@@ -55,7 +56,7 @@ DWORD CNSudoContextMenuManagement::Install()
 		std::wstring GeneratedItemName = m2_base_utf8_to_utf16(
 			Item["ItemName"].get<std::string>());
 
-		std::wstring GeneratedItemDescription = NSudoGetTranslation(
+		std::wstring GeneratedItemDescription = g_ResourceManagement.GetTranslation(
 			Item["ItemDescriptionID"].get<std::string>().c_str());
 
 		std::wstring GeneratedItemCommandParameters = m2_base_utf8_to_utf16(

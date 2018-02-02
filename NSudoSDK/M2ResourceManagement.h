@@ -62,4 +62,4 @@ nlohmann::json M2LoadJsonFromResource(
 	_In_ LPCWSTR lpType,
 	_In_ LPCWSTR lpName);
 
-#endif // _NSUDO_RESOURCE_MANAGEMENT_
+#endif // _M2_RESOURCE_MANAGEMENT_

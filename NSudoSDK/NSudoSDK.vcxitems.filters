@@ -15,14 +15,24 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)M2MessageDialog.h">
       <Filter>M2MessageDialog</Filter>
     </ClInclude>
-    <ClInclude Include="$(MSBuildThisFileDirectory)M2DPIScaling.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)NSudoContextMenuManagement.h">
       <Filter>NSudoContextMenuManagement</Filter>
     </ClInclude>
     <ClInclude Include="$(MSBuildThisFileDirectory)NSudoContextMenuManagementResource.h">
       <Filter>NSudoContextMenuManagement</Filter>
     </ClInclude>
-    <ClInclude Include="$(MSBuildThisFileDirectory)M2ResourceManagement.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)M2ResourceManagement.h">
+      <Filter>M2ResourceManagement</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)NSudoResourceManagement.h">
+      <Filter>NSudoResourceManagement</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)NSudoResourceManagementResource.h">
+      <Filter>NSudoResourceManagement</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)M2DPIScaling.h">
+      <Filter>M2DPIScaling</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ThirdParty">
@@ -42,6 +52,15 @@
     </Filter>
     <Filter Include="NSudoContextMenuManagement">
       <UniqueIdentifier>{74d8a70a-1f1b-4140-8122-a34769c65859}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NSudoResourceManagement">
+      <UniqueIdentifier>{3e2c11e5-16c3-44e3-ab04-eb3825858cd6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="M2ResourceManagement">
+      <UniqueIdentifier>{aca5c70b-b051-43f2-b85c-6b6c4dae7bfc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="M2DPIScaling">
+      <UniqueIdentifier>{2e85adb8-260c-4b7c-be9c-2345aaf564e2}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -73,11 +92,18 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)M2MessageDialog.cpp">
       <Filter>M2MessageDialog</Filter>
     </ClCompile>
-    <ClCompile Include="$(MSBuildThisFileDirectory)M2DPIScaling.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)NSudoContextMenuManagement.cpp">
       <Filter>NSudoContextMenuManagement</Filter>
     </ClCompile>
-    <ClCompile Include="$(MSBuildThisFileDirectory)M2ResourceManagement.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)M2ResourceManagement.cpp">
+      <Filter>M2ResourceManagement</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)NSudoResourceManagement.cpp">
+      <Filter>NSudoResourceManagement</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)M2DPIScaling.cpp">
+      <Filter>M2DPIScaling</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="$(MSBuildThisFileDirectory)M2MessageDialogResource.rc">
@@ -85,6 +111,9 @@
     </ResourceCompile>
     <ResourceCompile Include="$(MSBuildThisFileDirectory)NSudoContextMenuManagementResource.rc">
       <Filter>NSudoContextMenuManagement</Filter>
+    </ResourceCompile>
+    <ResourceCompile Include="$(MSBuildThisFileDirectory)NSudoResourceManagementResource.rc">
+      <Filter>NSudoResourceManagement</Filter>
     </ResourceCompile>
   </ItemGroup>
 </Project>
