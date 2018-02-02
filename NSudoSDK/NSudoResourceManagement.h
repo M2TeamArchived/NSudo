@@ -1,4 +1,4 @@
-/******************************************************************************
+ï»¿/******************************************************************************
 Project: NSudoSDK
 Description: Definition for the Resource Management.
 File Name: NSudoResourceManagement.h
@@ -78,7 +78,7 @@ public:
 
 extern CNSudoResourceManagement g_ResourceManagement;
 
-// ½âÎöÃüÁîĞĞ
+// è§£æå‘½ä»¤è¡Œ
 NSUDO_MESSAGE NSudoCommandLineParser(
 	_In_ bool bElevated,
 	_In_ bool bEnableContextMenuManagement,
