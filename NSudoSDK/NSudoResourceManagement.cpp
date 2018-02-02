@@ -228,7 +228,7 @@ bool SuCreateProcess(
 	}
 	else
 	{
-		final_command_line == lpCommandLine;
+		final_command_line = lpCommandLine;
 	}
 
 	return NSudoCreateProcess(

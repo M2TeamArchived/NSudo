@@ -2,6 +2,10 @@
 
 - [简体中文](更新日志.md)
 
+**NSudo 6.0.1802.2 v2**
+- Fix always opens a command prompt window after click the run button. 
+  (Thanks to AeonX.)
+
 **NSudo 6.0.1802.2**
 - Fix several bugs and improve several implementations.
 - Add two standalone executable files used in different situations.
