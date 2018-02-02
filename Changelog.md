@@ -2,6 +2,47 @@
 
 - [简体中文](更新日志.md)
 
+**NSudo 6.0.1802.2**
+- Fix several bugs and improve several implementations.
+- Add two standalone executable files used in different situations.
+  - NSudoC.exe
+    - The pure command line version and subsystem setting is "Console".
+    - Work well in the console, but it has a black console window if you call 
+      it in the non-Console processes.
+    - To ensure the best experience, NSudoC does not support context menu.
+  - NSudoG.exe
+    - The pure command line version and subsystem setting is "Windows"
+    - It can run silently, without a black console window.
+- NSudo will show the message via the M2MessageDialog instead of TaskDialog.
+  - Reasons
+    - NSudo can provide more detail infomation when error because of it have 
+      vertical scroll bar.
+    - You can copy the content in the message dialog.
+    - Support using by the Windows Narrator, so you can use CapsLock+H to read 
+      the content by the Windows Narrator.
+    - The font size is larger than the TaskDialog.
+  - Features of M2MessageDialog
+    - Fully support Per-Monitor DPI Aware in Windows 10 Build 10240 or later.
+    - Fully support Windows Narrator.
+    - You can use the vertical scroll bar and copy the content.
+    - The font size is larger than the TaskDialog.
+    - You can press Enter to close the message dialog.
+  - If you want to use the M2MessageDialog in your project, please download 
+    these files in https://github.com/M2Team/NSudo/tree/master/NSudoSDK
+    - M2DPIScaling.cpp
+    - M2DPIScaling.h
+    - M2MessageDialog.cpp
+    - M2MessageDialog.h
+    - M2MessageDialogResource.h
+    - M2MessageDialogResource.rc
+- Remove Traditional Chinese and Japanese translation because the translation 
+  is out of date and I don't know how to use.
+- Update JSON for Modern C++ to 3.0.1
+- Context Menu
+  - Add multilingual descriptions.
+  - Add "Enable All Privileges" options for all item in the context menu.
+- Update the command line help and documents.
+
 **NSudo 6.0.1801.19**
 - Fix the NSudoDuplicateSessionToken function definition bug. (Thanks to mingkuang.)
 - Fix bugs that cannot enable full privileges under the graphical interface. (Thanks to abbodi1406.)
