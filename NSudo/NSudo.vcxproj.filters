@@ -27,9 +27,6 @@
     <ClInclude Include="resource.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\NSudoSDK\NSudoContextMenuManagementResource.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="NSudo.cpp">
@@ -48,9 +45,6 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="NSudo.def">
-      <Filter>源文件</Filter>
-    </None>
     <None Include="res\NSudo.json">
       <Filter>资源文件\资源</Filter>
     </None>

@@ -22,9 +22,11 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)NSudoAPI.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)NSudoContextMenuManagement.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)M2ResourceManagement.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)NSudoResourceManagement.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)NSudoVersion.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)M2MessageDialogResource.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)NSudoContextMenuManagementResource.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)NSudoResourceManagementResource.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ThirdParty\json.hpp" />
   </ItemGroup>
   <ItemGroup>
@@ -43,9 +45,11 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)M2MessageDialog.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)NSudoContextMenuManagement.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)M2ResourceManagement.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)NSudoResourceManagement.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="$(MSBuildThisFileDirectory)M2MessageDialogResource.rc" />
     <ResourceCompile Include="$(MSBuildThisFileDirectory)NSudoContextMenuManagementResource.rc" />
+    <ResourceCompile Include="$(MSBuildThisFileDirectory)NSudoResourceManagementResource.rc" />
   </ItemGroup>
 </Project>

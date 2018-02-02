@@ -15,9 +15,6 @@ License: The MIT License
 
 #include "ThirdParty\json.hpp"
 
-std::wstring NSudoGetTranslation(
-	_In_ const char* Key);
-
 class CNSudoContextMenuManagement
 {
 private:

@@ -24,8 +24,5 @@
 
 #include <vector>
 #include <string>
-#include <fstream>
-
-#include "ThirdParty\json.hpp"
 
 #include "m2base.h"

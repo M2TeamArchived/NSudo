@@ -990,6 +990,77 @@ extern "C" {
 		return result;
 	}
 
+#include <Userenv.h>
+#pragma comment(lib, "Userenv.lib")
+
+	/*
+	NSudoCreateProcess函数创建一个新进程和对应的主线程
+	The NSudoCreateProcess function creates a new process and its primary thread.
+
+	如果函数执行失败，返回值为NULL。调用GetLastError可获取详细错误码。
+	If the function fails, the return value is NULL. To get extended error
+	information, call GetLastError.
+	*/
+	static bool NSudoCreateProcess(
+		_In_opt_ HANDLE hToken,
+		_Inout_ LPCWSTR lpCommandLine,
+		_In_opt_ LPCWSTR lpCurrentDirectory)
+	{
+		STARTUPINFOW StartupInfo = { 0 };
+		PROCESS_INFORMATION ProcessInfo = { 0 };
+
+		std::wstring ComSpec(MAX_PATH, L'\0');
+		GetEnvironmentVariableW(L"ComSpec", &ComSpec[0], (DWORD)ComSpec.size());
+		ComSpec.resize(wcslen(ComSpec.c_str()));
+
+		//生成命令行
+		std::wstring final_command_line = 
+			L"/c start \"" + ComSpec + L"\" " + lpCommandLine;
+
+		//设置进程所在桌面
+		StartupInfo.lpDesktop = const_cast<LPWSTR>(L"WinSta0\\Default");
+
+		LPVOID lpEnvironment = nullptr;
+
+		BOOL result = FALSE;
+
+		M2::CHandle hCurrentToken;
+		if (OpenProcessToken(
+			GetCurrentProcess(),
+			MAXIMUM_ALLOWED,
+			&hCurrentToken))
+		{
+			if (CreateEnvironmentBlock(&lpEnvironment, hCurrentToken, TRUE))
+			{
+				//启动进程
+				result = CreateProcessAsUserW(
+					hToken,
+					ComSpec.c_str(),
+					&final_command_line[0],
+					nullptr,
+					nullptr,
+					FALSE,
+					CREATE_NO_WINDOW | CREATE_UNICODE_ENVIRONMENT,
+					lpEnvironment,
+					lpCurrentDirectory,
+					&StartupInfo,
+					&ProcessInfo);
+
+				//关闭句柄
+				if (result)
+				{
+					CloseHandle(ProcessInfo.hProcess);
+					CloseHandle(ProcessInfo.hThread);
+				}
+
+				DestroyEnvironmentBlock(lpEnvironment);
+			}
+		}
+
+		//返回结果
+		return result;
+	}
+
 #ifdef __cplusplus
 }
 #endif
