@@ -32,6 +32,8 @@
 ## 反馈者 Advicers
 - 4071E95D-A09B-4AA3-8008
 - abbodi1406
+- AeonX
+- hydra79545
 - imadlatch
 - kCaRhC卡壳
 - mingkuang (https://github.com/mingkuang-Chuyu)

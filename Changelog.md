@@ -3,7 +3,8 @@
 - [简体中文](更新日志.md)
 
 **NSudo 6.0.1802.19**
-- Fix a bug which can cause crash on Windows Vista and Server 2008.
+- Fix a bug which can cause crash on Windows Vista and Server 2008. 
+  (Thanks to hydra79545.)
 
 **NSudo 6.0.1802.2 v2**
 - Fix always opens a command prompt window after click the run button. 
