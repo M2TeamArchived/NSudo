@@ -11,6 +11,8 @@ License: The MIT License
 
 #include "M2DPIScaling.h"
 
+#include <VersionHelpers.h>
+
 // Enables the Per-Monitor DPI Aware for the specified dialog using the 
 // internal API from Windows.
 // PS: You need to use this function in Windows 10 Threshold 1 or later.
@@ -20,6 +22,9 @@ License: The MIT License
 //   The function will return a INT. If failed. returns -1.
 INT M2EnablePerMonitorDialogScaling()
 {
+	// Fix for Windows Vista and Server 2008.
+	if (!IsWindows10OrGreater()) return -1;
+	
 	typedef INT(WINAPI *PFN_EnablePerMonitorDialogScaling)();
 
 	HMODULE hModule = nullptr;
