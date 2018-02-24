@@ -2,7 +2,6 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClInclude Include="$(MSBuildThisFileDirectory)NSudoAPI.h" />
-    <ClInclude Include="$(MSBuildThisFileDirectory)m2base.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ThirdParty\json.hpp">
       <Filter>ThirdParty</Filter>
     </ClInclude>
@@ -33,6 +32,9 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)M2DPIScaling.h">
       <Filter>M2DPIScaling</Filter>
     </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)M2BaseHelpers.h">
+      <Filter>M2BaseHelpers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ThirdParty">
@@ -61,6 +63,9 @@
     </Filter>
     <Filter Include="M2DPIScaling">
       <UniqueIdentifier>{2e85adb8-260c-4b7c-be9c-2345aaf564e2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="M2BaseHelpers">
+      <UniqueIdentifier>{2ae3f5b8-ba55-4407-adf1-f004672b774d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -103,6 +108,9 @@
     </ClCompile>
     <ClCompile Include="$(MSBuildThisFileDirectory)M2DPIScaling.cpp">
       <Filter>M2DPIScaling</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)M2BaseHelpers.cpp">
+      <Filter>M2BaseHelpers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

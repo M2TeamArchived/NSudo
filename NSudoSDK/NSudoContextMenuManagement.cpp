@@ -12,7 +12,8 @@ License: The MIT License
 #include <string>
 
 #include "NSudoAPI.h"
-#include "m2base.h"
+
+#include "M2BaseHelpers.h"
 
 #include "NSudoContextMenuManagement.h"
 #include "NSudoContextMenuManagementResource.h"
@@ -53,13 +54,13 @@ DWORD CNSudoContextMenuManagement::Install()
 
 	for (nlohmann::json& Item : this->m_ContextMenuItems)
 	{
-		std::wstring GeneratedItemName = m2_base_utf8_to_utf16(
+		std::wstring GeneratedItemName = M2MakeUTF16String(
 			Item["ItemName"].get<std::string>());
 
 		std::wstring GeneratedItemDescription = g_ResourceManagement.GetTranslation(
 			Item["ItemDescriptionID"].get<std::string>().c_str());
 
-		std::wstring GeneratedItemCommandParameters = m2_base_utf8_to_utf16(
+		std::wstring GeneratedItemCommandParameters = M2MakeUTF16String(
 				Item["ItemCommandParameters"].get<std::string>());
 
 		std::wstring GeneratedItemCommand =
@@ -147,7 +148,7 @@ DWORD CNSudoContextMenuManagement::Uninstall()
 
 	for (nlohmann::json& Item : this->m_ContextMenuItems)
 	{
-		std::wstring GeneratedItemName = m2_base_utf8_to_utf16(
+		std::wstring GeneratedItemName = M2MakeUTF16String(
 			Item["ItemName"].get<std::string>());
 
 		dwError = RegDeleteTreeW(

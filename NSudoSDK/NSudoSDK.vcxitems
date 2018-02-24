@@ -15,7 +15,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="$(MSBuildThisFileDirectory)CIBuild.h" />
-    <ClInclude Include="$(MSBuildThisFileDirectory)m2base.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)M2BaseHelpers.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)M2DPIScaling.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)M2MessageDialog.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)M2Object.h" />
@@ -41,6 +41,7 @@
     <None Include="$(MSBuildThisFileDirectory)Resources\zh-Hans\Translations.json" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="$(MSBuildThisFileDirectory)M2BaseHelpers.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)M2DPIScaling.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)M2MessageDialog.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)NSudoContextMenuManagement.cpp" />

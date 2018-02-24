@@ -605,11 +605,6 @@ extern "C" {
 		M2::CMemory<PACL> NewDefaultDacl;
 		PACCESS_ALLOWED_ACE pTempAce = nullptr;
 
-		HRESULT hr = S_OK;
-		TOKEN_LINKED_TOKEN LinkedToken = { 0 };
-		TOKEN_MANDATORY_POLICY MandatoryPolicy = { 0 };
-		TOKEN_ELEVATION Elevation = { 0 };
-
 		//创建受限令牌
 		result = CreateRestrictedToken(
 			ExistingTokenHandle,
@@ -730,28 +725,6 @@ extern "C" {
 			&EnableTokenVirtualization,
 			sizeof(BOOL));
 		if (!result) goto FuncEnd;
-
-		SetLastError(ERROR_SUCCESS);
-
-		//GetTokenInformation(hToken, TokenLinkedToken, &LinkedToken, sizeof(TOKEN_LINKED_TOKEN), &Length);
-
-		//LinkedToken.LinkedToken = ExistingTokenHandle;
-		//SetTokenInformation(hToken, TokenLinkedToken, &LinkedToken, sizeof(TOKEN_LINKED_TOKEN));
-
-		//GetTokenInformation(hToken, TokenMandatoryPolicy, &MandatoryPolicy, sizeof(TOKEN_MANDATORY_POLICY),&Length);
-		
-		//MandatoryPolicy.Policy = TOKEN_MANDATORY_POLICY_NO_WRITE_UP | TOKEN_MANDATORY_POLICY_NEW_PROCESS_MIN;
-		//SetTokenInformation(hToken, TokenMandatoryPolicy, &MandatoryPolicy, sizeof(TOKEN_MANDATORY_POLICY));	
-
-		//GetTokenInformation(hToken, TokenElevation, &Elevation, sizeof(TOKEN_ELEVATION),&Length);
-
-		//GetTokenInformation(hToken, TokenElevationType, &Elevation, sizeof(TOKEN_ELEVATION_TYPE), &Length);
-
-		Elevation.TokenIsElevated = TokenElevationTypeLimited;
-		SetTokenInformation(hToken, TokenElevationType, &Elevation, sizeof(TOKEN_ELEVATION_TYPE));
-
-		hr = GetLastError();
-		hr = hr;
 
 	FuncEnd: // 扫尾
 

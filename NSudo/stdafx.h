@@ -24,5 +24,3 @@
 
 #include <vector>
 #include <string>
-
-#include "m2base.h"
