@@ -14,7 +14,8 @@ License: The MIT License
 #include "M2ResourceManagement.h"
 
 #include "NSudoAPI.h"
-#include "m2base.h"
+
+#include "M2BaseHelpers.h"
 
 #include "NSudoResourceManagement.h"
 
@@ -96,7 +97,7 @@ const std::wstring CNSudoResourceManagement::GetLogoText()
 std::wstring CNSudoResourceManagement::GetTranslation(
 	_In_ const char* Key)
 {
-	return m2_base_utf8_to_utf16(
+	return M2MakeUTF16String(
 		this->m_StringTranslations[Key].get<std::string>());
 }
 
@@ -130,7 +131,7 @@ std::wstring CNSudoResourceManagement::GetUTF8WithBOMStringResources(
 			reinterpret_cast<const char*>(ResourceInfo.Pointer),
 			ResourceInfo.Size);
 		// Raw string without the UTF-8 BOM. (0xEF,0xBB,0xBF)	
-		return m2_base_utf8_to_utf16(RawString.c_str() + 3);
+		return M2MakeUTF16String(RawString.c_str() + 3);
 	}
 
 	return L"";
@@ -219,12 +220,12 @@ bool SuCreateProcess(
 
 	nlohmann::json::const_iterator iterator =
 		g_ResourceManagement.ShortCutListV2.find(
-			m2_base_utf16_to_utf8(lpCommandLine));
+			M2MakeUTF8String(lpCommandLine));
 
 	if (g_ResourceManagement.ShortCutListV2.end() != iterator)
 	{
 		final_command_line = 
-			m2_base_utf8_to_utf16(iterator->get<std::string>());
+			M2MakeUTF16String(iterator->get<std::string>());
 	}
 	else
 	{

@@ -9,6 +9,8 @@
 #include "M2MessageDialog.h"
 #include "NSudoResourceManagement.h"
 
+#include "M2BaseHelpers.h"
+
 void NSudoPrintMsg(
 	_In_opt_ HINSTANCE hInstance,
 	_In_opt_ HWND hWnd,
@@ -326,7 +328,7 @@ INT_PTR CNSudoMainWindow::DialogProc(
 		{
 			for (auto it = g_ResourceManagement.ShortCutListV2.begin(); it != g_ResourceManagement.ShortCutListV2.end(); ++it)
 			{
-				SendMessageW(this->m_hszPath, CB_INSERTSTRING, 0, (LPARAM)m2_base_utf8_to_utf16(it.key()).c_str());
+				SendMessageW(this->m_hszPath, CB_INSERTSTRING, 0, (LPARAM)M2MakeUTF16String(it.key()).c_str());
 			}
 
 		}
