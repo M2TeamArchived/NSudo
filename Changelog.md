@@ -6,8 +6,9 @@
 - Fix a bug which can cause crash on Windows Vista and Server 2008. 
   (Thanks to hydra79545.)
 - Share source code with M2-Team UWP projects. (For more information, please 
-  read "https://github.com/Project-Nagisa/Nagisa/blob/master/APIChanges.md")
+  read "https://github.com/Project-Nagisa/Nagisa/blob/master/Changelog.md")
 - Remove useless implementations.
+- Improve the implementation for NSudoStartService function.
 
 **NSudo 6.0.1802.2 v2**
 - Fix always opens a command prompt window after click the run button. 
