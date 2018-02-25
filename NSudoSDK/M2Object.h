@@ -14,9 +14,23 @@ License: The MIT License
 
 namespace M2
 {
+	// Disable C++ Object Copying
+	class CDisableObjectCopying
+	{
+	protected:
+		CDisableObjectCopying() = default;
+		~CDisableObjectCopying() = default;
+
+	private:
+		CDisableObjectCopying(
+			const CDisableObjectCopying&) = delete;
+		CDisableObjectCopying& operator=(
+			const CDisableObjectCopying&) = delete;
+	};
+
 	// The implementation of smart object.
 	template<typename TObject, typename TObjectDefiner>
-	class CObject
+	class CObject : CDisableObjectCopying
 	{
 	protected:
 		TObject m_Object;
@@ -83,6 +97,8 @@ namespace M2
 	};
 
 	// The handle definer for HANDLE object.
+#pragma region CHandle
+
 	struct CHandleDefiner
 	{
 		static inline HANDLE GetInvalidValue()
@@ -98,7 +114,11 @@ namespace M2
 
 	typedef CObject<HANDLE, CHandleDefiner> CHandle;
 
-	// The handle definer for Com object.
+#pragma endregion
+	
+	// The handle definer for COM object.
+#pragma region CComObject
+
 	template<typename TComObject>
 	struct CComObjectDefiner
 	{
@@ -118,6 +138,50 @@ namespace M2
 	{
 
 	};
+
+#pragma endregion
+
+	// The handle definer for memory block.
+#pragma region CMemory
+
+	template<typename TMemory>
+	struct CMemoryDefiner
+	{
+		static inline TMemory GetInvalidValue()
+		{
+			return nullptr;
+		}
+
+		static inline void Close(TMemory Object)
+		{
+			free(Object);
+		}
+	};
+
+	template<typename TMemory>
+	class CMemory : public CObject<TMemory, CMemoryDefiner<TMemory>>
+	{
+	public:
+		CMemory(TMemory Object = CMemoryDefiner<TMemory>::GetInvalidValue()) :
+			CObject<TMemory, CMemoryDefiner<TMemory>>(Object)
+		{
+
+		}
+
+		bool Alloc(size_t Size)
+		{
+			this->Free();
+			return (this->m_Object = reinterpret_cast<TMemory>(malloc(Size)));	
+		}
+
+		void Free()
+		{
+			this->Close();
+		}
+	};
+
+#pragma endregion
+
 }
 
 #endif // _M2_OBJECT_
