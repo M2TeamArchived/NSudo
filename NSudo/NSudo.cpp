@@ -46,7 +46,7 @@ HRESULT NSudoShowAboutDialog(
 		L"NSudo",
 		DialogContent.c_str());
 
-	return NSudoGetLastCOMError();
+	return M2GetLastError();
 }
 
 void NSudoBrowseDialog(
@@ -78,10 +78,10 @@ inline HRESULT GetDpiForMonitorInternal(
 	HRESULT hr = E_NOINTERFACE;
 
 	hModule = LoadLibraryW(L"SHCore.dll");
-	if (!hModule) return NSudoGetLastCOMError();
+	if (!hModule) return M2GetLastError();
 
 	pFunc = (decltype(pFunc))GetProcAddress(hModule, "GetDpiForMonitor");
-	if (!pFunc) return NSudoGetLastCOMError();
+	if (!pFunc) return M2GetLastError();
 
 	hr = pFunc(hmonitor, dpiType, dpiX, dpiY);
 

@@ -72,4 +72,14 @@ std::wstring M2MakeUTF16String(const std::string& UTF8String);
 //   The return value is the UTF-8 string.
 std::string M2MakeUTF8String(const std::wstring& UTF16String);
 
+// Retrieves the calling thread's last-error code value. The last-error code is
+// maintained on a per-thread basis. Multiple threads do not overwrite each 
+// other's last-error code.
+// Parameters:
+//   The function does not have parameters.
+// Return value:
+//   The return value is the calling thread's last-error code which is 
+//   converted to an HRESULT value.
+HRESULT M2GetLastError();
+
 #endif // _M2_BASE_HELPERS_

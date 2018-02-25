@@ -2,10 +2,11 @@
 
 - [简体中文](更新日志.md)
 
-**NSudo 6.0.1802.23**
+**NSudo 6.0.1802.25**
 - Fix a bug which can cause crash on Windows Vista and Server 2008. 
   (Thanks to hydra79545.)
-- Share source code with M2-Team UWP projects.
+- Share source code with M2-Team UWP projects. (For more information, please 
+  read "https://github.com/Project-Nagisa/Nagisa/blob/master/APIChanges.md")
 - Remove useless implementations.
 
 **NSudo 6.0.1802.2 v2**

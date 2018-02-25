@@ -16,6 +16,7 @@ License: The MIT License
 #pragma comment(lib,"WtsApi32.lib")
 
 #include "M2Object.h"
+#include "M2BaseHelpers.h"
 
 // 为编译通过而禁用的警告
 #if _MSC_VER >= 1200
@@ -56,42 +57,6 @@ namespace M2
 	};
 
 	typedef CObject<PSID, CSIDDefiner> CSID;
-
-	template<typename TMemoryBlock>
-	struct CMemoryDefiner
-	{
-		static inline TMemoryBlock GetInvalidValue()
-		{
-			return nullptr;
-		}
-
-		static inline void Close(TMemoryBlock Object)
-		{
-			free(Object);
-		}
-	};
-
-	template<typename TMemoryBlock>
-	class CMemory : public CObject<TMemoryBlock, CMemoryDefiner<TMemoryBlock>>
-	{
-	public:
-		CMemory(TMemoryBlock Object = CMemoryDefiner<TMemoryBlock>::GetInvalidValue()) :
-			CObject<TMemoryBlock, CMemoryDefiner<TMemoryBlock>>(Object)
-		{
-
-		}
-
-		bool Alloc(size_t Size)
-		{
-			this->Free();
-			return (this->m_Object = (TMemoryBlock)malloc(Size));
-		}
-
-		void Free()
-		{
-			this->Close();
-		}
-	};
 
 	template<typename TMemoryBlock>
 	struct CWTSMemoryDefiner
@@ -313,19 +278,6 @@ extern "C" {
 
 	// SECURITY_MANDATORY_LABEL_AUTHORITY
 	static SID_IDENTIFIER_AUTHORITY SIA_IL = SECURITY_MANDATORY_LABEL_AUTHORITY;
-
-	/*
-	NSudoGetLastCOMError函数返回该线程的上个错误码并转换为COM错误码。每个进程维
-	护各自的上个错误码。多线程不应该互相覆写其上个错误码值。
-	The NSudoGetLastCOMError function retrieves the calling thread's last-error
-	code value and convert to COM error code. The last-error code is maintained
-	on a per-thread basis. Multiple threads do not overwrite each other's 
-	last-error code.
-	*/
-	FORCEINLINE HRESULT WINAPI NSudoGetLastCOMError()
-	{
-		return __HRESULT_FROM_WIN32(GetLastError());
-	}
 	
 	/*
 	NSudoStartService函数通过服务名启动服务并返回服务状态。
@@ -349,7 +301,6 @@ extern "C" {
 		ULONGLONG nLastTick = 0;
 		bool bStartServiceWCalled = false;
 		bool bSleepCalled = false;
-		bool bFinished = false;
 		bool bSucceed = false;
 
 		hSCM = OpenSCManagerW(
@@ -371,18 +322,23 @@ extern "C" {
 			sizeof(SERVICE_STATUS_PROCESS),
 			&nBytesNeeded))
 		{
-			switch (lpServiceStatus->dwCurrentState)
+			if (SERVICE_STOPPED == lpServiceStatus->dwCurrentState)
 			{
-			case SERVICE_STOPPED:
-				if (!bStartServiceWCalled)
+				if (bStartServiceWCalled)
 				{
-					bStartServiceWCalled = true;
-					bFinished = (!StartServiceW(hService, 0, nullptr));
+					break;
 				}
-				else bFinished = true;
-				break;
-			case SERVICE_STOP_PENDING:
-			case SERVICE_START_PENDING:
+					
+				bStartServiceWCalled = true;
+				if (!StartServiceW(hService, 0, nullptr))
+				{
+					break;
+				}
+			}
+			else if (
+				SERVICE_STOP_PENDING == lpServiceStatus->dwCurrentState || 
+				SERVICE_START_PENDING == lpServiceStatus->dwCurrentState)
+			{
 				nCurrentTick = GetTickCount64();
 
 				if (!bSleepCalled)
@@ -408,7 +364,7 @@ extern "C" {
 						if (nDiff > lpServiceStatus->dwWaitHint)
 						{
 							SetLastError(ERROR_TIMEOUT);
-							bFinished = true;
+							break;
 						}
 						else
 						{
@@ -417,14 +373,12 @@ extern "C" {
 						}
 					}
 				}
-				break;
-			default:
+			}
+			else
+			{
 				bSucceed = true;
-				bFinished = true;
 				break;
 			}
-
-			if (bFinished) break;
 		}
 
 		// 如果服务启动失败则清空状态信息
