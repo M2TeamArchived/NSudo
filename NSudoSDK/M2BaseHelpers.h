@@ -82,4 +82,34 @@ std::string M2MakeUTF8String(const std::wstring& UTF16String);
 //   converted to an HRESULT value.
 HRESULT M2GetLastError();
 
+// Retrieves the address of an exported function or variable from the specified
+// dynamic-link library (DLL).
+// Parameters:
+//   lpProcAddress: The address of the exported function or variable
+//   hModule: A handle to the DLL module that contains the function or 
+//   variable. The LoadLibrary, LoadLibraryEx, LoadPackagedLibrary, or 
+//   GetModuleHandle function returns this handle. This function does not 
+//   retrieve addresses from modules that were loaded using the 
+//   LOAD_LIBRARY_AS_DATAFILE flag.For more information, see LoadLibraryEx.
+//   lpProcName: The function or variable name, or the function's ordinal 
+//   value. If this parameter is an ordinal value, it must be in the low-order
+//   word; the high-order word must be zero.
+// Return value:
+//   The function will return HRESULT. If the function succeeds, the return 
+//   value is S_OK.
+template<typename ProcedureType>
+inline HRESULT M2GetProcAddress(
+	_Out_ ProcedureType& lpProcAddress,
+	_In_ HMODULE hModule,
+	_In_ LPCSTR lpProcName)
+{
+	HRESULT M2GetProcAddress(
+		_Out_ FARPROC& lpProcAddress,
+		_In_ HMODULE hModule,
+		_In_ LPCSTR lpProcName);
+
+	return M2GetProcAddress(
+		reinterpret_cast<FARPROC&>(lpProcAddress), hModule, lpProcName);
+}
+
 #endif // _M2_BASE_HELPERS_
