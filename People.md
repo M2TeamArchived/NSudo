@@ -17,6 +17,7 @@
 - Microsoft_Mars (日文翻译)
 - Force.Charlie-I (https://github.com/fcharlie) (代码贡献者)
 - myfreeer (https://github.com/myfreeer) (代码贡献者)
+- May_magic (建议参考)
 
 ## 赞助者 Sponsors
 - boyangpangzi
