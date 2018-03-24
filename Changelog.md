@@ -9,6 +9,7 @@
   read "https://github.com/Project-Nagisa/Nagisa/blob/master/Changelog.md")
 - Remove useless implementations.
 - Improve the implementation for NSudoStartService function.
+- Update JSON for Modern C++ to 3.1.2.
 
 **NSudo 6.0.1802.2 v2**
 - Fix always opens a command prompt window after click the run button. 
@@ -49,7 +50,7 @@
     - M2MessageDialogResource.rc
 - Remove Traditional Chinese and Japanese translation because the translation 
   is out of date and I don't know how to use.
-- Update JSON for Modern C++ to 3.0.1
+- Update JSON for Modern C++ to 3.0.1.
 - Context Menu
   - Add multilingual descriptions.
   - Add "Enable All Privileges" options for all item in the context menu.
