@@ -9,11 +9,6 @@
     <RemoteDebuggerWorkingDirectory>C:\WorkFolder</RemoteDebuggerWorkingDirectory>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <RemoteDebuggerServerName>192.168.11.129:4022</RemoteDebuggerServerName>
-    <RemoteDebuggerConnection>RemoteWithoutAuthentication</RemoteDebuggerConnection>
-    <DebuggerFlavor>WindowsRemoteDebugger</DebuggerFlavor>
-    <DeploymentDirectory>C:\WorkFolder</DeploymentDirectory>
-    <RemoteDebuggerCommand>C:\WorkFolder\NSudo.exe</RemoteDebuggerCommand>
-    <RemoteDebuggerWorkingDirectory>C:\WorkFolder</RemoteDebuggerWorkingDirectory>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
 </Project>
