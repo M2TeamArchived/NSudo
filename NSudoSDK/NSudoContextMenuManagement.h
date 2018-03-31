@@ -13,7 +13,15 @@ License: The MIT License
 #include <Windows.h>
 #include "NSudoAPI.h"
 
-#include "ThirdParty\json.hpp"
+#include <vector>
+
+typedef struct _NSUDO_CONTEXT_MENU_ITEM
+{
+	std::wstring ItemName;
+	std::wstring ItemDescription;
+	std::wstring ItemCommandParameters;
+	bool HasLUAShield;
+} NSUDO_CONTEXT_MENU_ITEM, *PNSUDO_CONTEXT_MENU_ITEM;
 
 class CNSudoContextMenuManagement
 {
@@ -21,7 +29,8 @@ private:
 	DWORD m_ConstructorError = ERROR_SUCCESS;
 	std::wstring m_NSudoPath = M2GetWindowsDirectory() + L"\\NSudo.exe";
 	M2::CHKey m_CommandStoreRoot;
-	nlohmann::json m_ContextMenuItems;
+
+	std::vector<NSUDO_CONTEXT_MENU_ITEM> m_ContextMenuItems;
 
 public:
 	CNSudoContextMenuManagement();

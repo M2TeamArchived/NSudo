@@ -2,7 +2,7 @@
 
 - [简体中文](更新日志.md)
 
-**NSudo 6.0.1802.25**
+**NSudo 6.0.1803.31**
 - Fix a bug which can cause crash on Windows Vista and Server 2008. 
   (Thanks to hydra79545.)
 - Share source code with M2-Team UWP projects. (For more information, please 
@@ -10,6 +10,7 @@
 - Remove useless implementations.
 - Improve the implementation for NSudoStartService function.
 - Update JSON for Modern C++ to 3.1.2.
+- Improve the implementation for NSudo's Context Menu Management.
 
 **NSudo 6.0.1802.2 v2**
 - Fix always opens a command prompt window after click the run button. 
