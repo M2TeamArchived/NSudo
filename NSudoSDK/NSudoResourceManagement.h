@@ -63,7 +63,7 @@ public:
 	const std::wstring GetLogoText();
 
 	std::wstring GetTranslation(
-		_In_ const char* Key);
+		_In_ std::string Key);
 	std::wstring GetMessageString(
 		_In_ NSUDO_MESSAGE MessageID);
 	std::wstring GetUTF8WithBOMStringResources(

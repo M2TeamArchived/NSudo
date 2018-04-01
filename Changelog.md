@@ -9,8 +9,8 @@
   read "https://github.com/Project-Nagisa/Nagisa/blob/master/Changelog.md")
 - Remove useless implementations.
 - Improve the implementation for NSudoStartService function.
-- Update JSON for Modern C++ to 3.1.2.
 - Improve the implementation for using JSON.
+- Use RapidJSON instead of JSON for Modern C++ to reduce the binary size.
 
 **NSudo 6.0.1802.2 v2**
 - Fix always opens a command prompt window after click the run button. 

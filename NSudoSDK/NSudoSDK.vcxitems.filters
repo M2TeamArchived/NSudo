@@ -2,9 +2,6 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClInclude Include="$(MSBuildThisFileDirectory)NSudoAPI.h" />
-    <ClInclude Include="$(MSBuildThisFileDirectory)ThirdParty\json.hpp">
-      <Filter>ThirdParty</Filter>
-    </ClInclude>
     <ClInclude Include="$(MSBuildThisFileDirectory)NSudoVersion.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)CIBuild.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)M2Object.h" />
@@ -34,6 +31,111 @@
     </ClInclude>
     <ClInclude Include="$(MSBuildThisFileDirectory)M2BaseHelpers.h">
       <Filter>M2BaseHelpers</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)ThirdParty\rapidjson\allocators.h">
+      <Filter>ThirdParty\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)ThirdParty\rapidjson\document.h">
+      <Filter>ThirdParty\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)ThirdParty\rapidjson\encodedstream.h">
+      <Filter>ThirdParty\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)ThirdParty\rapidjson\encodings.h">
+      <Filter>ThirdParty\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)ThirdParty\rapidjson\filereadstream.h">
+      <Filter>ThirdParty\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)ThirdParty\rapidjson\filewritestream.h">
+      <Filter>ThirdParty\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)ThirdParty\rapidjson\fwd.h">
+      <Filter>ThirdParty\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)ThirdParty\rapidjson\istreamwrapper.h">
+      <Filter>ThirdParty\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)ThirdParty\rapidjson\memorybuffer.h">
+      <Filter>ThirdParty\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)ThirdParty\rapidjson\memorystream.h">
+      <Filter>ThirdParty\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)ThirdParty\rapidjson\ostreamwrapper.h">
+      <Filter>ThirdParty\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)ThirdParty\rapidjson\pointer.h">
+      <Filter>ThirdParty\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)ThirdParty\rapidjson\prettywriter.h">
+      <Filter>ThirdParty\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)ThirdParty\rapidjson\rapidjson.h">
+      <Filter>ThirdParty\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)ThirdParty\rapidjson\reader.h">
+      <Filter>ThirdParty\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)ThirdParty\rapidjson\schema.h">
+      <Filter>ThirdParty\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)ThirdParty\rapidjson\stream.h">
+      <Filter>ThirdParty\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)ThirdParty\rapidjson\stringbuffer.h">
+      <Filter>ThirdParty\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)ThirdParty\rapidjson\writer.h">
+      <Filter>ThirdParty\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)ThirdParty\rapidjson\error\en.h">
+      <Filter>ThirdParty\rapidjson\error</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)ThirdParty\rapidjson\error\error.h">
+      <Filter>ThirdParty\rapidjson\error</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)ThirdParty\rapidjson\internal\biginteger.h">
+      <Filter>ThirdParty\rapidjson\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)ThirdParty\rapidjson\internal\diyfp.h">
+      <Filter>ThirdParty\rapidjson\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)ThirdParty\rapidjson\internal\dtoa.h">
+      <Filter>ThirdParty\rapidjson\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)ThirdParty\rapidjson\internal\ieee754.h">
+      <Filter>ThirdParty\rapidjson\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)ThirdParty\rapidjson\internal\itoa.h">
+      <Filter>ThirdParty\rapidjson\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)ThirdParty\rapidjson\internal\meta.h">
+      <Filter>ThirdParty\rapidjson\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)ThirdParty\rapidjson\internal\pow10.h">
+      <Filter>ThirdParty\rapidjson\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)ThirdParty\rapidjson\internal\regex.h">
+      <Filter>ThirdParty\rapidjson\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)ThirdParty\rapidjson\internal\stack.h">
+      <Filter>ThirdParty\rapidjson\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)ThirdParty\rapidjson\internal\strfunc.h">
+      <Filter>ThirdParty\rapidjson\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)ThirdParty\rapidjson\internal\strtod.h">
+      <Filter>ThirdParty\rapidjson\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)ThirdParty\rapidjson\internal\swap.h">
+      <Filter>ThirdParty\rapidjson\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)ThirdParty\rapidjson\msinttypes\inttypes.h">
+      <Filter>ThirdParty\rapidjson\msinttypes</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)ThirdParty\rapidjson\msinttypes\stdint.h">
+      <Filter>ThirdParty\rapidjson\msinttypes</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -66,6 +168,18 @@
     </Filter>
     <Filter Include="M2BaseHelpers">
       <UniqueIdentifier>{2ae3f5b8-ba55-4407-adf1-f004672b774d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\rapidjson">
+      <UniqueIdentifier>{3b3bd0b8-ffbb-4694-8df2-6a7c5a5979f2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\rapidjson\error">
+      <UniqueIdentifier>{8e2c6031-79b3-4d04-98eb-627c23a48943}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\rapidjson\internal">
+      <UniqueIdentifier>{93740864-2862-4e43-bc23-18795852727d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\rapidjson\msinttypes">
+      <UniqueIdentifier>{dff8e358-5c37-43ea-9fdb-bc76ffb67b9b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

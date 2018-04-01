@@ -89,9 +89,9 @@ For example:
 > NSudo -U:T cmd /c "dir "C:\Program Files" & pause"
 
 ## 3rd-party libraries which used
-Name                          | Developer     | License
-------------------------------|---------------|-----------------
-JSON for Modern C++           | Niels Lohmann | The MIT License
+- RapidJSON
+  - Copyright: Tencent and Milo Yip
+  - License: https://github.com/Tencent/rapidjson/blob/master/license.txt
 
 ## Changelogs
 See [Changelog.md](Changelog.md) for more details.
