@@ -21,7 +21,7 @@ License: The MIT License
 #include "M2ResourceManagement.h"
 #include "NSudoResourceManagement.h"
 
-#include "ThirdParty\json.hpp"
+#include "ThirdParty\rapidjson\document.h"
 
 CNSudoContextMenuManagement::CNSudoContextMenuManagement()
 {
@@ -34,29 +34,52 @@ CNSudoContextMenuManagement::CNSudoContextMenuManagement()
 	if (ERROR_SUCCESS != this->m_ConstructorError)
 		return;
 
-	nlohmann::json ContextMenuJSON = M2LoadJsonFromResource(
+	rapidjson::Document ContextMenuJSON;
+
+	M2_RESOURCE_INFO ResourceInfo = { 0 };
+	if (SUCCEEDED(M2LoadResource(
+		&ResourceInfo, 
 		GetModuleHandleW(nullptr),
 		L"Config",
-		MAKEINTRESOURCEW(IDR_CONFIG_CONTEXT_MENU))["ContextMenu"];
-
-	for (nlohmann::json& Item : ContextMenuJSON)
+		MAKEINTRESOURCEW(IDR_CONFIG_CONTEXT_MENU))))
 	{
-		NSUDO_CONTEXT_MENU_ITEM ContextMenuItem;
+		ContextMenuJSON.Parse(
+			reinterpret_cast<const char*>(ResourceInfo.Pointer),
+			ResourceInfo.Size);
 
-		ContextMenuItem.ItemName = 
-			M2MakeUTF16String(Item["ItemName"].get<std::string>());
+		for (auto& Item : ContextMenuJSON["ContextMenu"].GetArray())
+		{		
+			auto& ItemName = Item["ItemName"];
+			auto& ItemDescriptionID = Item["ItemDescriptionID"];
+			auto& ItemCommandParameters = Item["ItemCommandParameters"];
 
-		ContextMenuItem.ItemDescription = g_ResourceManagement.GetTranslation(
-			Item["ItemDescriptionID"].get<std::string>().c_str());
+			std::string RawItemName = std::string(
+				ItemName.GetString(), 
+				ItemName.GetStringLength());
+			std::string RawItemDescriptionID = std::string(
+				ItemDescriptionID.GetString(), 
+				ItemDescriptionID.GetStringLength());
+			std::string RawItemCommandParameters = std::string(
+				ItemCommandParameters.GetString(),
+				ItemCommandParameters.GetStringLength());
+			bool HasLUAShield = Item["HasLUAShield"].GetBool();
+			
+			NSUDO_CONTEXT_MENU_ITEM ContextMenuItem;
 
-		ContextMenuItem.ItemCommandParameters = M2MakeUTF16String(
-			Item["ItemCommandParameters"].get<std::string>());
+			ContextMenuItem.ItemName = M2MakeUTF16String(RawItemName);
 
-		ContextMenuItem.HasLUAShield = Item["HasLUAShield"].get<bool>();
+			ContextMenuItem.ItemDescription = 
+				g_ResourceManagement.GetTranslation(
+					RawItemDescriptionID);
 
-		this->m_ContextMenuItems.push_back(ContextMenuItem);
-	}
-	
+			ContextMenuItem.ItemCommandParameters = M2MakeUTF16String(
+				RawItemCommandParameters);
+
+			ContextMenuItem.HasLUAShield = HasLUAShield;
+
+			this->m_ContextMenuItems.push_back(ContextMenuItem);
+		}
+	}	
 }
 
 DWORD CNSudoContextMenuManagement::Install()

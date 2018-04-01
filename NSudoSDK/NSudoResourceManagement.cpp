@@ -10,7 +10,6 @@ License: The MIT License
 #include <Windows.h>
 #include <fstream>
 
-#include "ThirdParty\json.hpp"
 #include "M2ResourceManagement.h"
 
 #include "NSudoAPI.h"
@@ -18,6 +17,10 @@ License: The MIT License
 #include "M2BaseHelpers.h"
 
 #include "NSudoResourceManagement.h"
+
+#include "ThirdParty\rapidjson\document.h"
+#include "ThirdParty\rapidjson\istreamwrapper.h"
+#include "ThirdParty\rapidjson\encodedstream.h"
 
 CNSudoResourceManagement g_ResourceManagement;
 
@@ -31,30 +34,61 @@ CNSudoResourceManagement::CNSudoResourceManagement()
 	wcsrchr(&this->m_AppPath[0], L'\\')[0] = L'\0';
 	this->m_AppPath.resize(wcslen(this->m_AppPath.c_str()));
 
-	nlohmann::json StringTranslationsJSON = M2LoadJsonFromResource(
-		GetModuleHandleW(nullptr),
-		L"String",
-		MAKEINTRESOURCEW(IDR_String_Translations))["Translations"];
+	rapidjson::Document StringTranslationsJSON;
 
-	for (auto Item : StringTranslationsJSON.items())
-	{
-		this->m_StringTranslations.insert(std::make_pair(
-			Item.key(),
-			M2MakeUTF16String(Item.value())));
+	M2_RESOURCE_INFO ResourceInfo = { 0 };
+	if (SUCCEEDED(M2LoadResource(
+		&ResourceInfo, 
+		GetModuleHandleW(nullptr), 
+		L"String",
+		MAKEINTRESOURCEW(IDR_String_Translations))))
+	{	
+		StringTranslationsJSON.Parse(
+			reinterpret_cast<const char*>(ResourceInfo.Pointer),
+			ResourceInfo.Size);
+
+		for (auto& Item : StringTranslationsJSON["Translations"].GetObject())
+		{
+			std::string Key = std::string(
+				Item.name.GetString(), 
+				Item.name.GetStringLength());
+			std::string Value = std::string(
+				Item.value.GetString(), 
+				Item.value.GetStringLength());
+			
+			this->m_StringTranslations.insert(std::make_pair(
+				Key, M2MakeUTF16String(Value)));
+		}
 	}
 
 	try
 	{
-		std::ifstream fs;
-		fs.open(this->AppPath + L"\\NSudo.json");
-
-		nlohmann::json Config = nlohmann::json::parse(fs);
-		
-		for (auto Item : Config["ShortCutList_V2"].items())
+		std::ifstream FileStream(this->AppPath + L"\\NSudo.json");
+		if (FileStream.is_open())
 		{
-			this->m_ShortCutList.insert(std::make_pair(
-				M2MakeUTF16String(Item.key()),
-				M2MakeUTF16String(Item.value())));
+			using rapidjson::EncodedInputStream;
+			using rapidjson::IStreamWrapper;
+			using rapidjson::UTF8;
+
+			IStreamWrapper ISW(FileStream);
+			EncodedInputStream<UTF8<>, IStreamWrapper> EIS(ISW);
+
+			rapidjson::Document ConfigJSON;
+			ConfigJSON.ParseStream(EIS);
+
+			for (auto& Item : ConfigJSON["ShortCutList_V2"].GetObject())
+			{
+				std::string Key = std::string(
+					Item.name.GetString(),
+					Item.name.GetStringLength());
+				std::string Value = std::string(
+					Item.value.GetString(),
+					Item.value.GetStringLength());
+
+				this->m_ShortCutList.insert(std::make_pair(
+					M2MakeUTF16String(Key),
+					M2MakeUTF16String(Value)));
+			}
 		}
 	}
 	catch (const std::exception&)
@@ -108,7 +142,7 @@ const std::wstring CNSudoResourceManagement::GetLogoText()
 }
 
 std::wstring CNSudoResourceManagement::GetTranslation(
-	_In_ const char* Key)
+	_In_ std::string Key)
 {
 	return this->m_StringTranslations[Key];
 }
