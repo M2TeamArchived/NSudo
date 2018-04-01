@@ -326,11 +326,15 @@ INT_PTR CNSudoMainWindow::DialogProc(
 
 		try
 		{
-			for (auto it = g_ResourceManagement.ShortCutListV2.begin(); it != g_ResourceManagement.ShortCutListV2.end(); ++it)
+			for (std::pair<std::wstring, std::wstring> Item
+				: g_ResourceManagement.ShortCutList)
 			{
-				SendMessageW(this->m_hszPath, CB_INSERTSTRING, 0, (LPARAM)M2MakeUTF16String(it.key()).c_str());
+				SendMessageW(
+					this->m_hszPath,
+					CB_INSERTSTRING, 
+					0, 
+					(LPARAM)Item.first.c_str());
 			}
-
 		}
 		catch (const std::exception&)
 		{

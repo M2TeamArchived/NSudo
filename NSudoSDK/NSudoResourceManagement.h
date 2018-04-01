@@ -13,8 +13,7 @@ License: The MIT License
 #include <Windows.h>
 #include <string>
 #include <vector>
-
-#include "ThirdParty\json.hpp"
+#include <map>
 
 #include "M2Object.h"
 
@@ -39,10 +38,8 @@ private:
 	std::wstring m_ExePath;
 	std::wstring m_AppPath;
 
-	nlohmann::json m_StringTranslations;
-
-	nlohmann::json m_Config;
-	nlohmann::json m_ShortCutListV2;
+	std::map<std::string, std::wstring> m_StringTranslations;	
+	std::map<std::wstring, std::wstring> m_ShortCutList;
 
 	bool m_IsElevated = false;
 	HANDLE m_OriginalCurrentProcessToken;
@@ -55,8 +52,8 @@ public:
 	const std::wstring& ExePath = this->m_ExePath;
 	const std::wstring& AppPath = this->m_AppPath;
 
-	const nlohmann::json& Config = this->m_Config;
-	const nlohmann::json& ShortCutListV2 = this->m_ShortCutListV2;
+	const std::map<std::wstring, std::wstring>& ShortCutList = 
+		this->m_ShortCutList;
 
 	const HANDLE& OriginalCurrentProcessToken = 
 		this->m_OriginalCurrentProcessToken;

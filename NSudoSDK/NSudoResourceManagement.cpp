@@ -31,18 +31,31 @@ CNSudoResourceManagement::CNSudoResourceManagement()
 	wcsrchr(&this->m_AppPath[0], L'\\')[0] = L'\0';
 	this->m_AppPath.resize(wcslen(this->m_AppPath.c_str()));
 
-	this->m_StringTranslations = M2LoadJsonFromResource(
+	nlohmann::json StringTranslationsJSON = M2LoadJsonFromResource(
 		GetModuleHandleW(nullptr),
 		L"String",
 		MAKEINTRESOURCEW(IDR_String_Translations))["Translations"];
+
+	for (auto Item : StringTranslationsJSON.items())
+	{
+		this->m_StringTranslations.insert(std::make_pair(
+			Item.key(),
+			M2MakeUTF16String(Item.value())));
+	}
 
 	try
 	{
 		std::ifstream fs;
 		fs.open(this->AppPath + L"\\NSudo.json");
 
-		this->m_Config = nlohmann::json::parse(fs);
-		this->m_ShortCutListV2 = this->m_Config["ShortCutList_V2"];
+		nlohmann::json Config = nlohmann::json::parse(fs);
+		
+		for (auto Item : Config["ShortCutList_V2"].items())
+		{
+			this->m_ShortCutList.insert(std::make_pair(
+				M2MakeUTF16String(Item.key()),
+				M2MakeUTF16String(Item.value())));
+		}
 	}
 	catch (const std::exception&)
 	{
@@ -97,8 +110,7 @@ const std::wstring CNSudoResourceManagement::GetLogoText()
 std::wstring CNSudoResourceManagement::GetTranslation(
 	_In_ const char* Key)
 {
-	return M2MakeUTF16String(
-		this->m_StringTranslations[Key].get<std::string>());
+	return this->m_StringTranslations[Key];
 }
 
 const char* NSudoMessageTranslationID[] =
@@ -218,14 +230,12 @@ bool SuCreateProcess(
 	//生成命令行
 	std::wstring final_command_line;
 
-	nlohmann::json::const_iterator iterator =
-		g_ResourceManagement.ShortCutListV2.find(
-			M2MakeUTF8String(lpCommandLine));
+	std::map<std::wstring, std::wstring>::const_iterator iterator = 
+		g_ResourceManagement.ShortCutList.find(lpCommandLine);
 
-	if (g_ResourceManagement.ShortCutListV2.end() != iterator)
+	if (g_ResourceManagement.ShortCutList.end() != iterator)
 	{
-		final_command_line = 
-			M2MakeUTF16String(iterator->get<std::string>());
+		final_command_line = iterator->second;
 	}
 	else
 	{
