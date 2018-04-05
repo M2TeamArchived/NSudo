@@ -2,14 +2,13 @@
 
 - [简体中文](更新日志.md)
 
-**NSudo 6.0.1804.1**
+**NSudo 6.0.1804.5**
 - Fix a bug which can cause crash on Windows Vista and Server 2008. 
   (Thanks to hydra79545.)
 - Share source code with M2-Team UWP projects. (For more information, please 
   read "https://github.com/Project-Nagisa/Nagisa/blob/master/Changelog.md")
 - Remove useless implementations.
 - Improve the implementation for NSudoStartService function.
-- Improve the implementation for using JSON.
 - Use RapidJSON instead of JSON for Modern C++ to reduce the binary size.
 
 **NSudo 6.0.1802.2 v2**
@@ -58,12 +57,17 @@
 - Update the command line help and documents.
 
 **NSudo 6.0.1801.19**
-- Fix the NSudoDuplicateSessionToken function definition bug. (Thanks to mingkuang.)
-- Fix bugs that cannot enable full privileges under the graphical interface. (Thanks to abbodi1406.)
-- Fix bugs that cannot use static compile mode when using release configuration for x86 and x86-64 (AMD64) without VC-LTL.
+- Fix the NSudoDuplicateSessionToken function definition bug. 
+  (Thanks to mingkuang.)
+- Fix bugs that cannot enable full privileges under the graphical interface. 
+  (Thanks to abbodi1406.)
+- Fix bugs that cannot use static compile mode when using release configuration
+  for x86 and x86-64 (AMD64) without VC-LTL.
 
 **NSudo 5.3.1801.11**
-- Fix a potential bug when NSudo obtaining the System Token. (Thanks to mingkuang.)
-- Provide VC-LTL support for NSudo release configuration for x86 and x86-64 (AMD64). (Thanks to mingkuang.)
+- Fix a potential bug when NSudo obtaining the System Token. 
+  (Thanks to mingkuang.)
+- Provide VC-LTL support for NSudo release configuration for x86 and x86-64 
+  (AMD64). (Thanks to mingkuang.)
   - PS: Compiling NSudo with VC-LTL can reduce the NSudo's binary size.
 - Maintaining documents.
