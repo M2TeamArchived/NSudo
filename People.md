@@ -8,16 +8,17 @@
 - Mouri_Naruto (https://github.com/MouriNaruto)
 
 ## 原型作者 Prototype author
-- raymai97 (https://github.com/Raymai97) (SuperCMD作者, NSudo借鉴了SuperCMD 的实现)
+- raymai97 (https://github.com/Raymai97) (SuperCMD 作者, NSudo 借鉴了 SuperCMD 的实现)
 
 ## 贡献者 Contributors
 - 20011010wo (https://github.com/yangrq) （M2-Team FTP 服务器）
-- Bill (https://github.com/bianyifan) (新风格NSudo文档)
+- Bill (https://github.com/bianyifan) (新风格 NSudo 文档)
 - Eugene Wang J.y (https://github.com/ewjy) (繁体中文翻译)
-- Microsoft_Mars (日文翻译)
 - Force.Charlie-I (https://github.com/fcharlie) (代码贡献者)
+- May_magic (https://github.com/873578156) (建议参考)
+- Microsoft_Mars (日文翻译)
+- mingkuang (https://github.com/mingkuang-Chuyu) (NSudo 编译配置)
 - myfreeer (https://github.com/myfreeer) (代码贡献者)
-- May_magic (建议参考)
 
 ## 赞助者 Sponsors
 - boyangpangzi
@@ -37,7 +38,6 @@
 - hydra79545
 - imadlatch
 - kCaRhC卡壳
-- mingkuang (https://github.com/mingkuang-Chuyu)
 - NotePad
 - sebus
 - th1r5bvn23
@@ -45,3 +45,6 @@
 - 芈员外
 - 鸢一雨音 (https://github.com/TobiichiAmane)
 - さくら
+
+## 特别感谢 Special thanks
+- 高坂穂乃果 (因为知晓了她的事迹，使我没有放弃对 NSudo 的开发)
