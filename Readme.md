@@ -92,6 +92,9 @@ For example:
 - RapidJSON
   - Copyright: Tencent and Milo Yip
   - License: https://github.com/Tencent/rapidjson/blob/master/license.txt
+- (Optional) VC-LTL
+  - Copyright: Chuyu Team
+  - License: https://github.com/Chuyu-Team/VC-LTL/blob/master/LICENSE.txt
 
 ## Changelogs
 See [Changelog.md](Changelog.md) for more details.
@@ -100,12 +103,30 @@ See [Changelog.md](Changelog.md) for more details.
 See [People.md](People.md) for more details.
 
 ## Git Repositories
-- GitHub Repository (The main repository, contains source code of NSudo >= 4.0)
+- GitHub Repository
+  - The main repository, contains source code of NSudo >= 4.0
   - https://github.com/M2Team/NSudo
-- GitHub Repository (The history repository, contains source code of NSudo < 4.0)
+- GitHub Repository 
+  - The history repository, contains source code of NSudo < 4.0
   - https://github.com/MouriNaruto/NSudo-Legacy-Repository
-- OSChina Repository (The mirror repository, contains source code of NSudo >= 4.0) 
+- OSChina Repository 
+  - The mirror repository, contains source code of NSudo >= 4.0
   - https://git.oschina.net/Mouri_Naruto/NSudo
+
+## The way to compile NSudo Source Code
+- If you need to compile NSudo, you need to install Visual Studio 2017 first.
+- You need to change the Windows SDK version in the project properties if the 
+  version of Windows 10 SDK I used isn't installed on your PC. You also need 
+  install ARM and ARM64 components when you installing the Windows 10 Version 
+  1703 SDK or later.
+- (Optional) If you want to reduce the release mode binaries size for x86, x64
+  and ARM64 port of NSudo, you can use VC-LTL.
+  - VC-LTL GitHub Repository: https://github.com/Chuyu-Team/VC-LTL
+  - How to use VC-LTL to optimize NSudo binaries size:
+    * Clone VC-LTL repo.
+    * Double-click install.cmd in the VC-LTL repo.
+    * Compile NSudo by Visual Studio 2017.
+- I hope these infomation can help you.
 
 ## Communication
 - MDL Post: https://forums.mydigitallife.net/threads/59268/
