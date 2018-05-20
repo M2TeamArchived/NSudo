@@ -111,7 +111,7 @@ See [People.md](People.md) for more details.
   - https://github.com/MouriNaruto/NSudo-Legacy-Repository
 - OSChina Repository 
   - The mirror repository, contains source code of NSudo >= 4.0
-  - https://git.oschina.net/Mouri_Naruto/NSudo
+  - https://gitee.com/M2-Team/NSudo
 
 ## The way to compile NSudo
 - If you need to compile NSudo, you need to install Visual Studio 2017 first.
