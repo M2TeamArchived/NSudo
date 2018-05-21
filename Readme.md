@@ -123,8 +123,10 @@ See [People.md](People.md) for more details.
   and ARM64 port of NSudo, you can use VC-LTL.
   - VC-LTL GitHub Repository: https://github.com/Chuyu-Team/VC-LTL
   - How to use VC-LTL to optimize NSudo binaries size:
-    - Clone VC-LTL repo.
-    - Double-click install.cmd in the VC-LTL repo.
+    - Download VC-LTL binary pack from 
+	  https://github.com/Chuyu-Team/VC-LTL/releases/latest.
+    - Unpack the VC-LTL binary pack and double-click install.cmd in the unpack
+	  folder.
     - Compile NSudo by Visual Studio 2017.
 - I hope these infomation can help you.
 
