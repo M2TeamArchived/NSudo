@@ -7,18 +7,6 @@ License: The MIT License
 
 #include "CIBuild.h"
 
-#ifndef NSUDO_ORIGINAL_FILE_NAME
-#ifdef NSUDO_CUI_CONSOLE
-#define NSUDO_ORIGINAL_FILE_NAME "NSudoC.exe"
-#endif
-#ifdef NSUDO_CUI_WINDOWS
-#define NSUDO_ORIGINAL_FILE_NAME "NSudoG.exe"
-#endif
-#ifdef NSUDO_GUI_WINDOWS
-#define NSUDO_ORIGINAL_FILE_NAME "NSudo.exe"
-#endif
-#endif
-
 #ifndef NSUDO_VER
 #define NSUDO_VER
 

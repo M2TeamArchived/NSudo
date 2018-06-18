@@ -1,8 +1,12 @@
 version: CI Build {Build}
 image: Visual Studio 2017
 configuration:
-- Debug
-- Release
+- Debug - NSudo CUI - Subsystem Console
+- Debug - NSudo CUI - Subsystem Windows
+- Debug - NSudo GUI - Subsystem Windows
+- Release - NSudo CUI - Subsystem Console
+- Release - NSudo CUI - Subsystem Windows
+- Release - NSudo GUI - Subsystem Windows
 platform:
 - x86
 - x64
@@ -13,10 +17,10 @@ build:
   verbosity: normal
 after_build:
 - cmd: >-
-    7z a -r NSudo_CI_Build_%APPVEYOR_BUILD_NUMBER%.zip %APPVEYOR_BUILD_FOLDER%\Output\Binary\*.exe
+    7z a -r NSudo_CI_Build_%APPVEYOR_BUILD_NUMBER%.zip %APPVEYOR_BUILD_FOLDER%\Output\*.exe
 
-    7z a -r NSudo_CI_Build_%APPVEYOR_BUILD_NUMBER%.zip %APPVEYOR_BUILD_FOLDER%\Output\Binary\*.pdb
+    7z a -r NSudo_CI_Build_%APPVEYOR_BUILD_NUMBER%.zip %APPVEYOR_BUILD_FOLDER%\Output\*.pdb
 
-    7z a -r NSudo_CI_Build_%APPVEYOR_BUILD_NUMBER%.zip %APPVEYOR_BUILD_FOLDER%\Output\Binary\*.json
+    7z a -r NSudo_CI_Build_%APPVEYOR_BUILD_NUMBER%.zip %APPVEYOR_BUILD_FOLDER%\Output\*.json
 artifacts:
 - path: NSudo_CI_Build_%APPVEYOR_BUILD_NUMBER%.zip
