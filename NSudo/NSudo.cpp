@@ -16,6 +16,25 @@ void NSudoPrintMsg(
 	_In_opt_ HWND hWnd,
 	_In_ LPCWSTR lpContent)
 {
+#if defined(NSUDO_CUI_CONSOLE)
+	UNREFERENCED_PARAMETER(hInstance);
+	UNREFERENCED_PARAMETER(hWnd);
+
+	std::wstring DialogContent =
+		g_ResourceManagement.GetLogoText() +
+		lpContent +
+		g_ResourceManagement.GetUTF8WithBOMStringResources(
+			IDR_String_Links);
+
+	DWORD NumberOfCharsWritten = 0;
+	WriteConsoleW(
+		GetStdHandle(STD_OUTPUT_HANDLE),
+		DialogContent.c_str(),
+		(DWORD)DialogContent.size(),
+		&NumberOfCharsWritten,
+		nullptr);
+#endif
+#if defined(NSUDO_CUI_WINDOWS) || defined(NSUDO_GUI_WINDOWS)
 	std::wstring DialogContent =
 		g_ResourceManagement.GetLogoText() +
 		lpContent +
@@ -27,6 +46,7 @@ void NSudoPrintMsg(
 		MAKEINTRESOURCE(IDI_NSUDO),
 		L"NSudo",
 		DialogContent.c_str());
+#endif
 }
 
 HRESULT NSudoShowAboutDialog(
@@ -39,15 +59,30 @@ HRESULT NSudoShowAboutDialog(
 
 	SetLastError(ERROR_SUCCESS);
 
+#if defined(NSUDO_CUI_CONSOLE)
+	UNREFERENCED_PARAMETER(hwndParent);
+
+	DWORD NumberOfCharsWritten = 0;
+	WriteConsoleW(
+		GetStdHandle(STD_OUTPUT_HANDLE),
+		DialogContent.c_str(),
+		(DWORD)DialogContent.size(),
+		&NumberOfCharsWritten,
+		nullptr);
+#endif
+#if defined(NSUDO_CUI_WINDOWS) || defined(NSUDO_GUI_WINDOWS)
 	M2MessageDialog(
 		g_ResourceManagement.Instance,
 		hwndParent,
 		MAKEINTRESOURCE(IDI_NSUDO),
 		L"NSudo",
 		DialogContent.c_str());
+#endif
 
 	return M2GetLastError();
 }
+
+#if defined(NSUDO_GUI_WINDOWS)
 
 void NSudoBrowseDialog(
 	_In_opt_ HWND hWnd,
@@ -331,8 +366,8 @@ INT_PTR CNSudoMainWindow::DialogProc(
 			{
 				SendMessageW(
 					this->m_hszPath,
-					CB_INSERTSTRING, 
-					0, 
+					CB_INSERTSTRING,
+					0,
 					(LPARAM)Item.first.c_str());
 			}
 		}
@@ -453,45 +488,73 @@ INT_PTR CNSudoMainWindow::DialogProc(
 	return FALSE;
 }
 
+#endif
+
+#if defined(NSUDO_CUI_CONSOLE)
+int main()
+#endif
+#if defined(NSUDO_CUI_WINDOWS) || defined(NSUDO_GUI_WINDOWS)
 int WINAPI wWinMain(
 	_In_ HINSTANCE hInstance,
 	_In_opt_ HINSTANCE hPrevInstance,
 	_In_ LPWSTR lpCmdLine,
 	_In_ int nShowCmd)
+#endif
 {
+#if defined(NSUDO_CUI_WINDOWS)
+	UNREFERENCED_PARAMETER(hInstance);
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	UNREFERENCED_PARAMETER(lpCmdLine);
 	UNREFERENCED_PARAMETER(nShowCmd);
-
+#endif
+#if defined(NSUDO_GUI_WINDOWS)
+	UNREFERENCED_PARAMETER(hPrevInstance);
+	UNREFERENCED_PARAMETER(lpCmdLine);
+	UNREFERENCED_PARAMETER(nShowCmd);
+#endif
+	
 	CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
 
-	std::vector<std::wstring> command_args = 
+	std::vector<std::wstring> command_args =
 		g_ResourceManagement.GetCommandParameters();
 
 	if (command_args.size() == 1)
 	{
+#if defined(NSUDO_CUI_CONSOLE) || defined(NSUDO_CUI_WINDOWS)
+		command_args.push_back(L"-?");
+#endif
+#if defined(NSUDO_GUI_WINDOWS)
 		CNSudoMainWindow(hInstance).Show();
+		return 0;
+#endif
 	}
-	else
+
+#if defined(NSUDO_CUI_CONSOLE)
+	NSUDO_MESSAGE message = NSudoCommandLineParser(
+		g_ResourceManagement.IsElevated,
+		false,
+		command_args);
+#endif
+#if defined(NSUDO_CUI_WINDOWS) || defined(NSUDO_GUI_WINDOWS)
+	NSUDO_MESSAGE message = NSudoCommandLineParser(
+		g_ResourceManagement.IsElevated,
+		true,
+		command_args);
+#endif
+
+	if (NSUDO_MESSAGE::NEED_TO_SHOW_COMMAND_LINE_HELP == message)
 	{
-		NSUDO_MESSAGE message = NSudoCommandLineParser(
-			g_ResourceManagement.IsElevated,
-			true, 
-			command_args);
-		if (NSUDO_MESSAGE::NEED_TO_SHOW_COMMAND_LINE_HELP == message)
-		{
-			NSudoShowAboutDialog(nullptr);
-		}
-		else if (NSUDO_MESSAGE::SUCCESS != message)
-		{
-			std::wstring Buffer = g_ResourceManagement.GetMessageString(
-				message);
-			NSudoPrintMsg(
-				g_ResourceManagement.Instance,
-				nullptr,
-				Buffer.c_str());
-			return -1;
-		}
+		NSudoShowAboutDialog(nullptr);
+	}
+	else if (NSUDO_MESSAGE::SUCCESS != message)
+	{
+		std::wstring Buffer = g_ResourceManagement.GetMessageString(
+			message);
+		NSudoPrintMsg(
+			g_ResourceManagement.Instance,
+			nullptr,
+			Buffer.c_str());
+		return -1;
 	}
 
 	return 0;
