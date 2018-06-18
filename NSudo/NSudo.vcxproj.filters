@@ -50,13 +50,16 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Manifest Include="NSudo.manifest">
-      <Filter>资源文件</Filter>
-    </Manifest>
-  </ItemGroup>
-  <ItemGroup>
     <Image Include="..\NSudo.Icon\NSudo.ico">
       <Filter>资源文件</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="NSudoConsole.manifest">
+      <Filter>资源文件</Filter>
+    </Manifest>
+    <Manifest Include="NSudoWindows.manifest">
+      <Filter>资源文件</Filter>
+    </Manifest>
   </ItemGroup>
 </Project>
