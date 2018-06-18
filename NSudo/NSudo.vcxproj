@@ -368,139 +368,139 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug - NSudo CUI - Subsystem Console|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)Output\Binary\Debug\$(Platform)\</OutDir>
-    <IntDir>$(SolutionDir)Output\Temp\$(MSBuildProjectName)_Debug\$(Platform)\</IntDir>
+    <OutDir>$(SolutionDir)Output\Debug\$(Platform)\</OutDir>
+    <IntDir>$(SolutionDir)Output\Debug\$(Platform)\Temp\</IntDir>
     <TargetName>$(ProjectName)C</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug - NSudo CUI - Subsystem Windows|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)Output\Binary\Debug\$(Platform)\</OutDir>
-    <IntDir>$(SolutionDir)Output\Temp\$(MSBuildProjectName)_Debug\$(Platform)\</IntDir>
+    <OutDir>$(SolutionDir)Output\Debug\$(Platform)\</OutDir>
+    <IntDir>$(SolutionDir)Output\Debug\$(Platform)\Temp\</IntDir>
     <TargetName>$(ProjectName)G</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug - NSudo GUI - Subsystem Windows|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)Output\Binary\Debug\$(Platform)\</OutDir>
-    <IntDir>$(SolutionDir)Output\Temp\$(MSBuildProjectName)_Debug\$(Platform)\</IntDir>
+    <OutDir>$(SolutionDir)Output\Debug\$(Platform)\</OutDir>
+    <IntDir>$(SolutionDir)Output\Debug\$(Platform)\Temp\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug - NSudo CUI - Subsystem Console|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)Output\Binary\Debug\$(Platform)\</OutDir>
-    <IntDir>$(SolutionDir)Output\Temp\$(MSBuildProjectName)_Debug\$(Platform)\</IntDir>
+    <OutDir>$(SolutionDir)Output\Debug\$(Platform)\</OutDir>
+    <IntDir>$(SolutionDir)Output\Debug\$(Platform)\Temp\</IntDir>
     <TargetName>$(ProjectName)C</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug - NSudo CUI - Subsystem Windows|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)Output\Binary\Debug\$(Platform)\</OutDir>
-    <IntDir>$(SolutionDir)Output\Temp\$(MSBuildProjectName)_Debug\$(Platform)\</IntDir>
+    <OutDir>$(SolutionDir)Output\Debug\$(Platform)\</OutDir>
+    <IntDir>$(SolutionDir)Output\Debug\$(Platform)\Temp\</IntDir>
     <TargetName>$(ProjectName)G</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug - NSudo GUI - Subsystem Windows|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)Output\Binary\Debug\$(Platform)\</OutDir>
-    <IntDir>$(SolutionDir)Output\Temp\$(MSBuildProjectName)_Debug\$(Platform)\</IntDir>
+    <OutDir>$(SolutionDir)Output\Debug\$(Platform)\</OutDir>
+    <IntDir>$(SolutionDir)Output\Debug\$(Platform)\Temp\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug - NSudo CUI - Subsystem Console|ARM64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)Output\Binary\Debug\$(Platform)\</OutDir>
-    <IntDir>$(SolutionDir)Output\Temp\$(MSBuildProjectName)_Debug\$(Platform)\</IntDir>
+    <OutDir>$(SolutionDir)Output\Debug\$(Platform)\</OutDir>
+    <IntDir>$(SolutionDir)Output\Debug\$(Platform)\Temp\</IntDir>
     <TargetName>$(ProjectName)C</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug - NSudo CUI - Subsystem Windows|ARM64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)Output\Binary\Debug\$(Platform)\</OutDir>
-    <IntDir>$(SolutionDir)Output\Temp\$(MSBuildProjectName)_Debug\$(Platform)\</IntDir>
+    <OutDir>$(SolutionDir)Output\Debug\$(Platform)\</OutDir>
+    <IntDir>$(SolutionDir)Output\Debug\$(Platform)\Temp\</IntDir>
     <TargetName>$(ProjectName)G</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug - NSudo GUI - Subsystem Windows|ARM64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)Output\Binary\Debug\$(Platform)\</OutDir>
-    <IntDir>$(SolutionDir)Output\Temp\$(MSBuildProjectName)_Debug\$(Platform)\</IntDir>
+    <OutDir>$(SolutionDir)Output\Debug\$(Platform)\</OutDir>
+    <IntDir>$(SolutionDir)Output\Debug\$(Platform)\Temp\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug - NSudo CUI - Subsystem Console|ARM'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)Output\Binary\Debug\$(Platform)\</OutDir>
-    <IntDir>$(SolutionDir)Output\Temp\$(MSBuildProjectName)_Debug\$(Platform)\</IntDir>
+    <OutDir>$(SolutionDir)Output\Debug\$(Platform)\</OutDir>
+    <IntDir>$(SolutionDir)Output\Debug\$(Platform)\Temp\</IntDir>
     <TargetName>$(ProjectName)C</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug - NSudo CUI - Subsystem Windows|ARM'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)Output\Binary\Debug\$(Platform)\</OutDir>
-    <IntDir>$(SolutionDir)Output\Temp\$(MSBuildProjectName)_Debug\$(Platform)\</IntDir>
+    <OutDir>$(SolutionDir)Output\Debug\$(Platform)\</OutDir>
+    <IntDir>$(SolutionDir)Output\Debug\$(Platform)\Temp\</IntDir>
     <TargetName>$(ProjectName)G</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug - NSudo GUI - Subsystem Windows|ARM'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)Output\Binary\Debug\$(Platform)\</OutDir>
-    <IntDir>$(SolutionDir)Output\Temp\$(MSBuildProjectName)_Debug\$(Platform)\</IntDir>
+    <OutDir>$(SolutionDir)Output\Debug\$(Platform)\</OutDir>
+    <IntDir>$(SolutionDir)Output\Debug\$(Platform)\Temp\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release - NSudo CUI - Subsystem Console|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)Output\Binary\Release\$(Platform)\</OutDir>
-    <IntDir>$(SolutionDir)Output\Temp\$(MSBuildProjectName)_Release\$(Platform)\</IntDir>
+    <OutDir>$(SolutionDir)Output\Release\$(Platform)\</OutDir>
+    <IntDir>$(SolutionDir)Output\Release\$(Platform)\Temp\</IntDir>
     <TargetName>$(ProjectName)C</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release - NSudo CUI - Subsystem Windows|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)Output\Binary\Release\$(Platform)\</OutDir>
-    <IntDir>$(SolutionDir)Output\Temp\$(MSBuildProjectName)_Release\$(Platform)\</IntDir>
+    <OutDir>$(SolutionDir)Output\Release\$(Platform)\</OutDir>
+    <IntDir>$(SolutionDir)Output\Release\$(Platform)\Temp\</IntDir>
     <TargetName>$(ProjectName)G</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release - NSudo GUI - Subsystem Windows|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)Output\Binary\Release\$(Platform)\</OutDir>
-    <IntDir>$(SolutionDir)Output\Temp\$(MSBuildProjectName)_Release\$(Platform)\</IntDir>
+    <OutDir>$(SolutionDir)Output\Release\$(Platform)\</OutDir>
+    <IntDir>$(SolutionDir)Output\Release\$(Platform)\Temp\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release - NSudo CUI - Subsystem Console|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)Output\Binary\Release\$(Platform)\</OutDir>
-    <IntDir>$(SolutionDir)Output\Temp\$(MSBuildProjectName)_Release\$(Platform)\</IntDir>
+    <OutDir>$(SolutionDir)Output\Release\$(Platform)\</OutDir>
+    <IntDir>$(SolutionDir)Output\Release\$(Platform)\Temp\</IntDir>
     <TargetName>$(ProjectName)C</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release - NSudo CUI - Subsystem Windows|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)Output\Binary\Release\$(Platform)\</OutDir>
-    <IntDir>$(SolutionDir)Output\Temp\$(MSBuildProjectName)_Release\$(Platform)\</IntDir>
+    <OutDir>$(SolutionDir)Output\Release\$(Platform)\</OutDir>
+    <IntDir>$(SolutionDir)Output\Release\$(Platform)\Temp\</IntDir>
     <TargetName>$(ProjectName)G</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release - NSudo GUI - Subsystem Windows|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)Output\Binary\Release\$(Platform)\</OutDir>
-    <IntDir>$(SolutionDir)Output\Temp\$(MSBuildProjectName)_Release\$(Platform)\</IntDir>
+    <OutDir>$(SolutionDir)Output\Release\$(Platform)\</OutDir>
+    <IntDir>$(SolutionDir)Output\Release\$(Platform)\Temp\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release - NSudo CUI - Subsystem Console|ARM64'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)Output\Binary\Release\$(Platform)\</OutDir>
-    <IntDir>$(SolutionDir)Output\Temp\$(MSBuildProjectName)_Release\$(Platform)\</IntDir>
+    <OutDir>$(SolutionDir)Output\Release\$(Platform)\</OutDir>
+    <IntDir>$(SolutionDir)Output\Release\$(Platform)\Temp\</IntDir>
     <TargetName>$(ProjectName)C</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release - NSudo CUI - Subsystem Windows|ARM64'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)Output\Binary\Release\$(Platform)\</OutDir>
-    <IntDir>$(SolutionDir)Output\Temp\$(MSBuildProjectName)_Release\$(Platform)\</IntDir>
+    <OutDir>$(SolutionDir)Output\Release\$(Platform)\</OutDir>
+    <IntDir>$(SolutionDir)Output\Release\$(Platform)\Temp\</IntDir>
     <TargetName>$(ProjectName)G</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release - NSudo GUI - Subsystem Windows|ARM64'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)Output\Binary\Release\$(Platform)\</OutDir>
-    <IntDir>$(SolutionDir)Output\Temp\$(MSBuildProjectName)_Release\$(Platform)\</IntDir>
+    <OutDir>$(SolutionDir)Output\Release\$(Platform)\</OutDir>
+    <IntDir>$(SolutionDir)Output\Release\$(Platform)\Temp\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release - NSudo CUI - Subsystem Console|ARM'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)Output\Binary\Release\$(Platform)\</OutDir>
-    <IntDir>$(SolutionDir)Output\Temp\$(MSBuildProjectName)_Release\$(Platform)\</IntDir>
+    <OutDir>$(SolutionDir)Output\Release\$(Platform)\</OutDir>
+    <IntDir>$(SolutionDir)Output\Release\$(Platform)\Temp\</IntDir>
     <TargetName>$(ProjectName)C</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release - NSudo CUI - Subsystem Windows|ARM'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)Output\Binary\Release\$(Platform)\</OutDir>
-    <IntDir>$(SolutionDir)Output\Temp\$(MSBuildProjectName)_Release\$(Platform)\</IntDir>
+    <OutDir>$(SolutionDir)Output\Release\$(Platform)\</OutDir>
+    <IntDir>$(SolutionDir)Output\Release\$(Platform)\Temp\</IntDir>
     <TargetName>$(ProjectName)G</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release - NSudo GUI - Subsystem Windows|ARM'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)Output\Binary\Release\$(Platform)\</OutDir>
-    <IntDir>$(SolutionDir)Output\Temp\$(MSBuildProjectName)_Release\$(Platform)\</IntDir>
+    <OutDir>$(SolutionDir)Output\Release\$(Platform)\</OutDir>
+    <IntDir>$(SolutionDir)Output\Release\$(Platform)\Temp\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug - NSudo CUI - Subsystem Console|Win32'">
     <ClCompile>
