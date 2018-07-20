@@ -7,6 +7,8 @@ License: The MIT License
 
 #include "stdafx.h"
 
+#ifdef _M2_BASE_HELPERS_
+
 #include <Windows.h>
 
 #include "M2BaseHelpers.h"
@@ -50,7 +52,7 @@ std::wstring M2FormatString(
 			// If succeed, resize to fit and return result.
 			Buffer.resize(nWritten);
 			return Buffer;
-		}		
+		}
 	}
 
 	// If failed, return "N/A".
@@ -180,3 +182,5 @@ HRESULT M2GetProcAddress(
 	lpProcAddress = GetProcAddress(hModule, lpProcName);
 	return (nullptr != lpProcAddress) ? S_OK : M2GetLastError();
 }
+
+#endif // _M2_BASE_HELPERS_

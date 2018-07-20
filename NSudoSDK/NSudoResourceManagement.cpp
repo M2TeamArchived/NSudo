@@ -259,7 +259,8 @@ information, call GetLastError.
 */
 bool SuCreateProcess(
 	_In_opt_ HANDLE hToken,
-	_Inout_ LPCWSTR lpCommandLine)
+	_Inout_ LPCWSTR lpCommandLine,
+	_In_opt_ bool bWait)
 {
 	//生成命令行
 	std::wstring final_command_line;
@@ -279,7 +280,8 @@ bool SuCreateProcess(
 	return NSudoCreateProcess(
 		hToken,
 		final_command_line.c_str(),
-		g_ResourceManagement.AppPath.c_str());
+		g_ResourceManagement.AppPath.c_str(),
+		bWait);
 }
 
 #include "NSudoContextMenuManagement.h"
@@ -365,6 +367,9 @@ NSUDO_MESSAGE NSudoCommandLineParser(
 	bool bGetPrivileges = false;
 	bool bGetIntegrityLevel = false;
 
+	bool bGetWait = false;
+	bool bWait = false;
+
 	M2::CHandle hToken;
 	M2::CHandle hTempToken;
 
@@ -379,6 +384,11 @@ NSUDO_MESSAGE NSudoCommandLineParser(
 		}
 
 		const wchar_t* arg = args[i].c_str() + 1;
+
+
+
+
+
 
 		if (!bGetUser)
 		{
@@ -493,11 +503,20 @@ NSUDO_MESSAGE NSudoCommandLineParser(
 
 			bGetIntegrityLevel = true;
 		}
+		else if (!bGetWait)
+		{
+			if (0 == _wcsicmp(arg, L"Wait"))
+			{
+				bWait = true;
+			}
+
+			bGetWait = true;
+		}
 	}
 
 	if (bGetUser && !bArgErr)
 	{
-		if (!SuCreateProcess(hToken, args[args.size() - 1].c_str()))
+		if (!SuCreateProcess(hToken, args[args.size() - 1].c_str(), bWait))
 		{
 			return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
 		}
