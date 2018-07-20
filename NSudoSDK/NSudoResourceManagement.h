@@ -15,7 +15,7 @@ License: The MIT License
 #include <vector>
 #include <map>
 
-#include "M2Object.h"
+#include "M2BaseHelpers.h"
 
 #include "NSudoVersion.h"
 #include "NSudoResourceManagementResource.h"

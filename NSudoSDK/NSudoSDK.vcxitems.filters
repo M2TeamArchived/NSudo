@@ -4,7 +4,6 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)NSudoAPI.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)NSudoVersion.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)CIBuild.h" />
-    <ClInclude Include="$(MSBuildThisFileDirectory)M2Object.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)M2MessageDialogResource.h">
       <Filter>M2MessageDialog</Filter>
     </ClInclude>

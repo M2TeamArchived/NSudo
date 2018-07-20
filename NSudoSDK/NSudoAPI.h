@@ -15,7 +15,6 @@ License: The MIT License
 
 #pragma comment(lib,"WtsApi32.lib")
 
-#include "M2Object.h"
 #include "M2BaseHelpers.h"
 
 // 为编译通过而禁用的警告
@@ -920,6 +919,12 @@ extern "C" {
 #include <Userenv.h>
 #pragma comment(lib, "Userenv.lib")
 
+	typedef enum _PROCESS_PRIORITY_CLASS
+	{
+
+		
+	} PROCESS_PRIORITY_CLASS, *PPROCESS_PRIORITY_CLASS;
+	
 	/*
 	NSudoCreateProcess函数创建一个新进程和对应的主线程
 	The NSudoCreateProcess function creates a new process and its primary thread.
@@ -931,7 +936,8 @@ extern "C" {
 	static bool NSudoCreateProcess(
 		_In_opt_ HANDLE hToken,
 		_Inout_ LPCWSTR lpCommandLine,
-		_In_opt_ LPCWSTR lpCurrentDirectory)
+		_In_opt_ LPCWSTR lpCurrentDirectory,
+		_In_opt_ bool bWait = false)
 	{
 		STARTUPINFOW StartupInfo = { 0 };
 		PROCESS_INFORMATION ProcessInfo = { 0 };
@@ -942,7 +948,7 @@ extern "C" {
 
 		//生成命令行
 		std::wstring final_command_line = 
-			L"/c start \"" + ComSpec + L"\" " + lpCommandLine;
+			L"/c start /wait \"" + ComSpec + L"\" " + lpCommandLine;
 
 		//设置进程所在桌面
 		StartupInfo.lpDesktop = const_cast<LPWSTR>(L"WinSta0\\Default");
@@ -976,6 +982,12 @@ extern "C" {
 				//关闭句柄
 				if (result)
 				{
+					if (bWait)
+					{
+						WaitForSingleObjectEx(
+							ProcessInfo.hProcess, INFINITE, FALSE);
+					}
+									
 					CloseHandle(ProcessInfo.hProcess);
 					CloseHandle(ProcessInfo.hThread);
 				}
