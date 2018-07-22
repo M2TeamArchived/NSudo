@@ -188,14 +188,6 @@ static std::wstring M2GetWindowsDirectory()
 	return result;
 }
 
-static std::wstring M2GetCurrentModulePath()
-{
-	std::wstring result(MAX_PATH, L'\0');
-	GetModuleFileNameW(nullptr, &result[0], (DWORD)(result.capacity()));
-	result.resize(wcslen(result.c_str()));
-	return result;
-}
-
 #ifdef __cplusplus
 extern "C" {
 #endif

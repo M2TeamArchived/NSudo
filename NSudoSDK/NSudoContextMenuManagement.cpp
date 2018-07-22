@@ -87,7 +87,7 @@ DWORD CNSudoContextMenuManagement::Install()
 	if (ERROR_SUCCESS != this->m_ConstructorError)
 		return this->m_ConstructorError;
 
-	CopyFileW(M2GetCurrentModulePath().c_str(), this->m_NSudoPath.c_str(), FALSE);
+	CopyFileW(M2GetCurrentProcessModulePath().c_str(), this->m_NSudoPath.c_str(), FALSE);
 
 	DWORD dwError = ERROR_SUCCESS;
 	

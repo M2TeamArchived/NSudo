@@ -16,6 +16,7 @@ License: The MIT License
 #include <process.h>
 
 #include <string>
+#include <vector>
 
 // If the type T is a reference type, provides the member typedef type which is
 // the type referred to by T. Otherwise type is T.
@@ -445,5 +446,27 @@ inline HRESULT M2GetProcAddress(
 	return M2GetProcAddress(
 		reinterpret_cast<FARPROC&>(lpProcAddress), hModule, lpProcName);
 }
+
+// Retrieves the path of the executable file of the current process.
+// Parameters:
+//   The function does not have parameters.
+// Return value:
+//   If the function succeeds, the return value is the path of the executable 
+//   file of the current process. If the function fails, the return value is an
+//   empty string.
+std::wstring M2GetCurrentProcessModulePath();
+
+// Parses a command line string and returns an array of the command line 
+// arguments, along with a count of such arguments, in a way that is similar
+// to the standard C run-time.
+// Parameters:
+//   CommandLine: A string that contains the full command line. If this 
+//   parameter is an empty string the function returns an array with only 
+//   one empty string.
+// Return value:
+//   The return value is an array of the command line arguments, along with a 
+//   count of such arguments.
+std::vector<std::wstring> M2SpiltCommandLine(
+	const std::wstring& CommandLine);
 
 #endif // _M2_BASE_HELPERS_

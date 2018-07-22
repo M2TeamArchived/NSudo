@@ -28,7 +28,7 @@ CNSudoResourceManagement::CNSudoResourceManagement()
 {
 	this->m_Instance = GetModuleHandleW(nullptr);
 
-	this->m_ExePath = M2GetCurrentModulePath();
+	this->m_ExePath = M2GetCurrentProcessModulePath();
 
 	this->m_AppPath = this->m_ExePath;
 	wcsrchr(&this->m_AppPath[0], L'\\')[0] = L'\0';
@@ -385,11 +385,6 @@ NSUDO_MESSAGE NSudoCommandLineParser(
 
 		const wchar_t* arg = args[i].c_str() + 1;
 
-
-
-
-
-
 		if (!bGetUser)
 		{
 			if (0 == _wcsicmp(arg, L"U:T"))
@@ -459,7 +454,8 @@ NSUDO_MESSAGE NSudoCommandLineParser(
 
 			bGetUser = true;
 		}
-		else if (!bGetPrivileges)
+		
+		if (!bGetPrivileges)
 		{
 			if (0 == _wcsicmp(arg, L"P:E"))
 			{
@@ -477,7 +473,8 @@ NSUDO_MESSAGE NSudoCommandLineParser(
 
 			bGetPrivileges = true;
 		}
-		else if (!bGetIntegrityLevel)
+		
+		if (!bGetIntegrityLevel)
 		{
 			if (0 == _wcsicmp(arg, L"M:S"))
 			{
@@ -503,7 +500,8 @@ NSUDO_MESSAGE NSudoCommandLineParser(
 
 			bGetIntegrityLevel = true;
 		}
-		else if (!bGetWait)
+		
+		if (!bGetWait)
 		{
 			if (0 == _wcsicmp(arg, L"Wait"))
 			{
