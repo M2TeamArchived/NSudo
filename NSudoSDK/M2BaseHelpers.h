@@ -78,13 +78,11 @@ namespace M2
 			return this->m_Object;
 		}
 
-		// Check the object is vaild or not.
 		bool IsInvalid()
 		{
 			return (this->m_Object == TObjectDefiner::GetInvalidValue());
 		}
 
-		// Detach the object.
 		TObject Detach()
 		{
 			TObject Object = this->m_Object;
@@ -92,7 +90,6 @@ namespace M2
 			return Object;
 		}
 
-		// Close the object.
 		void Close()
 		{
 			if (!this->IsInvalid())
@@ -198,7 +195,6 @@ namespace M2
 	class CThread
 	{
 	private:
-		// Internal implemention for creating the thread.
 		HANDLE CreateThreadInternal(
 			_In_opt_ LPSECURITY_ATTRIBUTES lpThreadAttributes,
 			_In_ SIZE_T dwStackSize,
@@ -223,16 +219,11 @@ namespace M2
 				reinterpret_cast<unsigned*>(lpThreadId)));
 		}
 
-		// The thread object.
 		CHandle m_Thread;
 
 	public:
-		CThread()
-		{
+		CThread() = default;
 
-		}
-
-		// Create the thread.
 		template<class TFunction>
 		CThread(
 			_In_ TFunction&& workerFunction,
@@ -257,25 +248,21 @@ namespace M2
 				nullptr);
 		}
 
-		// Detach the thread object.
 		HANDLE Detach()
 		{
 			return this->m_Thread.Detach();
 		}
 
-		// Resume the thread.
 		DWORD Resume()
 		{
 			return ResumeThread(this->m_Thread);
 		}
 
-		// Suspend the thread.
 		DWORD Suspend()
 		{
 			return SuspendThread(this->m_Thread);
 		}
 
-		// Wait the thread.
 		DWORD Wait(
 			_In_ DWORD dwMilliseconds = INFINITE,
 			_In_ BOOL bAlertable = FALSE)
@@ -332,6 +319,35 @@ namespace M2
 		_Releases_lock_(m_pCriticalSection) ~AutoCriticalSectionLock()
 		{
 			m_pCriticalSection->Unlock();
+		}
+	};
+
+	// A template for implementing an object which the type is a singleton. I
+	// do not need to free the memory of the object because the OS releases all
+	// the unshared memory associated with the process after the process is 
+	// terminated.
+	template<class ClassType>
+	class CSingleton : CDisableObjectCopying
+	{
+	private:
+		static CCriticalSection m_SingletonCS;
+		static ClassType* volatile m_Instance = nullptr;
+
+	protected:
+		CSingleton() = default;
+		~CSingleton() = default;
+
+	public:	
+		static ClassType& Get()
+		{
+			M2::AutoCriticalSectionLock Lock(this->m_SingletonCS);
+
+			if (nullptr == this->m_Instance)
+			{
+				this->m_Instance = new ClassType();
+			}
+
+			return *this->m_Instance;
 		}
 	};
 
