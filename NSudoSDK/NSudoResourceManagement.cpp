@@ -188,24 +188,23 @@ std::vector<std::wstring> NSudoSplitCommandLine(LPCWSTR lpCommandLine)
 {
 	std::vector<std::wstring> result;
 
-	int argc = 0;
-	wchar_t **argv = CommandLineToArgvW(lpCommandLine, &argc);
+	std::vector<std::wstring> SplitArguments = M2SpiltCommandLine(
+		lpCommandLine);
 
 	size_t arg_size = 0;
 
-	for (int i = 0; i < argc; ++i)
+	//for (int i = 0; i < argc; ++i)
+	for (auto& SplitArgument : SplitArguments)
 	{
 		// 如果是程序路径或者为命令参数
-		if (i == 0 || (argv[i][0] == L'-' || argv[i][0] == L'/'))
+		if (result.empty() || (SplitArgument[0] == L'-' || SplitArgument[0] == L'/'))
 		{
-			std::wstring arg(argv[i]);
-
 			// 累加长度 (包括空格)
 			// 为最后成功保存用户要执行的命令或快捷命令名打基础
-			arg_size += arg.size() + 1;
+			arg_size += SplitArgument.size() + 1;
 
 			// 保存入解析器
-			result.push_back(arg);
+			result.push_back(SplitArgument);
 		}
 		else
 		{
@@ -403,6 +402,7 @@ NSUDO_MESSAGE NSudoCommandLineParser(
 						(PVOID)&dwSessionID,
 						sizeof(DWORD));
 				}
+				bGetUser = true;
 			}
 			else if (0 == _wcsicmp(arg, L"U:S"))
 			{
@@ -412,6 +412,7 @@ NSUDO_MESSAGE NSudoCommandLineParser(
 					SecurityIdentification,
 					TokenPrimary,
 					&hToken);
+				bGetUser = true;
 			}
 			else if (0 == _wcsicmp(arg, L"U:C"))
 			{
@@ -422,6 +423,7 @@ NSUDO_MESSAGE NSudoCommandLineParser(
 					SecurityIdentification,
 					TokenPrimary,
 					&hToken);
+				bGetUser = true;
 			}
 			else if (0 == _wcsicmp(arg, L"U:P"))
 			{
@@ -432,6 +434,7 @@ NSUDO_MESSAGE NSudoCommandLineParser(
 					SecurityIdentification,
 					TokenPrimary,
 					&hToken);
+				bGetUser = true;
 			}
 			else if (0 == _wcsicmp(arg, L"U:D"))
 			{
@@ -445,14 +448,8 @@ NSUDO_MESSAGE NSudoCommandLineParser(
 				{
 					NSudoCreateLUAToken(&hToken, hTempToken);
 				}
+				bGetUser = true;
 			}
-			else
-			{
-				bArgErr = true;
-				break;
-			}
-
-			bGetUser = true;
 		}
 		
 		if (!bGetPrivileges)
@@ -460,18 +457,13 @@ NSUDO_MESSAGE NSudoCommandLineParser(
 			if (0 == _wcsicmp(arg, L"P:E"))
 			{
 				NSudoSetTokenAllPrivileges(hToken, true);
+				bGetPrivileges = true;
 			}
 			else if (0 == _wcsicmp(arg, L"P:D"))
 			{
 				NSudoSetTokenAllPrivileges(hToken, false);
+				bGetPrivileges = true;
 			}
-			else
-			{
-				bArgErr = true;
-				break;
-			}
-
-			bGetPrivileges = true;
 		}
 		
 		if (!bGetIntegrityLevel)
@@ -479,26 +471,23 @@ NSUDO_MESSAGE NSudoCommandLineParser(
 			if (0 == _wcsicmp(arg, L"M:S"))
 			{
 				NSudoSetTokenIntegrityLevel(hToken, SystemLevel);
+				bGetIntegrityLevel = true;
 			}
 			else if (0 == _wcsicmp(arg, L"M:H"))
 			{
 				NSudoSetTokenIntegrityLevel(hToken, HighLevel);
+				bGetIntegrityLevel = true;
 			}
 			else if (0 == _wcsicmp(arg, L"M:M"))
 			{
 				NSudoSetTokenIntegrityLevel(hToken, MediumLevel);
+				bGetIntegrityLevel = true;
 			}
 			else if (0 == _wcsicmp(arg, L"M:L"))
 			{
 				NSudoSetTokenIntegrityLevel(hToken, LowLevel);
-			}
-			else
-			{
-				bArgErr = true;
-				break;
-			}
-
-			bGetIntegrityLevel = true;
+				bGetIntegrityLevel = true;
+			}		
 		}
 		
 		if (!bGetWait)
@@ -506,9 +495,8 @@ NSUDO_MESSAGE NSudoCommandLineParser(
 			if (0 == _wcsicmp(arg, L"Wait"))
 			{
 				bWait = true;
-			}
-
-			bGetWait = true;
+				bGetWait = true;
+			}	
 		}
 	}
 
