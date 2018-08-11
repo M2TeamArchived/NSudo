@@ -10,7 +10,7 @@ License: The MIT License
 #include <Windows.h>
 #include <fstream>
 
-#include "M2ResourceManagement.h"
+#include "M2Win32Helpers.h"
 
 #include "NSudoAPI.h"
 
@@ -193,7 +193,6 @@ std::vector<std::wstring> NSudoSplitCommandLine(LPCWSTR lpCommandLine)
 
 	size_t arg_size = 0;
 
-	//for (int i = 0; i < argc; ++i)
 	for (auto& SplitArgument : SplitArguments)
 	{
 		// 如果是程序路径或者为命令参数
@@ -218,21 +217,8 @@ std::vector<std::wstring> NSudoSplitCommandLine(LPCWSTR lpCommandLine)
 			// 最后对结果增1是因为该返回值是空格开始出，而最开始的空格需要排除
 			wchar_t* command = wcsstr(search_start, L" ") + 1;
 
-			std::wstring final_command;
-
-			// 如果最外层有引号则去除，否则直接生成
-			if (command[0] == L'\"' || command[0] == L'\'')
-			{
-				final_command = std::wstring(command + 1);
-				final_command.resize(final_command.size() - 1);
-			}
-			else
-			{
-				final_command = std::wstring(command);
-			}
-
 			// 保存入解析器
-			result.push_back(final_command);
+			result.push_back(std::wstring(command));
 
 			break;
 		}
@@ -284,6 +270,7 @@ bool SuCreateProcess(
 }
 
 #include "NSudoContextMenuManagement.h"
+
 
 // 解析命令行
 NSUDO_MESSAGE NSudoCommandLineParser(
