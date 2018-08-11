@@ -15,6 +15,7 @@ License: The MIT License
 #include <assert.h>
 #include <process.h>
 
+#include <map>
 #include <string>
 #include <vector>
 
@@ -484,5 +485,26 @@ std::wstring M2GetCurrentProcessModulePath();
 //   count of such arguments.
 std::vector<std::wstring> M2SpiltCommandLine(
 	const std::wstring& CommandLine);
+
+// Parses a command line string and get more friendly result.
+// Parameters:
+//   CommandLine: A string that contains the full command line. If this 
+//   parameter is an empty string the function returns an array with only 
+//   one empty string.
+//   OptionPrefixes: One or more of the prefixes of option we want to use.
+//   OptionParameterSeparators: One or more of the separators of option we want
+//   to use.
+//   ApplicationName: The application name.
+//   OptionsAndParameters: The options and parameters.
+//   UnresolvedCommandLine: The unresolved command line.
+// Return value:
+//   The function does not return a value.
+void M2SpiltCommandLineEx(
+	const std::wstring& CommandLine,
+	const std::vector<std::wstring>& OptionPrefixes,
+	const std::vector<std::wstring>& OptionParameterSeparators,
+	std::wstring& ApplicationName,
+	std::map<std::wstring, std::wstring>& OptionsAndParameters,
+	std::wstring& UnresolvedCommandLine);
 
 #endif // _M2_BASE_HELPERS_

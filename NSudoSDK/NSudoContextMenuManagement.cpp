@@ -18,7 +18,7 @@ License: The MIT License
 #include "NSudoContextMenuManagement.h"
 #include "NSudoContextMenuManagementResource.h"
 
-#include "M2ResourceManagement.h"
+#include "M2Win32Helpers.h"
 #include "NSudoResourceManagement.h"
 
 #include "ThirdParty\rapidjson\document.h"

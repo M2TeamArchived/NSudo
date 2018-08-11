@@ -218,7 +218,8 @@ std::vector<std::wstring> M2SpiltCommandLine(
 	int copy_character;                   /* 1 = copy char to *args */
 	unsigned numslash;              /* num of backslashes seen */
 
-	std::wstring Buffer = L"";
+	std::wstring Buffer;
+	Buffer.reserve(CommandLine.size());
 
 	/* first scan the program name, copy it, and count the bytes */
 	wchar_t* p = const_cast<wchar_t*>(CommandLine.c_str());
@@ -274,7 +275,7 @@ std::vector<std::wstring> M2SpiltCommandLine(
 			break;
 
 		// Initialize the argument buffer.
-		Buffer = L"";
+		Buffer.clear();
 
 		// Loop through scanning one argument:
 		for (;;)
@@ -339,6 +340,115 @@ std::vector<std::wstring> M2SpiltCommandLine(
 	}
 
 	return SplitArguments;
+}
+
+// Parses a command line string and get more friendly result.
+// Parameters:
+//   CommandLine: A string that contains the full command line. If this 
+//   parameter is an empty string the function returns an array with only 
+//   one empty string.
+//   OptionPrefixes: One or more of the prefixes of option we want to use.
+//   OptionParameterSeparators: One or more of the separators of option we want
+//   to use.
+//   ApplicationName: The application name.
+//   OptionsAndParameters: The options and parameters.
+//   UnresolvedCommandLine: The unresolved command line.
+// Return value:
+//   The function does not return a value.
+void M2SpiltCommandLineEx(
+	const std::wstring& CommandLine,
+	const std::vector<std::wstring>& OptionPrefixes,
+	const std::vector<std::wstring>& OptionParameterSeparators,
+	std::wstring& ApplicationName,
+	std::map<std::wstring, std::wstring>& OptionsAndParameters,
+	std::wstring& UnresolvedCommandLine)
+{
+	ApplicationName.clear();
+	OptionsAndParameters.clear();
+	UnresolvedCommandLine.clear();
+
+	size_t arg_size = 0;
+	for (auto& SplitArgument : M2SpiltCommandLine(CommandLine))
+	{
+		// We need to process the application name at the beginning.
+		if (ApplicationName.empty())
+		{
+			// For getting the unresolved command line, we need to cumulate
+			// length which including spaces.
+			arg_size += SplitArgument.size() + 1;
+
+			// Save
+			ApplicationName = SplitArgument;
+		}
+		else
+		{
+			bool IsOption = false;
+			size_t OptionPrefixLength = 0;
+
+			for (auto& OptionPrefix : OptionPrefixes)
+			{
+				if (0 == _wcsnicmp(
+					SplitArgument.c_str(),
+					OptionPrefix.c_str(),
+					OptionPrefix.size()))
+				{
+					IsOption = true;
+					OptionPrefixLength = OptionPrefix.size();
+				}
+			}
+
+			if (IsOption)
+			{
+				// For getting the unresolved command line, we need to cumulate
+				// length which including spaces.
+				arg_size += SplitArgument.size() + 1;
+
+				// Get the option name and parameter.
+
+				wchar_t* OptionStart = &SplitArgument[0] + OptionPrefixLength;
+				wchar_t* ParameterStart = nullptr;
+
+				for (auto& OptionParameterSeparator
+					: OptionParameterSeparators)
+				{
+					wchar_t* Result = wcsstr(
+						OptionStart,
+						OptionParameterSeparator.c_str());
+					if (nullptr == Result)
+					{
+						continue;
+					}
+
+					Result[0] = L'\0';
+					ParameterStart = Result + OptionParameterSeparator.size();
+
+					break;
+				}
+
+				// Save
+				OptionsAndParameters[(OptionStart ? OptionStart : L"")] =
+					(ParameterStart ? ParameterStart : L"");
+			}
+			else
+			{
+				// Get the approximate location of the unresolved command line.
+				// We use "(arg_size - 1)" to ensure that the program path 
+				// without quotes can also correctly parse.
+				wchar_t* search_start =
+					const_cast<wchar_t*>(CommandLine.c_str()) + (arg_size - 1);
+
+				// Get the unresolved command line. Search for the beginning of
+				// the first parameter delimiter called space and exclude the 
+				// first space by adding 1 to the result.
+				wchar_t* command = wcsstr(search_start, L" ") + 1;
+
+				// Save
+				UnresolvedCommandLine = command;
+
+				break;
+			}
+		}
+	}
 }
 
 #endif // _M2_BASE_HELPERS_
