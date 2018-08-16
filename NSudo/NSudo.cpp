@@ -528,8 +528,8 @@ int NSudoMain()
 #endif
 #if defined(NSUDO_GUI_WINDOWS)
 		CNSudoMainWindow(GetModuleHandleW(nullptr)).Show();
-		return 0;
 #endif
+		return 0;
 	}
 
 #if defined(NSUDO_CUI_CONSOLE)
