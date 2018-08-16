@@ -524,7 +524,7 @@ int NSudoMain()
 	if (OptionsAndParameters.empty() && UnresolvedCommandLine.empty())
 	{
 #if defined(NSUDO_CUI_CONSOLE) || defined(NSUDO_CUI_WINDOWS)
-		command_args.push_back(L"-?");
+		NSudoShowAboutDialog(nullptr);
 #endif
 #if defined(NSUDO_GUI_WINDOWS)
 		CNSudoMainWindow(GetModuleHandleW(nullptr)).Show();

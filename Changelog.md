@@ -9,7 +9,9 @@
   ARM64 and drop the earlier version of VC-LTL support. (Huge thanks to 
   mingkuang.)
 - Refactoring the command line parser.
-- Add "Wait" option in the command line usage.
+- Add "Wait" option in the command line usage. (Suggested by testtest322, wzzw
+  and Domagoj Smolčić)
+- Add "Help" and "Version" option in the command line usage. 
 
 **NSudo 6.0.1804.5**
 - Fix a bug which can cause crash on Windows Vista and Server 2008. 

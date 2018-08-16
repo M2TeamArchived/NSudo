@@ -25,9 +25,14 @@ PS:
     If you want to use the default Integrity Level, please do not include the 
     "-M" parameter.
 
--Wait
+-Wait:[ Infinite | Wait interval (Milliseconds) ] Make NSudo wait for the 
+created process to quit after a period of time
+PS: If "Infinite" is specified, NSudo will wait for the created process to end 
+before exiting.
 
+-Version Show this content
 -? Show this content
+-Help Show this content
 
 Context Menu:
   -Install   Copy NSudo to the Windows directory and add the context menu.
