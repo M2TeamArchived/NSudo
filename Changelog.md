@@ -2,13 +2,14 @@
 
 - [简体中文](更新日志.md)
 
-**NSudo 6.1.1808.13**
+**NSudo 6.1.1808.16**
 - Merge NSudoC and NSudoG projects to NSudo project.
 - Update copyright of license.
 - Add VC-LTL 4.0 or later support for NSudo release configuration for ARM and 
   ARM64 and drop the earlier version of VC-LTL support. (Huge thanks to 
   mingkuang.)
-
+- Refactoring the command line parser.
+- Add "Wait" option in the command line usage.
 
 **NSudo 6.0.1804.5**
 - Fix a bug which can cause crash on Windows Vista and Server 2008. 

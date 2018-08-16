@@ -929,7 +929,7 @@ extern "C" {
 		_In_opt_ HANDLE hToken,
 		_Inout_ LPCWSTR lpCommandLine,
 		_In_opt_ LPCWSTR lpCurrentDirectory,
-		_In_opt_ bool bWait = false)
+		_In_ DWORD WaitInterval)
 	{
 		STARTUPINFOW StartupInfo = { 0 };
 		PROCESS_INFORMATION ProcessInfo = { 0 };
@@ -974,11 +974,8 @@ extern "C" {
 				//关闭句柄
 				if (result)
 				{
-					if (bWait)
-					{
-						WaitForSingleObjectEx(
-							ProcessInfo.hProcess, INFINITE, FALSE);
-					}
+					WaitForSingleObjectEx(
+						ProcessInfo.hProcess, WaitInterval, FALSE);
 									
 					CloseHandle(ProcessInfo.hProcess);
 					CloseHandle(ProcessInfo.hThread);

@@ -25,7 +25,9 @@
 
 ## Command Line Options
 ```
-Format: NSudo [ -U ] [ -P ] [ -M ] Command line or ShortCut Command
+Format: NSudo [ Options and parameters ] Command line or ShortCut Command
+
+Options:
 
 -U:[ T | S | C | P | D ] User
     T TrustedInstaller
@@ -50,6 +52,8 @@ PS:
     If you want to use the default Integrity Level, please do not include the 
     "-M" parameter.
 
+-Wait
+
 -? Show this content
 
 Context Menu:
@@ -58,8 +62,9 @@ Context Menu:
 
 PS:
     1. All NSudo command arguments is case-insensitive.
-    2. You can use the "/" override "-" in the command line parameters. For 
-       example, "/U:T" and "-U:T" are equivalent.
+    2. You can use the "/" or "--" override "-" and use the "=" override ":" in
+       the command line parameters.  For example, "/U:T" and "-U=T" are 
+       equivalent.
     3. To ensure the best experience, NSudoC does not support context menu.
 
 Example:

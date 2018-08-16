@@ -227,9 +227,7 @@ void SuGUIRun(
 	}
 	else
 	{
-		std::vector<std::wstring> result;
-
-		result.push_back(L"NSudo");
+		std::wstring CommandLine = L"NSudo";
 
 		std::wstring Buffer_TI =
 			g_ResourceManagement.GetTranslation("TI");
@@ -243,30 +241,48 @@ void SuGUIRun(
 		// 获取用户令牌
 		if (_wcsicmp(Buffer_TI.c_str(), szUser) == 0)
 		{
-			result.push_back(L"-U:T");
+			CommandLine += L" -U:T";
 		}
 		else if (_wcsicmp(Buffer_System.c_str(), szUser) == 0)
 		{
-			result.push_back(L"-U:S");
+			CommandLine += L" -U:S";
 		}
 		else if (_wcsicmp(Buffer_CurrentProcess.c_str(), szUser) == 0)
 		{
-			result.push_back(L"-U:P");
+			CommandLine += L" -U:P";
 		}
 		else if (_wcsicmp(Buffer_CurrentUser.c_str(), szUser) == 0)
 		{
-			result.push_back(L"-U:C");
+			CommandLine += L" -U:C";
 		}
 
 		// 如果勾选启用全部特权，则尝试对令牌启用全部特权
 		if (bEnableAllPrivileges)
 		{
-			result.push_back(L"-P:E");
+			CommandLine += L" -P:E";
 		}
 
-		result.push_back(szCMDLine);
+		CommandLine += L" ";
+		CommandLine += szCMDLine;
 
-		NSUDO_MESSAGE message = NSudoCommandLineParser(true, true, result);
+		std::wstring ApplicationName;
+		std::map<std::wstring, std::wstring> OptionsAndParameters;
+		std::wstring UnresolvedCommandLine;
+
+		M2SpiltCommandLineEx(
+			CommandLine,
+			std::vector<std::wstring>{ L"-", L"/", L"--" },
+			std::vector<std::wstring>{ L":", L"=" },
+			ApplicationName,
+			OptionsAndParameters,
+			UnresolvedCommandLine);
+
+		NSUDO_MESSAGE message = NSudoCommandLineParser(
+			true, 
+			true, 
+			ApplicationName,
+			OptionsAndParameters,
+			UnresolvedCommandLine);
 		if (NSUDO_MESSAGE::SUCCESS != message)
 		{
 			std::wstring Buffer = g_ResourceManagement.GetMessageString(
@@ -489,13 +505,11 @@ INT_PTR CNSudoMainWindow::DialogProc(
 
 #endif
 
-#include "NSudoContextMenuManagement.h"
-
 int NSudoMain()
 {
 	CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
 
-	/*std::wstring ApplicationName;
+	std::wstring ApplicationName;
 	std::map<std::wstring, std::wstring> OptionsAndParameters;
 	std::wstring UnresolvedCommandLine;
 
@@ -510,275 +524,6 @@ int NSudoMain()
 	if (OptionsAndParameters.empty() && UnresolvedCommandLine.empty())
 	{
 #if defined(NSUDO_CUI_CONSOLE) || defined(NSUDO_CUI_WINDOWS)
-		NSudoShowAboutDialog(nullptr);
-#endif
-#if defined(NSUDO_GUI_WINDOWS)
-		CNSudoMainWindow(GetModuleHandleW(nullptr)).Show();
-#endif
-
-		return 0;
-	}
-
-	for (auto& OptionAndParameter : OptionsAndParameters)
-	{
-		if (0 == _wcsicmp(OptionAndParameter.first.c_str(), L"?") || 
-			0 == _wcsicmp(OptionAndParameter.first.c_str(), L"Help") ||
-			0 == _wcsicmp(OptionAndParameter.first.c_str(), L"Version"))
-		{
-			NSudoShowAboutDialog(nullptr);
-			return 0;
-		}
-		
-#if defined(NSUDO_GUI_WINDOWS) || defined(NSUDO_CUI_WINDOWS)
-		CNSudoContextMenuManagement ContextMenuManagement;
-
-		if (0 == _wcsicmp(OptionAndParameter.first.c_str(), L"Install"))
-		{
-			// 如果参数是 /Install 或 -Install，则安装NSudo到系统
-			if (ERROR_SUCCESS != ContextMenuManagement.Install())
-			{
-				ContextMenuManagement.Uninstall();
-			}
-
-			return 0;
-		}
-		else if (0 == _wcsicmp(OptionAndParameter.first.c_str(), L"Uninstall"))
-		{
-			// 如果参数是 /Uninstall 或 -Uninstall，则移除安装到系统的NSudo
-			ContextMenuManagement.Uninstall();
-
-			return 0;
-		}
-#endif
-		
-		
-		
-	}
-
-
-
-
-
-	DWORD dwSessionID = (DWORD)-1;
-
-	// 获取当前进程会话ID
-	if (!NSudoGetCurrentProcessSessionID(&dwSessionID))
-	{
-		return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
-	}
-
-	// 如果未提权或者模拟System权限失败
-	if (!(bElevated && NSudoImpersonateAsSystem()))
-	{
-		return NSUDO_MESSAGE::PRIVILEGE_NOT_HELD;
-	}
-
-	bool bArgErr = false;
-
-	bool bGetUser = false;
-	bool bGetPrivileges = false;
-	bool bGetIntegrityLevel = false;
-
-	bool bGetWait = false;
-	bool bWait = false;
-
-	M2::CHandle hToken;
-	M2::CHandle hTempToken;
-
-	// 解析参数，忽略第一项（必定是程序路径）和最后一项（因为必定是命令行）
-	for (size_t i = 1; i < args.size() - 1; ++i)
-	{
-		// 如果参数不满足条件，则返回错误
-		if (!(args[i][0] == L'-' || args[i][0] == L'/'))
-		{
-			bArgErr = true;
-			break;
-		}
-
-		const wchar_t* arg = args[i].c_str() + 1;
-
-		if (!bGetUser)
-		{
-			if (0 == _wcsicmp(arg, L"U:T"))
-			{
-				if (NSudoDuplicateServiceToken(
-					L"TrustedInstaller",
-					MAXIMUM_ALLOWED,
-					nullptr,
-					SecurityIdentification,
-					TokenPrimary,
-					&hToken))
-				{
-					SetTokenInformation(
-						hToken,
-						TokenSessionId,
-						(PVOID)&dwSessionID,
-						sizeof(DWORD));
-				}
-				bGetUser = true;
-			}
-			else if (0 == _wcsicmp(arg, L"U:S"))
-			{
-				NSudoDuplicateSystemToken(
-					MAXIMUM_ALLOWED,
-					nullptr,
-					SecurityIdentification,
-					TokenPrimary,
-					&hToken);
-				bGetUser = true;
-			}
-			else if (0 == _wcsicmp(arg, L"U:C"))
-			{
-				NSudoDuplicateSessionToken(
-					dwSessionID,
-					MAXIMUM_ALLOWED,
-					nullptr,
-					SecurityIdentification,
-					TokenPrimary,
-					&hToken);
-				bGetUser = true;
-			}
-			else if (0 == _wcsicmp(arg, L"U:P"))
-			{
-				DuplicateTokenEx(
-					g_ResourceManagement.OriginalCurrentProcessToken,
-					MAXIMUM_ALLOWED,
-					nullptr,
-					SecurityIdentification,
-					TokenPrimary,
-					&hToken);
-				bGetUser = true;
-			}
-			else if (0 == _wcsicmp(arg, L"U:D"))
-			{
-				if (DuplicateTokenEx(
-					g_ResourceManagement.OriginalCurrentProcessToken,
-					MAXIMUM_ALLOWED,
-					nullptr,
-					SecurityIdentification,
-					TokenPrimary,
-					&hTempToken))
-				{
-					NSudoCreateLUAToken(&hToken, hTempToken);
-				}
-				bGetUser = true;
-			}
-		}
-
-		if (!bGetPrivileges)
-		{
-			if (0 == _wcsicmp(arg, L"P:E"))
-			{
-				NSudoSetTokenAllPrivileges(hToken, true);
-				bGetPrivileges = true;
-			}
-			else if (0 == _wcsicmp(arg, L"P:D"))
-			{
-				NSudoSetTokenAllPrivileges(hToken, false);
-				bGetPrivileges = true;
-			}
-		}
-
-		if (!bGetIntegrityLevel)
-		{
-			if (0 == _wcsicmp(arg, L"M:S"))
-			{
-				NSudoSetTokenIntegrityLevel(hToken, SystemLevel);
-				bGetIntegrityLevel = true;
-			}
-			else if (0 == _wcsicmp(arg, L"M:H"))
-			{
-				NSudoSetTokenIntegrityLevel(hToken, HighLevel);
-				bGetIntegrityLevel = true;
-			}
-			else if (0 == _wcsicmp(arg, L"M:M"))
-			{
-				NSudoSetTokenIntegrityLevel(hToken, MediumLevel);
-				bGetIntegrityLevel = true;
-			}
-			else if (0 == _wcsicmp(arg, L"M:L"))
-			{
-				NSudoSetTokenIntegrityLevel(hToken, LowLevel);
-				bGetIntegrityLevel = true;
-			}
-		}
-
-		if (!bGetWait)
-		{
-			if (0 == _wcsicmp(arg, L"Wait"))
-			{
-				bWait = true;
-				bGetWait = true;
-			}
-		}
-	}
-
-	if (bGetUser && !bArgErr)
-	{
-		if (!SuCreateProcess(hToken, args[args.size() - 1].c_str(), bWait))
-		{
-			return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
-		}
-	}
-	else
-	{
-		return NSUDO_MESSAGE::INVALID_COMMAND_PARAMETER;
-	}
-
-	RevertToSelf();*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	std::vector<std::wstring> command_args =
-		g_ResourceManagement.GetCommandParameters();
-
-	if (command_args.size() == 1)
-	{
-#if defined(NSUDO_CUI_CONSOLE) || defined(NSUDO_CUI_WINDOWS)
 		command_args.push_back(L"-?");
 #endif
 #if defined(NSUDO_GUI_WINDOWS)
@@ -791,13 +536,17 @@ int NSudoMain()
 	NSUDO_MESSAGE message = NSudoCommandLineParser(
 		g_ResourceManagement.IsElevated,
 		false,
-		command_args);
+		ApplicationName,
+		OptionsAndParameters,
+		UnresolvedCommandLine);
 #endif
 #if defined(NSUDO_CUI_WINDOWS) || defined(NSUDO_GUI_WINDOWS)
 	NSUDO_MESSAGE message = NSudoCommandLineParser(
 		g_ResourceManagement.IsElevated,
 		true,
-		command_args);
+		ApplicationName,
+		OptionsAndParameters,
+		UnresolvedCommandLine);
 #endif
 
 	if (NSUDO_MESSAGE::NEED_TO_SHOW_COMMAND_LINE_HELP == message)

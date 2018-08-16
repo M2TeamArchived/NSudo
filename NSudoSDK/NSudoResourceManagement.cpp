@@ -227,13 +227,6 @@ std::vector<std::wstring> NSudoSplitCommandLine(LPCWSTR lpCommandLine)
 	return result;
 }
 
-std::vector<std::wstring> CNSudoResourceManagement::GetCommandParameters()
-{
-	return NSudoSplitCommandLine(GetCommandLineW());
-}
-
-
-
 /*
 SuCreateProcess函数创建一个新进程和对应的主线程
 The SuCreateProcess function creates a new process and its primary thread.
@@ -245,7 +238,7 @@ information, call GetLastError.
 bool SuCreateProcess(
 	_In_opt_ HANDLE hToken,
 	_Inout_ LPCWSTR lpCommandLine,
-	_In_opt_ bool bWait)
+	_In_ DWORD WaitInterval)
 {
 	//生成命令行
 	std::wstring final_command_line;
@@ -266,70 +259,58 @@ bool SuCreateProcess(
 		hToken,
 		final_command_line.c_str(),
 		g_ResourceManagement.AppPath.c_str(),
-		bWait);
+		WaitInterval);
 }
 
 #include "NSudoContextMenuManagement.h"
-
 
 // 解析命令行
 NSUDO_MESSAGE NSudoCommandLineParser(
 	_In_ bool bElevated,
 	_In_ bool bEnableContextMenuManagement,
-	_In_ const std::vector<std::wstring>& args)
+	_In_ std::wstring& ApplicationName,
+	_In_ std::map<std::wstring, std::wstring>& OptionsAndParameters,
+	_In_ std::wstring& UnresolvedCommandLine)
 {
-	if (2 == args.size())
+	UNREFERENCED_PARAMETER(ApplicationName);
+
+	if (1 == OptionsAndParameters.size() && UnresolvedCommandLine.empty())
 	{
-		// 判断是单个参数还是命令行
-		if ((args[1][0] == L'-' || args[1][0] == L'/'))
+		auto OptionAndParameter = *OptionsAndParameters.begin();
+
+		// 如果选项名是 "?", "Help" 或"Version"，则显示帮助。
+		if (0 == _wcsicmp(OptionAndParameter.first.c_str(), L"?") ||
+			0 == _wcsicmp(OptionAndParameter.first.c_str(), L"Help") ||
+			0 == _wcsicmp(OptionAndParameter.first.c_str(), L"Version"))
 		{
-			const wchar_t* arg = args[1].c_str() + 1;
-
-			// 如果参数是 /? 或 -?，则显示帮助
-			if (0 == _wcsicmp(arg, L"?"))
-			{
-				return NSUDO_MESSAGE::NEED_TO_SHOW_COMMAND_LINE_HELP;
-			}
-			else
-			{
-				if (bEnableContextMenuManagement)
-				{					
-					CNSudoContextMenuManagement ContextMenuManagement;
-
-					if (0 == _wcsicmp(arg, L"Install"))
-					{
-						// 如果参数是 /Install 或 -Install，则安装NSudo到系统
-						if (ERROR_SUCCESS != ContextMenuManagement.Install())
-						{
-							ContextMenuManagement.Uninstall();
-						}
-
-						return NSUDO_MESSAGE::SUCCESS;
-					}
-					else if (0 == _wcsicmp(arg, L"Uninstall"))
-					{
-						// 如果参数是 /Uninstall 或 -Uninstall，则移除安装到系统的NSudo
-						ContextMenuManagement.Uninstall();
-						return NSUDO_MESSAGE::SUCCESS;
-					}
-				}
-
-				return NSUDO_MESSAGE::INVALID_COMMAND_PARAMETER;
-			}
+			return NSUDO_MESSAGE::NEED_TO_SHOW_COMMAND_LINE_HELP;
 		}
 		else
 		{
-			std::vector<std::wstring> NewArg;
+			if (bEnableContextMenuManagement)
+			{
+				CNSudoContextMenuManagement ContextMenuManagement;
 
-			NewArg.push_back(args[0]);
-			NewArg.push_back(L"-U:T");
-			NewArg.push_back(L"-P:E");
-			NewArg.push_back(args[1]);
-		
-			return NSudoCommandLineParser(
-				bElevated,
-				bEnableContextMenuManagement,
-				NewArg);
+				if (0 == _wcsicmp(OptionAndParameter.first.c_str(), L"Install"))
+				{
+					// 如果参数是 /Install 或 -Install，则安装NSudo到系统
+					if (ERROR_SUCCESS != ContextMenuManagement.Install())
+					{
+						ContextMenuManagement.Uninstall();
+					}
+
+					return NSUDO_MESSAGE::SUCCESS;
+				}
+				else if (0 == _wcsicmp(OptionAndParameter.first.c_str(), L"Uninstall"))
+				{
+					// 如果参数是 /Uninstall 或 -Uninstall，则移除安装到系统的NSudo
+					ContextMenuManagement.Uninstall();
+
+					return NSUDO_MESSAGE::SUCCESS;
+				}
+			}
+
+			return NSUDO_MESSAGE::INVALID_COMMAND_PARAMETER;
 		}
 	}
 
@@ -349,154 +330,271 @@ NSUDO_MESSAGE NSudoCommandLineParser(
 
 	bool bArgErr = false;
 
-	bool bGetUser = false;
-	bool bGetPrivileges = false;
-	bool bGetIntegrityLevel = false;
-
-	bool bGetWait = false;
-	bool bWait = false;
-
 	M2::CHandle hToken;
 	M2::CHandle hTempToken;
 
-	// 解析参数，忽略第一项（必定是程序路径）和最后一项（因为必定是命令行）
-	for (size_t i = 1; i < args.size() - 1; ++i)
+	// 解析参数列表
+
+	enum class NSudoOptionUserValue
 	{
-		// 如果参数不满足条件，则返回错误
-		if (!(args[i][0] == L'-' || args[i][0] == L'/'))
-		{
-			bArgErr = true;
-			break;
-		}
+		Default,
+		TrustedInstaller,
+		System,
+		CurrentUser,
+		CurrentProcess,
+		CurrentProcessDropRight
+	};
 
-		const wchar_t* arg = args[i].c_str() + 1;
+	enum class NSudoOptionPrivilegesValue
+	{
+		Default,
+		EnableAllPrivileges,
+		DisableAllPrivileges
+	};
 
-		if (!bGetUser)
+	enum class NSudoOptionIntegrityLevelValue
+	{
+		Default,
+		System,
+		High,
+		Medium,
+		Low
+	};
+
+	NSudoOptionUserValue UserMode = 
+		NSudoOptionUserValue::Default;
+	NSudoOptionPrivilegesValue PrivilegesMode = 
+		NSudoOptionPrivilegesValue::Default;
+	NSudoOptionIntegrityLevelValue IntegrityLevelMode = 
+		NSudoOptionIntegrityLevelValue::Default;
+	DWORD WaitInterval = 0;
+
+	if (0 == OptionsAndParameters.size())
+	{
+		UserMode = NSudoOptionUserValue::TrustedInstaller;
+		PrivilegesMode = NSudoOptionPrivilegesValue::EnableAllPrivileges;
+	}
+	else
+	{
+		for (auto& OptionAndParameter : OptionsAndParameters)
 		{
-			if (0 == _wcsicmp(arg, L"U:T"))
+			if (0 == _wcsicmp(OptionAndParameter.first.c_str(), L"U"))
 			{
-				if (NSudoDuplicateServiceToken(
-					L"TrustedInstaller",
-					MAXIMUM_ALLOWED,
-					nullptr,
-					SecurityIdentification,
-					TokenPrimary,
-					&hToken))
+				if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"T"))
 				{
-					SetTokenInformation(
-						hToken,
-						TokenSessionId,
-						(PVOID)&dwSessionID,
-						sizeof(DWORD));
+					UserMode = NSudoOptionUserValue::TrustedInstaller;
 				}
-				bGetUser = true;
-			}
-			else if (0 == _wcsicmp(arg, L"U:S"))
-			{
-				NSudoDuplicateSystemToken(
-					MAXIMUM_ALLOWED,
-					nullptr,
-					SecurityIdentification,
-					TokenPrimary,
-					&hToken);
-				bGetUser = true;
-			}
-			else if (0 == _wcsicmp(arg, L"U:C"))
-			{
-				NSudoDuplicateSessionToken(
-					dwSessionID,
-					MAXIMUM_ALLOWED,
-					nullptr,
-					SecurityIdentification,
-					TokenPrimary,
-					&hToken);
-				bGetUser = true;
-			}
-			else if (0 == _wcsicmp(arg, L"U:P"))
-			{
-				DuplicateTokenEx(
-					g_ResourceManagement.OriginalCurrentProcessToken,
-					MAXIMUM_ALLOWED,
-					nullptr,
-					SecurityIdentification,
-					TokenPrimary,
-					&hToken);
-				bGetUser = true;
-			}
-			else if (0 == _wcsicmp(arg, L"U:D"))
-			{
-				if (DuplicateTokenEx(
-					g_ResourceManagement.OriginalCurrentProcessToken,
-					MAXIMUM_ALLOWED,
-					nullptr,
-					SecurityIdentification,
-					TokenPrimary,
-					&hTempToken))
+				else if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"S"))
 				{
-					NSudoCreateLUAToken(&hToken, hTempToken);
+					UserMode = NSudoOptionUserValue::System;
 				}
-				bGetUser = true;
+				else if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"C"))
+				{
+					UserMode = NSudoOptionUserValue::CurrentUser;
+				}
+				else if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"P"))
+				{
+					UserMode = NSudoOptionUserValue::CurrentProcess;
+				}
+				else if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"D"))
+				{
+					UserMode = NSudoOptionUserValue::CurrentProcessDropRight;
+				}
+				else
+				{
+					bArgErr = true;
+					break;
+				}
 			}
-		}
-		
-		if (!bGetPrivileges)
-		{
-			if (0 == _wcsicmp(arg, L"P:E"))
+			else if (0 == _wcsicmp(OptionAndParameter.first.c_str(), L"P"))
 			{
-				NSudoSetTokenAllPrivileges(hToken, true);
-				bGetPrivileges = true;
+				if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"E"))
+				{
+					PrivilegesMode = NSudoOptionPrivilegesValue::EnableAllPrivileges;
+				}
+				else if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"D"))
+				{
+					PrivilegesMode = NSudoOptionPrivilegesValue::DisableAllPrivileges;
+				}
+				else
+				{
+					bArgErr = true;
+					break;
+				}
 			}
-			else if (0 == _wcsicmp(arg, L"P:D"))
+			else if (0 == _wcsicmp(OptionAndParameter.first.c_str(), L"M"))
 			{
-				NSudoSetTokenAllPrivileges(hToken, false);
-				bGetPrivileges = true;
+				if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"S"))
+				{
+					IntegrityLevelMode = NSudoOptionIntegrityLevelValue::System;
+				}
+				else if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"H"))
+				{
+					IntegrityLevelMode = NSudoOptionIntegrityLevelValue::High;
+				}
+				else if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"M"))
+				{
+					IntegrityLevelMode = NSudoOptionIntegrityLevelValue::Medium;
+				}
+				else if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"L"))
+				{
+					IntegrityLevelMode = NSudoOptionIntegrityLevelValue::Low;
+				}
+				else
+				{
+					bArgErr = true;
+					break;
+				}
 			}
-		}
-		
-		if (!bGetIntegrityLevel)
-		{
-			if (0 == _wcsicmp(arg, L"M:S"))
+			else if (0 == _wcsicmp(OptionAndParameter.first.c_str(), L"Wait"))
 			{
-				NSudoSetTokenIntegrityLevel(hToken, SystemLevel);
-				bGetIntegrityLevel = true;
+				if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"Infinite"))
+				{
+					WaitInterval = INFINITE;
+				}
+				else
+				{
+					if (1 != swscanf_s(OptionAndParameter.second.c_str(), L"%ul", &WaitInterval))
+					{
+						bArgErr = true;
+						break;
+					}
+				}
 			}
-			else if (0 == _wcsicmp(arg, L"M:H"))
-			{
-				NSudoSetTokenIntegrityLevel(hToken, HighLevel);
-				bGetIntegrityLevel = true;
-			}
-			else if (0 == _wcsicmp(arg, L"M:M"))
-			{
-				NSudoSetTokenIntegrityLevel(hToken, MediumLevel);
-				bGetIntegrityLevel = true;
-			}
-			else if (0 == _wcsicmp(arg, L"M:L"))
-			{
-				NSudoSetTokenIntegrityLevel(hToken, LowLevel);
-				bGetIntegrityLevel = true;
-			}		
-		}
-		
-		if (!bGetWait)
-		{
-			if (0 == _wcsicmp(arg, L"Wait"))
-			{
-				bWait = true;
-				bGetWait = true;
-			}	
 		}
 	}
 
-	if (bGetUser && !bArgErr)
+	if (bArgErr && NSudoOptionUserValue::Default == UserMode)
 	{
-		if (!SuCreateProcess(hToken, args[args.size() - 1].c_str(), bWait))
+		return NSUDO_MESSAGE::INVALID_COMMAND_PARAMETER;
+	}
+
+	if (NSudoOptionUserValue::TrustedInstaller == UserMode)
+	{
+		if (!NSudoDuplicateServiceToken(
+			L"TrustedInstaller",
+			MAXIMUM_ALLOWED,
+			nullptr,
+			SecurityIdentification,
+			TokenPrimary,
+			&hToken))
+		{
+			return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
+		}
+
+		if (!SetTokenInformation(
+			hToken,
+			TokenSessionId,
+			(PVOID)&dwSessionID,
+			sizeof(DWORD)))
 		{
 			return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
 		}
 	}
-	else
+	else if (NSudoOptionUserValue::System == UserMode)
 	{
-		return NSUDO_MESSAGE::INVALID_COMMAND_PARAMETER;
+		if (!NSudoDuplicateSystemToken(
+			MAXIMUM_ALLOWED,
+			nullptr,
+			SecurityIdentification,
+			TokenPrimary,
+			&hToken))
+		{
+			return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
+		}
+	}
+	else if (NSudoOptionUserValue::CurrentUser == UserMode)
+	{
+		if (!NSudoDuplicateSessionToken(
+			dwSessionID,
+			MAXIMUM_ALLOWED,
+			nullptr,
+			SecurityIdentification,
+			TokenPrimary,
+			&hToken))
+		{
+			return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
+		}
+	}
+	else if (NSudoOptionUserValue::CurrentProcess == UserMode)
+	{
+		if (!DuplicateTokenEx(
+			g_ResourceManagement.OriginalCurrentProcessToken,
+			MAXIMUM_ALLOWED,
+			nullptr,
+			SecurityIdentification,
+			TokenPrimary,
+			&hToken))
+		{
+			return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
+		}
+	}
+	else if (NSudoOptionUserValue::CurrentProcessDropRight == UserMode)
+	{
+		if (!DuplicateTokenEx(
+			g_ResourceManagement.OriginalCurrentProcessToken,
+			MAXIMUM_ALLOWED,
+			nullptr,
+			SecurityIdentification,
+			TokenPrimary,
+			&hTempToken))
+		{
+			return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
+		}
+
+		if (!NSudoCreateLUAToken(&hToken, hTempToken))
+		{
+			return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
+		}
+	}
+
+	if (NSudoOptionPrivilegesValue::EnableAllPrivileges == PrivilegesMode)
+	{
+		if (!NSudoSetTokenAllPrivileges(hToken, true))
+		{
+			return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
+		}
+	}
+	else if (NSudoOptionPrivilegesValue::DisableAllPrivileges == PrivilegesMode)
+	{
+		if (!NSudoSetTokenAllPrivileges(hToken, false))
+		{
+			return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
+		}
+	}
+
+	if (NSudoOptionIntegrityLevelValue::System == IntegrityLevelMode)
+	{
+		if (!NSudoSetTokenIntegrityLevel(hToken, SystemLevel))
+		{
+			return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
+		}
+	}
+	else if (NSudoOptionIntegrityLevelValue::High == IntegrityLevelMode)
+	{
+		if (!NSudoSetTokenIntegrityLevel(hToken, HighLevel))
+		{
+			return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
+		}
+	}
+	else if (NSudoOptionIntegrityLevelValue::Medium == IntegrityLevelMode)
+	{
+		if (!NSudoSetTokenIntegrityLevel(hToken, MediumLevel))
+		{
+			return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
+		}
+	}
+	else if (NSudoOptionIntegrityLevelValue::Low == IntegrityLevelMode)
+	{
+		if (!NSudoSetTokenIntegrityLevel(hToken, LowLevel))
+		{
+			return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
+		}
+	}
+
+	if (!SuCreateProcess(hToken, UnresolvedCommandLine.c_str(), WaitInterval))
+	{
+		return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
 	}
 
 	RevertToSelf();
