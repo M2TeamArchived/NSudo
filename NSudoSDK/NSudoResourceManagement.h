@@ -68,9 +68,6 @@ public:
 		_In_ NSUDO_MESSAGE MessageID);
 	std::wstring GetUTF8WithBOMStringResources(
 		_In_ UINT uID);
-
-	std::vector<std::wstring> GetCommandParameters();
-
 };
 
 extern CNSudoResourceManagement g_ResourceManagement;
@@ -79,7 +76,9 @@ extern CNSudoResourceManagement g_ResourceManagement;
 NSUDO_MESSAGE NSudoCommandLineParser(
 	_In_ bool bElevated,
 	_In_ bool bEnableContextMenuManagement,
-	_In_ const std::vector<std::wstring>& args);
+	_In_ std::wstring& ApplicationName,
+	_In_ std::map<std::wstring, std::wstring>& OptionsAndParameters,
+	_In_ std::wstring& UnresolvedCommandLine);
 
 
 #endif // _NSUDO_RESOURCE_MANAGEMENT_
