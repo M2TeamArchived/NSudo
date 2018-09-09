@@ -5,10 +5,11 @@
 
 #include "NSudoVersion.h"
 
-#include "M2Win32Helpers.h"
-#include "NSudoResourceManagement.h"
-
 #include "M2BaseHelpers.h"
+#include "M2Win32Helpers.h"
+#include "M2Win32GUIHelpers.h"
+
+#include "NSudoResourceManagement.h"
 
 void NSudoPrintMsg(
 	_In_opt_ HINSTANCE hInstance,

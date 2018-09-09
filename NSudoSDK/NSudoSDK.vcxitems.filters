@@ -127,8 +127,11 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)M2Win32Helpers.h">
       <Filter>M2Win32Helpers</Filter>
     </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)M2Win32GUIHelpers.h">
+      <Filter>M2Win32GUIHelpers</Filter>
+    </ClInclude>
     <ClInclude Include="$(MSBuildThisFileDirectory)M2MessageDialogResource.h">
-      <Filter>M2Win32Helpers</Filter>
+      <Filter>M2Win32GUIHelpers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -167,6 +170,9 @@
     </Filter>
     <Filter Include="M2Win32Helpers">
       <UniqueIdentifier>{8ea5d99c-43cc-4797-9ec8-a47150d6a8e3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="M2Win32GUIHelpers">
+      <UniqueIdentifier>{a967f769-ac0c-4a20-bb81-8cfceaddc0cf}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -207,6 +213,9 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)M2Win32Helpers.cpp">
       <Filter>M2Win32Helpers</Filter>
     </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)M2Win32GUIHelpers.cpp">
+      <Filter>M2Win32GUIHelpers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="$(MSBuildThisFileDirectory)NSudoContextMenuManagementResource.rc">
@@ -216,7 +225,7 @@
       <Filter>NSudoResourceManagement</Filter>
     </ResourceCompile>
     <ResourceCompile Include="$(MSBuildThisFileDirectory)M2MessageDialogResource.rc">
-      <Filter>M2Win32Helpers</Filter>
+      <Filter>M2Win32GUIHelpers</Filter>
     </ResourceCompile>
   </ItemGroup>
 </Project>
