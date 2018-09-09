@@ -5,7 +5,6 @@
 [![latestdownloads.badge]][latestdownloads.link]
 [![totaldownloads.badge]][totaldownloads.link]
 [![license.badge]][license.link]
-[![donate.badge]][donate.link]
 
 - [简体中文](自述.md)
 
@@ -157,5 +156,3 @@ See [People.md](People.md) for more details.
 [totaldownloads.link]: https://github.com/M2Team/NSudo/releases
 [license.badge]: https://img.shields.io/github/license/M2Team/NSudo.svg
 [license.link]: LICENSE
-[donate.badge]: https://img.shields.io/badge/PayPal-Donate-blue.svg
-[donate.link]: https://www.paypal.me/MouriNaruto
