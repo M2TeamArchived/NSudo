@@ -11,7 +11,6 @@ License: The MIT License
 #include <VersionHelpers.h>
 
 #include "M2Win32Helpers.h"
-#include "M2MessageDialogResource.h"
 
 // Obtain the best matching resource with the specified type and name in the 
 // specified module.
