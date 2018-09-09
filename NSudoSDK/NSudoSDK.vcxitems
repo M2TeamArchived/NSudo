@@ -16,6 +16,7 @@
   <ItemGroup>
     <ClInclude Include="$(MSBuildThisFileDirectory)CIBuild.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)M2BaseHelpers.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)M2Win32GUIHelpers.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)M2Win32Helpers.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)NSudoAPI.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)NSudoContextMenuManagement.h" />
@@ -73,6 +74,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(MSBuildThisFileDirectory)M2BaseHelpers.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)M2Win32GUIHelpers.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)M2Win32Helpers.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)NSudoContextMenuManagement.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)NSudoResourceManagement.cpp" />
