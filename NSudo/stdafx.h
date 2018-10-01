@@ -9,18 +9,26 @@
 
 #include "targetver.h"
 
-#include <NSudoAPI.h>
+#include "M2BaseHelpers.h"
+#include "M2Win32Helpers.h"
+#include "M2Win32GUIHelpers.h"
 
-// C++ 运行时库
+#include "NSudoAPI.h"
+
 #include <stdio.h>
 #include <tchar.h>
 
-#include <commctrl.h>
-#pragma comment(lib, "comctl32.lib")
+#include <fstream>
+#include <map>
+#include <string>
+#include <vector>
 
-#include <strsafe.h>
-
+#include "NSudoVersion.h"
 #include "resource.h"
 
-#include <vector>
-#include <string>
+#include "ThirdParty\rapidjson\document.h"
+#include "ThirdParty\rapidjson\istreamwrapper.h"
+#include "ThirdParty\rapidjson\encodedstream.h"
+
+#include <commctrl.h>
+#pragma comment(lib, "comctl32.lib")
