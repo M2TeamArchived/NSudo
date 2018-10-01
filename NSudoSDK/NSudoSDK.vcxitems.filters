@@ -126,18 +126,6 @@
     <Filter Include="ThirdParty">
       <UniqueIdentifier>{fbdb5e99-1ac3-445a-8120-4ec9e83aad0f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Resources">
-      <UniqueIdentifier>{bae262bf-0cb3-4f13-abfc-287904e63e4e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Resources\en">
-      <UniqueIdentifier>{1d7fa200-3b0e-4141-ba3b-ac95092919d1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Resources\zh-Hans">
-      <UniqueIdentifier>{ae3b283b-e0be-4312-b09f-d0ce2a86ea49}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="NSudoContextMenuManagement">
-      <UniqueIdentifier>{74d8a70a-1f1b-4140-8122-a34769c65859}</UniqueIdentifier>
-    </Filter>
     <Filter Include="M2BaseHelpers">
       <UniqueIdentifier>{2ae3f5b8-ba55-4407-adf1-f004672b774d}</UniqueIdentifier>
     </Filter>
@@ -159,31 +147,6 @@
     <Filter Include="M2Win32GUIHelpers">
       <UniqueIdentifier>{a967f769-ac0c-4a20-bb81-8cfceaddc0cf}</UniqueIdentifier>
     </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="$(MSBuildThisFileDirectory)Resources\en\Links.txt">
-      <Filter>Resources\en</Filter>
-    </Text>
-    <Text Include="$(MSBuildThisFileDirectory)Resources\zh-Hans\CommandLineHelp.txt">
-      <Filter>Resources\zh-Hans</Filter>
-    </Text>
-    <Text Include="$(MSBuildThisFileDirectory)Resources\zh-Hans\Links.txt">
-      <Filter>Resources\zh-Hans</Filter>
-    </Text>
-    <Text Include="$(MSBuildThisFileDirectory)Resources\en\CommandLineHelp.txt">
-      <Filter>Resources\en</Filter>
-    </Text>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="$(MSBuildThisFileDirectory)Resources\en\Translations.json">
-      <Filter>Resources\en</Filter>
-    </None>
-    <None Include="$(MSBuildThisFileDirectory)Resources\zh-Hans\Translations.json">
-      <Filter>Resources\zh-Hans</Filter>
-    </None>
-    <None Include="$(MSBuildThisFileDirectory)NSudoContextMenuManagement.json">
-      <Filter>NSudoContextMenuManagement</Filter>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(MSBuildThisFileDirectory)M2BaseHelpers.cpp">

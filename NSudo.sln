@@ -21,12 +21,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documents", "Documents", "{
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NSudoSDK", "NSudoSDK\NSudoSDK.vcxitems", "{864F35B9-789C-4DA9-8906-649DFE3705F7}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NSudo.Icon", "NSudo.Icon", "{00D2D9F6-A404-4EFE-8D0A-44AA2CF3D0B3}"
-	ProjectSection(SolutionItems) = preProject
-		NSudo.Icon\NSudo.ico = NSudo.Icon\NSudo.ico
-		NSudo.Icon\NSudo.xcf = NSudo.Icon\NSudo.xcf
-	EndProjectSection
-EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		NSudoSDK\NSudoSDK.vcxitems*{864f35b9-789c-4da9-8906-649dfe3705f7}*SharedItemsImports = 9

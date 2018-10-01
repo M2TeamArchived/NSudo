@@ -1,14 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="源文件">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
-    <Filter Include="头文件">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
-    </Filter>
     <Filter Include="资源文件">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
@@ -16,25 +8,24 @@
     <Filter Include="资源文件\资源">
       <UniqueIdentifier>{df97e053-65a8-4c48-8298-0d791df90d55}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{81593d0a-42a7-416c-973a-51197fe4964b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources\en">
+      <UniqueIdentifier>{fe1cd679-7ac6-4f17-87b6-716a8c0a26ba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources\zh-Hans">
+      <UniqueIdentifier>{45810c56-ef87-461b-90d7-41ea716bd02f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="stdafx.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="targetver.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="resource.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="NSudo.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="stdafx.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
+    <ClCompile Include="NSudo.cpp" />
+    <ClCompile Include="stdafx.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="NSudo.rc">
@@ -45,21 +36,47 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="res\NSudo.json">
-      <Filter>资源文件\资源</Filter>
+    <None Include="Resources\en\Translations.json">
+      <Filter>Resources\en</Filter>
+    </None>
+    <None Include="Resources\zh-Hans\Translations.json">
+      <Filter>Resources\zh-Hans</Filter>
+    </None>
+    <None Include="Resources\NSudoContextMenuManagement.json">
+      <Filter>Resources</Filter>
+    </None>
+    <None Include="Resources\NSudo.xcf">
+      <Filter>Resources</Filter>
+    </None>
+    <None Include="Resources\NSudo.json">
+      <Filter>Resources</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\NSudo.Icon\NSudo.ico">
-      <Filter>资源文件</Filter>
+    <Image Include="Resources\NSudo.ico">
+      <Filter>Resources</Filter>
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <Manifest Include="NSudoConsole.manifest">
-      <Filter>资源文件</Filter>
+    <Manifest Include="Resources\NSudoConsole.manifest">
+      <Filter>Resources</Filter>
     </Manifest>
-    <Manifest Include="NSudoWindows.manifest">
-      <Filter>资源文件</Filter>
+    <Manifest Include="Resources\NSudoWindows.manifest">
+      <Filter>Resources</Filter>
     </Manifest>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Resources\en\CommandLineHelp.txt">
+      <Filter>Resources\en</Filter>
+    </Text>
+    <Text Include="Resources\en\Links.txt">
+      <Filter>Resources\en</Filter>
+    </Text>
+    <Text Include="Resources\zh-Hans\CommandLineHelp.txt">
+      <Filter>Resources\zh-Hans</Filter>
+    </Text>
+    <Text Include="Resources\zh-Hans\Links.txt">
+      <Filter>Resources\zh-Hans</Filter>
+    </Text>
   </ItemGroup>
 </Project>
