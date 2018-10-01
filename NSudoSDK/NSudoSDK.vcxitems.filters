@@ -4,18 +4,6 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)NSudoAPI.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)NSudoVersion.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)CIBuild.h" />
-    <ClInclude Include="$(MSBuildThisFileDirectory)NSudoContextMenuManagement.h">
-      <Filter>NSudoContextMenuManagement</Filter>
-    </ClInclude>
-    <ClInclude Include="$(MSBuildThisFileDirectory)NSudoContextMenuManagementResource.h">
-      <Filter>NSudoContextMenuManagement</Filter>
-    </ClInclude>
-    <ClInclude Include="$(MSBuildThisFileDirectory)NSudoResourceManagement.h">
-      <Filter>NSudoResourceManagement</Filter>
-    </ClInclude>
-    <ClInclude Include="$(MSBuildThisFileDirectory)NSudoResourceManagementResource.h">
-      <Filter>NSudoResourceManagement</Filter>
-    </ClInclude>
     <ClInclude Include="$(MSBuildThisFileDirectory)M2BaseHelpers.h">
       <Filter>M2BaseHelpers</Filter>
     </ClInclude>
@@ -150,9 +138,6 @@
     <Filter Include="NSudoContextMenuManagement">
       <UniqueIdentifier>{74d8a70a-1f1b-4140-8122-a34769c65859}</UniqueIdentifier>
     </Filter>
-    <Filter Include="NSudoResourceManagement">
-      <UniqueIdentifier>{3e2c11e5-16c3-44e3-ab04-eb3825858cd6}</UniqueIdentifier>
-    </Filter>
     <Filter Include="M2BaseHelpers">
       <UniqueIdentifier>{2ae3f5b8-ba55-4407-adf1-f004672b774d}</UniqueIdentifier>
     </Filter>
@@ -201,12 +186,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="$(MSBuildThisFileDirectory)NSudoContextMenuManagement.cpp">
-      <Filter>NSudoContextMenuManagement</Filter>
-    </ClCompile>
-    <ClCompile Include="$(MSBuildThisFileDirectory)NSudoResourceManagement.cpp">
-      <Filter>NSudoResourceManagement</Filter>
-    </ClCompile>
     <ClCompile Include="$(MSBuildThisFileDirectory)M2BaseHelpers.cpp">
       <Filter>M2BaseHelpers</Filter>
     </ClCompile>
@@ -218,12 +197,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="$(MSBuildThisFileDirectory)NSudoContextMenuManagementResource.rc">
-      <Filter>NSudoContextMenuManagement</Filter>
-    </ResourceCompile>
-    <ResourceCompile Include="$(MSBuildThisFileDirectory)NSudoResourceManagementResource.rc">
-      <Filter>NSudoResourceManagement</Filter>
-    </ResourceCompile>
     <ResourceCompile Include="$(MSBuildThisFileDirectory)M2MessageDialogResource.rc">
       <Filter>M2Win32GUIHelpers</Filter>
     </ResourceCompile>

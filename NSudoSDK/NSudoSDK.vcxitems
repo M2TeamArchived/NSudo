@@ -19,12 +19,8 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)M2Win32GUIHelpers.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)M2Win32Helpers.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)NSudoAPI.h" />
-    <ClInclude Include="$(MSBuildThisFileDirectory)NSudoContextMenuManagement.h" />
-    <ClInclude Include="$(MSBuildThisFileDirectory)NSudoResourceManagement.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)NSudoVersion.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)M2MessageDialogResource.h" />
-    <ClInclude Include="$(MSBuildThisFileDirectory)NSudoContextMenuManagementResource.h" />
-    <ClInclude Include="$(MSBuildThisFileDirectory)NSudoResourceManagementResource.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ThirdParty\rapidjson\allocators.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ThirdParty\rapidjson\document.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ThirdParty\rapidjson\encodedstream.h" />
@@ -76,12 +72,8 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)M2BaseHelpers.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)M2Win32GUIHelpers.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)M2Win32Helpers.cpp" />
-    <ClCompile Include="$(MSBuildThisFileDirectory)NSudoContextMenuManagement.cpp" />
-    <ClCompile Include="$(MSBuildThisFileDirectory)NSudoResourceManagement.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="$(MSBuildThisFileDirectory)M2MessageDialogResource.rc" />
-    <ResourceCompile Include="$(MSBuildThisFileDirectory)NSudoContextMenuManagementResource.rc" />
-    <ResourceCompile Include="$(MSBuildThisFileDirectory)NSudoResourceManagementResource.rc" />
   </ItemGroup>
 </Project>
