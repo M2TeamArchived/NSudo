@@ -58,17 +58,6 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)ThirdParty\rapidjson\writer.h" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="$(MSBuildThisFileDirectory)Resources\en\CommandLineHelp.txt" />
-    <Text Include="$(MSBuildThisFileDirectory)Resources\en\Links.txt" />
-    <Text Include="$(MSBuildThisFileDirectory)Resources\zh-Hans\CommandLineHelp.txt" />
-    <Text Include="$(MSBuildThisFileDirectory)Resources\zh-Hans\Links.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="$(MSBuildThisFileDirectory)NSudoContextMenuManagement.json" />
-    <None Include="$(MSBuildThisFileDirectory)Resources\en\Translations.json" />
-    <None Include="$(MSBuildThisFileDirectory)Resources\zh-Hans\Translations.json" />
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="$(MSBuildThisFileDirectory)M2BaseHelpers.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)M2Win32GUIHelpers.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)M2Win32Helpers.cpp" />

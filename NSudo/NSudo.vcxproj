@@ -229,7 +229,7 @@
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release - NSudo GUI - Subsystem Windows|ARM64'" Label="PropertySheets">
     <Import Project="..\VC-LTL_EnableSupport.props" />
   </ImportGroup>
-    <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release - NSudo CUI - Subsystem Console|ARM'" Label="PropertySheets">
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release - NSudo CUI - Subsystem Console|ARM'" Label="PropertySheets">
     <Import Project="..\VC-LTL_EnableSupport.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release - NSudo CUI - Subsystem Windows|ARM'" Label="PropertySheets">
@@ -387,7 +387,7 @@
     </Link>
     <PostBuildEvent>
       <Message>复制配置文件</Message>
-      <Command>xcopy /r /s /y $(ProjectDir)res\*.* $(TargetDir)</Command>
+      <Command>xcopy /r /s /y $(ProjectDir)Resources\NSudo.json $(TargetDir)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Platform)'=='ARM'">
@@ -411,7 +411,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Manifest>
-      <AdditionalManifestFiles>NSudoConsole.manifest  %(AdditionalManifestFiles)</AdditionalManifestFiles>
+      <AdditionalManifestFiles>Resources\NSudoConsole.manifest  %(AdditionalManifestFiles)</AdditionalManifestFiles>
     </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug - NSudo CUI - Subsystem Windows|Win32'">
@@ -426,7 +426,7 @@
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
     </Link>
     <Manifest>
-      <AdditionalManifestFiles>NSudoWindows.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
+      <AdditionalManifestFiles>Resources\NSudoWindows.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
     </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug - NSudo GUI - Subsystem Windows|Win32'">
@@ -441,7 +441,7 @@
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
     </Link>
     <Manifest>
-      <AdditionalManifestFiles>NSudoWindows.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
+      <AdditionalManifestFiles>Resources\NSudoWindows.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
     </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug - NSudo CUI - Subsystem Console|x64'">
@@ -454,7 +454,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Manifest>
-      <AdditionalManifestFiles>NSudoConsole.manifest  %(AdditionalManifestFiles)</AdditionalManifestFiles>
+      <AdditionalManifestFiles>Resources\NSudoConsole.manifest  %(AdditionalManifestFiles)</AdditionalManifestFiles>
     </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug - NSudo CUI - Subsystem Windows|x64'">
@@ -468,7 +468,7 @@
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
     </Link>
     <Manifest>
-      <AdditionalManifestFiles>NSudoWindows.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
+      <AdditionalManifestFiles>Resources\NSudoWindows.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
     </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug - NSudo GUI - Subsystem Windows|x64'">
@@ -482,7 +482,7 @@
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
     </Link>
     <Manifest>
-      <AdditionalManifestFiles>NSudoWindows.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
+      <AdditionalManifestFiles>Resources\NSudoWindows.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
     </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug - NSudo CUI - Subsystem Console|ARM64'">
@@ -495,7 +495,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Manifest>
-      <AdditionalManifestFiles>NSudoConsole.manifest  %(AdditionalManifestFiles)</AdditionalManifestFiles>
+      <AdditionalManifestFiles>Resources\NSudoConsole.manifest  %(AdditionalManifestFiles)</AdditionalManifestFiles>
     </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug - NSudo CUI - Subsystem Windows|ARM64'">
@@ -509,7 +509,7 @@
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
     </Link>
     <Manifest>
-      <AdditionalManifestFiles>NSudoWindows.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
+      <AdditionalManifestFiles>Resources\NSudoWindows.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
     </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug - NSudo GUI - Subsystem Windows|ARM64'">
@@ -523,7 +523,7 @@
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
     </Link>
     <Manifest>
-      <AdditionalManifestFiles>NSudoWindows.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
+      <AdditionalManifestFiles>Resources\NSudoWindows.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
     </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug - NSudo CUI - Subsystem Console|ARM'">
@@ -536,7 +536,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Manifest>
-      <AdditionalManifestFiles>NSudoConsole.manifest  %(AdditionalManifestFiles)</AdditionalManifestFiles>
+      <AdditionalManifestFiles>Resources\NSudoConsole.manifest  %(AdditionalManifestFiles)</AdditionalManifestFiles>
     </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug - NSudo CUI - Subsystem Windows|ARM'">
@@ -550,7 +550,7 @@
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
     </Link>
     <Manifest>
-      <AdditionalManifestFiles>NSudoWindows.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
+      <AdditionalManifestFiles>Resources\NSudoWindows.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
     </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug - NSudo GUI - Subsystem Windows|ARM'">
@@ -564,7 +564,7 @@
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
     </Link>
     <Manifest>
-      <AdditionalManifestFiles>NSudoWindows.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
+      <AdditionalManifestFiles>Resources\NSudoWindows.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
     </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release - NSudo CUI - Subsystem Console|Win32'">
@@ -585,7 +585,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Manifest>
-      <AdditionalManifestFiles>NSudoConsole.manifest  %(AdditionalManifestFiles)</AdditionalManifestFiles>
+      <AdditionalManifestFiles>Resources\NSudoConsole.manifest  %(AdditionalManifestFiles)</AdditionalManifestFiles>
     </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release - NSudo CUI - Subsystem Windows|Win32'">
@@ -607,7 +607,7 @@
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
     </Link>
     <Manifest>
-      <AdditionalManifestFiles>NSudoWindows.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
+      <AdditionalManifestFiles>Resources\NSudoWindows.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
     </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release - NSudo GUI - Subsystem Windows|Win32'">
@@ -629,7 +629,7 @@
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
     </Link>
     <Manifest>
-      <AdditionalManifestFiles>NSudoWindows.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
+      <AdditionalManifestFiles>Resources\NSudoWindows.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
     </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release - NSudo CUI - Subsystem Console|x64'">
@@ -649,7 +649,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Manifest>
-      <AdditionalManifestFiles>NSudoConsole.manifest  %(AdditionalManifestFiles)</AdditionalManifestFiles>
+      <AdditionalManifestFiles>Resources\NSudoConsole.manifest  %(AdditionalManifestFiles)</AdditionalManifestFiles>
     </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release - NSudo CUI - Subsystem Windows|x64'">
@@ -670,7 +670,7 @@
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
     </Link>
     <Manifest>
-      <AdditionalManifestFiles>NSudoWindows.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
+      <AdditionalManifestFiles>Resources\NSudoWindows.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
     </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release - NSudo GUI - Subsystem Windows|x64'">
@@ -691,7 +691,7 @@
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
     </Link>
     <Manifest>
-      <AdditionalManifestFiles>NSudoWindows.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
+      <AdditionalManifestFiles>Resources\NSudoWindows.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
     </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release - NSudo CUI - Subsystem Console|ARM64'">
@@ -711,7 +711,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Manifest>
-      <AdditionalManifestFiles>NSudoConsole.manifest  %(AdditionalManifestFiles)</AdditionalManifestFiles>
+      <AdditionalManifestFiles>Resources\NSudoConsole.manifest  %(AdditionalManifestFiles)</AdditionalManifestFiles>
     </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release - NSudo CUI - Subsystem Windows|ARM64'">
@@ -732,7 +732,7 @@
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
     </Link>
     <Manifest>
-      <AdditionalManifestFiles>NSudoWindows.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
+      <AdditionalManifestFiles>Resources\NSudoWindows.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
     </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release - NSudo GUI - Subsystem Windows|ARM64'">
@@ -753,7 +753,7 @@
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
     </Link>
     <Manifest>
-      <AdditionalManifestFiles>NSudoWindows.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
+      <AdditionalManifestFiles>Resources\NSudoWindows.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
     </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release - NSudo CUI - Subsystem Console|ARM'">
@@ -773,7 +773,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Manifest>
-      <AdditionalManifestFiles>NSudoConsole.manifest  %(AdditionalManifestFiles)</AdditionalManifestFiles>
+      <AdditionalManifestFiles>Resources\NSudoConsole.manifest  %(AdditionalManifestFiles)</AdditionalManifestFiles>
     </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release - NSudo CUI - Subsystem Windows|ARM'">
@@ -794,7 +794,7 @@
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
     </Link>
     <Manifest>
-      <AdditionalManifestFiles>NSudoWindows.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
+      <AdditionalManifestFiles>Resources\NSudoWindows.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
     </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release - NSudo GUI - Subsystem Windows|ARM'">
@@ -815,7 +815,7 @@
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
     </Link>
     <Manifest>
-      <AdditionalManifestFiles>NSudoWindows.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
+      <AdditionalManifestFiles>Resources\NSudoWindows.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -834,16 +834,23 @@
     <ResourceCompile Include="Version.rc" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="res\NSudo.json" />
+    <None Include="Resources\en\Translations.json" />
+    <None Include="Resources\NSudo.xcf" />
+    <None Include="Resources\NSudoContextMenuManagement.json" />
+    <None Include="Resources\zh-Hans\Translations.json" />
+    <None Include="Resources\NSudo.json" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\NSudo.Icon\NSudo.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <Manifest Include="NSudoConsole.manifest" />
-    <Manifest Include="NSudoWindows.manifest">
+    <Manifest Include="Resources\NSudoConsole.manifest" />
+    <Manifest Include="Resources\NSudoWindows.manifest">
       <SubType>Designer</SubType>
     </Manifest>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Resources\en\CommandLineHelp.txt" />
+    <Text Include="Resources\en\Links.txt" />
+    <Text Include="Resources\zh-Hans\CommandLineHelp.txt" />
+    <Text Include="Resources\zh-Hans\Links.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
