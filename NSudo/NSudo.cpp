@@ -975,89 +975,6 @@ private:
 	ATL::CWindow m_hCheckBox = nullptr;
 	ATL::CWindow m_hszPath = nullptr;
 
-
-	void SuGUIRun(
-		_In_ HWND hDlg,
-		_In_ LPCWSTR szUser,
-		_In_ bool bEnableAllPrivileges,
-		_In_ LPCWSTR szCMDLine)
-	{
-		if (_wcsicmp(L"", szCMDLine) == 0)
-		{
-			std::wstring Buffer = g_ResourceManagement.GetMessageString(
-				NSUDO_MESSAGE::INVALID_TEXTBOX_PARAMETER);
-			NSudoPrintMsg(g_ResourceManagement.Instance, hDlg, Buffer.c_str());
-		}
-		else
-		{
-			std::wstring CommandLine = L"NSudo";
-
-			std::wstring Buffer_TI =
-				g_ResourceManagement.GetTranslation("TI");
-			std::wstring Buffer_System =
-				g_ResourceManagement.GetTranslation("System");
-			std::wstring Buffer_CurrentProcess =
-				g_ResourceManagement.GetTranslation("CurrentProcess");
-			std::wstring Buffer_CurrentUser =
-				g_ResourceManagement.GetTranslation("CurrentUser");
-
-			// 获取用户令牌
-			if (_wcsicmp(Buffer_TI.c_str(), szUser) == 0)
-			{
-				CommandLine += L" -U:T";
-			}
-			else if (_wcsicmp(Buffer_System.c_str(), szUser) == 0)
-			{
-				CommandLine += L" -U:S";
-			}
-			else if (_wcsicmp(Buffer_CurrentProcess.c_str(), szUser) == 0)
-			{
-				CommandLine += L" -U:P";
-			}
-			else if (_wcsicmp(Buffer_CurrentUser.c_str(), szUser) == 0)
-			{
-				CommandLine += L" -U:C";
-			}
-
-			// 如果勾选启用全部特权，则尝试对令牌启用全部特权
-			if (bEnableAllPrivileges)
-			{
-				CommandLine += L" -P:E";
-			}
-
-			CommandLine += L" ";
-			CommandLine += szCMDLine;
-
-			std::wstring ApplicationName;
-			std::map<std::wstring, std::wstring> OptionsAndParameters;
-			std::wstring UnresolvedCommandLine;
-
-			M2SpiltCommandLineEx(
-				CommandLine,
-				std::vector<std::wstring>{ L"-", L"/", L"--" },
-				std::vector<std::wstring>{ L":", L"=" },
-				ApplicationName,
-				OptionsAndParameters,
-				UnresolvedCommandLine);
-
-			NSUDO_MESSAGE message = NSudoCommandLineParser(
-				true,
-				true,
-				ApplicationName,
-				OptionsAndParameters,
-				UnresolvedCommandLine);
-			if (NSUDO_MESSAGE::SUCCESS != message)
-			{
-				std::wstring Buffer = g_ResourceManagement.GetMessageString(
-					message);
-				NSudoPrintMsg(
-					g_ResourceManagement.Instance,
-					nullptr,
-					Buffer.c_str());
-			}
-		}
-	}
-
 	LRESULT OnClose(
 		UINT uMsg,
 		WPARAM wParam,
@@ -1238,19 +1155,100 @@ private:
 		UNREFERENCED_PARAMETER(hWndCtl);
 		UNREFERENCED_PARAMETER(bHandled);
 
-		std::wstring username(MAX_PATH, L'\0');
-		std::wstring cmdline(MAX_PATH, L'\0');
+		std::wstring UserName(MAX_PATH, L'\0');
+		auto UserNameLength = this->m_hUserName.GetWindowTextW(
+			&UserName[0],
+			static_cast<int>(UserName.size()));
+		UserName.resize(UserNameLength);
 
-		auto username_length = this->m_hUserName.GetWindowTextW(&username[0], (int)username.size());
-		username.resize(username_length);
-		auto cmdline_length = this->m_hszPath.GetWindowTextW(&cmdline[0], (int)cmdline.size());
-		cmdline.resize(cmdline_length);
+		bool NeedToEnableAllPrivileges = false;
+		if (BST_CHECKED == SendMessageW(this->m_hCheckBox, BM_GETCHECK, 0, 0))
+		{
+			NeedToEnableAllPrivileges = true;
+		}
 
-		SuGUIRun(
-			this->m_hWnd,
-			username.c_str(),
-			(SendMessageW(this->m_hCheckBox, BM_GETCHECK, 0, 0) == BST_CHECKED),
-			cmdline.c_str());
+		std::wstring RawCommandLine(MAX_PATH, L'\0');
+		auto RawCommandLineLength = this->m_hszPath.GetWindowTextW(
+			&RawCommandLine[0],
+			static_cast<int>(RawCommandLine.size()));
+		RawCommandLine.resize(RawCommandLineLength);
+
+		if (_wcsicmp(L"", RawCommandLine.c_str()) == 0)
+		{
+			std::wstring Buffer = g_ResourceManagement.GetMessageString(
+				NSUDO_MESSAGE::INVALID_TEXTBOX_PARAMETER);
+			NSudoPrintMsg(
+				g_ResourceManagement.Instance,
+				this->m_hWnd,
+				Buffer.c_str());
+		}
+		else
+		{
+			std::wstring CommandLine = L"NSudo";
+
+			// 获取用户令牌
+			if (0 == _wcsicmp(
+				g_ResourceManagement.GetTranslation("TI").c_str(),
+				UserName.c_str()))
+			{
+				CommandLine += L" -U:T";
+			}
+			else if (0 == _wcsicmp(
+				g_ResourceManagement.GetTranslation("System").c_str(), 
+				UserName.c_str()))
+			{
+				CommandLine += L" -U:S";
+			}
+			else if (0 == _wcsicmp(
+				g_ResourceManagement.GetTranslation("CurrentProcess").c_str(), 
+				UserName.c_str()))
+			{
+				CommandLine += L" -U:P";
+			}
+			else if (0 == _wcsicmp(
+				g_ResourceManagement.GetTranslation("CurrentUser").c_str(), 
+				UserName.c_str()))
+			{
+				CommandLine += L" -U:C";
+			}
+
+			// 如果勾选启用全部特权，则尝试对令牌启用全部特权
+			if (NeedToEnableAllPrivileges)
+			{
+				CommandLine += L" -P:E";
+			}
+
+			CommandLine += L" ";
+			CommandLine += RawCommandLine;
+
+			std::wstring ApplicationName;
+			std::map<std::wstring, std::wstring> OptionsAndParameters;
+			std::wstring UnresolvedCommandLine;
+
+			M2SpiltCommandLineEx(
+				CommandLine,
+				std::vector<std::wstring>{ L"-", L"/", L"--" },
+				std::vector<std::wstring>{ L":", L"=" },
+				ApplicationName,
+				OptionsAndParameters,
+				UnresolvedCommandLine);
+
+			NSUDO_MESSAGE message = NSudoCommandLineParser(
+				true,
+				true,
+				ApplicationName,
+				OptionsAndParameters,
+				UnresolvedCommandLine);
+			if (NSUDO_MESSAGE::SUCCESS != message)
+			{
+				std::wstring Buffer = g_ResourceManagement.GetMessageString(
+					message);
+				NSudoPrintMsg(
+					g_ResourceManagement.Instance,
+					this->m_hWnd,
+					Buffer.c_str());
+			}
+		}
 
 		return 0;
 	}
@@ -1265,8 +1263,6 @@ private:
 		UNREFERENCED_PARAMETER(wID);
 		UNREFERENCED_PARAMETER(hWndCtl);
 		UNREFERENCED_PARAMETER(bHandled);
-
-		
 
 		NSudoShowAboutDialog(this->m_hWnd);
 
@@ -1353,12 +1349,8 @@ int NSudoMain()
 		NSudoShowAboutDialog(nullptr);
 #endif
 #if defined(NSUDO_GUI_WINDOWS)
-		//CNSudoMainWindow1(GetModuleHandleW(nullptr)).Show();
-
-
 		CNSudoMainWindow MainWindow;
 		MainWindow.DoModal(nullptr);
-
 #endif
 		return 0;
 	}
