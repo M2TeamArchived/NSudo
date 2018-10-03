@@ -887,22 +887,6 @@ HRESULT NSudoShowAboutDialog(
 
 #if defined(NSUDO_GUI_WINDOWS)
 
-void NSudoBrowseDialog(
-	_In_opt_ HWND hWnd,
-	_Out_ wchar_t* szPath)
-{
-	OPENFILENAME ofn = { 0 };
-
-	ofn.lStructSize = sizeof(OPENFILENAME);
-	ofn.hwndOwner = hWnd;
-	ofn.nMaxFile = MAX_PATH;
-	ofn.nMaxFileTitle = MAX_PATH;
-	ofn.lpstrFile = szPath;
-	ofn.Flags = OFN_HIDEREADONLY | OFN_CREATEPROMPT;
-
-	GetOpenFileNameW(&ofn);
-}
-
 #include <ShellScalingApi.h>
 
 inline HRESULT GetDpiForMonitorInternal(
@@ -918,7 +902,8 @@ inline HRESULT GetDpiForMonitorInternal(
 	hModule = LoadLibraryW(L"SHCore.dll");
 	if (!hModule) return M2GetLastError();
 
-	pFunc = (decltype(pFunc))GetProcAddress(hModule, "GetDpiForMonitor");
+	pFunc = reinterpret_cast<decltype(pFunc)>(
+		GetProcAddress(hModule, "GetDpiForMonitor"));
 	if (!pFunc) return M2GetLastError();
 
 	hr = pFunc(hmonitor, dpiType, dpiX, dpiY);
@@ -972,8 +957,8 @@ private:
 	int m_yDPI = USER_DEFAULT_SCREEN_DPI;
 
 	ATL::CWindow m_hUserName;
-	ATL::CWindow m_hCheckBox = nullptr;
-	ATL::CWindow m_hszPath = nullptr;
+	ATL::CWindow m_hCheckBox;
+	ATL::CWindow m_hszPath;
 
 	LRESULT OnClose(
 		UINT uMsg,
@@ -1065,21 +1050,14 @@ private:
 		//设置默认项"TrustedInstaller"
 		SendMessageW(this->m_hUserName, CB_SETCURSEL, 3, 0);
 
-		try
+		for (std::pair<std::wstring, std::wstring> Item
+			: g_ResourceManagement.ShortCutList)
 		{
-			for (std::pair<std::wstring, std::wstring> Item
-				: g_ResourceManagement.ShortCutList)
-			{
-				SendMessageW(
-					this->m_hszPath,
-					CB_INSERTSTRING,
-					0,
-					(LPARAM)Item.first.c_str());
-			}
-		}
-		catch (const std::exception&)
-		{
-
+			SendMessageW(
+				this->m_hszPath,
+				CB_INSERTSTRING,
+				0,
+				(LPARAM)Item.first.c_str());
 		}
 
 		return TRUE;
@@ -1284,7 +1262,17 @@ private:
 
 		buffer[0] = L'\"';
 
-		NSudoBrowseDialog(this->m_hWnd, &buffer[1]);
+		OPENFILENAME ofn = { 0 };
+
+		ofn.lStructSize = sizeof(OPENFILENAME);
+		ofn.hwndOwner = this->m_hWnd;
+		ofn.nMaxFile = MAX_PATH;
+		ofn.nMaxFileTitle = MAX_PATH;
+		ofn.lpstrFile = &buffer[1];
+		ofn.Flags = OFN_HIDEREADONLY | OFN_CREATEPROMPT;
+
+		GetOpenFileNameW(&ofn);
+
 		buffer.resize(wcslen(buffer.c_str()));
 
 		buffer[buffer.size()] = L'\"';
