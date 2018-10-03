@@ -5,9 +5,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="资源文件\资源">
-      <UniqueIdentifier>{df97e053-65a8-4c48-8298-0d791df90d55}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Resources">
       <UniqueIdentifier>{81593d0a-42a7-416c-973a-51197fe4964b}</UniqueIdentifier>
     </Filter>
@@ -51,11 +48,6 @@
     <None Include="Resources\NSudo.json">
       <Filter>Resources</Filter>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="Resources\NSudo.ico">
-      <Filter>Resources</Filter>
-    </Image>
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="Resources\NSudoConsole.manifest">
