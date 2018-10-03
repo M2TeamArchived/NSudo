@@ -928,36 +928,40 @@ inline HRESULT GetDpiForMonitorInternal(
 	return hr;
 }
 
-class CNSudoMainWindow
+#include <atlbase.h>
+#include <atlwin.h>
+
+class CNSudoMainWindow : public ATL::CDialogImpl<CNSudoMainWindow>
 {
-private:
-	static INT_PTR CALLBACK s_DialogProc(
-		_In_ HWND hDlg,
-		_In_ UINT uMsg,
-		_In_ WPARAM wParam,
-		_In_ LPARAM lParam)
+public:
+	enum { IDD = IDD_NSudoDlg };
+
+public:
+	BEGIN_MSG_MAP(CNSudoMainWindow)
+		MESSAGE_HANDLER(WM_CLOSE, OnClose)
+		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
+		MESSAGE_HANDLER(WM_PAINT, OnPaint)
+		MESSAGE_HANDLER(WM_DPICHANGED, OnDPIChanged)
+
+		COMMAND_ID_HANDLER(IDC_Run, OnRun)
+		COMMAND_ID_HANDLER(IDC_About, OnAbout)
+		COMMAND_ID_HANDLER(IDC_Browse, OnBrowse)
+
+		MESSAGE_HANDLER(WM_DROPFILES, OnDropFiles)
+	END_MSG_MAP()
+
+public:
+	CNSudoMainWindow()
 	{
-		CNSudoMainWindow* pThis = nullptr;
+		M2EnablePerMonitorDialogScaling();
 
-		if (uMsg == WM_INITDIALOG)
-		{
-			pThis = reinterpret_cast<CNSudoMainWindow*>(lParam);
+		ChangeWindowMessageFilter(WM_DROPFILES, MSGFLT_ADD);
+		ChangeWindowMessageFilter(0x0049, MSGFLT_ADD); // WM_COPYGLOBALDATA
+	}
 
-			SetWindowLongPtrW(hDlg, DWLP_USER,
-				reinterpret_cast<LONG_PTR>(pThis));
-		}
-		else
-		{
-			pThis = reinterpret_cast<CNSudoMainWindow*>(
-				GetWindowLongPtrW(hDlg, DWLP_USER));
-		}
+	~CNSudoMainWindow()
+	{
 
-		if (pThis)
-		{
-			return pThis->DialogProc(hDlg, uMsg, wParam, lParam);
-		}
-
-		return FALSE;
 	}
 
 private:
@@ -967,13 +971,11 @@ private:
 	int m_xDPI = USER_DEFAULT_SCREEN_DPI;
 	int m_yDPI = USER_DEFAULT_SCREEN_DPI;
 
-	HINSTANCE m_hInstance;
+	ATL::CWindow m_hUserName;
+	ATL::CWindow m_hCheckBox = nullptr;
+	ATL::CWindow m_hszPath = nullptr;
 
-	HWND m_hUserName = nullptr;
-	HWND m_hCheckBox = nullptr;
-	HWND m_hszPath = nullptr;
 
-private:
 	void SuGUIRun(
 		_In_ HWND hDlg,
 		_In_ LPCWSTR szUser,
@@ -1056,237 +1058,274 @@ private:
 		}
 	}
 
-	INT_PTR DialogProc(
-		_In_ HWND hDlg,
-		_In_ UINT uMsg,
-		_In_ WPARAM wParam,
-		_In_ LPARAM lParam)
+	LRESULT OnClose(
+		UINT uMsg,
+		WPARAM wParam,
+		LPARAM lParam,
+		BOOL& bHandled)
 	{
+		UNREFERENCED_PARAMETER(uMsg);
+		UNREFERENCED_PARAMETER(wParam);
 		UNREFERENCED_PARAMETER(lParam);
-
-		switch (uMsg)
-		{
-		case WM_CLOSE:
-			EndDialog(hDlg, 0);
-			break;
-		case WM_INITDIALOG:
-		{
-			this->m_hUserName = GetDlgItem(hDlg, IDC_UserName);
-			this->m_hCheckBox = GetDlgItem(hDlg, IDC_Check_EnableAllPrivileges);
-			this->m_hszPath = GetDlgItem(hDlg, IDC_szPath);
-
-			SetWindowTextW(hDlg, g_ResourceManagement.GetVersionText().c_str());
-
-			struct { const char* ID; HWND hWnd; } x[] =
-			{
-				{ "EnableAllPrivileges" , this->m_hCheckBox },
-			{ "WarningText" , GetDlgItem(hDlg, IDC_WARNINGTEXT) },
-			{ "SettingsGroupText" ,GetDlgItem(hDlg, IDC_SETTINGSGROUPTEXT) },
-			{ "Static.User",GetDlgItem(hDlg, IDC_STATIC_USER) },
-			{ "Static.Open", GetDlgItem(hDlg, IDC_STATIC_OPEN) },
-			{ "Button.About", GetDlgItem(hDlg, IDC_About) },
-			{ "Button.Browse", GetDlgItem(hDlg, IDC_Browse) },
-			{ "Button.Run", GetDlgItem(hDlg, IDC_Run) }
-			};
-
-			for (size_t i = 0; i < sizeof(x) / sizeof(x[0]); ++i)
-			{
-				std::wstring Buffer = g_ResourceManagement.GetTranslation(x[i].ID);
-				SetWindowTextW(x[i].hWnd, Buffer.c_str());
-			}
-
-			HRESULT hr = E_FAIL;
-
-			hr = GetDpiForMonitorInternal(
-				MonitorFromWindow(hDlg, MONITOR_DEFAULTTONEAREST),
-				MDT_EFFECTIVE_DPI, (UINT*)&this->m_xDPI, (UINT*)&this->m_yDPI);
-			if (hr != S_OK)
-			{
-				this->m_xDPI = GetDeviceCaps(GetDC(hDlg), LOGPIXELSX);
-				this->m_yDPI = GetDeviceCaps(GetDC(hDlg), LOGPIXELSY);
-			}
-
-			this->m_hNSudoIcon = (HICON)LoadImageW(
-				this->m_hInstance,
-				MAKEINTRESOURCE(IDI_NSUDO),
-				IMAGE_ICON,
-				256,
-				256,
-				LR_SHARED);
-
-			SendMessageW(hDlg, WM_SETICON, ICON_SMALL, (LPARAM)this->m_hNSudoIcon);
-			SendMessageW(hDlg, WM_SETICON, ICON_BIG, (LPARAM)this->m_hNSudoIcon);
-
-			this->m_hWarningIcon = (HICON)LoadImageW(
-				nullptr,
-				IDI_WARNING,
-				IMAGE_ICON,
-				0,
-				0,
-				LR_SHARED);
-
-			const char* UserNameID[] = { "TI" ,"System" ,"CurrentProcess" ,"CurrentUser" };
-			for (size_t i = 0; i < sizeof(UserNameID) / sizeof(*UserNameID); ++i)
-			{
-				std::wstring Buffer = g_ResourceManagement.GetTranslation(UserNameID[i]);
-				SendMessageW(this->m_hUserName, CB_INSERTSTRING, 0, (LPARAM)Buffer.c_str());
-			}
-
-			//设置默认项"TrustedInstaller"
-			SendMessageW(this->m_hUserName, CB_SETCURSEL, 3, 0);
-
-			try
-			{
-				for (std::pair<std::wstring, std::wstring> Item
-					: g_ResourceManagement.ShortCutList)
-				{
-					SendMessageW(
-						this->m_hszPath,
-						CB_INSERTSTRING,
-						0,
-						(LPARAM)Item.first.c_str());
-				}
-			}
-			catch (const std::exception&)
-			{
-
-			}
-
-			return (INT_PTR)TRUE;
-		}
-		case WM_PAINT:
-		{
-			HDC hdc = GetDC(hDlg);
-			RECT Rect = { 0 };
-
-			GetClientRect(hDlg, &Rect);
-			DrawIconEx(
-				hdc,
-				MulDiv(16, this->m_xDPI, USER_DEFAULT_SCREEN_DPI),
-				MulDiv(16, this->m_yDPI, USER_DEFAULT_SCREEN_DPI),
-				this->m_hNSudoIcon,
-				MulDiv(64, this->m_xDPI, USER_DEFAULT_SCREEN_DPI),
-				MulDiv(64, this->m_yDPI, USER_DEFAULT_SCREEN_DPI),
-				0,
-				nullptr,
-				DI_NORMAL | DI_COMPAT);
-			DrawIconEx(
-				hdc,
-				MulDiv(16, this->m_xDPI, USER_DEFAULT_SCREEN_DPI),
-				(Rect.bottom - Rect.top) - MulDiv(40, this->m_yDPI, USER_DEFAULT_SCREEN_DPI),
-				this->m_hWarningIcon,
-				MulDiv(24, this->m_xDPI, USER_DEFAULT_SCREEN_DPI),
-				MulDiv(24, this->m_yDPI, USER_DEFAULT_SCREEN_DPI),
-				0,
-				nullptr,
-				DI_NORMAL | DI_COMPAT);
-			ReleaseDC(hDlg, hdc);
-
-			break;
-		}
-		case WM_DPICHANGED:
-		{
-			this->m_xDPI = LOWORD(wParam);
-			this->m_yDPI = HIWORD(wParam);
-
-			break;
-		}
-		case WM_COMMAND:
-		{
-			switch (LOWORD(wParam))
-			{
-			case IDC_Run:
-			{
-				std::wstring username(MAX_PATH, L'\0');
-				std::wstring cmdline(MAX_PATH, L'\0');
-
-				auto username_length = GetWindowTextW(this->m_hUserName, &username[0], (int)username.size());
-				username.resize(username_length);
-				auto cmdline_length = GetWindowTextW(this->m_hszPath, &cmdline[0], (int)cmdline.size());
-				cmdline.resize(cmdline_length);
-
-				SuGUIRun(
-					hDlg,
-					username.c_str(),
-					(SendMessageW(this->m_hCheckBox, BM_GETCHECK, 0, 0) == BST_CHECKED),
-					cmdline.c_str());
-				break;
-			}
-			case IDC_About:
-				NSudoShowAboutDialog(hDlg);
-				break;
-			case IDC_Browse:
-			{
-				std::wstring buffer(MAX_PATH + 2, L'\0');
-
-				buffer[0] = L'\"';
-
-				NSudoBrowseDialog(hDlg, &buffer[1]);
-				buffer.resize(wcslen(buffer.c_str()));
-
-				buffer[buffer.size()] = L'\"';
-
-				if (wcslen(buffer.c_str()) > 2)
-					SetWindowTextW(this->m_hszPath, buffer.c_str());
-
-				break;
-			}
-			default:
-				break;
-			}
-
-			break;
-		}
-		case WM_DROPFILES:
-		{
-			std::wstring buffer(MAX_PATH + 2, L'\0');
-
-			buffer[0] = L'\"';
-
-			auto length = DragQueryFileW(
-				(HDROP)wParam, 0, &buffer[1], (int)(buffer.size() - 2));
-			buffer.resize(length + 1);
-
-			if (!(GetFileAttributesW(&buffer[1]) & FILE_ATTRIBUTE_DIRECTORY))
-			{
-				buffer[buffer.size()] = L'\"';
-				SetWindowTextW(this->m_hszPath, buffer.c_str());
-			}
-
-			DragFinish((HDROP)wParam);
-
-			break;
-		}
-		default:
-			break;
-		}
-
-		return FALSE;
+		UNREFERENCED_PARAMETER(bHandled);
+		
+		this->EndDialog(0);
+		return 0;
 	}
 
-public:
-	CNSudoMainWindow(HINSTANCE hInstance = nullptr) :
-		m_hInstance(hInstance)
+	LRESULT OnInitDialog(
+		UINT uMsg,
+		WPARAM wParam,
+		LPARAM lParam,
+		BOOL& bHandled)
 	{
-	}
+		UNREFERENCED_PARAMETER(uMsg);
+		UNREFERENCED_PARAMETER(wParam);
+		UNREFERENCED_PARAMETER(lParam);
+		UNREFERENCED_PARAMETER(bHandled);
 
-	~CNSudoMainWindow()
-	{
-	}
+		this->m_hUserName = this->GetDlgItem(IDC_UserName);
+		this->m_hCheckBox = this->GetDlgItem(IDC_Check_EnableAllPrivileges);
+		this->m_hszPath = this->GetDlgItem(IDC_szPath);
 
-	INT_PTR Show()
-	{
-		M2EnablePerMonitorDialogScaling();
+		this->SetWindowTextW(g_ResourceManagement.GetVersionText().c_str());
 
-		ChangeWindowMessageFilter(WM_DROPFILES, MSGFLT_ADD);
-		ChangeWindowMessageFilter(0x0049, MSGFLT_ADD); // WM_COPYGLOBALDATA
+		struct { const char* ID; ATL::CWindow Control; } x[] =
+		{
+			{ "EnableAllPrivileges" , this->m_hCheckBox },
+			{ "WarningText" , this->GetDlgItem(IDC_WARNINGTEXT) },
+			{ "SettingsGroupText" ,this->GetDlgItem(IDC_SETTINGSGROUPTEXT) },
+			{ "Static.User",this->GetDlgItem(IDC_STATIC_USER) },
+			{ "Static.Open", this->GetDlgItem(IDC_STATIC_OPEN) },
+			{ "Button.About", this->GetDlgItem(IDC_About) },
+			{ "Button.Browse", this->GetDlgItem(IDC_Browse) },
+			{ "Button.Run", this->GetDlgItem(IDC_Run) }
+		};
 
-		return DialogBoxParamW(
-			this->m_hInstance,
-			MAKEINTRESOURCEW(IDD_NSudoDlg),
+		for (size_t i = 0; i < sizeof(x) / sizeof(x[0]); ++i)
+		{
+			std::wstring Buffer = g_ResourceManagement.GetTranslation(x[i].ID);
+			x[i].Control.SetWindowTextW(Buffer.c_str());
+		}
+
+		HRESULT hr = E_FAIL;
+
+		hr = GetDpiForMonitorInternal(
+			MonitorFromWindow(this->m_hWnd, MONITOR_DEFAULTTONEAREST),
+			MDT_EFFECTIVE_DPI, (UINT*)&this->m_xDPI, (UINT*)&this->m_yDPI);
+		if (hr != S_OK)
+		{
+			this->m_xDPI = GetDeviceCaps(this->GetDC(), LOGPIXELSX);
+			this->m_yDPI = GetDeviceCaps(this->GetDC(), LOGPIXELSY);
+		}
+
+		this->m_hNSudoIcon = (HICON)LoadImageW(
+			g_ResourceManagement.Instance,
+			MAKEINTRESOURCE(IDI_NSUDO),
+			IMAGE_ICON,
+			256,
+			256,
+			LR_SHARED);
+
+		SendMessageW(this->m_hWnd, WM_SETICON, ICON_SMALL, (LPARAM)this->m_hNSudoIcon);
+		SendMessageW(this->m_hWnd, WM_SETICON, ICON_BIG, (LPARAM)this->m_hNSudoIcon);
+
+		this->m_hWarningIcon = (HICON)LoadImageW(
 			nullptr,
-			this->s_DialogProc,
-			reinterpret_cast<LPARAM>(this));
+			IDI_WARNING,
+			IMAGE_ICON,
+			0,
+			0,
+			LR_SHARED);
+
+		const char* UserNameID[] = { "TI" ,"System" ,"CurrentProcess" ,"CurrentUser" };
+		for (size_t i = 0; i < sizeof(UserNameID) / sizeof(*UserNameID); ++i)
+		{
+			std::wstring Buffer = g_ResourceManagement.GetTranslation(UserNameID[i]);
+			SendMessageW(this->m_hUserName, CB_INSERTSTRING, 0, (LPARAM)Buffer.c_str());
+		}
+
+		//设置默认项"TrustedInstaller"
+		SendMessageW(this->m_hUserName, CB_SETCURSEL, 3, 0);
+
+		try
+		{
+			for (std::pair<std::wstring, std::wstring> Item
+				: g_ResourceManagement.ShortCutList)
+			{
+				SendMessageW(
+					this->m_hszPath,
+					CB_INSERTSTRING,
+					0,
+					(LPARAM)Item.first.c_str());
+			}
+		}
+		catch (const std::exception&)
+		{
+
+		}
+
+		return TRUE;
+	}
+
+	LRESULT OnPaint(
+		UINT uMsg,
+		WPARAM wParam,
+		LPARAM lParam,
+		BOOL& bHandled)
+	{
+		UNREFERENCED_PARAMETER(uMsg);
+		UNREFERENCED_PARAMETER(wParam);
+		UNREFERENCED_PARAMETER(lParam);
+		UNREFERENCED_PARAMETER(bHandled);
+		
+		PAINTSTRUCT ps;
+		HDC hdc = this->BeginPaint(&ps);
+		
+		RECT rect = { 0 };
+		this->GetClientRect(&rect);
+
+		DrawIconEx(
+			hdc,
+			MulDiv(16, this->m_xDPI, USER_DEFAULT_SCREEN_DPI),
+			MulDiv(16, this->m_yDPI, USER_DEFAULT_SCREEN_DPI),
+			this->m_hNSudoIcon,
+			MulDiv(64, this->m_xDPI, USER_DEFAULT_SCREEN_DPI),
+			MulDiv(64, this->m_yDPI, USER_DEFAULT_SCREEN_DPI),
+			0,
+			nullptr,
+			DI_NORMAL | DI_COMPAT);
+		DrawIconEx(
+			hdc,
+			MulDiv(16, this->m_xDPI, USER_DEFAULT_SCREEN_DPI),
+			(rect.bottom - rect.top) - MulDiv(40, this->m_yDPI, USER_DEFAULT_SCREEN_DPI),
+			this->m_hWarningIcon,
+			MulDiv(24, this->m_xDPI, USER_DEFAULT_SCREEN_DPI),
+			MulDiv(24, this->m_yDPI, USER_DEFAULT_SCREEN_DPI),
+			0,
+			nullptr,
+			DI_NORMAL | DI_COMPAT);
+
+		this->EndPaint(&ps);
+
+		return 0;
+	}
+
+	LRESULT OnDPIChanged(
+		UINT uMsg,
+		WPARAM wParam,
+		LPARAM lParam,
+		BOOL& bHandled)
+	{
+		UNREFERENCED_PARAMETER(uMsg);
+		UNREFERENCED_PARAMETER(lParam);
+		UNREFERENCED_PARAMETER(bHandled);
+
+		this->m_xDPI = LOWORD(wParam);
+		this->m_yDPI = HIWORD(wParam);
+
+		return 0;
+	}
+
+	LRESULT OnRun(
+		WORD wNotifyCode,
+		WORD wID,
+		HWND hWndCtl,
+		BOOL& bHandled)
+	{
+		UNREFERENCED_PARAMETER(wNotifyCode);
+		UNREFERENCED_PARAMETER(wID);
+		UNREFERENCED_PARAMETER(hWndCtl);
+		UNREFERENCED_PARAMETER(bHandled);
+
+		std::wstring username(MAX_PATH, L'\0');
+		std::wstring cmdline(MAX_PATH, L'\0');
+
+		auto username_length = this->m_hUserName.GetWindowTextW(&username[0], (int)username.size());
+		username.resize(username_length);
+		auto cmdline_length = this->m_hszPath.GetWindowTextW(&cmdline[0], (int)cmdline.size());
+		cmdline.resize(cmdline_length);
+
+		SuGUIRun(
+			this->m_hWnd,
+			username.c_str(),
+			(SendMessageW(this->m_hCheckBox, BM_GETCHECK, 0, 0) == BST_CHECKED),
+			cmdline.c_str());
+
+		return 0;
+	}
+
+	LRESULT OnAbout(
+		WORD wNotifyCode,
+		WORD wID,
+		HWND hWndCtl,
+		BOOL& bHandled)
+	{
+		UNREFERENCED_PARAMETER(wNotifyCode);
+		UNREFERENCED_PARAMETER(wID);
+		UNREFERENCED_PARAMETER(hWndCtl);
+		UNREFERENCED_PARAMETER(bHandled);
+
+		
+
+		NSudoShowAboutDialog(this->m_hWnd);
+
+		return 0;
+	}
+
+	LRESULT OnBrowse(
+		WORD wNotifyCode,
+		WORD wID,
+		HWND hWndCtl,
+		BOOL& bHandled)
+	{
+		UNREFERENCED_PARAMETER(wNotifyCode);
+		UNREFERENCED_PARAMETER(wID);
+		UNREFERENCED_PARAMETER(hWndCtl);
+		UNREFERENCED_PARAMETER(bHandled);
+
+		std::wstring buffer(MAX_PATH + 2, L'\0');
+
+		buffer[0] = L'\"';
+
+		NSudoBrowseDialog(this->m_hWnd, &buffer[1]);
+		buffer.resize(wcslen(buffer.c_str()));
+
+		buffer[buffer.size()] = L'\"';
+
+		if (wcslen(buffer.c_str()) > 2)
+			this->m_hszPath.SetWindowTextW(buffer.c_str());
+
+		return 0;
+	}
+
+	LRESULT OnDropFiles(
+		UINT uMsg,
+		WPARAM wParam,
+		LPARAM lParam,
+		BOOL& bHandled)
+	{
+		UNREFERENCED_PARAMETER(uMsg);
+		UNREFERENCED_PARAMETER(lParam);
+		UNREFERENCED_PARAMETER(bHandled);
+
+		std::wstring buffer(MAX_PATH + 2, L'\0');
+
+		buffer[0] = L'\"';
+
+		auto length = DragQueryFileW(
+			(HDROP)wParam, 0, &buffer[1], (int)(buffer.size() - 2));
+		buffer.resize(length + 1);
+
+		if (!(GetFileAttributesW(&buffer[1]) & FILE_ATTRIBUTE_DIRECTORY))
+		{
+			buffer[buffer.size()] = L'\"';
+			this->m_hszPath.SetWindowTextW(buffer.c_str());
+		}
+
+		DragFinish((HDROP)wParam);
+
+		return 0;
 	}
 };
 
@@ -1314,7 +1353,12 @@ int NSudoMain()
 		NSudoShowAboutDialog(nullptr);
 #endif
 #if defined(NSUDO_GUI_WINDOWS)
-		CNSudoMainWindow(GetModuleHandleW(nullptr)).Show();
+		//CNSudoMainWindow1(GetModuleHandleW(nullptr)).Show();
+
+
+		CNSudoMainWindow MainWindow;
+		MainWindow.DoModal(nullptr);
+
 #endif
 		return 0;
 	}

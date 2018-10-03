@@ -2,6 +2,12 @@
 
 - [简体中文](更新日志.md)
 
+**NSudo 6.1.1810.3**
+- Remove donation link in the documents.
+- Improve several implementations.
+- Update to Windows 10, version 1809 SDK.
+- Using ATL to implement the main window. 
+
 **NSudo 6.1.1808.16**
 - Merge NSudoC and NSudoG projects to NSudo project.
 - Update copyright of license.
@@ -11,7 +17,7 @@
 - Refactoring the command line parser.
 - Add "Wait" option in the command line usage. (Suggested by testtest322, wzzw
   and Domagoj Smolčić)
-- Add "Help" and "Version" option in the command line usage. 
+- Add "Help" and "Version" option in the command line usage.
 
 **NSudo 6.0.1804.5**
 - Fix a bug which can cause crash on Windows Vista and Server 2008. 
