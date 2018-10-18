@@ -7,6 +7,7 @@
 - Improve several implementations.
 - Update to Windows 10, version 1809 SDK.
 - Using ATL to implement the main window. 
+- Fix the context menu bug. (Thanks to Thomas Dubreuil.)
 
 **NSudo 6.1.1808.16**
 - Merge NSudoC and NSudoG projects to NSudo project.
