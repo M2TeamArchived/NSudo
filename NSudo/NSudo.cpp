@@ -381,7 +381,7 @@ public:
 			std::wstring GeneratedItemCommand =
 				NSudoPathWithQuotation +
 				L" " + Item.ItemCommandParameters + L" " +
-				L"\"\"%1\"\"";
+				L"%1";
 
 			dwError = CreateCommandStoreItem(
 				this->m_CommandStoreRoot,
