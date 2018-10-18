@@ -35,12 +35,15 @@
 - 4071E95D-A09B-4AA3-8008
 - abbodi1406
 - AeonX
+- Domagoj Smolčić
 - hydra79545
 - imadlatch
 - kCaRhC卡壳
 - NotePad
 - sebus
+- testtest322
 - th1r5bvn23
+- Thomas Dubreuil
 - 老九
 - 芈员外
 - 鸢一雨音 (https://github.com/TobiichiAmane)
