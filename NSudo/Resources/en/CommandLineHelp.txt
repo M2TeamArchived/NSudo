@@ -12,23 +12,36 @@ Options:
 -P:[ E | D ] Privilege
     E Enable All Privileges
     D Disable All Privileges
-PS:
-    If you want to use the default privileges, please do not include the "-P"
-    parameter.
+PS: If you want to use the default privileges, please do not include the "-P"
+parameter.
 
 -M:[ S | H | M | L ] Integrity Level
     S System
     H High
     M Medium
     L Low
-PS:
-    If you want to use the default Integrity Level, please do not include the 
-    "-M" parameter.
+PS: If you want to use the default Integrity Level, please do not include the 
+"-M" parameter.
+
+-Priority:[ Value ] Set Process Priority
+    Idle
+    BelowNormal
+    Normal
+    AboveNormal
+    High
+    RealTime
+PS: If you want to use the default Process Priority, please do not include the 
+"-Priority" parameter.
 
 -Wait:[ Infinite | Wait interval (Milliseconds) ] Make NSudo wait for the 
 created process to quit after a period of time
 PS: If "Infinite" is specified, NSudo will wait for the created process to end 
-before exiting.
+before exiting. If you don't want to wait, please do not include the "-Wait" 
+parameter.
+
+-CurrentDirectory:[ DirectoryPath ] Set the current directory for the process
+PS: If you want to use the NSudo's current directory, please do not include the
+"-CurrentDirectory" parameter.
 
 -Version Show this content
 -? Show this content
