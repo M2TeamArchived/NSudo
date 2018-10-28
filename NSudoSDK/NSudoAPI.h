@@ -929,18 +929,50 @@ extern "C" {
 		_In_opt_ HANDLE hToken,
 		_Inout_ LPCWSTR lpCommandLine,
 		_In_opt_ LPCWSTR lpCurrentDirectory,
-		_In_ DWORD WaitInterval)
+		_In_ DWORD WaitInterval,
+		_In_ DWORD ProcessPriority = 0,
+		_In_ DWORD ShowWindowMode = SW_HIDE)
 	{
 		STARTUPINFOW StartupInfo = { 0 };
 		PROCESS_INFORMATION ProcessInfo = { 0 };
+		
+		StartupInfo.dwFlags |= STARTF_USESHOWWINDOW;
+		StartupInfo.wShowWindow = static_cast<WORD>(ShowWindowMode);
 
 		std::wstring ComSpec(MAX_PATH, L'\0');
 		GetEnvironmentVariableW(L"ComSpec", &ComSpec[0], (DWORD)ComSpec.size());
 		ComSpec.resize(wcslen(ComSpec.c_str()));
 
+		std::wstring StartCommandOption = L"/I /WAIT";
+
+		if (IDLE_PRIORITY_CLASS == ProcessPriority)
+		{
+			StartCommandOption += L" /LOW";
+		}
+		else if (BELOW_NORMAL_PRIORITY_CLASS == ProcessPriority)
+		{
+			StartCommandOption += L" /BELOWNORMAL";
+		}
+		else if (NORMAL_PRIORITY_CLASS == ProcessPriority)
+		{
+			StartCommandOption += L" /NORMAL";
+		}
+		else if (ABOVE_NORMAL_PRIORITY_CLASS == ProcessPriority)
+		{
+			StartCommandOption += L" /ABOVENORMAL";
+		}
+		else if (HIGH_PRIORITY_CLASS == ProcessPriority)
+		{
+			StartCommandOption += L" /HIGH";
+		}
+		else if (REALTIME_PRIORITY_CLASS == ProcessPriority)
+		{
+			StartCommandOption += L" /REALTIME";
+		}
+
 		//生成命令行
 		std::wstring final_command_line = 
-			L"/c start /wait \"" + ComSpec + L"\" " + lpCommandLine;
+			std::wstring(L"/c start") + StartCommandOption + L" \"" + ComSpec + L"\" " + lpCommandLine;
 
 		//设置进程所在桌面
 		StartupInfo.lpDesktop = const_cast<LPWSTR>(L"WinSta0\\Default");
@@ -974,6 +1006,8 @@ extern "C" {
 				//关闭句柄
 				if (result)
 				{
+					//SetPriorityClass(ProcessInfo.hProcess, ProcessPriority);
+					
 					WaitForSingleObjectEx(
 						ProcessInfo.hProcess, WaitInterval, FALSE);
 									

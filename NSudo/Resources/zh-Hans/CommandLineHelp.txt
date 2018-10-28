@@ -12,20 +12,30 @@
 -P:[ E | D ] 特权
     E 启用全部特权
     D 禁用所有特权
-PS：
-    如果想以默认特权方式的话，请不要包含“-P”参数。
+PS：如果想以默认特权方式的话，请不要包含“-P”参数。
 
 -M:[ S | H | M | L ] 完整性
     S 系统
     H 高
     M 中
     L 低
-PS：
-    如果想以默认完整性方式的话，请不要包含“-M”参数。
+PS：如果想以默认完整性方式的话，请不要包含“-M”参数。
+
+-Priority:[ Value ] 设置进程优先级
+    Idle 低
+    BelowNormal 低于正常
+    Normal 正常
+    AboveNormal 高于正常
+    High 高
+    RealTime 实时
+PS：如果想以默认进程优先级方式的话，请不要包含“-Priority”参数。
 
 -Wait:[ Infinite | 等待间隔 (毫秒) ] 令 NSudo 等待创建的进程一段时间后再退出
-PS：
-    如果指定了 "Infinite"，则 NSudo 将会等待创建的进程结束后再退出。
+PS：如果指定了 "Infinite"，则 NSudo 将会等待创建的进程结束后再退出。如果不想
+等待，请不要包含“-Wait”参数。
+
+-CurrentDirectory:[ 目录路径 ] 设置进程的的当前目录
+PS: 如果你想用 NSudo 的当前目录，请不要包含“-CurrentDirectory”参数。
 
 -Version 显示该内容
 -? 显示该内容

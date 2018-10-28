@@ -246,41 +246,6 @@ std::vector<std::wstring> NSudoSplitCommandLine(LPCWSTR lpCommandLine)
 	return result;
 }
 
-/*
-SuCreateProcess函数创建一个新进程和对应的主线程
-The SuCreateProcess function creates a new process and its primary thread.
-
-如果函数执行失败，返回值为NULL。调用GetLastError可获取详细错误码。
-If the function fails, the return value is NULL. To get extended error
-information, call GetLastError.
-*/
-bool SuCreateProcess(
-	_In_opt_ HANDLE hToken,
-	_Inout_ LPCWSTR lpCommandLine,
-	_In_ DWORD WaitInterval)
-{
-	//生成命令行
-	std::wstring final_command_line;
-
-	std::map<std::wstring, std::wstring>::const_iterator iterator =
-		g_ResourceManagement.ShortCutList.find(lpCommandLine);
-
-	if (g_ResourceManagement.ShortCutList.end() != iterator)
-	{
-		final_command_line = iterator->second;
-	}
-	else
-	{
-		final_command_line = lpCommandLine;
-	}
-
-	return NSudoCreateProcess(
-		hToken,
-		final_command_line.c_str(),
-		g_ResourceManagement.AppPath.c_str(),
-		WaitInterval);
-}
-
 typedef struct _NSUDO_CONTEXT_MENU_ITEM
 {
 	std::wstring ItemName;
@@ -573,13 +538,27 @@ NSUDO_MESSAGE NSudoCommandLineParser(
 		Low
 	};
 
+	enum class NSudoOptionProcessPriorityValue
+	{
+		Default,
+		Idle,
+		BelowNormal,
+		Normal,
+		AboveNormal,
+		High,
+		RealTime
+	};
+
 	NSudoOptionUserValue UserMode =
 		NSudoOptionUserValue::Default;
 	NSudoOptionPrivilegesValue PrivilegesMode =
 		NSudoOptionPrivilegesValue::Default;
 	NSudoOptionIntegrityLevelValue IntegrityLevelMode =
 		NSudoOptionIntegrityLevelValue::Default;
+	NSudoOptionProcessPriorityValue ProcessPriorityMode = 
+		NSudoOptionProcessPriorityValue::Default;
 	DWORD WaitInterval = 0;
+	std::wstring CurrentDirectory = g_ResourceManagement.AppPath;
 
 	if (0 == OptionsAndParameters.size())
 	{
@@ -673,10 +652,51 @@ NSUDO_MESSAGE NSudoCommandLineParser(
 					}
 				}
 			}
+			else if (0 == _wcsicmp(OptionAndParameter.first.c_str(), L"Priority"))
+			{
+				if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"Idle"))
+				{
+					ProcessPriorityMode = NSudoOptionProcessPriorityValue::Idle;
+				}
+				else if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"BelowNormal"))
+				{
+					ProcessPriorityMode = NSudoOptionProcessPriorityValue::BelowNormal;
+				}
+				else if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"Normal"))
+				{
+					ProcessPriorityMode = NSudoOptionProcessPriorityValue::Normal;
+				}
+				else if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"AboveNormal"))
+				{
+					ProcessPriorityMode = NSudoOptionProcessPriorityValue::AboveNormal;
+				}
+				else if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"High"))
+				{
+					ProcessPriorityMode = NSudoOptionProcessPriorityValue::High;
+				}
+				else if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"RealTime"))
+				{
+					ProcessPriorityMode = NSudoOptionProcessPriorityValue::RealTime;
+				}
+				else
+				{
+					bArgErr = true;
+					break;
+				}
+			}
+			else if (0 == _wcsicmp(OptionAndParameter.first.c_str(), L"CurrentDirectory"))
+			{
+				CurrentDirectory = OptionAndParameter.second;
+			}
+			else
+			{
+				bArgErr = true;
+				break;
+			}
 		}
 	}
 
-	if (bArgErr && NSudoOptionUserValue::Default == UserMode)
+	if (bArgErr || NSudoOptionUserValue::Default == UserMode)
 	{
 		return NSUDO_MESSAGE::INVALID_COMMAND_PARAMETER;
 	}
@@ -804,7 +824,58 @@ NSUDO_MESSAGE NSudoCommandLineParser(
 		}
 	}
 
-	if (!SuCreateProcess(hToken, UnresolvedCommandLine.c_str(), WaitInterval))
+	DWORD ProcessPriority = 0;
+
+	if (NSudoOptionProcessPriorityValue::Idle == ProcessPriorityMode)
+	{
+		ProcessPriority = IDLE_PRIORITY_CLASS;
+	}
+	else if (NSudoOptionProcessPriorityValue::BelowNormal == ProcessPriorityMode)
+	{
+		ProcessPriority = BELOW_NORMAL_PRIORITY_CLASS;
+	}
+	else if (NSudoOptionProcessPriorityValue::Normal == ProcessPriorityMode)
+	{
+		ProcessPriority = NORMAL_PRIORITY_CLASS;
+	}
+	else if (NSudoOptionProcessPriorityValue::AboveNormal == ProcessPriorityMode)
+	{
+		ProcessPriority = ABOVE_NORMAL_PRIORITY_CLASS;
+	}
+	else if (NSudoOptionProcessPriorityValue::High == ProcessPriorityMode)
+	{
+		ProcessPriority = HIGH_PRIORITY_CLASS;
+	}
+	else if (NSudoOptionProcessPriorityValue::RealTime == ProcessPriorityMode)
+	{
+		ProcessPriority = REALTIME_PRIORITY_CLASS;
+	}
+
+	if (UnresolvedCommandLine.empty())
+	{
+		return NSUDO_MESSAGE::INVALID_COMMAND_PARAMETER;
+	}
+
+	std::wstring final_command_line;
+
+	std::map<std::wstring, std::wstring>::const_iterator iterator =
+		g_ResourceManagement.ShortCutList.find(UnresolvedCommandLine);
+
+	if (g_ResourceManagement.ShortCutList.end() != iterator)
+	{
+		final_command_line = iterator->second;
+	}
+	else
+	{
+		final_command_line = UnresolvedCommandLine;
+	}
+
+	if (!NSudoCreateProcess(
+		hToken,
+		final_command_line.c_str(),
+		CurrentDirectory.c_str(),
+		WaitInterval, 
+		ProcessPriority))
 	{
 		return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
 	}
@@ -1206,7 +1277,7 @@ private:
 			M2SpiltCommandLineEx(
 				CommandLine,
 				std::vector<std::wstring>{ L"-", L"/", L"--" },
-				std::vector<std::wstring>{ L":", L"=" },
+				std::vector<std::wstring>{ L"=", L":" },
 				ApplicationName,
 				OptionsAndParameters,
 				UnresolvedCommandLine);
@@ -1326,7 +1397,7 @@ int NSudoMain()
 	M2SpiltCommandLineEx(
 		std::wstring(GetCommandLineW()),
 		std::vector<std::wstring>{ L"-", L"/", L"--" },
-		std::vector<std::wstring>{ L":", L"=" },
+		std::vector<std::wstring>{ L"=", L":" },
 		ApplicationName,
 		OptionsAndParameters,
 		UnresolvedCommandLine);
