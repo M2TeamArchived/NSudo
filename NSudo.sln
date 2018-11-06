@@ -14,12 +14,22 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documents", "Documents", "{
 		LICENSE = LICENSE
 		People.md = People.md
 		Readme.md = Readme.md
-		VC-LTL_EnableSupport.props = VC-LTL_EnableSupport.props
 		更新日志.md = 更新日志.md
 		自述.md = 自述.md
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NSudoSDK", "NSudoSDK\NSudoSDK.vcxitems", "{864F35B9-789C-4DA9-8906-649DFE3705F7}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MSBuild", "MSBuild", "{89E797B1-E412-492F-BD8C-247E53CA85CB}"
+	ProjectSection(SolutionItems) = preProject
+		MSBuild\AllTargets.Common.props = MSBuild\AllTargets.Common.props
+		MSBuild\AllTargets.Debug.props = MSBuild\AllTargets.Debug.props
+		MSBuild\AllTargets.Release.props = MSBuild\AllTargets.Release.props
+		MSBuild\AllTargets.VC-LTL.props = MSBuild\AllTargets.VC-LTL.props
+		MSBuild\NSudo.props = MSBuild\NSudo.props
+		MSBuild\NSudoC.props = MSBuild\NSudoC.props
+		MSBuild\NSudoG.props = MSBuild\NSudoG.props
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
