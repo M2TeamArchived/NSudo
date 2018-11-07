@@ -2,14 +2,21 @@
 
 - [简体中文](更新日志.md)
 
-**NSudo 6.1.1810.28**
+**NSudo 6.1.1811.7**
 - Remove donation link in the documents.
 - Improve several implementations.
 - Using ATL to implement the main window. 
 - Fix the context menu bug. (Thanks to Thomas Dubreuil.)
 - Fix several bugs in the command line parser.
 - Add "Priority" option in the command line usage. (Suggested by testtest322.)
-- Add "CurrentDirectory" option in the command line usage. (Suggested by testtest322.)
+- Add "CurrentDirectory" option in the command line usage. (Suggested by 
+  testtest322.)
+- Introduce the new frontend of process creation.
+- Modify "Wait" option in the command line usage.
+- Add "ShowWindowMode" option in the command line usage. (Suggested by 
+  testtest322.)
+- Add "UseCurrentConsole" option in the command line usage.
+- Remove some undocumented command line usage.
 
 **NSudo 6.1.1808.16**
 - Merge NSudoC and NSudoG projects to NSudo project.
