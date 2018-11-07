@@ -910,12 +910,6 @@ extern "C" {
 
 #include <Userenv.h>
 #pragma comment(lib, "Userenv.lib")
-
-	typedef enum _PROCESS_PRIORITY_CLASS
-	{
-
-		
-	} PROCESS_PRIORITY_CLASS, *PPROCESS_PRIORITY_CLASS;
 	
 	/*
 	NSudoCreateProcess函数创建一个新进程和对应的主线程
@@ -931,7 +925,7 @@ extern "C" {
 		_In_opt_ LPCWSTR lpCurrentDirectory,
 		_In_ DWORD WaitInterval,
 		_In_ DWORD ProcessPriority = 0,
-		_In_ DWORD ShowWindowMode = SW_HIDE)
+		_In_ DWORD ShowWindowMode = SW_SHOW)
 	{
 		STARTUPINFOW StartupInfo = { 0 };
 		PROCESS_INFORMATION ProcessInfo = { 0 };
@@ -939,11 +933,13 @@ extern "C" {
 		StartupInfo.dwFlags |= STARTF_USESHOWWINDOW;
 		StartupInfo.wShowWindow = static_cast<WORD>(ShowWindowMode);
 
+		//SW_SHOW
+
 		std::wstring ComSpec(MAX_PATH, L'\0');
 		GetEnvironmentVariableW(L"ComSpec", &ComSpec[0], (DWORD)ComSpec.size());
 		ComSpec.resize(wcslen(ComSpec.c_str()));
 
-		std::wstring StartCommandOption = L"/I /WAIT";
+		std::wstring StartCommandOption = L"/WAIT";
 
 		if (IDLE_PRIORITY_CLASS == ProcessPriority)
 		{
@@ -1022,6 +1018,83 @@ extern "C" {
 		//返回结果
 		return result;
 	}
+
+
+
+
+	static bool NSudoCreateProcessDirect(
+		_In_opt_ HANDLE hToken,
+		_Inout_ LPCWSTR lpCommandLine,
+		_In_opt_ LPCWSTR lpCurrentDirectory,
+		_In_ DWORD WaitInterval,
+		_In_ DWORD ProcessPriority = 0,
+		_In_ DWORD ShowWindowMode = SW_SHOWDEFAULT,
+		_In_ bool CreateNewConsole = true)
+	{
+		DWORD dwCreationFlags = CREATE_SUSPENDED | CREATE_UNICODE_ENVIRONMENT;
+
+		if (true == CreateNewConsole)
+		{
+			dwCreationFlags |= CREATE_NEW_CONSOLE;
+		}
+		
+		STARTUPINFOW StartupInfo = { 0 };
+		PROCESS_INFORMATION ProcessInfo = { 0 };
+
+		StartupInfo.cb = sizeof(STARTUPINFOW);
+
+		StartupInfo.lpDesktop = const_cast<LPWSTR>(L"WinSta0\\Default");
+
+		StartupInfo.dwFlags |= STARTF_USESHOWWINDOW;
+		StartupInfo.wShowWindow = static_cast<WORD>(ShowWindowMode);
+
+		LPVOID lpEnvironment = nullptr;
+
+		BOOL result = FALSE;
+
+		M2::CHandle hCurrentToken;
+		if (OpenProcessToken(
+			GetCurrentProcess(),
+			MAXIMUM_ALLOWED,
+			&hCurrentToken))
+		{
+			if (CreateEnvironmentBlock(&lpEnvironment, hCurrentToken, TRUE))
+			{
+				result = CreateProcessAsUserW(
+					hToken,
+					nullptr,
+					const_cast<LPWSTR>(lpCommandLine),
+					nullptr,
+					nullptr,
+					FALSE,
+					dwCreationFlags,
+					lpEnvironment,
+					lpCurrentDirectory,
+					&StartupInfo,
+					&ProcessInfo);
+
+				if (result)
+				{
+					SetPriorityClass(ProcessInfo.hProcess, ProcessPriority);
+
+					ResumeThread(ProcessInfo.hThread);
+
+					WaitForSingleObjectEx(
+						ProcessInfo.hProcess, WaitInterval, FALSE);
+
+					CloseHandle(ProcessInfo.hProcess);
+					CloseHandle(ProcessInfo.hThread);
+				}
+
+				DestroyEnvironmentBlock(lpEnvironment);
+			}
+		}
+
+		//返回结果
+		return result;
+	}
+
+
 
 #ifdef __cplusplus
 }

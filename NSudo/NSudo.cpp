@@ -549,6 +549,15 @@ NSUDO_MESSAGE NSudoCommandLineParser(
 		RealTime
 	};
 
+	enum class NSudoOptionWindowModeValue
+	{
+		Default,
+		Show,
+		Hide,
+		Maximize,
+		Minimize,
+	};
+
 	NSudoOptionUserValue UserMode =
 		NSudoOptionUserValue::Default;
 	NSudoOptionPrivilegesValue PrivilegesMode =
@@ -557,142 +566,156 @@ NSUDO_MESSAGE NSudoCommandLineParser(
 		NSudoOptionIntegrityLevelValue::Default;
 	NSudoOptionProcessPriorityValue ProcessPriorityMode = 
 		NSudoOptionProcessPriorityValue::Default;
+	NSudoOptionWindowModeValue WindowMode = 
+		NSudoOptionWindowModeValue::Default;
+
 	DWORD WaitInterval = 0;
 	std::wstring CurrentDirectory = g_ResourceManagement.AppPath;
+	DWORD ShowWindowMode = SW_SHOWDEFAULT;
+	bool CreateNewConsole = true;
 
-	if (0 == OptionsAndParameters.size())
+	for (auto& OptionAndParameter : OptionsAndParameters)
 	{
-		UserMode = NSudoOptionUserValue::TrustedInstaller;
-		PrivilegesMode = NSudoOptionPrivilegesValue::EnableAllPrivileges;
-	}
-	else
-	{
-		for (auto& OptionAndParameter : OptionsAndParameters)
+		if (0 == _wcsicmp(OptionAndParameter.first.c_str(), L"U"))
 		{
-			if (0 == _wcsicmp(OptionAndParameter.first.c_str(), L"U"))
+			if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"T"))
 			{
-				if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"T"))
-				{
-					UserMode = NSudoOptionUserValue::TrustedInstaller;
-				}
-				else if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"S"))
-				{
-					UserMode = NSudoOptionUserValue::System;
-				}
-				else if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"C"))
-				{
-					UserMode = NSudoOptionUserValue::CurrentUser;
-				}
-				else if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"P"))
-				{
-					UserMode = NSudoOptionUserValue::CurrentProcess;
-				}
-				else if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"D"))
-				{
-					UserMode = NSudoOptionUserValue::CurrentProcessDropRight;
-				}
-				else
-				{
-					bArgErr = true;
-					break;
-				}
+				UserMode = NSudoOptionUserValue::TrustedInstaller;
 			}
-			else if (0 == _wcsicmp(OptionAndParameter.first.c_str(), L"P"))
+			else if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"S"))
 			{
-				if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"E"))
-				{
-					PrivilegesMode = NSudoOptionPrivilegesValue::EnableAllPrivileges;
-				}
-				else if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"D"))
-				{
-					PrivilegesMode = NSudoOptionPrivilegesValue::DisableAllPrivileges;
-				}
-				else
-				{
-					bArgErr = true;
-					break;
-				}
+				UserMode = NSudoOptionUserValue::System;
 			}
-			else if (0 == _wcsicmp(OptionAndParameter.first.c_str(), L"M"))
+			else if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"C"))
 			{
-				if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"S"))
-				{
-					IntegrityLevelMode = NSudoOptionIntegrityLevelValue::System;
-				}
-				else if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"H"))
-				{
-					IntegrityLevelMode = NSudoOptionIntegrityLevelValue::High;
-				}
-				else if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"M"))
-				{
-					IntegrityLevelMode = NSudoOptionIntegrityLevelValue::Medium;
-				}
-				else if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"L"))
-				{
-					IntegrityLevelMode = NSudoOptionIntegrityLevelValue::Low;
-				}
-				else
-				{
-					bArgErr = true;
-					break;
-				}
+				UserMode = NSudoOptionUserValue::CurrentUser;
 			}
-			else if (0 == _wcsicmp(OptionAndParameter.first.c_str(), L"Wait"))
+			else if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"P"))
 			{
-				if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"Infinite"))
-				{
-					WaitInterval = INFINITE;
-				}
-				else
-				{
-					if (1 != swscanf_s(OptionAndParameter.second.c_str(), L"%ul", &WaitInterval))
-					{
-						bArgErr = true;
-						break;
-					}
-				}
+				UserMode = NSudoOptionUserValue::CurrentProcess;
 			}
-			else if (0 == _wcsicmp(OptionAndParameter.first.c_str(), L"Priority"))
+			else if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"D"))
 			{
-				if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"Idle"))
-				{
-					ProcessPriorityMode = NSudoOptionProcessPriorityValue::Idle;
-				}
-				else if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"BelowNormal"))
-				{
-					ProcessPriorityMode = NSudoOptionProcessPriorityValue::BelowNormal;
-				}
-				else if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"Normal"))
-				{
-					ProcessPriorityMode = NSudoOptionProcessPriorityValue::Normal;
-				}
-				else if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"AboveNormal"))
-				{
-					ProcessPriorityMode = NSudoOptionProcessPriorityValue::AboveNormal;
-				}
-				else if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"High"))
-				{
-					ProcessPriorityMode = NSudoOptionProcessPriorityValue::High;
-				}
-				else if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"RealTime"))
-				{
-					ProcessPriorityMode = NSudoOptionProcessPriorityValue::RealTime;
-				}
-				else
-				{
-					bArgErr = true;
-					break;
-				}
-			}
-			else if (0 == _wcsicmp(OptionAndParameter.first.c_str(), L"CurrentDirectory"))
-			{
-				CurrentDirectory = OptionAndParameter.second;
+				UserMode = NSudoOptionUserValue::CurrentProcessDropRight;
 			}
 			else
 			{
 				bArgErr = true;
 				break;
 			}
+		}
+		else if (0 == _wcsicmp(OptionAndParameter.first.c_str(), L"P"))
+		{
+			if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"E"))
+			{
+				PrivilegesMode = NSudoOptionPrivilegesValue::EnableAllPrivileges;
+			}
+			else if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"D"))
+			{
+				PrivilegesMode = NSudoOptionPrivilegesValue::DisableAllPrivileges;
+			}
+			else
+			{
+				bArgErr = true;
+				break;
+			}
+		}
+		else if (0 == _wcsicmp(OptionAndParameter.first.c_str(), L"M"))
+		{
+			if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"S"))
+			{
+				IntegrityLevelMode = NSudoOptionIntegrityLevelValue::System;
+			}
+			else if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"H"))
+			{
+				IntegrityLevelMode = NSudoOptionIntegrityLevelValue::High;
+			}
+			else if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"M"))
+			{
+				IntegrityLevelMode = NSudoOptionIntegrityLevelValue::Medium;
+			}
+			else if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"L"))
+			{
+				IntegrityLevelMode = NSudoOptionIntegrityLevelValue::Low;
+			}
+			else
+			{
+				bArgErr = true;
+				break;
+			}
+		}
+		else if (0 == _wcsicmp(OptionAndParameter.first.c_str(), L"Wait"))
+		{
+			WaitInterval = INFINITE;
+		}
+		else if (0 == _wcsicmp(OptionAndParameter.first.c_str(), L"Priority"))
+		{
+			if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"Idle"))
+			{
+				ProcessPriorityMode = NSudoOptionProcessPriorityValue::Idle;
+			}
+			else if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"BelowNormal"))
+			{
+				ProcessPriorityMode = NSudoOptionProcessPriorityValue::BelowNormal;
+			}
+			else if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"Normal"))
+			{
+				ProcessPriorityMode = NSudoOptionProcessPriorityValue::Normal;
+			}
+			else if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"AboveNormal"))
+			{
+				ProcessPriorityMode = NSudoOptionProcessPriorityValue::AboveNormal;
+			}
+			else if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"High"))
+			{
+				ProcessPriorityMode = NSudoOptionProcessPriorityValue::High;
+			}
+			else if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"RealTime"))
+			{
+				ProcessPriorityMode = NSudoOptionProcessPriorityValue::RealTime;
+			}
+			else
+			{
+				bArgErr = true;
+				break;
+			}
+		}
+		else if (0 == _wcsicmp(OptionAndParameter.first.c_str(), L"CurrentDirectory"))
+		{
+			CurrentDirectory = OptionAndParameter.second;
+		}
+		else if (0 == _wcsicmp(OptionAndParameter.first.c_str(), L"ShowWindowMode"))
+		{
+			if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"Show"))
+			{
+				WindowMode = NSudoOptionWindowModeValue::Show;
+			}
+			else if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"Hide"))
+			{
+				WindowMode = NSudoOptionWindowModeValue::Hide;
+			}
+			else if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"Maximize"))
+			{
+				WindowMode = NSudoOptionWindowModeValue::Maximize;
+			}
+			else if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"Minimize"))
+			{
+				WindowMode = NSudoOptionWindowModeValue::Minimize;
+			}
+			else
+			{
+				bArgErr = true;
+				break;
+			}
+		}
+		else if (0 == _wcsicmp(OptionAndParameter.first.c_str(), L"UseCurrentConsole"))
+		{
+			CreateNewConsole = false;
+		}
+		else
+		{
+			bArgErr = true;
+			break;
 		}
 	}
 
@@ -851,6 +874,23 @@ NSUDO_MESSAGE NSudoCommandLineParser(
 		ProcessPriority = REALTIME_PRIORITY_CLASS;
 	}
 
+	if (NSudoOptionWindowModeValue::Show == WindowMode)
+	{
+		ShowWindowMode = SW_SHOW;
+	}
+	else if (NSudoOptionWindowModeValue::Hide == WindowMode)
+	{
+		ShowWindowMode = SW_HIDE;
+	}
+	else if (NSudoOptionWindowModeValue::Maximize == WindowMode)
+	{
+		ShowWindowMode = SW_MAXIMIZE;
+	}
+	else if (NSudoOptionWindowModeValue::Minimize == WindowMode)
+	{
+		ShowWindowMode = SW_MINIMIZE;
+	}
+
 	if (UnresolvedCommandLine.empty())
 	{
 		return NSUDO_MESSAGE::INVALID_COMMAND_PARAMETER;
@@ -870,12 +910,14 @@ NSUDO_MESSAGE NSudoCommandLineParser(
 		final_command_line = UnresolvedCommandLine;
 	}
 
-	if (!NSudoCreateProcess(
+	if (!NSudoCreateProcessDirect(
 		hToken,
 		final_command_line.c_str(),
 		CurrentDirectory.c_str(),
 		WaitInterval, 
-		ProcessPriority))
+		ProcessPriority,
+		ShowWindowMode,
+		CreateNewConsole))
 	{
 		return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
 	}
@@ -1401,6 +1443,8 @@ int NSudoMain()
 		ApplicationName,
 		OptionsAndParameters,
 		UnresolvedCommandLine);
+
+	//MessageBoxW(nullptr, L"", L"", 0);
 
 	if (OptionsAndParameters.empty() && UnresolvedCommandLine.empty())
 	{

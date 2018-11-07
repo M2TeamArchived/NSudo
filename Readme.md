@@ -28,50 +28,65 @@ Format: NSudo [ Options and parameters ] Command line or ShortCut Command
 
 Options:
 
--U:[ T | S | C | P | D ] User
+-U:[ Option ] Create a process with specified user option.
+Available options:
     T TrustedInstaller
     S System
     C Current User
     P Current Process
     D Current Process (Drop right)
+PS: This is a mandatory parameter.
 
--P:[ E | D ] Privilege
+-P:[ Option ] Create a process with specified privilege option. 
+Available options:
     E Enable All Privileges
     D Disable All Privileges
-PS: If you want to use the default privileges, please do not include the "-P"
-parameter.
+PS: If you want to use the default privileges to create a process, please do 
+not include the "-P" parameter.
 
--M:[ S | H | M | L ] Integrity Level
+-M:[ Option ] Create a process with specified Integrity Level option.
+Available options:
     S System
     H High
     M Medium
     L Low
-PS: If you want to use the default Integrity Level, please do not include the 
-"-M" parameter.
+PS: If you want to use the default Integrity Level to create a process, please 
+do not include the "-M" parameter.
 
--Priority:[ Value ] Set Process Priority
+-Priority:[ Option ] Create a process with specified [rocess priority option.
+Available options:
     Idle
     BelowNormal
     Normal
     AboveNormal
     High
     RealTime
-PS: If you want to use the default Process Priority, please do not include the 
-"-Priority" parameter.
+PS: If you want to use the default Process Priority to create a process, please
+do not include the "-Priority" parameter.
 
--Wait:[ Infinite | Wait interval (Milliseconds) ] Make NSudo wait for the 
-created process to quit after a period of time
-PS: If "Infinite" is specified, NSudo will wait for the created process to end 
-before exiting. If you don't want to wait, please do not include the "-Wait" 
-parameter.
+-ShowWindowMode:[ Option ] Create a process with specified window mode option.
+Available options:
+    Show
+    Hide
+    Maximize
+    Minimize
+PS: If you want to use the default window mode to create a process, please do 
+not include the "-ShowWindowMode" parameter.
 
--CurrentDirectory:[ DirectoryPath ] Set the current directory for the process
+-Wait Make NSudo wait for the created process to end before exiting.
+PS: If you don't want to wait, please do not include the "-Wait" parameter.
+
+-CurrentDirectory:[ DirectoryPath ] Set the current directory for the process.
 PS: If you want to use the NSudo's current directory, please do not include the
 "-CurrentDirectory" parameter.
 
--Version Show this content
--? Show this content
--Help Show this content
+-UseCurrentConsole Create a process with the current console window.
+PS: If you want to create a process with the new console window, please do not 
+include the "-UseCurrentConsole" parameter.
+
+-Version Show this content.
+-? Show this content.
+-Help Show this content.
 
 Context Menu:
   -Install   Copy NSudo to the Windows directory and add the context menu.
