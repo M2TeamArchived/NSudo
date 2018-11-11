@@ -10,8 +10,6 @@ License: The MIT License
 #include <Windows.h>
 #include <VersionHelpers.h>
 
-#include "M2BaseHelpers.h"
-
 #include "M2Win32Helpers.h"
 
 // Obtain the best matching resource with the specified type and name in the 
