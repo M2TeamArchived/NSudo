@@ -10,7 +10,7 @@ License: The MIT License
 #ifndef _M2_WIN32_HELPERS_
 #define _M2_WIN32_HELPERS_
 
-#include <Windows.h>
+#include "M2BaseHelpers.h"
 
 // The resource info struct.
 typedef struct _M2_RESOURCE_INFO
@@ -115,5 +115,94 @@ HRESULT M2GetFileAllocationSize(
 HRESULT M2GetFileSize(
 	_In_ LPCWSTR lpFileName,
 	_Out_ PULONGLONG lpFileSize);
+
+namespace M2
+{
+	// The handle definer for SC_HANDLE object.
+#pragma region CServiceHandle
+
+	struct CServiceHandleDefiner
+	{
+		static inline SC_HANDLE GetInvalidValue()
+		{
+			return nullptr;
+		}
+
+		static inline void Close(SC_HANDLE Object)
+		{
+			CloseServiceHandle(Object);
+		}
+	};
+
+	typedef CObject<SC_HANDLE, CServiceHandleDefiner> CServiceHandle;
+
+#pragma endregion
+
+	// The handle definer for PSID object.
+#pragma region CSID
+
+	struct CSIDDefiner
+	{
+		static inline PSID GetInvalidValue()
+		{
+			return nullptr;
+		}
+
+		static inline void Close(PSID Object)
+		{
+			FreeSid(Object);
+		}
+	};
+
+	typedef CObject<PSID, CSIDDefiner> CSID;
+
+#pragma endregion
+
+	// The handle definer for memory block allocated via WTS API.
+#pragma region CWTSMemory
+
+	template<typename TMemoryBlock>
+	struct CWTSMemoryDefiner
+	{
+		static inline TMemoryBlock GetInvalidValue()
+		{
+			return nullptr;
+		}
+
+		static inline void Close(TMemoryBlock Object)
+		{
+			WTSFreeMemory(Object);
+		}
+	};
+
+	template<typename TMemoryBlock>
+	class CWTSMemory : public CObject<TMemoryBlock, CWTSMemoryDefiner<TMemoryBlock>>
+	{
+
+	};
+
+#pragma endregion
+
+	// The handle definer for HKEY object.
+#pragma region CHKey
+
+	struct CHKeyDefiner
+	{
+		static inline HKEY GetInvalidValue()
+		{
+			return nullptr;
+		}
+
+		static inline void Close(HKEY Object)
+		{
+			RegCloseKey(Object);
+		}
+	};
+
+	typedef CObject<HKEY, CHKeyDefiner> CHKey;
+
+#pragma endregion
+
+}
 
 #endif // _M2_WIN32_HELPERS_
