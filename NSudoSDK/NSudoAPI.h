@@ -112,14 +112,6 @@ static DWORD CreateCommandStoreItem(
 	return dwError;
 }
 
-static std::wstring M2GetWindowsDirectory()
-{
-	std::wstring result(MAX_PATH, L'\0');
-	GetSystemWindowsDirectoryW(&result[0], (UINT)(result.capacity()));
-	result.resize(wcslen(result.c_str()));
-	return result;
-}
-
 #ifdef __cplusplus
 extern "C" {
 #endif

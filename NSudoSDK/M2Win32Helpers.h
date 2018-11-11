@@ -205,4 +205,14 @@ namespace M2
 
 }
 
+// Retrieves the path of the shared Windows directory on a multi-user system.
+// Parameters:
+//   WindowsFolderPath: The string of the path of the shared Windows directory
+//   on a multi-user system.
+// Return value:
+//   The function will return HRESULT. If the function succeeds, the return 
+//   value is S_OK.
+HRESULT M2GetWindowsDirectory(
+	std::wstring& WindowsFolderPath);
+
 #endif // _M2_WIN32_HELPERS_

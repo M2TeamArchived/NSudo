@@ -298,3 +298,52 @@ Cleanup:
 
 	return hr;
 }
+
+// Retrieves the path of the shared Windows directory on a multi-user system.
+// Parameters:
+//   WindowsFolderPath: The string of the path of the shared Windows directory
+//   on a multi-user system.
+// Return value:
+//   The function will return HRESULT. If the function succeeds, the return 
+//   value is S_OK.
+HRESULT M2GetWindowsDirectory(
+	std::wstring& WindowsFolderPath)
+{
+	HRESULT hr = S_OK;
+	
+	do
+	{
+		UINT Length = GetSystemWindowsDirectoryW(
+			nullptr,
+			0);
+		if (0 == Length)
+		{
+			hr = M2GetLastError();
+			break;
+		}
+
+		WindowsFolderPath.resize(Length - 1);
+
+		Length = GetSystemWindowsDirectoryW(
+			&WindowsFolderPath[0],
+			static_cast<UINT>(Length));
+		if (0 == Length)
+		{
+			hr = M2GetLastError();
+			break;
+		}
+		if (WindowsFolderPath.size() != Length)
+		{	
+			hr = E_UNEXPECTED;
+			break;
+		}
+
+	} while (false);
+	
+	if (FAILED(hr))
+	{
+		WindowsFolderPath.clear();
+	}
+
+	return hr;
+}
