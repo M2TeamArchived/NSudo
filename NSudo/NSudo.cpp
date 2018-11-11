@@ -258,7 +258,8 @@ class CNSudoContextMenuManagement
 {
 private:
 	DWORD m_ConstructorError = ERROR_SUCCESS;
-	std::wstring m_NSudoPath = M2GetWindowsDirectory() + L"\\NSudo.exe";
+
+	std::wstring m_NSudoPath;
 	M2::CHKey m_CommandStoreRoot;
 
 	std::vector<NSUDO_CONTEXT_MENU_ITEM> m_ContextMenuItems;
@@ -266,6 +267,13 @@ private:
 public:
 	CNSudoContextMenuManagement()
 	{
+		this->m_ConstructorError = M2GetWindowsDirectory(this->m_NSudoPath);		
+		if (FAILED(this->m_ConstructorError))
+		{
+			return;
+		}
+		this->m_NSudoPath.append(L"\\NSudo.exe");
+		
 		this->m_ConstructorError = RegOpenKeyExW(
 			HKEY_LOCAL_MACHINE,
 			L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\CommandStore\\shell",
@@ -1443,8 +1451,6 @@ int NSudoMain()
 		ApplicationName,
 		OptionsAndParameters,
 		UnresolvedCommandLine);
-
-	//MessageBoxW(nullptr, L"", L"", 0);
 
 	if (OptionsAndParameters.empty() && UnresolvedCommandLine.empty())
 	{
