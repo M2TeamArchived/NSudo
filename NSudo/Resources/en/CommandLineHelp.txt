@@ -58,8 +58,10 @@ PS: If you want to use the NSudo's current directory, please do not include the
 PS: If you want to create a process with the new console window, please do not 
 include the "-UseCurrentConsole" parameter.
 
--Version Show this content.
+-Version Show version information of NSudo.
+
 -? Show this content.
+-H Show this content.
 -Help Show this content.
 
 Context Menu:
