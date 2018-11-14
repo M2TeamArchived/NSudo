@@ -3,31 +3,27 @@
 - [简体中文](更新日志.md)
 
 **NSudo 6.1.1811.7**
-- Remove donation link in the documents.
-- Improve several implementations.
-- Using ATL to implement the main window. 
-- Fix the context menu bug. (Thanks to Thomas Dubreuil.)
-- Fix several bugs in the command line parser.
-- Add "Priority" option in the command line usage. (Suggested by testtest322.)
-- Add "CurrentDirectory" option in the command line usage. (Suggested by 
-  testtest322.)
-- Introduce the new frontend of process creation.
-- Modify "Wait" option in the command line usage.
-- Add "ShowWindowMode" option in the command line usage. (Suggested by 
-  testtest322.)
-- Add "UseCurrentConsole" option in the command line usage.
-- Remove some undocumented command line usage.
-
-**NSudo 6.1.1808.16**
 - Merge NSudoC and NSudoG projects to NSudo project.
-- Update copyright of license.
 - Add VC-LTL 4.0 or later support for NSudo release configuration for ARM and 
   ARM64 and drop the earlier version of VC-LTL support. (Huge thanks to 
   mingkuang.)
-- Refactoring the command line parser.
-- Add "Wait" option in the command line usage. (Suggested by testtest322, wzzw
-  and Domagoj Smolčić)
-- Add "Help" and "Version" option in the command line usage.
+- Add the following options in the command line usage.
+  - CurrentDirectory (Suggested by testtest322.)
+  - Help
+  - H
+  - Priority (Suggested by testtest322.)
+  - ShowWindowMode (Suggested by testtest322.)
+  - UseCurrentConsole
+  - Version
+  - Wait (Suggested by testtest322, wzzwand Domagoj Smolčić)
+- Remove some undocumented command line usage.
+- Improve several implementations.
+  - Refactoring the command line parser.
+  - Introduce the new frontend of process creation.
+  - Using ATL to implement the main window. 
+  - Fix the context menu bug. (Thanks to Thomas Dubreuil.)
+- Update copyright of license.
+- Remove donation link in the documents.
 
 **NSudo 6.0.1804.5**
 - Fix a bug which can cause crash on Windows Vista and Server 2008. 

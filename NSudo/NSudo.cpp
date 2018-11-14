@@ -11,7 +11,8 @@ enum NSUDO_MESSAGE
 	INVALID_COMMAND_PARAMETER,
 	INVALID_TEXTBOX_PARAMETER,
 	CREATE_PROCESS_FAILED,
-	NEED_TO_SHOW_COMMAND_LINE_HELP
+	NEED_TO_SHOW_COMMAND_LINE_HELP,
+	NEED_TO_SHOW_NSUDO_VERSION
 };
 
 const char* NSudoMessageTranslationID[] =
@@ -21,6 +22,7 @@ const char* NSudoMessageTranslationID[] =
 	"Message.InvalidCommandParameter",
 	"Message.InvalidTextBoxParameter",
 	"Message.CreateProcessFailed",
+	"",
 	""
 };
 
@@ -463,12 +465,18 @@ NSUDO_MESSAGE NSudoCommandLineParser(
 	{
 		auto OptionAndParameter = *OptionsAndParameters.begin();
 
-		// 如果选项名是 "?", "Help" 或"Version"，则显示帮助。
+		
 		if (0 == _wcsicmp(OptionAndParameter.first.c_str(), L"?") ||
-			0 == _wcsicmp(OptionAndParameter.first.c_str(), L"Help") ||
-			0 == _wcsicmp(OptionAndParameter.first.c_str(), L"Version"))
+			0 == _wcsicmp(OptionAndParameter.first.c_str(), L"H") ||
+			0 == _wcsicmp(OptionAndParameter.first.c_str(), L"Help"))
 		{
+			// 如果选项名是 "?", "H" 或 "Help"，则显示帮助。
 			return NSUDO_MESSAGE::NEED_TO_SHOW_COMMAND_LINE_HELP;
+		}
+		else if (0 == _wcsicmp(OptionAndParameter.first.c_str(), L"Version"))
+		{
+			// 如果选项名是 "?", "H" 或 "Help"，则显示 NSudo 版本号。
+			return NSUDO_MESSAGE::NEED_TO_SHOW_NSUDO_VERSION;
 		}
 		else
 		{
@@ -1484,6 +1492,13 @@ int NSudoMain()
 	if (NSUDO_MESSAGE::NEED_TO_SHOW_COMMAND_LINE_HELP == message)
 	{
 		NSudoShowAboutDialog(nullptr);
+	}
+	else if (NSUDO_MESSAGE::NEED_TO_SHOW_NSUDO_VERSION == message)
+	{
+		NSudoPrintMsg(
+			g_ResourceManagement.Instance,
+			nullptr,
+			g_ResourceManagement.GetVersionText().c_str());
 	}
 	else if (NSUDO_MESSAGE::SUCCESS != message)
 	{

@@ -52,8 +52,10 @@ PS：如果你想用 NSudo 的当前目录，请不要包含“-CurrentDirectory
 -UseCurrentConsole 使用当前控制台窗口创建进程。
 PS：如果你想在新控制台窗口创建进程，请不要包含“-UseCurrentConsole”参数。
 
--Version 显示该内容。
+-Version 显示 NSudo 版本信息。
+
 -? 显示该内容。
+-H 显示该内容。
 -Help 显示该内容。
 
 上下文菜单管理：
