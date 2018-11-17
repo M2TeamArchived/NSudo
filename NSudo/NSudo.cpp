@@ -355,7 +355,7 @@ public:
 		{
 			std::wstring GeneratedItemCommand =
 				NSudoPathWithQuotation +
-				L" " + Item.ItemCommandParameters + L" " +
+				L" " + Item.ItemCommandParameters + L" -ShowWindowMode=Hide cmd /c start \"NSudo.ContextMenu.Launcher\" " +
 				L"%1";
 
 			dwError = CreateCommandStoreItem(
