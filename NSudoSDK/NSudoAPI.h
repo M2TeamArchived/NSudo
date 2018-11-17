@@ -112,6 +112,24 @@ static DWORD CreateCommandStoreItem(
 	return dwError;
 }
 
+static std::wstring NSudoExpandEnvironmentStrings(
+	const std::wstring& String)
+{
+	std::wstring ExpandedString;
+
+	ExpandedString.resize(static_cast<size_t>(ExpandEnvironmentStringsW(
+		String.c_str(), 
+		nullptr,
+		0) - 1));
+
+	ExpandEnvironmentStringsW(
+		String.c_str(), 
+		&ExpandedString[0],
+		static_cast<DWORD>(ExpandedString.size() + 1));
+
+	return ExpandedString;
+}
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -943,7 +961,7 @@ extern "C" {
 		return result;
 	}
 
-
+	
 
 
 	static bool NSudoCreateProcessDirect(
@@ -987,7 +1005,7 @@ extern "C" {
 				result = CreateProcessAsUserW(
 					hToken,
 					nullptr,
-					const_cast<LPWSTR>(lpCommandLine),
+					const_cast<LPWSTR>(NSudoExpandEnvironmentStrings(lpCommandLine).c_str()),
 					nullptr,
 					nullptr,
 					FALSE,
