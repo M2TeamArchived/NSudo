@@ -2,7 +2,7 @@
 
 - [简体中文](更新日志.md)
 
-**NSudo 6.1.1811.7**
+**NSudo 6.1.1811.18**
 - Merge NSudoC and NSudoG projects to NSudo project.
 - Add VC-LTL 4.0 or later support for NSudo release configuration for ARM and 
   ARM64 and drop the earlier version of VC-LTL support. (Huge thanks to 
@@ -15,7 +15,7 @@
   - ShowWindowMode (Suggested by testtest322.)
   - UseCurrentConsole
   - Version
-  - Wait (Suggested by testtest322, wzzwand Domagoj Smolčić)
+  - Wait (Suggested by testtest322, wzzw and Domagoj Smolčić)
 - Remove some undocumented command line usage.
 - Improve several implementations.
   - Refactoring the command line parser.
