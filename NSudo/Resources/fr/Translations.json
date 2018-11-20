@@ -1,0 +1,27 @@
+{
+  "Translations": {
+    "Button.About": "&A propos",
+    "Button.Browse": "&Parcourir",
+    "Button.Run": "&Exécuter",
+    "ContextMenu.System": "Exécuter en tant que Système",
+    "ContextMenu.System.EnableAllPrivileges": "Exécuter en tant que Système (Activer tous les privilèges)",
+    "ContextMenu.TI": "Exécuter en tant que TrustedInstaller",
+    "ContextMenu.TI.EnableAllPrivileges": "Exécuter en tant que TrustedInstaller (Activer tous les privilèges)",
+    "CurrentProcess": "Processus courant",
+    "CurrentUser": "Utilisateur actuel",
+    "Default": "Défaut",
+    "EnableAllPrivileges": "&Activer tous les privilèges",
+    "LanguageID": "fr",
+    "Message.CreateProcessFailed": "Erreur: La création du processus a échoué.",
+    "Message.InvalidCommandParameter": "Erreur: Paramètres de commande invalides, veuillez les modifier.(Entrez -? pour montrer l'aide)",
+    "Message.InvalidTextBoxParameter": "Erreur: Veuillez entrer la ligne de commande, ou sélectionnez un raccourci dans le menu déroulant.",
+    "Message.PrivilegeNotHeld": "Erreur: Impossible d'obtenir le privilège SE_DEBUG_NAME.(Veuillez éxécuter en tant qu'administrateur)",
+    "Message.Success": "Opération terminée avec succès.",
+    "SettingsGroupText": "Paramètres",
+    "Static.Open": "&Ouvrir:",
+    "Static.User": "&Utilisateur: ",
+    "System": "Système",
+    "TI": "TrustedInstaller",
+    "WarningText": "Attention: Veuillez utiliser NSudo PRUDEMMENT !"
+  }
+}
