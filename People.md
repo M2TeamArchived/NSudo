@@ -43,7 +43,7 @@
 - sebus
 - testtest322
 - th1r5bvn23
-- Thomas Dubreuil
+- Thomas Dubreuil (https://github.com/Thdub)
 - 老九
 - 芈员外
 - 鸢一雨音 (https://github.com/TobiichiAmane)

@@ -8,14 +8,16 @@ Options disponibles:
     S Système
     C Utilisateur actuel
     P Processus actuel
-    D Processus actuel (moindre privilège: privilèges strictement nécessaires à l'exécution du code)
+    D Processus actuel (moindre privilège: privilèges strictement nécessaires
+                        à l'exécution du code)
 PS: Ce paramètre est obligatoire.
 
 -P: [Option] Crée un processus avec une option de privilège spécifiée.
 Options disponibles:
     E Activer tous les privilèges
     D Désactiver tous les privilèges
-PS: Si vous souhaitez créer un processus avec les privilèges par défaut, n'incluez pas le paramètre "-P".
+PS: Si vous souhaitez créer un processus avec les privilèges par défaut, 
+n'incluez pas le paramètre "-P".
 
 -M: [Option] Crée un processus avec une option de niveau d'intégrité spécifiée.
 Options disponibles:
@@ -23,34 +25,41 @@ Options disponibles:
     H Haut
     M Moyen
     L Faible
-PS: Si vous souhaitez créer un processus avec le niveau d’intégrité par défaut, n'incluez pas le paramètre "-M".
+PS: Si vous souhaitez créer un processus avec le niveau d’intégrité par 
+défaut, n'incluez pas le paramètre "-M".
 
 -Priority: [Option] Crée un processus avec une option de priorité spécifiée.
 Options disponibles:
-    Inactif
-    Inférieure à la normale
-    Normale
-    Supérieure à la normale
-    Haute
-    Temps réel
-PS: Si vous souhaitez créer un processus avec la priorité par défaut, n'incluez pas le paramètre "-Priority".
+    Idle Inactif
+    BelowNormal Inférieure à la normale
+    Normal Normale
+    AboveNormal Supérieure à la normale
+    High Haute
+    RealTime Temps réel
+PS: Si vous souhaitez créer un processus avec la priorité par défaut, n'incluez
+pas le paramètre "-Priority".
 
--ShowWindowMode: [Option] Créer un processus avec l'option de mode de fenêtre spécifiée.
+-ShowWindowMode: [Option] Créer un processus avec l'option de mode de fenêtre
+                          spécifiée.
 Options disponibles:
-    Montrer
-    Cacher
-    Maximiser
-    Minimiser
-PS: Si vous souhaitez créer un processus avec le mode de fenêtre par défaut, n'incluez pas le paramètre "-ShowWindowMode".
+    Show Montrer
+    Hide Cacher
+    Maximize Maximiser
+    Minimize Minimiser
+PS: Si vous souhaitez créer un processus avec le mode de fenêtre par défaut, 
+n'incluez pas le paramètre "-ShowWindowMode".
 
 -Wait NSudo attend que le processus créé se termine avant de quitter.
-PS: Si vous ne voulez pas que Nsudo attende la fin du processus, n'incluez pas le paramètre "-Wait".
+PS: Si vous ne voulez pas que Nsudo attende la fin du processus, n'incluez pas
+le paramètre "-Wait".
 
 -CurrentDirectory: [DirectoryPath] Définit le répertoire actuel du processus.
-PS: Si vous souhaitez utiliser le répertoire actuel de NSudo, n'incluez pas le paramètre "-CurrentDirectory".
+PS: Si vous souhaitez utiliser le répertoire actuel de NSudo, n'incluez pas le
+paramètre "-CurrentDirectory".
 
 -UseCurrentConsole Crée un processus dans la fenêtre de console actuelle.
-PS: Si vous souhaitez créer un processus dans une nouvelle fenêtre de console, n'incluez pas le paramètre "-UseCurrentConsole".
+PS: Si vous souhaitez créer un processus dans une nouvelle fenêtre de console, 
+n'incluez pas le paramètre "-UseCurrentConsole".
 
 -Version Affiche les informations de version de NSudo.
 
@@ -59,17 +68,21 @@ PS: Si vous souhaitez créer un processus dans une nouvelle fenêtre de console,
 -Help Affiche l'aide.
 
 Menu contextuel:
-  -Install Copie NSudo dans le répertoire de Windows, et ajoute le menu contextuel.
-  -Uninstall Supprime NSudo du répertoire de Windows ainsi que le menu contextuel.
+  -Install Copie NSudo dans le répertoire de Windows, et ajoute le menu 
+           contextuel.
+  -Uninstall Supprime NSudo du répertoire de Windows ainsi que le menu 
+             contextuel.
 
 PS:
     1. Tous les arguments de commande de NSudo sont insensibles à la casse.
     2. Vous pouvez utiliser "-" ou "/ " , et remplacer ":" par " =" dans
-       les paramètres de ligne de commande. Par exemple, "/ U: T" et "-U = T" sont
-       équivalents.
-    3. Afin d'assurer la meilleure expérience possible, NSudoC ne prend pas en charge le menu contextuel.
+       les paramètres de ligne de commande. Par exemple, "/ U: T" et "-U = T" 
+       sont équivalents.
+    3. Afin d'assurer la meilleure expérience possible, NSudoC ne prend pas en 
+       charge le menu contextuel.
 
 Exemple:
-    Si vous souhaitez exécuter un invité de commande en tant que TrustedInstaller, activez toutes les
-    privilèges et le niveau d'intégrité par défaut.
+    Si vous souhaitez exécuter un invité de commande en tant que 
+    TrustedInstaller, activez toutes les privilèges et le niveau d'intégrité
+    par défaut.
     NSudo -U: T -P: E cmd

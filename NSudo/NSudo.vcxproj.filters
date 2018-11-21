@@ -14,6 +14,9 @@
     <Filter Include="Resources\zh-Hans">
       <UniqueIdentifier>{45810c56-ef87-461b-90d7-41ea716bd02f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resources\fr">
+      <UniqueIdentifier>{ed5897a1-70ee-4a1b-b3b8-50e5bde92645}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h" />
@@ -48,6 +51,9 @@
     <None Include="Resources\NSudo.json">
       <Filter>Resources</Filter>
     </None>
+    <None Include="Resources\fr\Translations.json">
+      <Filter>Resources\fr</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="Resources\NSudoConsole.manifest">
@@ -70,5 +76,16 @@
     <Text Include="Resources\zh-Hans\Links.txt">
       <Filter>Resources\zh-Hans</Filter>
     </Text>
+    <Text Include="Resources\fr\CommandLineHelp.txt">
+      <Filter>Resources\fr</Filter>
+    </Text>
+    <Text Include="Resources\fr\Links.txt">
+      <Filter>Resources\fr</Filter>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Resources\NSudo.ico">
+      <Filter>资源文件</Filter>
+    </Image>
   </ItemGroup>
 </Project>

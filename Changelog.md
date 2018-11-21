@@ -2,6 +2,9 @@
 
 - [简体中文](更新日志.md)
 
+**NSudo 6.1.1811.21**
+- Add French translations. (Contributed by Thomas Dubreuil.)
+
 **NSudo 6.1.1811.18**
 - Merge NSudoC and NSudoG projects to NSudo project.
 - Add VC-LTL 4.0 or later support for NSudo release configuration for ARM and 

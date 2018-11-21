@@ -280,6 +280,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\en\Translations.json" />
+    <None Include="Resources\fr\Translations.json" />
     <None Include="Resources\NSudo.xcf" />
     <None Include="Resources\NSudoContextMenuManagement.json" />
     <None Include="Resources\zh-Hans\Translations.json" />
@@ -294,8 +295,13 @@
   <ItemGroup>
     <Text Include="Resources\en\CommandLineHelp.txt" />
     <Text Include="Resources\en\Links.txt" />
+    <Text Include="Resources\fr\CommandLineHelp.txt" />
+    <Text Include="Resources\fr\Links.txt" />
     <Text Include="Resources\zh-Hans\CommandLineHelp.txt" />
     <Text Include="Resources\zh-Hans\Links.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Resources\NSudo.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
