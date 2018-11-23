@@ -13,13 +13,16 @@ License: The MIT License
 #include "M2Win32GUIHelpers.h"
 #include "M2MessageDialogResource.h"
 
-// Enables the Per-Monitor DPI Aware for the specified dialog using the 
-// internal API from Windows.
-// PS: You need to use this function in Windows 10 Threshold 1 or later.
-// Parameters:
-//   The function does not have parameters.
-// Return value:
-//   The function will return a INT. If failed. returns -1.
+/// <summary>
+/// Enables the Per-Monitor DPI Aware for the specified dialog using the
+/// internal API from Windows.
+/// </summary>
+/// <returns>
+/// The function will return a INT. If failed. returns -1.
+/// </returns>
+/// <remarks>
+/// You need to use this function in Windows 10 Threshold 1 or later.
+/// </remarks>
 INT M2EnablePerMonitorDialogScaling()
 {
 	// Fix for Windows Vista and Server 2008.
@@ -40,7 +43,9 @@ INT M2EnablePerMonitorDialogScaling()
 	return pFunc();
 }
 
-// The parameter struct of the message dialog.
+/// <summary>
+/// The parameter struct of the message dialog.
+/// </summary>
 struct DIALOG_BOX_PARAM
 {
 	HINSTANCE hInstance;
@@ -49,17 +54,27 @@ struct DIALOG_BOX_PARAM
 	LPCWSTR lpContent;
 };
 
-// The callback function used of the message dialog.
-// Parameters:
-//   hwndDlg: A handle to the message dialog. 
-//   uMsg: The message. 
-//   wParam: Additional message-specific information. 
-//   lParam: Additional message-specific information. 
-// Return value:
-//   Typically, the dialog box procedure should return TRUE if it processed the
-//   message, and FALSE if it did not. If the dialog box procedure returns 
-//   FALSE, the dialog manager performs the default dialog operation in 
-//   response to the message.
+/// <summary>
+/// The callback function used of the message dialog.
+/// </summary>
+/// <param name="hwndDlg">
+/// A handle to the message dialog.
+/// </param>
+/// <param name="uMsg">
+/// The message.
+/// </param>
+/// <param name="wParam">
+/// Additional message-specific information.
+/// </param>
+/// <param name="lParam">
+/// Additional message-specific information.
+/// </param>
+/// <returns>
+/// Typically, the dialog box procedure should return TRUE if it processed the
+/// message, and FALSE if it did not. If the dialog box procedure returns FALSE,
+/// the dialog manager performs the default dialog operation in response to the
+/// message.
+/// </returns>
 INT_PTR CALLBACK M2MessageDialogDialogCallBack(
 	_In_ HWND   hwndDlg,
 	_In_ UINT   uMsg,
@@ -110,29 +125,39 @@ INT_PTR CALLBACK M2MessageDialogDialogCallBack(
 	return FALSE;
 }
 
-// Creates and shows the message dialog.
-// Parameters:
-//   hInstance: A handle to the module which contains the message dialog 
-//   resource. If this parameter is nullptr, then the current executable is 
-//   used.
-//   hWndParent: A handle to the window that owns the message dialog. 
-//   lpIconName: Pointer that references the icon to be displayed in the 
-//   message dialog. If this parameter is nullptr or the hInstance parameter is
-//   nullptr, no icon will be displayed. This parameter must be an integer 
-//   resource identifier passed to the MAKEINTRESOURCE macro.
-//   lpTitle: Pointer to the string to be used for the message dialog title. 
-//   This parameter is a null-terminated, Unicode string. 
-//   lpContent: Pointer to the string to be used for the message dialog 
-//   content. This parameter is a null-terminated, Unicode string. 
-// Return value:
-//   If the function succeeds, the return value is the value of the nResult
-//   parameter specified in the call to the EndDialog function used to 
-//   terminate the message dialog.
-//   If the function fails because the hWndParent parameter is invalid, the 
-//   return value is zero. The function returns zero in this case for 
-//   compatibility with previous versions of Windows. If the function fails for
-//   any other reason, the return value is –1. To get extended error 
-//   information, call GetLastError.
+/// <summary>
+/// Creates and shows the message dialog.
+/// </summary>
+/// <param name="hInstance">
+/// A handle to the module which contains the message dialog resource. If this
+/// parameter is nullptr, then the current executable is used.
+/// </param>
+/// <param name="hWndParent">
+/// A handle to the window that owns the message dialog.
+/// </param>
+/// <param name="lpIconName">
+/// Pointer that references the icon to be displayed in the message dialog. If
+/// this parameter is nullptr or the hInstance parameter is nullptr, no icon
+/// will be displayed. This parameter must be an integer resource identifier
+/// passed to the MAKEINTRESOURCE macro.
+/// </param>
+/// <param name="lpTitle">
+/// Pointer to the string to be used for the message dialog title. This
+/// parameter is a null-terminated, Unicode string.
+/// </param>
+/// <param name="lpContent">
+/// Pointer to the string to be used for the message dialog content. This
+/// parameter is a null-terminated, Unicode string.
+/// </param>
+/// <returns>
+/// If the function succeeds, the return value is the value of the nResult
+/// parameter specified in the call to the EndDialog function used to terminate
+/// the message dialog. If the function fails because the hWndParent parameter
+/// is invalid, the return value is zero. The function returns zero in this case
+/// for compatibility with previous versions of Windows. If the function fails
+/// for any other reason, the return value is –1. To get extended error
+/// information, call GetLastError.
+/// </returns>
 INT_PTR WINAPI M2MessageDialog(
 	_In_opt_ HINSTANCE hInstance,
 	_In_opt_ HWND hWndParent,

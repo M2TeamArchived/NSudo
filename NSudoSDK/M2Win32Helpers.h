@@ -12,113 +12,144 @@ License: The MIT License
 
 #include "M2BaseHelpers.h"
 
-// The resource info struct.
+/// <summary>
+/// The resource info struct.
+/// </summary>
 typedef struct _M2_RESOURCE_INFO
 {
 	DWORD Size;
 	LPVOID Pointer;
 } M2_RESOURCE_INFO, *PM2_RESOURCE_INFO;
 
-// Obtain the best matching resource with the specified type and name in the 
-// specified module.
-// Parameters:
-//   lpResourceInfo: The resource info which contains the pointer and size.
-//   hModule: A handle to the module whose portable executable file or an 
-//   accompanying MUI file contains the resource. If this parameter is NULL, 
-//   the function searches the module used to create the current process.
-//   lpType: The resource type. Alternately, rather than a pointer, this 
-//   parameter can be MAKEINTRESOURCE(ID), where ID is the integer identifier 
-//   of the given resource type. For standard resource types, see Resource 
-//   Types. For more information, see the Remarks section below.
-//   lpName: The name of the resource. Alternately, rather than a pointer, this
-//   parameter can be MAKEINTRESOURCE(ID), where ID is the integer identifier 
-//   of the resource. For more information, see the Remarks section below.
-// Return value:
-//   The function will return HRESULT.
+/// <summary>
+/// Obtain the best matching resource with the specified type and name in the
+/// specified module.
+/// </summary>
+/// <param name="lpResourceInfo">
+/// The resource info which contains the pointer and size.
+/// </param>
+/// <param name="hModule">
+/// A handle to the module whose portable executable file or an accompanying MUI
+/// file contains the resource. If this parameter is NULL, the function searches
+/// the module used to create the current process.
+/// </param>
+/// <param name="lpType">
+/// The resource type. Alternately, rather than a pointer, this parameter can be
+/// MAKEINTRESOURCE(ID), where ID is the integer identifier of the given
+/// resource type.
+/// </param>
+/// <param name="lpName">
+/// The name of the resource. Alternately, rather than a pointer, this parameter
+/// can be MAKEINTRESOURCE(ID), where ID is the integer identifier of the
+/// resource.
+/// </param>
+/// <returns>
+/// The function will return HRESULT.
+/// </returns>
 HRESULT M2LoadResource(
 	_Out_ PM2_RESOURCE_INFO lpResourceInfo,
 	_In_opt_ HMODULE hModule,
 	_In_ LPCWSTR lpType,
 	_In_ LPCWSTR lpName);
-
-// Retrieves file system attributes for a specified file or directory.
-// Parameters:
-//   hFile: A handle to the file that contains the information to be retrieved.
-//   This handle should not be a pipe handle.
-// Return value:
-//   If the function succeeds, the return value contains the attributes of the 
-//   specified file or directory. For a list of attribute values and their 
-//   descriptions, see File Attribute Constants. If the function fails, the 
-//   return value is INVALID_FILE_ATTRIBUTES.To get extended error information,
-//   call GetLastError.
+   
+/// <summary>
+/// Retrieves file system attributes for a specified file or directory.
+/// </summary>
+/// <param name="hFile">
+/// A handle to the file that contains the information to be retrieved. This
+/// handle should not be a pipe handle.
+/// </param>
+/// <returns>
+/// If the function succeeds, the return value contains the attributes of the
+/// specified file or directory. For a list of attribute values and their
+/// descriptions, see File Attribute Constants. If the function fails, the
+/// return value is INVALID_FILE_ATTRIBUTES.To get extended error information,
+/// call GetLastError.
+/// </returns>
 DWORD M2GetFileAttributes(
 	_In_ HANDLE hFile);
-
-// Sets the attributes for a file or directory.
-// Parameters:
-//   hFile: A handle to the file for which to change information. This handle 
-//   must be opened with the appropriate permissions for the requested change. 
-//   For more information, see the Remarks and Example Code sections. This 
-//   handle should not be a pipe handle.
-//   dwFileAttributes: The file attributes to set for the file. This parameter
-//   can be one or more values, combined using the bitwise - OR operator. 
-//   However, all other values override FILE_ATTRIBUTE_NORMAL. For more 
-//   information, see the SetFileAttributes function.
-// Return value:
-//   The function will return HRESULT. If the function succeeds, the return 
-//   value is S_OK.
+  
+/// <summary>
+/// Sets the attributes for a file or directory.
+/// </summary>
+/// <param name="hFile">
+/// A handle to the file for which to change information. This handle must be
+/// opened with the appropriate permissions for the requested change. This
+/// handle should not be a pipe handle.
+/// </param>
+/// <param name="dwFileAttributes">
+/// The file attributes to set for the file. This parameter can be one or more
+/// values, combined using the bitwise - OR operator. However, all other values
+/// override FILE_ATTRIBUTE_NORMAL. For more information, see the
+/// SetFileAttributes function.
+/// </param>
+/// <returns>
+/// The function will return HRESULT. If the function succeeds, the return value
+/// is S_OK.
+/// </returns>
 HRESULT M2SetFileAttributes(
 	_In_ HANDLE hFile,
 	_In_ DWORD dwFileAttributes);
-
-// Deletes an existing file.
-// Parameters:
-//   lpFileName: The name of the file to be deleted. In the ANSI version of 
-//   this function, the name is limited to MAX_PATH characters.To extend this
-//   limit to 32,767 wide characters, call the Unicode version of the function
-//   and prepend "\\?\" to the path. For more information, see Naming a File.
-//   bForceDeleteReadOnlyFile: If this parameter is true, the function removes 
-//   the read-only attribute first. 
-// Return value:
-//   The function will return HRESULT. If the function succeeds, the return 
-//   value is S_OK.
+ 
+/// <summary>
+/// Deletes an existing file.
+/// </summary>
+/// <param name="lpFileName">
+/// The name of the file to be deleted. In the ANSI version of this function,
+/// the name is limited to MAX_PATH characters.To extend this limit to 32,767
+/// wide characters, call the Unicode version of the function and prepend "\\?\"
+/// to the path. For more information, see Naming a File.
+/// </param>
+/// <param name="bForceDeleteReadOnlyFile">
+/// If this parameter is true, the function removes the read-only attribute
+/// first.
+/// </param>
+/// <returns>
+/// The function will return HRESULT. If the function succeeds, the return value
+/// is S_OK.
+/// </returns>
 HRESULT M2DeleteFile(
 	_In_ LPCWSTR lpFileName,
 	_In_ bool bForceDeleteReadOnlyFile);
-
-// Retrieves the amount of space that is allocated for the file.
-// Parameters:
-//   lpFileName: The name of the file. In the ANSI version of this function, 
-//   the name is limited to MAX_PATH characters.To extend this limit to 32,767
-//   wide characters, call the Unicode version of the function and prepend 
-//   "\\?\" to the path. For more information, see Naming a File.
-//   lpAllocationSize: A pointer to a ULONGLONG value that receives the amount 
-//   of space that is allocated for the file, in bytes.
-// Return value:
-//   The function will return HRESULT. If the function succeeds, the return 
-//   value is S_OK.
+ 
+/// <summary>
+/// Retrieves the amount of space that is allocated for the file.
+/// </summary>
+/// <param name="lpFileName">
+/// The name of the file. In the ANSI version of this function, the name is
+/// limited to MAX_PATH characters.To extend this limit to 32,767 wide
+/// characters, call the Unicode version of the function and prepend "\\?\" to
+/// the path. For more information, see Naming a File.
+/// </param>
+/// <param name="lpAllocationSize">
+/// A pointer to a ULONGLONG value that receives the amount of space that is
+/// allocated for the file, in bytes.
+/// </param>
+/// <returns>
+/// The function will return HRESULT. If the function succeeds, the return value
+/// is S_OK.
+/// </returns>
 HRESULT M2GetFileAllocationSize(
 	_In_ LPCWSTR lpFileName,
 	_Out_ PULONGLONG lpAllocationSize);
-
-// Retrieves the size of the specified file.
-// Parameters:
-//   lpFileName: The name of the file. In the ANSI version of this function, 
-//   the name is limited to MAX_PATH characters.To extend this limit to 32,767
-//   wide characters, call the Unicode version of the function and prepend 
-//   "\\?\" to the path. For more information, see Naming a File.
-//   lpFileSize: A pointer to a ULONGLONG value that receives the file size, in
-//   bytes.
-// Return value:
-//   The function will return HRESULT. If the function succeeds, the return 
-//   value is S_OK.
+ 
+/// <summary>Retrieves the size of the specified file.</summary> <param
+/// name=lpFileName''>The name of the file. In the ANSI version of this
+/// function, the name is limited to MAX_PATH characters.To extend this limit to
+/// 32,767 wide characters, call the Unicode version of the function and prepend
+/// "\\?\" to the path. For more information, see Naming a File.</param> <param
+/// name='lpFileSize'>A pointer to a ULONGLONG value that receives the file
+/// size, in bytes.</param> <returns>The function will return HRESULT. If the
+/// function succeeds, the return value is S_OK.</returns>
 HRESULT M2GetFileSize(
 	_In_ LPCWSTR lpFileName,
 	_Out_ PULONGLONG lpFileSize);
 
 namespace M2
 {
-	// The handle definer for SC_HANDLE object.
+	/// <summary>
+	/// The handle definer for SC_HANDLE object.
+	/// </summary>
 #pragma region CServiceHandle
 
 	struct CServiceHandleDefiner
@@ -137,8 +168,10 @@ namespace M2
 	typedef CObject<SC_HANDLE, CServiceHandleDefiner> CServiceHandle;
 
 #pragma endregion
-
-	// The handle definer for PSID object.
+ 
+	/// <summary>
+	/// The handle definer for PSID object.
+	/// </summary>
 #pragma region CSID
 
 	struct CSIDDefiner
@@ -157,8 +190,10 @@ namespace M2
 	typedef CObject<PSID, CSIDDefiner> CSID;
 
 #pragma endregion
-
-	// The handle definer for memory block allocated via WTS API.
+ 
+	/// <summary>
+	/// The handle definer for memory block allocated via WTS API.
+	/// </summary>
 #pragma region CWTSMemory
 
 	template<typename TMemoryBlock>
@@ -183,7 +218,9 @@ namespace M2
 
 #pragma endregion
 
-	// The handle definer for HKEY object.
+	/// <summary>
+	/// The handle definer for HKEY object.
+	/// </summary>
 #pragma region CHKey
 
 	struct CHKeyDefiner
@@ -204,14 +241,18 @@ namespace M2
 #pragma endregion
 
 }
-
-// Retrieves the path of the shared Windows directory on a multi-user system.
-// Parameters:
-//   WindowsFolderPath: The string of the path of the shared Windows directory
-//   on a multi-user system.
-// Return value:
-//   The function will return HRESULT. If the function succeeds, the return 
-//   value is S_OK.
+ 
+/// <summary>
+/// Retrieves the path of the shared Windows directory on a multi-user system.
+/// </summary>
+/// <param name="WindowsFolderPath">
+/// The string of the path of the shared Windows directory on a multi-user
+/// system.
+/// </param>
+/// <returns>
+/// The function will return HRESULT. If the function succeeds, the return value
+/// is S_OK.
+/// </returns>
 HRESULT M2GetWindowsDirectory(
 	std::wstring& WindowsFolderPath);
 

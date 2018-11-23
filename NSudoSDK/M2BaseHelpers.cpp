@@ -15,12 +15,18 @@ License: The MIT License
 
 #include <string>
 
-// Write formatted data to a string. 
-// Parameters:
-//   Format: Format-control string.
-//   ...: Optional arguments to be formatted.
-// Return value:
-//   Returns a formatted string if successful, or "N/A" otherwise.
+/// <summary>
+/// Write formatted data to a string.
+/// </summary>
+/// <param name="Format">
+/// Format-control string.
+/// </param>
+/// <param name="...">
+/// Optional arguments to be formatted.
+/// </param>
+/// <returns>
+/// Returns a formatted string if successful, or "N/A" otherwise.
+/// </returns>
 std::wstring M2FormatString(
 	_In_z_ _Printf_format_string_ wchar_t const* const Format,
 	...)
@@ -59,12 +65,13 @@ std::wstring M2FormatString(
 	return L"N/A";
 }
 
-// Retrieves the number of milliseconds that have elapsed since the system was
-// started.
-// Parameters:
-//   The function does not have parameters.
-// Return value:
-//   The number of milliseconds.
+/// <summary>
+/// Retrieves the number of milliseconds that have elapsed since the system was
+/// started.
+/// </summary>
+/// <returns>
+/// The number of milliseconds.
+/// </returns>
 ULONGLONG M2GetTickCount()
 {
 	LARGE_INTEGER Frequency = { 0 }, PerformanceCount = { 0 };
@@ -80,11 +87,15 @@ ULONGLONG M2GetTickCount()
 	return GetTickCount64();
 }
 
-// Converts from the UTF-8 string to the UTF-16 string.
-// Parameters:
-//   UTF8String: The UTF-8 string you want to convert.
-// Return value:
-//   The return value is the UTF-16 string.
+/// <summary>
+/// Converts from the UTF-8 string to the UTF-16 string.
+/// </summary>
+/// <param name="UTF8String">
+/// The UTF-8 string you want to convert.
+/// </param>
+/// <returns>
+/// The return value is the UTF-16 string.
+/// </returns>
 std::wstring M2MakeUTF16String(const std::string& UTF8String)
 {
 	std::wstring UTF16String;
@@ -111,11 +122,15 @@ std::wstring M2MakeUTF16String(const std::string& UTF8String)
 	return UTF16String;
 }
 
-// Converts from the UTF-16 string to the UTF-8 string.
-// Parameters:
-//   UTF16String: The UTF-16 string you want to convert.
-// Return value:
-//   The return value is the UTF-8 string.
+/// <summary>
+/// Converts from the UTF-16 string to the UTF-8 string.
+/// </summary>
+/// <param name="UTF16String">
+/// The UTF-16 string you want to convert.
+/// </param>
+/// <returns>
+/// The return value is the UTF-8 string.
+/// </returns>
 std::string M2MakeUTF8String(const std::wstring& UTF16String)
 {
 	std::string UTF8String;
@@ -146,34 +161,43 @@ std::string M2MakeUTF8String(const std::wstring& UTF16String)
 	return UTF8String;
 }
 
-// Retrieves the calling thread's last-error code value. The last-error code is
-// maintained on a per-thread basis. Multiple threads do not overwrite each 
-// other's last-error code.
-// Parameters:
-//   The function does not have parameters.
-// Return value:
-//   The return value is the calling thread's last-error code which is 
-//   converted to an HRESULT value.
+/// <summary>
+/// Retrieves the calling thread's last-error code value. The last-error code is
+/// maintained on a per-thread basis. Multiple threads do not overwrite each
+/// other's last-error code.
+/// </summary>
+/// <returns>
+/// The return value is the calling thread's last-error code which is converted
+/// to an HRESULT value.
+/// </returns>
 HRESULT M2GetLastError()
 {
 	return __HRESULT_FROM_WIN32(GetLastError());
 }
 
-// Retrieves the address of an exported function or variable from the specified
-// dynamic-link library (DLL).
-// Parameters:
-//   lpProcAddress: The address of the exported function or variable
-//   hModule: A handle to the DLL module that contains the function or 
-//   variable. The LoadLibrary, LoadLibraryEx, LoadPackagedLibrary, or 
-//   GetModuleHandle function returns this handle. This function does not 
-//   retrieve addresses from modules that were loaded using the 
-//   LOAD_LIBRARY_AS_DATAFILE flag.For more information, see LoadLibraryEx.
-//   lpProcName: The function or variable name, or the function's ordinal 
-//   value. If this parameter is an ordinal value, it must be in the low-order
-//   word; the high-order word must be zero.
-// Return value:
-//   The function will return HRESULT. If the function succeeds, the return 
-//   value is S_OK.
+/// <summary>
+/// Retrieves the address of an exported function or variable from the specified
+/// dynamic-link library (DLL).
+/// </summary>
+/// <param name="lpProcAddress">
+/// The address of the exported function or variable.
+/// </param>
+/// <param name="hModule">
+/// A handle to the DLL module that contains the function or variable. The
+/// LoadLibrary, LoadLibraryEx, LoadPackagedLibrary, or GetModuleHandle function
+/// returns this handle. This function does not retrieve addresses from modules
+/// that were loaded using the LOAD_LIBRARY_AS_DATAFILE flag. For more
+/// information, see LoadLibraryEx.
+/// </param>
+/// <param name="lpProcName">
+/// The function or variable name, or the function's ordinal value. If this
+/// parameter is an ordinal value, it must be in the low-order word; the
+/// high-order word must be zero.
+/// </param>
+/// <returns>
+/// The function will return HRESULT. If the function succeeds, the return value
+/// is S_OK.
+/// </returns>
 HRESULT M2GetProcAddress(
 	_Out_ FARPROC& lpProcAddress,
 	_In_ HMODULE hModule,
@@ -183,13 +207,14 @@ HRESULT M2GetProcAddress(
 	return (nullptr != lpProcAddress) ? S_OK : M2GetLastError();
 }
 
-// Retrieves the path of the executable file of the current process.
-// Parameters:
-//   The function does not have parameters.
-// Return value:
-//   If the function succeeds, the return value is the path of the executable 
-//   file of the current process. If the function fails, the return value is an
-//   empty string.
+/// <summary>
+/// Retrieves the path of the executable file of the current process.
+/// </summary>
+/// <returns>
+/// If the function succeeds, the return value is the path of the executable
+/// file of the current process. If the function fails, the return value is an
+/// empty string.
+/// </returns>
 std::wstring M2GetCurrentProcessModulePath()
 {
 	std::wstring result(MAX_PATH, L'\0');
@@ -198,16 +223,19 @@ std::wstring M2GetCurrentProcessModulePath()
 	return result;
 }
 
-// Parses a command line string and returns an array of the command line 
-// arguments, along with a count of such arguments, in a way that is similar
-// to the standard C run-time.
-// Parameters:
-//   CommandLine: A string that contains the full command line. If this 
-//   parameter is an empty string the function returns an array with only 
-//   one empty string.
-// Return value:
-//   The return value is an array of the command line arguments, along with a 
-//   count of such arguments.
+/// <summary>
+/// Parses a command line string and returns an array of the command line
+/// arguments, along with a count of such arguments, in a way that is similar to
+/// the standard C run-time.
+/// </summary>
+/// <param name="CommandLine">
+/// A string that contains the full command line. If this parameter is an empty
+/// string the function returns an array with only one empty string.
+/// </param>
+/// <returns>
+/// The return value is an array of the command line arguments, along with a
+/// count of such arguments.
+/// </returns>
 std::vector<std::wstring> M2SpiltCommandLine(
 	const std::wstring& CommandLine)
 {
@@ -224,13 +252,12 @@ std::vector<std::wstring> M2SpiltCommandLine(
 	/* first scan the program name, copy it, and count the bytes */
 	wchar_t* p = const_cast<wchar_t*>(CommandLine.c_str());
 
-	// A quoted program name is handled here. The handling is much
-	// simpler than for other arguments. Basically, whatever lies
-	// between the leading double-quote and next one, or a terminal null
-	// character is simply accepted. Fancier handling is not required
-	// because the program name must be a legal NTFS/HPFS file name.
-	// Note that the double-quote characters are not copied, nor do they
-	// contribute to character_count.
+	// A quoted program name is handled here. The handling is much simpler than
+	// for other arguments. Basically, whatever lies between the leading
+	// double-quote and next one, or a terminal null character is simply
+	// accepted. Fancier handling is not required because the program name must
+	// be a legal NTFS/HPFS file name. Note that the double-quote characters are
+	// not copied, nor do they contribute to character_count.
 	bool InQuotes = false;
 	do
 	{
@@ -282,10 +309,9 @@ std::vector<std::wstring> M2SpiltCommandLine(
 		{
 			copy_character = 1;
 
-			// Rules:
-			// 2N     backslashes   + " ==> N backslashes and begin/end quote
-			// 2N + 1 backslashes   + " ==> N backslashes + literal "
-			// N      backslashes       ==> N backslashes
+			// Rules: 2N backslashes + " ==> N backslashes and begin/end quote
+			// 2N + 1 backslashes + " ==> N backslashes + literal " N
+			// backslashes ==> N backslashes
 			numslash = 0;
 
 			while (*p == '\\')
@@ -297,8 +323,8 @@ std::vector<std::wstring> M2SpiltCommandLine(
 
 			if (*p == '"')
 			{
-				// if 2N backslashes before, start/end quote, otherwise
-				// copy literally:
+				// if 2N backslashes before, start/end quote, otherwise copy
+				// literally:
 				if (numslash % 2 == 0)
 				{
 					if (InQuotes && p[1] == '"')
@@ -342,19 +368,28 @@ std::vector<std::wstring> M2SpiltCommandLine(
 	return SplitArguments;
 }
 
-// Parses a command line string and get more friendly result.
-// Parameters:
-//   CommandLine: A string that contains the full command line. If this 
-//   parameter is an empty string the function returns an array with only 
-//   one empty string.
-//   OptionPrefixes: One or more of the prefixes of option we want to use.
-//   OptionParameterSeparators: One or more of the separators of option we want
-//   to use.
-//   ApplicationName: The application name.
-//   OptionsAndParameters: The options and parameters.
-//   UnresolvedCommandLine: The unresolved command line.
-// Return value:
-//   The function does not return a value.
+/// <summary>
+/// Parses a command line string and get more friendly result.
+/// </summary>
+/// <param name="CommandLine">
+/// A string that contains the full command line. If this parameter is an empty
+/// string the function returns an array with only one empty string.
+/// </param>
+/// <param name="OptionPrefixes">
+/// One or more of the prefixes of option we want to use.
+/// </param>
+/// <param name="OptionParameterSeparators">
+/// One or more of the separators of option we want to use.
+/// </param>
+/// <param name="ApplicationName">
+/// The application name.
+/// </param>
+/// <param name="OptionsAndParameters">
+/// The options and parameters.
+/// </param>
+/// <param name="UnresolvedCommandLine">
+/// The unresolved command line.
+/// </param>
 void M2SpiltCommandLineEx(
 	const std::wstring& CommandLine,
 	const std::vector<std::wstring>& OptionPrefixes,
@@ -432,13 +467,13 @@ void M2SpiltCommandLineEx(
 			else
 			{
 				// Get the approximate location of the unresolved command line.
-				// We use "(arg_size - 1)" to ensure that the program path 
+				// We use "(arg_size - 1)" to ensure that the program path
 				// without quotes can also correctly parse.
 				wchar_t* search_start =
 					const_cast<wchar_t*>(CommandLine.c_str()) + (arg_size - 1);
 
 				// Get the unresolved command line. Search for the beginning of
-				// the first parameter delimiter called space and exclude the 
+				// the first parameter delimiter called space and exclude the
 				// first space by adding 1 to the result.
 				wchar_t* command = wcsstr(search_start, L" ") + 1;
 

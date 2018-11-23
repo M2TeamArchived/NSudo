@@ -19,15 +19,29 @@ License: The MIT License
 #include <string>
 #include <vector>
 
-// If the type T is a reference type, provides the member typedef type which is
-// the type referred to by T. Otherwise type is T.
+/// <summary>
+/// If the type T is a reference type, provides the member typedef type which is
+/// the type referred to by T. Otherwise type is T.
+/// </summary>
 template<class T> struct M2RemoveReference { typedef T Type; };
+
+/// <summary>
+/// If the type T is a reference type, provides the member typedef type which is
+/// the type referred to by T. Otherwise type is T.
+/// </summary>
 template<class T> struct M2RemoveReference<T&> { typedef T Type; };
+
+/// <summary>
+/// If the type T is a reference type, provides the member typedef type which is
+/// the type referred to by T. Otherwise type is T.
+/// </summary>
 template<class T> struct M2RemoveReference<T&&> { typedef T Type; };
 
 namespace M2
 {
-	// Disable C++ Object Copying
+	/// <summary>
+	/// Disable C++ Object Copying
+	/// </summary>
 	class CDisableObjectCopying
 	{
 	protected:
@@ -41,7 +55,9 @@ namespace M2
 			const CDisableObjectCopying&) = delete;
 	};
 
-	// The implementation of smart object.
+	/// <summary>
+	/// The implementation of smart object.
+	/// </summary>
 	template<typename TObject, typename TObjectDefiner>
 	class CObject : CDisableObjectCopying
 	{
@@ -106,7 +122,9 @@ namespace M2
 		}
 	};
 
-	// The handle definer for HANDLE object.
+	/// <summary>
+	/// The handle definer for HANDLE object.
+	/// </summary>
 #pragma region CHandle
 
 	struct CHandleDefiner
@@ -126,7 +144,9 @@ namespace M2
 
 #pragma endregion
 
-	// The handle definer for COM object.
+	/// <summary>
+	/// The handle definer for COM object.
+	/// </summary>
 #pragma region CComObject
 
 	template<typename TComObject>
@@ -151,7 +171,9 @@ namespace M2
 
 #pragma endregion
 
-	// The handle definer for memory block.
+	/// <summary>
+	/// The handle definer for memory block.
+	/// </summary>
 #pragma region CMemory
 
 	template<typename TMemory>
@@ -192,7 +214,9 @@ namespace M2
 
 #pragma endregion
 
-	// The implementation of thread.
+	/// <summary>
+	/// The implementation of thread.
+	/// </summary>
 	class CThread
 	{
 	private:
@@ -274,7 +298,9 @@ namespace M2
 
 	};
 
-	// Wraps a critical section
+	/// <summary>
+	/// Wraps a critical section.
+	/// </summary>
 	class CCriticalSection
 	{
 	private:
@@ -302,8 +328,12 @@ namespace M2
 		}
 	};
 
-	// Provides automatic locking and unlocking of a critical section.
-	// Note: The AutoLock object must go out of scope before the CritSec.
+	/// <summary>
+	/// Provides automatic locking and unlocking of a critical section.
+	/// </summary>
+	/// <remarks>
+	/// The AutoLock object must go out of scope before the CritSec.
+	/// </remarks>
 	class AutoCriticalSectionLock
 	{
 	private:
@@ -323,10 +353,12 @@ namespace M2
 		}
 	};
 
-	// A template for implementing an object which the type is a singleton. I
-	// do not need to free the memory of the object because the OS releases all
-	// the unshared memory associated with the process after the process is 
-	// terminated.
+	/// <summary>
+	/// A template for implementing an object which the type is a singleton. I
+	/// do not need to free the memory of the object because the OS releases all
+	/// the unshared memory associated with the process after the process is
+	/// terminated.
+	/// </summary>
 	template<class ClassType>
 	class CSingleton : CDisableObjectCopying
 	{
@@ -353,12 +385,13 @@ namespace M2
 	};
 
 }
-
-// Retrieves the number of logical processors in the current group. 
-// Parameters:
-//   The function does not have parameters.
-// Return value:
-//   Return the number of logical processors in the current group.
+ 
+/// <summary>
+/// Retrieves the number of logical processors in the current group.
+/// </summary>
+/// <returns>
+/// Return the number of logical processors in the current group.
+/// </returns>
 inline DWORD M2GetNumberOfHardwareThreads()
 {
 	SYSTEM_INFO SystemInfo = { 0 };
@@ -366,31 +399,42 @@ inline DWORD M2GetNumberOfHardwareThreads()
 	return SystemInfo.dwNumberOfProcessors;
 }
 
-// Write formatted data to a string. 
-// Parameters:
-//   Format: Format-control string.
-//   ...: Optional arguments to be formatted.
-// Return value:
-//   Returns a formatted string if successful, or "N/A" otherwise.
+/// <summary>
+/// Write formatted data to a string.
+/// </summary>
+/// <param name="Format">
+/// Format-control string.
+/// </param>
+/// <param name="...">
+/// Optional arguments to be formatted.
+/// </param>
+/// <returns>
+/// Returns a formatted string if successful, or "N/A" otherwise.
+/// </returns>
 std::wstring M2FormatString(
 	_In_z_ _Printf_format_string_ wchar_t const* const Format,
 	...);
 
-// Retrieves the number of milliseconds that have elapsed since the system was
-// started.
-// Parameters:
-//   The function does not have parameters.
-// Return value:
-//   The number of milliseconds.
+/// <summary>
+/// Retrieves the number of milliseconds that have elapsed since the system was
+/// started.
+/// </summary>
+/// <returns>
+/// The number of milliseconds.
+/// </returns>
 ULONGLONG M2GetTickCount();
 
-// Searches a path for a file name.
-// Parameters:
-//   Path: A pointer to a null-terminated string of maximum length MAX_PATH 
-//   that contains the path to search.
-// Return value:
-//   Returns a pointer to the address of the string if successful, or a pointer
-//   to the beginning of the path otherwise.
+/// <summary>
+/// Searches a path for a file name.
+/// </summary>
+/// <param name="Path">
+/// A pointer to a null-terminated string of maximum length MAX_PATH that
+/// contains the path to search.
+/// </param>
+/// <returns>
+/// Returns a pointer to the address of the string if successful, or a pointer
+/// to the beginning of the path otherwise.
+/// </returns>
 template<typename CharType>
 CharType M2PathFindFileName(CharType Path)
 {
@@ -409,46 +453,63 @@ CharType M2PathFindFileName(CharType Path)
 
 	return FileName;
 }
-
-// Converts from the UTF-8 string to the UTF-16 string.
-// Parameters:
-//   UTF8String: The UTF-8 string you want to convert.
-// Return value:
-//   The return value is the UTF-16 string.
+ 
+/// <summary>
+/// Converts from the UTF-8 string to the UTF-16 string.
+/// </summary>
+/// <param name="UTF8String">
+/// The UTF-8 string you want to convert.
+/// </param>
+/// <returns>
+/// The return value is the UTF-16 string.
+/// </returns>
 std::wstring M2MakeUTF16String(const std::string& UTF8String);
-
-// Converts from the UTF-16 string to the UTF-8 string.
-// Parameters:
-//   UTF16String: The UTF-16 string you want to convert.
-// Return value:
-//   The return value is the UTF-8 string.
+ 
+/// <summary>
+/// Converts from the UTF-16 string to the UTF-8 string.
+/// </summary>
+/// <param name="UTF16String">
+/// The UTF-16 string you want to convert.
+/// </param>
+/// <returns>
+/// The return value is the UTF-8 string.
+/// </returns>
 std::string M2MakeUTF8String(const std::wstring& UTF16String);
-
-// Retrieves the calling thread's last-error code value. The last-error code is
-// maintained on a per-thread basis. Multiple threads do not overwrite each 
-// other's last-error code.
-// Parameters:
-//   The function does not have parameters.
-// Return value:
-//   The return value is the calling thread's last-error code which is 
-//   converted to an HRESULT value.
+  
+/// <summary>
+/// Retrieves the calling thread's last-error code value. The last-error code is
+/// maintained on a per-thread basis. Multiple threads do not overwrite each
+/// other's last-error code.
+/// </summary>
+/// <returns>
+/// The return value is the calling thread's last-error code which is converted
+/// to an HRESULT value.
+/// </returns>
 HRESULT M2GetLastError();
-
-// Retrieves the address of an exported function or variable from the specified
-// dynamic-link library (DLL).
-// Parameters:
-//   lpProcAddress: The address of the exported function or variable
-//   hModule: A handle to the DLL module that contains the function or 
-//   variable. The LoadLibrary, LoadLibraryEx, LoadPackagedLibrary, or 
-//   GetModuleHandle function returns this handle. This function does not 
-//   retrieve addresses from modules that were loaded using the 
-//   LOAD_LIBRARY_AS_DATAFILE flag.For more information, see LoadLibraryEx.
-//   lpProcName: The function or variable name, or the function's ordinal 
-//   value. If this parameter is an ordinal value, it must be in the low-order
-//   word; the high-order word must be zero.
-// Return value:
-//   The function will return HRESULT. If the function succeeds, the return 
-//   value is S_OK.
+ 
+/// <summary>
+/// Retrieves the address of an exported function or variable from the specified
+/// dynamic-link library (DLL).
+/// </summary>
+/// <param name="lpProcAddress">
+/// The address of the exported function or variable.
+/// </param>
+/// <param name="hModule">
+/// A handle to the DLL module that contains the function or variable. The
+/// LoadLibrary, LoadLibraryEx, LoadPackagedLibrary, or GetModuleHandle function
+/// returns this handle. This function does not retrieve addresses from modules
+/// that were loaded using the LOAD_LIBRARY_AS_DATAFILE flag. For more
+/// information, see LoadLibraryEx.
+/// </param>
+/// <param name="lpProcName">
+/// The function or variable name, or the function's ordinal value. If this
+/// parameter is an ordinal value, it must be in the low-order word; the
+/// high-order word must be zero.
+/// </param>
+/// <returns>
+/// The function will return HRESULT. If the function succeeds, the return value
+/// is S_OK.
+/// </returns>
 template<typename ProcedureType>
 inline HRESULT M2GetProcAddress(
 	_Out_ ProcedureType& lpProcAddress,
@@ -463,42 +524,55 @@ inline HRESULT M2GetProcAddress(
 	return M2GetProcAddress(
 		reinterpret_cast<FARPROC&>(lpProcAddress), hModule, lpProcName);
 }
-
-// Retrieves the path of the executable file of the current process.
-// Parameters:
-//   The function does not have parameters.
-// Return value:
-//   If the function succeeds, the return value is the path of the executable 
-//   file of the current process. If the function fails, the return value is an
-//   empty string.
+ 
+/// <summary>
+/// Retrieves the path of the executable file of the current process.
+/// </summary>
+/// <returns>
+/// If the function succeeds, the return value is the path of the executable
+/// file of the current process. If the function fails, the return value is an
+/// empty string.
+/// </returns>
 std::wstring M2GetCurrentProcessModulePath();
 
-// Parses a command line string and returns an array of the command line 
-// arguments, along with a count of such arguments, in a way that is similar
-// to the standard C run-time.
-// Parameters:
-//   CommandLine: A string that contains the full command line. If this 
-//   parameter is an empty string the function returns an array with only 
-//   one empty string.
-// Return value:
-//   The return value is an array of the command line arguments, along with a 
-//   count of such arguments.
+/// <summary>
+/// Parses a command line string and returns an array of the command line
+/// arguments, along with a count of such arguments, in a way that is similar to
+/// the standard C run-time.
+/// </summary>
+/// <param name="CommandLine">
+/// A string that contains the full command line. If this parameter is an empty
+/// string the function returns an array with only one empty string.
+/// </param>
+/// <returns>
+/// The return value is an array of the command line arguments, along with a
+/// count of such arguments.
+/// </returns>
 std::vector<std::wstring> M2SpiltCommandLine(
 	const std::wstring& CommandLine);
 
-// Parses a command line string and get more friendly result.
-// Parameters:
-//   CommandLine: A string that contains the full command line. If this 
-//   parameter is an empty string the function returns an array with only 
-//   one empty string.
-//   OptionPrefixes: One or more of the prefixes of option we want to use.
-//   OptionParameterSeparators: One or more of the separators of option we want
-//   to use.
-//   ApplicationName: The application name.
-//   OptionsAndParameters: The options and parameters.
-//   UnresolvedCommandLine: The unresolved command line.
-// Return value:
-//   The function does not return a value.
+/// <summary>
+/// Parses a command line string and get more friendly result.
+/// </summary>
+/// <param name="CommandLine">
+/// A string that contains the full command line. If this parameter is an empty
+/// string the function returns an array with only one empty string.
+/// </param>
+/// <param name="OptionPrefixes">
+/// One or more of the prefixes of option we want to use.
+/// </param>
+/// <param name="OptionParameterSeparators">
+/// One or more of the separators of option we want to use.
+/// </param>
+/// <param name="ApplicationName">
+/// The application name.
+/// </param>
+/// <param name="OptionsAndParameters">
+/// The options and parameters.
+/// </param>
+/// <param name="UnresolvedCommandLine">
+/// The unresolved command line.
+/// </param>
 void M2SpiltCommandLineEx(
 	const std::wstring& CommandLine,
 	const std::vector<std::wstring>& OptionPrefixes,
