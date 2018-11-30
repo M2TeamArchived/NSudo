@@ -12,8 +12,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documents", "Documents", "{
 		appveyor.yml = appveyor.yml
 		Changelog.md = Changelog.md
 		LICENSE = LICENSE
+		Logo.png = Logo.png
 		People.md = People.md
 		Readme.md = Readme.md
+		Screenshot.png = Screenshot.png
+		屏幕截图.png = 屏幕截图.png
 		更新日志.md = 更新日志.md
 		自述.md = 自述.md
 	EndProjectSection

@@ -1,4 +1,5 @@
-﻿# NSudo - A Powerful System Administration Tool
+﻿![Logo](Logo.png)
+# NSudo - A Powerful System Administration Tool
 
 [![appveyor.badge]][appveyor.link] 
 [![release.badge]][release.link]
@@ -7,6 +8,8 @@
 [![license.badge]][license.link]
 
 - [简体中文](自述.md)
+
+![Screenshot](Screenshot.png)
 
 - Notice: NSudo is based on SuperCMD by Raymai97.Visit 
   [here](http://bbs.pcbeta.com/viewthread-1508863-1-1.html "here") for more 
@@ -142,14 +145,9 @@ See [Changelog.md](Changelog.md) for more details.
 See [People.md](People.md) for more details.
 
 ## Git Repositories
-- GitHub Repository
-  - The main repository, contains source code of NSudo >= 4.0
+- GitHub (Main)
   - https://github.com/M2Team/NSudo
-- GitHub Repository 
-  - The history repository, contains source code of NSudo < 4.0
-  - https://github.com/MouriNaruto/NSudo-Legacy-Repository
-- OSChina Repository 
-  - The mirror repository, contains source code of NSudo >= 4.0
+- OSChina (Mirrors)
   - https://gitee.com/M2-Team/NSudo
 
 ## The way to compile NSudo
