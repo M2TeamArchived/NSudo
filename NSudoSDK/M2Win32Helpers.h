@@ -133,14 +133,22 @@ HRESULT M2GetFileAllocationSize(
 	_In_ LPCWSTR lpFileName,
 	_Out_ PULONGLONG lpAllocationSize);
  
-/// <summary>Retrieves the size of the specified file.</summary> <param
-/// name=lpFileName''>The name of the file. In the ANSI version of this
-/// function, the name is limited to MAX_PATH characters.To extend this limit to
-/// 32,767 wide characters, call the Unicode version of the function and prepend
-/// "\\?\" to the path. For more information, see Naming a File.</param> <param
-/// name='lpFileSize'>A pointer to a ULONGLONG value that receives the file
-/// size, in bytes.</param> <returns>The function will return HRESULT. If the
-/// function succeeds, the return value is S_OK.</returns>
+/// <summary>
+/// Retrieves the size of the specified file.
+/// </summary>
+/// <param name="lpFileName">
+/// The name of the file. In the ANSI version of this function, the name is
+/// limited to MAX_PATH characters.To extend this limit to 32,767 wide
+/// characters, call the Unicode version of the function and prepend "\\?\" to
+/// the path. For more information, see Naming a File.
+/// </param>
+/// <param name="lpFileSize">
+/// A pointer to a ULONGLONG value that receives the file size, in bytes.
+/// </param>
+/// <returns>
+/// The function will return HRESULT. If the function succeeds, the return value
+/// is S_OK.
+/// </returns>
 HRESULT M2GetFileSize(
 	_In_ LPCWSTR lpFileName,
 	_Out_ PULONGLONG lpFileSize);
