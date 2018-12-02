@@ -169,7 +169,6 @@ See [People.md](People.md) for more details.
 
 ## Communication
 - MDL Post: https://forums.mydigitallife.net/threads/59268/
-- QQ Group: 466078631
 - E-mail: Mouri_Naruto@Outlook.com
 
 ## Have a good time -- M2-Team
