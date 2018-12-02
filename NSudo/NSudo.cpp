@@ -3,6 +3,8 @@
 
 #include "stdafx.h"
 
+#include "ThirdParty/json.hpp"
+
 // The NSudo message enum.
 enum NSUDO_MESSAGE
 {
@@ -62,8 +64,6 @@ public:
 		wcsrchr(&this->m_AppPath[0], L'\\')[0] = L'\0';
 		this->m_AppPath.resize(wcslen(this->m_AppPath.c_str()));
 
-		rapidjson::Document StringTranslationsJSON;
-
 		M2_RESOURCE_INFO ResourceInfo = { 0 };
 		if (SUCCEEDED(M2LoadResource(
 			&ResourceInfo,
@@ -71,21 +71,16 @@ public:
 			L"String",
 			MAKEINTRESOURCEW(IDR_String_Translations))))
 		{
-			StringTranslationsJSON.Parse(
-				reinterpret_cast<const char*>(ResourceInfo.Pointer),
-				ResourceInfo.Size);
+			nlohmann::json StringTranslationsJSON = 
+				nlohmann::json::parse(std::string(
+					reinterpret_cast<const char*>(ResourceInfo.Pointer),
+					ResourceInfo.Size));
 
-			for (auto& Item : StringTranslationsJSON["Translations"].GetObject())
+			for (auto& Item : StringTranslationsJSON["Translations"].items())
 			{
-				std::string Key = std::string(
-					Item.name.GetString(),
-					Item.name.GetStringLength());
-				std::string Value = std::string(
-					Item.value.GetString(),
-					Item.value.GetStringLength());
-
 				this->m_StringTranslations.insert(std::make_pair(
-					Key, M2MakeUTF16String(Value)));
+					Item.key(), 
+					M2MakeUTF16String(Item.value())));
 			}
 		}
 
@@ -94,28 +89,13 @@ public:
 			std::ifstream FileStream(this->AppPath + L"\\NSudo.json");
 			if (FileStream.is_open())
 			{
-				using rapidjson::EncodedInputStream;
-				using rapidjson::IStreamWrapper;
-				using rapidjson::UTF8;
+				nlohmann::json ConfigJSON = nlohmann::json::parse(FileStream);
 
-				IStreamWrapper ISW(FileStream);
-				EncodedInputStream<UTF8<>, IStreamWrapper> EIS(ISW);
-
-				rapidjson::Document ConfigJSON;
-				ConfigJSON.ParseStream(EIS);
-
-				for (auto& Item : ConfigJSON["ShortCutList_V2"].GetObject())
+				for (auto& Item : ConfigJSON["ShortCutList_V2"].items())
 				{
-					std::string Key = std::string(
-						Item.name.GetString(),
-						Item.name.GetStringLength());
-					std::string Value = std::string(
-						Item.value.GetString(),
-						Item.value.GetStringLength());
-
 					this->m_ShortCutList.insert(std::make_pair(
-						M2MakeUTF16String(Key),
-						M2MakeUTF16String(Value)));
+						M2MakeUTF16String(Item.key()),
+						M2MakeUTF16String(Item.value())));
 				}
 			}
 		}
@@ -285,8 +265,6 @@ public:
 		if (ERROR_SUCCESS != this->m_ConstructorError)
 			return;
 
-		rapidjson::Document ContextMenuJSON;
-
 		M2_RESOURCE_INFO ResourceInfo = { 0 };
 		if (SUCCEEDED(M2LoadResource(
 			&ResourceInfo,
@@ -294,26 +272,21 @@ public:
 			L"Config",
 			MAKEINTRESOURCEW(IDR_CONFIG_CONTEXT_MENU))))
 		{
-			ContextMenuJSON.Parse(
-				reinterpret_cast<const char*>(ResourceInfo.Pointer),
-				ResourceInfo.Size);
+			nlohmann::json ContextMenuJSON = 
+				nlohmann::json::parse(std::string(
+					reinterpret_cast<const char*>(ResourceInfo.Pointer), 
+					ResourceInfo.Size));
 
-			for (auto& Item : ContextMenuJSON["ContextMenu"].GetArray())
+			for (auto& Item : ContextMenuJSON["ContextMenu"])
 			{
-				auto& ItemName = Item["ItemName"];
-				auto& ItemDescriptionID = Item["ItemDescriptionID"];
-				auto& ItemCommandParameters = Item["ItemCommandParameters"];
-
-				std::string RawItemName = std::string(
-					ItemName.GetString(),
-					ItemName.GetStringLength());
-				std::string RawItemDescriptionID = std::string(
-					ItemDescriptionID.GetString(),
-					ItemDescriptionID.GetStringLength());
-				std::string RawItemCommandParameters = std::string(
-					ItemCommandParameters.GetString(),
-					ItemCommandParameters.GetStringLength());
-				bool HasLUAShield = Item["HasLUAShield"].GetBool();
+				std::string RawItemName = 
+					Item["ItemName"].get<std::string>();
+				std::string RawItemDescriptionID = 
+					Item["ItemDescriptionID"].get<std::string>();
+				std::string RawItemCommandParameters = 
+					Item["ItemCommandParameters"].get<std::string>();
+				bool HasLUAShield = 
+					Item["HasLUAShield"].get<bool>();
 
 				NSUDO_CONTEXT_MENU_ITEM ContextMenuItem;
 
@@ -354,9 +327,10 @@ public:
 		for (NSUDO_CONTEXT_MENU_ITEM Item : this->m_ContextMenuItems)
 		{
 			std::wstring GeneratedItemCommand =
-				NSudoPathWithQuotation +
-				L" " + Item.ItemCommandParameters + L" -ShowWindowMode=Hide cmd /c start \"NSudo.ContextMenu.Launcher\" " +
-				L"%1";
+				NSudoPathWithQuotation + L" " + 
+				Item.ItemCommandParameters + L" " + 
+				L"-ShowWindowMode=Hide" + L" " + 
+				L"cmd /c start \"NSudo.ContextMenu.Launcher\" " + L"%1";
 
 			dwError = CreateCommandStoreItem(
 				this->m_CommandStoreRoot,

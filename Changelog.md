@@ -4,6 +4,7 @@
 
 **NSudo 6.1.1811.21**
 - Add French translations. (Contributed by Thomas Dubreuil.)
+- Use JSON for Modern C++ instead of RapidJSON to conform to C++17.
 
 **NSudo 6.1.1811.18**
 - Merge NSudoC and NSudoG projects to NSudo project.

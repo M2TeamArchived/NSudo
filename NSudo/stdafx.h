@@ -26,9 +26,5 @@
 #include "NSudoVersion.h"
 #include "resource.h"
 
-#include "ThirdParty\rapidjson\document.h"
-#include "ThirdParty\rapidjson\istreamwrapper.h"
-#include "ThirdParty\rapidjson\encodedstream.h"
-
 #include <commctrl.h>
 #pragma comment(lib, "comctl32.lib")
