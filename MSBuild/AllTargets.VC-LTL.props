@@ -59,7 +59,7 @@ VC-LTL默认搜索顺序
 
     <!--如果本地工程没有，那么继续尝试通过注册表获取VC-LTL路径，双击Install.cmd可以自动产生此注册表。-->
     <VC_LTL_Root Condition=" '$(VC_LTL_Root)'=='' ">$(Registry:HKEY_CURRENT_USER\Code\VC-LTL@Root)</VC_LTL_Root>
-    
+
   </PropertyGroup>
 
   <ImportGroup Condition=" '$(VC_LTL_Root)'!=''">

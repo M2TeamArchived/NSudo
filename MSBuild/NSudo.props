@@ -9,7 +9,7 @@
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-	  <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
+      <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
     </Link>
     <Manifest>
       <AdditionalManifestFiles>Resources\NSudoWindows.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>

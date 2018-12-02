@@ -2,25 +2,25 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <LinkIncremental>false</LinkIncremental>
-	<OutDir>$(SolutionDir)Output\Release\$(Platform)\</OutDir>
-	<IntDir>$(SolutionDir)Output\Release\$(Platform)\Temp\</IntDir>
+    <OutDir>$(SolutionDir)Output\Release\$(Platform)\</OutDir>
+    <IntDir>$(SolutionDir)Output\Release\$(Platform)\Temp\</IntDir>
   </PropertyGroup>
   <PropertyGroup Label="Configuration">
     <UseDebugLibraries>false</UseDebugLibraries>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-	  <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-	  <IntrinsicFunctions>false</IntrinsicFunctions>
-	  <Optimization>MinSpace</Optimization>
-	  <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
-	  <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
-	  <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <IntrinsicFunctions>false</IntrinsicFunctions>
+      <Optimization>MinSpace</Optimization>
+      <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
+      <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
-	  <OptimizeReferences>true</OptimizeReferences>
+      <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
 </Project>

@@ -23,7 +23,7 @@ License: The MIT License
 /// You need to use this function in Windows 10 Threshold 1 or later.
 /// </remarks>
 INT M2EnablePerMonitorDialogScaling();
-  
+
 /// <summary>
 /// Creates and shows the message dialog.
 /// </summary>
@@ -58,10 +58,10 @@ INT M2EnablePerMonitorDialogScaling();
 /// information, call GetLastError.
 /// </returns>
 INT_PTR WINAPI M2MessageDialog(
-	_In_opt_ HINSTANCE hInstance,
-	_In_opt_ HWND hWndParent,
-	_In_opt_ LPCWSTR lpIconName,
-	_In_ LPCWSTR lpTitle,
-	_In_ LPCWSTR lpContent);
+    _In_opt_ HINSTANCE hInstance,
+    _In_opt_ HWND hWndParent,
+    _In_opt_ LPCWSTR lpIconName,
+    _In_ LPCWSTR lpTitle,
+    _In_ LPCWSTR lpContent);
 
 #endif // _M2_WIN32_GUI_HELPERS_

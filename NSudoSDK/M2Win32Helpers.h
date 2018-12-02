@@ -17,8 +17,8 @@ License: The MIT License
 /// </summary>
 typedef struct _M2_RESOURCE_INFO
 {
-	DWORD Size;
-	LPVOID Pointer;
+    DWORD Size;
+    LPVOID Pointer;
 } M2_RESOURCE_INFO, *PM2_RESOURCE_INFO;
 
 /// <summary>
@@ -47,11 +47,11 @@ typedef struct _M2_RESOURCE_INFO
 /// The function will return HRESULT.
 /// </returns>
 HRESULT M2LoadResource(
-	_Out_ PM2_RESOURCE_INFO lpResourceInfo,
-	_In_opt_ HMODULE hModule,
-	_In_ LPCWSTR lpType,
-	_In_ LPCWSTR lpName);
-   
+    _Out_ PM2_RESOURCE_INFO lpResourceInfo,
+    _In_opt_ HMODULE hModule,
+    _In_ LPCWSTR lpType,
+    _In_ LPCWSTR lpName);
+
 /// <summary>
 /// Retrieves file system attributes for a specified file or directory.
 /// </summary>
@@ -67,8 +67,8 @@ HRESULT M2LoadResource(
 /// call GetLastError.
 /// </returns>
 DWORD M2GetFileAttributes(
-	_In_ HANDLE hFile);
-  
+    _In_ HANDLE hFile);
+
 /// <summary>
 /// Sets the attributes for a file or directory.
 /// </summary>
@@ -88,9 +88,9 @@ DWORD M2GetFileAttributes(
 /// is S_OK.
 /// </returns>
 HRESULT M2SetFileAttributes(
-	_In_ HANDLE hFile,
-	_In_ DWORD dwFileAttributes);
- 
+    _In_ HANDLE hFile,
+    _In_ DWORD dwFileAttributes);
+
 /// <summary>
 /// Deletes an existing file.
 /// </summary>
@@ -109,9 +109,9 @@ HRESULT M2SetFileAttributes(
 /// is S_OK.
 /// </returns>
 HRESULT M2DeleteFile(
-	_In_ LPCWSTR lpFileName,
-	_In_ bool bForceDeleteReadOnlyFile);
- 
+    _In_ LPCWSTR lpFileName,
+    _In_ bool bForceDeleteReadOnlyFile);
+
 /// <summary>
 /// Retrieves the amount of space that is allocated for the file.
 /// </summary>
@@ -130,9 +130,9 @@ HRESULT M2DeleteFile(
 /// is S_OK.
 /// </returns>
 HRESULT M2GetFileAllocationSize(
-	_In_ LPCWSTR lpFileName,
-	_Out_ PULONGLONG lpAllocationSize);
- 
+    _In_ LPCWSTR lpFileName,
+    _Out_ PULONGLONG lpAllocationSize);
+
 /// <summary>
 /// Retrieves the size of the specified file.
 /// </summary>
@@ -150,106 +150,106 @@ HRESULT M2GetFileAllocationSize(
 /// is S_OK.
 /// </returns>
 HRESULT M2GetFileSize(
-	_In_ LPCWSTR lpFileName,
-	_Out_ PULONGLONG lpFileSize);
+    _In_ LPCWSTR lpFileName,
+    _Out_ PULONGLONG lpFileSize);
 
 namespace M2
 {
-	/// <summary>
-	/// The handle definer for SC_HANDLE object.
-	/// </summary>
+    /// <summary>
+    /// The handle definer for SC_HANDLE object.
+    /// </summary>
 #pragma region CServiceHandle
 
-	struct CServiceHandleDefiner
-	{
-		static inline SC_HANDLE GetInvalidValue()
-		{
-			return nullptr;
-		}
+    struct CServiceHandleDefiner
+    {
+        static inline SC_HANDLE GetInvalidValue()
+        {
+            return nullptr;
+        }
 
-		static inline void Close(SC_HANDLE Object)
-		{
-			CloseServiceHandle(Object);
-		}
-	};
+        static inline void Close(SC_HANDLE Object)
+        {
+            CloseServiceHandle(Object);
+        }
+    };
 
-	typedef CObject<SC_HANDLE, CServiceHandleDefiner> CServiceHandle;
+    typedef CObject<SC_HANDLE, CServiceHandleDefiner> CServiceHandle;
 
 #pragma endregion
- 
-	/// <summary>
-	/// The handle definer for PSID object.
-	/// </summary>
+
+    /// <summary>
+    /// The handle definer for PSID object.
+    /// </summary>
 #pragma region CSID
 
-	struct CSIDDefiner
-	{
-		static inline PSID GetInvalidValue()
-		{
-			return nullptr;
-		}
+    struct CSIDDefiner
+    {
+        static inline PSID GetInvalidValue()
+        {
+            return nullptr;
+        }
 
-		static inline void Close(PSID Object)
-		{
-			FreeSid(Object);
-		}
-	};
+        static inline void Close(PSID Object)
+        {
+            FreeSid(Object);
+        }
+    };
 
-	typedef CObject<PSID, CSIDDefiner> CSID;
+    typedef CObject<PSID, CSIDDefiner> CSID;
 
 #pragma endregion
- 
-	/// <summary>
-	/// The handle definer for memory block allocated via WTS API.
-	/// </summary>
+
+    /// <summary>
+    /// The handle definer for memory block allocated via WTS API.
+    /// </summary>
 #pragma region CWTSMemory
 
-	template<typename TMemoryBlock>
-	struct CWTSMemoryDefiner
-	{
-		static inline TMemoryBlock GetInvalidValue()
-		{
-			return nullptr;
-		}
+    template<typename TMemoryBlock>
+    struct CWTSMemoryDefiner
+    {
+        static inline TMemoryBlock GetInvalidValue()
+        {
+            return nullptr;
+        }
 
-		static inline void Close(TMemoryBlock Object)
-		{
-			WTSFreeMemory(Object);
-		}
-	};
+        static inline void Close(TMemoryBlock Object)
+        {
+            WTSFreeMemory(Object);
+        }
+    };
 
-	template<typename TMemoryBlock>
-	class CWTSMemory : public CObject<TMemoryBlock, CWTSMemoryDefiner<TMemoryBlock>>
-	{
+    template<typename TMemoryBlock>
+    class CWTSMemory : public CObject<TMemoryBlock, CWTSMemoryDefiner<TMemoryBlock>>
+    {
 
-	};
+    };
 
 #pragma endregion
 
-	/// <summary>
-	/// The handle definer for HKEY object.
-	/// </summary>
+    /// <summary>
+    /// The handle definer for HKEY object.
+    /// </summary>
 #pragma region CHKey
 
-	struct CHKeyDefiner
-	{
-		static inline HKEY GetInvalidValue()
-		{
-			return nullptr;
-		}
+    struct CHKeyDefiner
+    {
+        static inline HKEY GetInvalidValue()
+        {
+            return nullptr;
+        }
 
-		static inline void Close(HKEY Object)
-		{
-			RegCloseKey(Object);
-		}
-	};
+        static inline void Close(HKEY Object)
+        {
+            RegCloseKey(Object);
+        }
+    };
 
-	typedef CObject<HKEY, CHKeyDefiner> CHKey;
+    typedef CObject<HKEY, CHKeyDefiner> CHKey;
 
 #pragma endregion
 
 }
- 
+
 /// <summary>
 /// Retrieves the path of the shared Windows directory on a multi-user system.
 /// </summary>
@@ -262,6 +262,6 @@ namespace M2
 /// is S_OK.
 /// </returns>
 HRESULT M2GetWindowsDirectory(
-	std::wstring& WindowsFolderPath);
+    std::wstring& WindowsFolderPath);
 
 #endif // _M2_WIN32_HELPERS_

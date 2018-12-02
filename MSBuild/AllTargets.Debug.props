@@ -3,14 +3,14 @@
   <PropertyGroup>
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)Output\Debug\$(Platform)\</OutDir>
-	<IntDir>$(SolutionDir)Output\Debug\$(Platform)\Temp\</IntDir>
+    <IntDir>$(SolutionDir)Output\Debug\$(Platform)\Temp\</IntDir>
   </PropertyGroup>
   <PropertyGroup Label="Configuration">
     <UseDebugLibraries>true</UseDebugLibraries>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-	  <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
   </ItemDefinitionGroup>

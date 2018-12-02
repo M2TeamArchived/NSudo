@@ -28,41 +28,41 @@ License: The MIT License
 /// Returns a formatted string if successful, or "N/A" otherwise.
 /// </returns>
 std::wstring M2FormatString(
-	_In_z_ _Printf_format_string_ wchar_t const* const Format,
-	...)
+    _In_z_ _Printf_format_string_ wchar_t const* const Format,
+    ...)
 {
-	// Check the argument list.
-	if (nullptr != Format)
-	{
-		va_list ArgList = nullptr;
-		va_start(ArgList, Format);
+    // Check the argument list.
+    if (nullptr != Format)
+    {
+        va_list ArgList = nullptr;
+        va_start(ArgList, Format);
 
-		// Get the length of the format result.
-		size_t nLength = _vscwprintf(Format, ArgList) + 1;
+        // Get the length of the format result.
+        size_t nLength = _vscwprintf(Format, ArgList) + 1;
 
-		// Allocate for the format result.
-		std::wstring Buffer(nLength + 1, L'\0');
+        // Allocate for the format result.
+        std::wstring Buffer(nLength + 1, L'\0');
 
-		// Format the string.
-		int nWritten = _vsnwprintf_s(
-			&Buffer[0],
-			Buffer.size(),
-			nLength,
-			Format,
-			ArgList);
+        // Format the string.
+        int nWritten = _vsnwprintf_s(
+            &Buffer[0],
+            Buffer.size(),
+            nLength,
+            Format,
+            ArgList);
 
-		va_end(ArgList);
+        va_end(ArgList);
 
-		if (nWritten > 0)
-		{
-			// If succeed, resize to fit and return result.
-			Buffer.resize(nWritten);
-			return Buffer;
-		}
-	}
+        if (nWritten > 0)
+        {
+            // If succeed, resize to fit and return result.
+            Buffer.resize(nWritten);
+            return Buffer;
+        }
+    }
 
-	// If failed, return "N/A".
-	return L"N/A";
+    // If failed, return "N/A".
+    return L"N/A";
 }
 
 /// <summary>
@@ -74,17 +74,17 @@ std::wstring M2FormatString(
 /// </returns>
 ULONGLONG M2GetTickCount()
 {
-	LARGE_INTEGER Frequency = { 0 }, PerformanceCount = { 0 };
+    LARGE_INTEGER Frequency = { 0 }, PerformanceCount = { 0 };
 
-	if (QueryPerformanceFrequency(&Frequency))
-	{
-		if (QueryPerformanceCounter(&PerformanceCount))
-		{
-			return (PerformanceCount.QuadPart * 1000 / Frequency.QuadPart);
-		}
-	}
+    if (QueryPerformanceFrequency(&Frequency))
+    {
+        if (QueryPerformanceCounter(&PerformanceCount))
+        {
+            return (PerformanceCount.QuadPart * 1000 / Frequency.QuadPart);
+        }
+    }
 
-	return GetTickCount64();
+    return GetTickCount64();
 }
 
 /// <summary>
@@ -98,28 +98,28 @@ ULONGLONG M2GetTickCount()
 /// </returns>
 std::wstring M2MakeUTF16String(const std::string& UTF8String)
 {
-	std::wstring UTF16String;
+    std::wstring UTF16String;
 
-	int UTF16StringLength = MultiByteToWideChar(
-		CP_UTF8,
-		0,
-		UTF8String.data(),
-		(int)UTF8String.size(),
-		nullptr,
-		0);
-	if (UTF16StringLength > 0)
-	{
-		UTF16String.resize(UTF16StringLength);
-		MultiByteToWideChar(
-			CP_UTF8,
-			0,
-			UTF8String.data(),
-			(int)UTF8String.size(),
-			&UTF16String[0],
-			UTF16StringLength);
-	}
+    int UTF16StringLength = MultiByteToWideChar(
+        CP_UTF8,
+        0,
+        UTF8String.data(),
+        (int)UTF8String.size(),
+        nullptr,
+        0);
+    if (UTF16StringLength > 0)
+    {
+        UTF16String.resize(UTF16StringLength);
+        MultiByteToWideChar(
+            CP_UTF8,
+            0,
+            UTF8String.data(),
+            (int)UTF8String.size(),
+            &UTF16String[0],
+            UTF16StringLength);
+    }
 
-	return UTF16String;
+    return UTF16String;
 }
 
 /// <summary>
@@ -133,32 +133,32 @@ std::wstring M2MakeUTF16String(const std::string& UTF8String)
 /// </returns>
 std::string M2MakeUTF8String(const std::wstring& UTF16String)
 {
-	std::string UTF8String;
+    std::string UTF8String;
 
-	int UTF8StringLength = WideCharToMultiByte(
-		CP_UTF8,
-		0,
-		UTF16String.data(),
-		(int)UTF16String.size(),
-		nullptr,
-		0,
-		nullptr,
-		nullptr);
-	if (UTF8StringLength > 0)
-	{
-		UTF8String.resize(UTF8StringLength);
-		WideCharToMultiByte(
-			CP_UTF8,
-			0,
-			UTF16String.data(),
-			(int)UTF16String.size(),
-			&UTF8String[0],
-			UTF8StringLength,
-			nullptr,
-			nullptr);
-	}
+    int UTF8StringLength = WideCharToMultiByte(
+        CP_UTF8,
+        0,
+        UTF16String.data(),
+        (int)UTF16String.size(),
+        nullptr,
+        0,
+        nullptr,
+        nullptr);
+    if (UTF8StringLength > 0)
+    {
+        UTF8String.resize(UTF8StringLength);
+        WideCharToMultiByte(
+            CP_UTF8,
+            0,
+            UTF16String.data(),
+            (int)UTF16String.size(),
+            &UTF8String[0],
+            UTF8StringLength,
+            nullptr,
+            nullptr);
+    }
 
-	return UTF8String;
+    return UTF8String;
 }
 
 /// <summary>
@@ -172,7 +172,7 @@ std::string M2MakeUTF8String(const std::wstring& UTF16String)
 /// </returns>
 HRESULT M2GetLastError()
 {
-	return __HRESULT_FROM_WIN32(GetLastError());
+    return __HRESULT_FROM_WIN32(GetLastError());
 }
 
 /// <summary>
@@ -199,12 +199,12 @@ HRESULT M2GetLastError()
 /// is S_OK.
 /// </returns>
 HRESULT M2GetProcAddress(
-	_Out_ FARPROC& lpProcAddress,
-	_In_ HMODULE hModule,
-	_In_ LPCSTR lpProcName)
+    _Out_ FARPROC& lpProcAddress,
+    _In_ HMODULE hModule,
+    _In_ LPCSTR lpProcName)
 {
-	lpProcAddress = GetProcAddress(hModule, lpProcName);
-	return (nullptr != lpProcAddress) ? S_OK : M2GetLastError();
+    lpProcAddress = GetProcAddress(hModule, lpProcName);
+    return (nullptr != lpProcAddress) ? S_OK : M2GetLastError();
 }
 
 /// <summary>
@@ -217,10 +217,10 @@ HRESULT M2GetProcAddress(
 /// </returns>
 std::wstring M2GetCurrentProcessModulePath()
 {
-	std::wstring result(MAX_PATH, L'\0');
-	GetModuleFileNameW(nullptr, &result[0], (DWORD)(result.capacity()));
-	result.resize(wcslen(result.c_str()));
-	return result;
+    std::wstring result(MAX_PATH, L'\0');
+    GetModuleFileNameW(nullptr, &result[0], (DWORD)(result.capacity()));
+    result.resize(wcslen(result.c_str()));
+    return result;
 }
 
 /// <summary>
@@ -237,135 +237,135 @@ std::wstring M2GetCurrentProcessModulePath()
 /// count of such arguments.
 /// </returns>
 std::vector<std::wstring> M2SpiltCommandLine(
-	const std::wstring& CommandLine)
+    const std::wstring& CommandLine)
 {
-	// Initialize the SplitArguments.
-	std::vector<std::wstring> SplitArguments;
+    // Initialize the SplitArguments.
+    std::vector<std::wstring> SplitArguments;
 
-	wchar_t c = L'\0';
-	int copy_character;                   /* 1 = copy char to *args */
-	unsigned numslash;              /* num of backslashes seen */
+    wchar_t c = L'\0';
+    int copy_character;                   /* 1 = copy char to *args */
+    unsigned numslash;              /* num of backslashes seen */
 
-	std::wstring Buffer;
-	Buffer.reserve(CommandLine.size());
+    std::wstring Buffer;
+    Buffer.reserve(CommandLine.size());
 
-	/* first scan the program name, copy it, and count the bytes */
-	wchar_t* p = const_cast<wchar_t*>(CommandLine.c_str());
+    /* first scan the program name, copy it, and count the bytes */
+    wchar_t* p = const_cast<wchar_t*>(CommandLine.c_str());
 
-	// A quoted program name is handled here. The handling is much simpler than
-	// for other arguments. Basically, whatever lies between the leading
-	// double-quote and next one, or a terminal null character is simply
-	// accepted. Fancier handling is not required because the program name must
-	// be a legal NTFS/HPFS file name. Note that the double-quote characters are
-	// not copied, nor do they contribute to character_count.
-	bool InQuotes = false;
-	do
-	{
-		if (*p == '"')
-		{
-			InQuotes = !InQuotes;
-			c = *p++;
-			continue;
-		}
+    // A quoted program name is handled here. The handling is much simpler than
+    // for other arguments. Basically, whatever lies between the leading
+    // double-quote and next one, or a terminal null character is simply
+    // accepted. Fancier handling is not required because the program name must
+    // be a legal NTFS/HPFS file name. Note that the double-quote characters are
+    // not copied, nor do they contribute to character_count.
+    bool InQuotes = false;
+    do
+    {
+        if (*p == '"')
+        {
+            InQuotes = !InQuotes;
+            c = *p++;
+            continue;
+        }
 
-		// Copy character into argument:
-		Buffer.push_back(*p);
+        // Copy character into argument:
+        Buffer.push_back(*p);
 
-		c = *p++;
-	} while (c != '\0' && (InQuotes || (c != ' ' && c != '\t')));
+        c = *p++;
+    } while (c != '\0' && (InQuotes || (c != ' ' && c != '\t')));
 
-	if (c == '\0')
-	{
-		p--;
-	}
-	else
-	{
-		Buffer.resize(Buffer.size() - 1);
-	}
+    if (c == '\0')
+    {
+        p--;
+    }
+    else
+    {
+        Buffer.resize(Buffer.size() - 1);
+    }
 
-	// Save te argument.
-	SplitArguments.push_back(Buffer);
+    // Save te argument.
+    SplitArguments.push_back(Buffer);
 
-	InQuotes = false;
+    InQuotes = false;
 
-	// Loop on each argument
-	for (;;)
-	{
-		if (*p)
-		{
-			while (*p == ' ' || *p == '\t')
-				++p;
-		}
+    // Loop on each argument
+    for (;;)
+    {
+        if (*p)
+        {
+            while (*p == ' ' || *p == '\t')
+                ++p;
+        }
 
-		// End of arguments
-		if (*p == '\0')
-			break;
+        // End of arguments
+        if (*p == '\0')
+            break;
 
-		// Initialize the argument buffer.
-		Buffer.clear();
+        // Initialize the argument buffer.
+        Buffer.clear();
 
-		// Loop through scanning one argument:
-		for (;;)
-		{
-			copy_character = 1;
+        // Loop through scanning one argument:
+        for (;;)
+        {
+            copy_character = 1;
 
-			// Rules: 2N backslashes + " ==> N backslashes and begin/end quote
-			// 2N + 1 backslashes + " ==> N backslashes + literal " N
-			// backslashes ==> N backslashes
-			numslash = 0;
+            // Rules: 2N backslashes + " ==> N backslashes and begin/end quote
+            // 2N + 1 backslashes + " ==> N backslashes + literal " N
+            // backslashes ==> N backslashes
+            numslash = 0;
 
-			while (*p == '\\')
-			{
-				// Count number of backslashes for use below
-				++p;
-				++numslash;
-			}
+            while (*p == '\\')
+            {
+                // Count number of backslashes for use below
+                ++p;
+                ++numslash;
+            }
 
-			if (*p == '"')
-			{
-				// if 2N backslashes before, start/end quote, otherwise copy
-				// literally:
-				if (numslash % 2 == 0)
-				{
-					if (InQuotes && p[1] == '"')
-					{
-						p++; // Double quote inside quoted string
-					}
-					else
-					{
-						// Skip first quote char and copy second:
-						copy_character = 0; // Don't copy quote
-						InQuotes = !InQuotes;
-					}
-				}
+            if (*p == '"')
+            {
+                // if 2N backslashes before, start/end quote, otherwise copy
+                // literally:
+                if (numslash % 2 == 0)
+                {
+                    if (InQuotes && p[1] == '"')
+                    {
+                        p++; // Double quote inside quoted string
+                    }
+                    else
+                    {
+                        // Skip first quote char and copy second:
+                        copy_character = 0; // Don't copy quote
+                        InQuotes = !InQuotes;
+                    }
+                }
 
-				numslash /= 2;
-			}
+                numslash /= 2;
+            }
 
-			// Copy slashes:
-			while (numslash--)
-			{
-				Buffer.push_back(L'\\');
-			}
+            // Copy slashes:
+            while (numslash--)
+            {
+                Buffer.push_back(L'\\');
+            }
 
-			// If at end of arg, break loop:
-			if (*p == '\0' || (!InQuotes && (*p == ' ' || *p == '\t')))
-				break;
+            // If at end of arg, break loop:
+            if (*p == '\0' || (!InQuotes && (*p == ' ' || *p == '\t')))
+                break;
 
-			// Copy character into argument:
-			if (copy_character)
-			{
-				Buffer.push_back(*p);
-			}
+            // Copy character into argument:
+            if (copy_character)
+            {
+                Buffer.push_back(*p);
+            }
 
-			++p;
-		}
+            ++p;
+        }
 
-		// Save te argument.
-		SplitArguments.push_back(Buffer);
-	}
+        // Save te argument.
+        SplitArguments.push_back(Buffer);
+    }
 
-	return SplitArguments;
+    return SplitArguments;
 }
 
 /// <summary>
@@ -391,99 +391,99 @@ std::vector<std::wstring> M2SpiltCommandLine(
 /// The unresolved command line.
 /// </param>
 void M2SpiltCommandLineEx(
-	const std::wstring& CommandLine,
-	const std::vector<std::wstring>& OptionPrefixes,
-	const std::vector<std::wstring>& OptionParameterSeparators,
-	std::wstring& ApplicationName,
-	std::map<std::wstring, std::wstring>& OptionsAndParameters,
-	std::wstring& UnresolvedCommandLine)
+    const std::wstring& CommandLine,
+    const std::vector<std::wstring>& OptionPrefixes,
+    const std::vector<std::wstring>& OptionParameterSeparators,
+    std::wstring& ApplicationName,
+    std::map<std::wstring, std::wstring>& OptionsAndParameters,
+    std::wstring& UnresolvedCommandLine)
 {
-	ApplicationName.clear();
-	OptionsAndParameters.clear();
-	UnresolvedCommandLine.clear();
+    ApplicationName.clear();
+    OptionsAndParameters.clear();
+    UnresolvedCommandLine.clear();
 
-	size_t arg_size = 0;
-	for (auto& SplitArgument : M2SpiltCommandLine(CommandLine))
-	{
-		// We need to process the application name at the beginning.
-		if (ApplicationName.empty())
-		{
-			// For getting the unresolved command line, we need to cumulate
-			// length which including spaces.
-			arg_size += SplitArgument.size() + 1;
+    size_t arg_size = 0;
+    for (auto& SplitArgument : M2SpiltCommandLine(CommandLine))
+    {
+        // We need to process the application name at the beginning.
+        if (ApplicationName.empty())
+        {
+            // For getting the unresolved command line, we need to cumulate
+            // length which including spaces.
+            arg_size += SplitArgument.size() + 1;
 
-			// Save
-			ApplicationName = SplitArgument;
-		}
-		else
-		{
-			bool IsOption = false;
-			size_t OptionPrefixLength = 0;
+            // Save
+            ApplicationName = SplitArgument;
+        }
+        else
+        {
+            bool IsOption = false;
+            size_t OptionPrefixLength = 0;
 
-			for (auto& OptionPrefix : OptionPrefixes)
-			{
-				if (0 == _wcsnicmp(
-					SplitArgument.c_str(),
-					OptionPrefix.c_str(),
-					OptionPrefix.size()))
-				{
-					IsOption = true;
-					OptionPrefixLength = OptionPrefix.size();
-				}
-			}
+            for (auto& OptionPrefix : OptionPrefixes)
+            {
+                if (0 == _wcsnicmp(
+                    SplitArgument.c_str(),
+                    OptionPrefix.c_str(),
+                    OptionPrefix.size()))
+                {
+                    IsOption = true;
+                    OptionPrefixLength = OptionPrefix.size();
+                }
+            }
 
-			if (IsOption)
-			{
-				// For getting the unresolved command line, we need to cumulate
-				// length which including spaces.
-				arg_size += SplitArgument.size() + 1;
+            if (IsOption)
+            {
+                // For getting the unresolved command line, we need to cumulate
+                // length which including spaces.
+                arg_size += SplitArgument.size() + 1;
 
-				// Get the option name and parameter.
+                // Get the option name and parameter.
 
-				wchar_t* OptionStart = &SplitArgument[0] + OptionPrefixLength;
-				wchar_t* ParameterStart = nullptr;
+                wchar_t* OptionStart = &SplitArgument[0] + OptionPrefixLength;
+                wchar_t* ParameterStart = nullptr;
 
-				for (auto& OptionParameterSeparator
-					: OptionParameterSeparators)
-				{
-					wchar_t* Result = wcsstr(
-						OptionStart,
-						OptionParameterSeparator.c_str());
-					if (nullptr == Result)
-					{
-						continue;
-					}
+                for (auto& OptionParameterSeparator
+                    : OptionParameterSeparators)
+                {
+                    wchar_t* Result = wcsstr(
+                        OptionStart,
+                        OptionParameterSeparator.c_str());
+                    if (nullptr == Result)
+                    {
+                        continue;
+                    }
 
-					Result[0] = L'\0';
-					ParameterStart = Result + OptionParameterSeparator.size();
+                    Result[0] = L'\0';
+                    ParameterStart = Result + OptionParameterSeparator.size();
 
-					break;
-				}
+                    break;
+                }
 
-				// Save
-				OptionsAndParameters[(OptionStart ? OptionStart : L"")] =
-					(ParameterStart ? ParameterStart : L"");
-			}
-			else
-			{
-				// Get the approximate location of the unresolved command line.
-				// We use "(arg_size - 1)" to ensure that the program path
-				// without quotes can also correctly parse.
-				wchar_t* search_start =
-					const_cast<wchar_t*>(CommandLine.c_str()) + (arg_size - 1);
+                // Save
+                OptionsAndParameters[(OptionStart ? OptionStart : L"")] =
+                    (ParameterStart ? ParameterStart : L"");
+            }
+            else
+            {
+                // Get the approximate location of the unresolved command line.
+                // We use "(arg_size - 1)" to ensure that the program path
+                // without quotes can also correctly parse.
+                wchar_t* search_start =
+                    const_cast<wchar_t*>(CommandLine.c_str()) + (arg_size - 1);
 
-				// Get the unresolved command line. Search for the beginning of
-				// the first parameter delimiter called space and exclude the
-				// first space by adding 1 to the result.
-				wchar_t* command = wcsstr(search_start, L" ") + 1;
+                // Get the unresolved command line. Search for the beginning of
+                // the first parameter delimiter called space and exclude the
+                // first space by adding 1 to the result.
+                wchar_t* command = wcsstr(search_start, L" ") + 1;
 
-				// Save
-				UnresolvedCommandLine = command;
+                // Save
+                UnresolvedCommandLine = command;
 
-				break;
-			}
-		}
-	}
+                break;
+            }
+        }
+    }
 }
 
 #endif // _M2_BASE_HELPERS_

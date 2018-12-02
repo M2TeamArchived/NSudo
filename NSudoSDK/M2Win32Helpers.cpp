@@ -38,33 +38,33 @@ License: The MIT License
 /// The function will return HRESULT.
 /// </returns>
 HRESULT M2LoadResource(
-	_Out_ PM2_RESOURCE_INFO lpResourceInfo,
-	_In_opt_ HMODULE hModule,
-	_In_ LPCWSTR lpType,
-	_In_ LPCWSTR lpName)
+    _Out_ PM2_RESOURCE_INFO lpResourceInfo,
+    _In_opt_ HMODULE hModule,
+    _In_ LPCWSTR lpType,
+    _In_ LPCWSTR lpName)
 {
-	if (nullptr == lpResourceInfo)
-		return E_INVALIDARG;
+    if (nullptr == lpResourceInfo)
+        return E_INVALIDARG;
 
-	SetLastError(ERROR_SUCCESS);
+    SetLastError(ERROR_SUCCESS);
 
-	lpResourceInfo->Size = 0;
-	lpResourceInfo->Pointer = nullptr;
+    lpResourceInfo->Size = 0;
+    lpResourceInfo->Pointer = nullptr;
 
-	HRSRC ResourceFind = FindResourceExW(
-		hModule, lpType, lpName, MAKELANGID(LANG_NEUTRAL, SUBLANG_NEUTRAL));
-	if (nullptr != ResourceFind)
-	{
-		lpResourceInfo->Size = SizeofResource(hModule, ResourceFind);
+    HRSRC ResourceFind = FindResourceExW(
+        hModule, lpType, lpName, MAKELANGID(LANG_NEUTRAL, SUBLANG_NEUTRAL));
+    if (nullptr != ResourceFind)
+    {
+        lpResourceInfo->Size = SizeofResource(hModule, ResourceFind);
 
-		HGLOBAL ResourceLoad = LoadResource(hModule, ResourceFind);
-		if (nullptr != ResourceLoad)
-		{
-			lpResourceInfo->Pointer = LockResource(ResourceLoad);
-		}
-	}
+        HGLOBAL ResourceLoad = LoadResource(hModule, ResourceFind);
+        if (nullptr != ResourceLoad)
+        {
+            lpResourceInfo->Pointer = LockResource(ResourceLoad);
+        }
+    }
 
-	return __HRESULT_FROM_WIN32(GetLastError());
+    return __HRESULT_FROM_WIN32(GetLastError());
 }
 
 /// <summary>
@@ -82,17 +82,17 @@ HRESULT M2LoadResource(
 /// call GetLastError.
 /// </returns>
 DWORD M2GetFileAttributes(
-	_In_ HANDLE hFile)
+    _In_ HANDLE hFile)
 {
-	FILE_BASIC_INFO BasicInfo;
+    FILE_BASIC_INFO BasicInfo;
 
-	BOOL ret = GetFileInformationByHandleEx(
-		hFile,
-		FileBasicInfo,
-		&BasicInfo,
-		sizeof(FILE_BASIC_INFO));
+    BOOL ret = GetFileInformationByHandleEx(
+        hFile,
+        FileBasicInfo,
+        &BasicInfo,
+        sizeof(FILE_BASIC_INFO));
 
-	return ret ? BasicInfo.FileAttributes : INVALID_FILE_ATTRIBUTES;
+    return ret ? BasicInfo.FileAttributes : INVALID_FILE_ATTRIBUTES;
 }
 
 /// <summary>
@@ -114,29 +114,29 @@ DWORD M2GetFileAttributes(
 /// is S_OK.
 /// </returns>
 HRESULT M2SetFileAttributes(
-	_In_ HANDLE hFile,
-	_In_ DWORD dwFileAttributes)
+    _In_ HANDLE hFile,
+    _In_ DWORD dwFileAttributes)
 {
-	FILE_BASIC_INFO BasicInfo = { 0 };
-	BasicInfo.FileAttributes =
-		dwFileAttributes & (
-			FILE_SHARE_READ |
-			FILE_SHARE_WRITE |
-			FILE_SHARE_DELETE |
-			FILE_ATTRIBUTE_ARCHIVE |
-			FILE_ATTRIBUTE_TEMPORARY |
-			FILE_ATTRIBUTE_OFFLINE |
-			FILE_ATTRIBUTE_NOT_CONTENT_INDEXED |
-			FILE_ATTRIBUTE_NO_SCRUB_DATA) |
-		FILE_ATTRIBUTE_NORMAL;
+    FILE_BASIC_INFO BasicInfo = { 0 };
+    BasicInfo.FileAttributes =
+        dwFileAttributes & (
+            FILE_SHARE_READ |
+            FILE_SHARE_WRITE |
+            FILE_SHARE_DELETE |
+            FILE_ATTRIBUTE_ARCHIVE |
+            FILE_ATTRIBUTE_TEMPORARY |
+            FILE_ATTRIBUTE_OFFLINE |
+            FILE_ATTRIBUTE_NOT_CONTENT_INDEXED |
+            FILE_ATTRIBUTE_NO_SCRUB_DATA) |
+        FILE_ATTRIBUTE_NORMAL;
 
-	BOOL ret = SetFileInformationByHandle(
-		hFile,
-		FileBasicInfo,
-		&BasicInfo,
-		sizeof(FILE_BASIC_INFO));
+    BOOL ret = SetFileInformationByHandle(
+        hFile,
+        FileBasicInfo,
+        &BasicInfo,
+        sizeof(FILE_BASIC_INFO));
 
-	return ret ? S_OK : M2GetLastError();
+    return ret ? S_OK : M2GetLastError();
 }
 
 /// <summary>
@@ -157,60 +157,60 @@ HRESULT M2SetFileAttributes(
 /// is S_OK.
 /// </returns>
 HRESULT M2DeleteFile(
-	_In_ LPCWSTR lpFileName,
-	_In_ bool bForceDeleteReadOnlyFile)
+    _In_ LPCWSTR lpFileName,
+    _In_ bool bForceDeleteReadOnlyFile)
 {
-	HRESULT hr = S_OK;
+    HRESULT hr = S_OK;
 
-	// Open the file.
-	HANDLE hFile = CreateFileW(
-		lpFileName,
-		SYNCHRONIZE | DELETE | FILE_READ_ATTRIBUTES | FILE_WRITE_ATTRIBUTES,
-		FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
-		nullptr,
-		OPEN_EXISTING,
-		FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT,
-		nullptr);
-	if (INVALID_HANDLE_VALUE == hFile)
-	{
-		hr = M2GetLastError();
-		goto Cleanup;
-	}
+    // Open the file.
+    HANDLE hFile = CreateFileW(
+        lpFileName,
+        SYNCHRONIZE | DELETE | FILE_READ_ATTRIBUTES | FILE_WRITE_ATTRIBUTES,
+        FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+        nullptr,
+        OPEN_EXISTING,
+        FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT,
+        nullptr);
+    if (INVALID_HANDLE_VALUE == hFile)
+    {
+        hr = M2GetLastError();
+        goto Cleanup;
+    }
 
-	FILE_DISPOSITION_INFO DispostionInfo;
-	DispostionInfo.DeleteFile = TRUE;
+    FILE_DISPOSITION_INFO DispostionInfo;
+    DispostionInfo.DeleteFile = TRUE;
 
-	DWORD OldAttribute = 0;
+    DWORD OldAttribute = 0;
 
-	if (bForceDeleteReadOnlyFile)
-	{
-		// 保存旧属性值
-		OldAttribute = M2GetFileAttributes(hFile);
+    if (bForceDeleteReadOnlyFile)
+    {
+        // 保存旧属性值
+        OldAttribute = M2GetFileAttributes(hFile);
 
-		// 去除只读
-		M2SetFileAttributes(
-			hFile,
-			OldAttribute & (-1 ^ FILE_ATTRIBUTE_READONLY));
-	}
+        // 去除只读
+        M2SetFileAttributes(
+            hFile,
+            OldAttribute & (-1 ^ FILE_ATTRIBUTE_READONLY));
+    }
 
-	// Delete the file.
-	if (!SetFileInformationByHandle(
-		hFile,
-		FileDispositionInfo,
-		&DispostionInfo,
-		sizeof(FILE_DISPOSITION_INFO)))
-	{
-		hr = M2GetLastError();
-	}
+    // Delete the file.
+    if (!SetFileInformationByHandle(
+        hFile,
+        FileDispositionInfo,
+        &DispostionInfo,
+        sizeof(FILE_DISPOSITION_INFO)))
+    {
+        hr = M2GetLastError();
+    }
 
-	// 如果删除未成功，则恢复原属性
-	if (bForceDeleteReadOnlyFile & !SUCCEEDED(hr))
-		M2SetFileAttributes(hFile, OldAttribute);
+    // 如果删除未成功，则恢复原属性
+    if (bForceDeleteReadOnlyFile & !SUCCEEDED(hr))
+        M2SetFileAttributes(hFile, OldAttribute);
 
 Cleanup:
-	CloseHandle(hFile);
+    CloseHandle(hFile);
 
-	return hr;
+    return hr;
 }
 
 /// <summary>
@@ -231,47 +231,47 @@ Cleanup:
 /// is S_OK.
 /// </returns>
 HRESULT M2GetFileAllocationSize(
-	_In_ LPCWSTR lpFileName,
-	_Out_ PULONGLONG lpAllocationSize)
+    _In_ LPCWSTR lpFileName,
+    _Out_ PULONGLONG lpAllocationSize)
 {
-	*lpAllocationSize = 0;
+    *lpAllocationSize = 0;
 
-	HRESULT hr = S_OK;
+    HRESULT hr = S_OK;
 
-	// Open the file.
-	HANDLE hFile = CreateFileW(
-		lpFileName,
-		GENERIC_READ | SYNCHRONIZE,
-		FILE_SHARE_READ,
-		nullptr,
-		OPEN_EXISTING,
-		FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT,
-		nullptr);
-	if (INVALID_HANDLE_VALUE == hFile)
-	{
-		hr = M2GetLastError();
-		goto Cleanup;
-	}
+    // Open the file.
+    HANDLE hFile = CreateFileW(
+        lpFileName,
+        GENERIC_READ | SYNCHRONIZE,
+        FILE_SHARE_READ,
+        nullptr,
+        OPEN_EXISTING,
+        FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT,
+        nullptr);
+    if (INVALID_HANDLE_VALUE == hFile)
+    {
+        hr = M2GetLastError();
+        goto Cleanup;
+    }
 
-	FILE_STANDARD_INFO StandardInfo;
+    FILE_STANDARD_INFO StandardInfo;
 
-	if (!GetFileInformationByHandleEx(
-		hFile,
-		FileStandardInfo,
-		&StandardInfo,
-		sizeof(FILE_STANDARD_INFO)))
-	{
-		hr = M2GetLastError();
-		goto Cleanup;
-	}
+    if (!GetFileInformationByHandleEx(
+        hFile,
+        FileStandardInfo,
+        &StandardInfo,
+        sizeof(FILE_STANDARD_INFO)))
+    {
+        hr = M2GetLastError();
+        goto Cleanup;
+    }
 
-	*lpAllocationSize = static_cast<ULONGLONG>(
-		StandardInfo.AllocationSize.QuadPart);
+    *lpAllocationSize = static_cast<ULONGLONG>(
+        StandardInfo.AllocationSize.QuadPart);
 
 Cleanup:
-	CloseHandle(hFile);
+    CloseHandle(hFile);
 
-	return hr;
+    return hr;
 }
 
 /// <summary>
@@ -291,47 +291,47 @@ Cleanup:
 /// is S_OK.
 /// </returns>
 HRESULT M2GetFileSize(
-	_In_ LPCWSTR lpFileName,
-	_Out_ PULONGLONG lpFileSize)
+    _In_ LPCWSTR lpFileName,
+    _Out_ PULONGLONG lpFileSize)
 {
-	*lpFileSize = 0;
+    *lpFileSize = 0;
 
-	HRESULT hr = S_OK;
+    HRESULT hr = S_OK;
 
-	// Open the file.
-	HANDLE hFile = CreateFileW(
-		lpFileName,
-		GENERIC_READ | SYNCHRONIZE,
-		FILE_SHARE_READ,
-		nullptr,
-		OPEN_EXISTING,
-		FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT,
-		nullptr);
-	if (INVALID_HANDLE_VALUE == hFile)
-	{
-		hr = M2GetLastError();
-		goto Cleanup;
-	}
+    // Open the file.
+    HANDLE hFile = CreateFileW(
+        lpFileName,
+        GENERIC_READ | SYNCHRONIZE,
+        FILE_SHARE_READ,
+        nullptr,
+        OPEN_EXISTING,
+        FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT,
+        nullptr);
+    if (INVALID_HANDLE_VALUE == hFile)
+    {
+        hr = M2GetLastError();
+        goto Cleanup;
+    }
 
-	FILE_STANDARD_INFO StandardInfo;
+    FILE_STANDARD_INFO StandardInfo;
 
-	if (!GetFileInformationByHandleEx(
-		hFile,
-		FileStandardInfo,
-		&StandardInfo,
-		sizeof(FILE_STANDARD_INFO)))
-	{
-		hr = M2GetLastError();
-		goto Cleanup;
-	}
+    if (!GetFileInformationByHandleEx(
+        hFile,
+        FileStandardInfo,
+        &StandardInfo,
+        sizeof(FILE_STANDARD_INFO)))
+    {
+        hr = M2GetLastError();
+        goto Cleanup;
+    }
 
-	*lpFileSize = static_cast<ULONGLONG>(
-		StandardInfo.EndOfFile.QuadPart);
+    *lpFileSize = static_cast<ULONGLONG>(
+        StandardInfo.EndOfFile.QuadPart);
 
 Cleanup:
-	CloseHandle(hFile);
+    CloseHandle(hFile);
 
-	return hr;
+    return hr;
 }
 
 /// <summary>
@@ -346,43 +346,43 @@ Cleanup:
 /// is S_OK.
 /// </returns>
 HRESULT M2GetWindowsDirectory(
-	std::wstring& WindowsFolderPath)
+    std::wstring& WindowsFolderPath)
 {
-	HRESULT hr = S_OK;
-	
-	do
-	{
-		UINT Length = GetSystemWindowsDirectoryW(
-			nullptr,
-			0);
-		if (0 == Length)
-		{
-			hr = M2GetLastError();
-			break;
-		}
+    HRESULT hr = S_OK;
 
-		WindowsFolderPath.resize(Length - 1);
+    do
+    {
+        UINT Length = GetSystemWindowsDirectoryW(
+            nullptr,
+            0);
+        if (0 == Length)
+        {
+            hr = M2GetLastError();
+            break;
+        }
 
-		Length = GetSystemWindowsDirectoryW(
-			&WindowsFolderPath[0],
-			static_cast<UINT>(Length));
-		if (0 == Length)
-		{
-			hr = M2GetLastError();
-			break;
-		}
-		if (WindowsFolderPath.size() != Length)
-		{	
-			hr = E_UNEXPECTED;
-			break;
-		}
+        WindowsFolderPath.resize(Length - 1);
 
-	} while (false);
-	
-	if (FAILED(hr))
-	{
-		WindowsFolderPath.clear();
-	}
+        Length = GetSystemWindowsDirectoryW(
+            &WindowsFolderPath[0],
+            static_cast<UINT>(Length));
+        if (0 == Length)
+        {
+            hr = M2GetLastError();
+            break;
+        }
+        if (WindowsFolderPath.size() != Length)
+        {
+            hr = E_UNEXPECTED;
+            break;
+        }
 
-	return hr;
+    } while (false);
+
+    if (FAILED(hr))
+    {
+        WindowsFolderPath.clear();
+    }
+
+    return hr;
 }

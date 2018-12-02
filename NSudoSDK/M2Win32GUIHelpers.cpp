@@ -25,22 +25,22 @@ License: The MIT License
 /// </remarks>
 INT M2EnablePerMonitorDialogScaling()
 {
-	// Fix for Windows Vista and Server 2008.
-	if (!IsWindows10OrGreater()) return -1;
+    // Fix for Windows Vista and Server 2008.
+    if (!IsWindows10OrGreater()) return -1;
 
-	typedef INT(WINAPI *PFN_EnablePerMonitorDialogScaling)();
+    typedef INT(WINAPI *PFN_EnablePerMonitorDialogScaling)();
 
-	HMODULE hModule = nullptr;
-	PFN_EnablePerMonitorDialogScaling pFunc = nullptr;
+    HMODULE hModule = nullptr;
+    PFN_EnablePerMonitorDialogScaling pFunc = nullptr;
 
-	hModule = GetModuleHandleW(L"user32.dll");
-	if (!hModule) return -1;
+    hModule = GetModuleHandleW(L"user32.dll");
+    if (!hModule) return -1;
 
-	pFunc = reinterpret_cast<PFN_EnablePerMonitorDialogScaling>(
-		GetProcAddress(hModule, (LPCSTR)2577));
-	if (!pFunc) return -1;
+    pFunc = reinterpret_cast<PFN_EnablePerMonitorDialogScaling>(
+        GetProcAddress(hModule, (LPCSTR)2577));
+    if (!pFunc) return -1;
 
-	return pFunc();
+    return pFunc();
 }
 
 /// <summary>
@@ -48,10 +48,10 @@ INT M2EnablePerMonitorDialogScaling()
 /// </summary>
 struct DIALOG_BOX_PARAM
 {
-	HINSTANCE hInstance;
-	LPCWSTR lpIconName;
-	LPCWSTR lpTitle;
-	LPCWSTR lpContent;
+    HINSTANCE hInstance;
+    LPCWSTR lpIconName;
+    LPCWSTR lpTitle;
+    LPCWSTR lpContent;
 };
 
 /// <summary>
@@ -76,53 +76,53 @@ struct DIALOG_BOX_PARAM
 /// message.
 /// </returns>
 INT_PTR CALLBACK M2MessageDialogDialogCallBack(
-	_In_ HWND   hwndDlg,
-	_In_ UINT   uMsg,
-	_In_ WPARAM wParam,
-	_In_ LPARAM lParam)
+    _In_ HWND   hwndDlg,
+    _In_ UINT   uMsg,
+    _In_ WPARAM wParam,
+    _In_ LPARAM lParam)
 {
-	UNREFERENCED_PARAMETER(lParam);
+    UNREFERENCED_PARAMETER(lParam);
 
-	if (WM_INITDIALOG == uMsg)
-	{
-		HICON hIcon = reinterpret_cast<HICON>(LoadImageW(
-			reinterpret_cast<DIALOG_BOX_PARAM*>(lParam)->hInstance,
-			reinterpret_cast<DIALOG_BOX_PARAM*>(lParam)->lpIconName,
-			IMAGE_ICON,
-			256,
-			256,
-			LR_SHARED));
-		if (nullptr != hIcon)
-		{
-			SendMessageW(
-				hwndDlg,
-				WM_SETICON,
-				ICON_SMALL,
-				reinterpret_cast<LPARAM>(hIcon));
-			SendMessageW(
-				hwndDlg,
-				WM_SETICON,
-				ICON_BIG,
-				reinterpret_cast<LPARAM>(hIcon));
-		}
+    if (WM_INITDIALOG == uMsg)
+    {
+        HICON hIcon = reinterpret_cast<HICON>(LoadImageW(
+            reinterpret_cast<DIALOG_BOX_PARAM*>(lParam)->hInstance,
+            reinterpret_cast<DIALOG_BOX_PARAM*>(lParam)->lpIconName,
+            IMAGE_ICON,
+            256,
+            256,
+            LR_SHARED));
+        if (nullptr != hIcon)
+        {
+            SendMessageW(
+                hwndDlg,
+                WM_SETICON,
+                ICON_SMALL,
+                reinterpret_cast<LPARAM>(hIcon));
+            SendMessageW(
+                hwndDlg,
+                WM_SETICON,
+                ICON_BIG,
+                reinterpret_cast<LPARAM>(hIcon));
+        }
 
-		SetWindowTextW(
-			hwndDlg,
-			reinterpret_cast<DIALOG_BOX_PARAM*>(lParam)->lpTitle);
-		SetWindowTextW(
-			GetDlgItem(hwndDlg, IDC_MESSAGE_DIALOG_EDIT),
-			reinterpret_cast<DIALOG_BOX_PARAM*>(lParam)->lpContent);
+        SetWindowTextW(
+            hwndDlg,
+            reinterpret_cast<DIALOG_BOX_PARAM*>(lParam)->lpTitle);
+        SetWindowTextW(
+            GetDlgItem(hwndDlg, IDC_MESSAGE_DIALOG_EDIT),
+            reinterpret_cast<DIALOG_BOX_PARAM*>(lParam)->lpContent);
 
-		return (INT_PTR)TRUE;
-	}
-	else if (
-		(WM_CLOSE == uMsg) ||
-		(WM_COMMAND == uMsg && IDOK == LOWORD(wParam)))
-	{
-		EndDialog(hwndDlg, 0);
-	}
+        return (INT_PTR)TRUE;
+    }
+    else if (
+        (WM_CLOSE == uMsg) ||
+        (WM_COMMAND == uMsg && IDOK == LOWORD(wParam)))
+    {
+        EndDialog(hwndDlg, 0);
+    }
 
-	return FALSE;
+    return FALSE;
 }
 
 /// <summary>
@@ -159,20 +159,20 @@ INT_PTR CALLBACK M2MessageDialogDialogCallBack(
 /// information, call GetLastError.
 /// </returns>
 INT_PTR WINAPI M2MessageDialog(
-	_In_opt_ HINSTANCE hInstance,
-	_In_opt_ HWND hWndParent,
-	_In_opt_ LPCWSTR lpIconName,
-	_In_ LPCWSTR lpTitle,
-	_In_ LPCWSTR lpContent)
+    _In_opt_ HINSTANCE hInstance,
+    _In_opt_ HWND hWndParent,
+    _In_opt_ LPCWSTR lpIconName,
+    _In_ LPCWSTR lpTitle,
+    _In_ LPCWSTR lpContent)
 {
-	DIALOG_BOX_PARAM Param = { hInstance, lpIconName,lpTitle,lpContent };
+    DIALOG_BOX_PARAM Param = { hInstance, lpIconName,lpTitle,lpContent };
 
-	M2EnablePerMonitorDialogScaling();
+    M2EnablePerMonitorDialogScaling();
 
-	return DialogBoxParamW(
-		hInstance,
-		MAKEINTRESOURCEW(IDD_MESSAGE_DIALOG),
-		hWndParent,
-		M2MessageDialogDialogCallBack,
-		reinterpret_cast<LPARAM>(&Param));
+    return DialogBoxParamW(
+        hInstance,
+        MAKEINTRESOURCEW(IDD_MESSAGE_DIALOG),
+        hWndParent,
+        M2MessageDialogDialogCallBack,
+        reinterpret_cast<LPARAM>(&Param));
 }
