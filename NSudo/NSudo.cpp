@@ -431,7 +431,8 @@ NSUDO_MESSAGE NSudoCommandLineParser(
     _In_ bool bEnableContextMenuManagement,
     _In_ std::wstring& ApplicationName,
     _In_ std::map<std::wstring, std::wstring>& OptionsAndParameters,
-    _In_ std::wstring& UnresolvedCommandLine)
+    _In_ std::wstring& UnresolvedCommandLine,
+    _In_ bool bNeedLegacyProcessCreation = false)
 {
     UNREFERENCED_PARAMETER(ApplicationName);
 
@@ -888,16 +889,21 @@ NSUDO_MESSAGE NSudoCommandLineParser(
 
     std::wstring final_command_line;
 
+    if (true == bNeedLegacyProcessCreation)
+    {
+        final_command_line.append(L"cmd /c start \"NSudo.Launcher\" ");
+    }
+
     std::map<std::wstring, std::wstring>::const_iterator iterator =
         g_ResourceManagement.ShortCutList.find(UnresolvedCommandLine);
 
     if (g_ResourceManagement.ShortCutList.end() != iterator)
     {
-        final_command_line = iterator->second;
+        final_command_line.append(iterator->second);
     }
     else
     {
-        final_command_line = UnresolvedCommandLine;
+        final_command_line.append(UnresolvedCommandLine);
     }
 
     if (!NSudoCreateProcessDirect(
@@ -1265,7 +1271,7 @@ private:
         }
         else
         {
-            std::wstring CommandLine = L"NSudo";
+            std::wstring CommandLine = L"NSudo -ShowWindowMode=Hide";
 
             // 获取用户令牌
             if (0 == _wcsicmp(
@@ -1319,7 +1325,8 @@ private:
                 true,
                 ApplicationName,
                 OptionsAndParameters,
-                UnresolvedCommandLine);
+                UnresolvedCommandLine,
+                true);
             if (NSUDO_MESSAGE::SUCCESS != message)
             {
                 std::wstring Buffer = g_ResourceManagement.GetMessageString(
