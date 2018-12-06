@@ -15,6 +15,14 @@
   [here](http://bbs.pcbeta.com/viewthread-1508863-1-1.html "here") for more 
   information about SuperCMD.
 
+## Introduction
+I will give you some thirdparty introduction links because I am not good at 
+English.
+- MajorGeeks: https://www.majorgeeks.com/files/details/nsudo.html
+- softpedia.com: https://www.softpedia.com/get/Tweak/System-Tweak/NSudo.shtml
+- TrishTech.com: https://www.trishtech.com/2018/11/nsudo-run-programs-with-full-privileges-in-windows/
+- Wilders Security Forums: https://www.wilderssecurity.com/threads/396818
+
 ## System Requirements
 - Supported OS Version: Windows NT 6.0 or later
 - Supported CPU Architecture: x86, x86-64(AMD64), ARM, ARM64
