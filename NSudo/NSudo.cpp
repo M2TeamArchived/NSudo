@@ -928,15 +928,13 @@ void NSudoPrintMsg(
     _In_opt_ HWND hWnd,
     _In_ LPCWSTR lpContent)
 {
+    std::wstring DialogContent =
+        g_ResourceManagement.GetLogoText() + lpContent +
+        g_ResourceManagement.GetUTF8WithBOMStringResources(IDR_String_Links);
+
 #if defined(NSUDO_CUI_CONSOLE)
     UNREFERENCED_PARAMETER(hInstance);
     UNREFERENCED_PARAMETER(hWnd);
-
-    std::wstring DialogContent =
-        g_ResourceManagement.GetLogoText() +
-        lpContent +
-        g_ResourceManagement.GetUTF8WithBOMStringResources(
-            IDR_String_Links);
 
     DWORD NumberOfCharsWritten = 0;
     WriteConsoleW(
@@ -945,13 +943,7 @@ void NSudoPrintMsg(
         (DWORD)DialogContent.size(),
         &NumberOfCharsWritten,
         nullptr);
-#endif
-#if defined(NSUDO_CUI_WINDOWS) || defined(NSUDO_GUI_WINDOWS)
-    std::wstring DialogContent =
-        g_ResourceManagement.GetLogoText() +
-        lpContent +
-        g_ResourceManagement.GetUTF8WithBOMStringResources(IDR_String_Links);
-
+#elif defined(NSUDO_CUI_WINDOWS) || defined(NSUDO_GUI_WINDOWS)
     M2MessageDialog(
         hInstance,
         hWnd,
@@ -981,8 +973,7 @@ HRESULT NSudoShowAboutDialog(
         (DWORD)DialogContent.size(),
         &NumberOfCharsWritten,
         nullptr);
-#endif
-#if defined(NSUDO_CUI_WINDOWS) || defined(NSUDO_GUI_WINDOWS)
+#elif defined(NSUDO_CUI_WINDOWS) || defined(NSUDO_GUI_WINDOWS)
     M2MessageDialog(
         g_ResourceManagement.Instance,
         hwndParent,
@@ -1445,8 +1436,7 @@ int NSudoMain()
     {
 #if defined(NSUDO_CUI_CONSOLE) || defined(NSUDO_CUI_WINDOWS)
         NSudoShowAboutDialog(nullptr);
-#endif
-#if defined(NSUDO_GUI_WINDOWS)
+#elif defined(NSUDO_GUI_WINDOWS)
         CNSudoMainWindow MainWindow;
         MainWindow.DoModal(nullptr);
 #endif
@@ -1460,8 +1450,7 @@ int NSudoMain()
         ApplicationName,
         OptionsAndParameters,
         UnresolvedCommandLine);
-#endif
-#if defined(NSUDO_CUI_WINDOWS) || defined(NSUDO_GUI_WINDOWS)
+#elif defined(NSUDO_CUI_WINDOWS) || defined(NSUDO_GUI_WINDOWS)
     NSUDO_MESSAGE message = NSudoCommandLineParser(
         g_ResourceManagement.IsElevated,
         true,
@@ -1498,8 +1487,7 @@ int NSudoMain()
 
 #if defined(NSUDO_CUI_CONSOLE)
 int main()
-#endif
-#if defined(NSUDO_CUI_WINDOWS) || defined(NSUDO_GUI_WINDOWS)
+#elif defined(NSUDO_CUI_WINDOWS) || defined(NSUDO_GUI_WINDOWS)
 int WINAPI wWinMain(
     _In_ HINSTANCE hInstance,
     _In_opt_ HINSTANCE hPrevInstance,
