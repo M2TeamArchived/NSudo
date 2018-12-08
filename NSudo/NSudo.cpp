@@ -889,7 +889,7 @@ NSUDO_MESSAGE NSudoCommandLineParser(
 
     std::wstring final_command_line;
 
-    if (true == bNeedLegacyProcessCreation)
+    if (bNeedLegacyProcessCreation)
     {
         final_command_line.append(L"cmd /c start \"NSudo.Launcher\" ");
     }

@@ -975,7 +975,7 @@ extern "C" {
     {
         DWORD dwCreationFlags = CREATE_SUSPENDED | CREATE_UNICODE_ENVIRONMENT;
 
-        if (true == CreateNewConsole)
+        if (CreateNewConsole)
         {
             dwCreationFlags |= CREATE_NEW_CONSOLE;
         }
