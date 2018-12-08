@@ -146,34 +146,17 @@ For example:
   - Copyright: Chuyu Team
   - License: https://github.com/Chuyu-Team/VC-LTL/blob/master/LICENSE.txt
 
-## Changelogs
-See [Changelog.md](Changelog.md) for more details.
-
-## Relevant People 
-See [People.md](People.md) for more details.
-
 ## Git Repositories
 - GitHub (Main)
   - https://github.com/M2Team/NSudo
 - OSChina (Mirrors)
   - https://gitee.com/M2-Team/NSudo
 
-## The way to compile NSudo
-- If you need to compile NSudo, you need to install Visual Studio 2017 first.
-- You need to change the Windows SDK version in the project properties if the 
-  version of Windows 10 SDK I used isn't installed on your PC. You also need 
-  install ARM and ARM64 components when you installing the Windows 10 Version 
-  1703 SDK or later.
-- (Optional) If you want to reduce the release mode binaries size for x86, x64
-  and ARM64 port of NSudo, you can use VC-LTL.
-  - VC-LTL GitHub Repository: https://github.com/Chuyu-Team/VC-LTL
-  - How to use VC-LTL to optimize NSudo binaries size:
-    - Download VC-LTL binary pack from 
-	  https://github.com/Chuyu-Team/VC-LTL/releases/latest.
-    - Unpack the VC-LTL binary pack and double-click install.cmd in the unpack
-	  folder.
-    - Compile NSudo by Visual Studio 2017.
-- I hope these infomation can help you.
+## Documents
+- [NSudo's Changelog](Changelog.md)
+- [NSudo's Relevant People](People.md)
+- [NSudo's Code of Conduct](CODE_OF_CONDUCT.md)
+- [Contributing to NSudo](CONTRIBUTING.md)
 
 ## Communication
 - MDL Post: https://forums.mydigitallife.net/threads/59268/

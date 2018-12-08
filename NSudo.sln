@@ -7,10 +7,13 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NSudo", "NSudo\NSudo.vcxpro
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documents", "Documents", "{C3C42858-2A8F-492A-9B80-B11907E0C95D}"
 	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
 		.gitignore = .gitignore
 		.gitmodules = .gitmodules
 		appveyor.yml = appveyor.yml
 		Changelog.md = Changelog.md
+		CODE_OF_CONDUCT.md = CODE_OF_CONDUCT.md
+		CONTRIBUTING.md = CONTRIBUTING.md
 		LICENSE = LICENSE
 		Logo.png = Logo.png
 		People.md = People.md
