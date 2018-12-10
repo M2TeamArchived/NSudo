@@ -28,6 +28,116 @@ const char* NSudoMessageTranslationID[] =
     ""
 };
 
+class CNSudoTranslationAdapter
+{
+private:
+    static std::wstring GetUTF8WithBOMStringResources(
+        _In_ UINT uID)
+    {
+        M2_RESOURCE_INFO ResourceInfo = { 0 };
+        if (SUCCEEDED(M2LoadResource(
+            &ResourceInfo,
+            GetModuleHandleW(nullptr),
+            L"String",
+            MAKEINTRESOURCEW(uID))))
+        {
+            std::string RawString(
+                reinterpret_cast<const char*>(ResourceInfo.Pointer),
+                ResourceInfo.Size);
+            // Raw string without the UTF-8 BOM. (0xEF,0xBB,0xBF)	
+            return M2MakeUTF16String(RawString.c_str() + 3);
+        }
+
+        return L"";
+    }
+
+public:
+    static void Load(
+        std::map<std::string, std::wstring>& StringTranslations)
+    {
+        StringTranslations.clear();
+
+        StringTranslations.insert(std::make_pair(
+            "NSudo.VersionText",
+            L"M2-Team NSudo " NSUDO_VERSION_STRING));
+
+        StringTranslations.insert(std::make_pair(
+            "NSudo.LogoText",
+            L"M2-Team NSudo " NSUDO_VERSION_STRING L"\r\n"
+            L"© M2-Team. All rights reserved.\r\n"
+            L"\r\n"));
+
+        StringTranslations.insert(std::make_pair(
+            "NSudo.String.Links",
+            CNSudoTranslationAdapter::GetUTF8WithBOMStringResources(
+                IDR_String_Links)));
+
+        StringTranslations.insert(std::make_pair(
+            "NSudo.String.CommandLineHelp",
+            CNSudoTranslationAdapter::GetUTF8WithBOMStringResources(
+                IDR_String_CommandLineHelp)));
+
+        M2_RESOURCE_INFO ResourceInfo = { 0 };
+        if (SUCCEEDED(M2LoadResource(
+            &ResourceInfo,
+            GetModuleHandleW(nullptr),
+            L"String",
+            MAKEINTRESOURCEW(IDR_String_Translations))))
+        {
+            nlohmann::json StringTranslationsJSON =
+                nlohmann::json::parse(std::string(
+                    reinterpret_cast<const char*>(ResourceInfo.Pointer),
+                    ResourceInfo.Size));
+
+            for (auto& Item : StringTranslationsJSON["Translations"].items())
+            {
+                StringTranslations.insert(std::make_pair(
+                    Item.key(),
+                    M2MakeUTF16String(Item.value())));
+            }
+        }
+    }
+};
+
+class CNSudoShortCutAdapter
+{
+public:
+    static void Read(
+        const std::wstring& ShortCutListPath,
+        std::map<std::wstring, std::wstring>& ShortCutList)
+    {
+        ShortCutList.clear();
+
+        try
+        {
+            std::ifstream FileStream(ShortCutListPath);
+            if (FileStream.is_open())
+            {
+                nlohmann::json ConfigJSON = nlohmann::json::parse(FileStream);
+
+                for (auto& Item : ConfigJSON["ShortCutList_V2"].items())
+                {
+                    ShortCutList.insert(std::make_pair(
+                        M2MakeUTF16String(Item.key()),
+                        M2MakeUTF16String(Item.value())));
+                }
+            }
+        }
+        catch (const std::exception&)
+        {
+
+        }
+    }
+
+    static void Write(
+        const std::wstring& ShortCutListPath,
+        const std::map<std::wstring, std::wstring>& ShortCutList)
+    {
+        ShortCutListPath;
+        ShortCutList;
+    }
+};
+
 class CNSudoResourceManagement
 {
 private:
@@ -64,45 +174,10 @@ public:
         wcsrchr(&this->m_AppPath[0], L'\\')[0] = L'\0';
         this->m_AppPath.resize(wcslen(this->m_AppPath.c_str()));
 
-        M2_RESOURCE_INFO ResourceInfo = { 0 };
-        if (SUCCEEDED(M2LoadResource(
-            &ResourceInfo,
-            GetModuleHandleW(nullptr),
-            L"String",
-            MAKEINTRESOURCEW(IDR_String_Translations))))
-        {
-            nlohmann::json StringTranslationsJSON =
-                nlohmann::json::parse(std::string(
-                    reinterpret_cast<const char*>(ResourceInfo.Pointer),
-                    ResourceInfo.Size));
+        CNSudoTranslationAdapter::Load(this->m_StringTranslations);
 
-            for (auto& Item : StringTranslationsJSON["Translations"].items())
-            {
-                this->m_StringTranslations.insert(std::make_pair(
-                    Item.key(),
-                    M2MakeUTF16String(Item.value())));
-            }
-        }
-
-        try
-        {
-            std::ifstream FileStream(this->AppPath + L"\\NSudo.json");
-            if (FileStream.is_open())
-            {
-                nlohmann::json ConfigJSON = nlohmann::json::parse(FileStream);
-
-                for (auto& Item : ConfigJSON["ShortCutList_V2"].items())
-                {
-                    this->m_ShortCutList.insert(std::make_pair(
-                        M2MakeUTF16String(Item.key()),
-                        M2MakeUTF16String(Item.value())));
-                }
-            }
-        }
-        catch (const std::exception&)
-        {
-
-        }
+        CNSudoShortCutAdapter::Read(
+            this->AppPath + L"\\NSudo.json", this->m_ShortCutList);
 
         M2::CHandle CurrentProcessToken;
 
@@ -135,20 +210,6 @@ public:
         }
     }
 
-    const std::wstring GetVersionText()
-    {
-        return
-            L"M2-Team NSudo " NSUDO_VERSION_STRING;
-    }
-
-    const std::wstring GetLogoText()
-    {
-        return
-            L"M2-Team NSudo " NSUDO_VERSION_STRING L"\r\n"
-            L"© M2-Team. All rights reserved.\r\n"
-            L"\r\n";
-    }
-
     std::wstring GetTranslation(
         _In_ std::string Key)
     {
@@ -160,73 +221,9 @@ public:
     {
         return this->GetTranslation(NSudoMessageTranslationID[MessageID]);
     }
-
-    std::wstring GetUTF8WithBOMStringResources(
-        _In_ UINT uID)
-    {
-        M2_RESOURCE_INFO ResourceInfo = { 0 };
-        if (SUCCEEDED(M2LoadResource(
-            &ResourceInfo,
-            this->Instance,
-            L"String",
-            MAKEINTRESOURCEW(uID))))
-        {
-            std::string RawString(
-                reinterpret_cast<const char*>(ResourceInfo.Pointer),
-                ResourceInfo.Size);
-            // Raw string without the UTF-8 BOM. (0xEF,0xBB,0xBF)	
-            return M2MakeUTF16String(RawString.c_str() + 3);
-        }
-
-        return L"";
-    }
 };
 
 CNSudoResourceManagement g_ResourceManagement;
-
-// 分割获取的命令行以方便解析
-std::vector<std::wstring> NSudoSplitCommandLine(LPCWSTR lpCommandLine)
-{
-    std::vector<std::wstring> result;
-
-    std::vector<std::wstring> SplitArguments = M2SpiltCommandLine(
-        lpCommandLine);
-
-    size_t arg_size = 0;
-
-    for (auto& SplitArgument : SplitArguments)
-    {
-        // 如果是程序路径或者为命令参数
-        if (result.empty() || (SplitArgument[0] == L'-' || SplitArgument[0] == L'/'))
-        {
-            // 累加长度 (包括空格)
-            // 为最后成功保存用户要执行的命令或快捷命令名打基础
-            arg_size += SplitArgument.size() + 1;
-
-            // 保存入解析器
-            result.push_back(SplitArgument);
-        }
-        else
-        {
-            // 获取搜索用户要执行的命令或快捷命令名的位置（大致位置）
-            // 对arg_size减1是为了留出空格，保证程序路径没有引号时也能正确解析
-            wchar_t* search_start =
-                const_cast<wchar_t*>(lpCommandLine) + (arg_size - 1);
-
-            // 获取用户要执行的命令或快捷命令名
-            // 搜索第一个参数分隔符（即空格）开始的位置			
-            // 最后对结果增1是因为该返回值是空格开始出，而最开始的空格需要排除
-            wchar_t* command = wcsstr(search_start, L" ") + 1;
-
-            // 保存入解析器
-            result.push_back(std::wstring(command));
-
-            break;
-        }
-    }
-
-    return result;
-}
 
 typedef struct _NSUDO_CONTEXT_MENU_ITEM
 {
@@ -236,35 +233,12 @@ typedef struct _NSUDO_CONTEXT_MENU_ITEM
     bool HasLUAShield;
 } NSUDO_CONTEXT_MENU_ITEM, *PNSUDO_CONTEXT_MENU_ITEM;
 
-class CNSudoContextMenuManagement
+class CNSudoContextMenuAdapter
 {
-private:
-    DWORD m_ConstructorError = ERROR_SUCCESS;
-
-    std::wstring m_NSudoPath;
-    M2::CHKey m_CommandStoreRoot;
-
-    std::vector<NSUDO_CONTEXT_MENU_ITEM> m_ContextMenuItems;
-
 public:
-    CNSudoContextMenuManagement()
+    static void Load(
+        std::vector<NSUDO_CONTEXT_MENU_ITEM>& ContextMenuItems)
     {
-        this->m_ConstructorError = M2GetWindowsDirectory(this->m_NSudoPath);
-        if (FAILED(this->m_ConstructorError))
-        {
-            return;
-        }
-        this->m_NSudoPath.append(L"\\NSudo.exe");
-
-        this->m_ConstructorError = RegOpenKeyExW(
-            HKEY_LOCAL_MACHINE,
-            L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\CommandStore\\shell",
-            0,
-            KEY_ALL_ACCESS | KEY_WOW64_64KEY,
-            &this->m_CommandStoreRoot);
-        if (ERROR_SUCCESS != this->m_ConstructorError)
-            return;
-
         M2_RESOURCE_INFO ResourceInfo = { 0 };
         if (SUCCEEDED(M2LoadResource(
             &ResourceInfo,
@@ -301,9 +275,42 @@ public:
 
                 ContextMenuItem.HasLUAShield = HasLUAShield;
 
-                this->m_ContextMenuItems.push_back(ContextMenuItem);
+                ContextMenuItems.push_back(ContextMenuItem);
             }
         }
+    }
+};
+
+class CNSudoContextMenuManagement
+{
+private:
+    DWORD m_ConstructorError = ERROR_SUCCESS;
+
+    std::wstring m_NSudoPath;
+    M2::CHKey m_CommandStoreRoot;
+
+    std::vector<NSUDO_CONTEXT_MENU_ITEM> m_ContextMenuItems;
+
+public:
+    CNSudoContextMenuManagement()
+    {
+        this->m_ConstructorError = M2GetWindowsDirectory(this->m_NSudoPath);
+        if (FAILED(this->m_ConstructorError))
+        {
+            return;
+        }
+        this->m_NSudoPath.append(L"\\NSudo.exe");
+
+        this->m_ConstructorError = RegOpenKeyExW(
+            HKEY_LOCAL_MACHINE,
+            L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\CommandStore\\shell",
+            0,
+            KEY_ALL_ACCESS | KEY_WOW64_64KEY,
+            &this->m_CommandStoreRoot);
+        if (ERROR_SUCCESS != this->m_ConstructorError)
+            return;
+
+        CNSudoContextMenuAdapter::Load(this->m_ContextMenuItems);
     }
 
     DWORD Install()
@@ -929,8 +936,9 @@ void NSudoPrintMsg(
     _In_ LPCWSTR lpContent)
 {
     std::wstring DialogContent =
-        g_ResourceManagement.GetLogoText() + lpContent +
-        g_ResourceManagement.GetUTF8WithBOMStringResources(IDR_String_Links);
+        g_ResourceManagement.GetTranslation("NSudo.LogoText") +
+        lpContent +
+        g_ResourceManagement.GetTranslation("NSudo.String.Links");
 
 #if defined(NSUDO_CUI_CONSOLE)
     UNREFERENCED_PARAMETER(hInstance);
@@ -957,9 +965,9 @@ HRESULT NSudoShowAboutDialog(
     _In_ HWND hwndParent)
 {
     std::wstring DialogContent =
-        g_ResourceManagement.GetLogoText() +
-        g_ResourceManagement.GetUTF8WithBOMStringResources(IDR_String_CommandLineHelp) +
-        g_ResourceManagement.GetUTF8WithBOMStringResources(IDR_String_Links);
+        g_ResourceManagement.GetTranslation("NSudo.LogoText") +
+        g_ResourceManagement.GetTranslation("NSudo.String.CommandLineHelp") +
+        g_ResourceManagement.GetTranslation("NSudo.String.Links");
 
     SetLastError(ERROR_SUCCESS);
 
@@ -1090,7 +1098,8 @@ private:
         this->m_hCheckBox = this->GetDlgItem(IDC_Check_EnableAllPrivileges);
         this->m_hszPath = this->GetDlgItem(IDC_szPath);
 
-        this->SetWindowTextW(g_ResourceManagement.GetVersionText().c_str());
+        this->SetWindowTextW(
+            g_ResourceManagement.GetTranslation("NSudo.VersionText").c_str());
 
         struct { const char* ID; ATL::CWindow Control; } x[] =
         {
@@ -1163,6 +1172,71 @@ private:
         return TRUE;
     }
 
+    POINT GetPhysicalPoint(const POINT& LogicalPoint)
+    {
+        POINT PhysicalPoint;
+
+        PhysicalPoint.x = MulDiv(
+            LogicalPoint.x, this->m_xDPI, USER_DEFAULT_SCREEN_DPI);
+        PhysicalPoint.y = MulDiv(
+            LogicalPoint.y, this->m_yDPI, USER_DEFAULT_SCREEN_DPI);
+
+        return PhysicalPoint;
+    }
+
+    SIZE GetPhysicalSize(const SIZE& LogicalSize)
+    {
+        SIZE PhysicalSize;
+
+        PhysicalSize.cx = MulDiv(
+            LogicalSize.cx, this->m_xDPI, USER_DEFAULT_SCREEN_DPI);
+        PhysicalSize.cy = MulDiv(
+            LogicalSize.cy, this->m_yDPI, USER_DEFAULT_SCREEN_DPI);
+
+        return PhysicalSize;
+    }
+
+    BOOL DrawIconWithHighDPISupport(
+        _In_ HDC hdc,
+        _In_ const POINT& LogicalPoint,
+        _In_ HICON hIcon,
+        const SIZE& LogicalSize,
+        _In_ UINT istepIfAniCur,
+        _In_opt_ HBRUSH hbrFlickerFreeDraw,
+        _In_ UINT diFlags)
+    {
+        POINT PhysicalPoint = GetPhysicalPoint(LogicalPoint);
+        SIZE PhysicalSize = GetPhysicalSize(LogicalSize);
+
+        return DrawIconEx(
+            hdc,
+            PhysicalPoint.x,
+            PhysicalPoint.y,
+            hIcon,
+            LogicalSize.cx,
+            LogicalSize.cy,
+            istepIfAniCur,
+            hbrFlickerFreeDraw,
+            diFlags);
+    }
+
+    BOOL GetLogicalClientRect(
+        _Out_ RECT& LogicalRect)
+    {
+        BOOL result = GetClientRect(&LogicalRect);
+
+        LogicalRect.left = MulDiv(
+            LogicalRect.left, USER_DEFAULT_SCREEN_DPI, this->m_xDPI);
+        LogicalRect.top = MulDiv(
+            LogicalRect.top, USER_DEFAULT_SCREEN_DPI, this->m_yDPI);
+        LogicalRect.right = MulDiv(
+            LogicalRect.right, USER_DEFAULT_SCREEN_DPI, this->m_xDPI);
+        LogicalRect.bottom = MulDiv
+        (LogicalRect.bottom, USER_DEFAULT_SCREEN_DPI, this->m_yDPI);
+
+        return result;
+    }
+
     LRESULT OnPaint(
         UINT uMsg,
         WPARAM wParam,
@@ -1178,25 +1252,21 @@ private:
         HDC hdc = this->BeginPaint(&ps);
 
         RECT rect = { 0 };
-        this->GetClientRect(&rect);
+        this->GetLogicalClientRect(rect);
 
-        DrawIconEx(
+        DrawIconWithHighDPISupport(
             hdc,
-            MulDiv(16, this->m_xDPI, USER_DEFAULT_SCREEN_DPI),
-            MulDiv(16, this->m_yDPI, USER_DEFAULT_SCREEN_DPI),
+            {16, 16},
             this->m_hNSudoIcon,
-            MulDiv(64, this->m_xDPI, USER_DEFAULT_SCREEN_DPI),
-            MulDiv(64, this->m_yDPI, USER_DEFAULT_SCREEN_DPI),
+            {64, 64},
             0,
             nullptr,
             DI_NORMAL | DI_COMPAT);
-        DrawIconEx(
+        DrawIconWithHighDPISupport(
             hdc,
-            MulDiv(16, this->m_xDPI, USER_DEFAULT_SCREEN_DPI),
-            (rect.bottom - rect.top) - MulDiv(40, this->m_yDPI, USER_DEFAULT_SCREEN_DPI),
+            {16, (rect.bottom - rect.top) - 40 },
             this->m_hWarningIcon,
-            MulDiv(24, this->m_xDPI, USER_DEFAULT_SCREEN_DPI),
-            MulDiv(24, this->m_yDPI, USER_DEFAULT_SCREEN_DPI),
+            {24, 24},
             0,
             nullptr,
             DI_NORMAL | DI_COMPAT);
@@ -1468,7 +1538,7 @@ int NSudoMain()
         NSudoPrintMsg(
             g_ResourceManagement.Instance,
             nullptr,
-            g_ResourceManagement.GetVersionText().c_str());
+            g_ResourceManagement.GetTranslation("NSudo.VersionText").c_str());
     }
     else if (NSUDO_MESSAGE::SUCCESS != message)
     {
