@@ -1,9 +1,12 @@
-﻿/******************************************************************************
-Project: M2-Team Common Library
-Description: Implementation for the basic helper functions.
-File Name: M2BaseHelpers.cpp
-License: The MIT License
-******************************************************************************/
+﻿/*
+ * PROJECT:   M2-Team Common Library
+ * FILE:      M2BaseHelpers.cpp
+ * PURPOSE:   Implementation for the basic helper functions
+ *
+ * LICENSE:   The MIT License
+ *
+ * DEVELOPER: Mouri_Naruto (Mouri_Naruto AT Outlook.com)
+ */
 
 #include "stdafx.h"
 
@@ -15,18 +18,13 @@ License: The MIT License
 
 #include <string>
 
-/// <summary>
-/// Write formatted data to a string.
-/// </summary>
-/// <param name="Format">
-/// Format-control string.
-/// </param>
-/// <param name="...">
-/// Optional arguments to be formatted.
-/// </param>
-/// <returns>
-/// Returns a formatted string if successful, or "N/A" otherwise.
-/// </returns>
+/**
+ * Write formatted data to a string.
+ *
+ * @param Format Format-control string.
+ * @param ... Optional arguments to be formatted.
+ * @return A formatted string if successful, "N/A" otherwise.
+ */
 std::wstring M2FormatString(
     _In_z_ _Printf_format_string_ wchar_t const* const Format,
     ...)
@@ -65,13 +63,12 @@ std::wstring M2FormatString(
     return L"N/A";
 }
 
-/// <summary>
-/// Retrieves the number of milliseconds that have elapsed since the system was
-/// started.
-/// </summary>
-/// <returns>
-/// The number of milliseconds.
-/// </returns>
+/**
+ * Retrieves the number of milliseconds that have elapsed since the system was
+ * started.
+ *
+ * @return The number of milliseconds.
+ */
 ULONGLONG M2GetTickCount()
 {
     LARGE_INTEGER Frequency = { 0 }, PerformanceCount = { 0 };
@@ -87,15 +84,12 @@ ULONGLONG M2GetTickCount()
     return GetTickCount64();
 }
 
-/// <summary>
-/// Converts from the UTF-8 string to the UTF-16 string.
-/// </summary>
-/// <param name="UTF8String">
-/// The UTF-8 string you want to convert.
-/// </param>
-/// <returns>
-/// The return value is the UTF-16 string.
-/// </returns>
+/**
+ * Converts from the UTF-8 string to the UTF-16 string.
+ *
+ * @param UTF8String The UTF-8 string you want to convert.
+ * @return A converted UTF-16 string.
+ */
 std::wstring M2MakeUTF16String(const std::string& UTF8String)
 {
     std::wstring UTF16String;
@@ -122,15 +116,12 @@ std::wstring M2MakeUTF16String(const std::string& UTF8String)
     return UTF16String;
 }
 
-/// <summary>
-/// Converts from the UTF-16 string to the UTF-8 string.
-/// </summary>
-/// <param name="UTF16String">
-/// The UTF-16 string you want to convert.
-/// </param>
-/// <returns>
-/// The return value is the UTF-8 string.
-/// </returns>
+/**
+ * Converts from the UTF-16 string to the UTF-8 string.
+ *
+ * @param UTF16String The UTF-16 string you want to convert.
+ * @return A converted UTF-8 string.
+ */
 std::string M2MakeUTF8String(const std::wstring& UTF16String)
 {
     std::string UTF8String;
@@ -161,43 +152,35 @@ std::string M2MakeUTF8String(const std::wstring& UTF16String)
     return UTF8String;
 }
 
-/// <summary>
-/// Retrieves the calling thread's last-error code value. The last-error code is
-/// maintained on a per-thread basis. Multiple threads do not overwrite each
-/// other's last-error code.
-/// </summary>
-/// <returns>
-/// The return value is the calling thread's last-error code which is converted
-/// to an HRESULT value.
-/// </returns>
+/**
+ * Retrieves the calling thread's last-error code value. The last-error code is
+ * maintained on a per-thread basis. Multiple threads do not overwrite each
+ * other's last-error code.
+ *
+ * @return The calling thread's last-error code which is converted to an
+ *         HRESULT value.
+ */
 HRESULT M2GetLastError()
 {
     return __HRESULT_FROM_WIN32(GetLastError());
 }
 
-/// <summary>
-/// Retrieves the address of an exported function or variable from the specified
-/// dynamic-link library (DLL).
-/// </summary>
-/// <param name="lpProcAddress">
-/// The address of the exported function or variable.
-/// </param>
-/// <param name="hModule">
-/// A handle to the DLL module that contains the function or variable. The
-/// LoadLibrary, LoadLibraryEx, LoadPackagedLibrary, or GetModuleHandle function
-/// returns this handle. This function does not retrieve addresses from modules
-/// that were loaded using the LOAD_LIBRARY_AS_DATAFILE flag. For more
-/// information, see LoadLibraryEx.
-/// </param>
-/// <param name="lpProcName">
-/// The function or variable name, or the function's ordinal value. If this
-/// parameter is an ordinal value, it must be in the low-order word; the
-/// high-order word must be zero.
-/// </param>
-/// <returns>
-/// The function will return HRESULT. If the function succeeds, the return value
-/// is S_OK.
-/// </returns>
+/**
+ * Retrieves the address of an exported function or variable from the specified
+ * dynamic-link library (DLL).
+ *
+ * @param lpProcAddress The address of the exported function or variable.
+ * @param hModule A handle to the DLL module that contains the function or
+ *                variable. The LoadLibrary, LoadLibraryEx, LoadPackagedLibrary
+ *                or GetModuleHandle function returns this handle. This
+ *                function does not retrieve addresses from modules that were
+ *                loaded using the LOAD_LIBRARY_AS_DATAFILE flag. For more
+ *                information, see LoadLibraryEx.
+ * @param lpProcName The function or variable name, or the function's ordinal
+ *                   value. If this parameter is an ordinal value, it must be
+ *                   in the low-order word; the high-order word must be zero.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ */
 HRESULT M2GetProcAddress(
     _Out_ FARPROC& lpProcAddress,
     _In_ HMODULE hModule,
@@ -207,14 +190,13 @@ HRESULT M2GetProcAddress(
     return (nullptr != lpProcAddress) ? S_OK : M2GetLastError();
 }
 
-/// <summary>
-/// Retrieves the path of the executable file of the current process.
-/// </summary>
-/// <returns>
-/// If the function succeeds, the return value is the path of the executable
-/// file of the current process. If the function fails, the return value is an
-/// empty string.
-/// </returns>
+/**
+ * Retrieves the path of the executable file of the current process.
+ *
+ * @return If the function succeeds, the return value is the path of the
+ *         executable file of the current process. If the function fails, the
+ *         return value is an empty string.
+ */
 std::wstring M2GetCurrentProcessModulePath()
 {
     std::wstring result(MAX_PATH, L'\0');
@@ -223,19 +205,17 @@ std::wstring M2GetCurrentProcessModulePath()
     return result;
 }
 
-/// <summary>
-/// Parses a command line string and returns an array of the command line
-/// arguments, along with a count of such arguments, in a way that is similar to
-/// the standard C run-time.
-/// </summary>
-/// <param name="CommandLine">
-/// A string that contains the full command line. If this parameter is an empty
-/// string the function returns an array with only one empty string.
-/// </param>
-/// <returns>
-/// The return value is an array of the command line arguments, along with a
-/// count of such arguments.
-/// </returns>
+/**
+ * Parses a command line string and returns an array of the command line
+ * arguments, along with a count of such arguments, in a way that is similar to
+ * the standard C run-time.
+ *
+ * @param CommandLine A string that contains the full command line. If this
+ *                    parameter is an empty string the function returns an
+ *                    array with only one empty string.
+ * @return An array of the command line arguments, along with a count of such
+ *         arguments.
+ */
 std::vector<std::wstring> M2SpiltCommandLine(
     const std::wstring& CommandLine)
 {
@@ -368,28 +348,19 @@ std::vector<std::wstring> M2SpiltCommandLine(
     return SplitArguments;
 }
 
-/// <summary>
-/// Parses a command line string and get more friendly result.
-/// </summary>
-/// <param name="CommandLine">
-/// A string that contains the full command line. If this parameter is an empty
-/// string the function returns an array with only one empty string.
-/// </param>
-/// <param name="OptionPrefixes">
-/// One or more of the prefixes of option we want to use.
-/// </param>
-/// <param name="OptionParameterSeparators">
-/// One or more of the separators of option we want to use.
-/// </param>
-/// <param name="ApplicationName">
-/// The application name.
-/// </param>
-/// <param name="OptionsAndParameters">
-/// The options and parameters.
-/// </param>
-/// <param name="UnresolvedCommandLine">
-/// The unresolved command line.
-/// </param>
+/**
+ * Parses a command line string and get more friendly result.
+ *
+ * @param CommandLine A string that contains the full command line. If this
+ *                    parameter is an empty string the function returns an
+ *                    array with only one empty string.
+ * @param OptionPrefixes One or more of the prefixes of option we want to use.
+ * @param OptionParameterSeparators One or more of the separators of option we
+ *                                  want to use.
+ * @param ApplicationName The application name.
+ * @param OptionsAndParameters The options and parameters.
+ * @param UnresolvedCommandLine The unresolved command line.
+ */
 void M2SpiltCommandLineEx(
     const std::wstring& CommandLine,
     const std::vector<std::wstring>& OptionPrefixes,

@@ -1,9 +1,12 @@
-﻿/******************************************************************************
-Project: NSudoSDK
-Description: NSudo Library
-File Name: NSudoAPI.h
-License: The MIT License
-******************************************************************************/
+﻿/*
+ * PROJECT:   NSudo
+ * FILE:      NSudoAPI.h
+ * PURPOSE:   NSudo Library
+ *
+ * LICENSE:   The MIT License
+ *
+ * DEVELOPER: Mouri_Naruto (Mouri_Naruto AT Outlook.com)
+ */
 
 #pragma once
 

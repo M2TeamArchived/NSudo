@@ -1,5 +1,12 @@
-﻿// NSudo.cpp : 定义控制台应用程序的入口点。
-//
+﻿/*
+ * PROJECT:   NSudo
+ * FILE:      NSudo.cpp
+ * PURPOSE:   Implementation for NSudo
+ *
+ * LICENSE:   The MIT License
+ *
+ * DEVELOPER: Mouri_Naruto (Mouri_Naruto AT Outlook.com)
+ */
 
 #include "stdafx.h"
 
@@ -141,17 +148,14 @@ public:
         const std::map<std::wstring, std::wstring>& ShortCutList,
         const std::wstring& CommandLine)
     {
-        std::map<std::wstring, std::wstring>::const_iterator iterator =
-            ShortCutList.find(CommandLine);
+        auto iterator = ShortCutList.find(CommandLine);
 
-        if (ShortCutList.end() != iterator)
+        if (iterator == ShortCutList.end())
         {
-            return iterator->second;
+            return CommandLine;       
         }
-        else
-        {
-            return CommandLine;
-        }
+
+        return iterator->second;
     }
 };
 

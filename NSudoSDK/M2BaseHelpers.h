@@ -1,9 +1,12 @@
-﻿/******************************************************************************
-Project: M2-Team Common Library
-Description: Definition for the basic helper functions.
-File Name: M2BaseHelpers.h
-License: The MIT License
-******************************************************************************/
+﻿/*
+ * PROJECT:   M2-Team Common Library
+ * FILE:      M2BaseHelpers.h
+ * PURPOSE:   Definition for the basic helper functions
+ *
+ * LICENSE:   The MIT License
+ *
+ * DEVELOPER: Mouri_Naruto (Mouri_Naruto AT Outlook.com)
+ */
 
 #pragma once
 
@@ -19,29 +22,19 @@ License: The MIT License
 #include <string>
 #include <vector>
 
-/// <summary>
-/// If the type T is a reference type, provides the member typedef type which is
-/// the type referred to by T. Otherwise type is T.
-/// </summary>
+/**
+ * If the type T is a reference type, provides the member typedef type which is
+ * the type referred to by T. Otherwise type is T.
+ */ 
 template<class T> struct M2RemoveReference { typedef T Type; };
-
-/// <summary>
-/// If the type T is a reference type, provides the member typedef type which is
-/// the type referred to by T. Otherwise type is T.
-/// </summary>
 template<class T> struct M2RemoveReference<T&> { typedef T Type; };
-
-/// <summary>
-/// If the type T is a reference type, provides the member typedef type which is
-/// the type referred to by T. Otherwise type is T.
-/// </summary>
 template<class T> struct M2RemoveReference<T&&> { typedef T Type; };
 
 namespace M2
 {
-    /// <summary>
-    /// Disable C++ Object Copying
-    /// </summary>
+    /**
+     * Disable C++ Object Copying
+     */
     class CDisableObjectCopying
     {
     protected:
@@ -55,9 +48,9 @@ namespace M2
             const CDisableObjectCopying&) = delete;
     };
 
-    /// <summary>
-    /// The implementation of smart object.
-    /// </summary>
+    /**
+     * The implementation of smart object.
+     */
     template<typename TObject, typename TObjectDefiner>
     class CObject : CDisableObjectCopying
     {
@@ -122,9 +115,9 @@ namespace M2
         }
     };
 
-    /// <summary>
-    /// The handle definer for HANDLE object.
-    /// </summary>
+    /**
+     * The handle definer for HANDLE object.
+     */
 #pragma region CHandle
 
     struct CHandleDefiner
@@ -144,9 +137,9 @@ namespace M2
 
 #pragma endregion
 
-    /// <summary>
-    /// The handle definer for COM object.
-    /// </summary>
+    /**
+     * The handle definer for COM object.
+     */
 #pragma region CComObject
 
     template<typename TComObject>
@@ -171,9 +164,9 @@ namespace M2
 
 #pragma endregion
 
-    /// <summary>
-    /// The handle definer for memory block.
-    /// </summary>
+    /**
+     * The handle definer for memory block.
+     */
 #pragma region CMemory
 
     template<typename TMemory>
@@ -214,9 +207,9 @@ namespace M2
 
 #pragma endregion
 
-    /// <summary>
-    /// The implementation of thread.
-    /// </summary>
+    /**
+     * The implementation of thread.
+     */
     class CThread
     {
     private:
@@ -298,9 +291,9 @@ namespace M2
 
     };
 
-    /// <summary>
-    /// Wraps a critical section.
-    /// </summary>
+    /**
+     * Wraps a critical section.
+     */
     class CCriticalSection
     {
     private:
@@ -328,12 +321,11 @@ namespace M2
         }
     };
 
-    /// <summary>
-    /// Provides automatic locking and unlocking of a critical section.
-    /// </summary>
-    /// <remarks>
-    /// The AutoLock object must go out of scope before the CritSec.
-    /// </remarks>
+    /**
+     * Provides automatic locking and unlocking of a critical section.
+     *
+     * @remarks The AutoLock object must go out of scope before the CritSec.
+     */
     class AutoCriticalSectionLock
     {
     private:
@@ -353,12 +345,12 @@ namespace M2
         }
     };
 
-    /// <summary>
-    /// A template for implementing an object which the type is a singleton. I
-    /// do not need to free the memory of the object because the OS releases all
-    /// the unshared memory associated with the process after the process is
-    /// terminated.
-    /// </summary>
+    /**
+     * A template for implementing an object which the type is a singleton. I
+     * do not need to free the memory of the object because the OS releases all
+     * the unshared memory associated with the process after the process is
+     * terminated.
+     */
     template<class ClassType>
     class CSingleton : CDisableObjectCopying
     {
@@ -386,12 +378,11 @@ namespace M2
 
 }
 
-/// <summary>
-/// Retrieves the number of logical processors in the current group.
-/// </summary>
-/// <returns>
-/// Return the number of logical processors in the current group.
-/// </returns>
+/**
+ * Retrieves the number of logical processors in the current group.
+ *
+ * @return The number of logical processors in the current group.
+ */
 inline DWORD M2GetNumberOfHardwareThreads()
 {
     SYSTEM_INFO SystemInfo = { 0 };
@@ -399,42 +390,33 @@ inline DWORD M2GetNumberOfHardwareThreads()
     return SystemInfo.dwNumberOfProcessors;
 }
 
-/// <summary>
-/// Write formatted data to a string.
-/// </summary>
-/// <param name="Format">
-/// Format-control string.
-/// </param>
-/// <param name="...">
-/// Optional arguments to be formatted.
-/// </param>
-/// <returns>
-/// Returns a formatted string if successful, or "N/A" otherwise.
-/// </returns>
+/**
+ * Write formatted data to a string.
+ *
+ * @param Format Format-control string.
+ * @param ... Optional arguments to be formatted.
+ * @return A formatted string if successful, "N/A" otherwise.
+ */
 std::wstring M2FormatString(
     _In_z_ _Printf_format_string_ wchar_t const* const Format,
     ...);
 
-/// <summary>
-/// Retrieves the number of milliseconds that have elapsed since the system was
-/// started.
-/// </summary>
-/// <returns>
-/// The number of milliseconds.
-/// </returns>
+/**
+ * Retrieves the number of milliseconds that have elapsed since the system was
+ * started.
+ *
+ * @return The number of milliseconds.
+ */
 ULONGLONG M2GetTickCount();
 
-/// <summary>
-/// Searches a path for a file name.
-/// </summary>
-/// <param name="Path">
-/// A pointer to a null-terminated string of maximum length MAX_PATH that
-/// contains the path to search.
-/// </param>
-/// <returns>
-/// Returns a pointer to the address of the string if successful, or a pointer
-/// to the beginning of the path otherwise.
-/// </returns>
+/**
+ * Searches a path for a file name.
+ *
+ * @param Path A pointer to a null-terminated string of maximum length MAX_PATH
+ *             that contains the path to search.
+ * @return A pointer to the address of the string if successful, or a pointer
+ *         to the beginning of the path otherwise.
+ */
 template<typename CharType>
 CharType M2PathFindFileName(CharType Path)
 {
@@ -454,62 +436,48 @@ CharType M2PathFindFileName(CharType Path)
     return FileName;
 }
 
-/// <summary>
-/// Converts from the UTF-8 string to the UTF-16 string.
-/// </summary>
-/// <param name="UTF8String">
-/// The UTF-8 string you want to convert.
-/// </param>
-/// <returns>
-/// The return value is the UTF-16 string.
-/// </returns>
+/**
+ * Converts from the UTF-8 string to the UTF-16 string.
+ *
+ * @param UTF8String The UTF-8 string you want to convert.
+ * @return A converted UTF-16 string.
+ */
 std::wstring M2MakeUTF16String(const std::string& UTF8String);
 
-/// <summary>
-/// Converts from the UTF-16 string to the UTF-8 string.
-/// </summary>
-/// <param name="UTF16String">
-/// The UTF-16 string you want to convert.
-/// </param>
-/// <returns>
-/// The return value is the UTF-8 string.
-/// </returns>
+/**
+ * Converts from the UTF-16 string to the UTF-8 string.
+ *
+ * @param UTF16String The UTF-16 string you want to convert.
+ * @return A converted UTF-8 string.
+ */
 std::string M2MakeUTF8String(const std::wstring& UTF16String);
 
-/// <summary>
-/// Retrieves the calling thread's last-error code value. The last-error code is
-/// maintained on a per-thread basis. Multiple threads do not overwrite each
-/// other's last-error code.
-/// </summary>
-/// <returns>
-/// The return value is the calling thread's last-error code which is converted
-/// to an HRESULT value.
-/// </returns>
+/**
+ * Retrieves the calling thread's last-error code value. The last-error code is
+ * maintained on a per-thread basis. Multiple threads do not overwrite each
+ * other's last-error code.
+ *
+ * @return The calling thread's last-error code which is converted to an
+ *         HRESULT value.
+ */
 HRESULT M2GetLastError();
 
-/// <summary>
-/// Retrieves the address of an exported function or variable from the specified
-/// dynamic-link library (DLL).
-/// </summary>
-/// <param name="lpProcAddress">
-/// The address of the exported function or variable.
-/// </param>
-/// <param name="hModule">
-/// A handle to the DLL module that contains the function or variable. The
-/// LoadLibrary, LoadLibraryEx, LoadPackagedLibrary, or GetModuleHandle function
-/// returns this handle. This function does not retrieve addresses from modules
-/// that were loaded using the LOAD_LIBRARY_AS_DATAFILE flag. For more
-/// information, see LoadLibraryEx.
-/// </param>
-/// <param name="lpProcName">
-/// The function or variable name, or the function's ordinal value. If this
-/// parameter is an ordinal value, it must be in the low-order word; the
-/// high-order word must be zero.
-/// </param>
-/// <returns>
-/// The function will return HRESULT. If the function succeeds, the return value
-/// is S_OK.
-/// </returns>
+/**
+ * Retrieves the address of an exported function or variable from the specified
+ * dynamic-link library (DLL).
+ *
+ * @param lpProcAddress The address of the exported function or variable.
+ * @param hModule A handle to the DLL module that contains the function or
+ *                variable. The LoadLibrary, LoadLibraryEx, LoadPackagedLibrary
+ *                or GetModuleHandle function returns this handle. This
+ *                function does not retrieve addresses from modules that were
+ *                loaded using the LOAD_LIBRARY_AS_DATAFILE flag. For more
+ *                information, see LoadLibraryEx.
+ * @param lpProcName The function or variable name, or the function's ordinal
+ *                   value. If this parameter is an ordinal value, it must be
+ *                   in the low-order word; the high-order word must be zero.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ */
 template<typename ProcedureType>
 inline HRESULT M2GetProcAddress(
     _Out_ ProcedureType& lpProcAddress,
@@ -525,54 +493,42 @@ inline HRESULT M2GetProcAddress(
         reinterpret_cast<FARPROC&>(lpProcAddress), hModule, lpProcName);
 }
 
-/// <summary>
-/// Retrieves the path of the executable file of the current process.
-/// </summary>
-/// <returns>
-/// If the function succeeds, the return value is the path of the executable
-/// file of the current process. If the function fails, the return value is an
-/// empty string.
-/// </returns>
+/**
+ * Retrieves the path of the executable file of the current process.
+ *
+ * @return If the function succeeds, the return value is the path of the
+ *         executable file of the current process. If the function fails, the
+ *         return value is an empty string.
+ */
 std::wstring M2GetCurrentProcessModulePath();
 
-/// <summary>
-/// Parses a command line string and returns an array of the command line
-/// arguments, along with a count of such arguments, in a way that is similar to
-/// the standard C run-time.
-/// </summary>
-/// <param name="CommandLine">
-/// A string that contains the full command line. If this parameter is an empty
-/// string the function returns an array with only one empty string.
-/// </param>
-/// <returns>
-/// The return value is an array of the command line arguments, along with a
-/// count of such arguments.
-/// </returns>
+/**
+ * Parses a command line string and returns an array of the command line
+ * arguments, along with a count of such arguments, in a way that is similar to
+ * the standard C run-time.
+ *
+ * @param CommandLine A string that contains the full command line. If this
+ *                    parameter is an empty string the function returns an
+ *                    array with only one empty string.
+ * @return An array of the command line arguments, along with a count of such
+ *         arguments.
+ */
 std::vector<std::wstring> M2SpiltCommandLine(
     const std::wstring& CommandLine);
 
-/// <summary>
-/// Parses a command line string and get more friendly result.
-/// </summary>
-/// <param name="CommandLine">
-/// A string that contains the full command line. If this parameter is an empty
-/// string the function returns an array with only one empty string.
-/// </param>
-/// <param name="OptionPrefixes">
-/// One or more of the prefixes of option we want to use.
-/// </param>
-/// <param name="OptionParameterSeparators">
-/// One or more of the separators of option we want to use.
-/// </param>
-/// <param name="ApplicationName">
-/// The application name.
-/// </param>
-/// <param name="OptionsAndParameters">
-/// The options and parameters.
-/// </param>
-/// <param name="UnresolvedCommandLine">
-/// The unresolved command line.
-/// </param>
+/**
+ * Parses a command line string and get more friendly result.
+ *
+ * @param CommandLine A string that contains the full command line. If this
+ *                    parameter is an empty string the function returns an
+ *                    array with only one empty string.
+ * @param OptionPrefixes One or more of the prefixes of option we want to use.
+ * @param OptionParameterSeparators One or more of the separators of option we
+ *                                  want to use.
+ * @param ApplicationName The application name.
+ * @param OptionsAndParameters The options and parameters.
+ * @param UnresolvedCommandLine The unresolved command line. 
+ */
 void M2SpiltCommandLineEx(
     const std::wstring& CommandLine,
     const std::vector<std::wstring>& OptionPrefixes,

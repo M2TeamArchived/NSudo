@@ -1,9 +1,12 @@
-﻿/******************************************************************************
-Project: NSudo
-Description: NSudo Version Definition
-File Name: Version.h
-License: The MIT License
-******************************************************************************/
+﻿/*
+ * PROJECT:   NSudo
+ * FILE:      Version.h
+ * PURPOSE:   NSudo Version Definition
+ *
+ * LICENSE:   The MIT License
+ *
+ * DEVELOPER: Mouri_Naruto (Mouri_Naruto AT Outlook.com)
+ */
 
 #include "CIBuild.h"
 
