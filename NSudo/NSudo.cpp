@@ -136,6 +136,23 @@ public:
         ShortCutListPath;
         ShortCutList;
     }
+
+    static std::wstring Translate(
+        const std::map<std::wstring, std::wstring>& ShortCutList,
+        const std::wstring& CommandLine)
+    {
+        std::map<std::wstring, std::wstring>::const_iterator iterator =
+            ShortCutList.find(CommandLine);
+
+        if (ShortCutList.end() != iterator)
+        {
+            return iterator->second;
+        }
+        else
+        {
+            return CommandLine;
+        }
+    }
 };
 
 class CNSudoResourceManagement
@@ -438,8 +455,7 @@ NSUDO_MESSAGE NSudoCommandLineParser(
     _In_ bool bEnableContextMenuManagement,
     _In_ std::wstring& ApplicationName,
     _In_ std::map<std::wstring, std::wstring>& OptionsAndParameters,
-    _In_ std::wstring& UnresolvedCommandLine,
-    _In_ bool bNeedLegacyProcessCreation = false)
+    _In_ std::wstring& UnresolvedCommandLine)
 {
     UNREFERENCED_PARAMETER(ApplicationName);
 
@@ -894,28 +910,9 @@ NSUDO_MESSAGE NSudoCommandLineParser(
         return NSUDO_MESSAGE::INVALID_COMMAND_PARAMETER;
     }
 
-    std::wstring final_command_line;
-
-    if (bNeedLegacyProcessCreation)
-    {
-        final_command_line.append(L"cmd /c start \"NSudo.Launcher\" ");
-    }
-
-    std::map<std::wstring, std::wstring>::const_iterator iterator =
-        g_ResourceManagement.ShortCutList.find(UnresolvedCommandLine);
-
-    if (g_ResourceManagement.ShortCutList.end() != iterator)
-    {
-        final_command_line.append(iterator->second);
-    }
-    else
-    {
-        final_command_line.append(UnresolvedCommandLine);
-    }
-
-    if (!NSudoCreateProcessDirect(
+    if (!NSudoCreateProcess(
         hToken,
-        final_command_line.c_str(),
+        UnresolvedCommandLine.c_str(),
         CurrentDirectory.c_str(),
         WaitInterval,
         ProcessPriority,
@@ -1381,13 +1378,18 @@ private:
                 OptionsAndParameters,
                 UnresolvedCommandLine);
 
+            UnresolvedCommandLine =
+                L"cmd /c start \"NSudo.Launcher\" " +
+                CNSudoShortCutAdapter::Translate(
+                    g_ResourceManagement.ShortCutList,
+                    UnresolvedCommandLine);
+
             NSUDO_MESSAGE message = NSudoCommandLineParser(
                 true,
                 true,
                 ApplicationName,
                 OptionsAndParameters,
-                UnresolvedCommandLine,
-                true);
+                UnresolvedCommandLine);
             if (NSUDO_MESSAGE::SUCCESS != message)
             {
                 std::wstring Buffer = g_ResourceManagement.GetMessageString(
@@ -1500,6 +1502,10 @@ int NSudoMain()
         std::vector<std::wstring>{ L"=", L":" },
         ApplicationName,
         OptionsAndParameters,
+        UnresolvedCommandLine);
+
+    UnresolvedCommandLine = CNSudoShortCutAdapter::Translate(
+        g_ResourceManagement.ShortCutList,
         UnresolvedCommandLine);
 
     if (OptionsAndParameters.empty() && UnresolvedCommandLine.empty())
