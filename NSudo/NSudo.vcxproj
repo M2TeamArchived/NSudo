@@ -274,8 +274,8 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="NSudo.rc" />
-    <ResourceCompile Include="Version.rc" />
+    <ResourceCompile Include="Resources\NSudo.rc" />
+    <ResourceCompile Include="Resources\Version.rc" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\en\Translations.json" />
