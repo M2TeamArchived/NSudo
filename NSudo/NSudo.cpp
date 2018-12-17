@@ -358,7 +358,7 @@ public:
                 NSudoPathWithQuotation + L" " +
                 Item.ItemCommandParameters + L" " +
                 L"-ShowWindowMode=Hide" + L" " +
-                L"cmd /c start \"NSudo.ContextMenu.Launcher\" " + L"%1";
+                L"cmd /c start \"NSudo.ContextMenu.Launcher\" " + L"\"%1\"";
 
             dwError = CreateCommandStoreItem(
                 this->m_CommandStoreRoot,
