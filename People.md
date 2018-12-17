@@ -39,12 +39,14 @@
 - hydra79545
 - imadlatch
 - kCaRhC卡壳
+- Lenny
 - NotePad
 - sebus
 - testtest322
 - th1r5bvn23
 - Thomas Dubreuil (https://github.com/Thdub)
 - 老九
+- 龍魂
 - 芈员外
 - 鸢一雨音 (https://github.com/TobiichiAmane)
 - さくら
