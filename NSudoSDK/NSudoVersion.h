@@ -16,7 +16,7 @@
 #define NSUDO_VER_MAJOR 6
 #define NSUDO_VER_MINOR 2
 #define NSUDO_VER_BUILD 1812
-#define NSUDO_VER_REV 11
+#define NSUDO_VER_REV 17
 #endif
 
 #ifndef NSUDO_VER_FMT_COMMA
