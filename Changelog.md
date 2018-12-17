@@ -6,7 +6,8 @@
 - Add French translations. (Contributed by Thomas Dubreuil.)
 - Use JSON for Modern C++ instead of RapidJSON to conform to C++17.
 - Improve the GUI experience. (Thanks to Lenny.)
-- Fix context menu bug. (Thanks to Thomas Dubreuil.)
+- Fix context menu bug. (Thanks to Thomas Dubreuil and 龍魂.)
+- Fix the command line parser bug. (Thanks to wzzw.)
 
 **NSudo 6.1.1811.18**
 - Merge NSudoC and NSudoG projects to NSudo project.

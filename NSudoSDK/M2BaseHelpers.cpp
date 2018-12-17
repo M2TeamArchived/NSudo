@@ -448,6 +448,12 @@ void M2SpiltCommandLineEx(
                 // first space by adding 1 to the result.
                 wchar_t* command = wcsstr(search_start, L" ") + 1;
 
+                // Omit the space. (Thanks to wzzw.)
+                while (*command == L' ')
+                {
+                    ++command;
+                }
+
                 // Save
                 UnresolvedCommandLine = command;
 
