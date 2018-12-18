@@ -18,7 +18,6 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)M2BaseHelpers.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)M2Win32GUIHelpers.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)M2Win32Helpers.h" />
-    <ClInclude Include="$(MSBuildThisFileDirectory)NSudoAPI.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)NSudoVersion.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)M2MessageDialogResource.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ThirdParty\json.hpp" />

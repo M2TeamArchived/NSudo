@@ -26,8 +26,6 @@
 #include "M2Win32Helpers.h"
 #include "M2Win32GUIHelpers.h"
 
-#include "NSudoAPI.h"
-
 #include <stdio.h>
 #include <tchar.h>
 
