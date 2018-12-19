@@ -1,0 +1,27 @@
+﻿{
+  "Translations": {
+    "Button.About": "關於(&A)",
+    "Button.Browse": "瀏覽(&B)",
+    "Button.Run": "執行(&R)",
+    "ContextMenu.System": "以 System 身分執行",
+    "ContextMenu.System.EnableAllPrivileges": "以 System 身分運行（啓用全部權限）",
+    "ContextMenu.TI": "以 TrustedInstaller 身分執行",
+    "ContextMenu.TI.EnableAllPrivileges": "以 TrustedInstaller 身分執行（啓用全部特殊權限）",
+    "CurrentProcess": "當前處理程序",
+    "CurrentUser": "當前使用者",
+    "Default": "默認",
+    "EnableAllPrivileges": "啓用全部特殊權限(&E)",
+    "LanguageID": "zh-Hant",
+    "Message.CreateProcessFailed": "錯誤：處理程序建立失敗。",
+    "Message.InvalidCommandParameter": "錯誤：命令行參數有誤，請修改。（使用 -? 參數查看幫助）",
+    "Message.InvalidTextBoxParameter": "錯誤：請在下拉框中輸入命令或選擇快捷命令。",
+    "Message.PrivilegeNotHeld": "錯誤：獲取SE_DEBUG_NAME設定失敗。（請以管理員權限執行）",
+    "Message.Success": "操作成功完成。",
+    "SettingsGroupText": "權限設定",
+    "Static.Open": "開啟(&O):",
+    "Static.User": "使用者(&U):",
+    "System": "System",
+    "TI": "TrustedInstaller",
+    "WarningText": "警告：使用本工具需要有一定的電腦基礎"
+  }
+}
