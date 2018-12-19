@@ -264,7 +264,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <ItemGroup>
-    <ClInclude Include="resource.h" />
+    <ClInclude Include="Resources\resource.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <ItemGroup>
@@ -284,6 +284,7 @@
     <None Include="Resources\NSudoContextMenuManagement.json" />
     <None Include="Resources\zh-Hans\Translations.json" />
     <None Include="Resources\NSudo.json" />
+    <None Include="Resources\zh-Hant\Translations.json" />
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="Resources\NSudoConsole.manifest" />
@@ -298,6 +299,8 @@
     <Text Include="Resources\fr\Links.txt" />
     <Text Include="Resources\zh-Hans\CommandLineHelp.txt" />
     <Text Include="Resources\zh-Hans\Links.txt" />
+    <Text Include="Resources\zh-Hant\CommandLineHelp.txt" />
+    <Text Include="Resources\zh-Hant\Links.txt" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Resources\NSudo.ico" />

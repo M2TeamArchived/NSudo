@@ -13,20 +13,25 @@
     <Filter Include="Resources\fr">
       <UniqueIdentifier>{ed5897a1-70ee-4a1b-b3b8-50e5bde92645}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resources\zh-Hant">
+      <UniqueIdentifier>{c2cb0683-a576-4ca3-9e96-468cdb2dcf2d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="resource.h" />
     <ClInclude Include="stdafx.h" />
+    <ClInclude Include="Resources\resource.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="NSudo.cpp" />
     <ClCompile Include="stdafx.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="Resources\NSudo.rc">
+    <ResourceCompile Include="Resources\Version.rc">
       <Filter>Resources</Filter>
     </ResourceCompile>
-    <ResourceCompile Include="Resources\Version.rc">
+    <ResourceCompile Include="Resources\NSudo.rc">
       <Filter>Resources</Filter>
     </ResourceCompile>
   </ItemGroup>
@@ -48,6 +53,9 @@
     </None>
     <None Include="Resources\fr\Translations.json">
       <Filter>Resources\fr</Filter>
+    </None>
+    <None Include="Resources\zh-Hant\Translations.json">
+      <Filter>Resources\zh-Hant</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -76,6 +84,12 @@
     </Text>
     <Text Include="Resources\fr\Links.txt">
       <Filter>Resources\fr</Filter>
+    </Text>
+    <Text Include="Resources\zh-Hant\CommandLineHelp.txt">
+      <Filter>Resources\zh-Hant</Filter>
+    </Text>
+    <Text Include="Resources\zh-Hant\Links.txt">
+      <Filter>Resources\zh-Hant</Filter>
     </Text>
   </ItemGroup>
   <ItemGroup>

@@ -35,7 +35,7 @@
 #include <vector>
 
 #include "NSudoVersion.h"
-#include "resource.h"
+#include "Resources/resource.h"
 
 #include <commctrl.h>
 #pragma comment(lib, "comctl32.lib")
