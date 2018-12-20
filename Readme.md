@@ -8,6 +8,7 @@
 [![license.badge]][license.link]
 
 - [简体中文](自述.md)
+- [繁體中文](說明.md)
 
 ![Screenshot](Screenshot.png)
 

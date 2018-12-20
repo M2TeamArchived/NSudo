@@ -15,7 +15,7 @@
 - Bill (https://github.com/bianyifan)
 - Eugene Wang J.y (https://github.com/ewjy)
 - Force.Charlie-I (https://github.com/fcharlie)
-- Luo Yufan (https://github.com/njlyf2011)
+- 罗宇凡 Luo Yufan (https://github.com/njlyf2011)
 - May_magic (https://github.com/873578156)
 - Microsoft_Mars
 - mingkuang (https://github.com/mingkuang-Chuyu)
