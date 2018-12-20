@@ -1,6 +1,7 @@
 ﻿# Changelog
 
 - [简体中文](更新日志.md)
+- [繁體中文](變更紀錄.md)
 
 **NSudo 6.2.1812.17**
 - Add French translations. (Contributed by Thomas Dubreuil.)
