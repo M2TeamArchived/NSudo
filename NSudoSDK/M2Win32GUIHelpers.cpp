@@ -26,7 +26,7 @@
 INT M2EnablePerMonitorDialogScaling()
 {
     // Fix for Windows Vista and Server 2008.
-    if (!IsWindows10OrGreater()) return -1;
+    if (!IsWindowsVersionOrGreater(10, 0, 0)) return -1;
 
     typedef INT(WINAPI *PFN_EnablePerMonitorDialogScaling)();
 
