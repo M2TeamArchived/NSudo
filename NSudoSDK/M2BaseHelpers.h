@@ -196,7 +196,8 @@ namespace M2
         bool Alloc(size_t Size)
         {
             this->Free();
-            return (this->m_Object = reinterpret_cast<TMemory>(malloc(Size)));
+            this->m_Object = reinterpret_cast<TMemory>(malloc(Size));
+            return (nullptr != this->m_Object);
         }
 
         void Free()
