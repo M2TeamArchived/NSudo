@@ -356,3 +356,103 @@ HRESULT M2GetWindowsDirectory(
 
     return hr;
 }
+
+/**
+ * Starts a service if not started and retrieves the current status of the
+ * specified service.
+ *
+ * @param lpServiceName The name of the service to be started. This is the name
+ *                      specified by the lpServiceName parameter of the
+ *                      CreateService function when the service object was
+ *                      created, not the service display name that is shown by
+ *                      user interface applications to identify the service.
+ *                      The maximum string length is 256 characters. The
+ *                      service control manager database preserves the case of
+ *                      the characters, but service name comparisons are always
+ *                      case insensitive. Forward-slash (/) and backslash ()
+ *                      are invalid service name characters.
+ * @param lpServiceStatus Contains process status information for a service.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ */
+HRESULT M2StartService(
+    _In_ LPCWSTR lpServiceName,
+    _Out_ LPSERVICE_STATUS_PROCESS lpServiceStatus)
+{
+    M2::CServiceHandle hSCM;
+    M2::CServiceHandle hService;
+
+    DWORD nBytesNeeded = 0;
+    DWORD nOldCheckPoint = 0;
+    ULONGLONG nLastTick = 0;
+    bool bStartServiceWCalled = false;
+
+    hSCM = OpenSCManagerW(
+        nullptr,
+        nullptr,
+        SC_MANAGER_CONNECT);
+    if (!hSCM)
+        return M2GetLastError();
+
+    hService = OpenServiceW(
+        hSCM,
+        lpServiceName,
+        SERVICE_QUERY_STATUS | SERVICE_START);
+    if (!hService)
+        return M2GetLastError();
+
+    while (QueryServiceStatusEx(
+        hService,
+        SC_STATUS_PROCESS_INFO,
+        reinterpret_cast<LPBYTE>(lpServiceStatus),
+        sizeof(SERVICE_STATUS_PROCESS),
+        &nBytesNeeded))
+    {
+        if (SERVICE_STOPPED == lpServiceStatus->dwCurrentState)
+        {
+            // Failed if the service had stopped again.
+            if (bStartServiceWCalled)
+                return E_FAIL;
+
+            if (!StartServiceW(hService, 0, nullptr))
+                return M2GetLastError();
+
+            bStartServiceWCalled = true;
+        }
+        else if (
+            SERVICE_STOP_PENDING == lpServiceStatus->dwCurrentState ||
+            SERVICE_START_PENDING == lpServiceStatus->dwCurrentState)
+        {
+            ULONGLONG nCurrentTick = GetTickCount64();
+
+            if (!nLastTick)
+            {
+                nLastTick = nCurrentTick;
+                nOldCheckPoint = lpServiceStatus->dwCheckPoint;
+
+                // Same as the .Net System.ServiceProcess, wait 250ms.
+                SleepEx(250, FALSE);
+            }
+            else
+            {
+                // Check the timeout if the checkpoint is not increased.
+                if (lpServiceStatus->dwCheckPoint <= nOldCheckPoint)
+                {
+                    ULONGLONG nDiff = nCurrentTick - nLastTick;
+                    if (nDiff > lpServiceStatus->dwWaitHint)
+                    {
+                        return __HRESULT_FROM_WIN32(ERROR_TIMEOUT);
+                    }
+                }
+
+                // Continue looping.
+                nLastTick = 0;
+            }
+        }
+        else
+        {
+            break;
+        }
+    }
+
+    return S_OK;
+}

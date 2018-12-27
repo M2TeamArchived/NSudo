@@ -234,4 +234,25 @@ namespace M2
 HRESULT M2GetWindowsDirectory(
     std::wstring& WindowsFolderPath);
 
+/**
+ * Starts a service if not started and retrieves the current status of the
+ * specified service.
+ *
+ * @param lpServiceName The name of the service to be started. This is the name
+ *                      specified by the lpServiceName parameter of the
+ *                      CreateService function when the service object was
+ *                      created, not the service display name that is shown by
+ *                      user interface applications to identify the service.
+ *                      The maximum string length is 256 characters. The
+ *                      service control manager database preserves the case of
+ *                      the characters, but service name comparisons are always
+ *                      case insensitive. Forward-slash (/) and backslash ()
+ *                      are invalid service name characters.
+ * @param lpServiceStatus Contains process status information for a service.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ */
+HRESULT M2StartService(
+    _In_ LPCWSTR lpServiceName,
+    _Out_ LPSERVICE_STATUS_PROCESS lpServiceStatus);
+
 #endif // _M2_WIN32_HELPERS_
