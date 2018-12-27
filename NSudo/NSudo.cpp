@@ -1081,6 +1081,9 @@ public:
 class CNSudoResourceManagement
 {
 private:
+    bool m_IsInitialized = false;
+
+
     HINSTANCE m_Instance = nullptr;
     std::wstring m_ExePath;
     std::wstring m_AppPath;
@@ -1104,45 +1107,60 @@ public:
     const bool& IsElevated = this->m_IsElevated;
 
 public:
-    CNSudoResourceManagement()
+    CNSudoResourceManagement() = default;
+
+    ~CNSudoResourceManagement()
     {
-        this->m_Instance = GetModuleHandleW(nullptr);
-
-        this->m_ExePath = M2GetCurrentProcessModulePath();
-
-        this->m_AppPath = this->m_ExePath;
-        wcsrchr(&this->m_AppPath[0], L'\\')[0] = L'\0';
-        this->m_AppPath.resize(wcslen(this->m_AppPath.c_str()));
-
-        CNSudoTranslationAdapter::Load(this->m_StringTranslations);
-
-        CNSudoShortCutAdapter::Read(
-            this->AppPath + L"\\NSudo.json", this->m_ShortCutList);
-
-        M2::CHandle CurrentProcessToken;
-
-        if (OpenProcessToken(
-            GetCurrentProcess(),
-            MAXIMUM_ALLOWED,
-            &CurrentProcessToken))
+        if (this->m_IsInitialized)
         {
-            if (DuplicateTokenEx(
-                CurrentProcessToken,
-                MAXIMUM_ALLOWED,
-                nullptr,
-                SecurityIdentification,
-                TokenPrimary,
-                &this->m_OriginalCurrentProcessToken))
-            {
-                this->m_IsElevated = NSudoSetTokenPrivilege(
-                    CurrentProcessToken,
-                    SeDebugPrivilege,
-                    true);
-            }
+            UnInitialize();
         }
     }
 
-    ~CNSudoResourceManagement()
+    void Initialize()
+    {
+        if (!this->m_IsInitialized)
+        {
+            this->m_Instance = GetModuleHandleW(nullptr);
+
+            this->m_ExePath = M2GetCurrentProcessModulePath();
+
+            this->m_AppPath = this->m_ExePath;
+            wcsrchr(&this->m_AppPath[0], L'\\')[0] = L'\0';
+            this->m_AppPath.resize(wcslen(this->m_AppPath.c_str()));
+
+            CNSudoTranslationAdapter::Load(this->m_StringTranslations);
+
+            CNSudoShortCutAdapter::Read(
+                this->AppPath + L"\\NSudo.json", this->m_ShortCutList);
+
+            M2::CHandle CurrentProcessToken;
+
+            if (OpenProcessToken(
+                GetCurrentProcess(),
+                MAXIMUM_ALLOWED,
+                &CurrentProcessToken))
+            {
+                if (DuplicateTokenEx(
+                    CurrentProcessToken,
+                    MAXIMUM_ALLOWED,
+                    nullptr,
+                    SecurityIdentification,
+                    TokenPrimary,
+                    &this->m_OriginalCurrentProcessToken))
+                {
+                    this->m_IsElevated = NSudoSetTokenPrivilege(
+                        CurrentProcessToken,
+                        SeDebugPrivilege,
+                        true);
+                }
+            }
+
+            this->m_IsInitialized = true;
+        }
+    }
+
+    void UnInitialize()
     {
         if (INVALID_HANDLE_VALUE != this->m_OriginalCurrentProcessToken)
         {
@@ -2133,8 +2151,8 @@ private:
             PhysicalPoint.x,
             PhysicalPoint.y,
             hIcon,
-            LogicalSize.cx,
-            LogicalSize.cy,
+            PhysicalSize.cx,
+            PhysicalSize.cy,
             istepIfAniCur,
             hbrFlickerFreeDraw,
             diFlags);
@@ -2413,7 +2431,13 @@ private:
 
 int NSudoMain()
 {
+    //SetThreadUILanguage(MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US));
+
+    //SetThreadUILanguage(MAKELANGID(LANG_CHINESE, SUBLANG_CHINESE_TRADITIONAL));
+
     CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
+
+    g_ResourceManagement.Initialize();
 
     std::wstring ApplicationName;
     std::map<std::wstring, std::wstring> OptionsAndParameters;
