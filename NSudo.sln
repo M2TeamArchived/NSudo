@@ -40,6 +40,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MSBuild", "MSBuild", "{89E7
 		MSBuild\NSudoG.props = MSBuild\NSudoG.props
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Scripts", "Scripts", "{D3AE8453-0175-4B40-985A-ABDD4B35D985}"
+	ProjectSection(SolutionItems) = preProject
+		Scripts\NSudo.bat = Scripts\NSudo.bat
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		NSudoSDK\NSudoSDK.vcxitems*{864f35b9-789c-4da9-8906-649dfe3705f7}*SharedItemsImports = 9

@@ -20,6 +20,7 @@
 - Microsoft_Mars
 - mingkuang (https://github.com/mingkuang-Chuyu)
 - myfreeer (https://github.com/myfreeer)
+- Thomas Dubreuil (https://github.com/Thdub)
 
 ## 赞助者 Sponsors
 - boyangpangzi
