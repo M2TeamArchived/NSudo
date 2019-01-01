@@ -9,7 +9,7 @@
 - Improve the GUI experience. (Thanks to Lenny.)
 - Fix context menu bug. (Thanks to Thomas Dubreuil and 龍魂.)
 - Fix the command line parser bug. (Thanks to wzzw.)
-- Add Traditional Chinese translations. (Thanks to Luo Yufan.)
+- Add Traditional Chinese translations. (Contributed by Luo Yufan.)
 
 **NSudo 6.1.1811.18**
 - Merge NSudoC and NSudoG projects to NSudo project.
