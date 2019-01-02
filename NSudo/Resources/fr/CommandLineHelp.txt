@@ -76,7 +76,7 @@ Menu contextuel:
 PS:
     1. Tous les arguments de commande de NSudo sont insensibles à la casse.
     2. Vous pouvez utiliser "-" ou "/ " , et remplacer ":" par " =" dans
-       les paramètres de ligne de commande. Par exemple, "/ U: T" et "-U = T" 
+       les paramètres de ligne de commande. Par exemple, "/U:T" et "-U=T" 
        sont équivalents.
     3. Afin d'assurer la meilleure expérience possible, NSudoC ne prend pas en 
        charge le menu contextuel.
