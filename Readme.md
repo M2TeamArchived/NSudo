@@ -161,6 +161,7 @@ For example:
 
 ## Communication
 - MDL Post: https://forums.mydigitallife.net/threads/59268/
+- 52pojie Post: https://www.52pojie.cn/thread-847059-1-1.html
 - E-mail: Mouri_Naruto@Outlook.com
 
 ## Have a good time -- M2-Team
