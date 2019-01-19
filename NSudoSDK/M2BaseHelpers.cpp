@@ -166,6 +166,32 @@ HRESULT M2GetLastError()
 }
 
 /**
+ * Retrieves the calling thread's last-error code value if you can be sure that
+ * the last call was failed. The last-error code is maintained on a per-thread 
+ * basis. Multiple threads do not overwrite each other's last-error code.
+ *
+ * @return The calling thread's last-error code.
+ */
+DWORD M2GetLastErrorKnownFailedCall()
+{
+    DWORD LastError = GetLastError();
+    return (LastError != ERROR_SUCCESS) ? LastError : ERROR_FUNCTION_FAILED;
+}
+
+/**
+ * Retrieves the calling thread's last-error code value if you can be sure that
+ * the last call was failed. The last-error code is maintained on a per-thread
+ * basis. Multiple threads do not overwrite each other's last-error code.
+ *
+ * @return The calling thread's last-error code which is converted to an
+ *         HRESULT value.
+ */
+HRESULT M2GetLastHRESULTErrorKnownFailedCall()
+{
+    return __HRESULT_FROM_WIN32(M2GetLastErrorKnownFailedCall());
+}
+
+/**
  * Retrieves the address of an exported function or variable from the specified
  * dynamic-link library (DLL).
  *
