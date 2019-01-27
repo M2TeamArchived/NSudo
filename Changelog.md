@@ -3,6 +3,8 @@
 - [简体中文](更新日志.md)
 - [繁體中文](變更紀錄.md)
 
+**NSudo 7.0.1901.27**
+
 **NSudo 6.2.1812.31**
 - Add French translations. (Contributed by Thomas Dubreuil.)
 - Use JSON for Modern C++ instead of RapidJSON to conform to C++17.

@@ -13,10 +13,10 @@
 #ifndef NSUDO_VER
 #define NSUDO_VER
 
-#define NSUDO_VER_MAJOR 6
-#define NSUDO_VER_MINOR 2
-#define NSUDO_VER_BUILD 1812
-#define NSUDO_VER_REV 31
+#define NSUDO_VER_MAJOR 7
+#define NSUDO_VER_MINOR 0
+#define NSUDO_VER_BUILD 1901
+#define NSUDO_VER_REV 27
 #endif
 
 #ifndef NSUDO_VER_FMT_COMMA
