@@ -557,4 +557,122 @@ void M2SpiltCommandLineEx(
     std::map<std::wstring, std::wstring>& OptionsAndParameters,
     std::wstring& UnresolvedCommandLine);
 
+/**
+ * Retrieves file system attributes for a specified file or directory.
+ *
+ * @param FileHandle A handle to the file that contains the information to be
+ *                   retrieved. This handle should not be a pipe handle.
+ * @param FileAttributes The attributes of the specified file or directory.
+ *                       For a list of attribute values and their descriptions,
+ *                       see File Attribute Constants. If the function fails,
+ *                       the return value is INVALID_FILE_ATTRIBUTES.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ */
+HRESULT M2GetFileAttributes(
+    _In_ HANDLE FileHandle,
+    _Out_ PDWORD FileAttributes);
+
+/**
+ * Sets the attributes for a file or directory.
+ *
+ * @param FileHandle A handle to the file for which to change information. This
+ *                   handle must be opened with the appropriate permissions for
+ *                   the requested change. This handle should not be a pipe
+ *                   handle.
+ * @param FileAttributes The file attributes to set for the file. This
+ *                       parameter can be one or more values, combined using
+ *                       the bitwise - OR operator. However, all other values
+ *                       override FILE_ATTRIBUTE_NORMAL. For more information,
+ *                       see the SetFileAttributes function.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ */
+HRESULT M2SetFileAttributes(
+    _In_ HANDLE FileHandle,
+    _In_ DWORD FileAttributes);
+
+/**
+ * Deletes an existing file.
+ *
+ * @param FileHandle The handle of the file to be deleted.. This handle must be
+ *                   opened with the appropriate permissions for the requested
+ *                   change. This handle should not be a pipe handle.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ * @remark The way to get a file handle for this operation:
+ *         HANDLE hFile = CreateFileW(
+ *             lpFileName,
+ *             SYNCHRONIZE | DELETE | FILE_READ_ATTRIBUTES | FILE_WRITE_ATTRIBUTES,
+ *             FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+ *             nullptr,
+ *             OPEN_EXISTING,
+ *             FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT,
+ *             nullptr);
+ */
+HRESULT M2DeleteFile(
+    _In_ HANDLE FileHandle);
+
+/**
+ * Deletes an existing file, even the file have the readonly attribute.
+ *
+ * @param FileHandle The handle of the file to be deleted.. This handle must be
+ *                   opened with the appropriate permissions for the requested
+ *                   change. This handle should not be a pipe handle.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ * @remark The way to get a file handle for this operation:
+ *         HANDLE hFile = CreateFileW(
+ *             lpFileName,
+ *             SYNCHRONIZE | DELETE | FILE_READ_ATTRIBUTES | FILE_WRITE_ATTRIBUTES,
+ *             FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+ *             nullptr,
+ *             OPEN_EXISTING,
+ *             FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT,
+ *             nullptr);
+ */
+HRESULT M2DeleteFileIgnoreReadonlyAttribute(
+    _In_ HANDLE FileHandle);
+
+/**
+ * Retrieves the amount of space that is allocated for the file.
+ *
+ * @param FileHandle A handle to the file that contains the information to be
+ *                   retrieved. This handle should not be a pipe handle.
+ * @param AllocationSize A pointer to a ULONGLONG value that receives the
+ *                       amount of space that is allocated for the file, in
+ *                       bytes.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ * @remark The way to get a file handle for this operation:
+ *         HANDLE hFile = CreateFileW(
+ *             lpFileName,
+ *             GENERIC_READ | SYNCHRONIZE,
+ *             FILE_SHARE_READ,
+ *             nullptr,
+ *             OPEN_EXISTING,
+ *             FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT,
+ *             nullptr);
+ */
+HRESULT M2GetFileAllocationSize(
+    _In_ HANDLE FileHandle,
+    _Out_ PULONGLONG AllocationSize);
+
+/**
+ * Retrieves the size of the specified file.
+ *
+ * @param FileHandle A handle to the file that contains the information to be
+ *                   retrieved. This handle should not be a pipe handle.
+ * @param FileSize A pointer to a ULONGLONG value that receives the file size,
+ *                 in bytes.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ * @remark The way to get a file handle for this operation:
+ *         HANDLE hFile = CreateFileW(
+ *             lpFileName,
+ *             GENERIC_READ | SYNCHRONIZE,
+ *             FILE_SHARE_READ,
+ *             nullptr,
+ *             OPEN_EXISTING,
+ *             FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT,
+ *             nullptr);
+ */
+HRESULT M2GetFileSize(
+    _In_ HANDLE FileHandle,
+    _Out_ PULONGLONG FileSize);
+
 #endif // _M2_BASE_HELPERS_

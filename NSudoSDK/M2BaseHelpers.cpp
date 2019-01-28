@@ -10,8 +10,6 @@
 
 #include "stdafx.h"
 
-#ifdef _M2_BASE_HELPERS_
-
 #include <Windows.h>
 
 #include "M2BaseHelpers.h"
@@ -489,4 +487,248 @@ void M2SpiltCommandLineEx(
     }
 }
 
-#endif // _M2_BASE_HELPERS_
+/**
+ * Retrieves file system attributes for a specified file or directory.
+ *
+ * @param FileHandle A handle to the file that contains the information to be
+ *                   retrieved. This handle should not be a pipe handle.
+ * @param FileAttributes The attributes of the specified file or directory.
+ *                       For a list of attribute values and their descriptions,
+ *                       see File Attribute Constants. If the function fails,
+ *                       the return value is INVALID_FILE_ATTRIBUTES.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ */
+HRESULT M2GetFileAttributes(
+    _In_ HANDLE FileHandle,
+    _Out_ PDWORD FileAttributes)
+{
+    FILE_BASIC_INFO BasicInfo;
+
+    if (GetFileInformationByHandleEx(
+        FileHandle,
+        FileBasicInfo,
+        &BasicInfo,
+        sizeof(FILE_BASIC_INFO)))
+    {
+        *FileAttributes = BasicInfo.FileAttributes;
+        return S_OK;
+    }
+    else
+    {
+        *FileAttributes = INVALID_FILE_ATTRIBUTES;
+        return M2GetLastHRESULTErrorKnownFailedCall();
+    }
+}
+
+/**
+ * Sets the attributes for a file or directory.
+ *
+ * @param FileHandle A handle to the file for which to change information. This
+ *                   handle must be opened with the appropriate permissions for
+ *                   the requested change. This handle should not be a pipe
+ *                   handle.
+ * @param FileAttributes The file attributes to set for the file. This
+ *                       parameter can be one or more values, combined using
+ *                       the bitwise - OR operator. However, all other values
+ *                       override FILE_ATTRIBUTE_NORMAL. For more information,
+ *                       see the SetFileAttributes function.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ */
+HRESULT M2SetFileAttributes(
+    _In_ HANDLE FileHandle,
+    _In_ DWORD FileAttributes)
+{
+    FILE_BASIC_INFO BasicInfo = { 0 };
+    BasicInfo.FileAttributes =
+        FileAttributes & (
+            FILE_SHARE_READ |
+            FILE_SHARE_WRITE |
+            FILE_SHARE_DELETE |
+            FILE_ATTRIBUTE_ARCHIVE |
+            FILE_ATTRIBUTE_TEMPORARY |
+            FILE_ATTRIBUTE_OFFLINE |
+            FILE_ATTRIBUTE_NOT_CONTENT_INDEXED |
+            FILE_ATTRIBUTE_NO_SCRUB_DATA) |
+        FILE_ATTRIBUTE_NORMAL;
+
+    if (SetFileInformationByHandle(
+        FileHandle,
+        FileBasicInfo,
+        &BasicInfo,
+        sizeof(FILE_BASIC_INFO)))
+    {
+        return S_OK;
+    }
+    else
+    {
+        return M2GetLastHRESULTErrorKnownFailedCall();
+    }
+}
+
+/**
+ * Deletes an existing file.
+ *
+ * @param FileHandle The handle of the file to be deleted.. This handle must be
+ *                   opened with the appropriate permissions for the requested
+ *                   change. This handle should not be a pipe handle.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ * @remark The way to get a file handle for this operation:
+ *         HANDLE hFile = CreateFileW(
+ *             lpFileName,
+ *             SYNCHRONIZE | DELETE | FILE_READ_ATTRIBUTES | FILE_WRITE_ATTRIBUTES,
+ *             FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+ *             nullptr,
+ *             OPEN_EXISTING,
+ *             FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT,
+ *             nullptr);
+ */
+HRESULT M2DeleteFile(
+    _In_ HANDLE FileHandle)
+{
+    FILE_DISPOSITION_INFO DispostionInfo;
+    DispostionInfo.DeleteFile = TRUE;
+
+    if (SetFileInformationByHandle(
+        FileHandle,
+        FileDispositionInfo,
+        &DispostionInfo,
+        sizeof(FILE_DISPOSITION_INFO)))
+    {
+        return S_OK;
+    }
+    else
+    {
+        return M2GetLastHRESULTErrorKnownFailedCall();
+    }
+}
+
+/**
+ * Deletes an existing file, even the file have the readonly attribute.
+ *
+ * @param FileHandle The handle of the file to be deleted.. This handle must be
+ *                   opened with the appropriate permissions for the requested
+ *                   change. This handle should not be a pipe handle.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ * @remark The way to get a file handle for this operation:
+ *         HANDLE hFile = CreateFileW(
+ *             lpFileName,
+ *             SYNCHRONIZE | DELETE | FILE_READ_ATTRIBUTES | FILE_WRITE_ATTRIBUTES,
+ *             FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+ *             nullptr,
+ *             OPEN_EXISTING,
+ *             FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT,
+ *             nullptr);
+ */
+HRESULT M2DeleteFileIgnoreReadonlyAttribute(
+    _In_ HANDLE FileHandle)
+{
+    HRESULT hr = S_OK;
+    DWORD OldAttribute = 0;
+
+    // Save old attributes.
+    hr = M2GetFileAttributes(
+        FileHandle,
+        &OldAttribute);
+    if (!SUCCEEDED(hr)) return hr;
+
+    // Remove readonly attribute.
+    hr = M2SetFileAttributes(
+        FileHandle,
+        OldAttribute & (-1 ^ FILE_ATTRIBUTE_READONLY));
+    if (!SUCCEEDED(hr)) return hr;
+
+    // Delete the file.
+    hr = M2DeleteFile(FileHandle);
+    if (!SUCCEEDED(hr))
+    {
+        // Restore attributes if failed.
+        hr = M2SetFileAttributes(
+            FileHandle,
+            OldAttribute);
+    }
+
+    return hr;
+}
+
+/**
+ * Retrieves the amount of space that is allocated for the file.
+ *
+ * @param FileHandle A handle to the file that contains the information to be
+ *                   retrieved. This handle should not be a pipe handle.
+ * @param AllocationSize A pointer to a ULONGLONG value that receives the
+ *                       amount of space that is allocated for the file, in
+ *                       bytes.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ * @remark The way to get a file handle for this operation:
+ *         HANDLE hFile = CreateFileW(
+ *             lpFileName,
+ *             GENERIC_READ | SYNCHRONIZE,
+ *             FILE_SHARE_READ,
+ *             nullptr,
+ *             OPEN_EXISTING,
+ *             FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT,
+ *             nullptr);
+ */
+HRESULT M2GetFileAllocationSize(
+    _In_ HANDLE FileHandle,
+    _Out_ PULONGLONG AllocationSize)
+{
+    FILE_STANDARD_INFO StandardInfo;
+
+    if (GetFileInformationByHandleEx(
+        FileHandle,
+        FileStandardInfo,
+        &StandardInfo,
+        sizeof(FILE_STANDARD_INFO)))
+    {
+        *AllocationSize = static_cast<ULONGLONG>(
+            StandardInfo.AllocationSize.QuadPart);
+        return S_OK;
+    }
+    else
+    {
+        *AllocationSize = 0;
+        return M2GetLastHRESULTErrorKnownFailedCall();
+    }
+}
+
+/**
+ * Retrieves the size of the specified file.
+ *
+ * @param FileHandle A handle to the file that contains the information to be
+ *                   retrieved. This handle should not be a pipe handle.
+ * @param FileSize A pointer to a ULONGLONG value that receives the file size,
+ *                 in bytes.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ * @remark The way to get a file handle for this operation:
+ *         HANDLE hFile = CreateFileW(
+ *             lpFileName,
+ *             GENERIC_READ | SYNCHRONIZE,
+ *             FILE_SHARE_READ,
+ *             nullptr,
+ *             OPEN_EXISTING,
+ *             FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT,
+ *             nullptr);
+ */
+HRESULT M2GetFileSize(
+    _In_ HANDLE FileHandle,
+    _Out_ PULONGLONG FileSize)
+{
+    FILE_STANDARD_INFO StandardInfo;
+
+    if (GetFileInformationByHandleEx(
+        FileHandle,
+        FileStandardInfo,
+        &StandardInfo,
+        sizeof(FILE_STANDARD_INFO)))
+    {
+        *FileSize = static_cast<ULONGLONG>(
+            StandardInfo.EndOfFile.QuadPart);
+        return S_OK;
+    }
+    else
+    {
+        *FileSize = 0;
+        return M2GetLastHRESULTErrorKnownFailedCall();
+    }
+}
