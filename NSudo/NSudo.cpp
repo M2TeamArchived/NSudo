@@ -1875,11 +1875,11 @@ inline HRESULT GetDpiForMonitorInternal(
     HRESULT hr = E_NOINTERFACE;
 
     hModule = LoadLibraryW(L"SHCore.dll");
-    if (!hModule) return M2GetLastError();
+    if (!hModule) return M2GetLastHRESULTErrorKnownFailedCall();
 
     pFunc = reinterpret_cast<decltype(pFunc)>(
         GetProcAddress(hModule, "GetDpiForMonitor"));
-    if (!pFunc) return M2GetLastError();
+    if (!pFunc) return M2GetLastHRESULTErrorKnownFailedCall();
 
     hr = pFunc(hmonitor, dpiType, dpiX, dpiY);
 

@@ -81,7 +81,7 @@ HRESULT M2GetWindowsDirectory(
             0);
         if (0 == Length)
         {
-            hr = M2GetLastError();
+            hr = M2GetLastHRESULTErrorKnownFailedCall();
             break;
         }
 
@@ -92,7 +92,7 @@ HRESULT M2GetWindowsDirectory(
             static_cast<UINT>(Length));
         if (0 == Length)
         {
-            hr = M2GetLastError();
+            hr = M2GetLastHRESULTErrorKnownFailedCall();
             break;
         }
         if (WindowsFolderPath.size() != Length)
@@ -145,14 +145,14 @@ HRESULT M2StartService(
         nullptr,
         SC_MANAGER_CONNECT);
     if (!hSCM)
-        return M2GetLastError();
+        return M2GetLastHRESULTErrorKnownFailedCall();
 
     hService = OpenServiceW(
         hSCM,
         lpServiceName,
         SERVICE_QUERY_STATUS | SERVICE_START);
     if (!hService)
-        return M2GetLastError();
+        return M2GetLastHRESULTErrorKnownFailedCall();
 
     while (QueryServiceStatusEx(
         hService,
@@ -168,7 +168,7 @@ HRESULT M2StartService(
                 return E_FAIL;
 
             if (!StartServiceW(hService, 0, nullptr))
-                return M2GetLastError();
+                return M2GetLastHRESULTErrorKnownFailedCall();
 
             bStartServiceWCalled = true;
         }
