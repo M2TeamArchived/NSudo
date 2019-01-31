@@ -21,6 +21,29 @@
 
 #include <string>
 
+
+std::wstring GetMessageByID(DWORD MessageID)
+{
+    std::wstring MessageString;
+    LPWSTR pBuffer = nullptr;
+
+    if (FormatMessageW(
+        FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
+        nullptr,
+        MessageID,
+        MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+        reinterpret_cast<LPTSTR>(&pBuffer),
+        0,
+        nullptr))
+    {
+        MessageString = std::wstring(pBuffer, wcslen(pBuffer));
+
+        LocalFree(pBuffer);
+    }
+
+    return MessageString;
+}
+
 DWORD M2RegSetStringValue(
     _In_ HKEY hKey,
     _In_opt_ LPCWSTR lpValueName,
@@ -272,6 +295,7 @@ BOOL WINAPI NSudoSetTokenPrivilege(
     TOKEN_PRIVILEGES TP;
 
     TP.PrivilegeCount = 1;
+    TP.Privileges[0].Luid.HighPart = 0;
     TP.Privileges[0].Luid.LowPart = Privilege;
     TP.Privileges[0].Attributes = (DWORD)(bEnable ? SE_PRIVILEGE_ENABLED : 0);
 
