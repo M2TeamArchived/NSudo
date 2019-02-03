@@ -1871,19 +1871,21 @@ inline HRESULT GetDpiForMonitorInternal(
     _Out_ UINT *dpiY)
 {
     HMODULE hModule = nullptr;
-    decltype(GetDpiForMonitor)* pFunc = nullptr;
-    HRESULT hr = E_NOINTERFACE;
+    HRESULT hr = M2LoadLibraryEx(
+        hModule,
+        L"SHCore.dll",
+        LOAD_LIBRARY_SEARCH_SYSTEM32);
+    if (SUCCEEDED(hr))
+    {
+        decltype(GetDpiForMonitor)* pFunc = nullptr;
+        hr = M2GetProcAddress(pFunc, hModule, "GetDpiForMonitor");
+        if (SUCCEEDED(hr))
+        {
+            hr = pFunc(hmonitor, dpiType, dpiX, dpiY);
+        }
 
-    hModule = LoadLibraryW(L"SHCore.dll");
-    if (!hModule) return M2GetLastHRESULTErrorKnownFailedCall();
-
-    pFunc = reinterpret_cast<decltype(pFunc)>(
-        GetProcAddress(hModule, "GetDpiForMonitor"));
-    if (!pFunc) return M2GetLastHRESULTErrorKnownFailedCall();
-
-    hr = pFunc(hmonitor, dpiType, dpiX, dpiY);
-
-    FreeLibrary(hModule);
+        FreeLibrary(hModule);
+    }
 
     return hr;
 }
