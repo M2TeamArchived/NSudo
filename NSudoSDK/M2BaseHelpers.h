@@ -675,4 +675,26 @@ HRESULT M2GetFileSize(
     _In_ HANDLE FileHandle,
     _Out_ PULONGLONG FileSize);
 
+/**
+ * Loads the specified module with the optimization of the mitigation of DLL
+ * preloading attacks into the address space of the calling process safely. The
+ * specified module may cause other modules to be loaded.
+ *
+ * @param ModuleHandle If the function succeeds, this parameter's value is a
+ *                     handle to the loaded module. You should read the
+ *                     documentation about LoadLibraryEx API for further
+ *                     information.
+ * @param LibraryFileName A string that specifies the file name of the module
+ *                        to load. You should read the documentation about
+ *                        LoadLibraryEx API for further information.
+ * @param Flags The action to be taken when loading the module. You should read
+ *              the documentation about LoadLibraryEx API for further
+ *              information.
+ * @return HRESULT.
+ */
+HRESULT M2LoadLibraryEx(
+    _Out_ HMODULE& ModuleHandle,
+    _In_ LPCWSTR LibraryFileName,
+    _In_ DWORD Flags);
+
 #endif // _M2_BASE_HELPERS_
