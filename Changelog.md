@@ -4,6 +4,7 @@
 - [繁體中文](變更紀錄.md)
 
 **NSudo 7.0.1901.27**
+- Update JSON for Modern C++ to 3.5.0.
 
 **NSudo 6.2.1812.31**
 - Add French translations. (Contributed by Thomas Dubreuil.)
