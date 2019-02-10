@@ -954,6 +954,8 @@ public:
     }
 };
 
+#include <stdio.h>
+
 class CNSudoShortCutAdapter
 {
 public:
@@ -963,24 +965,20 @@ public:
     {
         ShortCutList.clear();
 
-        try
+        FILE* FileStream = nullptr;
+
+        if (_wfopen_s(&FileStream, ShortCutListPath.c_str(), L"r") == 0)
         {
-            std::ifstream FileStream(ShortCutListPath);
-            if (FileStream.is_open())
+            nlohmann::json ConfigJSON = nlohmann::json::parse(FileStream);
+
+            for (auto& Item : ConfigJSON["ShortCutList_V2"].items())
             {
-                nlohmann::json ConfigJSON = nlohmann::json::parse(FileStream);
-
-                for (auto& Item : ConfigJSON["ShortCutList_V2"].items())
-                {
-                    ShortCutList.insert(std::make_pair(
-                        M2MakeUTF16String(Item.key()),
-                        M2MakeUTF16String(Item.value())));
-                }
+                ShortCutList.insert(std::make_pair(
+                    M2MakeUTF16String(Item.key()),
+                    M2MakeUTF16String(Item.value())));
             }
-        }
-        catch (const std::exception&)
-        {
 
+            fclose(FileStream);
         }
     }
 
@@ -998,12 +996,7 @@ public:
     {
         auto iterator = ShortCutList.find(CommandLine);
 
-        if (iterator == ShortCutList.end())
-        {
-            return CommandLine;       
-        }
-
-        return iterator->second;
+        return iterator == ShortCutList.end() ? CommandLine : iterator->second;
     }
 };
 
