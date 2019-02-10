@@ -320,6 +320,11 @@ namespace M2
         {
             LeaveCriticalSection(&this->m_CriticalSection);
         }
+
+        _Acquires_lock_(m_CriticalSection) bool TryLock()
+        {
+            return TryEnterCriticalSection(&this->m_CriticalSection);
+        }
     };
 
     /**
@@ -334,15 +339,45 @@ namespace M2
 
     public:
         _Acquires_lock_(m_pCriticalSection) AutoCriticalSectionLock(
-            CCriticalSection& CriticalSection)
+            CCriticalSection& CriticalSection) :
+            m_pCriticalSection(&CriticalSection)
         {
-            m_pCriticalSection = &CriticalSection;
             m_pCriticalSection->Lock();
         }
 
         _Releases_lock_(m_pCriticalSection) ~AutoCriticalSectionLock()
         {
             m_pCriticalSection->Unlock();
+        }
+    };
+
+    /**
+     * Provides automatic trying to lock and unlocking of a critical section.
+     *
+     * @remarks The AutoLock object must go out of scope before the CritSec.
+     */
+    class AutoTryCriticalSectionLock
+    {
+    private:
+        CCriticalSection* m_pCriticalSection;
+        bool m_IsLocked = false;
+
+    public:
+        _Acquires_lock_(m_pCriticalSection) AutoTryCriticalSectionLock(
+            CCriticalSection& CriticalSection) :
+            m_pCriticalSection(&CriticalSection)
+        {
+            this->m_IsLocked = m_pCriticalSection->TryLock();
+        }
+
+        _Releases_lock_(m_pCriticalSection) ~AutoTryCriticalSectionLock()
+        {
+            m_pCriticalSection->Unlock();
+        }
+
+        bool IsLocked() const
+        {
+            return this->m_IsLocked;
         }
     };
 
