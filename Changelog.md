@@ -7,6 +7,7 @@
 - Update JSON for Modern C++ to 3.5.0.
 - Use FILE instead of std::ifstream to reduce the memory usage and binary size.
 - Merge NSudo.exe to NSudoG.exe.
+- Use new compiler options to reduce the binary size.
 
 **NSudo 6.2.1812.31**
 - Add French translations. (Contributed by Thomas Dubreuil.)
