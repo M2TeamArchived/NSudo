@@ -1811,7 +1811,7 @@ void NSudoPrintMsg(
         (DWORD)DialogContent.size(),
         &NumberOfCharsWritten,
         nullptr);
-#elif defined(NSUDO_CUI_WINDOWS) || defined(NSUDO_GUI_WINDOWS)
+#elif defined(NSUDO_GUI_WINDOWS)
     M2MessageDialog(
         hInstance,
         hWnd,
@@ -1841,7 +1841,7 @@ HRESULT NSudoShowAboutDialog(
         (DWORD)DialogContent.size(),
         &NumberOfCharsWritten,
         nullptr);
-#elif defined(NSUDO_CUI_WINDOWS) || defined(NSUDO_GUI_WINDOWS)
+#elif defined(NSUDO_GUI_WINDOWS)
     M2MessageDialog(
         g_ResourceManagement.Instance,
         hwndParent,
@@ -2381,7 +2381,7 @@ int NSudoMain()
 
     if (OptionsAndParameters.empty() && UnresolvedCommandLine.empty())
     {
-#if defined(NSUDO_CUI_CONSOLE) || defined(NSUDO_CUI_WINDOWS)
+#if defined(NSUDO_CUI_CONSOLE)
         NSudoShowAboutDialog(nullptr);
 #elif defined(NSUDO_GUI_WINDOWS)
         CNSudoMainWindow MainWindow;
@@ -2397,7 +2397,7 @@ int NSudoMain()
         ApplicationName,
         OptionsAndParameters,
         UnresolvedCommandLine);
-#elif defined(NSUDO_CUI_WINDOWS) || defined(NSUDO_GUI_WINDOWS)
+#elif defined(NSUDO_GUI_WINDOWS)
     NSUDO_MESSAGE message = NSudoCommandLineParser(
         g_ResourceManagement.IsElevated,
         true,
@@ -2434,7 +2434,7 @@ int NSudoMain()
 
 #if defined(NSUDO_CUI_CONSOLE)
 int main()
-#elif defined(NSUDO_CUI_WINDOWS) || defined(NSUDO_GUI_WINDOWS)
+#elif defined(NSUDO_GUI_WINDOWS)
 int WINAPI wWinMain(
     _In_ HINSTANCE hInstance,
     _In_opt_ HINSTANCE hPrevInstance,
@@ -2442,7 +2442,7 @@ int WINAPI wWinMain(
     _In_ int nShowCmd)
 #endif
 {
-#if defined(NSUDO_CUI_WINDOWS) || defined(NSUDO_GUI_WINDOWS)
+#if defined(NSUDO_GUI_WINDOWS)
     UNREFERENCED_PARAMETER(hInstance);
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);

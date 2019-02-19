@@ -1,12 +1,10 @@
-version: CI Build {Build}
+﻿version: CI Build {Build}
 image: Visual Studio 2017
 configuration:
-- Debug - NSudo CUI - Subsystem Console
-- Debug - NSudo CUI - Subsystem Windows
-- Debug - NSudo GUI - Subsystem Windows
-- Release - NSudo CUI - Subsystem Console
-- Release - NSudo CUI - Subsystem Windows
-- Release - NSudo GUI - Subsystem Windows
+- Debug - CUI
+- Debug - GUI
+- Release - CUI
+- Release - GUI
 platform:
 - x86
 - x64

@@ -32,7 +32,7 @@ English.
 - Please go to the [CPU Architecture] folder and click NSudo.exe. Follow the 
   prompts.
   - For example, if you want to use 64-bit NSudo on your Intel or AMD device,
-    you need to go to the x64 folder and click NSudo.exe
+    you need to go to the x64 folder and click NSudoG.exe
 
 ## Command Line Options
 ```
