@@ -382,6 +382,163 @@ namespace M2
     };
 
     /**
+     * Wraps a slim reader/writer (SRW) lock.
+     */
+    class CSRWLock
+    {
+    private:
+        SRWLOCK m_SRWLock;
+
+    public:
+        CSRWLock()
+        {
+            InitializeSRWLock(&this->m_SRWLock);
+        }
+
+        _Acquires_lock_(m_SRWLock) void ExclusiveLock()
+        {
+            AcquireSRWLockExclusive(&this->m_SRWLock);
+        }
+
+        _Acquires_lock_(m_SRWLock) bool TryExclusiveLock()
+        {
+            return TryAcquireSRWLockExclusive(&this->m_SRWLock);
+        }
+
+        _Releases_lock_(m_SRWLock) void ExclusiveUnlock()
+        {
+            ReleaseSRWLockExclusive(&this->m_SRWLock);
+        }
+
+        _Acquires_lock_(m_SRWLock) void SharedLock()
+        {
+            AcquireSRWLockShared(&this->m_SRWLock);
+        }
+
+        _Acquires_lock_(m_SRWLock) bool TrySharedLock()
+        {
+            return TryAcquireSRWLockShared(&this->m_SRWLock);
+        }
+
+        _Releases_lock_(m_SRWLock) void SharedUnlock()
+        {
+            ReleaseSRWLockShared(&this->m_SRWLock);
+        }
+    };
+
+    /**
+     * Provides automatic exclusive locking and unlocking of a slim
+     * reader/writer (SRW) lock.
+     *
+     * @remarks The AutoLock object must go out of scope before the CritSec.
+     */
+    class AutoSRWExclusiveLock
+    {
+    private:
+        CSRWLock* m_SRWLock;
+
+    public:
+        _Acquires_lock_(m_pCriticalSection) AutoSRWExclusiveLock(
+            CSRWLock& SRWLock) :
+            m_SRWLock(&SRWLock)
+        {
+            m_SRWLock->ExclusiveLock();
+        }
+
+        _Releases_lock_(m_pCriticalSection) ~AutoSRWExclusiveLock()
+        {
+            m_SRWLock->ExclusiveUnlock();
+        }
+    };
+
+    /**
+     * Provides automatic trying to exclusive lock and unlocking of a slim
+     * reader/writer (SRW) lock.
+     *
+     * @remarks The AutoLock object must go out of scope before the CritSec.
+     */
+    class AutoTrySRWExclusiveLock
+    {
+    private:
+        CSRWLock* m_SRWLock;
+        bool m_IsLocked = false;
+
+    public:
+        _Acquires_lock_(m_pCriticalSection) AutoTrySRWExclusiveLock(
+            CSRWLock& SRWLock) :
+            m_SRWLock(&SRWLock)
+        {
+            this->m_IsLocked = m_SRWLock->TryExclusiveLock();
+        }
+
+        _Releases_lock_(m_pCriticalSection) ~AutoTrySRWExclusiveLock()
+        {
+            m_SRWLock->ExclusiveUnlock();
+        }
+
+        bool IsLocked() const
+        {
+            return this->m_IsLocked;
+        }
+    };
+
+    /**
+     * Provides automatic shared locking and unlocking of a slim
+     * reader/writer (SRW) lock.
+     *
+     * @remarks The AutoLock object must go out of scope before the CritSec.
+     */
+    class AutoSRWSharedLock
+    {
+    private:
+        CSRWLock* m_SRWLock;
+
+    public:
+        _Acquires_lock_(m_pCriticalSection) AutoSRWSharedLock(
+            CSRWLock& SRWLock) :
+            m_SRWLock(&SRWLock)
+        {
+            m_SRWLock->SharedLock();
+        }
+
+        _Releases_lock_(m_pCriticalSection) ~AutoSRWSharedLock()
+        {
+            m_SRWLock->SharedUnlock();
+        }
+    };
+
+    /**
+     * Provides automatic trying to shared lock and unlocking of a slim
+     * reader/writer (SRW) lock.
+     *
+     * @remarks The AutoLock object must go out of scope before the CritSec.
+     */
+    class AutoTrySRWSharedLock
+    {
+    private:
+        CSRWLock* m_SRWLock;
+        bool m_IsLocked = false;
+
+    public:
+        _Acquires_lock_(m_pCriticalSection) AutoTrySRWSharedLock(
+            CSRWLock& SRWLock) :
+            m_SRWLock(&SRWLock)
+        {
+            this->m_IsLocked = m_SRWLock->TrySharedLock();
+        }
+
+        _Releases_lock_(m_pCriticalSection) ~AutoTrySRWSharedLock()
+        {
+            m_SRWLock->SharedUnlock();
+        }
+
+        bool IsLocked() const
+        {
+            return this->m_IsLocked;
+        }
+    };
+
+    /**
      * A template for implementing an object which the type is a singleton. I
      * do not need to free the memory of the object because the OS releases all
      * the unshared memory associated with the process after the process is
