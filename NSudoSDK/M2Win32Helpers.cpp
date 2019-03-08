@@ -38,28 +38,26 @@ HRESULT M2LoadResource(
     _In_ LPCWSTR lpType,
     _In_ LPCWSTR lpName)
 {
-    if (nullptr == lpResourceInfo)
+    if (!lpResourceInfo)
         return E_INVALIDARG;
-
-    SetLastError(ERROR_SUCCESS);
 
     lpResourceInfo->Size = 0;
     lpResourceInfo->Pointer = nullptr;
 
     HRSRC ResourceFind = FindResourceExW(
         hModule, lpType, lpName, MAKELANGID(LANG_NEUTRAL, SUBLANG_NEUTRAL));
-    if (nullptr != ResourceFind)
-    {
-        lpResourceInfo->Size = SizeofResource(hModule, ResourceFind);
+    if (!ResourceFind)
+        return M2GetLastHRESULTErrorKnownFailedCall();
 
-        HGLOBAL ResourceLoad = LoadResource(hModule, ResourceFind);
-        if (nullptr != ResourceLoad)
-        {
-            lpResourceInfo->Pointer = LockResource(ResourceLoad);
-        }
-    }
+    lpResourceInfo->Size = SizeofResource(hModule, ResourceFind);
 
-    return __HRESULT_FROM_WIN32(GetLastError());
+    HGLOBAL ResourceLoad = LoadResource(hModule, ResourceFind);
+    if (!ResourceLoad)
+        return M2GetLastHRESULTErrorKnownFailedCall();
+
+    lpResourceInfo->Pointer = LockResource(ResourceLoad);
+
+    return S_OK;
 }
 
 /**

@@ -160,7 +160,7 @@ std::string M2MakeUTF8String(const std::wstring& UTF16String)
  */
 HRESULT M2GetLastError()
 {
-    return __HRESULT_FROM_WIN32(GetLastError());
+    return HRESULT_FROM_WIN32(GetLastError());
 }
 
 /**
@@ -186,7 +186,7 @@ DWORD M2GetLastErrorKnownFailedCall()
  */
 HRESULT M2GetLastHRESULTErrorKnownFailedCall()
 {
-    return __HRESULT_FROM_WIN32(M2GetLastErrorKnownFailedCall());
+    return HRESULT_FROM_WIN32(M2GetLastErrorKnownFailedCall());
 }
 
 /**
