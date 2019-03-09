@@ -1855,34 +1855,6 @@ HRESULT NSudoShowAboutDialog(
 
 #if defined(NSUDO_GUI_WINDOWS)
 
-#include <ShellScalingApi.h>
-
-inline HRESULT GetDpiForMonitorInternal(
-    _In_ HMONITOR hmonitor,
-    _In_ MONITOR_DPI_TYPE dpiType,
-    _Out_ UINT *dpiX,
-    _Out_ UINT *dpiY)
-{
-    HMODULE hModule = nullptr;
-    HRESULT hr = M2LoadLibraryEx(
-        hModule,
-        L"SHCore.dll",
-        LOAD_LIBRARY_SEARCH_SYSTEM32);
-    if (SUCCEEDED(hr))
-    {
-        decltype(GetDpiForMonitor)* pFunc = nullptr;
-        hr = M2GetProcAddress(pFunc, hModule, "GetDpiForMonitor");
-        if (SUCCEEDED(hr))
-        {
-            hr = pFunc(hmonitor, dpiType, dpiX, dpiY);
-        }
-
-        FreeLibrary(hModule);
-    }
-
-    return hr;
-}
-
 #include <atlbase.h>
 #include <atlwin.h>
 
@@ -1983,7 +1955,7 @@ private:
 
         HRESULT hr = E_FAIL;
 
-        hr = GetDpiForMonitorInternal(
+        hr = M2GetDpiForMonitor(
             MonitorFromWindow(this->m_hWnd, MONITOR_DEFAULTTONEAREST),
             MDT_EFFECTIVE_DPI, (UINT*)&this->m_xDPI, (UINT*)&this->m_yDPI);
         if (hr != S_OK)

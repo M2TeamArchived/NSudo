@@ -264,3 +264,41 @@ HRESULT M2LoadLibraryEx(
 
     return ModuleHandle ? S_OK : M2GetLastHRESULTErrorKnownFailedCall();
 }
+
+/**
+ * Queries the dots per inch (dpi) of a display.
+ *
+ * @param hmonitor Handle of the monitor being queried.
+ * @param dpiType The type of DPI being queried. Possible values are from the
+ *                MONITOR_DPI_TYPE enumeration.
+ * @param dpiX The value of the DPI along the X axis. This value always refers
+ *             to the horizontal edge, even when the screen is rotated.
+ * @param dpiY The value of the DPI along the Y axis. This value always refers
+ *             to the vertical edge, even when the screen is rotated.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ */
+HRESULT M2GetDpiForMonitor(
+    _In_ HMONITOR hmonitor,
+    _In_ MONITOR_DPI_TYPE dpiType,
+    _Out_ UINT *dpiX,
+    _Out_ UINT *dpiY)
+{
+    HMODULE hModule = nullptr;
+    HRESULT hr = M2LoadLibraryEx(
+        hModule,
+        L"SHCore.dll",
+        LOAD_LIBRARY_SEARCH_SYSTEM32);
+    if (SUCCEEDED(hr))
+    {
+        decltype(GetDpiForMonitor)* pFunc = nullptr;
+        hr = M2GetProcAddress(pFunc, hModule, "GetDpiForMonitor");
+        if (SUCCEEDED(hr))
+        {
+            hr = pFunc(hmonitor, dpiType, dpiX, dpiY);
+        }
+
+        FreeLibrary(hModule);
+    }
+
+    return hr;
+}
