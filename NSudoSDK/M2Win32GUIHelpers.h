@@ -14,6 +14,7 @@
 #define _M2_WIN32_GUI_HELPERS_
 
 #include <Windows.h>
+#include <ShellScalingApi.h>
 
 /**
  * Enables the Per-Monitor DPI Aware for the specified dialog using the
@@ -56,5 +57,23 @@ INT_PTR WINAPI M2MessageDialog(
     _In_opt_ LPCWSTR lpIconName,
     _In_ LPCWSTR lpTitle,
     _In_ LPCWSTR lpContent);
+
+/**
+ * Queries the dots per inch (dpi) of a display.
+ *
+ * @param hmonitor Handle of the monitor being queried.
+ * @param dpiType The type of DPI being queried. Possible values are from the
+ *                MONITOR_DPI_TYPE enumeration.
+ * @param dpiX The value of the DPI along the X axis. This value always refers
+ *             to the horizontal edge, even when the screen is rotated.
+ * @param dpiY The value of the DPI along the Y axis. This value always refers
+ *             to the vertical edge, even when the screen is rotated.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ */
+HRESULT M2GetDpiForMonitor(
+    _In_ HMONITOR hmonitor,
+    _In_ MONITOR_DPI_TYPE dpiType,
+    _Out_ UINT *dpiX,
+    _Out_ UINT *dpiY);
 
 #endif // _M2_WIN32_GUI_HELPERS_
