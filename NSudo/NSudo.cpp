@@ -276,28 +276,6 @@ BOOL WINAPI NSudoGetCurrentProcessSessionID(
     return result;
 }
 
-HRESULT M2AdjustTokenPrivileges(
-    _In_ HANDLE TokenHandle,
-    _In_ BOOL DisableAllPrivileges,
-    _In_opt_ PTOKEN_PRIVILEGES NewState,
-    _In_ DWORD BufferLength,
-    _Out_writes_bytes_to_opt_(BufferLength, *ReturnLength) PTOKEN_PRIVILEGES PreviousState,
-    _Out_opt_ PDWORD ReturnLength)
-{
-    if (AdjustTokenPrivileges(
-        TokenHandle,
-        DisableAllPrivileges,
-        NewState,
-        BufferLength,
-        PreviousState,
-        ReturnLength))
-    {
-        return S_OK;
-    }
-
-    return M2GetLastHRESULTError();
-}
-
 /*
 NSudoSetTokenPrivilege函数启用或禁用指定的访问令牌的指定特权。启用或禁用一
 个访问令牌的特权需要TOKEN_ADJUST_PRIVILEGES访问权限。

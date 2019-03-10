@@ -867,4 +867,47 @@ HRESULT M2GetFileSize(
     _In_ HANDLE FileHandle,
     _Out_ PULONGLONG FileSize);
 
+/**
+ * Enables or disables privileges in the specified access token. Enabling or
+ * disabling privileges in an access token requires TOKEN_ADJUST_PRIVILEGES
+ * access.
+ *
+ * @param TokenHandle A handle to the access token that contains the privileges
+ *                    to be modified. The handle must have
+ *                    TOKEN_ADJUST_PRIVILEGES access to the token. If the
+ *                    PreviousState parameter is not NULL, the handle must also
+ *                    have TOKEN_QUERY access.
+ * @param DisableAllPrivileges Specifies whether the function disables all of
+ *                             the token's privileges. If this value is TRUE,
+ *                             the function disables all privileges and ignores
+ *                             the NewState parameter. If it is FALSE, the
+ *                             function modifies privileges based on the
+ *                             information pointed to by the NewState
+ *                             parameter.
+ * @param NewState A pointer to a TOKEN_PRIVILEGES structure that specifies an
+ *                 array of privileges and their attributes. If
+ *                 DisableAllPrivileges is TRUE, the function ignores this
+ *                 parameter.
+ * @param BufferLength Specifies the size, in bytes, of the buffer pointed to
+ *                     by the PreviousState parameter. This parameter can be
+ *                     zero if the PreviousState parameter is NULL.
+ * @param PreviousState A pointer to a buffer that the function fills with a
+ *                      TOKEN_PRIVILEGES structure that contains the previous
+ *                      state of any privileges that the function modifies.
+ *                      This parameter can be NULL.
+ * @param ReturnLength A pointer to a variable that receives the required size,
+ *                     in bytes, of the buffer pointed to by the PreviousState
+ *                     parameter. This parameter can be NULL if PreviousState
+ *                     is NULL.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ * @remark For more information, see AdjustTokenPrivileges.
+ */
+HRESULT M2AdjustTokenPrivileges(
+    _In_ HANDLE TokenHandle,
+    _In_ BOOL DisableAllPrivileges,
+    _In_opt_ PTOKEN_PRIVILEGES NewState,
+    _In_ DWORD BufferLength,
+    _Out_opt_ PTOKEN_PRIVILEGES PreviousState,
+    _Out_opt_ PDWORD ReturnLength);
+
 #endif // _M2_BASE_HELPERS_
