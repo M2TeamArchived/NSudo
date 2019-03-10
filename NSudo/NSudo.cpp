@@ -228,22 +228,6 @@ SID_IDENTIFIER_AUTHORITY SIA_NT = SECURITY_NT_AUTHORITY;
 SID_IDENTIFIER_AUTHORITY SIA_IL = SECURITY_MANDATORY_LABEL_AUTHORITY;
 
 /*
-   NSudoStartService函数通过服务名启动服务并返回服务状态。
-   The NSudoStartService function starts a service and return service status
-   via service name.
-
-   如果函数执行失败，返回值为NULL。调用GetLastError可获取详细错误码。
-   If the function fails, the return value is NULL. To get extended error
-   information, call GetLastError.
-   */
-BOOL WINAPI NSudoStartService(
-    _In_ LPCWSTR lpServiceName,
-    _Out_ LPSERVICE_STATUS_PROCESS lpServiceStatus)
-{
-    return SUCCEEDED(M2StartService(lpServiceName, lpServiceStatus));
-}
-
-/*
 NSudoGetCurrentProcessSessionID获取当前进程的会话ID。
 The NSudoGetCurrentProcessSessionID function obtains the Session ID of the
 current process.
@@ -681,7 +665,7 @@ BOOL WINAPI NSudoDuplicateServiceToken(
     SERVICE_STATUS_PROCESS ssStatus;
 
     // 启动服务
-    result = NSudoStartService(lpServiceName, &ssStatus);
+    result = SUCCEEDED(M2StartService(lpServiceName, &ssStatus));
     if (result)
     {
         // 复制进程令牌
