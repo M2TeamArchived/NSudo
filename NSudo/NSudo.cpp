@@ -243,10 +243,10 @@ BOOL WINAPI NSudoGetCurrentProcessSessionID(
     M2::CHandle hToken;
     DWORD ReturnLength = 0;
 
-    result = OpenProcessToken(
-        GetCurrentProcess(),
-        MAXIMUM_ALLOWED,
-        &hToken);
+    M2_PROCESS_ACCESS_TOKEN_SOURCE TokenSource;
+    TokenSource.Type = M2_PROCESS_TOKEN_SOURCE_TYPE::Current;
+    result = SUCCEEDED(M2OpenProcessToken(
+        &hToken, &TokenSource, MAXIMUM_ALLOWED));
     if (result)
     {
         result = GetTokenInformation(
@@ -284,8 +284,8 @@ BOOL WINAPI NSudoSetTokenPrivilege(
     TP.Privileges[0].Attributes = (DWORD)(bEnable ? SE_PRIVILEGE_ENABLED : 0);
 
     // 设置进程特权
-    AdjustTokenPrivileges(hExistingToken, FALSE, &TP, 0, nullptr, nullptr);
-    return (GetLastError() == ERROR_SUCCESS);
+    return SUCCEEDED(M2AdjustTokenPrivileges(
+        hExistingToken, FALSE, &TP, 0, nullptr, nullptr));
 }
 
 /*
@@ -327,9 +327,8 @@ BOOL WINAPI NSudoSetTokenAllPrivileges(
                     (DWORD)(bEnable ? SE_PRIVILEGE_ENABLED : 0);
 
                 // 设置进程特权
-                AdjustTokenPrivileges(
-                    hExistingToken, FALSE, pTPs, 0, nullptr, nullptr);
-                result = (GetLastError() == ERROR_SUCCESS);
+                result = SUCCEEDED(M2AdjustTokenPrivileges(
+                    hExistingToken, FALSE, pTPs, 0, nullptr, nullptr));
             }
         }
         else SetLastError(ERROR_NOT_ENOUGH_MEMORY);
@@ -547,26 +546,24 @@ BOOL WINAPI NSudoDuplicateProcessToken(
 {
     BOOL result = FALSE;
 
-    M2::CHandle hProcess;
     M2::CHandle hToken;
 
-    // 打开进程对象
-    hProcess = OpenProcess(MAXIMUM_ALLOWED, FALSE, dwProcessID);
-    if (hProcess)
+    // 打开进程令牌
+    M2_PROCESS_ACCESS_TOKEN_SOURCE TokenSource;
+    TokenSource.Type = M2_PROCESS_TOKEN_SOURCE_TYPE::ProcessId;
+    TokenSource.ProcessId = dwProcessID;
+    result = SUCCEEDED(M2OpenProcessToken(
+        &hToken, &TokenSource, MAXIMUM_ALLOWED));
+    if (result)
     {
-        // 打开进程令牌
-        result = OpenProcessToken(hProcess, MAXIMUM_ALLOWED, &hToken);
-        if (result)
-        {
-            // 复制令牌
-            result = DuplicateTokenEx(
-                hToken,
-                dwDesiredAccess,
-                lpTokenAttributes,
-                ImpersonationLevel,
-                TokenType,
-                phToken);
-        }
+        // 复制令牌
+        result = DuplicateTokenEx(
+            hToken,
+            dwDesiredAccess,
+            lpTokenAttributes,
+            ImpersonationLevel,
+            TokenType,
+            phToken);
     }
 
     return result;
@@ -682,43 +679,6 @@ BOOL WINAPI NSudoDuplicateServiceToken(
 }
 
 /*
-NSudoDuplicateSessionToken函数根据会话ID获取一个服务进程令牌的副本。
-The NSudoDuplicateSessionToken function obtains a copy of Session token via
-Session ID.
-
-如果函数执行失败，返回值为NULL。调用GetLastError可获取详细错误码。
-If the function fails, the return value is NULL. To get extended error
-information, call GetLastError.
-*/
-BOOL WINAPI NSudoDuplicateSessionToken(
-    _In_ DWORD dwSessionID,
-    _In_ DWORD dwDesiredAccess,
-    _In_opt_ LPSECURITY_ATTRIBUTES lpTokenAttributes,
-    _In_ SECURITY_IMPERSONATION_LEVEL ImpersonationLevel,
-    _In_ TOKEN_TYPE TokenType,
-    _Outptr_ PHANDLE phToken)
-{
-    BOOL result = FALSE;
-    M2::CHandle hToken;
-
-    // 打开会话令牌
-    result = WTSQueryUserToken(dwSessionID, &hToken);
-    if (result)
-    {
-        // 复制令牌
-        result = DuplicateTokenEx(
-            hToken,
-            dwDesiredAccess,
-            lpTokenAttributes,
-            ImpersonationLevel,
-            TokenType,
-            phToken);
-    }
-
-    return result;
-}
-
-/*
 NSudoImpersonateAsSystem函数给当前线程分配一个SYSTEM用户模拟令牌。该函数还
 可以使当前线程停止使用模拟令牌。
 The NSudoImpersonateAsSystem function assigns an SYSTEM user impersonation
@@ -797,10 +757,10 @@ bool NSudoCreateProcess(
     BOOL result = FALSE;
 
     M2::CHandle hCurrentToken;
-    if (OpenProcessToken(
-        GetCurrentProcess(),
-        MAXIMUM_ALLOWED,
-        &hCurrentToken))
+    M2_PROCESS_ACCESS_TOKEN_SOURCE TokenSource;
+    TokenSource.Type = M2_PROCESS_TOKEN_SOURCE_TYPE::Current;
+    if (SUCCEEDED(M2OpenProcessToken(
+        &hCurrentToken, &TokenSource, MAXIMUM_ALLOWED)))
     {
         if (CreateEnvironmentBlock(&lpEnvironment, hCurrentToken, TRUE))
         {
@@ -1041,10 +1001,10 @@ public:
 
             M2::CHandle CurrentProcessToken;
 
-            if (OpenProcessToken(
-                GetCurrentProcess(),
-                MAXIMUM_ALLOWED,
-                &CurrentProcessToken))
+            M2_PROCESS_ACCESS_TOKEN_SOURCE TokenSource;
+            TokenSource.Type = M2_PROCESS_TOKEN_SOURCE_TYPE::Current;
+            if (SUCCEEDED(M2OpenProcessToken(
+                &CurrentProcessToken, &TokenSource, MAXIMUM_ALLOWED)))
             {
                 if (DuplicateTokenEx(
                     CurrentProcessToken,
@@ -1620,13 +1580,7 @@ NSUDO_MESSAGE NSudoCommandLineParser(
     }
     else if (NSudoOptionUserValue::CurrentUser == UserMode)
     {
-        if (!NSudoDuplicateSessionToken(
-            dwSessionID,
-            MAXIMUM_ALLOWED,
-            nullptr,
-            SecurityIdentification,
-            TokenPrimary,
-            &hToken))
+        if (!WTSQueryUserToken(dwSessionID, &hToken))
         {
             return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
         }
