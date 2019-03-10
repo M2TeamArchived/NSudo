@@ -158,7 +158,7 @@ std::string M2MakeUTF8String(const std::wstring& UTF16String)
  * @return The calling thread's last-error code which is converted to an
  *         HRESULT value.
  */
-HRESULT M2GetLastError()
+HRESULT M2GetLastHRESULTError()
 {
     return HRESULT_FROM_WIN32(GetLastError());
 }

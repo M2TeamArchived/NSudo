@@ -653,7 +653,7 @@ std::string M2MakeUTF8String(const std::wstring& UTF16String);
  * @return The calling thread's last-error code which is converted to an
  *         HRESULT value.
  */
-HRESULT M2GetLastError();
+HRESULT M2GetLastHRESULTError();
 
 /**
  * Retrieves the calling thread's last-error code value if you can be sure that

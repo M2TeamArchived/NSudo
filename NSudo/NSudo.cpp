@@ -276,6 +276,28 @@ BOOL WINAPI NSudoGetCurrentProcessSessionID(
     return result;
 }
 
+HRESULT M2AdjustTokenPrivileges(
+    _In_ HANDLE TokenHandle,
+    _In_ BOOL DisableAllPrivileges,
+    _In_opt_ PTOKEN_PRIVILEGES NewState,
+    _In_ DWORD BufferLength,
+    _Out_writes_bytes_to_opt_(BufferLength, *ReturnLength) PTOKEN_PRIVILEGES PreviousState,
+    _Out_opt_ PDWORD ReturnLength)
+{
+    if (AdjustTokenPrivileges(
+        TokenHandle,
+        DisableAllPrivileges,
+        NewState,
+        BufferLength,
+        PreviousState,
+        ReturnLength))
+    {
+        return S_OK;
+    }
+
+    return M2GetLastHRESULTError();
+}
+
 /*
 NSudoSetTokenPrivilege函数启用或禁用指定的访问令牌的指定特权。启用或禁用一
 个访问令牌的特权需要TOKEN_ADJUST_PRIVILEGES访问权限。
@@ -896,11 +918,10 @@ private:
             L"String",
             MAKEINTRESOURCEW(uID))))
         {
-            std::string RawString(
-                reinterpret_cast<const char*>(ResourceInfo.Pointer),
-                ResourceInfo.Size);
             // Raw string without the UTF-8 BOM. (0xEF,0xBB,0xBF)	
-            return M2MakeUTF16String(RawString.c_str() + 3);
+            return M2MakeUTF16String(std::string(
+                reinterpret_cast<const char*>(ResourceInfo.Pointer) + 3,
+                ResourceInfo.Size - 3));
         }
 
         return L"";
@@ -1850,7 +1871,7 @@ HRESULT NSudoShowAboutDialog(
         DialogContent.c_str());
 #endif
 
-    return M2GetLastError();
+    return M2GetLastHRESULTError();
 }
 
 #if defined(NSUDO_GUI_WINDOWS)
@@ -2330,6 +2351,8 @@ int NSudoMain()
     //SetThreadUILanguage(MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US));
 
     //SetThreadUILanguage(MAKELANGID(LANG_CHINESE, SUBLANG_CHINESE_TRADITIONAL));
+
+    //SetThreadUILanguage(1033);
 
     CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
 
