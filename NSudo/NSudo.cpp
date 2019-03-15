@@ -528,48 +528,6 @@ FuncEnd: // 扫尾
 }
 
 /*
-NSudoDuplicateProcessToken函数根据进程ID获取一个进程令牌的副本。
-The NSudoDuplicateProcessToken function obtains a copy of process token via
-Process ID.
-
-如果函数执行失败，返回值为NULL。调用GetLastError可获取详细错误码。
-If the function fails, the return value is NULL. To get extended error
-information, call GetLastError.
-*/
-BOOL WINAPI NSudoDuplicateProcessToken(
-    _In_ DWORD dwProcessID,
-    _In_ DWORD dwDesiredAccess,
-    _In_opt_ LPSECURITY_ATTRIBUTES lpTokenAttributes,
-    _In_ SECURITY_IMPERSONATION_LEVEL ImpersonationLevel,
-    _In_ TOKEN_TYPE TokenType,
-    _Outptr_ PHANDLE phToken)
-{
-    BOOL result = FALSE;
-
-    M2::CHandle hToken;
-
-    // 打开进程令牌
-    M2_PROCESS_ACCESS_TOKEN_SOURCE TokenSource;
-    TokenSource.Type = M2_PROCESS_TOKEN_SOURCE_TYPE::ProcessId;
-    TokenSource.ProcessId = dwProcessID;
-    result = SUCCEEDED(M2OpenProcessToken(
-        &hToken, &TokenSource, MAXIMUM_ALLOWED));
-    if (result)
-    {
-        // 复制令牌
-        result = DuplicateTokenEx(
-            hToken,
-            dwDesiredAccess,
-            lpTokenAttributes,
-            ImpersonationLevel,
-            TokenType,
-            phToken);
-    }
-
-    return result;
-}
-
-/*
 NSudoDuplicateSystemToken函数获取一个当前会话SYSTEM用户令牌的副本。
 The NSudoDuplicateSystemToken function obtains a copy of current session
 SYSTEM user token.
@@ -627,14 +585,25 @@ BOOL WINAPI NSudoDuplicateSystemToken(
             break;
         }
 
-        // 复制进程令牌
-        result = NSudoDuplicateProcessToken(
-            dwWinLogonPID,
-            dwDesiredAccess,
-            lpTokenAttributes,
-            ImpersonationLevel,
-            TokenType,
-            phToken);
+        M2::CHandle hToken;
+
+        // 打开进程令牌
+        M2_PROCESS_ACCESS_TOKEN_SOURCE TokenSource;
+        TokenSource.Type = M2_PROCESS_TOKEN_SOURCE_TYPE::ProcessId;
+        TokenSource.ProcessId = dwWinLogonPID;
+        result = SUCCEEDED(M2OpenProcessToken(
+            &hToken, &TokenSource, MAXIMUM_ALLOWED));
+        if (result)
+        {
+            // 复制进程令牌
+            result = DuplicateTokenEx(
+                hToken,
+                dwDesiredAccess,
+                lpTokenAttributes,
+                ImpersonationLevel,
+                TokenType,
+                phToken);
+        }
 
     } while (false);
 
@@ -665,14 +634,25 @@ BOOL WINAPI NSudoDuplicateServiceToken(
     result = SUCCEEDED(M2StartService(lpServiceName, &ssStatus));
     if (result)
     {
-        // 复制进程令牌
-        result = NSudoDuplicateProcessToken(
-            ssStatus.dwProcessId,
-            dwDesiredAccess,
-            lpTokenAttributes,
-            ImpersonationLevel,
-            TokenType,
-            phToken);
+        M2::CHandle hToken;
+
+        // 打开进程令牌
+        M2_PROCESS_ACCESS_TOKEN_SOURCE TokenSource;
+        TokenSource.Type = M2_PROCESS_TOKEN_SOURCE_TYPE::ProcessId;
+        TokenSource.ProcessId = ssStatus.dwProcessId;
+        result = SUCCEEDED(M2OpenProcessToken(
+            &hToken, &TokenSource, MAXIMUM_ALLOWED));
+        if (result)
+        {
+            // 复制进程令牌
+            result = DuplicateTokenEx(
+                hToken,
+                dwDesiredAccess,
+                lpTokenAttributes,
+                ImpersonationLevel,
+                TokenType,
+                phToken);
+        }
     }
 
     return result;
