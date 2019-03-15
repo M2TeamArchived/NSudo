@@ -611,54 +611,6 @@ BOOL WINAPI NSudoDuplicateSystemToken(
 }
 
 /*
-NSudoDuplicateServiceToken函数根据服务名获取一个服务进程令牌的副本。
-The NSudoDuplicateServiceToken function obtains a copy of service process
-token via service name.
-
-如果函数执行失败，返回值为NULL。调用GetLastError可获取详细错误码。
-If the function fails, the return value is NULL. To get extended error
-information, call GetLastError.
-*/
-BOOL WINAPI NSudoDuplicateServiceToken(
-    _In_ LPCWSTR lpServiceName,
-    _In_ DWORD dwDesiredAccess,
-    _In_opt_ LPSECURITY_ATTRIBUTES lpTokenAttributes,
-    _In_ SECURITY_IMPERSONATION_LEVEL ImpersonationLevel,
-    _In_ TOKEN_TYPE TokenType,
-    _Outptr_ PHANDLE phToken)
-{
-    BOOL result = FALSE;
-    SERVICE_STATUS_PROCESS ssStatus;
-
-    // 启动服务
-    result = SUCCEEDED(M2StartService(lpServiceName, &ssStatus));
-    if (result)
-    {
-        M2::CHandle hToken;
-
-        // 打开进程令牌
-        M2_PROCESS_ACCESS_TOKEN_SOURCE TokenSource;
-        TokenSource.Type = M2_PROCESS_TOKEN_SOURCE_TYPE::ProcessId;
-        TokenSource.ProcessId = ssStatus.dwProcessId;
-        result = SUCCEEDED(M2OpenProcessToken(
-            &hToken, &TokenSource, MAXIMUM_ALLOWED));
-        if (result)
-        {
-            // 复制进程令牌
-            result = DuplicateTokenEx(
-                hToken,
-                dwDesiredAccess,
-                lpTokenAttributes,
-                ImpersonationLevel,
-                TokenType,
-                phToken);
-        }
-    }
-
-    return result;
-}
-
-/*
 NSudoImpersonateAsSystem函数给当前线程分配一个SYSTEM用户模拟令牌。该函数还
 可以使当前线程停止使用模拟令牌。
 The NSudoImpersonateAsSystem function assigns an SYSTEM user impersonation
@@ -1524,24 +1476,21 @@ NSUDO_MESSAGE NSudoCommandLineParser(
         return NSUDO_MESSAGE::INVALID_COMMAND_PARAMETER;
     }
 
+    M2::CHandle OriginalToken;
+
     if (NSudoOptionUserValue::TrustedInstaller == UserMode)
     {
-        if (!NSudoDuplicateServiceToken(
-            L"TrustedInstaller",
-            MAXIMUM_ALLOWED,
-            nullptr,
-            SecurityIdentification,
-            TokenPrimary,
-            &hToken))
+        SERVICE_STATUS_PROCESS ssStatus;
+
+        if (FAILED(M2StartService(L"TrustedInstaller", &ssStatus)))
         {
             return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
         }
 
-        if (!SetTokenInformation(
-            hToken,
-            TokenSessionId,
-            (PVOID)&dwSessionID,
-            sizeof(DWORD)))
+        M2_PROCESS_ACCESS_TOKEN_SOURCE TokenSource;
+        TokenSource.Type = M2_PROCESS_TOKEN_SOURCE_TYPE::ProcessId;
+        TokenSource.ProcessId = ssStatus.dwProcessId;
+        if (FAILED(M2OpenProcessToken(&OriginalToken, &TokenSource, MAXIMUM_ALLOWED)))
         {
             return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
         }
@@ -1553,14 +1502,14 @@ NSUDO_MESSAGE NSudoCommandLineParser(
             nullptr,
             SecurityIdentification,
             TokenPrimary,
-            &hToken))
+            &OriginalToken))
         {
             return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
         }
     }
     else if (NSudoOptionUserValue::CurrentUser == UserMode)
     {
-        if (!WTSQueryUserToken(dwSessionID, &hToken))
+        if (!WTSQueryUserToken(dwSessionID, &OriginalToken))
         {
             return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
         }
@@ -1573,7 +1522,7 @@ NSUDO_MESSAGE NSudoCommandLineParser(
             nullptr,
             SecurityIdentification,
             TokenPrimary,
-            &hToken))
+            &OriginalToken))
         {
             return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
         }
@@ -1591,10 +1540,30 @@ NSUDO_MESSAGE NSudoCommandLineParser(
             return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
         }
 
-        if (!NSudoCreateLUAToken(&hToken, hTempToken))
+        if (!NSudoCreateLUAToken(&OriginalToken, hTempToken))
         {
             return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
         }
+    }
+
+    if (!DuplicateTokenEx(
+        OriginalToken,
+        MAXIMUM_ALLOWED,
+        nullptr,
+        SecurityIdentification,
+        TokenPrimary,
+        &hToken))
+    {
+        return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
+    }
+
+    if (!SetTokenInformation(
+        hToken,
+        TokenSessionId,
+        (PVOID)&dwSessionID,
+        sizeof(DWORD)))
+    {
+        return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
     }
 
     if (NSudoOptionPrivilegesValue::EnableAllPrivileges == PrivilegesMode)
