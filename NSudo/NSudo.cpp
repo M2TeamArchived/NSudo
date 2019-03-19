@@ -288,6 +288,49 @@ BOOL WINAPI NSudoSetTokenPrivilege(
         hExistingToken, FALSE, &TP, 0, nullptr, nullptr));
 }
 
+template<typename InformationType>
+HRESULT M2GetTokenInformation(
+    _Out_ M2::CMemory<InformationType>& OutputInformation,
+    _In_ HANDLE TokenHandle,
+    _In_ TOKEN_INFORMATION_CLASS TokenInformationClass)
+{
+    DWORD LastError = ERROR_SUCCESS;
+    DWORD Length = 0;
+
+    GetTokenInformation(
+        TokenHandle,
+        TokenInformationClass,
+        nullptr,
+        0,
+        &Length);
+    LastError = M2GetLastErrorKnownFailedCall();
+    if (LastError == ERROR_INSUFFICIENT_BUFFER)
+    {
+        if (OutputInformation.Alloc(Length))
+        {
+            if (GetTokenInformation(
+                TokenHandle,
+                TokenInformationClass,
+                OutputInformation,
+                Length,
+                &Length))
+            {
+                LastError = ERROR_SUCCESS;
+            }
+            else
+            {
+                LastError = M2GetLastErrorKnownFailedCall();
+            }
+        }
+        else
+        {
+            LastError = ERROR_NOT_ENOUGH_MEMORY;
+        }
+    }
+
+    return HRESULT_FROM_WIN32(LastError);
+}
+
 /*
 NSudoSetTokenAllPrivileges函数启用或禁用指定的访问令牌的所有特权。启用或禁
 用一个访问令牌的特权需要TOKEN_ADJUST_PRIVILEGES访问权限。
@@ -305,33 +348,21 @@ BOOL WINAPI NSudoSetTokenAllPrivileges(
 {
     BOOL result = FALSE;
     M2::CMemory<PTOKEN_PRIVILEGES> pTPs;
-    DWORD Length = 0;
 
-    // 获取特权信息大小
-    GetTokenInformation(
-        hExistingToken, TokenPrivileges, nullptr, 0, &Length);
-    result = (GetLastError() == ERROR_INSUFFICIENT_BUFFER);
+    result = SUCCEEDED(M2GetTokenInformation(
+        pTPs,
+        hExistingToken,
+        TokenPrivileges));
     if (result)
     {
-        // 分配内存
-        if (pTPs.Alloc(Length))
-        {
-            // 获取特权信息
-            result = GetTokenInformation(
-                hExistingToken, TokenPrivileges, pTPs, Length, &Length);
-            if (result)
-            {
-                // 设置特权信息
-                for (DWORD i = 0; i < pTPs->PrivilegeCount; ++i)
-                    pTPs->Privileges[i].Attributes =
-                    (DWORD)(bEnable ? SE_PRIVILEGE_ENABLED : 0);
+        // 设置特权信息
+        for (DWORD i = 0; i < pTPs->PrivilegeCount; ++i)
+            pTPs->Privileges[i].Attributes =
+            (DWORD)(bEnable ? SE_PRIVILEGE_ENABLED : 0);
 
-                // 设置进程特权
-                result = SUCCEEDED(M2AdjustTokenPrivileges(
-                    hExistingToken, FALSE, pTPs, 0, nullptr, nullptr));
-            }
-        }
-        else SetLastError(ERROR_NOT_ENOUGH_MEMORY);
+        // 设置进程特权
+        result = SUCCEEDED(M2AdjustTokenPrivileges(
+            hExistingToken, FALSE, pTPs, 0, nullptr, nullptr));
     }
 
     return result;
@@ -370,6 +401,8 @@ BOOL WINAPI NSudoSetTokenIntegrityLevel(
 
     return result;
 }
+
+
 
 /*
 NSudoCreateLUAToken函数从一个现有的访问令牌创建一个新的LUA访问令牌。
@@ -411,22 +444,11 @@ BOOL WINAPI NSudoCreateLUAToken(
         hToken, TOKEN_INTEGRITY_LEVELS_LIST::MediumLevel);
     if (!result) goto FuncEnd;
 
-    // 获取令牌对应的用户账户SID信息大小
-    GetTokenInformation(
-        hToken, TokenUser, nullptr, 0, &Length);
-    result = (GetLastError() == ERROR_INSUFFICIENT_BUFFER);
-    if (!result) goto FuncEnd;
-
-    // 为令牌对应的用户账户SID信息分配内存
-    if (!pTokenUser.Alloc(Length))
-    {
-        SetLastError(ERROR_NOT_ENOUGH_MEMORY);
-        goto FuncEnd;
-    }
-
     // 获取令牌对应的用户账户SID信息
-    result = GetTokenInformation(
-        hToken, TokenUser, pTokenUser, Length, &Length);
+    result = SUCCEEDED(M2GetTokenInformation(
+        pTokenUser,
+        hToken,
+        TokenUser));
     if (!result) goto FuncEnd;
 
     // 设置令牌Owner为当前用户
@@ -435,22 +457,11 @@ BOOL WINAPI NSudoCreateLUAToken(
         hToken, TokenOwner, &Owner, sizeof(TOKEN_OWNER));
     if (!result) goto FuncEnd;
 
-    // 获取令牌的DACL信息大小
-    GetTokenInformation(
-        hToken, TokenDefaultDacl, nullptr, 0, &Length);
-    result = (GetLastError() == ERROR_INSUFFICIENT_BUFFER);
-    if (!result) goto FuncEnd;
-
-    // 为令牌的DACL信息分配内存
-    if (!pTokenDacl.Alloc(Length))
-    {
-        SetLastError(ERROR_NOT_ENOUGH_MEMORY);
-        goto FuncEnd;
-    }
-
     // 获取令牌的DACL信息
-    result = GetTokenInformation(
-        hToken, TokenDefaultDacl, pTokenDacl, Length, &Length);
+    result = SUCCEEDED(M2GetTokenInformation(
+        pTokenDacl,
+        hToken,
+        TokenDefaultDacl));
     if (!result) goto FuncEnd;
 
     // 获取管理员组SID
