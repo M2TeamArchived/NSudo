@@ -776,18 +776,20 @@ HRESULT M2AdjustTokenPrivileges(
     _Out_opt_ PTOKEN_PRIVILEGES PreviousState,
     _Out_opt_ PDWORD ReturnLength)
 {
-    if (AdjustTokenPrivileges(
+    BOOL Result = AdjustTokenPrivileges(
         TokenHandle,
         DisableAllPrivileges,
         NewState,
         BufferLength,
         PreviousState,
-        ReturnLength))
-    {
-        return M2GetLastHRESULTError();
-    }
+        ReturnLength);
 
-    return M2GetLastHRESULTErrorKnownFailedCall();
+    DWORD LastError = GetLastError();
+
+    if (!Result && LastError == ERROR_SUCCESS)
+        LastError = ERROR_FUNCTION_FAILED;
+
+    return HRESULT_FROM_WIN32(LastError);
 }
 
 /**
