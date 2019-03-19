@@ -974,17 +974,21 @@ HRESULT M2AllocMemory(
  * enables you to resize a memory block and change other memory block
  * properties. The allocated memory is not movable.
  *
- * @param AllocatedMemoryBlock A pointer to the block of memory that the
- *                             function reallocates. This pointer is returned
- *                             by an earlier call to the M2AllocMemory or
- *                             M2ReAllocMemory function.
+ * @param NewAllocatedMemoryBlock A pointer to the allocated memory block.
+ * @param OldAllocatedMemoryBlock A pointer to the block of memory that the
+ *                                function reallocates. This pointer is
+ *                                returned by an earlier call to the
+ *                                M2AllocMemory or M2ReAllocMemory function.
  * @param NewMemoryBlockSize The new size of the memory block, in bytes. A
  *                           memory block's size can be increased or decreased
  *                           by using this function.
- * @return HRESULT. If the function succeeds, the return value is S_OK.
+ * @return HRESULT. If the function succeeds, the return value is S_OK. If the
+ *         function fails, the original memory is not freed, and the original
+ *         handle and pointer are still valid.
  */
 HRESULT M2ReAllocMemory(
-    _Inout_ PVOID* AllocatedMemoryBlock,
+    _Out_ PVOID* NewAllocatedMemoryBlock,
+    _In_ PVOID OldAllocatedMemoryBlock,
     _In_ SIZE_T NewMemoryBlockSize);
 
 /**
