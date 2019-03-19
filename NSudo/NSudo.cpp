@@ -527,87 +527,46 @@ FuncEnd: // 扫尾
     return result;
 }
 
-/*
-NSudoDuplicateSystemToken函数获取一个当前会话SYSTEM用户令牌的副本。
-The NSudoDuplicateSystemToken function obtains a copy of current session
-SYSTEM user token.
-
-如果函数执行失败，返回值为NULL。调用GetLastError可获取详细错误码。
-If the function fails, the return value is NULL. To get extended error
-information, call GetLastError.
-*/
-BOOL WINAPI NSudoDuplicateSystemToken(
-    _In_ DWORD dwDesiredAccess,
-    _In_opt_ LPSECURITY_ATTRIBUTES lpTokenAttributes,
-    _In_ SECURITY_IMPERSONATION_LEVEL ImpersonationLevel,
-    _In_ TOKEN_TYPE TokenType,
-    _Outptr_ PHANDLE phToken)
+HRESULT M2QueryWinLogonProcessId(
+    _Out_ PDWORD ProcessId,
+    _In_ DWORD SessionId)
 {
-    BOOL result = FALSE;
-    DWORD dwWinLogonPID = (DWORD)-1;
-    DWORD dwSessionID = (DWORD)-1;
     M2::CWTSMemory<PWTS_PROCESS_INFOW> pProcesses;
     DWORD dwProcessCount = 0;
 
-    do
+    if (WTSEnumerateProcessesW(
+        WTS_CURRENT_SERVER_HANDLE,
+        0,
+        1,
+        &pProcesses,
+        &dwProcessCount))
     {
-        // 获取当前进程令牌会话ID
-        result = NSudoGetCurrentProcessSessionID(&dwSessionID);
-        if (!result) break;
-
-        // 遍历进程寻找winlogon进程并获取PID
-        if (WTSEnumerateProcessesW(
-            WTS_CURRENT_SERVER_HANDLE,
-            0,
-            1,
-            &pProcesses,
-            &dwProcessCount))
+        for (DWORD i = 0; i < dwProcessCount; ++i)
         {
-            for (DWORD i = 0; i < dwProcessCount; ++i)
-            {
-                PWTS_PROCESS_INFOW pProcess = &pProcesses[i];
+            PWTS_PROCESS_INFOW pProcess = &pProcesses[i];
 
-                if (pProcess->SessionId != dwSessionID) continue;
-                if (pProcess->pProcessName == nullptr) continue;
+            if (pProcess->SessionId != SessionId)
+                continue;
 
-                if (_wcsicmp(L"winlogon.exe", pProcess->pProcessName) == 0)
-                {
-                    dwWinLogonPID = pProcess->ProcessId;
-                    break;
-                }
-            }
+            if (!pProcess->pProcessName)
+                continue;
+
+            if (_wcsicmp(L"winlogon.exe", pProcess->pProcessName) != 0)
+                continue;
+
+            if (!pProcess->pUserSid)
+                continue;
+
+            if (!IsWellKnownSid(
+                pProcess->pUserSid, WELL_KNOWN_SID_TYPE::WinLocalSystemSid))
+                continue;
+
+            *ProcessId = pProcess->ProcessId;
+            return S_OK;
         }
+    }
 
-        // 如果没找到进程，则返回错误
-        if (dwWinLogonPID == -1)
-        {
-            SetLastError(ERROR_NOT_FOUND);
-            break;
-        }
-
-        M2::CHandle hToken;
-
-        // 打开进程令牌
-        M2_PROCESS_ACCESS_TOKEN_SOURCE TokenSource;
-        TokenSource.Type = M2_PROCESS_TOKEN_SOURCE_TYPE::ProcessId;
-        TokenSource.ProcessId = dwWinLogonPID;
-        result = SUCCEEDED(M2OpenProcessToken(
-            &hToken, &TokenSource, MAXIMUM_ALLOWED));
-        if (result)
-        {
-            // 复制进程令牌
-            result = DuplicateTokenEx(
-                hToken,
-                dwDesiredAccess,
-                lpTokenAttributes,
-                ImpersonationLevel,
-                TokenType,
-                phToken);
-        }
-
-    } while (false);
-
-    return result;
+    return HRESULT_FROM_WIN32(ERROR_NOT_FOUND);
 }
 
 /*
@@ -624,25 +583,44 @@ information, call GetLastError.
 BOOL WINAPI NSudoImpersonateAsSystem()
 {
     BOOL result = FALSE;
-    M2::CHandle hToken;
 
-    // 获取当前会话SYSTEM用户令牌副本
-    result = NSudoDuplicateSystemToken(
-        MAXIMUM_ALLOWED,
-        nullptr,
-        SecurityImpersonation,
-        TokenImpersonation,
-        &hToken);
-    if (result)
+    DWORD dwSessionID = static_cast<DWORD>(-1);
+    DWORD dwWinLogonPID = static_cast<DWORD>(-1);
+
+    M2::CHandle OriginalToken;
+    M2::CHandle Token;
+
+    do
     {
-        // 启用令牌全部特权
-        result = NSudoSetTokenAllPrivileges(hToken, true);
+        result = NSudoGetCurrentProcessSessionID(&dwSessionID);
+        if (!result) break;
+
+        if (FAILED(M2QueryWinLogonProcessId(&dwWinLogonPID, dwSessionID)))
+            break;
+
+        M2_PROCESS_ACCESS_TOKEN_SOURCE TokenSource;
+        TokenSource.Type = M2_PROCESS_TOKEN_SOURCE_TYPE::ProcessId;
+        TokenSource.ProcessId = dwWinLogonPID;
+        if (FAILED(M2OpenProcessToken(
+            &OriginalToken, &TokenSource, MAXIMUM_ALLOWED)))
+            break;
+
+        result = DuplicateTokenEx(
+            OriginalToken,
+            MAXIMUM_ALLOWED,
+            nullptr,
+            SecurityImpersonation,
+            TokenImpersonation,
+            &Token);
+        if (!result) break;
+
+        result = NSudoSetTokenAllPrivileges(Token, true);
         if (result)
         {
-            // 模拟令牌
-            result = SetThreadToken(nullptr, hToken);
+            result = SetThreadToken(nullptr, Token);
         }
-    }
+
+    } while (false);
 
     return result;
 }
@@ -1497,12 +1475,17 @@ NSUDO_MESSAGE NSudoCommandLineParser(
     }
     else if (NSudoOptionUserValue::System == UserMode)
     {
-        if (!NSudoDuplicateSystemToken(
-            MAXIMUM_ALLOWED,
-            nullptr,
-            SecurityIdentification,
-            TokenPrimary,
-            &OriginalToken))
+        DWORD dwWinLogonPID = static_cast<DWORD>(-1);
+
+        if (FAILED(M2QueryWinLogonProcessId(&dwWinLogonPID, dwSessionID)))
+        {
+            return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
+        }
+
+        M2_PROCESS_ACCESS_TOKEN_SOURCE TokenSource;
+        TokenSource.Type = M2_PROCESS_TOKEN_SOURCE_TYPE::ProcessId;
+        TokenSource.ProcessId = dwWinLogonPID;
+        if (FAILED(M2OpenProcessToken(&OriginalToken, &TokenSource, MAXIMUM_ALLOWED)))
         {
             return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
         }
