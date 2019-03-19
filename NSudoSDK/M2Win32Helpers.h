@@ -113,7 +113,8 @@ namespace M2
     };
 
     template<typename TMemoryBlock>
-    class CWTSMemory : public CObject<TMemoryBlock, CWTSMemoryDefiner<TMemoryBlock>>
+    class CWTSMemory :
+        public CObject<TMemoryBlock, CWTSMemoryDefiner<TMemoryBlock>>
     {
 
     };

@@ -954,4 +954,81 @@ HRESULT M2OpenProcessToken(
     _In_ PM2_PROCESS_ACCESS_TOKEN_SOURCE TokenSource,
     _In_ DWORD DesiredAccess);
 
+/**
+ * Allocates a block of memory from the default heap of the calling process.
+ * The allocated memory will be initialized to zero. The allocated memory is
+ * not movable.
+ *
+ * @param AllocatedMemoryBlock A pointer to the allocated memory block.
+ * @param MemoryBlockSize The number of bytes to be allocated.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ */
+HRESULT M2AllocMemory(
+    _Out_ PVOID* AllocatedMemoryBlock,
+    _In_ SIZE_T MemoryBlockSize);
+
+/**
+ * Reallocates a block of memory from the default heap of the calling process.
+ * If the reallocation request is for a larger size, the additional region of
+ * memory beyond the original size be initialized to zero. This function
+ * enables you to resize a memory block and change other memory block
+ * properties. The allocated memory is not movable.
+ *
+ * @param AllocatedMemoryBlock A pointer to the block of memory that the
+ *                             function reallocates. This pointer is returned
+ *                             by an earlier call to the M2AllocMemory or
+ *                             M2ReAllocMemory function.
+ * @param NewMemoryBlockSize The new size of the memory block, in bytes. A
+ *                           memory block's size can be increased or decreased
+ *                           by using this function.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ */
+HRESULT M2ReAllocMemory(
+    _Inout_ PVOID* AllocatedMemoryBlock,
+    _In_ SIZE_T NewMemoryBlockSize);
+
+/**
+ * Frees a memory block allocated from a heap by the M2AllocMemory and
+ * M2ReAllocMemory function.
+ *
+ * @param AllocatedMemoryBlock A pointer to the memory block to be freed. This
+ * pointer is returned by the M2AllocMemory or M2ReAllocMemory function. If
+ * this pointer is nullptr, the behavior is undefined.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ */
+HRESULT M2FreeMemory(
+    _In_ PVOID AllocatedMemoryBlock);
+
+namespace M2
+{
+    /**
+     * The handle definer for memory block allocated by the M2AllocMemory and
+     * M2ReAllocMemory function..
+     */
+#pragma region CM2Memory
+
+    template<typename TMemory>
+    struct CM2MemoryDefiner
+    {
+        static inline TMemory GetInvalidValue()
+        {
+            return nullptr;
+        }
+
+        static inline void Close(TMemory Object)
+        {
+            M2FreeMemory(Object);
+        }
+    };
+
+    template<typename TMemoryBlock>
+    class CM2Memory :
+        public CObject<TMemoryBlock, CM2MemoryDefiner<TMemoryBlock>>
+    {
+
+    };
+
+#pragma endregion
+}
+
 #endif // _M2_BASE_HELPERS_
