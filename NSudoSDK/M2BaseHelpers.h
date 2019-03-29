@@ -1051,4 +1051,84 @@ namespace M2
 #pragma endregion
 }
 
+/**
+ * Retrieves a specified type of information about an access token. The calling
+ * process must have appropriate access rights to obtain the information.
+ *
+ * @param TokenHandle A handle to an access token from which information is
+ *                    retrieved.
+ * @param TokenInformationClass Specifies a value from the
+ *                              TOKEN_INFORMATION_CLASS enumerated type to
+ *                              identify the type of information the function
+ *                              retrieves.
+ * @param TokenInformation A pointer to a buffer the function fills with the
+ *                         requested information.
+ * @param TokenInformationLength Specifies the size, in bytes, of the buffer
+ *                               pointed to by the TokenInformation parameter.
+ * @param ReturnLength A pointer to a variable that receives the number of
+ *                     bytes needed for the buffer pointed to by the
+ *                     TokenInformation parameter.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ * @remark For more information, see GetTokenInformation.
+ */
+HRESULT M2GetTokenInformation(
+    _In_ HANDLE TokenHandle,
+    _In_ TOKEN_INFORMATION_CLASS TokenInformationClass,
+    _Out_opt_ LPVOID TokenInformation,
+    _In_ DWORD TokenInformationLength,
+    _Out_ PDWORD ReturnLength);
+
+/**
+ * Retrieves a specified type of information about an access token. The calling
+ * process must have appropriate access rights to obtain the information.
+ *
+ * @param OutputInformation A pointer to a buffer the function fills with the
+ *                          requested information. When you have finished using
+ *                          the information, free it by calling the
+ *                          M2FreeMemory function. You should also set the
+ *                          pointer to NULL.
+ * @param TokenHandle A handle to an access token from which information is
+ *                    retrieved.
+ * @param TokenInformationClass Specifies a value from the
+ *                              TOKEN_INFORMATION_CLASS enumerated type to
+ *                              identify the type of information the function
+ *                              retrieves.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ * @remark For more information, see GetTokenInformation.
+ */
+HRESULT M2GetTokenInformation(
+    _Out_ PVOID* OutputInformation,
+    _In_ HANDLE TokenHandle,
+    _In_ TOKEN_INFORMATION_CLASS TokenInformationClass);
+
+/**
+ * Retrieves a specified type of information about an access token. The calling
+ * process must have appropriate access rights to obtain the information.
+ *
+ * @param OutputInformation A pointer to a buffer the function fills with the
+ *                          requested information. When you have finished using
+ *                          the information, free it by calling the
+ *                          M2FreeMemory function. You should also set the
+ *                          pointer to NULL.
+ * @param TokenHandle A handle to an access token from which information is
+ *                    retrieved.
+ * @param TokenInformationClass Specifies a value from the
+ *                              TOKEN_INFORMATION_CLASS enumerated type to
+ *                              identify the type of information the function
+ *                              retrieves.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ * @remark For more information, see GetTokenInformation.
+ */
+template<typename InformationType>
+HRESULT M2GetTokenInformation(
+    _Out_ InformationType& OutputInformation,
+    _In_ HANDLE TokenHandle,
+    _In_ TOKEN_INFORMATION_CLASS TokenInformationClass)
+{
+    return M2GetTokenInformation(
+        reinterpret_cast<PVOID*>(&OutputInformation),
+        TokenHandle,
+        TokenInformationClass);
+}
+
 #endif // _M2_BASE_HELPERS_

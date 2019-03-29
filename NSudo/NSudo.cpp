@@ -288,49 +288,6 @@ BOOL WINAPI NSudoSetTokenPrivilege(
         hExistingToken, FALSE, &TP, 0, nullptr, nullptr));
 }
 
-template<typename InformationType>
-HRESULT M2GetTokenInformation(
-    _Out_ M2::CMemory<InformationType>& OutputInformation,
-    _In_ HANDLE TokenHandle,
-    _In_ TOKEN_INFORMATION_CLASS TokenInformationClass)
-{
-    DWORD LastError = ERROR_SUCCESS;
-    DWORD Length = 0;
-
-    GetTokenInformation(
-        TokenHandle,
-        TokenInformationClass,
-        nullptr,
-        0,
-        &Length);
-    LastError = M2GetLastErrorKnownFailedCall();
-    if (LastError == ERROR_INSUFFICIENT_BUFFER)
-    {
-        if (OutputInformation.Alloc(Length))
-        {
-            if (GetTokenInformation(
-                TokenHandle,
-                TokenInformationClass,
-                OutputInformation,
-                Length,
-                &Length))
-            {
-                LastError = ERROR_SUCCESS;
-            }
-            else
-            {
-                LastError = M2GetLastErrorKnownFailedCall();
-            }
-        }
-        else
-        {
-            LastError = ERROR_NOT_ENOUGH_MEMORY;
-        }
-    }
-
-    return HRESULT_FROM_WIN32(LastError);
-}
-
 /*
 NSudoSetTokenAllPrivileges函数启用或禁用指定的访问令牌的所有特权。启用或禁
 用一个访问令牌的特权需要TOKEN_ADJUST_PRIVILEGES访问权限。
@@ -347,7 +304,7 @@ BOOL WINAPI NSudoSetTokenAllPrivileges(
     _In_ bool bEnable)
 {
     BOOL result = FALSE;
-    M2::CMemory<PTOKEN_PRIVILEGES> pTPs;
+    M2::CM2Memory<PTOKEN_PRIVILEGES> pTPs;
 
     result = SUCCEEDED(M2GetTokenInformation(
         pTPs,
@@ -423,8 +380,8 @@ BOOL WINAPI NSudoCreateLUAToken(
     TOKEN_OWNER Owner = { 0 };
     TOKEN_DEFAULT_DACL NewTokenDacl = { 0 };
     M2::CHandle hToken;
-    M2::CMemory<PTOKEN_USER> pTokenUser;
-    M2::CMemory<PTOKEN_DEFAULT_DACL> pTokenDacl;
+    M2::CM2Memory<PTOKEN_USER> pTokenUser;
+    M2::CM2Memory<PTOKEN_DEFAULT_DACL> pTokenDacl;
     M2::CSID pAdminSid;
     M2::CMemory<PACL> NewDefaultDacl;
     PACCESS_ALLOWED_ACE pTempAce = nullptr;
