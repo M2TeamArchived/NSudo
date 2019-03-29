@@ -206,12 +206,12 @@ HRESULT M2GetLastHRESULTErrorKnownFailedCall()
  * @return HRESULT. If the function succeeds, the return value is S_OK.
  */
 HRESULT M2GetProcAddress(
-    _Out_ FARPROC& lpProcAddress,
+    _Out_ FARPROC* lpProcAddress,
     _In_ HMODULE hModule,
     _In_ LPCSTR lpProcName)
 {
-    lpProcAddress = GetProcAddress(hModule, lpProcName);
-    return (!lpProcAddress) ? S_OK : M2GetLastHRESULTErrorKnownFailedCall();
+    *lpProcAddress = GetProcAddress(hModule, lpProcName);
+    return (!*lpProcAddress) ? S_OK : M2GetLastHRESULTErrorKnownFailedCall();
 }
 
 /**
