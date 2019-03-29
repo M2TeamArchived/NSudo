@@ -131,24 +131,6 @@ DWORD CreateCommandStoreItem(
     return dwError;
 }
 
-std::wstring NSudoExpandEnvironmentStrings(
-    const std::wstring& String)
-{
-    std::wstring ExpandedString;
-
-    ExpandedString.resize(static_cast<size_t>(ExpandEnvironmentStringsW(
-        String.c_str(),
-        nullptr,
-        0) - 1));
-
-    ExpandEnvironmentStringsW(
-        String.c_str(),
-        &ExpandedString[0],
-        static_cast<DWORD>(ExpandedString.size() + 1));
-
-    return ExpandedString;
-}
-
 /*
    访问令牌特权定义
    The definitions of the Token Privileges
@@ -642,30 +624,37 @@ bool NSudoCreateProcess(
     {
         if (CreateEnvironmentBlock(&lpEnvironment, hCurrentToken, TRUE))
         {
-            result = CreateProcessAsUserW(
-                hToken,
-                nullptr,
-                const_cast<LPWSTR>(NSudoExpandEnvironmentStrings(lpCommandLine).c_str()),
-                nullptr,
-                nullptr,
-                FALSE,
-                dwCreationFlags,
-                lpEnvironment,
-                lpCurrentDirectory,
-                &StartupInfo,
-                &ProcessInfo);
+            std::wstring ExpandedString;
 
-            if (result)
+            if (SUCCEEDED(M2ExpandEnvironmentStrings(
+                ExpandedString,
+                lpCommandLine)))
             {
-                SetPriorityClass(ProcessInfo.hProcess, ProcessPriority);
+                result = CreateProcessAsUserW(
+                    hToken,
+                    nullptr,
+                    const_cast<LPWSTR>(ExpandedString.c_str()),
+                    nullptr,
+                    nullptr,
+                    FALSE,
+                    dwCreationFlags,
+                    lpEnvironment,
+                    lpCurrentDirectory,
+                    &StartupInfo,
+                    &ProcessInfo);
 
-                ResumeThread(ProcessInfo.hThread);
+                if (result)
+                {
+                    SetPriorityClass(ProcessInfo.hProcess, ProcessPriority);
 
-                WaitForSingleObjectEx(
-                    ProcessInfo.hProcess, WaitInterval, FALSE);
+                    ResumeThread(ProcessInfo.hThread);
 
-                CloseHandle(ProcessInfo.hProcess);
-                CloseHandle(ProcessInfo.hThread);
+                    WaitForSingleObjectEx(
+                        ProcessInfo.hProcess, WaitInterval, FALSE);
+
+                    CloseHandle(ProcessInfo.hProcess);
+                    CloseHandle(ProcessInfo.hThread);
+                }
             }
 
             DestroyEnvironmentBlock(lpEnvironment);
