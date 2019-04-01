@@ -6,6 +6,7 @@
 [![latestdownloads.badge]][latestdownloads.link]
 [![totaldownloads.badge]][totaldownloads.link]
 [![license.badge]][license.link]
+[![996.icu](https://img.shields.io/badge/link-996.icu-red.svg)](https://996.icu)
 
 - [简体中文](自述.md)
 - [繁體中文](說明.md)
