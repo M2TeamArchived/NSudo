@@ -1,11 +1,11 @@
 ﻿![Logo](Logo.png)
 # NSudo - A Powerful System Administration Tool
 
-[![appveyor.badge]][appveyor.link] 
-[![release.badge]][release.link]
-[![latestdownloads.badge]][latestdownloads.link]
-[![totaldownloads.badge]][totaldownloads.link]
-[![license.badge]][license.link]
+[![AppVeyor](https://ci.appveyor.com/api/projects/status/github/M2Team/NSudo?branch=master&svg=true)](https://ci.appveyor.com/project/MouriNaruto/nsudo)
+[![Latest release](https://img.shields.io/github/release/M2Team/NSudo.svg)](https://github.com/M2Team/NSudo/releases/latest)
+[![Latest release downloads](https://img.shields.io/github/downloads/M2Team/NSudo/latest/total.svg)](https://github.com/M2Team/NSudo/releases/latest)
+[![Total downloads](https://img.shields.io/github/downloads/M2Team/NSudo/total.svg)](https://github.com/M2Team/NSudo/releases)
+[![License](https://img.shields.io/github/license/M2Team/NSudo.svg)](LICENSE)
 [![996.icu](https://img.shields.io/badge/link-996.icu-red.svg)](https://996.icu)
 
 - [简体中文](自述.md)
@@ -166,14 +166,3 @@ For example:
 - E-mail: Mouri_Naruto@Outlook.com
 
 ## Have a good time -- M2-Team
-
-[appveyor.badge]: https://ci.appveyor.com/api/projects/status/github/M2Team/NSudo?branch=master&svg=true
-[appveyor.link]: https://ci.appveyor.com/project/MouriNaruto/nsudo
-[release.badge]: https://img.shields.io/github/release/M2Team/NSudo.svg
-[release.link]: https://github.com/M2Team/NSudo/releases/latest
-[latestdownloads.badge]: https://img.shields.io/github/downloads/M2Team/NSudo/latest/total.svg
-[latestdownloads.link]: https://github.com/M2Team/NSudo/releases/latest
-[totaldownloads.badge]: https://img.shields.io/github/downloads/M2Team/NSudo/total.svg
-[totaldownloads.link]: https://github.com/M2Team/NSudo/releases
-[license.badge]: https://img.shields.io/github/license/M2Team/NSudo.svg
-[license.link]: LICENSE
