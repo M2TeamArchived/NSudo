@@ -3,11 +3,12 @@
 - [简体中文](更新日志.md)
 - [繁體中文](變更紀錄.md)
 
-**NSudo 7.0.1902.11**
+**NSudo 7.0.1904.3**
 - Update JSON for Modern C++ to 3.5.0.
 - Use FILE instead of std::ifstream to reduce the memory usage and binary size.
 - Merge NSudo.exe to NSudoG.exe.
 - Use new compiler options to reduce the binary size.
+- Update to Visual Studio 2019.
 
 **NSudo 6.2.1812.31**
 - Add French translations. (Contributed by Thomas Dubreuil.)
