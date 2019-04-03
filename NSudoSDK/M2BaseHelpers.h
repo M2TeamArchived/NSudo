@@ -438,14 +438,14 @@ namespace M2
         CSRWLock* m_SRWLock;
 
     public:
-        _Acquires_lock_(m_pCriticalSection) AutoSRWExclusiveLock(
+        _Acquires_lock_(m_SRWLock) AutoSRWExclusiveLock(
             CSRWLock& SRWLock) :
             m_SRWLock(&SRWLock)
         {
             m_SRWLock->ExclusiveLock();
         }
 
-        _Releases_lock_(m_pCriticalSection) ~AutoSRWExclusiveLock()
+        _Releases_lock_(m_SRWLock) ~AutoSRWExclusiveLock()
         {
             m_SRWLock->ExclusiveUnlock();
         }
@@ -464,14 +464,14 @@ namespace M2
         bool m_IsLocked = false;
 
     public:
-        _Acquires_lock_(m_pCriticalSection) AutoTrySRWExclusiveLock(
+        _Acquires_lock_(m_SRWLock) AutoTrySRWExclusiveLock(
             CSRWLock& SRWLock) :
             m_SRWLock(&SRWLock)
         {
             this->m_IsLocked = m_SRWLock->TryExclusiveLock();
         }
 
-        _Releases_lock_(m_pCriticalSection) ~AutoTrySRWExclusiveLock()
+        _Releases_lock_(m_SRWLock) ~AutoTrySRWExclusiveLock()
         {
             m_SRWLock->ExclusiveUnlock();
         }
@@ -494,14 +494,14 @@ namespace M2
         CSRWLock* m_SRWLock;
 
     public:
-        _Acquires_lock_(m_pCriticalSection) AutoSRWSharedLock(
+        _Acquires_lock_(m_SRWLock) AutoSRWSharedLock(
             CSRWLock& SRWLock) :
             m_SRWLock(&SRWLock)
         {
             m_SRWLock->SharedLock();
         }
 
-        _Releases_lock_(m_pCriticalSection) ~AutoSRWSharedLock()
+        _Releases_lock_(m_SRWLock) ~AutoSRWSharedLock()
         {
             m_SRWLock->SharedUnlock();
         }
@@ -520,14 +520,14 @@ namespace M2
         bool m_IsLocked = false;
 
     public:
-        _Acquires_lock_(m_pCriticalSection) AutoTrySRWSharedLock(
+        _Acquires_lock_(m_SRWLock) AutoTrySRWSharedLock(
             CSRWLock& SRWLock) :
             m_SRWLock(&SRWLock)
         {
             this->m_IsLocked = m_SRWLock->TrySharedLock();
         }
 
-        _Releases_lock_(m_pCriticalSection) ~AutoTrySRWSharedLock()
+        _Releases_lock_(m_SRWLock) ~AutoTrySRWSharedLock()
         {
             m_SRWLock->SharedUnlock();
         }
