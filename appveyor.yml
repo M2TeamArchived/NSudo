@@ -1,5 +1,5 @@
 ﻿version: CI Build {Build}
-image: Visual Studio 2017
+image: Visual Studio 2019 Preview
 configuration:
 - Debug - CUI
 - Debug - GUI
