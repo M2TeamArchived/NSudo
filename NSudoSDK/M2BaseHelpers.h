@@ -321,7 +321,8 @@ namespace M2
             LeaveCriticalSection(&this->m_CriticalSection);
         }
 
-        _Acquires_lock_(m_CriticalSection) bool TryLock()
+        _When_(return, _Acquires_exclusive_lock_(m_CriticalSection))
+            bool TryLock()
         {
             return TryEnterCriticalSection(&this->m_CriticalSection);
         }

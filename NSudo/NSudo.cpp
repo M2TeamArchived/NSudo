@@ -221,6 +221,8 @@ information, call GetLastError.
 BOOL WINAPI NSudoGetCurrentProcessSessionID(
     _Out_ PDWORD SessionID)
 {
+    *SessionID = -1;
+
     BOOL result = FALSE;
     M2::CHandle hToken;
     DWORD ReturnLength = 0;
@@ -356,6 +358,8 @@ BOOL WINAPI NSudoCreateLUAToken(
     _Out_ PHANDLE TokenHandle,
     _In_ HANDLE ExistingTokenHandle)
 {
+    *TokenHandle = INVALID_HANDLE_VALUE;
+
     BOOL result = FALSE;
     DWORD Length = 0;
     BOOL EnableTokenVirtualization = TRUE;
@@ -777,7 +781,8 @@ public:
 
         FILE* FileStream = nullptr;
 
-        if (_wfopen_s(&FileStream, ShortCutListPath.c_str(), L"r") == 0)
+        if (_wfopen_s(&FileStream, ShortCutListPath.c_str(), L"r") == 0
+            && FileStream)
         {
             nlohmann::json ConfigJSON = nlohmann::json::parse(FileStream);
 
@@ -824,7 +829,7 @@ private:
     std::map<std::wstring, std::wstring> m_ShortCutList;
 
     bool m_IsElevated = false;
-    HANDLE m_OriginalCurrentProcessToken;
+    HANDLE m_OriginalCurrentProcessToken = INVALID_HANDLE_VALUE;
 
 public:
     const HINSTANCE& Instance = this->m_Instance;
@@ -920,7 +925,7 @@ typedef struct _NSUDO_CONTEXT_MENU_ITEM
     std::wstring ItemName;
     std::wstring ItemDescription;
     std::wstring ItemCommandParameters;
-    bool HasLUAShield;
+    bool HasLUAShield = false;
 } NSUDO_CONTEXT_MENU_ITEM, *PNSUDO_CONTEXT_MENU_ITEM;
 
 class CNSudoContextMenuAdapter
@@ -2133,9 +2138,9 @@ private:
 
         buffer[0] = L'\"';
 
-        auto length = DragQueryFileW(
+        UINT length = DragQueryFileW(
             (HDROP)wParam, 0, &buffer[1], (int)(buffer.size() - 2));
-        buffer.resize(length + 1);
+        buffer.resize(static_cast<size_t>(length) + 1);
 
         if (!(GetFileAttributesW(&buffer[1]) & FILE_ATTRIBUTE_DIRECTORY))
         {
