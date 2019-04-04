@@ -5,7 +5,7 @@
 [![Latest release](https://img.shields.io/github/release/M2Team/NSudo.svg)](https://github.com/M2Team/NSudo/releases/latest)
 [![Latest release downloads](https://img.shields.io/github/downloads/M2Team/NSudo/latest/total.svg)](https://github.com/M2Team/NSudo/releases/latest)
 [![Total downloads](https://img.shields.io/github/downloads/M2Team/NSudo/total.svg)](https://github.com/M2Team/NSudo/releases)
-[![License](https://img.shields.io/github/license/M2Team/NSudo.svg)](LICENSE)
+[![License](https://img.shields.io/github/license/M2Team/NSudo.svg)](License.md)
 [![996.icu](https://img.shields.io/badge/link-996.icu-red.svg)](https://996.icu)
 
 - [简体中文](自述.md)
@@ -140,13 +140,7 @@ Starting from NSudo 5.0.1708.16, the command line nested quotes is supported.
 For example: 
 > NSudo -U:T cmd /c "dir "C:\Program Files" & pause"
 
-## 3rd-party libraries which used
-- JSON for Modern C++
-  - Copyright: Niels Lohmann
-  - License: https://github.com/nlohmann/json/blob/develop/LICENSE.MIT
-- (Optional) VC-LTL
-  - Copyright: Chuyu Team
-  - License: https://github.com/Chuyu-Team/VC-LTL/blob/master/LICENSE.txt
+
 
 ## Git Repositories
 - GitHub (Main)
