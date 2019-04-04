@@ -49,13 +49,16 @@ DWORD M2RegSetStringValue(
     _In_opt_ LPCWSTR lpValueName,
     _In_opt_ LPCWSTR lpValueData)
 {
+    if (!lpValueName || !lpValueData)
+        return ERROR_INVALID_PARAMETER;
+
     return RegSetValueExW(
         hKey,
         lpValueName,
         0,
         REG_SZ,
         reinterpret_cast<CONST BYTE*>(lpValueData),
-        (DWORD)(wcslen(lpValueData) + 1) * sizeof(wchar_t));
+        static_cast<DWORD>(wcslen(lpValueData) + 1) * sizeof(wchar_t));
 }
 
 DWORD M2RegCreateKey(
@@ -221,7 +224,7 @@ information, call GetLastError.
 BOOL WINAPI NSudoGetCurrentProcessSessionID(
     _Out_ PDWORD SessionID)
 {
-    *SessionID = -1;
+    *SessionID = static_cast<DWORD>(-1);
 
     BOOL result = FALSE;
     M2::CHandle hToken;

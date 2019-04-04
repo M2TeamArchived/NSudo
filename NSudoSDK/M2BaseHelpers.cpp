@@ -34,7 +34,7 @@ std::wstring M2FormatString(
         va_start(ArgList, Format);
 
         // Get the length of the format result.
-        size_t nLength = _vscwprintf(Format, ArgList) + 1;
+        size_t nLength = static_cast<size_t>(_vscwprintf(Format, ArgList)) + 1;
 
         // Allocate for the format result.
         std::wstring Buffer(nLength + 1, L'\0');
@@ -473,13 +473,16 @@ void M2SpiltCommandLineEx(
                 wchar_t* command = wcsstr(search_start, L" ") + 1;
 
                 // Omit the space. (Thanks to wzzw.)
-                while (*command == L' ')
+                while (command && *command == L' ')
                 {
                     ++command;
                 }
 
                 // Save
-                UnresolvedCommandLine = command;
+                if (command)
+                {
+                    UnresolvedCommandLine = command;
+                }
 
                 break;
             }
@@ -811,6 +814,8 @@ HRESULT M2OpenProcessToken(
     _In_ PM2_PROCESS_ACCESS_TOKEN_SOURCE TokenSource,
     _In_ DWORD DesiredAccess)
 {
+    *TokenHandle = INVALID_HANDLE_VALUE;
+
     if (!TokenSource)
         return __HRESULT_FROM_WIN32(ERROR_INVALID_PARAMETER);
 
@@ -979,6 +984,8 @@ HRESULT M2GetTokenInformation(
     _In_ HANDLE TokenHandle,
     _In_ TOKEN_INFORMATION_CLASS TokenInformationClass)
 {
+    *OutputInformation = nullptr;
+
     DWORD Length = 0;
 
     HRESULT hr = M2GetTokenInformation(
