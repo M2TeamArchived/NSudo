@@ -18,6 +18,9 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)ThirdParty\json.hpp">
       <Filter>ThirdParty</Filter>
     </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)M2WindowsAPIWrappers.h">
+      <Filter>M2WindowsAPIWrappers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ThirdParty">
@@ -32,6 +35,9 @@
     <Filter Include="M2Win32GUIHelpers">
       <UniqueIdentifier>{a967f769-ac0c-4a20-bb81-8cfceaddc0cf}</UniqueIdentifier>
     </Filter>
+    <Filter Include="M2WindowsAPIWrappers">
+      <UniqueIdentifier>{1c1b9ebe-fd7f-4297-85cd-b1da414bbf32}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(MSBuildThisFileDirectory)M2BaseHelpers.cpp">
@@ -42,6 +48,9 @@
     </ClCompile>
     <ClCompile Include="$(MSBuildThisFileDirectory)M2Win32GUIHelpers.cpp">
       <Filter>M2Win32GUIHelpers</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)M2WindowsAPIWrappers.cpp">
+      <Filter>M2WindowsAPIWrappers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

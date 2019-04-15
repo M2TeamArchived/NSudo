@@ -13,7 +13,7 @@
 #ifndef _M2_BASE_HELPERS_
 #define _M2_BASE_HELPERS_
 
-#include <Windows.h>
+#include "M2WindowsAPIWrappers.h"
 
 #include <assert.h>
 #include <process.h>

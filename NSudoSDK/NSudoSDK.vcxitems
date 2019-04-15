@@ -18,6 +18,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)M2BaseHelpers.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)M2Win32GUIHelpers.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)M2Win32Helpers.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)M2WindowsAPIWrappers.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)NSudoVersion.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)M2MessageDialogResource.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ThirdParty\json.hpp" />
@@ -26,6 +27,7 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)M2BaseHelpers.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)M2Win32GUIHelpers.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)M2Win32Helpers.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)M2WindowsAPIWrappers.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="$(MSBuildThisFileDirectory)M2MessageDialogResource.rc" />
