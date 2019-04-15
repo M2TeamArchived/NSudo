@@ -585,4 +585,33 @@ HRESULT M2GetFileSize(
     _In_ HANDLE FileHandle,
     _Out_ PULONGLONG FileSize);
 
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+/**
+ * Creates a single uninitialized object of the class associated with a
+ * specified CLSID.
+ *
+ * @param lpszCLSID The string representation of the CLSID.
+ * @param pUnkOuter If NULL, indicates that the object is not being created as
+ *                  part of an aggregate. If non-NULL, pointer to the aggregate
+ *                  object's IUnknown interface (the controlling IUnknown).
+ * @param dwClsContext Context in which the code that manages the newly created
+ *                     object will run. The values are taken from the
+ *                     enumeration CLSCTX.
+ * @param lpszIID A pointer to the string representation of the IID.
+ * @param ppv Address of pointer variable that receives the interface pointer
+ *            requested in riid. Upon successful return, *ppv contains the
+ *            requested interface pointer. Upon failure, *ppv contains NULL.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ * @remark For more information, see CoCreateInstance.
+ */
+HRESULT M2CoCreateInstance(
+    _In_ LPCWSTR lpszCLSID,
+    _In_opt_ LPUNKNOWN pUnkOuter,
+    _In_ DWORD dwClsContext,
+    _In_ LPCWSTR lpszIID,
+    _Out_ LPVOID* ppv);
+
+#endif
+
 #endif // _M2_WINDOWS_API_WRAPPERS_
