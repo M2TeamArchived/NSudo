@@ -1197,6 +1197,46 @@ HRESULT M2CoCreateInstance(
     return hr;
 }
 
+/**
+ * Determines whether the interface id have the correct interface name.
+ *
+ * @param InterfaceID A pointer to the string representation of the IID.
+ * @param InterfaceName A pointer to the interface name string.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ */
+HRESULT M2CoCheckInterfaceName(
+    _In_ LPCWSTR InterfaceID,
+    _In_ LPCWSTR InterfaceName)
+{
+    HKEY hKey = nullptr;
+    HRESULT hr = M2RegCreateKey(
+        HKEY_CLASSES_ROOT,
+        (std::wstring(L"Interface\\") + InterfaceID).c_str(),
+        0,
+        nullptr,
+        0,
+        KEY_READ,
+        nullptr,
+        &hKey,
+        nullptr);
+    if (SUCCEEDED(hr))
+    {
+        wchar_t* InterfaceTypeName = nullptr;
+        hr = M2RegQueryStringValue(&InterfaceTypeName, hKey, nullptr);
+        if (SUCCEEDED(hr))
+        {
+            if (0 != _wcsicmp(InterfaceTypeName, InterfaceName))
+            {
+                hr = E_NOINTERFACE;
+            }
+        }
+
+        RegCloseKey(hKey);
+    }
+
+    return hr;
+}
+
 #ifdef CPPWINRT_VERSION
 
 /**
@@ -1865,6 +1905,58 @@ HRESULT M2RegSetValue(
         dwType,
         lpData,
         cbData));
+}
+
+/**
+ * Retrieves the string type data for the specified value name associated with
+ * an open registry key.
+ *
+ * @param hKey A handle to an open registry key.
+ * @param lpValueName The name of the registry value.
+ * @param lpData A pointer to a buffer that receives the value's data. When you
+ *               have finished using the information, free it by calling the
+ *               M2FreeMemory function. You should also set the pointer to
+ *               NULL.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ * @remark For more information, see RegQueryValueEx.
+ */
+HRESULT M2RegQueryStringValue(
+    _Out_ LPWSTR* lpData,
+    _In_ HKEY hKey,
+    _In_opt_ LPCWSTR lpValueName)
+{
+    *lpData = nullptr;
+
+    DWORD cbData = 0;
+    HRESULT hr = M2RegQueryValue(
+        hKey,
+        lpValueName,
+        nullptr,
+        nullptr,
+        nullptr,
+        &cbData);
+    if (SUCCEEDED(hr))
+    {
+        hr = M2AllocMemory(reinterpret_cast<PVOID*>(lpData), cbData);
+        if (SUCCEEDED(hr))
+        {
+            DWORD Type = 0;
+            hr = M2RegQueryValue(
+                hKey,
+                lpValueName,
+                nullptr,
+                &Type,
+                reinterpret_cast<LPBYTE>(*lpData),
+                &cbData);
+            if (SUCCEEDED(hr) && REG_SZ != Type)
+                hr = __HRESULT_FROM_WIN32(ERROR_ILLEGAL_ELEMENT_ADDRESS);
+
+            if (FAILED(hr))
+                hr = M2FreeMemory(*lpData);
+        }
+    }
+
+    return hr;
 }
 
 #endif

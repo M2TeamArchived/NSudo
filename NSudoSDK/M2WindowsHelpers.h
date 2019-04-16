@@ -1248,6 +1248,17 @@ HRESULT M2CoCreateInstance(
     _In_ LPCWSTR lpszIID,
     _Out_ LPVOID* ppv);
 
+/**
+ * Determines whether the interface id have the correct interface name.
+ *
+ * @param InterfaceID A pointer to the string representation of the IID.
+ * @param InterfaceName A pointer to the interface name string.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ */
+HRESULT M2CoCheckInterfaceName(
+    _In_ LPCWSTR InterfaceID,
+    _In_ LPCWSTR InterfaceName);
+
 #ifdef CPPWINRT_VERSION
 
 /**
@@ -1686,6 +1697,24 @@ HRESULT M2RegSetValue(
     _In_ DWORD dwType,
     _In_opt_ CONST BYTE* lpData,
     _In_ DWORD cbData);
+
+/**
+ * Retrieves the string type data for the specified value name associated with
+ * an open registry key.
+ *
+ * @param hKey A handle to an open registry key.
+ * @param lpValueName The name of the registry value.
+ * @param lpData A pointer to a buffer that receives the value's data. When you
+ *               have finished using the information, free it by calling the
+ *               M2FreeMemory function. You should also set the pointer to
+ *               NULL.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ * @remark For more information, see RegQueryValueEx.
+ */
+HRESULT M2RegQueryStringValue(
+    _Out_ LPWSTR* lpData,
+    _In_ HKEY hKey,
+    _In_opt_ LPCWSTR lpValueName);
 
 namespace M2
 {
