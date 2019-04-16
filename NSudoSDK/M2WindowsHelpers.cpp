@@ -434,6 +434,82 @@ void M2SpiltCommandLineEx(
     }
 }
 
+#ifdef CPPWINRT_VERSION
+
+/**
+ * Finds a sub string from a source string.
+ *
+ * @param SourceString The source string.
+ * @param SubString The sub string.
+ * @param IgnoreCase Determines whether to ignore case.
+ * @return Returns true if successful, or false otherwise.
+ */
+bool M2FindSubString(
+    winrt::hstring const& SourceString,
+    winrt::hstring const& SubString,
+    bool IgnoreCase)
+{
+    return (::FindNLSStringEx(
+        nullptr,
+        (IgnoreCase ? NORM_IGNORECASE : 0) | FIND_FROMSTART,
+        SourceString.c_str(),
+        SourceString.size(),
+        SubString.c_str(),
+        SubString.size(),
+        nullptr,
+        nullptr,
+        nullptr,
+        0) >= 0);
+}
+
+/**
+ * Converts a numeric value into a string that represents the number expressed
+ * as a size value in byte, bytes, kibibytes, mebibytes, gibibytes, tebibytes,
+ * pebibytes or exbibytes, depending on the size.
+ *
+ * @param ByteSize The numeric byte size value to be converted.
+ * @return Returns a winrt::hstring object which represents the converted
+ *         string.
+ */
+winrt::hstring M2ConvertByteSizeToString(
+    uint64_t ByteSize)
+{
+    const wchar_t* Systems[] =
+    {
+        L"Byte",
+        L"Bytes",
+        L"KiB",
+        L"MiB",
+        L"GiB",
+        L"TiB",
+        L"PiB",
+        L"EiB"
+    };
+
+    size_t nSystem = 0;
+    double result = static_cast<double>(ByteSize);
+
+    if (ByteSize > 1)
+    {
+        for (
+            nSystem = 1;
+            nSystem < sizeof(Systems) / sizeof(*Systems);
+            ++nSystem)
+        {
+            if (1024.0 > result)
+                break;
+
+            result /= 1024.0;
+        }
+
+        result = static_cast<uint64_t>(result * 100) / 100.0;
+    }
+
+    return winrt::to_hstring(result) + L" " + Systems[nSystem];
+}
+
+#endif
+
 #pragma endregion
 
 #pragma region Performance
@@ -910,6 +986,23 @@ HRESULT M2CoCreateInstance(
 
     return hr;
 }
+
+#ifdef CPPWINRT_VERSION
+
+/**
+ * Creates a GUID, a unique 128-bit integer used for CLSIDs and interface
+ * identifiers.
+ *
+ * @return The function will return GUID struct.
+ */
+GUID M2CreateGuid()
+{
+    GUID guid = { 0 };
+    winrt::check_hresult(CoCreateGuid(&guid));
+    return guid;
+}
+
+#endif
 
 #pragma endregion
 
@@ -1611,3 +1704,50 @@ HRESULT M2GetWindowsDirectory(
 #endif
 
 #pragma endregion
+
+#pragma region WinRT
+
+#ifdef CPPWINRT_VERSION
+
+/**
+ * Execute function on the UI thread with normal priority.
+ *
+ * @param agileCallback The function you want to execute.
+ * @return The return value is Windows::Foundation::IAsyncAction^.
+ */
+winrt::IAsyncAction M2ExecuteOnUIThread(
+    winrt::DispatchedHandler const& agileCallback)
+{
+    using winrt::Windows::ApplicationModel::Core::CoreApplication;
+    using winrt::Windows::UI::Core::CoreDispatcherPriority;
+
+    return CoreApplication::MainView().CoreWindow().Dispatcher().RunAsync(
+        CoreDispatcherPriority::Normal, agileCallback);
+}
+
+namespace M2
+{
+    void NotifyPropertyChangedBase::RaisePropertyChanged(
+        std::wstring_view const& PropertyName)
+    {
+        this->m_PropertyChanged(
+            *this, winrt::PropertyChangedEventArgs(PropertyName));
+    }
+
+    winrt::event_token NotifyPropertyChangedBase::PropertyChanged(
+        winrt::PropertyChangedEventHandler const& value)
+    {
+        return this->m_PropertyChanged.add(value);
+    }
+
+    void NotifyPropertyChangedBase::PropertyChanged(
+        winrt::event_token const& token)
+    {
+        this->m_PropertyChanged.remove(token);
+    }
+}
+
+#endif
+
+#pragma endregion
+

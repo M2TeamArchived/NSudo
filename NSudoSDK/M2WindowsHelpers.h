@@ -19,6 +19,18 @@
 #include <string>
 #include <vector>
 
+#if (defined(__cplusplus) && __cplusplus >= 201703L)
+#include <string_view>
+#endif
+
+#ifdef CPPWINRT_VERSION
+#include <winrt\Windows.ApplicationModel.Core.h>
+#include <winrt\Windows.Foundation.Collections.h>
+#include <winrt\Windows.UI.Core.h>
+#include <winrt\Windows.UI.Xaml.Data.h>
+#include <winrt\Windows.UI.Xaml.Interop.h>
+#endif
+
 #pragma region BaseTemplate
 
 /**
@@ -242,6 +254,62 @@ void M2SpiltCommandLineEx(
     std::wstring& ApplicationName,
     std::map<std::wstring, std::wstring>& OptionsAndParameters,
     std::wstring& UnresolvedCommandLine);
+
+/**
+ * Searches a path for a file name.
+ *
+ * @param Path A pointer to a null-terminated string of maximum length MAX_PATH
+ *             that contains the path to search.
+ * @return A pointer to the address of the string if successful, or a pointer
+ *         to the beginning of the path otherwise.
+ */
+template<typename CharType>
+CharType M2PathFindFileName(CharType Path)
+{
+    CharType FileName = Path;
+
+    for (size_t i = 0; i < MAX_PATH; ++i)
+    {
+        if (!(Path && *Path))
+            break;
+
+        if (L'\\' == *Path || L'/' == *Path)
+            FileName = Path + 1;
+
+        ++Path;
+    }
+
+    return FileName;
+}
+
+#ifdef CPPWINRT_VERSION
+
+/**
+ * Finds a sub string from a source string.
+ *
+ * @param SourceString The source string.
+ * @param SubString The sub string.
+ * @param IgnoreCase Determines whether to ignore case.
+ * @return Returns true if successful, or false otherwise.
+ */
+bool M2FindSubString(
+    winrt::hstring const& SourceString,
+    winrt::hstring const& SubString,
+    bool IgnoreCase);
+
+/**
+ * Converts a numeric value into a string that represents the number expressed
+ * as a size value in byte, bytes, kibibytes, mebibytes, gibibytes, tebibytes,
+ * pebibytes or exbibytes, depending on the size.
+ *
+ * @param ByteSize The numeric byte size value to be converted.
+ * @return Returns a winrt::hstring object which represents the converted
+ *         string.
+ */
+winrt::hstring M2ConvertByteSizeToString(
+    uint64_t ByteSize);
+
+#endif
 
 #pragma endregion
 
@@ -1086,6 +1154,18 @@ HRESULT M2CoCreateInstance(
     _In_ LPCWSTR lpszIID,
     _Out_ LPVOID* ppv);
 
+#ifdef CPPWINRT_VERSION
+
+/**
+ * Creates a GUID, a unique 128-bit integer used for CLSIDs and interface
+ * identifiers.
+ *
+ * @return The function will return GUID struct.
+ */
+GUID M2CreateGuid();
+
+#endif
+
 namespace M2
 {
     /**
@@ -1237,33 +1317,6 @@ HRESULT M2DeleteFile(
  */
 HRESULT M2DeleteFileIgnoreReadonlyAttribute(
     _In_ HANDLE FileHandle);
-
-/**
- * Searches a path for a file name.
- *
- * @param Path A pointer to a null-terminated string of maximum length MAX_PATH
- *             that contains the path to search.
- * @return A pointer to the address of the string if successful, or a pointer
- *         to the beginning of the path otherwise.
- */
-template<typename CharType>
-CharType M2PathFindFileName(CharType Path)
-{
-    CharType FileName = Path;
-
-    for (size_t i = 0; i < MAX_PATH; ++i)
-    {
-        if (!(Path && *Path))
-            break;
-
-        if (L'\\' == *Path || L'/' == *Path)
-            FileName = Path + 1;
-
-        ++Path;
-    }
-
-    return FileName;
-}
 
 #pragma endregion
 
@@ -1569,6 +1622,241 @@ HRESULT M2ExpandEnvironmentStrings(
  */
 HRESULT M2GetWindowsDirectory(
     std::wstring& WindowsFolderPath);
+
+#endif
+
+#pragma endregion
+
+#pragma region WinRT
+
+#ifdef CPPWINRT_VERSION
+
+namespace winrt
+{
+    using Windows::Foundation::IAsyncAction;
+    using Windows::Foundation::IInspectable;
+    using Windows::Foundation::Collections::IIterable;
+    using Windows::Foundation::Collections::IIterator;
+    using Windows::Foundation::Collections::IVectorView;
+    using Windows::UI::Core::DispatchedHandler;
+    using Windows::UI::Xaml::Data::INotifyPropertyChanged;
+    using Windows::UI::Xaml::Data::PropertyChangedEventArgs;
+    using Windows::UI::Xaml::Data::PropertyChangedEventHandler;
+    using Windows::UI::Xaml::Interop::IBindableIterable;
+    using Windows::UI::Xaml::Interop::IBindableIterator;
+    using Windows::UI::Xaml::Interop::IBindableVectorView;
+}
+
+/**
+ * Execute function on the UI thread with normal priority.
+ *
+ * @param agileCallback The function you want to execute.
+ * @return The return value is Windows::Foundation::IAsyncAction^.
+ */
+winrt::IAsyncAction M2ExecuteOnUIThread(
+    winrt::DispatchedHandler const& agileCallback);
+
+namespace M2
+{
+    struct NotifyPropertyChangedBase : winrt::implements<
+        NotifyPropertyChangedBase, winrt::INotifyPropertyChanged>
+    {
+    private:
+        winrt::event<winrt::PropertyChangedEventHandler> m_PropertyChanged;
+
+    protected:
+        void RaisePropertyChanged(
+            std::wstring_view const& PropertyName);
+
+    public:
+        NotifyPropertyChangedBase() = default;
+
+        winrt::event_token PropertyChanged(
+            winrt::PropertyChangedEventHandler const& value);
+
+        void PropertyChanged(
+            winrt::event_token const& token);
+    };
+
+    template <typename Type>
+    struct BindableVectorView : winrt::implements<
+        BindableVectorView<Type>,
+        winrt::IVectorView<Type>,
+        winrt::IIterable<Type>,
+        winrt::IBindableVectorView,
+        winrt::IBindableIterable>
+    {
+    private:
+        std::vector<Type> m_values;
+
+        class WinRTObject
+        {
+        private:
+            Type m_value;
+
+        public:
+            WinRTObject(Type value) :
+                m_value(value)
+            {
+
+            }
+
+            operator Type()
+            {
+                return this->m_value;
+            }
+
+            operator winrt::IInspectable()
+            {
+                return winrt::box_value(this->m_value);
+            }
+        };
+
+        struct iterator : winrt::implements<
+            iterator,
+            winrt::IIterator<Type>,
+            winrt::IBindableIterator>
+        {
+        private:
+            winrt::com_ptr<BindableVectorView<Type>> m_owner;
+            typename std::vector<Type>::const_iterator m_current;
+            typename std::vector<Type>::const_iterator const m_end;
+
+        public:
+            explicit iterator(BindableVectorView<Type>* owner) noexcept :
+                m_current(owner->m_values.begin()),
+                m_end(owner->m_values.end())
+            {
+                m_owner.copy_from(owner);
+            }
+
+            WinRTObject Current() const
+            {
+                if (m_current == m_end)
+                {
+                    throw winrt::hresult_out_of_bounds();
+                }
+
+                return WinRTObject(*m_current);
+            }
+
+            bool HasCurrent() const noexcept
+            {
+                return m_current != m_end;
+            }
+
+            bool MoveNext() noexcept
+            {
+                if (m_current != m_end)
+                {
+                    ++m_current;
+                }
+
+                return HasCurrent();
+            }
+
+            uint32_t GetMany(winrt::array_view<Type> values)
+            {
+                uint32_t actual = static_cast<uint32_t>(std::distance(m_current, m_end));
+
+                if (actual > values.size())
+                {
+                    actual = values.size();
+                }
+
+                std::copy_n(m_current, actual, values.begin());
+                std::advance(m_current, actual);
+                return actual;
+            }
+        };
+
+    public:
+        explicit BindableVectorView(std::vector<Type>& values) :
+            m_values(values)
+        {
+        }
+
+        uint32_t Size() const noexcept
+        {
+            return static_cast<uint32_t>(m_values.size());
+        }
+
+        WinRTObject GetAt(uint32_t const index) const
+        {
+            if (index >= m_values.size())
+            {
+                throw winrt::hresult_out_of_bounds();
+            }
+
+            return WinRTObject(m_values[index]);
+        }
+
+        uint32_t GetMany(
+            uint32_t const startIndex,
+            winrt::array_view<Type> values) const
+        {
+            if (startIndex >= m_values.size())
+            {
+                return 0;
+            }
+
+            uint32_t actual = static_cast<uint32_t>(
+                m_values.size() - startIndex);
+
+            if (actual > values.size())
+            {
+                actual = values.size();
+            }
+
+            std::copy_n(m_values.begin() + startIndex, actual, values.begin());
+            return actual;
+        }
+
+        bool IndexOf(Type const& value, uint32_t& index) const noexcept
+        {
+            index = static_cast<uint32_t>(std::find(
+                m_values.begin(), m_values.end(), value) - m_values.begin());
+            return index < m_values.size();
+        }
+
+
+        class IIteratorCreator
+        {
+        private:
+            BindableVectorView<Type>* m_owner;
+
+        public:
+            IIteratorCreator(BindableVectorView<Type>* owner) :
+                m_owner(owner)
+            {
+
+            }
+
+            operator winrt::IIterator<Type>()
+            {
+                return winrt::make<iterator>(this->m_owner);
+            }
+
+            operator winrt::IBindableIterator()
+            {
+                return winrt::make<iterator>(this->m_owner).try_as<
+                    winrt::IBindableIterator>();
+            }
+        };
+
+        IIteratorCreator First()
+        {
+            return IIteratorCreator(this);
+        }
+
+        bool IndexOf(
+            winrt::IInspectable const& value,
+            uint32_t & index) const
+        {
+            return this->IndexOf(winrt::unbox_value<Type>(value), index);
+        }
+    };
+}
 
 #endif
 
