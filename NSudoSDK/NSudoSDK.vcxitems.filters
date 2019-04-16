@@ -21,6 +21,9 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)M2WindowsAPIWrappers.h">
       <Filter>M2WindowsAPIWrappers</Filter>
     </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)M2WindowsHelpers.h">
+      <Filter>M2WindowsHelpers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ThirdParty">
@@ -38,6 +41,9 @@
     <Filter Include="M2WindowsAPIWrappers">
       <UniqueIdentifier>{1c1b9ebe-fd7f-4297-85cd-b1da414bbf32}</UniqueIdentifier>
     </Filter>
+    <Filter Include="M2WindowsHelpers">
+      <UniqueIdentifier>{530d5407-8320-441d-9e9f-c4a148ce259d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(MSBuildThisFileDirectory)M2BaseHelpers.cpp">
@@ -51,6 +57,9 @@
     </ClCompile>
     <ClCompile Include="$(MSBuildThisFileDirectory)M2WindowsAPIWrappers.cpp">
       <Filter>M2WindowsAPIWrappers</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)M2WindowsHelpers.cpp">
+      <Filter>M2WindowsHelpers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
