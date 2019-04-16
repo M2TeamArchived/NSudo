@@ -564,3 +564,78 @@ HRESULT M2CoCreateInstance(
 }
 
 #endif
+
+/**
+ * Allocates a block of memory from a heap. The allocated memory is not
+ * movable.
+ *
+ * @param lpNewMem A pointer to the allocated memory block.
+ * @param hHeap A handle to the heap from which the memory will be allocated.
+ * @param dwFlags The heap allocation options.
+ * @param dwBytes The number of bytes to be allocated.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ * @remark For more information, see HeapAlloc.
+ */
+HRESULT M2HeapAlloc(
+    _Out_ PVOID* lpNewMem,
+    _In_ HANDLE hHeap,
+    _In_ DWORD dwFlags,
+    _In_ SIZE_T dwBytes)
+{
+    *lpNewMem = HeapAlloc(hHeap, dwFlags, dwBytes);
+
+    return *lpNewMem
+        ? S_OK
+        : __HRESULT_FROM_WIN32(ERROR_NOT_ENOUGH_MEMORY);
+}
+
+/**
+ * Reallocates a block of memory from a heap. This function enables you to
+ * resize a memory block and change other memory block properties. The
+ * allocated memory is not movable.
+ *
+ * @param lpNewMem A pointer to the allocated memory block.
+ * @param hHeap A handle to the heap from which the memory is to be
+ *              reallocated.
+ * @param dwFlags The heap reallocation options. 
+ * @param lpMem A pointer to the block of memory that the function reallocates.
+ * @param dwBytes The new size of the memory block, in bytes.
+ * @return HRESULT. If the function succeeds, the return value is S_OK. If the
+ *         function fails, the original memory is not freed, and the original
+ *         handle and pointer are still valid.
+ * @remark For more information, see HeapReAlloc.
+ */
+HRESULT M2HeapReAlloc(
+    _Out_ PVOID* lpNewMem,
+    _Inout_ HANDLE hHeap,
+    _In_ DWORD dwFlags,
+    _In_ LPVOID lpMem,
+    _In_ SIZE_T dwBytes)
+{
+    *lpNewMem = HeapReAlloc(hHeap, dwFlags, lpMem, dwBytes);
+
+    return *lpNewMem
+        ? S_OK
+        : __HRESULT_FROM_WIN32(ERROR_NOT_ENOUGH_MEMORY);
+}
+
+/**
+ * Frees a memory block allocated from a heap by the M2HeapAlloc and
+ * M2HeapReAlloc function.
+ *
+ * @param hHeap A handle to the heap whose memory block is to be freed.
+ * @param dwFlags The heap free options.
+ * @param lpMem A pointer to the memory block to be freed.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ * @remark For more information, see HeapFree.
+ */
+HRESULT M2HeapFree(
+    _Inout_ HANDLE hHeap,
+    _In_ DWORD dwFlags,
+    _In_ LPVOID lpMem)
+{
+    if (!HeapFree(hHeap, dwFlags, lpMem))
+        return M2GetLastHRESULTErrorKnownFailedCall();
+
+    return S_OK;
+}

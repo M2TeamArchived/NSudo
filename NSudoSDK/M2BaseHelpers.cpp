@@ -558,14 +558,11 @@ HRESULT M2AllocMemory(
     _Out_ PVOID* AllocatedMemoryBlock,
     _In_ SIZE_T MemoryBlockSize)
 {
-    *AllocatedMemoryBlock = HeapAlloc(
+    return M2HeapAlloc(
+        AllocatedMemoryBlock,
         GetProcessHeap(),
         HEAP_ZERO_MEMORY,
         MemoryBlockSize);
-
-    return *AllocatedMemoryBlock
-        ? S_OK
-        : __HRESULT_FROM_WIN32(ERROR_NOT_ENOUGH_MEMORY);
 }
 
 /**
@@ -592,15 +589,12 @@ HRESULT M2ReAllocMemory(
     _In_ PVOID OldAllocatedMemoryBlock,
     _In_ SIZE_T NewMemoryBlockSize)
 {
-    *NewAllocatedMemoryBlock = HeapReAlloc(
+    return M2HeapReAlloc(
+        NewAllocatedMemoryBlock,
         GetProcessHeap(),
         HEAP_ZERO_MEMORY,
         OldAllocatedMemoryBlock,
         NewMemoryBlockSize);
-
-    return *NewAllocatedMemoryBlock
-        ? S_OK
-        : __HRESULT_FROM_WIN32(ERROR_NOT_ENOUGH_MEMORY);
 }
 
 /**
@@ -615,10 +609,7 @@ HRESULT M2ReAllocMemory(
 HRESULT M2FreeMemory(
     _In_ PVOID AllocatedMemoryBlock)
 {
-    if (!HeapFree(GetProcessHeap(), 0, AllocatedMemoryBlock))
-        return M2GetLastHRESULTErrorKnownFailedCall();
-
-    return S_OK;
+    return M2HeapFree(GetProcessHeap(), 0, AllocatedMemoryBlock);
 }
 
 /**
