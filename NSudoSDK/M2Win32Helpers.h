@@ -191,7 +191,7 @@ HRESULT M2StartService(
  * @param Flags The action to be taken when loading the module. You should read
  *              the documentation about LoadLibraryEx API for further
  *              information.
- * @return HRESULT.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
  */
 HRESULT M2LoadLibraryEx(
     _Out_ HMODULE& ModuleHandle,

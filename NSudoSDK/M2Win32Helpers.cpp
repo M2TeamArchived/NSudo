@@ -226,21 +226,21 @@ HRESULT M2StartService(
  * @param Flags The action to be taken when loading the module. You should read
  *              the documentation about LoadLibraryEx API for further
  *              information.
- * @return HRESULT.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
  */
 HRESULT M2LoadLibraryEx(
     _Out_ HMODULE& ModuleHandle,
     _In_ LPCWSTR LibraryFileName,
     _In_ DWORD Flags)
 {
-    ModuleHandle = LoadLibraryExW(LibraryFileName, nullptr, Flags);
-    if (!ModuleHandle)
+    HRESULT hr = M2LoadLibrary(&ModuleHandle, LibraryFileName, nullptr, Flags);
+    if (SUCCEEDED(hr))
     {
         const size_t BufferLength = 32768;
         wchar_t Buffer[BufferLength];
 
         if ((Flags & LOAD_LIBRARY_SEARCH_SYSTEM32) &&
-            (M2GetLastErrorKnownFailedCall() == ERROR_INVALID_PARAMETER))
+            (hr == __HRESULT_FROM_WIN32(ERROR_INVALID_PARAMETER)))
         {
             if (!wcschr(LibraryFileName, L'\\'))
             {
@@ -260,11 +260,11 @@ HRESULT M2LoadLibraryEx(
                 LibraryFileName = Buffer;
             }
 
-            ModuleHandle = LoadLibraryExW(LibraryFileName, nullptr, Flags);
+            hr = M2LoadLibrary(&ModuleHandle, LibraryFileName, nullptr, Flags);
         }
     }
 
-    return ModuleHandle ? S_OK : M2GetLastHRESULTErrorKnownFailedCall();
+    return hr;
 }
 
 /**

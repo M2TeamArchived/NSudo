@@ -639,3 +639,30 @@ HRESULT M2HeapFree(
 
     return S_OK;
 }
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+/**
+ * Loads the specified module with the optimization of the mitigation of DLL
+ * preloading attacks into the address space of the calling process safely. The
+ * specified module may cause other modules to be loaded.
+ *
+ * @param phLibModule A handle to the loaded module.
+ * @param lpLibFileName A string that specifies the file name of the module to
+ *                      load.
+ * @param hFile This parameter is reserved for future use. It must be NULL.
+ * @param dwFlags The action to be taken when loading the module.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ * @remark For more information, see LoadLibraryEx.
+ */
+HRESULT M2LoadLibrary(
+    _Out_ HMODULE* phLibModule,
+    _In_ LPCWSTR lpLibFileName,
+    _Reserved_ HANDLE hFile,
+    _In_ DWORD dwFlags)
+{
+    *phLibModule = LoadLibraryExW(lpLibFileName, hFile, dwFlags);
+    return *phLibModule ? S_OK : M2GetLastHRESULTErrorKnownFailedCall();
+}
+
+#endif
