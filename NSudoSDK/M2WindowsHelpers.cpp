@@ -1197,6 +1197,8 @@ HRESULT M2CoCreateInstance(
     return hr;
 }
 
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
 /**
  * Determines whether the interface id have the correct interface name.
  *
@@ -1236,6 +1238,8 @@ HRESULT M2CoCheckInterfaceName(
 
     return hr;
 }
+
+#endif
 
 #ifdef CPPWINRT_VERSION
 

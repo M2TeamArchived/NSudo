@@ -1248,6 +1248,8 @@ HRESULT M2CoCreateInstance(
     _In_ LPCWSTR lpszIID,
     _Out_ LPVOID* ppv);
 
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
 /**
  * Determines whether the interface id have the correct interface name.
  *
@@ -1258,6 +1260,8 @@ HRESULT M2CoCreateInstance(
 HRESULT M2CoCheckInterfaceName(
     _In_ LPCWSTR InterfaceID,
     _In_ LPCWSTR InterfaceName);
+
+#endif
 
 #ifdef CPPWINRT_VERSION
 
