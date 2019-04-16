@@ -21,8 +21,6 @@
 
 #pragma endregion
 
-
-#include "M2BaseHelpers.h"
 #include "M2Win32Helpers.h"
 #include "M2Win32GUIHelpers.h"
 

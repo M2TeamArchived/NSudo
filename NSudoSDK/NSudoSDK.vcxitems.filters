@@ -3,9 +3,6 @@
   <ItemGroup>
     <ClInclude Include="$(MSBuildThisFileDirectory)NSudoVersion.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)CIBuild.h" />
-    <ClInclude Include="$(MSBuildThisFileDirectory)M2BaseHelpers.h">
-      <Filter>M2BaseHelpers</Filter>
-    </ClInclude>
     <ClInclude Include="$(MSBuildThisFileDirectory)M2Win32Helpers.h">
       <Filter>M2Win32Helpers</Filter>
     </ClInclude>
@@ -18,9 +15,6 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)ThirdParty\json.hpp">
       <Filter>ThirdParty</Filter>
     </ClInclude>
-    <ClInclude Include="$(MSBuildThisFileDirectory)M2WindowsAPIWrappers.h">
-      <Filter>M2WindowsAPIWrappers</Filter>
-    </ClInclude>
     <ClInclude Include="$(MSBuildThisFileDirectory)M2WindowsHelpers.h">
       <Filter>M2WindowsHelpers</Filter>
     </ClInclude>
@@ -29,34 +23,22 @@
     <Filter Include="ThirdParty">
       <UniqueIdentifier>{fbdb5e99-1ac3-445a-8120-4ec9e83aad0f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="M2BaseHelpers">
-      <UniqueIdentifier>{2ae3f5b8-ba55-4407-adf1-f004672b774d}</UniqueIdentifier>
-    </Filter>
     <Filter Include="M2Win32Helpers">
       <UniqueIdentifier>{8ea5d99c-43cc-4797-9ec8-a47150d6a8e3}</UniqueIdentifier>
     </Filter>
     <Filter Include="M2Win32GUIHelpers">
       <UniqueIdentifier>{a967f769-ac0c-4a20-bb81-8cfceaddc0cf}</UniqueIdentifier>
     </Filter>
-    <Filter Include="M2WindowsAPIWrappers">
-      <UniqueIdentifier>{1c1b9ebe-fd7f-4297-85cd-b1da414bbf32}</UniqueIdentifier>
-    </Filter>
     <Filter Include="M2WindowsHelpers">
       <UniqueIdentifier>{530d5407-8320-441d-9e9f-c4a148ce259d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="$(MSBuildThisFileDirectory)M2BaseHelpers.cpp">
-      <Filter>M2BaseHelpers</Filter>
-    </ClCompile>
     <ClCompile Include="$(MSBuildThisFileDirectory)M2Win32Helpers.cpp">
       <Filter>M2Win32Helpers</Filter>
     </ClCompile>
     <ClCompile Include="$(MSBuildThisFileDirectory)M2Win32GUIHelpers.cpp">
       <Filter>M2Win32GUIHelpers</Filter>
-    </ClCompile>
-    <ClCompile Include="$(MSBuildThisFileDirectory)M2WindowsAPIWrappers.cpp">
-      <Filter>M2WindowsAPIWrappers</Filter>
     </ClCompile>
     <ClCompile Include="$(MSBuildThisFileDirectory)M2WindowsHelpers.cpp">
       <Filter>M2WindowsHelpers</Filter>
