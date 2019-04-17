@@ -1231,6 +1231,8 @@ HRESULT M2CoCheckInterfaceName(
             {
                 hr = E_NOINTERFACE;
             }
+
+            M2FreeMemory(InterfaceTypeName);
         }
 
         RegCloseKey(hKey);
@@ -1771,7 +1773,7 @@ HRESULT M2LoadLibraryEx(
     _In_ DWORD Flags)
 {
     HRESULT hr = M2LoadLibrary(ModuleHandle, LibraryFileName, nullptr, Flags);
-    if (SUCCEEDED(hr))
+    if (FAILED(hr))
     {
         if ((Flags & LOAD_LIBRARY_SEARCH_SYSTEM32) &&
             (hr == __HRESULT_FROM_WIN32(ERROR_INVALID_PARAMETER)))
