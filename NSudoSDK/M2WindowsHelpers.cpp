@@ -1662,7 +1662,7 @@ HRESULT M2GetProcAddress(
     _In_ LPCSTR lpProcName)
 {
     *lpProcAddress = GetProcAddress(hModule, lpProcName);
-    return (!*lpProcAddress) ? S_OK : M2GetLastHRESULTErrorKnownFailedCall();
+    return *lpProcAddress ? S_OK : M2GetLastHRESULTErrorKnownFailedCall();
 }
 
 /**
