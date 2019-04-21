@@ -1,6 +1,6 @@
 ﻿/*
  * PROJECT:   M2-Team Common Library
- * FILE:      M2WindowsAPIWrappers.h
+ * FILE:      M2WindowsHelpers.h
  * PURPOSE:   Definition for the Windows helper functions
  *
  * LICENSE:   The MIT License
