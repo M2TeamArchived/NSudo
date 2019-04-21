@@ -48,7 +48,7 @@ using Microsoft::WRL::RuntimeClassType;
  */
 HRESULT M2GetLastHRESULTError()
 {
-    return HRESULT_FROM_WIN32(GetLastError());
+    return M2GetLastError(FALSE, nullptr);
 }
 
 /**
@@ -60,8 +60,9 @@ HRESULT M2GetLastHRESULTError()
  */
 DWORD M2GetLastErrorKnownFailedCall()
 {
-    DWORD LastError = GetLastError();
-    return (LastError != ERROR_SUCCESS) ? LastError : ERROR_FUNCTION_FAILED;
+    DWORD LastError = ERROR_SUCCESS;
+    M2GetLastError(TRUE, &LastError);
+    return LastError;
 }
 
 /**
@@ -74,7 +75,7 @@ DWORD M2GetLastErrorKnownFailedCall()
  */
 HRESULT M2GetLastHRESULTErrorKnownFailedCall()
 {
-    return HRESULT_FROM_WIN32(M2GetLastErrorKnownFailedCall());
+    return M2GetLastError(TRUE, nullptr);
 }
 
 #ifdef __cplusplus_winrt

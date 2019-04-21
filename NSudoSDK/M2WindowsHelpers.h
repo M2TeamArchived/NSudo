@@ -13,7 +13,7 @@
 #ifndef _M2_WINDOWS_HELPERS_
 #define _M2_WINDOWS_HELPERS_
 
-#include <Windows.h>
+#include <M2WindowsBaseHelpers.h>
 
 #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
 #include <ShellScalingApi.h>
