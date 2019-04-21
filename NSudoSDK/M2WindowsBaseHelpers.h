@@ -87,10 +87,59 @@ HRESULT M2CoCreateInstance(
     _In_ LPCWSTR lpszIID,
     _Out_ LPVOID* ppv);
 
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
 /**
  * Creates a thread to execute within the virtual address space of the calling
  * process.
  *
+ * @param lpFileHandle The address of the returned handle to the specified
+ *                     file.
+ * @param lpFileName The name of the file or device to be created or opened.
+ *                   You may use either forward slashes (/) or backslashes ()
+ *                   in this name.
+ * @param dwDesiredAccess The requested access to the file or device, which can
+ *                        be summarized as read, write, both or neither zero).
+ * @param dwShareMode The requested sharing mode of the file or device, which
+ *                    can be read, write, both, delete, all of these, or none
+ *                    (refer to the following table). Access requests to
+ *                    attributes or extended attributes are not affected by
+ *                    this flag.
+ * @param lpSecurityAttributes A pointer to a SECURITY_ATTRIBUTES structure
+ *                             that contains two separate but related data
+ *                             members: an optional security descriptor, and a
+ *                             Boolean value that determines whether the
+ *                             returned handle can be inherited by child
+ *                             processes. This parameter can be NULL.
+ * @param dwCreationDisposition An action to take on a file or device that
+ *                              exists or does not exist.
+ * @param dwFlagsAndAttributes The file or device attributes and flags,
+ *                             FILE_ATTRIBUTE_NORMAL being the most common
+ *                             default value for files.
+ * @param hTemplateFile A valid handle to a template file with the GENERIC_READ
+ *                      access right. The template file supplies file
+ *                      attributes and extended attributes for the file that is
+ *                      being created. This parameter can be NULL.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ * @remark For more information, see CreateFileW.
+ */
+HRESULT M2CreateFile(
+    _Out_ PHANDLE lpFileHandle,
+    _In_ LPCWSTR lpFileName,
+    _In_ DWORD dwDesiredAccess,
+    _In_ DWORD dwShareMode,
+    _In_opt_ LPSECURITY_ATTRIBUTES lpSecurityAttributes,
+    _In_ DWORD dwCreationDisposition,
+    _In_ DWORD dwFlagsAndAttributes,
+    _In_opt_ HANDLE hTemplateFile);
+
+#endif
+
+/**
+ * Creates a thread to execute within the virtual address space of the calling
+ * process.
+ *
+ * @param lpThreadHandle The address of the returned handle to the new thread.
  * @param lpThreadAttributes A pointer to a SECURITY_ATTRIBUTES structure that
  *                           determines whether the returned handle can be
  *                           inherited by child processes.
@@ -109,9 +158,46 @@ HRESULT M2CreateThread(
     _In_opt_ LPSECURITY_ATTRIBUTES lpThreadAttributes,
     _In_ SIZE_T dwStackSize,
     _In_ LPTHREAD_START_ROUTINE lpStartAddress,
-    _In_opt_ __drv_aliasesMem LPVOID lpParameter,
+    _In_opt_ LPVOID lpParameter,
     _In_ DWORD dwCreationFlags,
     _Out_opt_ LPDWORD lpThreadId);
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+/**
+ * Sends a control code directly to a specified device driver, causing the
+ * corresponding device to perform the corresponding operation.
+ *
+ * @param hDevice A handle to the device on which the operation is to be
+ *                performed.
+ * @param dwIoControlCode The control code for the operation.
+ * @param lpInBuffer A pointer to the input buffer that contains the data
+ *                   required to perform the operation. This parameter can be
+ *                   NULL if dwIoControlCode specifies an operation that does
+ *                   not require input data.
+ * @param nInBufferSize The size of the input buffer, in bytes.
+ * @param lpOutBuffer A pointer to the output buffer that is to receive the
+ *                    data returned by the operation. This parameter can be
+ *                    NULL if dwIoControlCode specifies an operation that does
+ *                    not return data.
+ * @param nOutBufferSize The size of the output buffer, in bytes.
+ * @param lpBytesReturned A pointer to a variable that receives the size of
+ *                        the data stored in the output buffer, in bytes.
+ * @param lpOverlapped A pointer to an OVERLAPPED structure.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ * @remark For more information, see DeviceIoControl.
+ */
+HRESULT M2DeviceIoControl(
+    _In_ HANDLE hDevice,
+    _In_ DWORD dwIoControlCode,
+    _In_opt_ LPVOID lpInBuffer,
+    _In_ DWORD nInBufferSize,
+    _Out_opt_ LPVOID lpOutBuffer,
+    _In_ DWORD nOutBufferSize,
+    _Out_opt_ LPDWORD lpBytesReturned,
+    _Inout_opt_ LPOVERLAPPED lpOverlapped);
+
+#endif
 
 #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
 
@@ -149,6 +235,26 @@ HRESULT M2GetDpiForMonitor(
     _Out_ UINT* dpiY);
 
 #endif
+
+/**
+ * Retrieves file information for the specified file.
+ *
+ * @param hFile A handle to the file that contains the information to be
+ *              retrieved. This handle should not be a pipe handle.
+ * @param FileInformationClass A FILE_INFO_BY_HANDLE_CLASS enumeration value
+ *                             that specifies the type of information to be
+ *                             retrieved.
+ * @param lpFileInformation A pointer to the buffer that receives the requested
+ *                          file information.
+ * @param dwBufferSize The size of the lpFileInformation buffer, in bytes.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ * @remark For more information, see GetFileInformationByHandleEx.
+ */
+HRESULT M2GetFileInformation(
+    _In_  HANDLE hFile,
+    _In_  FILE_INFO_BY_HANDLE_CLASS FileInformationClass,
+    _Out_ LPVOID lpFileInformation,
+    _In_  DWORD dwBufferSize);
 
 /**
  * Retrieves the calling thread's last-error code value. The last-error code is
@@ -390,5 +496,26 @@ HRESULT M2RegSetValue(
     _In_ DWORD cbData);
 
 #endif
+
+/**
+ * Sets the file information for the specified file.
+ *
+ * @param hFile A handle to the file for which to change information. This
+ *              handle should not be a pipe handle.
+ * @param FileInformationClass A FILE_INFO_BY_HANDLE_CLASS enumeration value
+ *                             that specifies the type of information to be
+ *                             changed.
+ * @param lpFileInformation A pointer to the buffer that contains the
+ *                          information to change for the specified file
+ *                          information class.
+ * @param dwBufferSize The size of the lpFileInformation buffer, in bytes.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ * @remark For more information, see SetFileInformationByHandle.
+ */
+HRESULT M2SetFileInformation(
+    _In_ HANDLE hFile,
+    _In_ FILE_INFO_BY_HANDLE_CLASS FileInformationClass,
+    _In_ LPVOID lpFileInformation,
+    _In_ DWORD dwBufferSize);
 
 #endif // _M2_WINDOWS_BASE_HELPERS_

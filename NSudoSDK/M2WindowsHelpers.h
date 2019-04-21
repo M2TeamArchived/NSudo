@@ -13,7 +13,7 @@
 #ifndef _M2_WINDOWS_HELPERS_
 #define _M2_WINDOWS_HELPERS_
 
-#include <M2WindowsBaseHelpers.h>
+#include "M2WindowsBaseHelpers.h"
 
 #include <map>
 #include <memory>

@@ -1123,20 +1123,17 @@ HRESULT M2GetFileAttributes(
 {
     FILE_BASIC_INFO BasicInfo;
 
-    if (GetFileInformationByHandleEx(
+    HRESULT hr = M2GetFileInformation(
         FileHandle,
         FileBasicInfo,
         &BasicInfo,
-        sizeof(FILE_BASIC_INFO)))
-    {
-        *FileAttributes = BasicInfo.FileAttributes;
-        return S_OK;
-    }
-    else
-    {
-        *FileAttributes = INVALID_FILE_ATTRIBUTES;
-        return M2GetLastHRESULTErrorKnownFailedCall();
-    }
+        sizeof(FILE_BASIC_INFO));
+
+    *FileAttributes = SUCCEEDED(hr)
+        ? BasicInfo.FileAttributes
+        : INVALID_FILE_ATTRIBUTES;
+
+    return hr;
 }
 
 /**
@@ -1170,18 +1167,11 @@ HRESULT M2SetFileAttributes(
             FILE_ATTRIBUTE_NO_SCRUB_DATA) |
         FILE_ATTRIBUTE_NORMAL;
 
-    if (SetFileInformationByHandle(
+    return M2SetFileInformation(
         FileHandle,
         FileBasicInfo,
         &BasicInfo,
-        sizeof(FILE_BASIC_INFO)))
-    {
-        return S_OK;
-    }
-    else
-    {
-        return M2GetLastHRESULTErrorKnownFailedCall();
-    }
+        sizeof(FILE_BASIC_INFO));
 }
 
 /**
@@ -1208,21 +1198,17 @@ HRESULT M2GetFileSize(
 {
     FILE_STANDARD_INFO StandardInfo;
 
-    if (GetFileInformationByHandleEx(
+    HRESULT hr = M2GetFileInformation(
         FileHandle,
         FileStandardInfo,
         &StandardInfo,
-        sizeof(FILE_STANDARD_INFO)))
-    {
-        *FileSize = static_cast<ULONGLONG>(
-            StandardInfo.EndOfFile.QuadPart);
-        return S_OK;
-    }
-    else
-    {
-        *FileSize = 0;
-        return M2GetLastHRESULTErrorKnownFailedCall();
-    }
+        sizeof(FILE_STANDARD_INFO));
+
+    *FileSize = SUCCEEDED(hr)
+        ? static_cast<ULONGLONG>(StandardInfo.EndOfFile.QuadPart)
+        : 0;
+
+    return hr;
 }
 
 /**
@@ -1250,21 +1236,17 @@ HRESULT M2GetFileAllocationSize(
 {
     FILE_STANDARD_INFO StandardInfo;
 
-    if (GetFileInformationByHandleEx(
+    HRESULT hr = M2GetFileInformation(
         FileHandle,
         FileStandardInfo,
         &StandardInfo,
-        sizeof(FILE_STANDARD_INFO)))
-    {
-        *AllocationSize = static_cast<ULONGLONG>(
-            StandardInfo.AllocationSize.QuadPart);
-        return S_OK;
-    }
-    else
-    {
-        *AllocationSize = 0;
-        return M2GetLastHRESULTErrorKnownFailedCall();
-    }
+        sizeof(FILE_STANDARD_INFO));
+
+    *AllocationSize = SUCCEEDED(hr)
+        ? static_cast<ULONGLONG>(StandardInfo.AllocationSize.QuadPart)
+        : 0;
+
+    return hr;
 }
 
 /**
@@ -1290,18 +1272,11 @@ HRESULT M2DeleteFile(
     FILE_DISPOSITION_INFO DispostionInfo;
     DispostionInfo.DeleteFile = TRUE;
 
-    if (SetFileInformationByHandle(
+    return M2SetFileInformation(
         FileHandle,
         FileDispositionInfo,
-        &DispostionInfo,
-        sizeof(FILE_DISPOSITION_INFO)))
-    {
-        return S_OK;
-    }
-    else
-    {
-        return M2GetLastHRESULTErrorKnownFailedCall();
-    }
+        & DispostionInfo,
+        sizeof(FILE_DISPOSITION_INFO));
 }
 
 /**
