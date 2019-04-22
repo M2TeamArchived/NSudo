@@ -196,6 +196,19 @@ HRESULT M2DeviceIoControl(
 #endif
 
 /**
+ * Frees the loaded dynamic-link library (DLL) module and, if necessary,
+ * decrements its reference count. When the reference count reaches zero, the
+ * module is unloaded from the address space of the calling process and the
+ * handle is no longer valid.
+ *
+ * @param hLibModule A handle to the loaded library module.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ * @remark For more information, see FreeLibrary.
+ */
+HRESULT M2FreeLibrary(
+    _In_ HMODULE hLibModule);
+
+/**
  * Retrieves file information for the specified file.
  *
  * @param hFile A handle to the file that contains the information to be
