@@ -70,6 +70,20 @@ HRESULT M2AdjustTokenPrivileges(
 }
 
 /**
+ * Closes an open object handle.
+ *
+ * @param hObject A valid handle to an open object.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ * @remark For more information, see CloseHandle.
+ */
+HRESULT M2CloseHandle(
+    _In_ HANDLE hObject)
+{
+    BOOL Result = CloseHandle(hObject);
+    return M2GetLastError(!Result, nullptr);
+}
+
+/**
  * Creates a single uninitialized object of the class associated with a
  * specified CLSID.
  *
