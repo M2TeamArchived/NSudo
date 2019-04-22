@@ -79,8 +79,7 @@ HRESULT M2AdjustTokenPrivileges(
 HRESULT M2CloseHandle(
     _In_ HANDLE hObject)
 {
-    BOOL Result = CloseHandle(hObject);
-    return M2GetLastError(!Result, nullptr);
+    return CloseHandle(hObject) ? S_OK : M2GetLastError(TRUE, nullptr);
 }
 
 /**
@@ -179,7 +178,8 @@ HRESULT M2CreateFile(
         dwFlagsAndAttributes,
         hTemplateFile);
 
-    return M2GetLastError((INVALID_HANDLE_VALUE == *lpFileHandle), nullptr);
+    return (INVALID_HANDLE_VALUE != *lpFileHandle)
+        ? S_OK : M2GetLastError(TRUE, nullptr);
 }
 
 #endif
@@ -226,7 +226,7 @@ HRESULT M2CreateThread(
         dwCreationFlags,
         reinterpret_cast<unsigned*>(lpThreadId)));
 
-    return M2GetLastError(!(*lpThreadHandle), nullptr);
+    return (*lpThreadHandle) ? S_OK : M2GetLastError(TRUE, nullptr);
 }
 
 #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
@@ -274,7 +274,7 @@ HRESULT M2DeviceIoControl(
         lpBytesReturned,
         lpOverlapped);
 
-    return M2GetLastError(!Result, nullptr);
+    return Result ? S_OK : M2GetLastError(TRUE, nullptr);
 }
 
 #endif
@@ -292,8 +292,7 @@ HRESULT M2DeviceIoControl(
 HRESULT M2FreeLibrary(
     _In_ HMODULE hLibModule)
 {
-    BOOL Result = FreeLibrary(hLibModule);
-    return M2GetLastError(!Result, nullptr);
+    return FreeLibrary(hLibModule) ? S_OK : M2GetLastError(TRUE, nullptr);
 }
 
 /**
@@ -322,7 +321,7 @@ HRESULT M2GetFileInformation(
         lpFileInformation,
         dwBufferSize);
 
-    return M2GetLastError(!Result, nullptr);
+    return Result ? S_OK : M2GetLastError(TRUE, nullptr);
 }
 
 /**
@@ -374,7 +373,7 @@ HRESULT M2GetProcAddress(
     _In_ LPCSTR lpProcName)
 {
     *lpProcAddress = GetProcAddress(hModule, lpProcName);
-    return M2GetLastError(!(*lpProcAddress), nullptr);
+    return (*lpProcAddress) ? S_OK : M2GetLastError(TRUE, nullptr);
 }
 
 /**
@@ -432,7 +431,7 @@ HRESULT M2GetTokenInformation(
         TokenInformationLength,
         ReturnLength);
 
-    return M2GetLastError(!Result, nullptr);
+    return Result ? S_OK : M2GetLastError(TRUE, nullptr);
 }
 
 /**
@@ -472,7 +471,7 @@ HRESULT M2HeapFree(
     _In_ LPVOID lpMem)
 {
     BOOL Result = HeapFree(hHeap, dwFlags, lpMem);
-    return M2GetLastError(!Result, nullptr);
+    return Result ? S_OK : M2GetLastError(TRUE, nullptr);
 }
 
 /**
@@ -524,7 +523,7 @@ HRESULT M2LoadLibrary(
     _In_ DWORD dwFlags)
 {
     *phLibModule = LoadLibraryExW(lpLibFileName, hFile, dwFlags);
-    return M2GetLastError(!(*phLibModule), nullptr);
+    return (*phLibModule) ? S_OK : M2GetLastError(TRUE, nullptr);
 }
 
 #endif
@@ -677,5 +676,5 @@ HRESULT M2SetFileInformation(
         lpFileInformation,
         dwBufferSize);
 
-    return M2GetLastError(!Result, nullptr);
+    return Result ? S_OK : M2GetLastError(TRUE, nullptr);
 }
