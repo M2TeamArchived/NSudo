@@ -15,10 +15,6 @@
 
 #include <Windows.h>
 
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
-#include <ShellScalingApi.h>
-#endif
-
 /**
  * Enables or disables privileges in the specified access token. Enabling or
  * disabling privileges in an access token requires TOKEN_ADJUST_PRIVILEGES
@@ -196,43 +192,6 @@ HRESULT M2DeviceIoControl(
     _In_ DWORD nOutBufferSize,
     _Out_opt_ LPDWORD lpBytesReturned,
     _Inout_opt_ LPOVERLAPPED lpOverlapped);
-
-#endif
-
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
-
-/**
- * Enables the Per-Monitor DPI Aware for the specified dialog using the
- * internal API from Windows.
- *
- * @return INT. If failed. returns -1.
- * @remarks You need to use this function in Windows 10 Threshold 1 or Windows
- *          10 Threshold 2.
- */
-INT M2EnablePerMonitorDialogScaling();
-
-#endif
-
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
-
-/**
- * Queries the dots per inch (dpi) of a display.
- *
- * @param hmonitor Handle of the monitor being queried.
- * @param dpiType The type of DPI being queried. Possible values are from the
- *                MONITOR_DPI_TYPE enumeration.
- * @param dpiX The value of the DPI along the X axis. This value always refers
- *             to the horizontal edge, even when the screen is rotated.
- * @param dpiY The value of the DPI along the Y axis. This value always refers
- *             to the vertical edge, even when the screen is rotated.
- * @return HRESULT. If the function succeeds, the return value is S_OK.
- * @remark For more information, see GetDpiForMonitor.
- */
-HRESULT M2GetDpiForMonitor(
-    _In_ HMONITOR hmonitor,
-    _In_ MONITOR_DPI_TYPE dpiType,
-    _Out_ UINT* dpiX,
-    _Out_ UINT* dpiY);
 
 #endif
 

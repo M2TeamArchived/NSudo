@@ -12,6 +12,10 @@
 
 #include "M2WindowsHelpers.h"
 
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+#include <VersionHelpers.h>
+#endif
+
 #ifdef __cplusplus_winrt
 #include <wrl\client.h>
 #include <wrl\implements.h>
@@ -1759,6 +1763,79 @@ HRESULT M2GetWindowsDirectory(
     if (FAILED(hr))
     {
         WindowsFolderPath.clear();
+    }
+
+    return hr;
+}
+
+/**
+ * Enables the Per-Monitor DPI Aware for the specified dialog using the
+ * internal API from Windows.
+ *
+ * @return INT. If failed. returns -1.
+ * @remarks You need to use this function in Windows 10 Threshold 1 or Windows
+ *          10 Threshold 2.
+ */
+INT M2EnablePerMonitorDialogScaling()
+{
+    // Fix for Windows Vista and Server 2008.
+    if (!IsWindowsVersionOrGreater(10, 0, 0)) return -1;
+
+    typedef INT(WINAPI * PFN_EnablePerMonitorDialogScaling)();
+
+    HMODULE hModule = nullptr;
+    PFN_EnablePerMonitorDialogScaling pFunc = nullptr;
+
+    hModule = GetModuleHandleW(L"user32.dll");
+    if (!hModule) return -1;
+
+    if (FAILED(M2GetProcAddress(
+        reinterpret_cast<FARPROC*>(&pFunc),
+        hModule,
+        reinterpret_cast<LPCSTR>(2577))))
+        return -1;
+
+    return pFunc();
+}
+
+/**
+ * Queries the dots per inch (dpi) of a display.
+ *
+ * @param hmonitor Handle of the monitor being queried.
+ * @param dpiType The type of DPI being queried. Possible values are from the
+ *                MONITOR_DPI_TYPE enumeration.
+ * @param dpiX The value of the DPI along the X axis. This value always refers
+ *             to the horizontal edge, even when the screen is rotated.
+ * @param dpiY The value of the DPI along the Y axis. This value always refers
+ *             to the vertical edge, even when the screen is rotated.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ * @remark For more information, see GetDpiForMonitor.
+ */
+HRESULT M2GetDpiForMonitor(
+    _In_ HMONITOR hmonitor,
+    _In_ MONITOR_DPI_TYPE dpiType,
+    _Out_ UINT* dpiX,
+    _Out_ UINT* dpiY)
+{
+    HMODULE hModule = nullptr;
+    HRESULT hr = M2LoadLibrary(
+        &hModule,
+        L"SHCore.dll",
+        nullptr,
+        LOAD_LIBRARY_SEARCH_SYSTEM32);
+    if (SUCCEEDED(hr))
+    {
+        decltype(GetDpiForMonitor)* pFunc = nullptr;
+        hr = M2GetProcAddress(
+            reinterpret_cast<FARPROC*>(&pFunc),
+            hModule,
+            "GetDpiForMonitor");
+        if (SUCCEEDED(hr))
+        {
+            hr = pFunc(hmonitor, dpiType, dpiX, dpiY);
+        }
+
+        FreeLibrary(hModule);
     }
 
     return hr;
