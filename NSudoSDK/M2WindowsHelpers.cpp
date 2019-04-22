@@ -16,6 +16,8 @@
 #include <VersionHelpers.h>
 #endif
 
+#include <strsafe.h>
+
 #ifdef __cplusplus_winrt
 #include <wrl\client.h>
 #include <wrl\implements.h>
@@ -1425,17 +1427,38 @@ HRESULT M2LoadLibraryEx(
         if ((Flags & LOAD_LIBRARY_SEARCH_SYSTEM32) &&
             (hr == __HRESULT_FROM_WIN32(ERROR_INVALID_PARAMETER)))
         {
+            // In the Windows API (with some exceptions discussed in the
+            // following paragraphs), the maximum length for a path is
+            // MAX_PATH, which is defined as 260 characters. A local path is
+            // structured in the following order: drive letter, colon,
+            // backslash, name components separated by backslashes, and a
+            // terminating null character. For example, the maximum path on
+            // drive D is "D:\some 256-character path string" where ""
+            // represents the invisible terminating null character for the
+            // current system codepage.
+            // MAX_PATH = 260 = wcslen(L"D:\some 256-character path string")
+            // wcslen(L"C:\\Windows\\System32") = 19
+            // BufferSize = 19 + 256 + 1 = 276
+            // P.S. In the most cases, I don't think the length "System32" path
+            // string will bigger than 19.
+            const size_t BufferLength = 276;
+            wchar_t Buffer[BufferLength];
             if (!wcschr(LibraryFileName, L'\\'))
             {
-                std::wstring SystemDirectoryPath;
-                hr = M2GetSystemDirectory(SystemDirectoryPath);
-                if (SUCCEEDED(hr))
+                if (0 == GetSystemDirectoryW(
+                    Buffer,
+                    static_cast<UINT>(BufferLength)))
                 {
-                    hr = M2LoadLibrary(
-                        ModuleHandle,
-                        (SystemDirectoryPath + LibraryFileName).c_str(),
-                        nullptr,
-                        Flags);
+                    hr = M2GetLastError(TRUE, nullptr);
+                }
+                else
+                {
+                    hr = StringCbCatW(Buffer, BufferLength, LibraryFileName);
+                    if (SUCCEEDED(hr))
+                    {
+                        hr = M2LoadLibrary(
+                            ModuleHandle, Buffer, nullptr, Flags);
+                    }
                 }
             }
         }
