@@ -1,4 +1,4 @@
-﻿![Logo](Logo.png)
+![Logo](Logo.png)
 # NSudo - A Powerful System Administration Tool
 
 [![AppVeyor](https://ci.appveyor.com/api/projects/status/github/M2Team/NSudo?branch=master&svg=true)](https://ci.appveyor.com/project/MouriNaruto/nsudo)
@@ -7,6 +7,7 @@
 [![Total downloads](https://img.shields.io/github/downloads/M2Team/NSudo/total.svg)](https://github.com/M2Team/NSudo/releases)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](License.md)
 [![996.icu](https://img.shields.io/badge/link-996.icu-red.svg)](https://996.icu)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FM2Team%2FNSudo.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2FM2Team%2FNSudo?ref=badge_shield)
 
 - [简体中文](自述.md)
 - [繁體中文](說明.md)
@@ -160,3 +161,7 @@ For example:
 - E-mail: Mouri_Naruto@Outlook.com
 
 ## Have a good time -- M2-Team
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FM2Team%2FNSudo.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2FM2Team%2FNSudo?ref=badge_large)
