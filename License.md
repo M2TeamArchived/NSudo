@@ -5,6 +5,8 @@ distributed under the MIT License today because we want to give the **maximum
 respect** to every NSudo users and we also hope every people treat others 
 kindly.
 
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FM2Team%2FNSudo.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2FM2Team%2FNSudo?ref=badge_large)
+
 ## 3rd-party libraries which used
 - JSON for Modern C++
   - Copyright: Niels Lohmann

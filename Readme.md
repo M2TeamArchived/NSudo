@@ -1,4 +1,4 @@
-![Logo](Logo.png)
+﻿![Logo](Logo.png)
 # NSudo - A Powerful System Administration Tool
 
 [![AppVeyor](https://ci.appveyor.com/api/projects/status/github/M2Team/NSudo?branch=master&svg=true)](https://ci.appveyor.com/project/MouriNaruto/nsudo)
@@ -161,7 +161,3 @@ For example:
 - E-mail: Mouri_Naruto@Outlook.com
 
 ## Have a good time -- M2-Team
-
-
-## License
-[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FM2Team%2FNSudo.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2FM2Team%2FNSudo?ref=badge_large)
