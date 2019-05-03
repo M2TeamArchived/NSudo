@@ -16,8 +16,7 @@
 #include <VersionHelpers.h>
 #endif
 
-#include <assert.h>
-#include <process.h>
+#include <strsafe.h>
 
 #ifdef __cplusplus_winrt
 #include <wrl\client.h>
@@ -48,7 +47,7 @@ using Microsoft::WRL::RuntimeClassType;
  */
 HRESULT M2GetLastHRESULTError()
 {
-    return HRESULT_FROM_WIN32(GetLastError());
+    return M2GetLastError(FALSE, nullptr);
 }
 
 /**
@@ -60,8 +59,9 @@ HRESULT M2GetLastHRESULTError()
  */
 DWORD M2GetLastErrorKnownFailedCall()
 {
-    DWORD LastError = GetLastError();
-    return (LastError != ERROR_SUCCESS) ? LastError : ERROR_FUNCTION_FAILED;
+    DWORD LastError = ERROR_SUCCESS;
+    M2GetLastError(TRUE, &LastError);
+    return LastError;
 }
 
 /**
@@ -74,7 +74,7 @@ DWORD M2GetLastErrorKnownFailedCall()
  */
 HRESULT M2GetLastHRESULTErrorKnownFailedCall()
 {
-    return HRESULT_FROM_WIN32(M2GetLastErrorKnownFailedCall());
+    return M2GetLastError(TRUE, nullptr);
 }
 
 #ifdef __cplusplus_winrt
@@ -722,76 +722,7 @@ Platform::String ^ M2ConvertByteSizeToString(uint64 ByteSize)
 
 #pragma endregion
 
-#pragma region Performance
-
-/**
- * Retrieves the number of milliseconds that have elapsed since the system was
- * started.
- *
- * @return The number of milliseconds.
- */
-ULONGLONG M2GetTickCount()
-{
-    LARGE_INTEGER Frequency = { 0 }, PerformanceCount = { 0 };
-
-    if (QueryPerformanceFrequency(&Frequency))
-    {
-        if (QueryPerformanceCounter(&PerformanceCount))
-        {
-            return (PerformanceCount.QuadPart * 1000 / Frequency.QuadPart);
-        }
-    }
-
-    return GetTickCount64();
-}
-
-#pragma endregion
-
 #pragma region Thread
-
-/**
- * Creates a thread to execute within the virtual address space of the calling
- * process.
- *
- * @param lpThreadAttributes A pointer to a SECURITY_ATTRIBUTES structure that
- *                           determines whether the returned handle can be
- *                           inherited by child processes.
- * @param dwStackSize The initial size of the stack, in bytes.
- * @param lpStartAddress A pointer to the application-defined function to be
- *                       executed by the thread.
- * @param lpParameter A pointer to a variable to be passed to the thread.
- * @param dwCreationFlags The flags that control the creation of the thread.
- * @param lpThreadId A pointer to a variable that receives the thread
- *                   identifier.
- * @return HRESULT. If the function succeeds, the return value is S_OK.
- * @remark For more information, see CreateThread.
- */
-HRESULT M2CreateThread(
-    _Out_ PHANDLE lpThreadHandle,
-    _In_opt_ LPSECURITY_ATTRIBUTES lpThreadAttributes,
-    _In_ SIZE_T dwStackSize,
-    _In_ LPTHREAD_START_ROUTINE lpStartAddress,
-    _In_opt_ __drv_aliasesMem LPVOID lpParameter,
-    _In_ DWORD dwCreationFlags,
-    _Out_opt_ LPDWORD lpThreadId)
-{
-    // sanity check for lpThreadId
-    assert(sizeof(DWORD) == sizeof(unsigned));
-
-    typedef unsigned(__stdcall * routine_type)(void*);
-
-    // _beginthreadex calls CreateThread which will set the last error
-    // value before it returns.
-    *lpThreadHandle = reinterpret_cast<HANDLE>(_beginthreadex(
-        lpThreadAttributes,
-        static_cast<unsigned>(dwStackSize),
-        reinterpret_cast<routine_type>(lpStartAddress),
-        lpParameter,
-        dwCreationFlags,
-        reinterpret_cast<unsigned*>(lpThreadId)));
-
-    return (*lpThreadHandle) ? S_OK : M2GetLastHRESULTErrorKnownFailedCall();
-}
 
 /**
  * Retrieves the number of logical processors in the current group.
@@ -808,75 +739,6 @@ DWORD M2GetNumberOfHardwareThreads()
 #pragma endregion
 
 #pragma region Memory
-
-/**
- * Allocates a block of memory from a heap. The allocated memory is not
- * movable.
- *
- * @param lpNewMem A pointer to the allocated memory block.
- * @param hHeap A handle to the heap from which the memory will be allocated.
- * @param dwFlags The heap allocation options.
- * @param dwBytes The number of bytes to be allocated.
- * @return HRESULT. If the function succeeds, the return value is S_OK.
- * @remark For more information, see HeapAlloc.
- */
-HRESULT M2HeapAlloc(
-    _Out_ PVOID* lpNewMem,
-    _In_ HANDLE hHeap,
-    _In_ DWORD dwFlags,
-    _In_ SIZE_T dwBytes)
-{
-    *lpNewMem = HeapAlloc(hHeap, dwFlags, dwBytes);
-    return *lpNewMem ? S_OK : __HRESULT_FROM_WIN32(ERROR_NOT_ENOUGH_MEMORY);
-}
-
-/**
- * Reallocates a block of memory from a heap. This function enables you to
- * resize a memory block and change other memory block properties. The
- * allocated memory is not movable.
- *
- * @param lpNewMem A pointer to the allocated memory block.
- * @param hHeap A handle to the heap from which the memory is to be
- *              reallocated.
- * @param dwFlags The heap reallocation options.
- * @param lpMem A pointer to the block of memory that the function reallocates.
- * @param dwBytes The new size of the memory block, in bytes.
- * @return HRESULT. If the function succeeds, the return value is S_OK. If the
- *         function fails, the original memory is not freed, and the original
- *         handle and pointer are still valid.
- * @remark For more information, see HeapReAlloc.
- */
-HRESULT M2HeapReAlloc(
-    _Out_ PVOID* lpNewMem,
-    _Inout_ HANDLE hHeap,
-    _In_ DWORD dwFlags,
-    _In_ LPVOID lpMem,
-    _In_ SIZE_T dwBytes)
-{
-    *lpNewMem = HeapReAlloc(hHeap, dwFlags, lpMem, dwBytes);
-    return *lpNewMem ? S_OK : __HRESULT_FROM_WIN32(ERROR_NOT_ENOUGH_MEMORY);
-}
-
-/**
- * Frees a memory block allocated from a heap by the M2HeapAlloc and
- * M2HeapReAlloc function.
- *
- * @param hHeap A handle to the heap whose memory block is to be freed.
- * @param dwFlags The heap free options.
- * @param lpMem A pointer to the memory block to be freed.
- * @return HRESULT. If the function succeeds, the return value is S_OK.
- * @remark For more information, see HeapFree.
- */
-HRESULT M2HeapFree(
-    _Inout_ HANDLE hHeap,
-    _In_ DWORD dwFlags,
-    _In_ LPVOID lpMem)
-{
-    if (!HeapFree(hHeap, dwFlags, lpMem))
-        return M2GetLastHRESULTErrorKnownFailedCall();
-
-    return S_OK;
-}
 
 /**
  * Allocates a block of memory from the default heap of the calling process.
@@ -948,105 +810,6 @@ HRESULT M2FreeMemory(
 #pragma endregion
 
 #pragma region AccessToken
-
-/**
- * Enables or disables privileges in the specified access token. Enabling or
- * disabling privileges in an access token requires TOKEN_ADJUST_PRIVILEGES
- * access.
- *
- * @param TokenHandle A handle to the access token that contains the privileges
- *                    to be modified. The handle must have
- *                    TOKEN_ADJUST_PRIVILEGES access to the token. If the
- *                    PreviousState parameter is not NULL, the handle must also
- *                    have TOKEN_QUERY access.
- * @param DisableAllPrivileges Specifies whether the function disables all of
- *                             the token's privileges. If this value is TRUE,
- *                             the function disables all privileges and ignores
- *                             the NewState parameter. If it is FALSE, the
- *                             function modifies privileges based on the
- *                             information pointed to by the NewState
- *                             parameter.
- * @param NewState A pointer to a TOKEN_PRIVILEGES structure that specifies an
- *                 array of privileges and their attributes. If
- *                 DisableAllPrivileges is TRUE, the function ignores this
- *                 parameter.
- * @param BufferLength Specifies the size, in bytes, of the buffer pointed to
- *                     by the PreviousState parameter. This parameter can be
- *                     zero if the PreviousState parameter is NULL.
- * @param PreviousState A pointer to a buffer that the function fills with a
- *                      TOKEN_PRIVILEGES structure that contains the previous
- *                      state of any privileges that the function modifies.
- *                      This parameter can be NULL.
- * @param ReturnLength A pointer to a variable that receives the required size,
- *                     in bytes, of the buffer pointed to by the PreviousState
- *                     parameter. This parameter can be NULL if PreviousState
- *                     is NULL.
- * @return HRESULT. If the function succeeds, the return value is S_OK.
- * @remark For more information, see AdjustTokenPrivileges.
- */
-HRESULT M2AdjustTokenPrivileges(
-    _In_ HANDLE TokenHandle,
-    _In_ BOOL DisableAllPrivileges,
-    _In_opt_ PTOKEN_PRIVILEGES NewState,
-    _In_ DWORD BufferLength,
-    _Out_opt_ PTOKEN_PRIVILEGES PreviousState,
-    _Out_opt_ PDWORD ReturnLength)
-{
-    BOOL Result = AdjustTokenPrivileges(
-        TokenHandle,
-        DisableAllPrivileges,
-        NewState,
-        BufferLength,
-        PreviousState,
-        ReturnLength);
-
-    DWORD LastError = GetLastError();
-
-    if (!Result && LastError == ERROR_SUCCESS)
-        LastError = ERROR_FUNCTION_FAILED;
-
-    return HRESULT_FROM_WIN32(LastError);
-}
-
-/**
- * Retrieves a specified type of information about an access token. The calling
- * process must have appropriate access rights to obtain the information.
- *
- * @param TokenHandle A handle to an access token from which information is
- *                    retrieved.
- * @param TokenInformationClass Specifies a value from the
- *                              TOKEN_INFORMATION_CLASS enumerated type to
- *                              identify the type of information the function
- *                              retrieves.
- * @param TokenInformation A pointer to a buffer the function fills with the
- *                         requested information.
- * @param TokenInformationLength Specifies the size, in bytes, of the buffer
- *                               pointed to by the TokenInformation parameter.
- * @param ReturnLength A pointer to a variable that receives the number of
- *                     bytes needed for the buffer pointed to by the
- *                     TokenInformation parameter.
- * @return HRESULT. If the function succeeds, the return value is S_OK.
- * @remark For more information, see GetTokenInformation.
- */
-HRESULT M2GetTokenInformation(
-    _In_ HANDLE TokenHandle,
-    _In_ TOKEN_INFORMATION_CLASS TokenInformationClass,
-    _Out_opt_ LPVOID TokenInformation,
-    _In_ DWORD TokenInformationLength,
-    _Out_ PDWORD ReturnLength)
-{
-    if (GetTokenInformation(
-        TokenHandle,
-        TokenInformationClass,
-        TokenInformation,
-        TokenInformationLength,
-        ReturnLength))
-    {
-        return S_OK;
-    }
-
-    return M2GetLastHRESULTErrorKnownFailedCall();
-}
 
 /**
  * Opens the access token associated with a process.
@@ -1156,47 +919,6 @@ HRESULT M2GetTokenInformation(
 
 #pragma region COM
 
-/**
- * Creates a single uninitialized object of the class associated with a
- * specified CLSID.
- *
- * @param lpszCLSID The string representation of the CLSID.
- * @param pUnkOuter If NULL, indicates that the object is not being created as
- *                  part of an aggregate. If non-NULL, pointer to the aggregate
- *                  object's IUnknown interface (the controlling IUnknown).
- * @param dwClsContext Context in which the code that manages the newly created
- *                     object will run. The values are taken from the
- *                     enumeration CLSCTX.
- * @param lpszIID A pointer to the string representation of the IID.
- * @param ppv Address of pointer variable that receives the interface pointer
- *            requested in riid. Upon successful return, *ppv contains the
- *            requested interface pointer. Upon failure, *ppv contains NULL.
- * @return HRESULT. If the function succeeds, the return value is S_OK.
- * @remark For more information, see CoCreateInstance.
- */
-HRESULT M2CoCreateInstance(
-    _In_ LPCWSTR lpszCLSID,
-    _In_opt_ LPUNKNOWN pUnkOuter,
-    _In_ DWORD dwClsContext,
-    _In_ LPCWSTR lpszIID,
-    _Out_ LPVOID* ppv)
-{
-    CLSID clsid;
-    IID iid;
-
-    HRESULT hr = CLSIDFromString(lpszCLSID, &clsid);
-    if (SUCCEEDED(hr))
-    {
-        hr = IIDFromString(lpszIID, &iid);
-        if (SUCCEEDED(hr))
-        {
-            hr = CoCreateInstance(clsid, pUnkOuter, dwClsContext, iid, ppv);
-        }
-    }
-
-    return hr;
-}
-
 #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
 
 /**
@@ -1231,6 +953,8 @@ HRESULT M2CoCheckInterfaceName(
             {
                 hr = E_NOINTERFACE;
             }
+
+            M2FreeMemory(InterfaceTypeName);
         }
 
         RegCloseKey(hKey);
@@ -1405,20 +1129,17 @@ HRESULT M2GetFileAttributes(
 {
     FILE_BASIC_INFO BasicInfo;
 
-    if (GetFileInformationByHandleEx(
+    HRESULT hr = M2GetFileInformation(
         FileHandle,
         FileBasicInfo,
         &BasicInfo,
-        sizeof(FILE_BASIC_INFO)))
-    {
-        *FileAttributes = BasicInfo.FileAttributes;
-        return S_OK;
-    }
-    else
-    {
-        *FileAttributes = INVALID_FILE_ATTRIBUTES;
-        return M2GetLastHRESULTErrorKnownFailedCall();
-    }
+        sizeof(FILE_BASIC_INFO));
+
+    *FileAttributes = SUCCEEDED(hr)
+        ? BasicInfo.FileAttributes
+        : INVALID_FILE_ATTRIBUTES;
+
+    return hr;
 }
 
 /**
@@ -1452,18 +1173,11 @@ HRESULT M2SetFileAttributes(
             FILE_ATTRIBUTE_NO_SCRUB_DATA) |
         FILE_ATTRIBUTE_NORMAL;
 
-    if (SetFileInformationByHandle(
+    return M2SetFileInformation(
         FileHandle,
         FileBasicInfo,
         &BasicInfo,
-        sizeof(FILE_BASIC_INFO)))
-    {
-        return S_OK;
-    }
-    else
-    {
-        return M2GetLastHRESULTErrorKnownFailedCall();
-    }
+        sizeof(FILE_BASIC_INFO));
 }
 
 /**
@@ -1490,21 +1204,17 @@ HRESULT M2GetFileSize(
 {
     FILE_STANDARD_INFO StandardInfo;
 
-    if (GetFileInformationByHandleEx(
+    HRESULT hr = M2GetFileInformation(
         FileHandle,
         FileStandardInfo,
         &StandardInfo,
-        sizeof(FILE_STANDARD_INFO)))
-    {
-        *FileSize = static_cast<ULONGLONG>(
-            StandardInfo.EndOfFile.QuadPart);
-        return S_OK;
-    }
-    else
-    {
-        *FileSize = 0;
-        return M2GetLastHRESULTErrorKnownFailedCall();
-    }
+        sizeof(FILE_STANDARD_INFO));
+
+    *FileSize = SUCCEEDED(hr)
+        ? static_cast<ULONGLONG>(StandardInfo.EndOfFile.QuadPart)
+        : 0;
+
+    return hr;
 }
 
 /**
@@ -1532,21 +1242,17 @@ HRESULT M2GetFileAllocationSize(
 {
     FILE_STANDARD_INFO StandardInfo;
 
-    if (GetFileInformationByHandleEx(
+    HRESULT hr = M2GetFileInformation(
         FileHandle,
         FileStandardInfo,
         &StandardInfo,
-        sizeof(FILE_STANDARD_INFO)))
-    {
-        *AllocationSize = static_cast<ULONGLONG>(
-            StandardInfo.AllocationSize.QuadPart);
-        return S_OK;
-    }
-    else
-    {
-        *AllocationSize = 0;
-        return M2GetLastHRESULTErrorKnownFailedCall();
-    }
+        sizeof(FILE_STANDARD_INFO));
+
+    *AllocationSize = SUCCEEDED(hr)
+        ? static_cast<ULONGLONG>(StandardInfo.AllocationSize.QuadPart)
+        : 0;
+
+    return hr;
 }
 
 /**
@@ -1572,18 +1278,11 @@ HRESULT M2DeleteFile(
     FILE_DISPOSITION_INFO DispostionInfo;
     DispostionInfo.DeleteFile = TRUE;
 
-    if (SetFileInformationByHandle(
+    return M2SetFileInformation(
         FileHandle,
         FileDispositionInfo,
-        &DispostionInfo,
-        sizeof(FILE_DISPOSITION_INFO)))
-    {
-        return S_OK;
-    }
-    else
-    {
-        return M2GetLastHRESULTErrorKnownFailedCall();
-    }
+        & DispostionInfo,
+        sizeof(FILE_DISPOSITION_INFO));
 }
 
 /**
@@ -1639,31 +1338,6 @@ HRESULT M2DeleteFileIgnoreReadonlyAttribute(
 #pragma region Module
 
 /**
- * Retrieves the address of an exported function or variable from the specified
- * dynamic-link library (DLL).
- *
- * @param lpProcAddress The address of the exported function or variable.
- * @param hModule A handle to the DLL module that contains the function or
- *                variable. The LoadLibrary, LoadLibraryEx, LoadPackagedLibrary
- *                or GetModuleHandle function returns this handle. This
- *                function does not retrieve addresses from modules that were
- *                loaded using the LOAD_LIBRARY_AS_DATAFILE flag. For more
- *                information, see LoadLibraryEx.
- * @param lpProcName The function or variable name, or the function's ordinal
- *                   value. If this parameter is an ordinal value, it must be
- *                   in the low-order word; the high-order word must be zero.
- * @return HRESULT. If the function succeeds, the return value is S_OK.
- */
-HRESULT M2GetProcAddress(
-    _Out_ FARPROC* lpProcAddress,
-    _In_ HMODULE hModule,
-    _In_ LPCSTR lpProcName)
-{
-    *lpProcAddress = GetProcAddress(hModule, lpProcName);
-    return (!*lpProcAddress) ? S_OK : M2GetLastHRESULTErrorKnownFailedCall();
-}
-
-/**
  * Retrieves the path of the executable file of the current process.
  *
  * @return If the function succeeds, the return value is the path of the
@@ -1679,29 +1353,6 @@ std::wstring M2GetCurrentProcessModulePath()
 }
 
 #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
-
-/**
- * Loads the specified module with the optimization of the mitigation of DLL
- * preloading attacks into the address space of the calling process safely. The
- * specified module may cause other modules to be loaded.
- *
- * @param phLibModule A handle to the loaded module.
- * @param lpLibFileName A string that specifies the file name of the module to
- *                      load.
- * @param hFile This parameter is reserved for future use. It must be NULL.
- * @param dwFlags The action to be taken when loading the module.
- * @return HRESULT. If the function succeeds, the return value is S_OK.
- * @remark For more information, see LoadLibraryEx.
- */
-HRESULT M2LoadLibrary(
-    _Out_ HMODULE* phLibModule,
-    _In_ LPCWSTR lpLibFileName,
-    _Reserved_ HANDLE hFile,
-    _In_ DWORD dwFlags)
-{
-    *phLibModule = LoadLibraryExW(lpLibFileName, hFile, dwFlags);
-    return *phLibModule ? S_OK : M2GetLastHRESULTErrorKnownFailedCall();
-}
 
 /**
  * Obtain the best matching resource with the specified type and name in the
@@ -1771,22 +1422,43 @@ HRESULT M2LoadLibraryEx(
     _In_ DWORD Flags)
 {
     HRESULT hr = M2LoadLibrary(ModuleHandle, LibraryFileName, nullptr, Flags);
-    if (SUCCEEDED(hr))
+    if (FAILED(hr))
     {
         if ((Flags & LOAD_LIBRARY_SEARCH_SYSTEM32) &&
             (hr == __HRESULT_FROM_WIN32(ERROR_INVALID_PARAMETER)))
         {
+            // In the Windows API (with some exceptions discussed in the
+            // following paragraphs), the maximum length for a path is
+            // MAX_PATH, which is defined as 260 characters. A local path is
+            // structured in the following order: drive letter, colon,
+            // backslash, name components separated by backslashes, and a
+            // terminating null character. For example, the maximum path on
+            // drive D is "D:\some 256-character path string" where ""
+            // represents the invisible terminating null character for the
+            // current system codepage.
+            // MAX_PATH = 260 = wcslen(L"D:\some 256-character path string")
+            // wcslen(L"C:\\Windows\\System32") = 19
+            // BufferSize = 19 + 256 + 1 = 276
+            // P.S. In the most cases, I don't think the length "System32" path
+            // string will bigger than 19.
+            const size_t BufferLength = 276;
+            wchar_t Buffer[BufferLength];
             if (!wcschr(LibraryFileName, L'\\'))
             {
-                std::wstring SystemDirectoryPath;
-                hr = M2GetSystemDirectory(SystemDirectoryPath);
-                if (SUCCEEDED(hr))
+                if (0 == GetSystemDirectoryW(
+                    Buffer,
+                    static_cast<UINT>(BufferLength)))
                 {
-                    hr = M2LoadLibrary(
-                        ModuleHandle,
-                        (SystemDirectoryPath + LibraryFileName).c_str(),
-                        nullptr,
-                        Flags);
+                    hr = M2GetLastError(TRUE, nullptr);
+                }
+                else
+                {
+                    hr = StringCbCatW(Buffer, BufferLength, LibraryFileName);
+                    if (SUCCEEDED(hr))
+                    {
+                        hr = M2LoadLibrary(
+                            ModuleHandle, Buffer, nullptr, Flags);
+                    }
                 }
             }
         }
@@ -1801,115 +1473,6 @@ HRESULT M2LoadLibraryEx(
 
 #pragma region Registry
 #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
-
-/**
- * Creates the specified registry key. If the key already exists, the function
- * opens it. Note that key names are not case sensitive.
- *
- * @param hKey A handle to an open registry key.
- * @param lpSubKey The name of a subkey that this function opens or creates
- * @param Reserved This parameter is reserved and must be zero.
- * @param lpClass The user-defined class type of this key.
- * @param dwOptions This parameter can be one of the following values:
- *                  REG_OPTION_BACKUP_RESTORE, REG_OPTION_CREATE_LINK,
- *                  REG_OPTION_NON_VOLATILE, REG_OPTION_VOLATILE.
- * @param samDesired A mask that specifies the access rights for the key to be
- *                   created.
- * @param lpSecurityAttributes A pointer to a SECURITY_ATTRIBUTES structure
- *                             that determines whether the returned handle can
- *                             be inherited by child processes.
- * @param phkResult A pointer to a variable that receives a handle to the
- *                  opened or created key.
- * @param lpdwDisposition A pointer to a variable that receives one of the
- *                        following disposition values.
- * @return HRESULT. If the function succeeds, the return value is S_OK.
- * @remark For more information, see RegCreateKeyEx.
- */
-HRESULT M2RegCreateKey(
-    _In_ HKEY hKey,
-    _In_ LPCWSTR lpSubKey,
-    _Reserved_ DWORD Reserved,
-    _In_opt_ LPWSTR lpClass,
-    _In_ DWORD dwOptions,
-    _In_ REGSAM samDesired,
-    _In_opt_ CONST LPSECURITY_ATTRIBUTES lpSecurityAttributes,
-    _Out_ PHKEY phkResult,
-    _Out_opt_ LPDWORD lpdwDisposition)
-{
-    return HRESULT_FROM_WIN32(RegCreateKeyExW(
-        hKey,
-        lpSubKey,
-        Reserved,
-        lpClass,
-        dwOptions,
-        samDesired,
-        lpSecurityAttributes,
-        phkResult,
-        lpdwDisposition));
-}
-
-/**
- * Retrieves the type and data for the specified value name associated with an
- * open registry key.
- *
- * @param hKey A handle to an open registry key.
- * @param lpValueName The name of the registry value.
- * @param lpReserved This parameter is reserved and must be NULL.
- * @param lpType A pointer to a variable that receives a code indicating the
- *              type of data stored in the specified value.
- * @param lpData A pointer to a buffer that receives the value's data.
- * @param lpcbData A pointer to a variable that specifies the size of the
- *                 buffer pointed to by the lpData parameter, in bytes.
- * @return HRESULT. If the function succeeds, the return value is S_OK.
- * @remark For more information, see RegQueryValueEx.
- */
-HRESULT M2RegQueryValue(
-    _In_ HKEY hKey,
-    _In_opt_ LPCWSTR lpValueName,
-    _Reserved_ LPDWORD lpReserved,
-    _Out_opt_ LPDWORD lpType,
-    _Out_opt_ LPBYTE lpData,
-    _Inout_opt_ LPDWORD lpcbData)
-{
-    return HRESULT_FROM_WIN32(RegQueryValueExW(
-        hKey,
-        lpValueName,
-        lpReserved,
-        lpType,
-        lpData,
-        lpcbData));
-}
-
-/**
- * Retrieves the type and data for the specified value name associated with an
- * open registry key.
- *
- * @param hKey A handle to an open registry key.
- * @param lpValueName The name of the value to be set.
- * @param Reserved This parameter is reserved and must be zero.
- * @param dwType The type of data pointed to by the lpData parameter.
- * @param lpData The data to be stored.
- * @param cbData The size of the information pointed to by the lpData
- *               parameter, in bytes.
- * @return HRESULT. If the function succeeds, the return value is S_OK.
- * @remark For more information, see RegSetValueEx.
- */
-HRESULT M2RegSetValue(
-    _In_ HKEY hKey,
-    _In_opt_ LPCWSTR lpValueName,
-    _Reserved_ DWORD Reserved,
-    _In_ DWORD dwType,
-    _In_opt_ CONST BYTE* lpData,
-    _In_ DWORD cbData)
-{
-    return HRESULT_FROM_WIN32(RegSetValueExW(
-        hKey,
-        lpValueName,
-        Reserved,
-        dwType,
-        lpData,
-        cbData));
-}
 
 /**
  * Retrieves the string type data for the specified value name associated with
@@ -2250,7 +1813,9 @@ INT M2EnablePerMonitorDialogScaling()
     if (!hModule) return -1;
 
     if (FAILED(M2GetProcAddress(
-        pFunc, hModule, reinterpret_cast<LPCSTR>(2577))))
+        reinterpret_cast<FARPROC*>(&pFunc),
+        hModule,
+        reinterpret_cast<LPCSTR>(2577))))
         return -1;
 
     return pFunc();
@@ -2267,6 +1832,7 @@ INT M2EnablePerMonitorDialogScaling()
  * @param dpiY The value of the DPI along the Y axis. This value always refers
  *             to the vertical edge, even when the screen is rotated.
  * @return HRESULT. If the function succeeds, the return value is S_OK.
+ * @remark For more information, see GetDpiForMonitor.
  */
 HRESULT M2GetDpiForMonitor(
     _In_ HMONITOR hmonitor,
@@ -2275,14 +1841,18 @@ HRESULT M2GetDpiForMonitor(
     _Out_ UINT* dpiY)
 {
     HMODULE hModule = nullptr;
-    HRESULT hr = M2LoadLibraryEx(
+    HRESULT hr = M2LoadLibrary(
         &hModule,
         L"SHCore.dll",
+        nullptr,
         LOAD_LIBRARY_SEARCH_SYSTEM32);
     if (SUCCEEDED(hr))
     {
         decltype(GetDpiForMonitor)* pFunc = nullptr;
-        hr = M2GetProcAddress(pFunc, hModule, "GetDpiForMonitor");
+        hr = M2GetProcAddress(
+            reinterpret_cast<FARPROC*>(&pFunc),
+            hModule,
+            "GetDpiForMonitor");
         if (SUCCEEDED(hr))
         {
             hr = pFunc(hmonitor, dpiType, dpiX, dpiY);

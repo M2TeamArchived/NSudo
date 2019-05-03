@@ -16,6 +16,7 @@
   <ItemGroup>
     <ClInclude Include="$(MSBuildThisFileDirectory)CIBuild.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)M2Win32GUIHelpers.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)M2WindowsBaseHelpers.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)M2WindowsHelpers.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)NSudoVersion.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)M2MessageDialogResource.h" />
@@ -23,6 +24,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(MSBuildThisFileDirectory)M2Win32GUIHelpers.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)M2WindowsBaseHelpers.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)M2WindowsHelpers.cpp" />
   </ItemGroup>
   <ItemGroup>
