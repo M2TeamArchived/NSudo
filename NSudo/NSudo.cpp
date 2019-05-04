@@ -44,7 +44,7 @@ std::wstring GetMessageByID(DWORD MessageID)
     return MessageString;
 }
 
-DWORD M2RegSetStringValue(
+HRESULT M2RegSetStringValue(
     _In_ HKEY hKey,
     _In_opt_ LPCWSTR lpValueName,
     _In_opt_ LPCWSTR lpValueData)
@@ -52,7 +52,7 @@ DWORD M2RegSetStringValue(
     if (!lpValueName || !lpValueData)
         return ERROR_INVALID_PARAMETER;
 
-    return RegSetValueExW(
+    return M2RegSetValue(
         hKey,
         lpValueName,
         0,
@@ -61,13 +61,13 @@ DWORD M2RegSetStringValue(
         static_cast<DWORD>(wcslen(lpValueData) + 1) * sizeof(wchar_t));
 }
 
-DWORD M2RegCreateKey(
+HRESULT M2RegCreateKey(
     _In_ HKEY hKey,
     _In_ LPCWSTR lpSubKey,
     _In_ REGSAM samDesired,
     _Out_ PHKEY phkResult)
 {
-    return RegCreateKeyExW(
+    return M2RegCreateKey(
         hKey,
         lpSubKey,
         0,
@@ -79,59 +79,59 @@ DWORD M2RegCreateKey(
         nullptr);
 }
 
-DWORD CreateCommandStoreItem(
+HRESULT CreateCommandStoreItem(
     _In_ HKEY CommandStoreRoot,
     _In_ LPCWSTR ItemName,
     _In_ LPCWSTR ItemDescription,
     _In_ LPCWSTR ItemCommand,
     _In_ bool HasLUAShield)
 {
-    DWORD dwError = ERROR_SUCCESS;
+    HRESULT hr = S_OK;
     M2::CHKey hCommandStoreItem;
     M2::CHKey hCommandStoreItemCommand;
 
-    dwError = M2RegCreateKey(
+    hr = M2RegCreateKey(
         CommandStoreRoot,
         ItemName,
         KEY_ALL_ACCESS | KEY_WOW64_64KEY,
         &hCommandStoreItem);
-    if (ERROR_SUCCESS != dwError)
-        return dwError;
+    if (FAILED(hr))
+        return hr;
 
-    dwError = M2RegSetStringValue(
+    hr = M2RegSetStringValue(
         hCommandStoreItem,
         L"",
         ItemDescription);
-    if (ERROR_SUCCESS != dwError)
-        return dwError;
+    if (FAILED(hr))
+        return hr;
 
     if (HasLUAShield)
     {
-        dwError = M2RegSetStringValue(
+        hr = M2RegSetStringValue(
             hCommandStoreItem,
             L"HasLUAShield",
             L"");
-        if (ERROR_SUCCESS != dwError)
-            return dwError;
+        if (FAILED(hr))
+            return hr;
     }
 
-    dwError = M2RegCreateKey(
+    hr = M2RegCreateKey(
         hCommandStoreItem,
         L"command",
         KEY_ALL_ACCESS | KEY_WOW64_64KEY,
         &hCommandStoreItemCommand);
-    if (ERROR_SUCCESS != dwError)
-        return dwError;
+    if (FAILED(hr))
+        return hr;
 
-    dwError = M2RegSetStringValue(
+    hr = M2RegSetStringValue(
         hCommandStoreItemCommand,
         L"",
         ItemCommand);
-    if (ERROR_SUCCESS != dwError)
-        return dwError;
+    if (FAILED(hr))
+        return hr;
 
 
-    return dwError;
+    return hr;
 }
 
 /*
@@ -1011,7 +1011,7 @@ public:
         CNSudoContextMenuAdapter::Load(this->m_ContextMenuItems);
     }
 
-    DWORD Install()
+    HRESULT Install()
     {
         if (ERROR_SUCCESS != this->m_ConstructorError)
             return this->m_ConstructorError;
@@ -1021,7 +1021,7 @@ public:
             this->m_NSudoPath.c_str(),
             FALSE);
 
-        DWORD dwError = ERROR_SUCCESS;
+        HRESULT hr = S_OK;
 
         std::wstring NSudoPathWithQuotation =
             std::wstring(L"\"") + this->m_NSudoPath + L"\"";
@@ -1037,25 +1037,25 @@ public:
                 L"-ShowWindowMode=Hide" + L" " +
                 L"cmd /c start \"NSudo.ContextMenu.Launcher\" " + L"\"%1\"";
 
-            dwError = CreateCommandStoreItem(
+            hr = CreateCommandStoreItem(
                 this->m_CommandStoreRoot,
                 Item.ItemName.c_str(),
                 Item.ItemDescription.c_str(),
                 GeneratedItemCommand.c_str(),
                 Item.HasLUAShield);
-            if (ERROR_SUCCESS != dwError)
-                return dwError;
+            if (FAILED(hr))
+                return hr;
 
             SubCommands += Item.ItemName + L";";
         }
 
-        dwError = M2RegCreateKey(
+        hr = M2RegCreateKey(
             HKEY_CLASSES_ROOT,
             L"*\\shell\\NSudo",
             KEY_ALL_ACCESS | KEY_WOW64_64KEY,
             &hNSudoItem);
-        if (ERROR_SUCCESS != dwError)
-            return dwError;
+        if (FAILED(hr))
+            return hr;
 
         struct
         {
@@ -1080,16 +1080,16 @@ public:
 
         for (size_t i = 0; i < sizeof(ValueList) / sizeof(*ValueList); ++i)
         {
-            dwError = M2RegSetStringValue(
+            hr = M2RegSetStringValue(
                 hNSudoItem,
                 ValueList[i].lpValueName,
                 ValueList[i].lpValueData);
-            if (ERROR_SUCCESS != dwError)
-                return dwError;
+            if (FAILED(hr))
+                return hr;
 
         }
 
-        return dwError;
+        return hr;
     }
 
     DWORD Uninstall()
@@ -1097,12 +1097,25 @@ public:
         if (ERROR_SUCCESS != this->m_ConstructorError)
             return this->m_ConstructorError;
 
-        // 首先去除只读，然后删除文件，如果失败，则要求系统重启后删除
-        DWORD AttributesBackup = GetFileAttributesW(this->m_NSudoPath.c_str());
-        SetFileAttributesW(
+        // 首先尝试先去除只读，然后删除文件
+        HANDLE hFile = INVALID_HANDLE_VALUE;
+        HRESULT hr = M2CreateFile(
+            &hFile,
             this->m_NSudoPath.c_str(),
-            AttributesBackup & (-1 ^ FILE_ATTRIBUTE_READONLY));
-        if (!DeleteFileW(this->m_NSudoPath.c_str()))
+            SYNCHRONIZE | DELETE | FILE_READ_ATTRIBUTES | FILE_WRITE_ATTRIBUTES,
+            FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+            nullptr,
+            OPEN_EXISTING,
+            FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT,
+            nullptr);
+        if (SUCCEEDED(hr))
+        {
+            hr = M2DeleteFileIgnoreReadonlyAttribute(hFile);
+            M2CloseHandle(hFile);
+        }
+
+        // 如果失败，则要求系统重启后删除
+        if (FAILED(hr))
         {
             MoveFileExW(
                 this->m_NSudoPath.c_str(),
@@ -1166,7 +1179,7 @@ NSUDO_MESSAGE NSudoCommandLineParser(
                 if (0 == _wcsicmp(OptionAndParameter.first.c_str(), L"Install"))
                 {
                     // 如果参数是 /Install 或 -Install，则安装NSudo到系统
-                    if (ERROR_SUCCESS != ContextMenuManagement.Install())
+                    if (FAILED(ContextMenuManagement.Install()))
                     {
                         ContextMenuManagement.Uninstall();
                     }
