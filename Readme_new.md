@@ -1,7 +1,5 @@
 ﻿# NSudo - A Powerful System Administration Tool
 
-- [Test Title](#test-title)
-
 - Languages
   - [English](Readme.md)
   - [简体中文](自述.md)
