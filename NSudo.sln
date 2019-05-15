@@ -18,7 +18,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documents", "Documents", "{
 		Logo.png = Logo.png
 		People.md = People.md
 		Readme.md = Readme.md
-		Readme_new.md = Readme_new.md
 		Screenshot.png = Screenshot.png
 		屏幕截图.png = 屏幕截图.png
 		更新日志.md = 更新日志.md

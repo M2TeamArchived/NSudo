@@ -9,34 +9,65 @@
 [![996.icu](https://img.shields.io/badge/link-996.icu-red.svg)](https://996.icu)
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FM2Team%2FNSudo.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2FM2Team%2FNSudo?ref=badge_shield)
 
-- [简体中文](自述.md)
-- [繁體中文](說明.md)
-
 ![Screenshot](Screenshot.png)
 
-- Notice: NSudo is based on SuperCMD by Raymai97.Visit 
-  [here](http://bbs.pcbeta.com/viewthread-1508863-1-1.html "here") for more 
-  information about SuperCMD.
+- Languages
+  - [English](Readme.md)
+  - [简体中文](自述.md)
+  - [繁體中文](說明.md)
+- [About](#about)
+  - [Prototype Project](#prototype)
+  - [Third-party introduction](#third-party-introduction)
+  - [System requirements](#system-requirements)
+- [Usage](#usage)
+  - [Quick Start](#quick-start)
+  - [Command Line](#command-line)
+  - [Shortcut List](#shortcut-list)
+- Documents
+  - [Changelog](Changelog.md)
+  - [Relevant People](People.md)
+  - [Code of Conduct](CODE_OF_CONDUCT.md)
+  - [Contributing to NSudo](CONTRIBUTING.md)
+- Source repositories
+  - [GitHub (Main)](https://github.com/M2Team/NSudo)
+  - [Gitee (Mirror)](https://gitee.com/M2-Team/NSudo)
+- Communities
+  - [GitHub](https://github.com/M2Team/NSudo/issues)
+  - [MDL](https://forums.mydigitallife.net/threads/59268/)
+  - [52pojie](https://www.52pojie.cn/thread-847059-1-1.html)
+- Contact
+  - [E-mail](mailto:Mouri_Naruto@Outlook.com)
 
-## Introduction
-I will give you some thirdparty introduction links because I am not good at 
-English.
+
+## About
+
+### Prototype
+
+NSudo is based on SuperCMD by Raymai97. Visit 
+[here](http://bbs.pcbeta.com/viewthread-1508863-1-1.html "here") for more 
+information about SuperCMD.
+
+### Third-party introduction
 - MajorGeeks: https://www.majorgeeks.com/files/details/nsudo.html
 - softpedia.com: https://www.softpedia.com/get/Tweak/System-Tweak/NSudo.shtml
 - TrishTech.com: https://www.trishtech.com/2018/11/nsudo-run-programs-with-full-privileges-in-windows/
 - Wilders Security Forums: https://www.wilderssecurity.com/threads/396818
 
-## System Requirements
+### System requirements
 - Supported OS Version: Windows NT 6.0 or later
 - Supported CPU Architecture: x86, x86-64(AMD64), ARM, ARM64
 
-## Usage
-- Please go to the [CPU Architecture] folder and click NSudo.exe. Follow the 
-  prompts.
-  - For example, if you want to use 64-bit NSudo on your Intel or AMD device,
-    you need to go to the x64 folder and click NSudoG.exe
 
-## Command Line Options
+## Usage
+
+### Quick Start
+
+Please go to the [CPU Architecture] folder and click NSudo.exe. Follow the 
+prompts. For example, if you want to use 64-bit NSudo on your Intel or AMD 
+device, you need to go to the x64 folder and click NSudoG.exe
+
+### Command Line
+
 ```
 Format: NSudo [ Options and parameters ] Command line or ShortCut Command
 
@@ -120,12 +151,22 @@ Example:
     privileges and the default Integrity Level.
         NSudo -U:T -P:E cmd
 ```
+
 Example：If you want to run Command Prompt with TrustedInstaller, enable all 
-privileges and the default Integrity Level
+privileges and the default Integrity Level:
+
 > NSudo -U:T -P:E cmd
+
+Starting from NSudo 5.0.1708.16, the command line nested quotes is supported. 
+For example: 
+
+> NSudo -U:T cmd /c "dir "C:\Program Files" & pause"
+
+### Shortcut List
 
 You can edit NSudo.json to custom the Shortcut list, here are the demo 
 (NSudo.json in the NSudo.exe's folder):
+
 ```
 {
   "ShortCutList_V2": {
@@ -137,8 +178,3 @@ You can edit NSudo.json to custom the Shortcut list, here are the demo
   }
 }
 ```
-Starting from NSudo 5.0.1708.16, the command line nested quotes is supported. 
-For example: 
-> NSudo -U:T cmd /c "dir "C:\Program Files" & pause"
-
-## Have a good time -- M2-Team
