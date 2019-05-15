@@ -141,23 +141,4 @@ Starting from NSudo 5.0.1708.16, the command line nested quotes is supported.
 For example: 
 > NSudo -U:T cmd /c "dir "C:\Program Files" & pause"
 
-
-
-## Git Repositories
-- GitHub (Main)
-  - https://github.com/M2Team/NSudo
-- OSChina (Mirrors)
-  - https://gitee.com/M2-Team/NSudo
-
-## Documents
-- [NSudo's Changelog](Changelog.md)
-- [NSudo's Relevant People](People.md)
-- [NSudo's Code of Conduct](CODE_OF_CONDUCT.md)
-- [Contributing to NSudo](CONTRIBUTING.md)
-
-## Communication
-- MDL Post: https://forums.mydigitallife.net/threads/59268/
-- 52pojie Post: https://www.52pojie.cn/thread-847059-1-1.html
-- E-mail: Mouri_Naruto@Outlook.com
-
 ## Have a good time -- M2-Team
