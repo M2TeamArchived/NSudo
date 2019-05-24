@@ -1293,6 +1293,36 @@ HRESULT M2DeleteFile(
 HRESULT M2DeleteFileIgnoreReadonlyAttribute(
     _In_ HANDLE FileHandle);
 
+
+typedef void* M2_FILE_ENUMERATOR_HANDLE;
+typedef M2_FILE_ENUMERATOR_HANDLE* PM2_FILE_ENUMERATOR_HANDLE;
+
+typedef struct _M2_FILE_ENUMERATOR_INFORMATION
+{
+    FILETIME CreationTime;
+    FILETIME LastAccessTime;
+    FILETIME LastWriteTime;
+    FILETIME ChangeTime;
+    LARGE_INTEGER EndOfFile;
+    LARGE_INTEGER AllocationSize;
+    DWORD FileAttributes;
+    DWORD EaSize;
+    LARGE_INTEGER FileId;
+    WCHAR ShortName[16];
+    WCHAR FileName[256];
+} M2_FILE_ENUMERATOR_INFORMATION, * PM2_FILE_ENUMERATOR_INFORMATION;
+
+HRESULT M2CreateFileEnumerator(
+    _Out_ PM2_FILE_ENUMERATOR_HANDLE FileEnumeratorHandle,
+    _In_ HANDLE FileHandle);
+
+HRESULT M2CloseFileEnumerator(
+    _In_ M2_FILE_ENUMERATOR_HANDLE FileEnumeratorHandle);
+
+HRESULT M2QueryFileEnumerator(
+    _Out_ PM2_FILE_ENUMERATOR_INFORMATION FileEnumeratorInformation,
+    _In_ M2_FILE_ENUMERATOR_HANDLE FileEnumeratorHandle);
+
 #pragma endregion
 
 #pragma region Module

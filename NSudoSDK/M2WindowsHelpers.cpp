@@ -1333,6 +1333,126 @@ HRESULT M2DeleteFileIgnoreReadonlyAttribute(
     return hr;
 }
 
+typedef struct _M2_FILE_ENUMERATOR_OBJECT
+{
+    HANDLE FileHandle;
+    PFILE_ID_BOTH_DIR_INFO CurrentFileInfo;
+    BYTE FileInfoBuffer[32768];
+} M2_FILE_ENUMERATOR_OBJECT, * PM2_FILE_ENUMERATOR_OBJECT;
+
+HRESULT M2CreateFileEnumerator(
+    _Out_ PM2_FILE_ENUMERATOR_HANDLE FileEnumeratorHandle,
+    _In_ HANDLE FileHandle)
+{
+    if ((!FileEnumeratorHandle) || (INVALID_HANDLE_VALUE == FileHandle))
+        return __HRESULT_FROM_WIN32(ERROR_INVALID_PARAMETER);
+
+    *FileEnumeratorHandle = nullptr;
+
+    PM2_FILE_ENUMERATOR_OBJECT Object = nullptr;
+    HRESULT hr = M2AllocMemory(
+        reinterpret_cast<PVOID*>(&Object),
+        sizeof(M2_FILE_ENUMERATOR_OBJECT));
+    if (SUCCEEDED(hr))
+    {
+        Object->FileHandle = FileHandle;
+
+        *FileEnumeratorHandle = Object;
+    }
+
+    return hr;
+}
+
+HRESULT M2CloseFileEnumerator(
+    _In_ M2_FILE_ENUMERATOR_HANDLE FileEnumeratorHandle)
+{
+    if (!FileEnumeratorHandle)
+        return __HRESULT_FROM_WIN32(ERROR_INVALID_PARAMETER);
+
+    return M2FreeMemory(FileEnumeratorHandle);
+}
+
+HRESULT M2QueryFileEnumerator(
+    _Out_ PM2_FILE_ENUMERATOR_INFORMATION FileEnumeratorInformation,
+    _In_ M2_FILE_ENUMERATOR_HANDLE FileEnumeratorHandle)
+{
+    if ((!FileEnumeratorHandle) || (!FileEnumeratorInformation))
+        return __HRESULT_FROM_WIN32(ERROR_INVALID_PARAMETER);
+
+    HRESULT hr = S_OK;
+
+    PM2_FILE_ENUMERATOR_OBJECT Object =
+        reinterpret_cast<PM2_FILE_ENUMERATOR_OBJECT>(FileEnumeratorHandle);
+
+    if (!Object->CurrentFileInfo)
+    {
+        Object->CurrentFileInfo =
+            reinterpret_cast<PFILE_ID_BOTH_DIR_INFO>(Object->FileInfoBuffer);
+
+        hr = M2GetFileInformation(
+            Object->FileHandle,
+            FILE_INFO_BY_HANDLE_CLASS::FileIdBothDirectoryRestartInfo,
+            Object->CurrentFileInfo,
+            sizeof(Object->FileInfoBuffer));
+    }
+    else if (!Object->CurrentFileInfo->NextEntryOffset)
+    {
+        Object->CurrentFileInfo =
+            reinterpret_cast<PFILE_ID_BOTH_DIR_INFO>(Object->FileInfoBuffer);
+        hr = M2GetFileInformation(
+            Object->FileHandle,
+            FILE_INFO_BY_HANDLE_CLASS::FileIdBothDirectoryInfo,
+            Object->CurrentFileInfo,
+            sizeof(Object->FileInfoBuffer));
+    }
+    else
+    {
+        Object->CurrentFileInfo = reinterpret_cast<PFILE_ID_BOTH_DIR_INFO>(
+            reinterpret_cast<ULONG_PTR>(Object->CurrentFileInfo)
+            + Object->CurrentFileInfo->NextEntryOffset);
+    }
+
+    if (SUCCEEDED(hr))
+    {
+        FileEnumeratorInformation->CreationTime.dwHighDateTime =
+            Object->CurrentFileInfo->CreationTime.HighPart;
+        FileEnumeratorInformation->CreationTime.dwLowDateTime =
+            Object->CurrentFileInfo->CreationTime.LowPart;
+        FileEnumeratorInformation->LastAccessTime.dwHighDateTime =
+            Object->CurrentFileInfo->LastAccessTime.HighPart;
+        FileEnumeratorInformation->LastAccessTime.dwLowDateTime =
+            Object->CurrentFileInfo->LastAccessTime.LowPart;
+        FileEnumeratorInformation->LastWriteTime.dwHighDateTime =
+            Object->CurrentFileInfo->LastWriteTime.HighPart;
+        FileEnumeratorInformation->LastWriteTime.dwLowDateTime =
+            Object->CurrentFileInfo->LastWriteTime.LowPart;
+        FileEnumeratorInformation->ChangeTime.dwHighDateTime =
+            Object->CurrentFileInfo->ChangeTime.HighPart;
+        FileEnumeratorInformation->ChangeTime.dwLowDateTime =
+            Object->CurrentFileInfo->ChangeTime.LowPart;
+        FileEnumeratorInformation->EndOfFile =
+            Object->CurrentFileInfo->EndOfFile;
+        FileEnumeratorInformation->AllocationSize =
+            Object->CurrentFileInfo->AllocationSize;
+        FileEnumeratorInformation->FileAttributes =
+            Object->CurrentFileInfo->FileAttributes;
+        FileEnumeratorInformation->EaSize =
+            Object->CurrentFileInfo->EaSize;
+        FileEnumeratorInformation->FileId =
+            Object->CurrentFileInfo->FileId;
+        wcsncpy_s(
+            FileEnumeratorInformation->ShortName,
+            Object->CurrentFileInfo->ShortName,
+            Object->CurrentFileInfo->ShortNameLength / sizeof(wchar_t));
+        wcsncpy_s(
+            FileEnumeratorInformation->FileName,
+            Object->CurrentFileInfo->FileName,
+            Object->CurrentFileInfo->FileNameLength / sizeof(wchar_t));
+    }
+
+    return hr;
+}
+
 #pragma endregion
 
 #pragma region Module
