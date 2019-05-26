@@ -16,7 +16,7 @@
   - [简体中文](自述.md)
   - [繁體中文](說明.md)
 - [About](#about)
-  - [Prototype Project](#prototype)
+  - [Prototype](#prototype)
   - [Third-party introduction](#third-party-introduction)
   - [System requirements](#system-requirements)
 - [Usage](#usage)
@@ -28,7 +28,7 @@
   - [Relevant People](People.md)
   - [Code of Conduct](CODE_OF_CONDUCT.md)
   - [Contributing to NSudo](CONTRIBUTING.md)
-- Source repositories
+- Git source repositories
   - [GitHub (Main)](https://github.com/M2Team/NSudo)
   - [Gitee (Mirror)](https://gitee.com/M2-Team/NSudo)
 - Communities
