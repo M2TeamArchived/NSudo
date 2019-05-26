@@ -15,59 +15,6 @@
 #include <assert.h>
 #include <process.h>
 
- /**
-  * Retrieves the calling thread's last-error code value. The last-error code is
-  * maintained on a per-thread basis. Multiple threads do not overwrite each
-  * other's last-error code.
-  *
-  * @param IsLastFunctionCallSucceeded Set this parameter TRUE if you can be
-  *                                    sure that the last call was succeeded.
-  *                                    Otherwise, set this parameter FALSE.
-  * @param UseLastErrorWhenSucceeded Set this parameter TRUE if you want to use
-  *                                  last-error code if the last call was
-  *                                  succeeded. Otherwise, set this parameter
-  *                                  FALSE.
-  * @return The calling thread's last-error code.
-  */
-DWORD M2GetLastWin32Error(
-    _In_ BOOL IsLastFunctionCallSucceeded,
-    _In_ BOOL UseLastErrorWhenSucceeded)
-{
-    if (IsLastFunctionCallSucceeded && !UseLastErrorWhenSucceeded)
-        return ERROR_SUCCESS;
-
-    DWORD LastError = GetLastError();
-
-    if (!IsLastFunctionCallSucceeded && ERROR_SUCCESS == LastError)
-        return ERROR_FUNCTION_FAILED;
-
-    return LastError;
-}
-
-/**
- * Retrieves the calling thread's last-error code value. The last-error code is
- * maintained on a per-thread basis. Multiple threads do not overwrite each
- * other's last-error code.
- *
- * @param IsLastFunctionCallSucceeded Set this parameter TRUE if you can be
- *                                    sure that the last call was succeeded.
- *                                    Otherwise, set this parameter FALSE.
- * @param UseLastErrorWhenSucceeded Set this parameter TRUE if you want to use
- *                                  last-error code if the last call was
- *                                  succeeded. Otherwise, set this parameter
- *                                  FALSE.
- * @return The calling thread's last-error code which is converted to an
- *         HRESULT value.
- */
-HRESULT M2GetLastHResultError(
-    _In_ BOOL IsLastFunctionCallSucceeded,
-    _In_ BOOL UseLastErrorWhenSucceeded)
-{
-    return HRESULT_FROM_WIN32(M2GetLastWin32Error(
-        IsLastFunctionCallSucceeded,
-        UseLastErrorWhenSucceeded));
-}
-
 /**
  * Enables or disables privileges in the specified access token. Enabling or
  * disabling privileges in an access token requires TOKEN_ADJUST_PRIVILEGES
@@ -370,6 +317,59 @@ HRESULT M2GetFileInformation(
         FileInformationClass,
         lpFileInformation,
         dwBufferSize));
+}
+
+/**
+ * Retrieves the calling thread's last-error code value. The last-error code is
+ * maintained on a per-thread basis. Multiple threads do not overwrite each
+ * other's last-error code.
+ *
+ * @param IsLastFunctionCallSucceeded Set this parameter TRUE if you can be
+ *                                    sure that the last call was succeeded.
+ *                                    Otherwise, set this parameter FALSE.
+ * @param UseLastErrorWhenSucceeded Set this parameter TRUE if you want to use
+ *                                  last-error code if the last call was
+ *                                  succeeded. Otherwise, set this parameter
+ *                                  FALSE.
+ * @return The calling thread's last-error code which is converted to an
+ *         HRESULT value.
+ */
+HRESULT M2GetLastHResultError(
+    _In_ BOOL IsLastFunctionCallSucceeded,
+    _In_ BOOL UseLastErrorWhenSucceeded)
+{
+    return HRESULT_FROM_WIN32(M2GetLastWin32Error(
+        IsLastFunctionCallSucceeded,
+        UseLastErrorWhenSucceeded));
+}
+
+/**
+ * Retrieves the calling thread's last-error code value. The last-error code is
+ * maintained on a per-thread basis. Multiple threads do not overwrite each
+ * other's last-error code.
+ *
+ * @param IsLastFunctionCallSucceeded Set this parameter TRUE if you can be
+ *                                    sure that the last call was succeeded.
+ *                                    Otherwise, set this parameter FALSE.
+ * @param UseLastErrorWhenSucceeded Set this parameter TRUE if you want to use
+ *                                  last-error code if the last call was
+ *                                  succeeded. Otherwise, set this parameter
+ *                                  FALSE.
+ * @return The calling thread's last-error code.
+ */
+DWORD M2GetLastWin32Error(
+    _In_ BOOL IsLastFunctionCallSucceeded,
+    _In_ BOOL UseLastErrorWhenSucceeded)
+{
+    if (IsLastFunctionCallSucceeded && !UseLastErrorWhenSucceeded)
+        return ERROR_SUCCESS;
+
+    DWORD LastError = GetLastError();
+
+    if (!IsLastFunctionCallSucceeded && ERROR_SUCCESS == LastError)
+        return ERROR_FUNCTION_FAILED;
+
+    return LastError;
 }
 
 /**

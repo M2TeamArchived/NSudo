@@ -16,40 +16,6 @@
 #include <Windows.h>
 
 /**
- * Retrieves the calling thread's last-error code value. The last-error code is
- * maintained on a per-thread basis. Multiple threads do not overwrite each
- * other's last-error code.
- *
- * @param IsLastFunctionCallSucceeded Set this parameter TRUE if you can be
- *                                    sure that the last call was succeeded.
- *                                    Otherwise, set this parameter FALSE.
- * @param UseLastErrorWhenSucceeded Set this parameter TRUE if you want to use
- *                                  last-error code if the last call was
- *                                  succeeded. Otherwise, set this parameter
- *                                  FALSE.
- * @return The calling thread's last-error code.
- */
-DWORD M2GetLastWin32Error(
-    _In_ BOOL IsLastFunctionCallSucceeded = FALSE,
-    _In_ BOOL UseLastErrorWhenSucceeded = FALSE);
-
-/**
- * Retrieves the calling thread's last-error code value. The last-error code is
- * maintained on a per-thread basis. Multiple threads do not overwrite each
- * other's last-error code.
- *
- * @param KnownFailed Set this parameter TRUE if you can be sure that the last
- *                    call was failed, Otherwise, set this parameter FALSE.
- * @param LastErrorCode A pointer to a variable that returns the calling
- *                      thread's last-error code. This parameter can be NULL.
- * @return The calling thread's last-error code which is converted to an
- *         HRESULT value.
- */
-HRESULT M2GetLastHResultError(
-    _In_ BOOL IsLastFunctionCallSucceeded = FALSE,
-    _In_ BOOL UseLastErrorWhenSucceeded = FALSE);
-
-/**
  * Enables or disables privileges in the specified access token. Enabling or
  * disabling privileges in an access token requires TOKEN_ADJUST_PRIVILEGES
  * access.
@@ -271,6 +237,40 @@ HRESULT M2GetFileInformation(
     _In_  FILE_INFO_BY_HANDLE_CLASS FileInformationClass,
     _Out_ LPVOID lpFileInformation,
     _In_  DWORD dwBufferSize);
+
+/**
+ * Retrieves the calling thread's last-error code value. The last-error code is
+ * maintained on a per-thread basis. Multiple threads do not overwrite each
+ * other's last-error code.
+ *
+ * @param KnownFailed Set this parameter TRUE if you can be sure that the last
+ *                    call was failed, Otherwise, set this parameter FALSE.
+ * @param LastErrorCode A pointer to a variable that returns the calling
+ *                      thread's last-error code. This parameter can be NULL.
+ * @return The calling thread's last-error code which is converted to an
+ *         HRESULT value.
+ */
+HRESULT M2GetLastHResultError(
+    _In_ BOOL IsLastFunctionCallSucceeded = FALSE,
+    _In_ BOOL UseLastErrorWhenSucceeded = FALSE);
+
+/**
+ * Retrieves the calling thread's last-error code value. The last-error code is
+ * maintained on a per-thread basis. Multiple threads do not overwrite each
+ * other's last-error code.
+ *
+ * @param IsLastFunctionCallSucceeded Set this parameter TRUE if you can be
+ *                                    sure that the last call was succeeded.
+ *                                    Otherwise, set this parameter FALSE.
+ * @param UseLastErrorWhenSucceeded Set this parameter TRUE if you want to use
+ *                                  last-error code if the last call was
+ *                                  succeeded. Otherwise, set this parameter
+ *                                  FALSE.
+ * @return The calling thread's last-error code.
+ */
+DWORD M2GetLastWin32Error(
+    _In_ BOOL IsLastFunctionCallSucceeded = FALSE,
+    _In_ BOOL UseLastErrorWhenSucceeded = FALSE);
 
 /**
  * Retrieves the address of an exported function or variable from the specified
