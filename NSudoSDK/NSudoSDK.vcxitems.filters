@@ -15,9 +15,6 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)M2WindowsHelpers.h">
       <Filter>M2WindowsHelpers</Filter>
     </ClInclude>
-    <ClInclude Include="$(MSBuildThisFileDirectory)M2WindowsBaseHelpers.h">
-      <Filter>M2WindowsBaseHelpers</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ThirdParty">
@@ -29,9 +26,6 @@
     <Filter Include="M2WindowsHelpers">
       <UniqueIdentifier>{530d5407-8320-441d-9e9f-c4a148ce259d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="M2WindowsBaseHelpers">
-      <UniqueIdentifier>{f1f27958-a871-4087-9c33-dc583c397946}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(MSBuildThisFileDirectory)M2Win32GUIHelpers.cpp">
@@ -39,9 +33,6 @@
     </ClCompile>
     <ClCompile Include="$(MSBuildThisFileDirectory)M2WindowsHelpers.cpp">
       <Filter>M2WindowsHelpers</Filter>
-    </ClCompile>
-    <ClCompile Include="$(MSBuildThisFileDirectory)M2WindowsBaseHelpers.cpp">
-      <Filter>M2WindowsBaseHelpers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

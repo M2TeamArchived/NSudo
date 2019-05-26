@@ -50,8 +50,8 @@ HRESULT M2RegSetStringValue(
     _In_opt_ LPCWSTR lpValueData)
 {
     if (!lpValueName || !lpValueData)
-        return ERROR_INVALID_PARAMETER;
-
+        return __HRESULT_FROM_WIN32(ERROR_INVALID_PARAMETER);
+    
     return M2RegSetValue(
         hKey,
         lpValueName,
