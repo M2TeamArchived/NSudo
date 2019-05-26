@@ -24,7 +24,7 @@ typedef struct _NSHADOW_ENVIRONMENT_CONFIGURATION
 
 
 void x(
-    _In_opt_ LPCWSTR lpApplicationName,
+    /*_In_opt_ LPCWSTR lpApplicationName,
     _Inout_opt_ LPWSTR lpCommandLine,
 
     _In_ DWORD dwCreationFlags,
@@ -54,12 +54,12 @@ void x(
     _In_        DWORD dwLogonFlags
 
     //_In_        HANDLE hToken,
-    //_In_        DWORD dwLogonFlags
+    //_In_        DWORD dwLogonFlags*/
 )
 {
-    CreateProcessAsUserW;
+    /*CreateProcessAsUserW;
     CreateProcessW;
 
     CreateProcessWithLogonW;
-    CreateProcessWithTokenW;
+    CreateProcessWithTokenW;*/
 }
