@@ -375,6 +375,18 @@ DWORD M2GetLastWin32Error(
 }
 
 /**
+ * Retrieves the number of logical processors in the current group.
+ *
+ * @return The number of logical processors in the current group.
+ */
+DWORD M2GetNumberOfHardwareThreads()
+{
+    SYSTEM_INFO SystemInfo = { 0 };
+    GetNativeSystemInfo(&SystemInfo);
+    return SystemInfo.dwNumberOfProcessors;
+}
+
+/**
  * Retrieves the address of an exported function or variable from the specified
  * dynamic-link library (DLL).
  *
@@ -699,6 +711,567 @@ HRESULT M2SetFileInformation(
 
 
 #endif // _M2_WINDOWS_BASE_HELPERS_
+
+#ifdef _M2_WINDOWS_BASE_EXTENDED_HELPERS_
+
+/**
+ * Allocates a block of memory from the default heap of the calling process.
+ * The allocated memory will be initialized to zero. The allocated memory is
+ * not movable.
+ *
+ * @param AllocatedMemoryBlock A pointer to the allocated memory block.
+ * @param MemoryBlockSize The number of bytes to be allocated.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ */
+HRESULT M2AllocMemory(
+    _Out_ PVOID* AllocatedMemoryBlock,
+    _In_ SIZE_T MemoryBlockSize)
+{
+    return M2HeapAlloc(
+        AllocatedMemoryBlock,
+        GetProcessHeap(),
+        HEAP_ZERO_MEMORY,
+        MemoryBlockSize);
+}
+
+/**
+ * Reallocates a block of memory from the default heap of the calling process.
+ * If the reallocation request is for a larger size, the additional region of
+ * memory beyond the original size be initialized to zero. This function
+ * enables you to resize a memory block and change other memory block
+ * properties. The allocated memory is not movable.
+ *
+ * @param NewAllocatedMemoryBlock A pointer to the allocated memory block.
+ * @param OldAllocatedMemoryBlock A pointer to the block of memory that the
+ *                                function reallocates. This pointer is
+ *                                returned by an earlier call to the
+ *                                M2AllocMemory or M2ReAllocMemory function.
+ * @param NewMemoryBlockSize The new size of the memory block, in bytes. A
+ *                           memory block's size can be increased or decreased
+ *                           by using this function.
+ * @return HRESULT. If the function succeeds, the return value is S_OK. If the
+ *         function fails, the original memory is not freed, and the original
+ *         handle and pointer are still valid.
+ */
+HRESULT M2ReAllocMemory(
+    _Out_ PVOID* NewAllocatedMemoryBlock,
+    _In_ PVOID OldAllocatedMemoryBlock,
+    _In_ SIZE_T NewMemoryBlockSize)
+{
+    return M2HeapReAlloc(
+        NewAllocatedMemoryBlock,
+        GetProcessHeap(),
+        HEAP_ZERO_MEMORY,
+        OldAllocatedMemoryBlock,
+        NewMemoryBlockSize);
+}
+
+/**
+ * Frees a memory block allocated from a heap by the M2AllocMemory and
+ * M2ReAllocMemory function.
+ *
+ * @param AllocatedMemoryBlock A pointer to the memory block to be freed. This
+ * pointer is returned by the M2AllocMemory or M2ReAllocMemory function. If
+ * this pointer is nullptr, the behavior is undefined.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ */
+HRESULT M2FreeMemory(
+    _In_ PVOID AllocatedMemoryBlock)
+{
+    return M2HeapFree(GetProcessHeap(), 0, AllocatedMemoryBlock);
+}
+
+/**
+ * Retrieves file system attributes for a specified file or directory.
+ *
+ * @param FileHandle A handle to the file that contains the information to be
+ *                   retrieved. This handle should not be a pipe handle.
+ * @param FileAttributes The attributes of the specified file or directory.
+ *                       For a list of attribute values and their descriptions,
+ *                       see File Attribute Constants. If the function fails,
+ *                       the return value is INVALID_FILE_ATTRIBUTES.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ */
+HRESULT M2GetFileAttributes(
+    _In_ HANDLE FileHandle,
+    _Out_ PDWORD FileAttributes)
+{
+    FILE_BASIC_INFO BasicInfo;
+
+    HRESULT hr = M2GetFileInformation(
+        FileHandle,
+        FileBasicInfo,
+        &BasicInfo,
+        sizeof(FILE_BASIC_INFO));
+
+    *FileAttributes = SUCCEEDED(hr)
+        ? BasicInfo.FileAttributes
+        : INVALID_FILE_ATTRIBUTES;
+
+    return hr;
+}
+
+/**
+ * Sets the attributes for a file or directory.
+ *
+ * @param FileHandle A handle to the file for which to change information. This
+ *                   handle must be opened with the appropriate permissions for
+ *                   the requested change. This handle should not be a pipe
+ *                   handle.
+ * @param FileAttributes The file attributes to set for the file. This
+ *                       parameter can be one or more values, combined using
+ *                       the bitwise - OR operator. However, all other values
+ *                       override FILE_ATTRIBUTE_NORMAL. For more information,
+ *                       see the SetFileAttributes function.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ */
+HRESULT M2SetFileAttributes(
+    _In_ HANDLE FileHandle,
+    _In_ DWORD FileAttributes)
+{
+    FILE_BASIC_INFO BasicInfo = { 0 };
+    BasicInfo.FileAttributes =
+        FileAttributes & (
+            FILE_SHARE_READ |
+            FILE_SHARE_WRITE |
+            FILE_SHARE_DELETE |
+            FILE_ATTRIBUTE_ARCHIVE |
+            FILE_ATTRIBUTE_TEMPORARY |
+            FILE_ATTRIBUTE_OFFLINE |
+            FILE_ATTRIBUTE_NOT_CONTENT_INDEXED |
+            FILE_ATTRIBUTE_NO_SCRUB_DATA) |
+        FILE_ATTRIBUTE_NORMAL;
+
+    return M2SetFileInformation(
+        FileHandle,
+        FileBasicInfo,
+        &BasicInfo,
+        sizeof(FILE_BASIC_INFO));
+}
+
+/**
+ * Retrieves the size of the specified file.
+ *
+ * @param FileHandle A handle to the file that contains the information to be
+ *                   retrieved. This handle should not be a pipe handle.
+ * @param FileSize A pointer to a ULONGLONG value that receives the file size,
+ *                 in bytes.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ * @remark The way to get a file handle for this operation:
+ *         HANDLE hFile = CreateFileW(
+ *             lpFileName,
+ *             GENERIC_READ | SYNCHRONIZE,
+ *             FILE_SHARE_READ,
+ *             nullptr,
+ *             OPEN_EXISTING,
+ *             FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT,
+ *             nullptr);
+ */
+HRESULT M2GetFileSize(
+    _In_ HANDLE FileHandle,
+    _Out_ PULONGLONG FileSize)
+{
+    FILE_STANDARD_INFO StandardInfo;
+
+    HRESULT hr = M2GetFileInformation(
+        FileHandle,
+        FileStandardInfo,
+        &StandardInfo,
+        sizeof(FILE_STANDARD_INFO));
+
+    *FileSize = SUCCEEDED(hr)
+        ? static_cast<ULONGLONG>(StandardInfo.EndOfFile.QuadPart)
+        : 0;
+
+    return hr;
+}
+
+/**
+ * Retrieves the amount of space that is allocated for the file.
+ *
+ * @param FileHandle A handle to the file that contains the information to be
+ *                   retrieved. This handle should not be a pipe handle.
+ * @param AllocationSize A pointer to a ULONGLONG value that receives the
+ *                       amount of space that is allocated for the file, in
+ *                       bytes.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ * @remark The way to get a file handle for this operation:
+ *         HANDLE hFile = CreateFileW(
+ *             lpFileName,
+ *             GENERIC_READ | SYNCHRONIZE,
+ *             FILE_SHARE_READ,
+ *             nullptr,
+ *             OPEN_EXISTING,
+ *             FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT,
+ *             nullptr);
+ */
+HRESULT M2GetFileAllocationSize(
+    _In_ HANDLE FileHandle,
+    _Out_ PULONGLONG AllocationSize)
+{
+    FILE_STANDARD_INFO StandardInfo;
+
+    HRESULT hr = M2GetFileInformation(
+        FileHandle,
+        FileStandardInfo,
+        &StandardInfo,
+        sizeof(FILE_STANDARD_INFO));
+
+    *AllocationSize = SUCCEEDED(hr)
+        ? static_cast<ULONGLONG>(StandardInfo.AllocationSize.QuadPart)
+        : 0;
+
+    return hr;
+}
+
+/**
+ * Deletes an existing file.
+ *
+ * @param FileHandle The handle of the file to be deleted. This handle must be
+ *                   opened with the appropriate permissions for the requested
+ *                   change. This handle should not be a pipe handle.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ * @remark The way to get a file handle for this operation:
+ *         HANDLE hFile = CreateFileW(
+ *             lpFileName,
+ *             SYNCHRONIZE | DELETE | FILE_READ_ATTRIBUTES | FILE_WRITE_ATTRIBUTES,
+ *             FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+ *             nullptr,
+ *             OPEN_EXISTING,
+ *             FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT,
+ *             nullptr);
+ */
+HRESULT M2DeleteFile(
+    _In_ HANDLE FileHandle)
+{
+    FILE_DISPOSITION_INFO DispostionInfo;
+    DispostionInfo.DeleteFile = TRUE;
+
+    return M2SetFileInformation(
+        FileHandle,
+        FileDispositionInfo,
+        &DispostionInfo,
+        sizeof(FILE_DISPOSITION_INFO));
+}
+
+/**
+ * Deletes an existing file, even the file have the readonly attribute.
+ *
+ * @param FileHandle The handle of the file to be deleted. This handle must be
+ *                   opened with the appropriate permissions for the requested
+ *                   change. This handle should not be a pipe handle.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ * @remark The way to get a file handle for this operation:
+ *         HANDLE hFile = CreateFileW(
+ *             lpFileName,
+ *             SYNCHRONIZE | DELETE | FILE_READ_ATTRIBUTES | FILE_WRITE_ATTRIBUTES,
+ *             FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+ *             nullptr,
+ *             OPEN_EXISTING,
+ *             FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT,
+ *             nullptr);
+ */
+HRESULT M2DeleteFileIgnoreReadonlyAttribute(
+    _In_ HANDLE FileHandle)
+{
+    HRESULT hr = S_OK;
+    DWORD OldAttribute = 0;
+
+    // Save old attributes.
+    hr = M2GetFileAttributes(
+        FileHandle,
+        &OldAttribute);
+    if (!SUCCEEDED(hr)) return hr;
+
+    // Remove readonly attribute.
+    hr = M2SetFileAttributes(
+        FileHandle,
+        OldAttribute & (-1 ^ FILE_ATTRIBUTE_READONLY));
+    if (!SUCCEEDED(hr)) return hr;
+
+    // Delete the file.
+    hr = M2DeleteFile(FileHandle);
+    if (!SUCCEEDED(hr))
+    {
+        // Restore attributes if failed.
+        hr = M2SetFileAttributes(
+            FileHandle,
+            OldAttribute);
+    }
+
+    return hr;
+}
+
+/**
+ * The internal content of the file enumerator handle.
+ */
+typedef struct _M2_FILE_ENUMERATOR_OBJECT
+{
+    HANDLE FileHandle;
+    PFILE_ID_BOTH_DIR_INFO CurrentFileInfo;
+    BYTE FileInfoBuffer[32768];
+} M2_FILE_ENUMERATOR_OBJECT, * PM2_FILE_ENUMERATOR_OBJECT;
+
+/**
+ * Creates a file enumerator handle for searching a directory for a file or
+ * subdirectory with a name.
+ *
+ * @param FileEnumeratorHandle The file enumerator handle.
+ * @param FileHandle The handle of the file to be searched a directory for a
+ *                   file or subdirectory with a name. This handle must be
+ *                   opened with the appropriate permissions for the requested
+ *                   change. This handle should not be a pipe handle.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ * @remark The way to get a file handle for this operation:
+ *         HANDLE hFile = CreateFileW(
+ *             lpFileName,
+ *             FILE_LIST_DIRECTORY | SYNCHRONIZE,
+ *             FILE_SHARE_READ | FILE_SHARE_WRITE,
+ *             nullptr,
+ *             OPEN_EXISTING,
+ *             FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT,
+ *             nullptr);
+ */
+HRESULT M2CreateFileEnumerator(
+    _Out_ PM2_FILE_ENUMERATOR_HANDLE FileEnumeratorHandle,
+    _In_ HANDLE FileHandle)
+{
+    if ((!FileEnumeratorHandle) || (INVALID_HANDLE_VALUE == FileHandle))
+        return __HRESULT_FROM_WIN32(ERROR_INVALID_PARAMETER);
+
+    *FileEnumeratorHandle = nullptr;
+
+    PM2_FILE_ENUMERATOR_OBJECT Object = nullptr;
+    HRESULT hr = M2AllocMemory(
+        reinterpret_cast<PVOID*>(&Object),
+        sizeof(M2_FILE_ENUMERATOR_OBJECT));
+    if (SUCCEEDED(hr))
+    {
+        Object->FileHandle = FileHandle;
+
+        *FileEnumeratorHandle = Object;
+    }
+
+    return hr;
+}
+
+/**
+ * Closes a created file enumerator handle.
+ *
+ * @param FileEnumeratorHandle The created file enumerator handle.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ */
+HRESULT M2CloseFileEnumerator(
+    _In_ M2_FILE_ENUMERATOR_HANDLE FileEnumeratorHandle)
+{
+    if (!FileEnumeratorHandle)
+        return __HRESULT_FROM_WIN32(ERROR_INVALID_PARAMETER);
+
+    return M2FreeMemory(FileEnumeratorHandle);
+}
+
+/**
+ * Starts or continues a file search from a created file enumerator handle.
+ *
+ * @param FileEnumeratorInformation A pointer to the
+ *                                  M2_FILE_ENUMERATOR_INFORMATION structure
+ *                                  that receives information about a found
+ *                                  file or directory.
+ * @param FileEnumeratorHandle The created file enumerator handle.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ */
+HRESULT M2QueryFileEnumerator(
+    _Out_ PM2_FILE_ENUMERATOR_INFORMATION FileEnumeratorInformation,
+    _In_ M2_FILE_ENUMERATOR_HANDLE FileEnumeratorHandle)
+{
+    if ((!FileEnumeratorHandle) || (!FileEnumeratorInformation))
+        return __HRESULT_FROM_WIN32(ERROR_INVALID_PARAMETER);
+
+    HRESULT hr = S_OK;
+
+    PM2_FILE_ENUMERATOR_OBJECT Object =
+        reinterpret_cast<PM2_FILE_ENUMERATOR_OBJECT>(FileEnumeratorHandle);
+
+    if (!Object->CurrentFileInfo)
+    {
+        Object->CurrentFileInfo =
+            reinterpret_cast<PFILE_ID_BOTH_DIR_INFO>(Object->FileInfoBuffer);
+
+        hr = M2GetFileInformation(
+            Object->FileHandle,
+            FILE_INFO_BY_HANDLE_CLASS::FileIdBothDirectoryRestartInfo,
+            Object->CurrentFileInfo,
+            sizeof(Object->FileInfoBuffer));
+    }
+    else if (!Object->CurrentFileInfo->NextEntryOffset)
+    {
+        Object->CurrentFileInfo =
+            reinterpret_cast<PFILE_ID_BOTH_DIR_INFO>(Object->FileInfoBuffer);
+        hr = M2GetFileInformation(
+            Object->FileHandle,
+            FILE_INFO_BY_HANDLE_CLASS::FileIdBothDirectoryInfo,
+            Object->CurrentFileInfo,
+            sizeof(Object->FileInfoBuffer));
+    }
+    else
+    {
+        Object->CurrentFileInfo = reinterpret_cast<PFILE_ID_BOTH_DIR_INFO>(
+            reinterpret_cast<ULONG_PTR>(Object->CurrentFileInfo)
+            + Object->CurrentFileInfo->NextEntryOffset);
+    }
+
+    if (SUCCEEDED(hr))
+    {
+        FileEnumeratorInformation->CreationTime.dwHighDateTime =
+            Object->CurrentFileInfo->CreationTime.HighPart;
+        FileEnumeratorInformation->CreationTime.dwLowDateTime =
+            Object->CurrentFileInfo->CreationTime.LowPart;
+        FileEnumeratorInformation->LastAccessTime.dwHighDateTime =
+            Object->CurrentFileInfo->LastAccessTime.HighPart;
+        FileEnumeratorInformation->LastAccessTime.dwLowDateTime =
+            Object->CurrentFileInfo->LastAccessTime.LowPart;
+        FileEnumeratorInformation->LastWriteTime.dwHighDateTime =
+            Object->CurrentFileInfo->LastWriteTime.HighPart;
+        FileEnumeratorInformation->LastWriteTime.dwLowDateTime =
+            Object->CurrentFileInfo->LastWriteTime.LowPart;
+        FileEnumeratorInformation->ChangeTime.dwHighDateTime =
+            Object->CurrentFileInfo->ChangeTime.HighPart;
+        FileEnumeratorInformation->ChangeTime.dwLowDateTime =
+            Object->CurrentFileInfo->ChangeTime.LowPart;
+        FileEnumeratorInformation->FileSize =
+            Object->CurrentFileInfo->EndOfFile;
+        FileEnumeratorInformation->AllocationSize =
+            Object->CurrentFileInfo->AllocationSize;
+        FileEnumeratorInformation->FileAttributes =
+            Object->CurrentFileInfo->FileAttributes;
+        FileEnumeratorInformation->EaSize =
+            Object->CurrentFileInfo->EaSize;
+        FileEnumeratorInformation->FileId =
+            Object->CurrentFileInfo->FileId;
+        wcsncpy_s(
+            FileEnumeratorInformation->ShortName,
+            Object->CurrentFileInfo->ShortName,
+            Object->CurrentFileInfo->ShortNameLength / sizeof(wchar_t));
+        wcsncpy_s(
+            FileEnumeratorInformation->FileName,
+            Object->CurrentFileInfo->FileName,
+            Object->CurrentFileInfo->FileNameLength / sizeof(wchar_t));
+    }
+
+    return hr;
+}
+
+/**
+ * Retrieves a specified type of information about an access token. The calling
+ * process must have appropriate access rights to obtain the information.
+ *
+ * @param OutputInformation A pointer to a buffer the function fills with the
+ *                          requested information. When you have finished using
+ *                          the information, free it by calling the
+ *                          M2FreeMemory function. You should also set the
+ *                          pointer to NULL.
+ * @param TokenHandle A handle to an access token from which information is
+ *                    retrieved.
+ * @param TokenInformationClass Specifies a value from the
+ *                              TOKEN_INFORMATION_CLASS enumerated type to
+ *                              identify the type of information the function
+ *                              retrieves.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ * @remark For more information, see GetTokenInformation.
+ */
+HRESULT M2GetTokenInformation(
+    _Out_ PVOID* OutputInformation,
+    _In_ HANDLE TokenHandle,
+    _In_ TOKEN_INFORMATION_CLASS TokenInformationClass)
+{
+    *OutputInformation = nullptr;
+
+    DWORD Length = 0;
+
+    HRESULT hr = M2GetTokenInformation(
+        TokenHandle,
+        TokenInformationClass,
+        nullptr,
+        0,
+        &Length);
+    if (hr == __HRESULT_FROM_WIN32(ERROR_INSUFFICIENT_BUFFER))
+    {
+        hr = M2AllocMemory(OutputInformation, Length);
+        if (SUCCEEDED(hr))
+        {
+            hr = M2GetTokenInformation(
+                TokenHandle,
+                TokenInformationClass,
+                *OutputInformation,
+                Length,
+                &Length);
+            if (FAILED(hr))
+            {
+                hr = M2FreeMemory(*OutputInformation);
+            }
+        }
+    }
+
+    return hr;
+}
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+/**
+ * Retrieves the string type data for the specified value name associated with
+ * an open registry key.
+ *
+ * @param hKey A handle to an open registry key.
+ * @param lpValueName The name of the registry value.
+ * @param lpData A pointer to a buffer that receives the value's data. When you
+ *               have finished using the information, free it by calling the
+ *               M2FreeMemory function. You should also set the pointer to
+ *               NULL.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ * @remark For more information, see RegQueryValueEx.
+ */
+HRESULT M2RegQueryStringValue(
+    _Out_ LPWSTR* lpData,
+    _In_ HKEY hKey,
+    _In_opt_ LPCWSTR lpValueName)
+{
+    *lpData = nullptr;
+
+    DWORD cbData = 0;
+    HRESULT hr = M2RegQueryValue(
+        hKey,
+        lpValueName,
+        nullptr,
+        nullptr,
+        nullptr,
+        &cbData);
+    if (SUCCEEDED(hr))
+    {
+        hr = M2AllocMemory(reinterpret_cast<PVOID*>(lpData), cbData);
+        if (SUCCEEDED(hr))
+        {
+            DWORD Type = 0;
+            hr = M2RegQueryValue(
+                hKey,
+                lpValueName,
+                nullptr,
+                &Type,
+                reinterpret_cast<LPBYTE>(*lpData),
+                &cbData);
+            if (SUCCEEDED(hr) && REG_SZ != Type)
+                hr = __HRESULT_FROM_WIN32(ERROR_ILLEGAL_ELEMENT_ADDRESS);
+
+            if (FAILED(hr))
+                hr = M2FreeMemory(*lpData);
+        }
+    }
+
+    return hr;
+}
+
+#endif
+
+#endif // !_M2_WINDOWS_BASE_EXTENDED_HELPERS_
 
 #ifdef _M2_WINDOWS_HELPERS_
 
@@ -1372,93 +1945,6 @@ Platform::String^ M2ConvertByteSizeToString(uint64 ByteSize)
 
 #pragma endregion
 
-#pragma region Thread
-
-/**
- * Retrieves the number of logical processors in the current group.
- *
- * @return The number of logical processors in the current group.
- */
-DWORD M2GetNumberOfHardwareThreads()
-{
-    SYSTEM_INFO SystemInfo = { 0 };
-    GetNativeSystemInfo(&SystemInfo);
-    return SystemInfo.dwNumberOfProcessors;
-}
-
-#pragma endregion
-
-#pragma region Memory
-
-/**
- * Allocates a block of memory from the default heap of the calling process.
- * The allocated memory will be initialized to zero. The allocated memory is
- * not movable.
- *
- * @param AllocatedMemoryBlock A pointer to the allocated memory block.
- * @param MemoryBlockSize The number of bytes to be allocated.
- * @return HRESULT. If the function succeeds, the return value is S_OK.
- */
-HRESULT M2AllocMemory(
-    _Out_ PVOID* AllocatedMemoryBlock,
-    _In_ SIZE_T MemoryBlockSize)
-{
-    return M2HeapAlloc(
-        AllocatedMemoryBlock,
-        GetProcessHeap(),
-        HEAP_ZERO_MEMORY,
-        MemoryBlockSize);
-}
-
-/**
- * Reallocates a block of memory from the default heap of the calling process.
- * If the reallocation request is for a larger size, the additional region of
- * memory beyond the original size be initialized to zero. This function
- * enables you to resize a memory block and change other memory block
- * properties. The allocated memory is not movable.
- *
- * @param NewAllocatedMemoryBlock A pointer to the allocated memory block.
- * @param OldAllocatedMemoryBlock A pointer to the block of memory that the
- *                                function reallocates. This pointer is
- *                                returned by an earlier call to the
- *                                M2AllocMemory or M2ReAllocMemory function.
- * @param NewMemoryBlockSize The new size of the memory block, in bytes. A
- *                           memory block's size can be increased or decreased
- *                           by using this function.
- * @return HRESULT. If the function succeeds, the return value is S_OK. If the
- *         function fails, the original memory is not freed, and the original
- *         handle and pointer are still valid.
- */
-HRESULT M2ReAllocMemory(
-    _Out_ PVOID* NewAllocatedMemoryBlock,
-    _In_ PVOID OldAllocatedMemoryBlock,
-    _In_ SIZE_T NewMemoryBlockSize)
-{
-    return M2HeapReAlloc(
-        NewAllocatedMemoryBlock,
-        GetProcessHeap(),
-        HEAP_ZERO_MEMORY,
-        OldAllocatedMemoryBlock,
-        NewMemoryBlockSize);
-}
-
-/**
- * Frees a memory block allocated from a heap by the M2AllocMemory and
- * M2ReAllocMemory function.
- *
- * @param AllocatedMemoryBlock A pointer to the memory block to be freed. This
- * pointer is returned by the M2AllocMemory or M2ReAllocMemory function. If
- * this pointer is nullptr, the behavior is undefined.
- * @return HRESULT. If the function succeeds, the return value is S_OK.
- */
-HRESULT M2FreeMemory(
-    _In_ PVOID AllocatedMemoryBlock)
-{
-    return M2HeapFree(GetProcessHeap(), 0, AllocatedMemoryBlock);
-}
-
-#pragma endregion
-
 #pragma region AccessToken
 
 /**
@@ -1509,60 +1995,6 @@ HRESULT M2OpenProcessToken(
         return S_OK;
 
     return M2GetLastHResultError();
-}
-
-/**
- * Retrieves a specified type of information about an access token. The calling
- * process must have appropriate access rights to obtain the information.
- *
- * @param OutputInformation A pointer to a buffer the function fills with the
- *                          requested information. When you have finished using
- *                          the information, free it by calling the
- *                          M2FreeMemory function. You should also set the
- *                          pointer to NULL.
- * @param TokenHandle A handle to an access token from which information is
- *                    retrieved.
- * @param TokenInformationClass Specifies a value from the
- *                              TOKEN_INFORMATION_CLASS enumerated type to
- *                              identify the type of information the function
- *                              retrieves.
- * @return HRESULT. If the function succeeds, the return value is S_OK.
- * @remark For more information, see GetTokenInformation.
- */
-HRESULT M2GetTokenInformation(
-    _Out_ PVOID* OutputInformation,
-    _In_ HANDLE TokenHandle,
-    _In_ TOKEN_INFORMATION_CLASS TokenInformationClass)
-{
-    *OutputInformation = nullptr;
-
-    DWORD Length = 0;
-
-    HRESULT hr = M2GetTokenInformation(
-        TokenHandle,
-        TokenInformationClass,
-        nullptr,
-        0,
-        &Length);
-    if (hr == __HRESULT_FROM_WIN32(ERROR_INSUFFICIENT_BUFFER))
-    {
-        hr = M2AllocMemory(OutputInformation, Length);
-        if (SUCCEEDED(hr))
-        {
-            hr = M2GetTokenInformation(
-                TokenHandle,
-                TokenInformationClass,
-                *OutputInformation,
-                Length,
-                &Length);
-            if (FAILED(hr))
-            {
-                hr = M2FreeMemory(*OutputInformation);
-            }
-        }
-    }
-
-    return hr;
 }
 
 #pragma endregion
@@ -1760,390 +2192,6 @@ Platform::Guid M2CreateGuid()
 
 #pragma endregion
 
-#pragma region File
-
-/**
- * Retrieves file system attributes for a specified file or directory.
- *
- * @param FileHandle A handle to the file that contains the information to be
- *                   retrieved. This handle should not be a pipe handle.
- * @param FileAttributes The attributes of the specified file or directory.
- *                       For a list of attribute values and their descriptions,
- *                       see File Attribute Constants. If the function fails,
- *                       the return value is INVALID_FILE_ATTRIBUTES.
- * @return HRESULT. If the function succeeds, the return value is S_OK.
- */
-HRESULT M2GetFileAttributes(
-    _In_ HANDLE FileHandle,
-    _Out_ PDWORD FileAttributes)
-{
-    FILE_BASIC_INFO BasicInfo;
-
-    HRESULT hr = M2GetFileInformation(
-        FileHandle,
-        FileBasicInfo,
-        &BasicInfo,
-        sizeof(FILE_BASIC_INFO));
-
-    *FileAttributes = SUCCEEDED(hr)
-        ? BasicInfo.FileAttributes
-        : INVALID_FILE_ATTRIBUTES;
-
-    return hr;
-}
-
-/**
- * Sets the attributes for a file or directory.
- *
- * @param FileHandle A handle to the file for which to change information. This
- *                   handle must be opened with the appropriate permissions for
- *                   the requested change. This handle should not be a pipe
- *                   handle.
- * @param FileAttributes The file attributes to set for the file. This
- *                       parameter can be one or more values, combined using
- *                       the bitwise - OR operator. However, all other values
- *                       override FILE_ATTRIBUTE_NORMAL. For more information,
- *                       see the SetFileAttributes function.
- * @return HRESULT. If the function succeeds, the return value is S_OK.
- */
-HRESULT M2SetFileAttributes(
-    _In_ HANDLE FileHandle,
-    _In_ DWORD FileAttributes)
-{
-    FILE_BASIC_INFO BasicInfo = { 0 };
-    BasicInfo.FileAttributes =
-        FileAttributes & (
-            FILE_SHARE_READ |
-            FILE_SHARE_WRITE |
-            FILE_SHARE_DELETE |
-            FILE_ATTRIBUTE_ARCHIVE |
-            FILE_ATTRIBUTE_TEMPORARY |
-            FILE_ATTRIBUTE_OFFLINE |
-            FILE_ATTRIBUTE_NOT_CONTENT_INDEXED |
-            FILE_ATTRIBUTE_NO_SCRUB_DATA) |
-        FILE_ATTRIBUTE_NORMAL;
-
-    return M2SetFileInformation(
-        FileHandle,
-        FileBasicInfo,
-        &BasicInfo,
-        sizeof(FILE_BASIC_INFO));
-}
-
-/**
- * Retrieves the size of the specified file.
- *
- * @param FileHandle A handle to the file that contains the information to be
- *                   retrieved. This handle should not be a pipe handle.
- * @param FileSize A pointer to a ULONGLONG value that receives the file size,
- *                 in bytes.
- * @return HRESULT. If the function succeeds, the return value is S_OK.
- * @remark The way to get a file handle for this operation:
- *         HANDLE hFile = CreateFileW(
- *             lpFileName,
- *             GENERIC_READ | SYNCHRONIZE,
- *             FILE_SHARE_READ,
- *             nullptr,
- *             OPEN_EXISTING,
- *             FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT,
- *             nullptr);
- */
-HRESULT M2GetFileSize(
-    _In_ HANDLE FileHandle,
-    _Out_ PULONGLONG FileSize)
-{
-    FILE_STANDARD_INFO StandardInfo;
-
-    HRESULT hr = M2GetFileInformation(
-        FileHandle,
-        FileStandardInfo,
-        &StandardInfo,
-        sizeof(FILE_STANDARD_INFO));
-
-    *FileSize = SUCCEEDED(hr)
-        ? static_cast<ULONGLONG>(StandardInfo.EndOfFile.QuadPart)
-        : 0;
-
-    return hr;
-}
-
-/**
- * Retrieves the amount of space that is allocated for the file.
- *
- * @param FileHandle A handle to the file that contains the information to be
- *                   retrieved. This handle should not be a pipe handle.
- * @param AllocationSize A pointer to a ULONGLONG value that receives the
- *                       amount of space that is allocated for the file, in
- *                       bytes.
- * @return HRESULT. If the function succeeds, the return value is S_OK.
- * @remark The way to get a file handle for this operation:
- *         HANDLE hFile = CreateFileW(
- *             lpFileName,
- *             GENERIC_READ | SYNCHRONIZE,
- *             FILE_SHARE_READ,
- *             nullptr,
- *             OPEN_EXISTING,
- *             FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT,
- *             nullptr);
- */
-HRESULT M2GetFileAllocationSize(
-    _In_ HANDLE FileHandle,
-    _Out_ PULONGLONG AllocationSize)
-{
-    FILE_STANDARD_INFO StandardInfo;
-
-    HRESULT hr = M2GetFileInformation(
-        FileHandle,
-        FileStandardInfo,
-        &StandardInfo,
-        sizeof(FILE_STANDARD_INFO));
-
-    *AllocationSize = SUCCEEDED(hr)
-        ? static_cast<ULONGLONG>(StandardInfo.AllocationSize.QuadPart)
-        : 0;
-
-    return hr;
-}
-
-/**
- * Deletes an existing file.
- *
- * @param FileHandle The handle of the file to be deleted. This handle must be
- *                   opened with the appropriate permissions for the requested
- *                   change. This handle should not be a pipe handle.
- * @return HRESULT. If the function succeeds, the return value is S_OK.
- * @remark The way to get a file handle for this operation:
- *         HANDLE hFile = CreateFileW(
- *             lpFileName,
- *             SYNCHRONIZE | DELETE | FILE_READ_ATTRIBUTES | FILE_WRITE_ATTRIBUTES,
- *             FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
- *             nullptr,
- *             OPEN_EXISTING,
- *             FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT,
- *             nullptr);
- */
-HRESULT M2DeleteFile(
-    _In_ HANDLE FileHandle)
-{
-    FILE_DISPOSITION_INFO DispostionInfo;
-    DispostionInfo.DeleteFile = TRUE;
-
-    return M2SetFileInformation(
-        FileHandle,
-        FileDispositionInfo,
-        &DispostionInfo,
-        sizeof(FILE_DISPOSITION_INFO));
-}
-
-/**
- * Deletes an existing file, even the file have the readonly attribute.
- *
- * @param FileHandle The handle of the file to be deleted. This handle must be
- *                   opened with the appropriate permissions for the requested
- *                   change. This handle should not be a pipe handle.
- * @return HRESULT. If the function succeeds, the return value is S_OK.
- * @remark The way to get a file handle for this operation:
- *         HANDLE hFile = CreateFileW(
- *             lpFileName,
- *             SYNCHRONIZE | DELETE | FILE_READ_ATTRIBUTES | FILE_WRITE_ATTRIBUTES,
- *             FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
- *             nullptr,
- *             OPEN_EXISTING,
- *             FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT,
- *             nullptr);
- */
-HRESULT M2DeleteFileIgnoreReadonlyAttribute(
-    _In_ HANDLE FileHandle)
-{
-    HRESULT hr = S_OK;
-    DWORD OldAttribute = 0;
-
-    // Save old attributes.
-    hr = M2GetFileAttributes(
-        FileHandle,
-        &OldAttribute);
-    if (!SUCCEEDED(hr)) return hr;
-
-    // Remove readonly attribute.
-    hr = M2SetFileAttributes(
-        FileHandle,
-        OldAttribute & (-1 ^ FILE_ATTRIBUTE_READONLY));
-    if (!SUCCEEDED(hr)) return hr;
-
-    // Delete the file.
-    hr = M2DeleteFile(FileHandle);
-    if (!SUCCEEDED(hr))
-    {
-        // Restore attributes if failed.
-        hr = M2SetFileAttributes(
-            FileHandle,
-            OldAttribute);
-    }
-
-    return hr;
-}
-
-/**
- * The internal content of the file enumerator handle.
- */
-typedef struct _M2_FILE_ENUMERATOR_OBJECT
-{
-    HANDLE FileHandle;
-    PFILE_ID_BOTH_DIR_INFO CurrentFileInfo;
-    BYTE FileInfoBuffer[32768];
-} M2_FILE_ENUMERATOR_OBJECT, * PM2_FILE_ENUMERATOR_OBJECT;
-
-/**
- * Creates a file enumerator handle for searching a directory for a file or
- * subdirectory with a name.
- *
- * @param FileEnumeratorHandle The file enumerator handle.
- * @param FileHandle The handle of the file to be searched a directory for a
- *                   file or subdirectory with a name. This handle must be
- *                   opened with the appropriate permissions for the requested
- *                   change. This handle should not be a pipe handle.
- * @return HRESULT. If the function succeeds, the return value is S_OK.
- * @remark The way to get a file handle for this operation:
- *         HANDLE hFile = CreateFileW(
- *             lpFileName,
- *             FILE_LIST_DIRECTORY | SYNCHRONIZE,
- *             FILE_SHARE_READ | FILE_SHARE_WRITE,
- *             nullptr,
- *             OPEN_EXISTING,
- *             FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT,
- *             nullptr);
- */
-HRESULT M2CreateFileEnumerator(
-    _Out_ PM2_FILE_ENUMERATOR_HANDLE FileEnumeratorHandle,
-    _In_ HANDLE FileHandle)
-{
-    if ((!FileEnumeratorHandle) || (INVALID_HANDLE_VALUE == FileHandle))
-        return __HRESULT_FROM_WIN32(ERROR_INVALID_PARAMETER);
-
-    *FileEnumeratorHandle = nullptr;
-
-    PM2_FILE_ENUMERATOR_OBJECT Object = nullptr;
-    HRESULT hr = M2AllocMemory(
-        reinterpret_cast<PVOID*>(&Object),
-        sizeof(M2_FILE_ENUMERATOR_OBJECT));
-    if (SUCCEEDED(hr))
-    {
-        Object->FileHandle = FileHandle;
-
-        *FileEnumeratorHandle = Object;
-    }
-
-    return hr;
-}
-
-/**
- * Closes a created file enumerator handle.
- *
- * @param FileEnumeratorHandle The created file enumerator handle.
- * @return HRESULT. If the function succeeds, the return value is S_OK.
- */
-HRESULT M2CloseFileEnumerator(
-    _In_ M2_FILE_ENUMERATOR_HANDLE FileEnumeratorHandle)
-{
-    if (!FileEnumeratorHandle)
-        return __HRESULT_FROM_WIN32(ERROR_INVALID_PARAMETER);
-
-    return M2FreeMemory(FileEnumeratorHandle);
-}
-
-/**
- * Starts or continues a file search from a created file enumerator handle.
- *
- * @param FileEnumeratorInformation A pointer to the
- *                                  M2_FILE_ENUMERATOR_INFORMATION structure
- *                                  that receives information about a found
- *                                  file or directory.
- * @param FileEnumeratorHandle The created file enumerator handle.
- * @return HRESULT. If the function succeeds, the return value is S_OK.
- */
-HRESULT M2QueryFileEnumerator(
-    _Out_ PM2_FILE_ENUMERATOR_INFORMATION FileEnumeratorInformation,
-    _In_ M2_FILE_ENUMERATOR_HANDLE FileEnumeratorHandle)
-{
-    if ((!FileEnumeratorHandle) || (!FileEnumeratorInformation))
-        return __HRESULT_FROM_WIN32(ERROR_INVALID_PARAMETER);
-
-    HRESULT hr = S_OK;
-
-    PM2_FILE_ENUMERATOR_OBJECT Object =
-        reinterpret_cast<PM2_FILE_ENUMERATOR_OBJECT>(FileEnumeratorHandle);
-
-    if (!Object->CurrentFileInfo)
-    {
-        Object->CurrentFileInfo =
-            reinterpret_cast<PFILE_ID_BOTH_DIR_INFO>(Object->FileInfoBuffer);
-
-        hr = M2GetFileInformation(
-            Object->FileHandle,
-            FILE_INFO_BY_HANDLE_CLASS::FileIdBothDirectoryRestartInfo,
-            Object->CurrentFileInfo,
-            sizeof(Object->FileInfoBuffer));
-    }
-    else if (!Object->CurrentFileInfo->NextEntryOffset)
-    {
-        Object->CurrentFileInfo =
-            reinterpret_cast<PFILE_ID_BOTH_DIR_INFO>(Object->FileInfoBuffer);
-        hr = M2GetFileInformation(
-            Object->FileHandle,
-            FILE_INFO_BY_HANDLE_CLASS::FileIdBothDirectoryInfo,
-            Object->CurrentFileInfo,
-            sizeof(Object->FileInfoBuffer));
-    }
-    else
-    {
-        Object->CurrentFileInfo = reinterpret_cast<PFILE_ID_BOTH_DIR_INFO>(
-            reinterpret_cast<ULONG_PTR>(Object->CurrentFileInfo)
-            + Object->CurrentFileInfo->NextEntryOffset);
-    }
-
-    if (SUCCEEDED(hr))
-    {
-        FileEnumeratorInformation->CreationTime.dwHighDateTime =
-            Object->CurrentFileInfo->CreationTime.HighPart;
-        FileEnumeratorInformation->CreationTime.dwLowDateTime =
-            Object->CurrentFileInfo->CreationTime.LowPart;
-        FileEnumeratorInformation->LastAccessTime.dwHighDateTime =
-            Object->CurrentFileInfo->LastAccessTime.HighPart;
-        FileEnumeratorInformation->LastAccessTime.dwLowDateTime =
-            Object->CurrentFileInfo->LastAccessTime.LowPart;
-        FileEnumeratorInformation->LastWriteTime.dwHighDateTime =
-            Object->CurrentFileInfo->LastWriteTime.HighPart;
-        FileEnumeratorInformation->LastWriteTime.dwLowDateTime =
-            Object->CurrentFileInfo->LastWriteTime.LowPart;
-        FileEnumeratorInformation->ChangeTime.dwHighDateTime =
-            Object->CurrentFileInfo->ChangeTime.HighPart;
-        FileEnumeratorInformation->ChangeTime.dwLowDateTime =
-            Object->CurrentFileInfo->ChangeTime.LowPart;
-        FileEnumeratorInformation->FileSize =
-            Object->CurrentFileInfo->EndOfFile;
-        FileEnumeratorInformation->AllocationSize =
-            Object->CurrentFileInfo->AllocationSize;
-        FileEnumeratorInformation->FileAttributes =
-            Object->CurrentFileInfo->FileAttributes;
-        FileEnumeratorInformation->EaSize =
-            Object->CurrentFileInfo->EaSize;
-        FileEnumeratorInformation->FileId =
-            Object->CurrentFileInfo->FileId;
-        wcsncpy_s(
-            FileEnumeratorInformation->ShortName,
-            Object->CurrentFileInfo->ShortName,
-            Object->CurrentFileInfo->ShortNameLength / sizeof(wchar_t));
-        wcsncpy_s(
-            FileEnumeratorInformation->FileName,
-            Object->CurrentFileInfo->FileName,
-            Object->CurrentFileInfo->FileNameLength / sizeof(wchar_t));
-    }
-
-    return hr;
-}
-
-#pragma endregion
-
 #pragma region Module
 
 /**
@@ -2278,64 +2326,6 @@ HRESULT M2LoadLibraryEx(
 
 #endif
 
-#pragma endregion
-
-#pragma region Registry
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
-
-/**
- * Retrieves the string type data for the specified value name associated with
- * an open registry key.
- *
- * @param hKey A handle to an open registry key.
- * @param lpValueName The name of the registry value.
- * @param lpData A pointer to a buffer that receives the value's data. When you
- *               have finished using the information, free it by calling the
- *               M2FreeMemory function. You should also set the pointer to
- *               NULL.
- * @return HRESULT. If the function succeeds, the return value is S_OK.
- * @remark For more information, see RegQueryValueEx.
- */
-HRESULT M2RegQueryStringValue(
-    _Out_ LPWSTR* lpData,
-    _In_ HKEY hKey,
-    _In_opt_ LPCWSTR lpValueName)
-{
-    *lpData = nullptr;
-
-    DWORD cbData = 0;
-    HRESULT hr = M2RegQueryValue(
-        hKey,
-        lpValueName,
-        nullptr,
-        nullptr,
-        nullptr,
-        &cbData);
-    if (SUCCEEDED(hr))
-    {
-        hr = M2AllocMemory(reinterpret_cast<PVOID*>(lpData), cbData);
-        if (SUCCEEDED(hr))
-        {
-            DWORD Type = 0;
-            hr = M2RegQueryValue(
-                hKey,
-                lpValueName,
-                nullptr,
-                &Type,
-                reinterpret_cast<LPBYTE>(*lpData),
-                &cbData);
-            if (SUCCEEDED(hr) && REG_SZ != Type)
-                hr = __HRESULT_FROM_WIN32(ERROR_ILLEGAL_ELEMENT_ADDRESS);
-
-            if (FAILED(hr))
-                hr = M2FreeMemory(*lpData);
-        }
-    }
-
-    return hr;
-}
-
-#endif
 #pragma endregion
 
 #pragma region Service

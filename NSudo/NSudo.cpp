@@ -659,8 +659,8 @@ bool NSudoCreateProcess(
                     WaitForSingleObjectEx(
                         ProcessInfo.hProcess, WaitInterval, FALSE);
 
-                    CloseHandle(ProcessInfo.hProcess);
-                    CloseHandle(ProcessInfo.hThread);
+                    M2CloseHandle(ProcessInfo.hProcess);
+                    M2CloseHandle(ProcessInfo.hThread);
                 }
             }
 
@@ -904,7 +904,7 @@ public:
     {
         if (INVALID_HANDLE_VALUE != this->m_OriginalCurrentProcessToken)
         {
-            CloseHandle(this->m_OriginalCurrentProcessToken);
+            M2CloseHandle(this->m_OriginalCurrentProcessToken);
         }
     }
 
