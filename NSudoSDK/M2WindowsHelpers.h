@@ -416,6 +416,20 @@ HRESULT M2LoadLibrary(
 #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
 
 /**
+ * Closes a handle to the specified registry key.
+ *
+ * @param hKey A handle to the open key to be closed.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ * @remark For more information, see RegCloseKey.
+ */
+HRESULT M2RegCloseKey(
+    _In_ HKEY hKey);
+
+#endif
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+/**
  * Creates the specified registry key. If the key already exists, the function
  * opens it. Note that key names are not case sensitive.
  *
@@ -870,6 +884,21 @@ inline HRESULT M2GetProcAddress(
         reinterpret_cast<FARPROC*>(&lpProcAddress), hModule, lpProcName);
 }
 
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+/**
+ * Determines whether the interface id have the correct interface name.
+ *
+ * @param InterfaceID A pointer to the string representation of the IID.
+ * @param InterfaceName A pointer to the interface name string.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ */
+HRESULT M2CoCheckInterfaceName(
+    _In_ LPCWSTR InterfaceID,
+    _In_ LPCWSTR InterfaceName);
+
+#endif
+
 #endif // !_M2_WINDOWS_BASE_EXTENDED_HELPERS_
 
 #ifndef _M2_WINDOWS_HELPERS_
@@ -1127,6 +1156,32 @@ namespace M2
     };
 
 #pragma endregion
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+    /**
+     * The handle definer for HKEY object.
+     */
+#pragma region CHKey
+
+    struct CHKeyDefiner
+    {
+        static inline HKEY GetInvalidValue()
+        {
+            return nullptr;
+        }
+
+        static inline void Close(HKEY Object)
+        {
+            M2RegCloseKey(Object);
+        }
+    };
+
+    typedef CObject<HKEY, CHKeyDefiner> CHKey;
+
+#pragma endregion
+
+#endif
 }
 
 #pragma endregion
@@ -1802,21 +1857,6 @@ namespace M2
 
 #pragma region COM
 
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
-
-/**
- * Determines whether the interface id have the correct interface name.
- *
- * @param InterfaceID A pointer to the string representation of the IID.
- * @param InterfaceName A pointer to the interface name string.
- * @return HRESULT. If the function succeeds, the return value is S_OK.
- */
-HRESULT M2CoCheckInterfaceName(
-    _In_ LPCWSTR InterfaceID,
-    _In_ LPCWSTR InterfaceName);
-
-#endif
-
 #ifdef CPPWINRT_VERSION
 
 /**
@@ -1954,37 +1994,6 @@ HRESULT M2LoadLibraryEx(
 
 #endif
 
-#pragma endregion
-
-#pragma region Registry
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
-
-namespace M2
-{
-    /**
- * The handle definer for HKEY object.
- */
-#pragma region CHKey
-
-    struct CHKeyDefiner
-    {
-        static inline HKEY GetInvalidValue()
-        {
-            return nullptr;
-        }
-
-        static inline void Close(HKEY Object)
-        {
-            RegCloseKey(Object);
-        }
-    };
-
-    typedef CObject<HKEY, CHKeyDefiner> CHKey;
-
-#pragma endregion
-}
-
-#endif
 #pragma endregion
 
 #pragma region Service
