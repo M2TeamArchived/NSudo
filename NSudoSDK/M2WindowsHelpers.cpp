@@ -1258,7 +1258,7 @@ HRESULT M2GetFileAllocationSize(
 /**
  * Deletes an existing file.
  *
- * @param FileHandle The handle of the file to be deleted.. This handle must be
+ * @param FileHandle The handle of the file to be deleted. This handle must be
  *                   opened with the appropriate permissions for the requested
  *                   change. This handle should not be a pipe handle.
  * @return HRESULT. If the function succeeds, the return value is S_OK.
@@ -1288,7 +1288,7 @@ HRESULT M2DeleteFile(
 /**
  * Deletes an existing file, even the file have the readonly attribute.
  *
- * @param FileHandle The handle of the file to be deleted.. This handle must be
+ * @param FileHandle The handle of the file to be deleted. This handle must be
  *                   opened with the appropriate permissions for the requested
  *                   change. This handle should not be a pipe handle.
  * @return HRESULT. If the function succeeds, the return value is S_OK.
@@ -1333,6 +1333,9 @@ HRESULT M2DeleteFileIgnoreReadonlyAttribute(
     return hr;
 }
 
+/**
+ * The internal content of the file enumerator handle.
+ */
 typedef struct _M2_FILE_ENUMERATOR_OBJECT
 {
     HANDLE FileHandle;
@@ -1340,6 +1343,26 @@ typedef struct _M2_FILE_ENUMERATOR_OBJECT
     BYTE FileInfoBuffer[32768];
 } M2_FILE_ENUMERATOR_OBJECT, * PM2_FILE_ENUMERATOR_OBJECT;
 
+/**
+ * Creates a file enumerator handle for searching a directory for a file or
+ * subdirectory with a name.
+ *
+ * @param FileEnumeratorHandle The file enumerator handle.
+ * @param FileHandle The handle of the file to be searched a directory for a
+ *                   file or subdirectory with a name. This handle must be
+ *                   opened with the appropriate permissions for the requested
+ *                   change. This handle should not be a pipe handle.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ * @remark The way to get a file handle for this operation:
+ *         HANDLE hFile = CreateFileW(
+ *             lpFileName,
+ *             FILE_LIST_DIRECTORY | SYNCHRONIZE,
+ *             FILE_SHARE_READ | FILE_SHARE_WRITE,
+ *             nullptr,
+ *             OPEN_EXISTING,
+ *             FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT,
+ *             nullptr);
+ */
 HRESULT M2CreateFileEnumerator(
     _Out_ PM2_FILE_ENUMERATOR_HANDLE FileEnumeratorHandle,
     _In_ HANDLE FileHandle)
@@ -1363,6 +1386,12 @@ HRESULT M2CreateFileEnumerator(
     return hr;
 }
 
+/**
+ * Closes a created file enumerator handle.
+ *
+ * @param FileEnumeratorHandle The created file enumerator handle.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ */
 HRESULT M2CloseFileEnumerator(
     _In_ M2_FILE_ENUMERATOR_HANDLE FileEnumeratorHandle)
 {
@@ -1372,6 +1401,16 @@ HRESULT M2CloseFileEnumerator(
     return M2FreeMemory(FileEnumeratorHandle);
 }
 
+/**
+ * Starts or continues a file search from a created file enumerator handle.
+ *
+ * @param FileEnumeratorInformation A pointer to the
+ *                                  M2_FILE_ENUMERATOR_INFORMATION structure
+ *                                  that receives information about a found
+ *                                  file or directory.
+ * @param FileEnumeratorHandle The created file enumerator handle.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ */
 HRESULT M2QueryFileEnumerator(
     _Out_ PM2_FILE_ENUMERATOR_INFORMATION FileEnumeratorInformation,
     _In_ M2_FILE_ENUMERATOR_HANDLE FileEnumeratorHandle)
@@ -1430,7 +1469,7 @@ HRESULT M2QueryFileEnumerator(
             Object->CurrentFileInfo->ChangeTime.HighPart;
         FileEnumeratorInformation->ChangeTime.dwLowDateTime =
             Object->CurrentFileInfo->ChangeTime.LowPart;
-        FileEnumeratorInformation->EndOfFile =
+        FileEnumeratorInformation->FileSize =
             Object->CurrentFileInfo->EndOfFile;
         FileEnumeratorInformation->AllocationSize =
             Object->CurrentFileInfo->AllocationSize;

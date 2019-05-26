@@ -1256,7 +1256,7 @@ HRESULT M2GetFileAllocationSize(
 /**
  * Deletes an existing file.
  *
- * @param FileHandle The handle of the file to be deleted.. This handle must be
+ * @param FileHandle The handle of the file to be deleted. This handle must be
  *                   opened with the appropriate permissions for the requested
  *                   change. This handle should not be a pipe handle.
  * @return HRESULT. If the function succeeds, the return value is S_OK.
@@ -1276,7 +1276,7 @@ HRESULT M2DeleteFile(
 /**
  * Deletes an existing file, even the file have the readonly attribute.
  *
- * @param FileHandle The handle of the file to be deleted.. This handle must be
+ * @param FileHandle The handle of the file to be deleted. This handle must be
  *                   opened with the appropriate permissions for the requested
  *                   change. This handle should not be a pipe handle.
  * @return HRESULT. If the function succeeds, the return value is S_OK.
@@ -1293,17 +1293,23 @@ HRESULT M2DeleteFile(
 HRESULT M2DeleteFileIgnoreReadonlyAttribute(
     _In_ HANDLE FileHandle);
 
-
+/**
+ * The definition of the file enumerator handle.
+ */
 typedef void* M2_FILE_ENUMERATOR_HANDLE;
 typedef M2_FILE_ENUMERATOR_HANDLE* PM2_FILE_ENUMERATOR_HANDLE;
 
+/**
+ * The information about a found file or directory queried from the file
+ * enumerator.
+ */
 typedef struct _M2_FILE_ENUMERATOR_INFORMATION
 {
     FILETIME CreationTime;
     FILETIME LastAccessTime;
     FILETIME LastWriteTime;
     FILETIME ChangeTime;
-    LARGE_INTEGER EndOfFile;
+    LARGE_INTEGER FileSize;
     LARGE_INTEGER AllocationSize;
     DWORD FileAttributes;
     DWORD EaSize;
@@ -1312,13 +1318,49 @@ typedef struct _M2_FILE_ENUMERATOR_INFORMATION
     WCHAR FileName[256];
 } M2_FILE_ENUMERATOR_INFORMATION, * PM2_FILE_ENUMERATOR_INFORMATION;
 
+/**
+ * Creates a file enumerator handle for searching a directory for a file or
+ * subdirectory with a name.
+ *
+ * @param FileEnumeratorHandle The file enumerator handle.
+ * @param FileHandle The handle of the file to be searched a directory for a
+ *                   file or subdirectory with a name. This handle must be
+ *                   opened with the appropriate permissions for the requested
+ *                   change. This handle should not be a pipe handle.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ * @remark The way to get a file handle for this operation:
+ *         HANDLE hFile = CreateFileW(
+ *             lpFileName,
+ *             FILE_LIST_DIRECTORY | SYNCHRONIZE,
+ *             FILE_SHARE_READ | FILE_SHARE_WRITE,
+ *             nullptr,
+ *             OPEN_EXISTING,
+ *             FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT,
+ *             nullptr);
+ */
 HRESULT M2CreateFileEnumerator(
     _Out_ PM2_FILE_ENUMERATOR_HANDLE FileEnumeratorHandle,
     _In_ HANDLE FileHandle);
 
+/**
+ * Closes a created file enumerator handle.
+ *
+ * @param FileEnumeratorHandle The created file enumerator handle.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ */
 HRESULT M2CloseFileEnumerator(
     _In_ M2_FILE_ENUMERATOR_HANDLE FileEnumeratorHandle);
 
+/**
+ * Starts or continues a file search from a created file enumerator handle.
+ *
+ * @param FileEnumeratorInformation A pointer to the
+ *                                  M2_FILE_ENUMERATOR_INFORMATION structure
+ *                                  that receives information about a found
+ *                                  file or directory.
+ * @param FileEnumeratorHandle The created file enumerator handle.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ */
 HRESULT M2QueryFileEnumerator(
     _Out_ PM2_FILE_ENUMERATOR_INFORMATION FileEnumeratorInformation,
     _In_ M2_FILE_ENUMERATOR_HANDLE FileEnumeratorHandle);
