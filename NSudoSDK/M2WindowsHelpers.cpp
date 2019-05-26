@@ -37,44 +37,6 @@ using Microsoft::WRL::RuntimeClassType;
 
 #pragma region Error
 
-/**
- * Retrieves the calling thread's last-error code value. The last-error code is
- * maintained on a per-thread basis. Multiple threads do not overwrite each
- * other's last-error code.
- *
- * @return The calling thread's last-error code which is converted to an
- *         HRESULT value.
- */
-HRESULT M2GetLastHRESULTError()
-{
-    return M2GetLastHResultError(TRUE, TRUE);
-}
-
-/**
- * Retrieves the calling thread's last-error code value if you can be sure that
- * the last call was failed. The last-error code is maintained on a per-thread 
- * basis. Multiple threads do not overwrite each other's last-error code.
- *
- * @return The calling thread's last-error code.
- */
-DWORD M2GetLastErrorKnownFailedCall()
-{
-    return M2GetLastWin32Error(FALSE, FALSE);
-}
-
-/**
- * Retrieves the calling thread's last-error code value if you can be sure that
- * the last call was failed. The last-error code is maintained on a per-thread
- * basis. Multiple threads do not overwrite each other's last-error code.
- *
- * @return The calling thread's last-error code which is converted to an
- *         HRESULT value.
- */
-HRESULT M2GetLastHRESULTErrorKnownFailedCall()
-{
-    return M2GetLastHResultError(FALSE, FALSE);
-}
-
 #ifdef __cplusplus_winrt
 
 /**
@@ -847,7 +809,7 @@ HRESULT M2OpenProcessToken(
         ProcessHandle = OpenProcess(
             MAXIMUM_ALLOWED, FALSE, TokenSource->ProcessId);
         if (!ProcessHandle)
-            return M2GetLastHRESULTErrorKnownFailedCall();
+            return M2GetLastHResultError();
         break;
     default:
         return __HRESULT_FROM_WIN32(ERROR_INVALID_PARAMETER);
@@ -856,7 +818,7 @@ HRESULT M2OpenProcessToken(
     if (OpenProcessToken(ProcessHandle, DesiredAccess, TokenHandle))
         return S_OK;
 
-    return M2GetLastHRESULTErrorKnownFailedCall();
+    return M2GetLastHResultError();
 }
 
 /**
@@ -1543,13 +1505,13 @@ HRESULT M2LoadResource(
     HRSRC ResourceFind = FindResourceExW(
         hModule, lpType, lpName, MAKELANGID(LANG_NEUTRAL, SUBLANG_NEUTRAL));
     if (!ResourceFind)
-        return M2GetLastHRESULTErrorKnownFailedCall();
+        return M2GetLastHResultError();
 
     lpResourceInfo->Size = SizeofResource(hModule, ResourceFind);
 
     HGLOBAL ResourceLoad = LoadResource(hModule, ResourceFind);
     if (!ResourceLoad)
-        return M2GetLastHRESULTErrorKnownFailedCall();
+        return M2GetLastHResultError();
 
     lpResourceInfo->Pointer = LockResource(ResourceLoad);
 
@@ -1606,7 +1568,7 @@ HRESULT M2LoadLibraryEx(
                     Buffer,
                     static_cast<UINT>(BufferLength)))
                 {
-                    hr = M2GetLastHRESULTErrorKnownFailedCall();
+                    hr = M2GetLastHResultError();
                 }
                 else
                 {
@@ -1725,14 +1687,14 @@ HRESULT M2StartService(
         nullptr,
         SC_MANAGER_CONNECT);
     if (!hSCM)
-        return M2GetLastHRESULTErrorKnownFailedCall();
+        return M2GetLastHResultError();
 
     hService = OpenServiceW(
         hSCM,
         lpServiceName,
         SERVICE_QUERY_STATUS | SERVICE_START);
     if (!hService)
-        return M2GetLastHRESULTErrorKnownFailedCall();
+        return M2GetLastHResultError();
 
     while (QueryServiceStatusEx(
         hService,
@@ -1748,7 +1710,7 @@ HRESULT M2StartService(
                 return E_FAIL;
 
             if (!StartServiceW(hService, 0, nullptr))
-                return M2GetLastHRESULTErrorKnownFailedCall();
+                return M2GetLastHResultError();
 
             bStartServiceWCalled = true;
         }
@@ -1818,7 +1780,7 @@ HRESULT M2ExpandEnvironmentStrings(
             0);
         if (0 == Length)
         {
-            hr = M2GetLastHRESULTErrorKnownFailedCall();
+            hr = M2GetLastHResultError();
             break;
         }
 
@@ -1830,7 +1792,7 @@ HRESULT M2ExpandEnvironmentStrings(
             static_cast<DWORD>(ExpandedString.size() + 1));
         if (0 == Length)
         {
-            hr = M2GetLastHRESULTErrorKnownFailedCall();
+            hr = M2GetLastHResultError();
             break;
         }
         if (ExpandedString.size() != Length - 1)
@@ -1867,7 +1829,7 @@ HRESULT M2GetSystemDirectory(
             0);
         if (0 == Length)
         {
-            hr = M2GetLastHRESULTErrorKnownFailedCall();
+            hr = M2GetLastHResultError();
             break;
         }
 
@@ -1878,7 +1840,7 @@ HRESULT M2GetSystemDirectory(
             static_cast<UINT>(Length));
         if (0 == Length)
         {
-            hr = M2GetLastHRESULTErrorKnownFailedCall();
+            hr = M2GetLastHResultError();
             break;
         }
         if (SystemFolderPath.size() != Length)
@@ -1918,7 +1880,7 @@ HRESULT M2GetWindowsDirectory(
             0);
         if (0 == Length)
         {
-            hr = M2GetLastHRESULTErrorKnownFailedCall();
+            hr = M2GetLastHResultError();
             break;
         }
 
@@ -1929,7 +1891,7 @@ HRESULT M2GetWindowsDirectory(
             static_cast<UINT>(Length));
         if (0 == Length)
         {
-            hr = M2GetLastHRESULTErrorKnownFailedCall();
+            hr = M2GetLastHResultError();
             break;
         }
         if (WindowsFolderPath.size() != Length)

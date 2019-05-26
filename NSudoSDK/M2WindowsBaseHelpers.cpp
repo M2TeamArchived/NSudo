@@ -15,20 +15,20 @@
 #include <assert.h>
 #include <process.h>
 
-/**
- * Retrieves the calling thread's last-error code value. The last-error code is
- * maintained on a per-thread basis. Multiple threads do not overwrite each
- * other's last-error code.
- *
- * @param IsLastFunctionCallSucceeded Set this parameter TRUE if you can be
- *                                    sure that the last call was succeeded.
- *                                    Otherwise, set this parameter FALSE.
- * @param UseLastErrorWhenSucceeded Set this parameter TRUE if you want to use
- *                                  last-error code if the last call was
- *                                  succeeded. Otherwise, set this parameter
- *                                  FALSE.
- * @return The calling thread's last-error code.
- */
+ /**
+  * Retrieves the calling thread's last-error code value. The last-error code is
+  * maintained on a per-thread basis. Multiple threads do not overwrite each
+  * other's last-error code.
+  *
+  * @param IsLastFunctionCallSucceeded Set this parameter TRUE if you can be
+  *                                    sure that the last call was succeeded.
+  *                                    Otherwise, set this parameter FALSE.
+  * @param UseLastErrorWhenSucceeded Set this parameter TRUE if you want to use
+  *                                  last-error code if the last call was
+  *                                  succeeded. Otherwise, set this parameter
+  *                                  FALSE.
+  * @return The calling thread's last-error code.
+  */
 DWORD M2GetLastWin32Error(
     _In_ BOOL IsLastFunctionCallSucceeded,
     _In_ BOOL UseLastErrorWhenSucceeded)
@@ -111,15 +111,15 @@ HRESULT M2AdjustTokenPrivileges(
     _Out_opt_ PTOKEN_PRIVILEGES PreviousState,
     _Out_opt_ PDWORD ReturnLength)
 {
-    BOOL Result = AdjustTokenPrivileges(
-        TokenHandle,
-        DisableAllPrivileges,
-        NewState,
-        BufferLength,
-        PreviousState,
-        ReturnLength);
-
-    return M2GetLastHResultError(Result, TRUE);
+    return M2GetLastHResultError(
+        AdjustTokenPrivileges(
+            TokenHandle,
+            DisableAllPrivileges,
+            NewState,
+            BufferLength,
+            PreviousState,
+            ReturnLength),
+        TRUE);
 }
 
 /**
@@ -132,7 +132,7 @@ HRESULT M2AdjustTokenPrivileges(
 HRESULT M2CloseHandle(
     _In_ HANDLE hObject)
 {
-    return M2GetLastHResultError(CloseHandle(hObject), FALSE);
+    return M2GetLastHResultError(CloseHandle(hObject));
 }
 
 /**
@@ -231,7 +231,7 @@ HRESULT M2CreateFile(
         dwFlagsAndAttributes,
         hTemplateFile);
 
-    return M2GetLastHResultError(INVALID_HANDLE_VALUE != *lpFileHandle, FALSE);
+    return M2GetLastHResultError(INVALID_HANDLE_VALUE != *lpFileHandle);
 }
 
 #endif
@@ -278,7 +278,7 @@ HRESULT M2CreateThread(
         dwCreationFlags,
         reinterpret_cast<unsigned*>(lpThreadId)));
 
-    return M2GetLastHResultError(*lpThreadHandle != nullptr, FALSE);
+    return M2GetLastHResultError(*lpThreadHandle != nullptr);
 }
 
 #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
@@ -316,7 +316,7 @@ HRESULT M2DeviceIoControl(
     _Out_opt_ LPDWORD lpBytesReturned,
     _Inout_opt_ LPOVERLAPPED lpOverlapped)
 {
-    BOOL Result = DeviceIoControl(
+    return M2GetLastHResultError(DeviceIoControl(
         hDevice,
         dwIoControlCode,
         lpInBuffer,
@@ -324,9 +324,7 @@ HRESULT M2DeviceIoControl(
         lpOutBuffer,
         nOutBufferSize,
         lpBytesReturned,
-        lpOverlapped);
-
-    return M2GetLastHResultError(Result, FALSE);
+        lpOverlapped));
 }
 
 #endif
@@ -344,7 +342,7 @@ HRESULT M2DeviceIoControl(
 HRESULT M2FreeLibrary(
     _In_ HMODULE hLibModule)
 {
-    return M2GetLastHResultError(FreeLibrary(hLibModule), FALSE);
+    return M2GetLastHResultError(FreeLibrary(hLibModule));
 }
 
 /**
@@ -356,7 +354,7 @@ HRESULT M2FreeLibrary(
  *                             that specifies the type of information to be
  *                             retrieved.
  * @param lpFileInformation A pointer to the buffer that receives the requested
- *                          file information. 
+ *                          file information.
  * @param dwBufferSize The size of the lpFileInformation buffer, in bytes.
  * @return HRESULT. If the function succeeds, the return value is S_OK.
  * @remark For more information, see GetFileInformationByHandleEx.
@@ -367,13 +365,11 @@ HRESULT M2GetFileInformation(
     _Out_ LPVOID lpFileInformation,
     _In_  DWORD dwBufferSize)
 {
-    BOOL Result = GetFileInformationByHandleEx(
+    return M2GetLastHResultError(GetFileInformationByHandleEx(
         hFile,
         FileInformationClass,
         lpFileInformation,
-        dwBufferSize);
-
-    return M2GetLastHResultError(Result, FALSE);
+        dwBufferSize));
 }
 
 /**
@@ -398,8 +394,7 @@ HRESULT M2GetProcAddress(
     _In_ LPCSTR lpProcName)
 {
     *lpProcAddress = GetProcAddress(hModule, lpProcName);
-
-    return M2GetLastHResultError(*lpProcAddress != nullptr, FALSE);
+    return M2GetLastHResultError(*lpProcAddress != nullptr);
 }
 
 /**
@@ -450,14 +445,12 @@ HRESULT M2GetTokenInformation(
     _In_ DWORD TokenInformationLength,
     _Out_ PDWORD ReturnLength)
 {
-    BOOL Result = GetTokenInformation(
+    return M2GetLastHResultError(GetTokenInformation(
         TokenHandle,
         TokenInformationClass,
         TokenInformation,
         TokenInformationLength,
-        ReturnLength);
-
-    return M2GetLastHResultError(Result, FALSE);
+        ReturnLength));
 }
 
 /**
@@ -496,9 +489,7 @@ HRESULT M2HeapFree(
     _In_ DWORD dwFlags,
     _In_ LPVOID lpMem)
 {
-    BOOL Result = HeapFree(hHeap, dwFlags, lpMem);
-
-    return M2GetLastHResultError(Result, FALSE);
+    return M2GetLastHResultError(HeapFree(hHeap, dwFlags, lpMem));
 }
 
 /**
@@ -550,8 +541,7 @@ HRESULT M2LoadLibrary(
     _In_ DWORD dwFlags)
 {
     *phLibModule = LoadLibraryExW(lpLibFileName, hFile, dwFlags);
-
-    return M2GetLastHResultError(*phLibModule != nullptr, FALSE);
+    return M2GetLastHResultError(*phLibModule != nullptr);
 }
 
 #endif
@@ -698,11 +688,9 @@ HRESULT M2SetFileInformation(
     _In_ LPVOID lpFileInformation,
     _In_ DWORD dwBufferSize)
 {
-    BOOL Result = SetFileInformationByHandle(
+    return M2GetLastHResultError(SetFileInformationByHandle(
         hFile,
         FileInformationClass,
         lpFileInformation,
-        dwBufferSize);
-
-    return M2GetLastHResultError(Result, FALSE);
+        dwBufferSize));
 }

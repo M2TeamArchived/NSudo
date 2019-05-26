@@ -173,35 +173,6 @@ namespace M2
 
 #pragma region Error
 
-/**
- * Retrieves the calling thread's last-error code value. The last-error code is
- * maintained on a per-thread basis. Multiple threads do not overwrite each
- * other's last-error code.
- *
- * @return The calling thread's last-error code which is converted to an
- *         HRESULT value.
- */
-HRESULT M2GetLastHRESULTError();
-
-/**
- * Retrieves the calling thread's last-error code value if you can be sure that
- * the last call was failed. The last-error code is maintained on a per-thread
- * basis. Multiple threads do not overwrite each other's last-error code.
- *
- * @return The calling thread's last-error code.
- */
-DWORD M2GetLastErrorKnownFailedCall();
-
-/**
- * Retrieves the calling thread's last-error code value if you can be sure that
- * the last call was failed. The last-error code is maintained on a per-thread
- * basis. Multiple threads do not overwrite each other's last-error code.
- *
- * @return The calling thread's last-error code which is converted to an
- *         HRESULT value.
- */
-HRESULT M2GetLastHRESULTErrorKnownFailedCall();
-
 #ifdef __cplusplus_winrt
 
 /**

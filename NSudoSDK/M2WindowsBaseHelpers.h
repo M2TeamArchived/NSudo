@@ -30,8 +30,8 @@
  * @return The calling thread's last-error code.
  */
 DWORD M2GetLastWin32Error(
-    _In_ BOOL IsLastFunctionCallSucceeded,
-    _In_ BOOL UseLastErrorWhenSucceeded);
+    _In_ BOOL IsLastFunctionCallSucceeded = FALSE,
+    _In_ BOOL UseLastErrorWhenSucceeded = FALSE);
 
 /**
  * Retrieves the calling thread's last-error code value. The last-error code is
@@ -46,8 +46,8 @@ DWORD M2GetLastWin32Error(
  *         HRESULT value.
  */
 HRESULT M2GetLastHResultError(
-    _In_ BOOL IsLastFunctionCallSucceeded,
-    _In_ BOOL UseLastErrorWhenSucceeded);
+    _In_ BOOL IsLastFunctionCallSucceeded = FALSE,
+    _In_ BOOL UseLastErrorWhenSucceeded = FALSE);
 
 /**
  * Enables or disables privileges in the specified access token. Enabling or

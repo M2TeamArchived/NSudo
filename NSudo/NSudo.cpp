@@ -1697,7 +1697,7 @@ HRESULT NSudoShowAboutDialog(
         DialogContent.c_str());
 #endif
 
-    return M2GetLastHRESULTError();
+    return M2GetLastHResultError();
 }
 
 #if defined(NSUDO_GUI_WINDOWS)
