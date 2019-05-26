@@ -16,6 +16,59 @@
 #include <process.h>
 
 /**
+ * Retrieves the calling thread's last-error code value. The last-error code is
+ * maintained on a per-thread basis. Multiple threads do not overwrite each
+ * other's last-error code.
+ *
+ * @param IsLastFunctionCallSucceeded Set this parameter TRUE if you can be
+ *                                    sure that the last call was succeeded.
+ *                                    Otherwise, set this parameter FALSE.
+ * @param UseLastErrorWhenSucceeded Set this parameter TRUE if you want to use
+ *                                  last-error code if the last call was
+ *                                  succeeded. Otherwise, set this parameter
+ *                                  FALSE.
+ * @return The calling thread's last-error code.
+ */
+DWORD M2GetLastWin32Error(
+    _In_ BOOL IsLastFunctionCallSucceeded,
+    _In_ BOOL UseLastErrorWhenSucceeded)
+{
+    if (IsLastFunctionCallSucceeded && !UseLastErrorWhenSucceeded)
+        return ERROR_SUCCESS;
+
+    DWORD LastError = GetLastError();
+
+    if (!IsLastFunctionCallSucceeded && ERROR_SUCCESS == LastError)
+        return ERROR_FUNCTION_FAILED;
+
+    return LastError;
+}
+
+/**
+ * Retrieves the calling thread's last-error code value. The last-error code is
+ * maintained on a per-thread basis. Multiple threads do not overwrite each
+ * other's last-error code.
+ *
+ * @param IsLastFunctionCallSucceeded Set this parameter TRUE if you can be
+ *                                    sure that the last call was succeeded.
+ *                                    Otherwise, set this parameter FALSE.
+ * @param UseLastErrorWhenSucceeded Set this parameter TRUE if you want to use
+ *                                  last-error code if the last call was
+ *                                  succeeded. Otherwise, set this parameter
+ *                                  FALSE.
+ * @return The calling thread's last-error code which is converted to an
+ *         HRESULT value.
+ */
+HRESULT M2GetLastHResultError(
+    _In_ BOOL IsLastFunctionCallSucceeded,
+    _In_ BOOL UseLastErrorWhenSucceeded)
+{
+    return HRESULT_FROM_WIN32(M2GetLastWin32Error(
+        IsLastFunctionCallSucceeded,
+        UseLastErrorWhenSucceeded));
+}
+
+/**
  * Enables or disables privileges in the specified access token. Enabling or
  * disabling privileges in an access token requires TOKEN_ADJUST_PRIVILEGES
  * access.
@@ -66,7 +119,7 @@ HRESULT M2AdjustTokenPrivileges(
         PreviousState,
         ReturnLength);
 
-    return M2GetLastError(!Result, nullptr);
+    return M2GetLastHResultError(Result, TRUE);
 }
 
 /**
@@ -79,7 +132,7 @@ HRESULT M2AdjustTokenPrivileges(
 HRESULT M2CloseHandle(
     _In_ HANDLE hObject)
 {
-    return CloseHandle(hObject) ? S_OK : M2GetLastError(TRUE, nullptr);
+    return M2GetLastHResultError(CloseHandle(hObject), FALSE);
 }
 
 /**
@@ -178,8 +231,7 @@ HRESULT M2CreateFile(
         dwFlagsAndAttributes,
         hTemplateFile);
 
-    return (INVALID_HANDLE_VALUE != *lpFileHandle)
-        ? S_OK : M2GetLastError(TRUE, nullptr);
+    return M2GetLastHResultError(INVALID_HANDLE_VALUE != *lpFileHandle, FALSE);
 }
 
 #endif
@@ -226,7 +278,7 @@ HRESULT M2CreateThread(
         dwCreationFlags,
         reinterpret_cast<unsigned*>(lpThreadId)));
 
-    return (*lpThreadHandle) ? S_OK : M2GetLastError(TRUE, nullptr);
+    return M2GetLastHResultError(*lpThreadHandle != nullptr, FALSE);
 }
 
 #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
@@ -274,7 +326,7 @@ HRESULT M2DeviceIoControl(
         lpBytesReturned,
         lpOverlapped);
 
-    return Result ? S_OK : M2GetLastError(TRUE, nullptr);
+    return M2GetLastHResultError(Result, FALSE);
 }
 
 #endif
@@ -292,7 +344,7 @@ HRESULT M2DeviceIoControl(
 HRESULT M2FreeLibrary(
     _In_ HMODULE hLibModule)
 {
-    return FreeLibrary(hLibModule) ? S_OK : M2GetLastError(TRUE, nullptr);
+    return M2GetLastHResultError(FreeLibrary(hLibModule), FALSE);
 }
 
 /**
@@ -321,34 +373,7 @@ HRESULT M2GetFileInformation(
         lpFileInformation,
         dwBufferSize);
 
-    return Result ? S_OK : M2GetLastError(TRUE, nullptr);
-}
-
-/**
- * Retrieves the calling thread's last-error code value. The last-error code is
- * maintained on a per-thread basis. Multiple threads do not overwrite each
- * other's last-error code.
- *
- * @param KnownFailed Set this parameter TRUE if you can be sure that the last
- *                    call was failed, Otherwise, set this parameter FALSE.
- * @param LastErrorCode A pointer to a variable that returns the calling
- *                      thread's last-error code. This parameter can be NULL.
- * @return The calling thread's last-error code which is converted to an
- *         HRESULT value.
- */
-HRESULT M2GetLastError(
-    _In_ BOOL KnownFailed,
-    _Out_opt_ PDWORD LastErrorCode)
-{
-    DWORD LastError = GetLastError();
-
-    if (KnownFailed && ERROR_SUCCESS == LastError)
-        LastError = ERROR_FUNCTION_FAILED;
-
-    if (LastErrorCode)
-        *LastErrorCode = LastError;
-
-    return HRESULT_FROM_WIN32(LastError);
+    return M2GetLastHResultError(Result, FALSE);
 }
 
 /**
@@ -373,7 +398,8 @@ HRESULT M2GetProcAddress(
     _In_ LPCSTR lpProcName)
 {
     *lpProcAddress = GetProcAddress(hModule, lpProcName);
-    return (*lpProcAddress) ? S_OK : M2GetLastError(TRUE, nullptr);
+
+    return M2GetLastHResultError(*lpProcAddress != nullptr, FALSE);
 }
 
 /**
@@ -431,7 +457,7 @@ HRESULT M2GetTokenInformation(
         TokenInformationLength,
         ReturnLength);
 
-    return Result ? S_OK : M2GetLastError(TRUE, nullptr);
+    return M2GetLastHResultError(Result, FALSE);
 }
 
 /**
@@ -471,7 +497,8 @@ HRESULT M2HeapFree(
     _In_ LPVOID lpMem)
 {
     BOOL Result = HeapFree(hHeap, dwFlags, lpMem);
-    return Result ? S_OK : M2GetLastError(TRUE, nullptr);
+
+    return M2GetLastHResultError(Result, FALSE);
 }
 
 /**
@@ -523,7 +550,8 @@ HRESULT M2LoadLibrary(
     _In_ DWORD dwFlags)
 {
     *phLibModule = LoadLibraryExW(lpLibFileName, hFile, dwFlags);
-    return (*phLibModule) ? S_OK : M2GetLastError(TRUE, nullptr);
+
+    return M2GetLastHResultError(*phLibModule != nullptr, FALSE);
 }
 
 #endif
@@ -676,5 +704,5 @@ HRESULT M2SetFileInformation(
         lpFileInformation,
         dwBufferSize);
 
-    return Result ? S_OK : M2GetLastError(TRUE, nullptr);
+    return M2GetLastHResultError(Result, FALSE);
 }

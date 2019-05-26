@@ -47,7 +47,7 @@ using Microsoft::WRL::RuntimeClassType;
  */
 HRESULT M2GetLastHRESULTError()
 {
-    return M2GetLastError(FALSE, nullptr);
+    return M2GetLastHResultError(TRUE, TRUE);
 }
 
 /**
@@ -59,9 +59,7 @@ HRESULT M2GetLastHRESULTError()
  */
 DWORD M2GetLastErrorKnownFailedCall()
 {
-    DWORD LastError = ERROR_SUCCESS;
-    M2GetLastError(TRUE, &LastError);
-    return LastError;
+    return M2GetLastWin32Error(FALSE, FALSE);
 }
 
 /**
@@ -74,7 +72,7 @@ DWORD M2GetLastErrorKnownFailedCall()
  */
 HRESULT M2GetLastHRESULTErrorKnownFailedCall()
 {
-    return M2GetLastError(TRUE, nullptr);
+    return M2GetLastHResultError(FALSE, FALSE);
 }
 
 #ifdef __cplusplus_winrt
@@ -1608,7 +1606,7 @@ HRESULT M2LoadLibraryEx(
                     Buffer,
                     static_cast<UINT>(BufferLength)))
                 {
-                    hr = M2GetLastError(TRUE, nullptr);
+                    hr = M2GetLastHRESULTErrorKnownFailedCall();
                 }
                 else
                 {
