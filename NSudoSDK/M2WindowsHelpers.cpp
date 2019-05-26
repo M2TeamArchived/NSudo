@@ -1960,10 +1960,9 @@ HRESULT M2GetDpiForMonitor(
     _Out_ UINT* dpiY)
 {
     HMODULE hModule = nullptr;
-    HRESULT hr = M2LoadLibrary(
+    HRESULT hr = M2LoadLibraryEx(
         &hModule,
         L"SHCore.dll",
-        nullptr,
         LOAD_LIBRARY_SEARCH_SYSTEM32);
     if (SUCCEEDED(hr))
     {
