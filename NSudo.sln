@@ -20,7 +20,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documents", "Documents", "{
 		Readme.md = Readme.md
 		Screenshot.png = Screenshot.png
 		屏幕截图.png = 屏幕截图.png
-		更新日志.md = 更新日志.md
 		自述.md = 自述.md
 		螢幕擷取畫面.png = 螢幕擷取畫面.png
 		說明.md = 說明.md

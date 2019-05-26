@@ -178,3 +178,18 @@ You can edit NSudo.json to custom the Shortcut list, here are the demo
   }
 }
 ```
+
+
+## 文档
+
+### 更新日志
+参阅 [更新日志](更新日志.md)
+
+### 相关人士
+参阅 [相关人士](People.md)
+
+### Code of Conduct
+参阅 [Code of Conduct](CODE_OF_CONDUCT.md)
+
+### Contributing to NSudo
+参阅 [Contributing to NSudo](CONTRIBUTING.md)
