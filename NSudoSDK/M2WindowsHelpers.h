@@ -574,10 +574,26 @@ namespace M2
     };
 
     /**
+     * Disable C++ Object Moving
+     */
+    class CDisableObjectMoving
+    {
+    protected:
+        CDisableObjectMoving() = default;
+        ~CDisableObjectMoving() = default;
+
+    private:
+        CDisableObjectMoving(
+            const CDisableObjectCopying&&) = delete;
+        CDisableObjectMoving& operator=(
+            const CDisableObjectCopying&&) = delete;
+    };
+
+    /**
      * The implementation of smart object.
      */
     template<typename TObject, typename TObjectDefiner>
-    class CObject : CDisableObjectCopying
+    class CObject : CDisableObjectCopying, CDisableObjectMoving
     {
     protected:
         TObject m_Object;
@@ -1175,7 +1191,7 @@ namespace M2
      * terminated.
      */
     template<class ClassType>
-    class CSingleton : CDisableObjectCopying
+    class CSingleton : CDisableObjectCopying, CDisableObjectMoving
     {
     private:
         static CCriticalSection m_SingletonCS;
