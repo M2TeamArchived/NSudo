@@ -539,7 +539,596 @@ HRESULT M2SetFileInformation(
     _In_ LPVOID lpFileInformation,
     _In_ DWORD dwBufferSize);
 
-#endif // _M2_WINDOWS_BASE_HELPERS_
+#endif // !_M2_WINDOWS_BASE_HELPERS_
+
+#ifndef _M2_WINDOWS_EXTENDED_HELPERS_
+#define _M2_WINDOWS_EXTENDED_HELPERS_
+
+/**
+ * If the type T is a reference type, provides the member typedef type which is
+ * the type referred to by T. Otherwise type is T.
+ */
+template<class T> struct M2RemoveReference { typedef T Type; };
+template<class T> struct M2RemoveReference<T&> { typedef T Type; };
+template<class T> struct M2RemoveReference<T&&> { typedef T Type; };
+#ifdef __cplusplus_winrt
+template<class T> struct M2RemoveReference<T^> { typedef T Type; };
+#endif
+
+namespace M2
+{
+    /**
+     * Disable C++ Object Copying
+     */
+    class CDisableObjectCopying
+    {
+    protected:
+        CDisableObjectCopying() = default;
+        ~CDisableObjectCopying() = default;
+
+    private:
+        CDisableObjectCopying(
+            const CDisableObjectCopying&) = delete;
+        CDisableObjectCopying& operator=(
+            const CDisableObjectCopying&) = delete;
+    };
+
+    /**
+     * The implementation of smart object.
+     */
+    template<typename TObject, typename TObjectDefiner>
+    class CObject : CDisableObjectCopying
+    {
+    protected:
+        TObject m_Object;
+    public:
+        CObject(TObject Object = TObjectDefiner::GetInvalidValue()) :
+            m_Object(Object)
+        {
+
+        }
+
+        ~CObject()
+        {
+            this->Close();
+        }
+
+        TObject* operator&()
+        {
+            return &this->m_Object;
+        }
+
+        TObject operator=(TObject Object)
+        {
+            if (Object != this->m_Object)
+            {
+                this->Close();
+                this->m_Object = Object;
+            }
+            return (this->m_Object);
+        }
+
+        operator TObject()
+        {
+            return this->m_Object;
+        }
+
+        bool IsInvalid()
+        {
+            return (this->m_Object == TObjectDefiner::GetInvalidValue());
+        }
+
+        TObject Detach()
+        {
+            TObject Object = this->m_Object;
+            this->m_Object = TObjectDefiner::GetInvalidValue();
+            return Object;
+        }
+
+        void Close()
+        {
+            if (!this->IsInvalid())
+            {
+                TObjectDefiner::Close(this->m_Object);
+                this->m_Object = TObjectDefiner::GetInvalidValue();
+            }
+        }
+
+        TObject operator->() const
+        {
+            return this->m_Object;
+        }
+    };
+
+    /**
+     * The handle definer for HANDLE object.
+     */
+#pragma region CHandle
+
+    struct CHandleDefiner
+    {
+        static inline HANDLE GetInvalidValue()
+        {
+            return INVALID_HANDLE_VALUE;
+        }
+
+        static inline void Close(HANDLE Object)
+        {
+            M2CloseHandle(Object);
+        }
+    };
+
+    typedef CObject<HANDLE, CHandleDefiner> CHandle;
+
+#pragma endregion
+
+    /**
+     * The handle definer for COM object.
+     */
+#pragma region CComObject
+
+    template<typename TComObject>
+    struct CComObjectDefiner
+    {
+        static inline TComObject GetInvalidValue()
+        {
+            return nullptr;
+        }
+
+        static inline void Close(TComObject Object)
+        {
+            Object->Release();
+        }
+    };
+
+    template<typename TComObject>
+    class CComObject : public CObject<TComObject, CComObjectDefiner<TComObject>>
+    {
+
+    };
+
+#pragma endregion
+
+    /**
+     * The handle definer for memory block.
+     */
+#pragma region CMemory
+
+    template<typename TMemory>
+    struct CMemoryDefiner
+    {
+        static inline TMemory GetInvalidValue()
+        {
+            return nullptr;
+        }
+
+        static inline void Close(TMemory Object)
+        {
+            free(Object);
+        }
+    };
+
+    template<typename TMemory>
+    class CMemory : public CObject<TMemory, CMemoryDefiner<TMemory>>
+    {
+    public:
+        CMemory(TMemory Object = CMemoryDefiner<TMemory>::GetInvalidValue()) :
+            CObject<TMemory, CMemoryDefiner<TMemory>>(Object)
+        {
+
+        }
+
+        bool Alloc(size_t Size)
+        {
+            this->Free();
+            this->m_Object = reinterpret_cast<TMemory>(malloc(Size));
+            return (nullptr != this->m_Object);
+        }
+
+        void Free()
+        {
+            this->Close();
+        }
+    };
+
+#pragma endregion
+
+    /**
+     * The handle definer for memory block allocated by the M2AllocMemory and
+     * M2ReAllocMemory function..
+     */
+#pragma region CM2Memory
+
+    template<typename TMemory>
+    struct CM2MemoryDefiner
+    {
+        static inline TMemory GetInvalidValue()
+        {
+            return nullptr;
+        }
+
+        static inline void Close(TMemory Object)
+        {
+            M2FreeMemory(Object);
+        }
+    };
+
+    template<typename TMemoryBlock>
+    class CM2Memory :
+        public CObject<TMemoryBlock, CM2MemoryDefiner<TMemoryBlock>>
+    {
+
+    };
+
+#pragma endregion
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+    /**
+     * The handle definer for HKEY object.
+     */
+#pragma region CHKey
+
+    struct CHKeyDefiner
+    {
+        static inline HKEY GetInvalidValue()
+        {
+            return nullptr;
+        }
+
+        static inline void Close(HKEY Object)
+        {
+            M2RegCloseKey(Object);
+        }
+    };
+
+    typedef CObject<HKEY, CHKeyDefiner> CHKey;
+
+#pragma endregion
+
+#endif
+
+    /**
+     * The implementation of thread.
+     */
+    class CThread
+    {
+    private:
+        CHandle m_Thread;
+
+    public:
+        CThread() = default;
+
+        template<class TFunction>
+        CThread(
+            _In_ TFunction&& workerFunction,
+            _In_ DWORD dwCreationFlags = 0)
+        {
+            auto ThreadFunctionInternal = [](LPVOID lpThreadParameter) -> DWORD
+            {
+                auto function = reinterpret_cast<TFunction*>(
+                    lpThreadParameter);
+                (*function)();
+                delete function;
+                return 0;
+            };
+
+            M2CreateThread(
+                &this->m_Thread,
+                nullptr,
+                0,
+                ThreadFunctionInternal,
+                reinterpret_cast<LPVOID>(
+                    new TFunction(std::move(workerFunction))),
+                dwCreationFlags,
+                nullptr);
+        }
+
+        HANDLE Detach()
+        {
+            return this->m_Thread.Detach();
+        }
+
+        DWORD Resume()
+        {
+            return ResumeThread(this->m_Thread);
+        }
+
+        DWORD Suspend()
+        {
+            return SuspendThread(this->m_Thread);
+        }
+
+        DWORD Wait(
+            _In_ DWORD dwMilliseconds = INFINITE,
+            _In_ BOOL bAlertable = FALSE)
+        {
+            return WaitForSingleObjectEx(
+                this->m_Thread, dwMilliseconds, bAlertable);
+        }
+
+    };
+
+    /**
+     * Wraps a critical section.
+     */
+    class CCriticalSection
+    {
+    private:
+        CRITICAL_SECTION m_CriticalSection;
+
+    public:
+        CCriticalSection()
+        {
+            InitializeCriticalSection(&this->m_CriticalSection);
+        }
+
+        ~CCriticalSection()
+        {
+            DeleteCriticalSection(&this->m_CriticalSection);
+        }
+
+        _Acquires_lock_(m_CriticalSection) void Lock()
+        {
+            EnterCriticalSection(&this->m_CriticalSection);
+        }
+
+        _Releases_lock_(m_CriticalSection) void Unlock()
+        {
+            LeaveCriticalSection(&this->m_CriticalSection);
+        }
+
+        _When_(return, _Acquires_exclusive_lock_(m_CriticalSection))
+            bool TryLock()
+        {
+            return TryEnterCriticalSection(&this->m_CriticalSection);
+        }
+    };
+
+    /**
+     * Wraps a slim reader/writer (SRW) lock.
+     */
+    class CSRWLock
+    {
+    private:
+        SRWLOCK m_SRWLock;
+
+    public:
+        CSRWLock()
+        {
+            InitializeSRWLock(&this->m_SRWLock);
+        }
+
+        _Acquires_lock_(m_SRWLock) void ExclusiveLock()
+        {
+            AcquireSRWLockExclusive(&this->m_SRWLock);
+        }
+
+        _Acquires_lock_(m_SRWLock) bool TryExclusiveLock()
+        {
+            return TryAcquireSRWLockExclusive(&this->m_SRWLock);
+        }
+
+        _Releases_lock_(m_SRWLock) void ExclusiveUnlock()
+        {
+            ReleaseSRWLockExclusive(&this->m_SRWLock);
+        }
+
+        _Acquires_lock_(m_SRWLock) void SharedLock()
+        {
+            AcquireSRWLockShared(&this->m_SRWLock);
+        }
+
+        _Acquires_lock_(m_SRWLock) bool TrySharedLock()
+        {
+            return TryAcquireSRWLockShared(&this->m_SRWLock);
+        }
+
+        _Releases_lock_(m_SRWLock) void SharedUnlock()
+        {
+            ReleaseSRWLockShared(&this->m_SRWLock);
+        }
+    };
+
+    /**
+     * Provides automatic locking and unlocking of a critical section.
+     *
+     * @remarks The AutoLock object must go out of scope before the CritSec.
+     */
+    class AutoCriticalSectionLock
+    {
+    private:
+        CCriticalSection* m_pCriticalSection;
+
+    public:
+        _Acquires_lock_(m_pCriticalSection) AutoCriticalSectionLock(
+            CCriticalSection& CriticalSection) :
+            m_pCriticalSection(&CriticalSection)
+        {
+            m_pCriticalSection->Lock();
+        }
+
+        _Releases_lock_(m_pCriticalSection) ~AutoCriticalSectionLock()
+        {
+            m_pCriticalSection->Unlock();
+        }
+    };
+
+    /**
+     * Provides automatic trying to lock and unlocking of a critical section.
+     *
+     * @remarks The AutoLock object must go out of scope before the CritSec.
+     */
+    class AutoTryCriticalSectionLock
+    {
+    private:
+        CCriticalSection* m_pCriticalSection;
+        bool m_IsLocked = false;
+
+    public:
+        _Acquires_lock_(m_pCriticalSection) AutoTryCriticalSectionLock(
+            CCriticalSection& CriticalSection) :
+            m_pCriticalSection(&CriticalSection)
+        {
+            this->m_IsLocked = m_pCriticalSection->TryLock();
+        }
+
+        _Releases_lock_(m_pCriticalSection) ~AutoTryCriticalSectionLock()
+        {
+            m_pCriticalSection->Unlock();
+        }
+
+        bool IsLocked() const
+        {
+            return this->m_IsLocked;
+        }
+    };
+
+    /**
+     * Provides automatic exclusive locking and unlocking of a slim
+     * reader/writer (SRW) lock.
+     *
+     * @remarks The AutoLock object must go out of scope before the CritSec.
+     */
+    class AutoSRWExclusiveLock
+    {
+    private:
+        CSRWLock* m_SRWLock;
+
+    public:
+        _Acquires_lock_(m_SRWLock) AutoSRWExclusiveLock(
+            CSRWLock& SRWLock) :
+            m_SRWLock(&SRWLock)
+        {
+            m_SRWLock->ExclusiveLock();
+        }
+
+        _Releases_lock_(m_SRWLock) ~AutoSRWExclusiveLock()
+        {
+            m_SRWLock->ExclusiveUnlock();
+        }
+    };
+
+    /**
+     * Provides automatic trying to exclusive lock and unlocking of a slim
+     * reader/writer (SRW) lock.
+     *
+     * @remarks The AutoLock object must go out of scope before the CritSec.
+     */
+    class AutoTrySRWExclusiveLock
+    {
+    private:
+        CSRWLock* m_SRWLock;
+        bool m_IsLocked = false;
+
+    public:
+        _Acquires_lock_(m_SRWLock) AutoTrySRWExclusiveLock(
+            CSRWLock& SRWLock) :
+            m_SRWLock(&SRWLock)
+        {
+            this->m_IsLocked = m_SRWLock->TryExclusiveLock();
+        }
+
+        _Releases_lock_(m_SRWLock) ~AutoTrySRWExclusiveLock()
+        {
+            m_SRWLock->ExclusiveUnlock();
+        }
+
+        bool IsLocked() const
+        {
+            return this->m_IsLocked;
+        }
+    };
+
+    /**
+     * Provides automatic shared locking and unlocking of a slim
+     * reader/writer (SRW) lock.
+     *
+     * @remarks The AutoLock object must go out of scope before the CritSec.
+     */
+    class AutoSRWSharedLock
+    {
+    private:
+        CSRWLock* m_SRWLock;
+
+    public:
+        _Acquires_lock_(m_SRWLock) AutoSRWSharedLock(
+            CSRWLock& SRWLock) :
+            m_SRWLock(&SRWLock)
+        {
+            m_SRWLock->SharedLock();
+        }
+
+        _Releases_lock_(m_SRWLock) ~AutoSRWSharedLock()
+        {
+            m_SRWLock->SharedUnlock();
+        }
+    };
+
+    /**
+     * Provides automatic trying to shared lock and unlocking of a slim
+     * reader/writer (SRW) lock.
+     *
+     * @remarks The AutoLock object must go out of scope before the CritSec.
+     */
+    class AutoTrySRWSharedLock
+    {
+    private:
+        CSRWLock* m_SRWLock;
+        bool m_IsLocked = false;
+
+    public:
+        _Acquires_lock_(m_SRWLock) AutoTrySRWSharedLock(
+            CSRWLock& SRWLock) :
+            m_SRWLock(&SRWLock)
+        {
+            this->m_IsLocked = m_SRWLock->TrySharedLock();
+        }
+
+        _Releases_lock_(m_SRWLock) ~AutoTrySRWSharedLock()
+        {
+            m_SRWLock->SharedUnlock();
+        }
+
+        bool IsLocked() const
+        {
+            return this->m_IsLocked;
+        }
+    };
+
+    /**
+     * A template for implementing an object which the type is a singleton. I
+     * do not need to free the memory of the object because the OS releases all
+     * the unshared memory associated with the process after the process is
+     * terminated.
+     */
+    template<class ClassType>
+    class CSingleton : CDisableObjectCopying
+    {
+    private:
+        static CCriticalSection m_SingletonCS;
+        static ClassType* volatile m_Instance = nullptr;
+
+    protected:
+        CSingleton() = default;
+        ~CSingleton() = default;
+
+    public:
+        static ClassType* Get()
+        {
+            M2::AutoCriticalSectionLock Lock(this->m_SingletonCS);
+
+            if (!this->m_Instance)
+            {
+                this->m_Instance = new ClassType();
+            }
+
+            return this->m_Instance;
+        }
+    };
+}
+
+#endif // !_M2_WINDOWS_EXTENDED_HELPERS_
 
 #ifndef _M2_WINDOWS_BASE_EXTENDED_HELPERS_
 #define _M2_WINDOWS_BASE_EXTENDED_HELPERS_
@@ -930,262 +1519,6 @@ HRESULT M2CoCheckInterfaceName(
 #include <wrl\client.h>
 #endif
 
-#pragma region BaseTemplate
-
-/**
- * If the type T is a reference type, provides the member typedef type which is
- * the type referred to by T. Otherwise type is T.
- */ 
-template<class T> struct M2RemoveReference { typedef T Type; };
-template<class T> struct M2RemoveReference<T&> { typedef T Type; };
-template<class T> struct M2RemoveReference<T&&> { typedef T Type; };
-#ifdef __cplusplus_winrt
-template<class T> struct M2RemoveReference<T^> { typedef T Type; };
-#endif
-
-namespace M2
-{
-    /**
-     * Disable C++ Object Copying
-     */
-    class CDisableObjectCopying
-    {
-    protected:
-        CDisableObjectCopying() = default;
-        ~CDisableObjectCopying() = default;
-
-    private:
-        CDisableObjectCopying(
-            const CDisableObjectCopying&) = delete;
-        CDisableObjectCopying& operator=(
-            const CDisableObjectCopying&) = delete;
-    };
-
-    /**
-     * The implementation of smart object.
-     */
-    template<typename TObject, typename TObjectDefiner>
-    class CObject : CDisableObjectCopying
-    {
-    protected:
-        TObject m_Object;
-    public:
-        CObject(TObject Object = TObjectDefiner::GetInvalidValue()) :
-            m_Object(Object)
-        {
-
-        }
-
-        ~CObject()
-        {
-            this->Close();
-        }
-
-        TObject* operator&()
-        {
-            return &this->m_Object;
-        }
-
-        TObject operator=(TObject Object)
-        {
-            if (Object != this->m_Object)
-            {
-                this->Close();
-                this->m_Object = Object;
-            }
-            return (this->m_Object);
-        }
-
-        operator TObject()
-        {
-            return this->m_Object;
-        }
-
-        bool IsInvalid()
-        {
-            return (this->m_Object == TObjectDefiner::GetInvalidValue());
-        }
-
-        TObject Detach()
-        {
-            TObject Object = this->m_Object;
-            this->m_Object = TObjectDefiner::GetInvalidValue();
-            return Object;
-        }
-
-        void Close()
-        {
-            if (!this->IsInvalid())
-            {
-                TObjectDefiner::Close(this->m_Object);
-                this->m_Object = TObjectDefiner::GetInvalidValue();
-            }
-        }
-
-        TObject operator->() const
-        {
-            return this->m_Object;
-        }
-    };
-}
-
-#pragma endregion
-
-#pragma region RAII
-
-namespace M2
-{
-    /**
-     * The handle definer for HANDLE object.
-     */
-#pragma region CHandle
-
-    struct CHandleDefiner
-    {
-        static inline HANDLE GetInvalidValue()
-        {
-            return INVALID_HANDLE_VALUE;
-        }
-
-        static inline void Close(HANDLE Object)
-        {
-            M2CloseHandle(Object);
-        }
-    };
-
-    typedef CObject<HANDLE, CHandleDefiner> CHandle;
-
-#pragma endregion
-
-    /**
-     * The handle definer for COM object.
-     */
-#pragma region CComObject
-
-    template<typename TComObject>
-    struct CComObjectDefiner
-    {
-        static inline TComObject GetInvalidValue()
-        {
-            return nullptr;
-        }
-
-        static inline void Close(TComObject Object)
-        {
-            Object->Release();
-        }
-    };
-
-    template<typename TComObject>
-    class CComObject : public CObject<TComObject, CComObjectDefiner<TComObject>>
-    {
-
-    };
-
-#pragma endregion
-
-    /**
-     * The handle definer for memory block.
-     */
-#pragma region CMemory
-
-    template<typename TMemory>
-    struct CMemoryDefiner
-    {
-        static inline TMemory GetInvalidValue()
-        {
-            return nullptr;
-        }
-
-        static inline void Close(TMemory Object)
-        {
-            free(Object);
-        }
-    };
-
-    template<typename TMemory>
-    class CMemory : public CObject<TMemory, CMemoryDefiner<TMemory>>
-    {
-    public:
-        CMemory(TMemory Object = CMemoryDefiner<TMemory>::GetInvalidValue()) :
-            CObject<TMemory, CMemoryDefiner<TMemory>>(Object)
-        {
-
-        }
-
-        bool Alloc(size_t Size)
-        {
-            this->Free();
-            this->m_Object = reinterpret_cast<TMemory>(malloc(Size));
-            return (nullptr != this->m_Object);
-        }
-
-        void Free()
-        {
-            this->Close();
-        }
-    };
-
-#pragma endregion
-
-    /**
-     * The handle definer for memory block allocated by the M2AllocMemory and
-     * M2ReAllocMemory function..
-     */
-#pragma region CM2Memory
-
-    template<typename TMemory>
-    struct CM2MemoryDefiner
-    {
-        static inline TMemory GetInvalidValue()
-        {
-            return nullptr;
-        }
-
-        static inline void Close(TMemory Object)
-        {
-            M2FreeMemory(Object);
-        }
-    };
-
-    template<typename TMemoryBlock>
-    class CM2Memory :
-        public CObject<TMemoryBlock, CM2MemoryDefiner<TMemoryBlock>>
-    {
-
-    };
-
-#pragma endregion
-
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
-
-    /**
-     * The handle definer for HKEY object.
-     */
-#pragma region CHKey
-
-    struct CHKeyDefiner
-    {
-        static inline HKEY GetInvalidValue()
-        {
-            return nullptr;
-        }
-
-        static inline void Close(HKEY Object)
-        {
-            M2RegCloseKey(Object);
-        }
-    };
-
-    typedef CObject<HKEY, CHKeyDefiner> CHKey;
-
-#pragma endregion
-
-#endif
-}
-
-#pragma endregion
-
 #pragma region Error
 
 #ifdef __cplusplus_winrt
@@ -1390,352 +1723,6 @@ bool M2FindSubString(
 Platform::String^ M2ConvertByteSizeToString(uint64 ByteSize);
 
 #endif
-
-#pragma endregion
-
-#pragma region Thread
-
-namespace M2
-{
-    /**
-     * The implementation of thread.
-     */
-    class CThread
-    {
-    private:
-        CHandle m_Thread;
-
-    public:
-        CThread() = default;
-
-        template<class TFunction>
-        CThread(
-            _In_ TFunction&& workerFunction,
-            _In_ DWORD dwCreationFlags = 0)
-        {
-            auto ThreadFunctionInternal = [](LPVOID lpThreadParameter) -> DWORD
-            {
-                auto function = reinterpret_cast<TFunction*>(
-                    lpThreadParameter);
-                (*function)();
-                delete function;
-                return 0;
-            };
-
-            M2CreateThread(
-                &this->m_Thread,
-                nullptr,
-                0,
-                ThreadFunctionInternal,
-                reinterpret_cast<LPVOID>(
-                    new TFunction(std::move(workerFunction))),
-                dwCreationFlags,
-                nullptr);
-        }
-
-        HANDLE Detach()
-        {
-            return this->m_Thread.Detach();
-        }
-
-        DWORD Resume()
-        {
-            return ResumeThread(this->m_Thread);
-        }
-
-        DWORD Suspend()
-        {
-            return SuspendThread(this->m_Thread);
-        }
-
-        DWORD Wait(
-            _In_ DWORD dwMilliseconds = INFINITE,
-            _In_ BOOL bAlertable = FALSE)
-        {
-            return WaitForSingleObjectEx(
-                this->m_Thread, dwMilliseconds, bAlertable);
-        }
-
-    };
-
-    /**
-     * Wraps a critical section.
-     */
-    class CCriticalSection
-    {
-    private:
-        CRITICAL_SECTION m_CriticalSection;
-
-    public:
-        CCriticalSection()
-        {
-            InitializeCriticalSection(&this->m_CriticalSection);
-        }
-
-        ~CCriticalSection()
-        {
-            DeleteCriticalSection(&this->m_CriticalSection);
-        }
-
-        _Acquires_lock_(m_CriticalSection) void Lock()
-        {
-            EnterCriticalSection(&this->m_CriticalSection);
-        }
-
-        _Releases_lock_(m_CriticalSection) void Unlock()
-        {
-            LeaveCriticalSection(&this->m_CriticalSection);
-        }
-
-        _When_(return, _Acquires_exclusive_lock_(m_CriticalSection))
-            bool TryLock()
-        {
-            return TryEnterCriticalSection(&this->m_CriticalSection);
-        }
-    };
-
-    /**
-     * Provides automatic locking and unlocking of a critical section.
-     *
-     * @remarks The AutoLock object must go out of scope before the CritSec.
-     */
-    class AutoCriticalSectionLock
-    {
-    private:
-        CCriticalSection* m_pCriticalSection;
-
-    public:
-        _Acquires_lock_(m_pCriticalSection) AutoCriticalSectionLock(
-            CCriticalSection& CriticalSection) :
-            m_pCriticalSection(&CriticalSection)
-        {
-            m_pCriticalSection->Lock();
-        }
-
-        _Releases_lock_(m_pCriticalSection) ~AutoCriticalSectionLock()
-        {
-            m_pCriticalSection->Unlock();
-        }
-    };
-
-    /**
-     * Provides automatic trying to lock and unlocking of a critical section.
-     *
-     * @remarks The AutoLock object must go out of scope before the CritSec.
-     */
-    class AutoTryCriticalSectionLock
-    {
-    private:
-        CCriticalSection* m_pCriticalSection;
-        bool m_IsLocked = false;
-
-    public:
-        _Acquires_lock_(m_pCriticalSection) AutoTryCriticalSectionLock(
-            CCriticalSection& CriticalSection) :
-            m_pCriticalSection(&CriticalSection)
-        {
-            this->m_IsLocked = m_pCriticalSection->TryLock();
-        }
-
-        _Releases_lock_(m_pCriticalSection) ~AutoTryCriticalSectionLock()
-        {
-            m_pCriticalSection->Unlock();
-        }
-
-        bool IsLocked() const
-        {
-            return this->m_IsLocked;
-        }
-    };
-
-    /**
-     * Wraps a slim reader/writer (SRW) lock.
-     */
-    class CSRWLock
-    {
-    private:
-        SRWLOCK m_SRWLock;
-
-    public:
-        CSRWLock()
-        {
-            InitializeSRWLock(&this->m_SRWLock);
-        }
-
-        _Acquires_lock_(m_SRWLock) void ExclusiveLock()
-        {
-            AcquireSRWLockExclusive(&this->m_SRWLock);
-        }
-
-        _Acquires_lock_(m_SRWLock) bool TryExclusiveLock()
-        {
-            return TryAcquireSRWLockExclusive(&this->m_SRWLock);
-        }
-
-        _Releases_lock_(m_SRWLock) void ExclusiveUnlock()
-        {
-            ReleaseSRWLockExclusive(&this->m_SRWLock);
-        }
-
-        _Acquires_lock_(m_SRWLock) void SharedLock()
-        {
-            AcquireSRWLockShared(&this->m_SRWLock);
-        }
-
-        _Acquires_lock_(m_SRWLock) bool TrySharedLock()
-        {
-            return TryAcquireSRWLockShared(&this->m_SRWLock);
-        }
-
-        _Releases_lock_(m_SRWLock) void SharedUnlock()
-        {
-            ReleaseSRWLockShared(&this->m_SRWLock);
-        }
-    };
-
-    /**
-     * Provides automatic exclusive locking and unlocking of a slim
-     * reader/writer (SRW) lock.
-     *
-     * @remarks The AutoLock object must go out of scope before the CritSec.
-     */
-    class AutoSRWExclusiveLock
-    {
-    private:
-        CSRWLock* m_SRWLock;
-
-    public:
-        _Acquires_lock_(m_SRWLock) AutoSRWExclusiveLock(
-            CSRWLock& SRWLock) :
-            m_SRWLock(&SRWLock)
-        {
-            m_SRWLock->ExclusiveLock();
-        }
-
-        _Releases_lock_(m_SRWLock) ~AutoSRWExclusiveLock()
-        {
-            m_SRWLock->ExclusiveUnlock();
-        }
-    };
-
-    /**
-     * Provides automatic trying to exclusive lock and unlocking of a slim
-     * reader/writer (SRW) lock.
-     *
-     * @remarks The AutoLock object must go out of scope before the CritSec.
-     */
-    class AutoTrySRWExclusiveLock
-    {
-    private:
-        CSRWLock* m_SRWLock;
-        bool m_IsLocked = false;
-
-    public:
-        _Acquires_lock_(m_SRWLock) AutoTrySRWExclusiveLock(
-            CSRWLock& SRWLock) :
-            m_SRWLock(&SRWLock)
-        {
-            this->m_IsLocked = m_SRWLock->TryExclusiveLock();
-        }
-
-        _Releases_lock_(m_SRWLock) ~AutoTrySRWExclusiveLock()
-        {
-            m_SRWLock->ExclusiveUnlock();
-        }
-
-        bool IsLocked() const
-        {
-            return this->m_IsLocked;
-        }
-    };
-
-    /**
-     * Provides automatic shared locking and unlocking of a slim
-     * reader/writer (SRW) lock.
-     *
-     * @remarks The AutoLock object must go out of scope before the CritSec.
-     */
-    class AutoSRWSharedLock
-    {
-    private:
-        CSRWLock* m_SRWLock;
-
-    public:
-        _Acquires_lock_(m_SRWLock) AutoSRWSharedLock(
-            CSRWLock& SRWLock) :
-            m_SRWLock(&SRWLock)
-        {
-            m_SRWLock->SharedLock();
-        }
-
-        _Releases_lock_(m_SRWLock) ~AutoSRWSharedLock()
-        {
-            m_SRWLock->SharedUnlock();
-        }
-    };
-
-    /**
-     * Provides automatic trying to shared lock and unlocking of a slim
-     * reader/writer (SRW) lock.
-     *
-     * @remarks The AutoLock object must go out of scope before the CritSec.
-     */
-    class AutoTrySRWSharedLock
-    {
-    private:
-        CSRWLock* m_SRWLock;
-        bool m_IsLocked = false;
-
-    public:
-        _Acquires_lock_(m_SRWLock) AutoTrySRWSharedLock(
-            CSRWLock& SRWLock) :
-            m_SRWLock(&SRWLock)
-        {
-            this->m_IsLocked = m_SRWLock->TrySharedLock();
-        }
-
-        _Releases_lock_(m_SRWLock) ~AutoTrySRWSharedLock()
-        {
-            m_SRWLock->SharedUnlock();
-        }
-
-        bool IsLocked() const
-        {
-            return this->m_IsLocked;
-        }
-    };
-
-    /**
-     * A template for implementing an object which the type is a singleton. I
-     * do not need to free the memory of the object because the OS releases all
-     * the unshared memory associated with the process after the process is
-     * terminated.
-     */
-    template<class ClassType>
-    class CSingleton : CDisableObjectCopying
-    {
-    private:
-        static CCriticalSection m_SingletonCS;
-        static ClassType* volatile m_Instance = nullptr;
-
-    protected:
-        CSingleton() = default;
-        ~CSingleton() = default;
-
-    public:
-        static ClassType* Get()
-        {
-            M2::AutoCriticalSectionLock Lock(this->m_SingletonCS);
-
-            if (!this->m_Instance)
-            {
-                this->m_Instance = new ClassType();
-            }
-
-            return this->m_Instance;
-        }
-    };
-}
 
 #pragma endregion
 

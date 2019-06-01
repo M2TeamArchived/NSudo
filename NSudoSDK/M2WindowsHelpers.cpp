@@ -726,8 +726,13 @@ HRESULT M2SetFileInformation(
         dwBufferSize));
 }
 
-
 #endif // _M2_WINDOWS_BASE_HELPERS_
+
+#ifdef _M2_WINDOWS_EXTENDED_HELPERS_
+
+
+
+#endif // _M2_WINDOWS_EXTENDED_HELPERS_
 
 #ifdef _M2_WINDOWS_BASE_EXTENDED_HELPERS_
 
@@ -1340,7 +1345,7 @@ HRESULT M2CoCheckInterfaceName(
 
 #endif
 
-#endif // !_M2_WINDOWS_BASE_EXTENDED_HELPERS_
+#endif // _M2_WINDOWS_BASE_EXTENDED_HELPERS_
 
 #ifdef _M2_WINDOWS_HELPERS_
 
