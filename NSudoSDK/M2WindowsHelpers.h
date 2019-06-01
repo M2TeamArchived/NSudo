@@ -786,6 +786,78 @@ namespace M2
 
 #pragma endregion
 
+    /**
+     * The handle definer for PSID object.
+     */
+#pragma region CSID
+
+    struct CSIDDefiner
+    {
+        static inline PSID GetInvalidValue()
+        {
+            return nullptr;
+        }
+
+        static inline void Close(PSID Object)
+        {
+            FreeSid(Object);
+        }
+    };
+
+    typedef CObject<PSID, CSIDDefiner> CSID;
+
+#pragma endregion
+
+    /**
+     * The handle definer for memory block allocated via WTS API.
+     */
+#pragma region CWTSMemory
+
+    template<typename TMemoryBlock>
+    struct CWTSMemoryDefiner
+    {
+        static inline TMemoryBlock GetInvalidValue()
+        {
+            return nullptr;
+        }
+
+        static inline void Close(TMemoryBlock Object)
+        {
+            WTSFreeMemory(Object);
+        }
+    };
+
+    template<typename TMemoryBlock>
+    class CWTSMemory :
+        public CObject<TMemoryBlock, CWTSMemoryDefiner<TMemoryBlock>>
+    {
+
+    };
+
+#pragma endregion
+
+    /**
+     * The handle definer for SC_HANDLE object.
+     */
+#pragma region CServiceHandle
+
+    struct CServiceHandleDefiner
+    {
+        static inline SC_HANDLE GetInvalidValue()
+        {
+            return nullptr;
+        }
+
+        static inline void Close(SC_HANDLE Object)
+        {
+            CloseServiceHandle(Object);
+        }
+    };
+
+    typedef CObject<SC_HANDLE, CServiceHandleDefiner> CServiceHandle;
+
+#pragma endregion
+
 #endif
 
     /**
@@ -1774,74 +1846,6 @@ HRESULT M2OpenProcessToken(
 
 #pragma endregion
 
-#pragma region SID
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
-
-namespace M2
-{
-    /**
-     * The handle definer for PSID object.
-     */
-#pragma region CSID
-
-    struct CSIDDefiner
-    {
-        static inline PSID GetInvalidValue()
-        {
-            return nullptr;
-        }
-
-        static inline void Close(PSID Object)
-        {
-            FreeSid(Object);
-        }
-    };
-
-    typedef CObject<PSID, CSIDDefiner> CSID;
-
-#pragma endregion
-}
-
-#endif
-#pragma endregion
-
-#pragma region Session
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
-
-namespace M2
-{
-    /**
-     * The handle definer for memory block allocated via WTS API.
-     */
-#pragma region CWTSMemory
-
-    template<typename TMemoryBlock>
-    struct CWTSMemoryDefiner
-    {
-        static inline TMemoryBlock GetInvalidValue()
-        {
-            return nullptr;
-        }
-
-        static inline void Close(TMemoryBlock Object)
-        {
-            WTSFreeMemory(Object);
-        }
-    };
-
-    template<typename TMemoryBlock>
-    class CWTSMemory :
-        public CObject<TMemoryBlock, CWTSMemoryDefiner<TMemoryBlock>>
-    {
-
-    };
-
-#pragma endregion
-}
-
-#endif
-#pragma endregion
-
 #pragma region COM
 
 #ifdef CPPWINRT_VERSION
@@ -2006,31 +2010,6 @@ HRESULT M2LoadLibraryEx(
 HRESULT M2StartService(
     _In_ LPCWSTR lpServiceName,
     _Out_ LPSERVICE_STATUS_PROCESS lpServiceStatus);
-
-namespace M2
-{
-    /**
-     * The handle definer for SC_HANDLE object.
-     */
-#pragma region CServiceHandle
-
-    struct CServiceHandleDefiner
-    {
-        static inline SC_HANDLE GetInvalidValue()
-        {
-            return nullptr;
-        }
-
-        static inline void Close(SC_HANDLE Object)
-        {
-            CloseServiceHandle(Object);
-        }
-    };
-
-    typedef CObject<SC_HANDLE, CServiceHandleDefiner> CServiceHandle;
-
-#pragma endregion
-}
 
 #endif
 #pragma endregion
