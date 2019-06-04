@@ -15,6 +15,9 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)M2WindowsHelpers.h">
       <Filter>M2WindowsHelpers</Filter>
     </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)MINT.h">
+      <Filter>MINT</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ThirdParty">
@@ -25,6 +28,9 @@
     </Filter>
     <Filter Include="M2WindowsHelpers">
       <UniqueIdentifier>{530d5407-8320-441d-9e9f-c4a148ce259d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MINT">
+      <UniqueIdentifier>{e3ec2f55-4272-4fa1-8ef5-c222607e9a0a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
