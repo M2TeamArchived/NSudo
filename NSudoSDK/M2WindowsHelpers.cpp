@@ -128,8 +128,12 @@ HRESULT M2CoCreateInstance(
 #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
 
 /**
- * Creates a thread to execute within the virtual address space of the calling
- * process.
+ * Creates or opens a file or I/O device. The most commonly used I/O devices
+ * are as follows: file, file stream, directory, physical disk, volume, console
+ * buffer, tape drive, communications resource, mailslot, and pipe. The
+ * function returns a handle that can be used to access the file or device for
+ * various types of I/O depending on the file or device and the flags and
+ * attributes specified.
  *
  * @param lpFileHandle The address of the returned handle to the specified
  *                     file.
