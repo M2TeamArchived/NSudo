@@ -2346,7 +2346,10 @@ HRESULT M2LoadLibraryEx(
                     if (SUCCEEDED(hr))
                     {
                         hr = M2LoadLibrary(
-                            ModuleHandle, Buffer, nullptr, Flags);
+                            ModuleHandle,
+                            Buffer,
+                            nullptr,
+                            Flags & (-1 ^ LOAD_LIBRARY_SEARCH_SYSTEM32));
                     }
                 }
             }
