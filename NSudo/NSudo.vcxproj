@@ -187,6 +187,9 @@
     <Import Project="..\MSBuild\NSudoG.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <GenerateManifest>false</GenerateManifest>
+  </PropertyGroup>
   <ItemGroup>
     <ClInclude Include="NShadow.h" />
     <ClInclude Include="Resources\resource.h" />
@@ -200,6 +203,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ResourceCompile Include="Resources\Manifest.rc" />
     <ResourceCompile Include="Resources\NSudo.rc" />
     <ResourceCompile Include="Resources\Version.rc" />
   </ItemGroup>

@@ -10,8 +10,8 @@
     <Link>
       <SubSystem>Console</SubSystem>
     </Link>
-    <Manifest>
-      <AdditionalManifestFiles>Resources\NSudoConsole.manifest  %(AdditionalManifestFiles)</AdditionalManifestFiles>
-    </Manifest>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NSUDO_CUI_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
   </ItemDefinitionGroup>
 </Project>

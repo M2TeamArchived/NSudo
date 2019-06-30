@@ -9,10 +9,9 @@
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-      <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
     </Link>
-    <Manifest>
-      <AdditionalManifestFiles>Resources\NSudoWindows.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
-    </Manifest>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NSUDO_GUI_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
   </ItemDefinitionGroup>
 </Project>

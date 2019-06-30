@@ -36,6 +36,9 @@
     <ResourceCompile Include="Resources\NSudo.rc">
       <Filter>Resources</Filter>
     </ResourceCompile>
+    <ResourceCompile Include="Resources\Manifest.rc">
+      <Filter>Resources</Filter>
+    </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\en\Translations.json">
