@@ -18,6 +18,9 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)MINT.h">
       <Filter>MINT</Filter>
     </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)M2WindowsDownlevelHelpers.h">
+      <Filter>M2WindowsDownlevelHelpers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ThirdParty">
@@ -32,6 +35,9 @@
     <Filter Include="MINT">
       <UniqueIdentifier>{e3ec2f55-4272-4fa1-8ef5-c222607e9a0a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="M2WindowsDownlevelHelpers">
+      <UniqueIdentifier>{2ca086a4-bc10-4d18-b893-3946638ad2bf}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(MSBuildThisFileDirectory)M2Win32GUIHelpers.cpp">
@@ -39,6 +45,9 @@
     </ClCompile>
     <ClCompile Include="$(MSBuildThisFileDirectory)M2WindowsHelpers.cpp">
       <Filter>M2WindowsHelpers</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)M2WindowsDownlevelHelpers.cpp">
+      <Filter>M2WindowsDownlevelHelpers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
