@@ -355,4 +355,17 @@ HRESULT M2GetTokenInformation(
         ReturnLength));
 }
 
+HRESULT M2SetTokenInformation(
+    _In_ HANDLE TokenHandle,
+    _In_ TOKEN_INFORMATION_CLASS TokenInformationClass,
+    _In_ LPVOID TokenInformation,
+    _In_ DWORD TokenInformationLength)
+{
+    return M2GetLastHResultError(SetTokenInformation(
+        TokenHandle,
+        TokenInformationClass,
+        TokenInformation,
+        TokenInformationLength));
+}
+
 #endif // _M2_WINDOWS_DOWNLEVEL_HELPERS_

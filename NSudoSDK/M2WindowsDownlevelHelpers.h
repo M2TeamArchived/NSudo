@@ -531,4 +531,28 @@ HRESULT M2GetTokenInformation(
     _In_ DWORD TokenInformationLength,
     _Out_ PDWORD ReturnLength);
 
+/**
+ * Retrieves a specified type of information about an access token. The calling
+ * process must have appropriate access rights to obtain the information.
+ *
+ * @param TokenHandle A handle to the access token for which information is to
+ *                    be set.
+ * @param TokenInformationClass A value from the TOKEN_INFORMATION_CLASS
+ *                              enumerated type that identifies the type of
+ *                              information the function sets. The valid values
+ *                              from TOKEN_INFORMATION_CLASS are described in
+ *                              the TokenInformation parameter.
+ * @param TokenInformation A pointer to a buffer that contains the information
+ *                         set in the access token.
+ * @param TokenInformationLength Specifies the length, in bytes, of the buffer
+ *                               pointed to by TokenInformation.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ * @remark For more information, see SetTokenInformation.
+ */
+HRESULT M2SetTokenInformation(
+    _In_ HANDLE TokenHandle,
+    _In_ TOKEN_INFORMATION_CLASS TokenInformationClass,
+    _In_ LPVOID TokenInformation,
+    _In_ DWORD TokenInformationLength);
+
 #endif // !_M2_WINDOWS_DOWNLEVEL_HELPERS_

@@ -236,12 +236,12 @@ BOOL WINAPI NSudoGetCurrentProcessSessionID(
         &hToken, &TokenSource, MAXIMUM_ALLOWED));
     if (result)
     {
-        result = GetTokenInformation(
+        result = SUCCEEDED(M2GetTokenInformation(
             hToken,
             TokenSessionId,
             SessionID,
             sizeof(DWORD),
-            &ReturnLength);
+            &ReturnLength));
     }
 
     return result;
@@ -339,14 +339,12 @@ BOOL WINAPI NSudoSetTokenIntegrityLevel(
         TML.Label.Sid = Sid;
 
         // 设置令牌对象
-        result = SetTokenInformation(
-            TokenHandle, TokenIntegrityLevel, &TML, sizeof(TML));
+        result = SUCCEEDED(M2SetTokenInformation(
+            TokenHandle, TokenIntegrityLevel, &TML, sizeof(TML)));
     }
 
     return result;
 }
-
-
 
 /*
 NSudoCreateLUAToken函数从一个现有的访问令牌创建一个新的LUA访问令牌。
@@ -399,8 +397,8 @@ BOOL WINAPI NSudoCreateLUAToken(
 
     // 设置令牌Owner为当前用户
     Owner.Owner = pTokenUser->User.Sid;
-    result = SetTokenInformation(
-        hToken, TokenOwner, &Owner, sizeof(TOKEN_OWNER));
+    result = SUCCEEDED(M2SetTokenInformation(
+        hToken, TokenOwner, &Owner, sizeof(TOKEN_OWNER)));
     if (!result) goto FuncEnd;
 
     // 获取令牌的DACL信息
@@ -462,16 +460,16 @@ BOOL WINAPI NSudoCreateLUAToken(
 
     // 设置令牌DACL
     Length += sizeof(TOKEN_DEFAULT_DACL);
-    result = SetTokenInformation(
-        hToken, TokenDefaultDacl, &NewTokenDacl, Length);
+    result = SUCCEEDED(M2SetTokenInformation(
+        hToken, TokenDefaultDacl, &NewTokenDacl, Length));
     if (!result) goto FuncEnd;
 
     // 开启LUA虚拟化
-    result = SetTokenInformation(
+    result = SUCCEEDED(M2SetTokenInformation(
         hToken,
         TokenVirtualizationEnabled,
         &EnableTokenVirtualization,
-        sizeof(BOOL));
+        sizeof(BOOL)));
     if (!result) goto FuncEnd;
 
 FuncEnd: // 扫尾
@@ -1518,11 +1516,11 @@ NSUDO_MESSAGE NSudoCommandLineParser(
         return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
     }
 
-    if (!SetTokenInformation(
+    if (FAILED(M2SetTokenInformation(
         hToken,
         TokenSessionId,
         (PVOID)&dwSessionID,
-        sizeof(DWORD)))
+        sizeof(DWORD))))
     {
         return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
     }
