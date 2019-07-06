@@ -44,41 +44,6 @@ std::wstring GetMessageByID(DWORD MessageID)
     return MessageString;
 }
 
-HRESULT M2RegSetStringValue(
-    _In_ HKEY hKey,
-    _In_opt_ LPCWSTR lpValueName,
-    _In_opt_ LPCWSTR lpValueData)
-{
-    if (!lpValueName || !lpValueData)
-        return __HRESULT_FROM_WIN32(ERROR_INVALID_PARAMETER);
-    
-    return M2RegSetValue(
-        hKey,
-        lpValueName,
-        0,
-        REG_SZ,
-        reinterpret_cast<CONST BYTE*>(lpValueData),
-        static_cast<DWORD>(wcslen(lpValueData) + 1) * sizeof(wchar_t));
-}
-
-HRESULT M2RegCreateKey(
-    _In_ HKEY hKey,
-    _In_ LPCWSTR lpSubKey,
-    _In_ REGSAM samDesired,
-    _Out_ PHKEY phkResult)
-{
-    return M2RegCreateKey(
-        hKey,
-        lpSubKey,
-        0,
-        nullptr,
-        REG_OPTION_NON_VOLATILE,
-        samDesired,
-        nullptr,
-        phkResult,
-        nullptr);
-}
-
 HRESULT CreateCommandStoreItem(
     _In_ HKEY CommandStoreRoot,
     _In_ LPCWSTR ItemName,
@@ -93,24 +58,35 @@ HRESULT CreateCommandStoreItem(
     hr = M2RegCreateKey(
         CommandStoreRoot,
         ItemName,
+        0,
+        nullptr,
+        REG_OPTION_NON_VOLATILE,
         KEY_ALL_ACCESS | KEY_WOW64_64KEY,
-        &hCommandStoreItem);
+        nullptr,
+        &hCommandStoreItem,
+        nullptr);
     if (FAILED(hr))
         return hr;
 
-    hr = M2RegSetStringValue(
+    hr = M2RegSetValue(
         hCommandStoreItem,
         L"",
-        ItemDescription);
+        0,
+        REG_SZ,
+        reinterpret_cast<CONST BYTE*>(ItemDescription),
+        static_cast<DWORD>(wcslen(ItemDescription) + 1) * sizeof(wchar_t));
     if (FAILED(hr))
         return hr;
 
     if (HasLUAShield)
     {
-        hr = M2RegSetStringValue(
+        hr = M2RegSetValue(
             hCommandStoreItem,
             L"HasLUAShield",
-            L"");
+            0,
+            REG_SZ,
+            reinterpret_cast<CONST BYTE*>(L""),
+            static_cast<DWORD>(wcslen(L"") + 1) * sizeof(wchar_t));
         if (FAILED(hr))
             return hr;
     }
@@ -118,18 +94,25 @@ HRESULT CreateCommandStoreItem(
     hr = M2RegCreateKey(
         hCommandStoreItem,
         L"command",
+        0,
+        nullptr,
+        REG_OPTION_NON_VOLATILE,
         KEY_ALL_ACCESS | KEY_WOW64_64KEY,
-        &hCommandStoreItemCommand);
+        nullptr,
+        &hCommandStoreItemCommand,
+        nullptr);
     if (FAILED(hr))
         return hr;
 
-    hr = M2RegSetStringValue(
+    hr = M2RegSetValue(
         hCommandStoreItemCommand,
         L"",
-        ItemCommand);
+        0,
+        REG_SZ,
+        reinterpret_cast<CONST BYTE*>(ItemCommand),
+        static_cast<DWORD>(wcslen(ItemCommand) + 1) * sizeof(wchar_t));
     if (FAILED(hr))
         return hr;
-
 
     return hr;
 }
@@ -1050,8 +1033,13 @@ public:
         hr = M2RegCreateKey(
             HKEY_CLASSES_ROOT,
             L"*\\shell\\NSudo",
+            0,
+            nullptr,
+            REG_OPTION_NON_VOLATILE,
             KEY_ALL_ACCESS | KEY_WOW64_64KEY,
-            &hNSudoItem);
+            nullptr,
+            &hNSudoItem,
+            nullptr);
         if (FAILED(hr))
             return hr;
 
@@ -1078,10 +1066,14 @@ public:
 
         for (size_t i = 0; i < sizeof(ValueList) / sizeof(*ValueList); ++i)
         {
-            hr = M2RegSetStringValue(
+            hr = M2RegSetValue(
                 hNSudoItem,
                 ValueList[i].lpValueName,
-                ValueList[i].lpValueData);
+                0,
+                REG_SZ,
+                reinterpret_cast<CONST BYTE*>(ValueList[i].lpValueData),
+                sizeof(wchar_t) * static_cast<DWORD>(
+                    wcslen(ValueList[i].lpValueData) + 1));
             if (FAILED(hr))
                 return hr;
 
