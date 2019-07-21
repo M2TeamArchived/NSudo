@@ -710,22 +710,22 @@ public:
     {
         StringTranslations.clear();
 
-        StringTranslations.insert(std::make_pair(
+        StringTranslations.emplace(std::make_pair(
             "NSudo.VersionText",
             L"M2-Team NSudo " NSUDO_VERSION_STRING));
 
-        StringTranslations.insert(std::make_pair(
+        StringTranslations.emplace(std::make_pair(
             "NSudo.LogoText",
             L"M2-Team NSudo " NSUDO_VERSION_STRING L"\r\n"
             L"© M2-Team. All rights reserved.\r\n"
             L"\r\n"));
 
-        StringTranslations.insert(std::make_pair(
+        StringTranslations.emplace(std::make_pair(
             "NSudo.String.Links",
             CNSudoTranslationAdapter::GetUTF8WithBOMStringResources(
                 IDR_String_Links)));
 
-        StringTranslations.insert(std::make_pair(
+        StringTranslations.emplace(std::make_pair(
             "NSudo.String.CommandLineHelp",
             CNSudoTranslationAdapter::GetUTF8WithBOMStringResources(
                 IDR_String_CommandLineHelp)));
@@ -744,7 +744,7 @@ public:
 
             for (auto& Item : StringTranslationsJSON["Translations"].items())
             {
-                StringTranslations.insert(std::make_pair(
+                StringTranslations.emplace(std::make_pair(
                     Item.key(),
                     M2MakeUTF16String(Item.value())));
             }
@@ -772,7 +772,7 @@ public:
 
             for (auto& Item : ConfigJSON["ShortCutList_V2"].items())
             {
-                ShortCutList.insert(std::make_pair(
+                ShortCutList.emplace(std::make_pair(
                     M2MakeUTF16String(Item.key()),
                     M2MakeUTF16String(Item.value())));
             }
