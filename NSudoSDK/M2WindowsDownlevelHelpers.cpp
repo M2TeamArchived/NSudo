@@ -8,8 +8,6 @@
  * DEVELOPER: Mouri_Naruto (Mouri_Naruto AT Outlook.com)
  */
 
-#include "stdafx.h"
-
 #include "M2WindowsDownlevelHelpers.h"
 
 #ifdef _M2_WINDOWS_DOWNLEVEL_HELPERS_

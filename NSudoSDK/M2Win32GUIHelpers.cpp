@@ -8,8 +8,6 @@
  * DEVELOPER: Mouri_Naruto (Mouri_Naruto AT Outlook.com)
  */
 
-#include "stdafx.h"
-
 #include <Windows.h>
 
 #include "M2Win32GUIHelpers.h"
