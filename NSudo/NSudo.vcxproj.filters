@@ -22,12 +22,10 @@
     <ClInclude Include="Resources\resource.h">
       <Filter>Resources</Filter>
     </ClInclude>
-    <ClInclude Include="NShadow.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="NSudo.cpp" />
     <ClCompile Include="stdafx.cpp" />
-    <ClCompile Include="NShadow.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\Version.rc">
