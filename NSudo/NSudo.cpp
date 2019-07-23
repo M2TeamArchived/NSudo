@@ -22,31 +22,37 @@
 #include "M2WindowsHelpers.h"
 #include "M2Win32GUIHelpers.h"
 
-#include <stdio.h>
-#include <tchar.h>
+#include <commctrl.h>
+#include <Userenv.h>
+#include <WtsApi32.h>
 
+#pragma comment(lib, "comctl32.lib")
+#pragma comment(lib, "Userenv.lib")
+#pragma comment(lib,"WtsApi32.lib")
+
+#include <cstdio>
+#include <cwchar>
 #include <fstream>
 #include <map>
 #include <string>
 #include <vector>
 
+#include "ThirdParty/json.hpp"
+
+#if defined(NSUDO_GUI_WINDOWS)
+#include <atlbase.h>
+#include <atlwin.h>
+#endif
+
 #include "NSudoVersion.h"
 #include "Resources/resource.h"
 
-#include <commctrl.h>
-#pragma comment(lib, "comctl32.lib")
-
-#include <WtsApi32.h>
-#pragma comment(lib,"WtsApi32.lib")
 
  // 为编译通过而禁用的警告
 #if _MSC_VER >= 1200
 #pragma warning(push)
 #pragma warning(disable:4505) // 未引用的本地函数已移除(等级 4)
 #endif
-
-#include <string>
-
 
 std::wstring GetMessageByID(DWORD MessageID)
 {
@@ -589,9 +595,6 @@ BOOL WINAPI NSudoImpersonateAsSystem()
     return result;
 }
 
-#include <Userenv.h>
-#pragma comment(lib, "Userenv.lib")
-
 /*
 NSudoCreateProcess函数创建一个新进程和对应的主线程
 The NSudoCreateProcess function creates a new process and its primary thread.
@@ -682,8 +685,6 @@ bool NSudoCreateProcess(
 #if _MSC_VER >= 1200
 #pragma warning(pop)
 #endif
-
-#include "ThirdParty/json.hpp"
 
 // The NSudo message enum.
 enum NSUDO_MESSAGE
@@ -777,8 +778,6 @@ public:
         }
     }
 };
-
-#include <stdio.h>
 
 class CNSudoShortCutAdapter
 {
@@ -1717,9 +1716,6 @@ HRESULT NSudoShowAboutDialog(
 }
 
 #if defined(NSUDO_GUI_WINDOWS)
-
-#include <atlbase.h>
-#include <atlwin.h>
 
 class CNSudoMainWindow : public ATL::CDialogImpl<CNSudoMainWindow>
 {
