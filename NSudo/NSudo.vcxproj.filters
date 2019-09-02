@@ -16,6 +16,9 @@
     <Filter Include="Resources\zh-Hant">
       <UniqueIdentifier>{c2cb0683-a576-4ca3-9e96-468cdb2dcf2d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resources\it">
+      <UniqueIdentifier>{89725381-74d1-4bfc-88d1-17c573878803}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Resources\resource.h">
@@ -58,6 +61,9 @@
     <None Include="Resources\zh-Hant\Translations.json">
       <Filter>Resources\zh-Hant</Filter>
     </None>
+    <None Include="Resources\it\Translations.json">
+      <Filter>Resources\it</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="Resources\NSudoConsole.manifest">
@@ -91,6 +97,12 @@
     </Text>
     <Text Include="Resources\zh-Hant\Links.txt">
       <Filter>Resources\zh-Hant</Filter>
+    </Text>
+    <Text Include="Resources\it\CommandLineHelp.txt">
+      <Filter>Resources\it</Filter>
+    </Text>
+    <Text Include="Resources\it\Links.txt">
+      <Filter>Resources\it</Filter>
     </Text>
   </ItemGroup>
   <ItemGroup>

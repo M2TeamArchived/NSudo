@@ -1,4 +1,5 @@
-﻿Formato: NSudo [ Opzioni e parametri ] Linea di Comando oppre Collegamento al Comando
+﻿Formato: NSudo [ Opzioni e parametri ] Linea di Comando oppre Collegamento al 
+Comando
 
 Opzioni:
 
@@ -28,7 +29,8 @@ Opzioni disponibili:
 PS: Se si vuol utilizzare il Livello Integrita' predefinito, non includere 
 il paramentro "-M".
 
--Priority:[ Opzione ] Crea un processo con l'opzione Processo Priorita' specificata.
+-Priority:[ Opzione ] Crea un processo con l'opzione Processo Priorita' 
+specificata.
 Opzioni disponibili:
     Idle  Inattivo
     BelowNormal  Inferiore al Normale
@@ -39,7 +41,8 @@ Opzioni disponibili:
 PS: Se si vuol utilizzare Il Processo Priorita' predefinito, non includere
 il parametro "-Priority".
 
--ShowWindowMode:[ Opzione ] Create un processo con l'opzione modalita' finestra specificata.
+-ShowWindowMode:[ Opzione ] Create un processo con l'opzione modalita' finestra
+specificata.
 Opzioni disponibili:
     Show  Visualizza
     Hide  Nascondi
@@ -49,7 +52,8 @@ PS: Se si vuol utilizzare la modalita' finestra predefinita, non includere
 il parametro "-ShowWindowMode".
 
 -Wait NSudo attendere il termine del processo creato prima di uscire.
-PS: Se non si vuole che NSUDO attenda la fine del processo, non includere il parametro "-Wait".
+PS: Se non si vuole che NSUDO attenda la fine del processo, non includere il 
+parametro "-Wait".
 
 -CurrentDirectory:[ PercorsoCartella ] Imposta la cartella per il processo.
 PS: Se si desidera utilizzare la directory corrente di NSudo, non includere
@@ -67,16 +71,17 @@ il parametro "-UseCurrentConsole".
 
 Menu Contestuale:
   -Install   Copia NSUDO nella cartella Windows ed aggiunge il menu contestuale.
-  -Uninstall Rimuove NSUDO dalla cartella Windows e rimuove il menu contestuale. 
+  -Uninstall Rimuove NSUDO dalla cartella Windows e rimuove il menu contestuale.
 
 PS:
     1. Tutti i comandi di NSudo non fanno distinzione tra maiuscole e minuscole.
     2. E' possibile utilizzare "/" oppure "--" al posto di "-" e 
 	   utilizzare "=" al posto di ":" nella linea di comando dei parametri.
 	   Esempio, "/U:T" e "-U=T" sono equivalenti.
-    3. Per garantire la migliore esperienza, NSudoC non supporta il menu contestuale.
+    3. Per garantire la migliore esperienza, NSudoC non supporta il menu 
+       contestuale.
 
 Esempio:
-    Se si vuol avviare il Prompt dei Comandi come TrustedInstaller, attivare tutti i 
-    privilegi e il Livello Integrita' predefinito.
+    Se si vuol avviare il Prompt dei Comandi come TrustedInstaller, attivare 
+    tutti i privilegi e il Livello Integrita' predefinito.
         NSudo -U:T -P:E cmd
