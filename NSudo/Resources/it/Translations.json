@@ -1,0 +1,27 @@
+﻿{
+  "Translations": {
+    "Button.About": "&Informazioni",
+    "Button.Browse": "&Sfoglia",
+    "Button.Run": "&Avvia",
+    "ContextMenu.System": "Avvia come System",
+    "ContextMenu.System.EnableAllPrivileges": "Avvia come System (Abilita Tutti i Privilegi)",
+    "ContextMenu.TI": "Avvia come TrustedInstaller",
+    "ContextMenu.TI.EnableAllPrivileges": "Avvia come TrustedInstaller (Abilita Tutti i Privilegi)",
+    "CurrentProcess": "Processo Corrente",
+    "CurrentUser": "Utente Corrente",
+    "Default": "Predefinito",
+    "EnableAllPrivileges": "&Abilita Tutti i Privilegi",
+    "LanguageID": "it",
+    "Message.CreateProcessFailed": "Errore: Fallita la creazione del processo.",
+    "Message.InvalidCommandParameter": "Errore: Parametri linea di comando non validi, si prega di modificarli.(Visualizza Aiuto con il parametro -?)",
+    "Message.InvalidTextBoxParameter": "Errore: Inserire una linea di comando oppure selezionare un collegamento al comando nel menu a discesa.",
+    "Message.PrivilegeNotHeld": "Errore: Fallita la ricezione del privilegio SE_DEBUG_NAME.(Avviare come Amministratore)",
+    "Message.Success": "Operazione completata con successo.",
+    "SettingsGroupText": "Impostazioni Modalità",
+    "Static.Open": "&Apri:",
+    "Static.User": "&Utente: ",
+    "System": "System",
+    "TI": "TrustedInstaller",
+    "WarningText": "Avviso: Utilizzare NSudo con ATTENZIONE !"
+  }
+}
