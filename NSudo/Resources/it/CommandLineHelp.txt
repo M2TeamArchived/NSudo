@@ -1,0 +1,82 @@
+﻿Formato: NSudo [ Opzioni e parametri ] Linea di Comando oppre Collegamento al Comando
+
+Opzioni:
+
+-U:[ Opzione ] Crea un processo con l'opzione specificata dall'utente.
+Opzioni disponibili:
+    T TrustedInstaller
+    S System
+    C Utente Attuale
+    P Processo Attuale
+    D Processo Attuale (meno privilegi: privilegi strettamente necessari 
+                        all'esecuzione del codice)
+PS: Questo è un parametro obbligatorio.
+
+-P:[ Opzione ] Crea un processo con l'opzione Privilegio specificata. 
+Opzioni disponibili:
+    E Abilita Tutti i Privilegi
+    D Disabilita Tutti i Privilegi
+PS: Se si vogliono utilizzare i privilegi predefiniti, non includere 
+il parametro "-P".
+
+-M:[ Opzione ] Crea un processo con l'opzione Livello Integrita' specificata.
+Opzioni disponibili:
+    S System
+    H Alta
+    M Media
+    L Bassa
+PS: Se si vuol utilizzare il Livello Integrita' predefinito, non includere 
+il paramentro "-M".
+
+-Priority:[ Opzione ] Crea un processo con l'opzione Processo Priorita' specificata.
+Opzioni disponibili:
+    Idle  Inattivo
+    BelowNormal  Inferiore al Normale
+    Normal  Normale
+    AboveNormal  Superiore al Normale
+    High  Alta
+    RealTime  Tempo Reale
+PS: Se si vuol utilizzare Il Processo Priorita' predefinito, non includere
+il parametro "-Priority".
+
+-ShowWindowMode:[ Opzione ] Create un processo con l'opzione modalita' finestra specificata.
+Opzioni disponibili:
+    Show  Visualizza
+    Hide  Nascondi
+    Maximize  Massimizza
+    Minimize  Minimizza
+PS: Se si vuol utilizzare la modalita' finestra predefinita, non includere 
+il parametro "-ShowWindowMode".
+
+-Wait NSudo attendere il termine del processo creato prima di uscire.
+PS: Se non si vuole che NSUDO attenda la fine del processo, non includere il parametro "-Wait".
+
+-CurrentDirectory:[ PercorsoCartella ] Imposta la cartella per il processo.
+PS: Se si desidera utilizzare la directory corrente di NSudo, non includere
+il parametro "-CurrentDirectory".
+
+-UseCurrentConsole Crea un processo in questa finestra.
+PS: Se si vuole creare un processo in una nuova finestra, non includere 
+il parametro "-UseCurrentConsole".
+
+-Version Visualizza la versione di NSudo.
+
+-? Visualizza questo contenuto.
+-H Visualizza questo contenuto.
+-Help Visualizza questo contenuto.
+
+Menu Contestuale:
+  -Install   Copia NSUDO nella cartella Windows ed aggiunge il menu contestuale.
+  -Uninstall Rimuove NSUDO dalla cartella Windows e rimuove il menu contestuale. 
+
+PS:
+    1. Tutti i comandi di NSudo non fanno distinzione tra maiuscole e minuscole.
+    2. E' possibile utilizzare "/" oppure "--" al posto di "-" e 
+	   utilizzare "=" al posto di ":" nella linea di comando dei parametri.
+	   Esempio, "/U:T" e "-U=T" sono equivalenti.
+    3. Per garantire la migliore esperienza, NSudoC non supporta il menu contestuale.
+
+Esempio:
+    Se si vuol avviare il Prompt dei Comandi come TrustedInstaller, attivare tutti i 
+    privilegi e il Livello Integrita' predefinito.
+        NSudo -U:T -P:E cmd
