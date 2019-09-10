@@ -1,6 +1,4 @@
-﻿# ![Logo](Logo.png) NSudo - A Powerful System Administration Tool
-
-[![AppVeyor](https://ci.appveyor.com/api/projects/status/github/M2Team/NSudo?branch=master&svg=true)](https://ci.appveyor.com/project/MouriNaruto/nsudo)
+﻿[![AppVeyor](https://ci.appveyor.com/api/projects/status/github/M2Team/NSudo?branch=master&svg=true)](https://ci.appveyor.com/project/MouriNaruto/nsudo)
 [![Latest release](https://img.shields.io/github/release/M2Team/NSudo.svg)](https://github.com/M2Team/NSudo/releases/latest)
 [![Latest release downloads](https://img.shields.io/github/downloads/M2Team/NSudo/latest/total.svg)](https://github.com/M2Team/NSudo/releases/latest)
 [![Total downloads](https://img.shields.io/github/downloads/M2Team/NSudo/total.svg)](https://github.com/M2Team/NSudo/releases)
@@ -8,12 +6,10 @@
 [![996.icu](https://img.shields.io/badge/link-996.icu-red.svg)](https://996.icu)
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FM2Team%2FNSudo.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2FM2Team%2FNSudo?ref=badge_shield)
 
-![Screenshot](Screenshot.png)
-
-- Languages
-  - [English](Readme.md)
-  - [简体中文](自述.md)
-  - [繁體中文](說明.md)
+- [Download](#download)
+  - [Latest release (binary)](https://github.com/M2Team/NSudo/releases/latest)
+  - [Releases (binary)](https://github.com/M2Team/NSudo/releases)
+  - [Browse source code repo](https://github.com/M2Team)
 - [About](#about)
   - [Prototype](#prototype)
   - [Third-party introduction](#third-party-introduction)
