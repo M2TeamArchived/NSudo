@@ -41,6 +41,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Scripts", "Scripts", "{D3AE
 		Scripts\NSudo.bat = Scripts\NSudo.bat
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{4049E046-9AAC-49F7-BCA3-D79F809F1800}"
+	ProjectSection(SolutionItems) = preProject
+		docs\Readme.md = docs\Readme.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		NSudoSDK\NSudoSDK.vcxitems*{864f35b9-789c-4da9-8906-649dfe3705f7}*SharedItemsImports = 9
@@ -100,6 +105,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{4049E046-9AAC-49F7-BCA3-D79F809F1800} = {C3C42858-2A8F-492A-9B80-B11907E0C95D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {07B0657A-5FA8-44A3-9E5B-2FB4FC7A26CD}
