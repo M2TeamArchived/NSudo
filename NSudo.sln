@@ -11,17 +11,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documents", "Documents", "{
 		.gitignore = .gitignore
 		.gitmodules = .gitmodules
 		appveyor.yml = appveyor.yml
-		CODE_OF_CONDUCT.md = CODE_OF_CONDUCT.md
-		CONTRIBUTING.md = CONTRIBUTING.md
 		License.md = License.md
 		Logo.png = Logo.png
-		People.md = People.md
 		Readme.md = Readme.md
-		Screenshot.png = Screenshot.png
-		屏幕截图.png = 屏幕截图.png
-		自述.md = 自述.md
-		螢幕擷取畫面.png = 螢幕擷取畫面.png
-		說明.md = 說明.md
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NSudoSDK", "NSudoSDK\NSudoSDK.vcxitems", "{864F35B9-789C-4DA9-8906-649DFE3705F7}"
@@ -39,11 +31,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Scripts", "Scripts", "{D3AE8453-0175-4B40-985A-ABDD4B35D985}"
 	ProjectSection(SolutionItems) = preProject
 		Scripts\NSudo.bat = Scripts\NSudo.bat
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{4049E046-9AAC-49F7-BCA3-D79F809F1800}"
-	ProjectSection(SolutionItems) = preProject
-		docs\Readme.md = docs\Readme.md
 	EndProjectSection
 EndProject
 Global
@@ -105,9 +92,6 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{4049E046-9AAC-49F7-BCA3-D79F809F1800} = {C3C42858-2A8F-492A-9B80-B11907E0C95D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {07B0657A-5FA8-44A3-9E5B-2FB4FC7A26CD}
