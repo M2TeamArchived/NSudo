@@ -15,14 +15,6 @@ https://m2team.github.io/NSudo.
 This readme file will be the developer oriented document because this it is 
 under the source code repository.
 
-## License
-
-The offical NSudo repository (not including third-party libraries) is **only** 
-distributed under the MIT License today because we want to give the **maximum 
-respect** to every NSudo users and we also hope every people treat others 
-kindly. For more information about the MIT License which used in NSudo, please 
-read [License.md](License.md).
-
 ## 3rd-party libraries which used
 
 - JSON for Modern C++
