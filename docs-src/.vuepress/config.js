@@ -22,10 +22,9 @@ module.exports = {
             "/docs/",
             {
               title: "Documents",
-              path: "/docs/",
               children: [
                 "/docs/changelog",
-                "/docs/People",
+                ["/docs/People", "Relevant People"],
                 "/docs/CODE_OF_CONDUCT",
                 "/docs/CONTRIBUTING"
               ]
@@ -49,7 +48,16 @@ module.exports = {
         ],
         sidebar: {
           "/zh-hans/docs/": [
-            /* ... */
+            "/zh-hans/docs/",
+            {
+              title: "档案",
+              children: [
+                ["/docs/changelog", "更新日志"],
+                ["/docs/People", "相关人士"],
+                ["/docs/CODE_OF_CONDUCT", "贡献者行为准则"],
+                ["/docs/CONTRIBUTING", "向 NSudo 贡献"]
+              ]
+            }
           ]
         }
       },
@@ -69,7 +77,16 @@ module.exports = {
         ],
         sidebar: {
           "/zh-hant/docs/": [
-            /* ... */
+            "/zh-hans/docs/",
+            {
+              title: "檔案",
+              children: [
+                ["/docs/changelog", "更新日志"],
+                ["/docs/People", "相关人士"],
+                ["/docs/CODE_OF_CONDUCT", "貢獻者行為準則"],
+                ["/docs/CONTRIBUTING", "向 NSudo 貢獻"]
+              ]
+            }
           ]
         }
       }
