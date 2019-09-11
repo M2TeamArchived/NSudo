@@ -52,7 +52,7 @@ module.exports = {
             {
               title: "档案",
               children: [
-                ["/docs/changelog", "更新日志"],
+                ["/zh-hans/docs/changelog", "更新日志"],
                 ["/docs/People", "相关人士"],
                 ["/docs/CODE_OF_CONDUCT", "贡献者行为准则"],
                 ["/docs/CONTRIBUTING", "向 NSudo 贡献"]
