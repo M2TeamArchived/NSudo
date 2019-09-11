@@ -32,7 +32,8 @@
             text: 'Communities',
             items: [
               { text: 'GitHub', link: 'https://github.com/M2Team/NSudo/issues' },
-              { text: 'My Digital Life', link: 'https://forums.mydigitallife.net/threads/59268' }
+              { text: 'My Digital Life', link: 'https://forums.mydigitallife.net/threads/59268' },
+              { text: 'QQ Group 466078631', link: 'https://shang.qq.com/wpa/qunwpa?idkey=ac879ff5e88f85115597a9ec5f3dbbf28a6b84d7352e2fe03b7cbacf58bb6d53'}
             ]
           },
           {
@@ -81,7 +82,8 @@
             text: '社区',
             items: [
               { text: 'GitHub', link: 'https://github.com/M2Team/NSudo/issues' },
-              { text: 'My Digital Life', link: 'https://forums.mydigitallife.net/threads/59268' }
+              { text: 'My Digital Life', link: 'https://forums.mydigitallife.net/threads/59268' },
+              { text: 'QQ 群 466078631', link: 'https://shang.qq.com/wpa/qunwpa?idkey=ac879ff5e88f85115597a9ec5f3dbbf28a6b84d7352e2fe03b7cbacf58bb6d53' }
             ]
           },
           {
@@ -130,7 +132,8 @@
             text: '社區',
             items: [
               { text: 'GitHub', link: 'https://github.com/M2Team/NSudo/issues' },
-              { text: 'My Digital Life', link: 'https://forums.mydigitallife.net/threads/59268' }
+              { text: 'My Digital Life', link: 'https://forums.mydigitallife.net/threads/59268' },
+              { text: 'QQ 群組 466078631', link: 'https://shang.qq.com/wpa/qunwpa?idkey=ac879ff5e88f85115597a9ec5f3dbbf28a6b84d7352e2fe03b7cbacf58bb6d53' }
             ]
           },
           {

@@ -12,10 +12,10 @@ SuperCMD 的信息。
 
 ### 第三方介紹
 
-- MajorGeeks: https://www.majorgeeks.com/files/details/nsudo.html
-- softpedia.com: https://www.softpedia.com/get/Tweak/System-Tweak/NSudo.shtml
-- TrishTech.com: https://www.trishtech.com/2018/11/nsudo-run-programs-with-full-privileges-in-windows/
-- Wilders Security Forums: https://www.wilderssecurity.com/threads/396818
+- MajorGeeks: [https://www.majorgeeks.com/files/details/nsudo.html](https://www.majorgeeks.com/files/details/nsudo.html)
+- softpedia.com: [https://www.softpedia.com/get/Tweak/System-Tweak/NSudo.shtml](https://www.softpedia.com/get/Tweak/System-Tweak/NSudo.shtml)
+- TrishTech.com: [https://www.trishtech.com/2018/11/nsudo-run-programs-with-full-privileges-in-windows/](https://www.trishtech.com/2018/11/nsudo-run-programs-with-full-privileges-in-windows/)
+- Wilders Security Forums: [https://www.wilderssecurity.com/threads/396818](https://www.wilderssecurity.com/threads/396818)
 
 ### 系統要求
 
