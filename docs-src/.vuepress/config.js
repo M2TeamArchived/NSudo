@@ -77,12 +77,12 @@ module.exports = {
         ],
         sidebar: {
           "/zh-hant/docs/": [
-            "/zh-hans/docs/",
+            "/zh-hant/docs/",
             {
               title: "檔案",
               children: [
-                ["/docs/changelog", "更新日志"],
-                ["/docs/People", "相关人士"],
+                ["/zh-hant/docs/changelog", "變更紀錄"],
+                ["/docs/People", "相關人士"],
                 ["/docs/CODE_OF_CONDUCT", "貢獻者行為準則"],
                 ["/docs/CONTRIBUTING", "向 NSudo 貢獻"]
               ]
