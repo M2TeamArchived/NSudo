@@ -1,20 +1,25 @@
 ﻿# NSudo - 相关人士 Relevant People
 
 ## 提示 Notice
+
 - 本列表按字母顺序排列。
 - This list sort in alphabetical order.
 
 ## 创立者 Creator
+
 - Mouri_Naruto (https://github.com/MouriNaruto)
 
 ## 原型作者 Prototype author
+
 - raymai97 (https://github.com/Raymai97)
 
 ## 贡献者 Contributors
+
 - 20011010wo (https://github.com/yangrq)
 - Bill (https://github.com/bianyifan)
 - Eugene Wang J.y (https://github.com/ewjy)
 - Force.Charlie-I (https://github.com/fcharlie)
+- laosb (https://github.com/laosb)
 - 罗宇凡 Luo Yufan (https://github.com/njlyf2011)
 - May_magic (https://github.com/873578156)
 - Microsoft_Mars
@@ -23,8 +28,9 @@
 - Thomas Dubreuil (https://github.com/Thdub)
 
 ## 赞助者 Sponsors
+
 - boyangpangzi
-- cjy__05
+- cjy\_\_05
 - mhxkx
 - NotePad
 - tangmigoId
@@ -34,13 +40,14 @@
 - 月光光
 
 ## 反馈者 Advicers
+
 - 4071E95D-A09B-4AA3-8008
 - abbodi1406
 - AeonX
 - Domagoj Smolčić
 - hydra79545
 - imadlatch
-- kCaRhC卡壳
+- kCaRhC 卡壳
 - Lenny
 - NotePad
 - sebus
@@ -54,4 +61,5 @@
 - さくら
 
 ## 特别感谢 Special thanks
+
 - 高坂穂乃果 (因为知晓了她的事迹，使我没有放弃对 NSudo 的开发)

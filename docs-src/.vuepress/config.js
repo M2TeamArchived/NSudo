@@ -1,7 +1,7 @@
 module.exports = {
+  base: "/NSudo/",
+  dest: "../docs",
   themeConfig: {
-    base: "/NSudo/",
-    dest: "../docs",
     repo: "M2Team/NSudo",
     docsDir: "docs-src",
     editLinks: true,
@@ -52,7 +52,7 @@ module.exports = {
             {
               title: "档案",
               children: [
-                ["/docs/changelog", "更新日志"],
+                ["/zh-hans/docs/changelog", "更新日志"],
                 ["/docs/People", "相关人士"],
                 ["/docs/CODE_OF_CONDUCT", "贡献者行为准则"],
                 ["/docs/CONTRIBUTING", "向 NSudo 贡献"]
@@ -77,12 +77,12 @@ module.exports = {
         ],
         sidebar: {
           "/zh-hant/docs/": [
-            "/zh-hans/docs/",
+            "/zh-hant/docs/",
             {
               title: "檔案",
               children: [
-                ["/docs/changelog", "更新日志"],
-                ["/docs/People", "相关人士"],
+                ["/zh-hant/docs/changelog", "變更紀錄"],
+                ["/docs/People", "相關人士"],
                 ["/docs/CODE_OF_CONDUCT", "貢獻者行為準則"],
                 ["/docs/CONTRIBUTING", "向 NSudo 貢獻"]
               ]

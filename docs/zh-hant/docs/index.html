@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>使用方法 | NSudo</title>
+    <meta name="description" content="一個強大的系統管理工具">
+    
+    
+    <link rel="preload" href="/NSudo/assets/css/0.styles.f5a5b903.css" as="style"><link rel="preload" href="/NSudo/assets/js/app.6cbcbeb0.js" as="script"><link rel="preload" href="/NSudo/assets/js/2.0ff62c75.js" as="script"><link rel="preload" href="/NSudo/assets/js/15.43621449.js" as="script"><link rel="prefetch" href="/NSudo/assets/js/10.ffd088d1.js"><link rel="prefetch" href="/NSudo/assets/js/11.55765e50.js"><link rel="prefetch" href="/NSudo/assets/js/12.bed38f18.js"><link rel="prefetch" href="/NSudo/assets/js/13.56c37661.js"><link rel="prefetch" href="/NSudo/assets/js/14.ae93699f.js"><link rel="prefetch" href="/NSudo/assets/js/16.0a3e4daa.js"><link rel="prefetch" href="/NSudo/assets/js/17.5cdae08a.js"><link rel="prefetch" href="/NSudo/assets/js/3.352b7074.js"><link rel="prefetch" href="/NSudo/assets/js/4.9019bf68.js"><link rel="prefetch" href="/NSudo/assets/js/5.0b63b2e4.js"><link rel="prefetch" href="/NSudo/assets/js/6.252434aa.js"><link rel="prefetch" href="/NSudo/assets/js/7.533dea6e.js"><link rel="prefetch" href="/NSudo/assets/js/8.e680da07.js"><link rel="prefetch" href="/NSudo/assets/js/9.18762521.js">
+    <link rel="stylesheet" href="/NSudo/assets/css/0.styles.f5a5b903.css">
+  </head>
+  <body>
+    <div id="app" data-server-rendered="true"><div class="theme-container"><header class="navbar"><div class="sidebar-button"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" viewBox="0 0 448 512" class="icon"><path fill="currentColor" d="M436 124H12c-6.627 0-12-5.373-12-12V80c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12z"></path></svg></div> <a href="/NSudo/zh-hant/" class="home-link router-link-active"><!----> <span class="site-name">NSudo</span></a> <div class="links"><div class="search-box"><input aria-label="Search" autocomplete="off" spellcheck="false" value=""> <!----></div> <nav class="nav-links can-hide"><div class="nav-item"><a href="/NSudo/zh-hant/" class="nav-link">主頁</a></div><div class="nav-item"><a href="/NSudo/zh-hant/docs/" class="nav-link router-link-exact-active router-link-active">文獻</a></div><div class="nav-item"><div class="dropdown-wrapper"><a class="dropdown-title"><span class="title">選擇語言</span> <span class="arrow right"></span></a> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/NSudo/docs/" class="nav-link">English</a></li><li class="dropdown-item"><!----> <a href="/NSudo/zh-hans/docs/" class="nav-link">简体中文</a></li><li class="dropdown-item"><!----> <a href="/NSudo/zh-hant/docs/" class="nav-link router-link-exact-active router-link-active">繁體中文</a></li></ul></div></div> <a href="https://github.com/M2Team/NSudo" target="_blank" rel="noopener noreferrer" class="repo-link">
+    GitHub
+    <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></nav></div></header> <div class="sidebar-mask"></div> <aside class="sidebar"><nav class="nav-links"><div class="nav-item"><a href="/NSudo/zh-hant/" class="nav-link">主頁</a></div><div class="nav-item"><a href="/NSudo/zh-hant/docs/" class="nav-link router-link-exact-active router-link-active">文獻</a></div><div class="nav-item"><div class="dropdown-wrapper"><a class="dropdown-title"><span class="title">選擇語言</span> <span class="arrow right"></span></a> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/NSudo/docs/" class="nav-link">English</a></li><li class="dropdown-item"><!----> <a href="/NSudo/zh-hans/docs/" class="nav-link">简体中文</a></li><li class="dropdown-item"><!----> <a href="/NSudo/zh-hant/docs/" class="nav-link router-link-exact-active router-link-active">繁體中文</a></li></ul></div></div> <a href="https://github.com/M2Team/NSudo" target="_blank" rel="noopener noreferrer" class="repo-link">
+    GitHub
+    <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></nav>  <ul class="sidebar-links"><li><a href="/NSudo/zh-hant/docs/" class="active sidebar-link">使用方法</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/NSudo/zh-hant/docs/#快速入門" class="sidebar-link">快速入門</a></li><li class="sidebar-sub-header"><a href="/NSudo/zh-hant/docs/#命令列選項" class="sidebar-link">命令列選項</a></li><li class="sidebar-sub-header"><a href="/NSudo/zh-hant/docs/#常用列表" class="sidebar-link">常用列表</a></li></ul></li><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading"><span>檔案</span> <span class="arrow right"></span></p> <!----></section></li></ul> </aside> <main class="page"> <div class="theme-default-content content__default"><h1 id="使用方法"><a href="#使用方法" aria-hidden="true" class="header-anchor">#</a> 使用方法</h1> <h2 id="快速入門"><a href="#快速入門" aria-hidden="true" class="header-anchor">#</a> 快速入門</h2> <p>請開啟【CPU 架構】目錄，然後按兩下 NSudo.exe. 根據提示操作即可。例如，如果你想
+在你的 Intel 或 AMD 設備上使用 64 位 NSudo，你首先需要開啟的是 x64 目錄，然後按兩
+下 NSudoG.exe。</p> <h2 id="命令列選項"><a href="#命令列選項" aria-hidden="true" class="header-anchor">#</a> 命令列選項</h2> <div class="language- extra-class"><pre class="language-text"><code>格式: NSudo [ 選項與參數 ] 命令列執行或常用任務名
+
+選項:
+
+-U:[ 選項 ] 以指定使用者選項建立處理程序。
+可用選項：
+    T TrustedInstaller
+    S System
+    C 當前使用者
+    P 當前處理程序
+    D 當前處理程序 (降權)
+PS：這是一個必須被包含的參數。
+
+-P:[ 選項 ] 以指定特殊權限選項建立處理程序。
+可用選項：
+    E 啓用全部特殊權限
+    D 禁用所有特殊權限
+PS：如果想以默認特殊權限選項建立處理程序，請不要包含「-P」參數。
+
+-M:[ 選項 ] 以指定完整性選項建立處理程序。
+可用選項：
+    S 系統
+    H 高
+    M 中
+    L 低
+PS：如果想以默認完整性選項建立處理程序的話，請不要包含「-M」參數。
+
+-Priority:[ 選項 ] 以指定處理程序優先級選項建立處理程序。
+可用選項：
+    Idle 低
+    BelowNormal 低於正常
+    Normal 正常
+    AboveNormal 高於正常
+    High 高
+    RealTime 實時
+PS：如果想以默認處理序優先權選項建立處理程序，請不要包含「-Priority」參數。
+
+-ShowWindowMode:[ 選項 ] 以指定視窗模式選項建立處理程序。
+可用選項：
+    Show 顯示視窗
+    Hide 隱藏視窗
+    Maximize 最大化
+    Minimize 最小化
+PS：如果想以默認視窗模式選項建立處理程序的話，請不要包含「-ShowWindowMode」參數。
+
+-Wait 令 NSudo 等待建立的處理程序結束後再退出。
+PS：如果不想等待，請不要包含「-Wait」參數。
+
+-CurrentDirectory:[ 目錄路徑 ] 設置處理程序的的當前目錄。
+PS：如果你想用 NSudo 的當前目錄，請不要包含「-CurrentDirectory」參數。
+
+-UseCurrentConsole 使用當前控制台視窗建立處理程序。
+PS：如果你想在新控制台視窗建立處理程序，請不要包含「-UseCurrentConsole」參數。
+
+-Version 顯示 NSudo 版本資訊。
+
+-? 顯示該內容。
+-H 顯示該內容。
+-Help 顯示該內容。
+
+上下文清單管理：
+  -Install   把NSudo複製到Windows目錄並且添加上下文清單。
+  -Uninstall 移除在Windows目錄的NSudo和上下文清單。
+
+PS：
+    1. 所有的NSudo命令列參數不區分大小寫。
+    2. 可以在命令列參數中使用 &quot;/&quot; 或 &quot;--&quot; 代替 &quot;-&quot; 和使用 &quot;=&quot; 代替 &quot;:&quot;。例如
+       &quot;/U:T&quot; 和 &quot;-U=T&quot; 是等價的。
+    3. 為了保證最佳體驗，NSudoC不支持上下文清單。
+
+例子：
+    以TrustedInstaller權限，啓用所有特殊權限，完整性默認執行命令提示字元
+        NSudo -U:T -P:E cmd
+</code></pre></div><p>例子：以 TrustedInstaller 權限，啓用所有特殊權限，完整性默認執行命令提示字元：</p> <blockquote><p>NSudo -U:T -P:E cmd</p></blockquote> <p>從 NSudo 5.0.1708.16 開始命令列支持嵌套引號，例如：</p> <blockquote><p>NSudo -U:T cmd /c &quot;dir &quot;C:\Program Files&quot; &amp; pause&quot;</p></blockquote> <h2 id="常用列表"><a href="#常用列表" aria-hidden="true" class="header-anchor">#</a> 常用列表</h2> <p>關於常用列表的自訂,可以使用記事本等工具編輯 NSudo.json。你可以照著示例的做法添
+加你的自訂項目：</p> <div class="language- extra-class"><pre class="language-text"><code>{
+  &quot;ShortCutList_V2&quot;: {
+    &quot;命令提示字元&quot;: &quot;cmd&quot;,
+    &quot;PowerShell&quot;: &quot;powershell&quot;,
+    &quot;PowerShell ISE&quot;: &quot;powershell_ise&quot;,
+    &quot;Hosts編輯&quot;: &quot;notepad %windir%\\System32\\Drivers\\etc\\hosts&quot;
+  }
+}
+</code></pre></div></div> <footer class="page-edit"><div class="edit-link"><a href="https://github.com/M2Team/NSudo/edit/master/docs-src/zh-hant/docs/Readme.md" target="_blank" rel="noopener noreferrer">在 GitHub 上編輯此頁</a> <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></div> <!----></footer> <div class="page-nav"><p class="inner"><!----> <span class="next"><a href="/NSudo/zh-hant/docs/changelog.html">
+          變更紀錄
+        </a>
+        →
+      </span></p></div> </main></div><div class="global-ui"></div></div>
+    <script src="/NSudo/assets/js/app.6cbcbeb0.js" defer></script><script src="/NSudo/assets/js/2.0ff62c75.js" defer></script><script src="/NSudo/assets/js/15.43621449.js" defer></script>
+  </body>
+</html>
