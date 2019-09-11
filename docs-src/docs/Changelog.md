@@ -9,6 +9,8 @@
 - Update to Visual Studio 2019.
 - Update to the newest Windows 10 SDK.
 - Add Itlian Language. (Contributed by garf02.)
+- Use the Semantic Versioning format.
+- Improve several implementations.
 
 **NSudo 6.2.1812.31**
 

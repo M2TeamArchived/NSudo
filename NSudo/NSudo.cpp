@@ -37,7 +37,7 @@
 #include <string>
 #include <vector>
 
-#include "ThirdParty/json.hpp"
+#include "json.hpp"
 
 #if defined(NSUDO_GUI_WINDOWS)
 #include <atlbase.h>

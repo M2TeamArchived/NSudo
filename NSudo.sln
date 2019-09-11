@@ -16,8 +16,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documents", "Documents", "{
 		Readme.md = Readme.md
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NSudoSDK", "NSudoSDK\NSudoSDK.vcxitems", "{864F35B9-789C-4DA9-8906-649DFE3705F7}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MSBuild", "MSBuild", "{89E797B1-E412-492F-BD8C-247E53CA85CB}"
 	ProjectSection(SolutionItems) = preProject
 		MSBuild\AllTargets.Common.props = MSBuild\AllTargets.Common.props
@@ -34,10 +32,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Scripts", "Scripts", "{D3AE
 	EndProjectSection
 EndProject
 Global
-	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		NSudoSDK\NSudoSDK.vcxitems*{864f35b9-789c-4da9-8906-649dfe3705f7}*SharedItemsImports = 9
-		NSudoSDK\NSudoSDK.vcxitems*{dbc9a9ee-78ae-4260-80e8-67d4d04a92c8}*SharedItemsImports = 4
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug - CUI|ARM = Debug - CUI|ARM
 		Debug - CUI|ARM64 = Debug - CUI|ARM64

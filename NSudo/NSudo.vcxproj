@@ -92,9 +92,7 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
-  <ImportGroup Label="Shared">
-    <Import Project="..\NSudoSDK\NSudoSDK.vcxitems" Label="Shared" />
-  </ImportGroup>
+  <ImportGroup Label="Shared" />
   <ImportGroup Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
@@ -191,12 +189,24 @@
     <GenerateManifest>false</GenerateManifest>
   </PropertyGroup>
   <ItemGroup>
+    <ClInclude Include="CIBuild.h" />
+    <ClInclude Include="json.hpp" />
+    <ClInclude Include="M2MessageDialogResource.h" />
+    <ClInclude Include="M2Win32GUIHelpers.h" />
+    <ClInclude Include="M2WindowsDownlevelHelpers.h" />
+    <ClInclude Include="M2WindowsHelpers.h" />
+    <ClInclude Include="MINT.h" />
+    <ClInclude Include="NSudoVersion.h" />
     <ClInclude Include="Resources\resource.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="M2Win32GUIHelpers.cpp" />
+    <ClCompile Include="M2WindowsDownlevelHelpers.cpp" />
+    <ClCompile Include="M2WindowsHelpers.cpp" />
     <ClCompile Include="NSudo.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ResourceCompile Include="M2MessageDialogResource.rc" />
     <ResourceCompile Include="Resources\Manifest.rc" />
     <ResourceCompile Include="Resources\NSudo.rc" />
     <ResourceCompile Include="Resources\Version.rc" />
