@@ -1,6 +1,6 @@
-# ![Logo](~@root/Logo.png) NSudo
+# ![Logo](../Logo.png) NSudo
 
-![Screenshot](~@root/Screenshot.png)
+![Screenshot](./Screenshot.png)
 
 ## About
 

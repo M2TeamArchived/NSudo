@@ -65,13 +65,6 @@ module.exports = {
       }
     }
   },
-  configureWebpack: {
-    resolve: {
-      alias: {
-        "@root": "../"
-      }
-    }
-  },
   locales: {
     "/": {
       lang: "en-US",
