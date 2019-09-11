@@ -1,7 +1,12 @@
 ﻿# ![Logo](Logo.png) NSudo - A Powerful System Administration Tool
 
-[![License](https://img.shields.io/github/license/M2Team/NSudo)](License.md)
+[![AppVeyor CI](https://ci.appveyor.com/api/projects/status/github/M2Team/NSudo?branch=master&svg=true)](https://ci.appveyor.com/project/MouriNaruto/nsudo)
+[![Latest Version](https://img.shields.io/github/release/M2Team/NSudo.svg)](https://github.com/M2Team/NSudo/releases/latest)
+[![Latest Release Downloads](https://img.shields.io/github/downloads/M2Team/NSudo/latest/total.svg)](https://github.com/M2Team/NSudo/releases/latest)
+[![Total Downloads](https://img.shields.io/github/downloads/M2Team/NSudo/total.svg)](https://github.com/M2Team/NSudo/releases)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](License.md)
 [![996.icu](https://img.shields.io/badge/link-996.icu-red.svg)](https://996.icu)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FM2Team%2FNSudo.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2FM2Team%2FNSudo?ref=badge_shield)
 
 This is the source code repository of NSudo. If you wonder to visit the NSudo 
 official website, download NSudo or read the NSudo documents etc, please visit
@@ -9,15 +14,6 @@ https://m2team.github.io/NSudo.
 
 This readme file will be the developer oriented document because this it is 
 under the source code repository.
-
-## Status dashboard
-
-| ---- | ---- |
-| AppVeyor CI | [![AppVeyor CI](https://ci.appveyor.com/api/projects/status/github/M2Team/NSudo?branch=master&svg=true)](https://ci.appveyor.com/project/MouriNaruto/nsudo) |
-| Latest Version | [![Latest Version](https://img.shields.io/github/release/M2Team/NSudo.svg)](https://github.com/M2Team/NSudo/releases/latest) |
-| Latest Release Downloads | [![Latest Release Downloads](https://img.shields.io/github/downloads/M2Team/NSudo/latest/total.svg)](https://github.com/M2Team/NSudo/releases/latest) |
-| Total Downloads | [![Total Downloads](https://img.shields.io/github/downloads/M2Team/NSudo/total.svg)](https://github.com/M2Team/NSudo/releases) |
-| FOSSA Status | [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FM2Team%2FNSudo.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2FM2Team%2FNSudo?ref=badge_shield) |
 
 ## License
 
