@@ -1,4 +1,4 @@
-# ![Logo](../../Logo.png) NSudo
+﻿# NSudo - 一個強大的系統管理工具
 
 ![螢幕擷取畫面](./Screenshot.png)
 

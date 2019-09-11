@@ -1,4 +1,4 @@
-module.exports = {
+﻿module.exports = {
   base: "/NSudo/",
   dest: "../docs",
   themeConfig: {
@@ -16,17 +16,40 @@ module.exports = {
             buttonText: "Refresh"
           }
         },
-        nav: [{ text: "Home", link: "/" }, { text: "Docs", link: "/docs/" }],
+        nav: [
+          { text: "Home", link: "/" },
+          {
+            text: 'Downloads',
+            items: [
+              { text: 'Current Release', link: 'https://github.com/M2Team/NSudo/releases/latest' },
+              { text: 'All Releases', link: 'https://github.com/M2Team/NSudo/releases' },
+              { text: 'AppVeyor CI', link: 'https://ci.appveyor.com/project/MouriNaruto/nsudo' },
+              { text: 'Git Repository Mirror - Gitee', link: 'https://gitee.com/M2-Team/NSudo' }
+            ]
+          },
+          { text: "Docs", link: "/docs/" },
+          {
+            text: 'Communities',
+            items: [
+              { text: 'GitHub', link: 'https://github.com/M2Team/NSudo/issues' },
+              { text: 'My Digital Life', link: 'https://forums.mydigitallife.net/threads/59268' }
+            ]
+          },
+          {
+            text: "Contact",
+            items: [
+              { text: 'E-mail', link: 'mailto:Mouri_Naruto@Outlook.com' }
+            ]
+          }
+        ],
         sidebar: {
           "/docs/": [
             "/docs/",
             {
               title: "Documents",
               children: [
-                "/docs/changelog",
-                ["/docs/People", "Relevant People"],
-                "/docs/CODE_OF_CONDUCT",
-                "/docs/CONTRIBUTING"
+                "/docs/Changelog",
+                ["/docs/People", "Relevant People"]
               ]
             }
           ]
@@ -44,7 +67,29 @@ module.exports = {
         },
         nav: [
           { text: "首页", link: "/zh-hans/" },
-          { text: "文档", link: "/zh-hans/docs/" }
+          {
+            text: '下载',
+            items: [
+              { text: '当前版本', link: 'https://github.com/M2Team/NSudo/releases/latest' },
+              { text: '所有版本', link: 'https://github.com/M2Team/NSudo/releases' },
+              { text: 'AppVeyor CI', link: 'https://ci.appveyor.com/project/MouriNaruto/nsudo' },
+              { text: 'Git 镜像仓库 - 码云', link: 'https://gitee.com/M2-Team/NSudo' }
+            ]
+          },
+          { text: "文档", link: "/zh-hans/docs/" },
+          {
+            text: '社区',
+            items: [
+              { text: 'GitHub', link: 'https://github.com/M2Team/NSudo/issues' },
+              { text: 'My Digital Life', link: 'https://forums.mydigitallife.net/threads/59268' }
+            ]
+          },
+          {
+            text: "联系方式",
+            items: [
+              { text: '邮箱', link: 'mailto:Mouri_Naruto@Outlook.com' }
+            ]
+          }
         ],
         sidebar: {
           "/zh-hans/docs/": [
@@ -52,10 +97,8 @@ module.exports = {
             {
               title: "档案",
               children: [
-                ["/zh-hans/docs/changelog", "更新日志"],
-                ["/docs/People", "相关人士"],
-                ["/docs/CODE_OF_CONDUCT", "贡献者行为准则"],
-                ["/docs/CONTRIBUTING", "向 NSudo 贡献"]
+                ["/zh-hans/docs/Changelog", "更新日志"],
+                ["/docs/People", "相关人士"]
               ]
             }
           ]
@@ -73,7 +116,29 @@ module.exports = {
         },
         nav: [
           { text: "主頁", link: "/zh-hant/" },
-          { text: "文獻", link: "/zh-hant/docs/" }
+          {
+            text: '下載',
+            items: [
+              { text: '當前版本', link: 'https://github.com/M2Team/NSudo/releases/latest' },
+              { text: '所有版本', link: 'https://github.com/M2Team/NSudo/releases' },
+              { text: 'AppVeyor CI', link: 'https://ci.appveyor.com/project/MouriNaruto/nsudo' },
+              { text: 'Git 鏡像倉庫 - 碼雲', link: 'https://gitee.com/M2-Team/NSudo' }
+            ]
+          },
+          { text: "文獻", link: "/zh-hant/docs/" },
+          {
+            text: '社區',
+            items: [
+              { text: 'GitHub', link: 'https://github.com/M2Team/NSudo/issues' },
+              { text: 'My Digital Life', link: 'https://forums.mydigitallife.net/threads/59268' }
+            ]
+          },
+          {
+            text: "聯繫方式",
+            items: [
+              { text: '電郵', link: 'mailto:Mouri_Naruto@Outlook.com' }
+            ]
+          }
         ],
         sidebar: {
           "/zh-hant/docs/": [
@@ -81,10 +146,8 @@ module.exports = {
             {
               title: "檔案",
               children: [
-                ["/zh-hant/docs/changelog", "變更紀錄"],
-                ["/docs/People", "相關人士"],
-                ["/docs/CODE_OF_CONDUCT", "貢獻者行為準則"],
-                ["/docs/CONTRIBUTING", "向 NSudo 貢獻"]
+                ["/zh-hant/docs/Changelog", "變更紀錄"],
+                ["/docs/People", "相關人士"]
               ]
             }
           ]

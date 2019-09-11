@@ -1,23 +1,4 @@
-﻿# License
-
-The offical NSudo repository (not including third-party libraries) is **only** 
-distributed under the MIT License today because we want to give the **maximum 
-respect** to every NSudo users and we also hope every people treat others 
-kindly.
-
-[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FM2Team%2FNSudo.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2FM2Team%2FNSudo?ref=badge_large)
-
-## 3rd-party libraries which used
-- JSON for Modern C++
-  - Copyright: Niels Lohmann
-  - License: https://github.com/nlohmann/json/blob/develop/LICENSE.MIT
-- (Optional) VC-LTL
-  - Copyright: Chuyu Team
-  - License: https://github.com/Chuyu-Team/VC-LTL/blob/master/LICENSE.txt
-
-## The MIT License (MIT)
-```
-The MIT License (MIT)
+﻿The MIT License (MIT)
 
 Copyright (c) M2-Team and Contributors. All rights reserved.
 
@@ -38,4 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-```

@@ -1,4 +1,4 @@
-# ![Logo](../Logo.png) NSudo
+﻿# NSudo - A Powerful System Administration Tool
 
 ![Screenshot](./Screenshot.png)
 
