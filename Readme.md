@@ -4,7 +4,7 @@
 [![Latest Version](https://img.shields.io/github/release/M2Team/NSudo.svg)](https://github.com/M2Team/NSudo/releases/latest)
 [![Latest Release Downloads](https://img.shields.io/github/downloads/M2Team/NSudo/latest/total.svg)](https://github.com/M2Team/NSudo/releases/latest)
 [![Total Downloads](https://img.shields.io/github/downloads/M2Team/NSudo/total.svg)](https://github.com/M2Team/NSudo/releases)
-[![License](https://img.shields.io/badge/license-MIT-green.svg)](License.md)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE.MIT)
 [![996.icu](https://img.shields.io/badge/link-996.icu-red.svg)](https://996.icu)
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FM2Team%2FNSudo.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2FM2Team%2FNSudo?ref=badge_shield)
 
@@ -21,7 +21,7 @@ The offical NSudo repository (not including third-party libraries) is **only**
 distributed under the MIT License today because we want to give the **maximum 
 respect** to every NSudo users and we also hope every people treat others 
 kindly. For more information about the MIT License which used in NSudo, please 
-read [License.md](License.md).
+read [LICENSE.MIT](LICENSE.MIT).
 
 ## 3rd-party libraries which used
 
