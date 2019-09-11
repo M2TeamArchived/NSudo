@@ -1,4 +1,4 @@
-﻿The MIT License (MIT)
+﻿MIT License
 
 Copyright (c) M2-Team and Contributors. All rights reserved.
 
