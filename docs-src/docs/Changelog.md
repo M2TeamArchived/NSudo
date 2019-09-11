@@ -1,6 +1,6 @@
 ﻿# Changelog
 
-**NSudo 7.0.1909.12**
+**NSudo 8.0.0-alpha1**
 
 - Update JSON for Modern C++ to 3.7.0.
 - Use FILE instead of std::ifstream to reduce the memory usage and binary size.
