@@ -19,7 +19,17 @@ module.exports = {
         nav: [{ text: "Home", link: "/" }, { text: "Docs", link: "/docs/" }],
         sidebar: {
           "/docs/": [
-            /* ... */
+            "/docs/",
+            {
+              title: "Documents",
+              path: "/docs/",
+              children: [
+                "/docs/changelog",
+                "/docs/People",
+                "/docs/CODE_OF_CONDUCT",
+                "/docs/CONTRIBUTING"
+              ]
+            }
           ]
         }
       },
