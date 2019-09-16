@@ -19,6 +19,8 @@
 
 #pragma endregion
 
+#include "M2.NSudo.h"
+
 #include "M2WindowsHelpers.h"
 #include "M2Win32GUIHelpers.h"
 
@@ -278,16 +280,16 @@ BOOL WINAPI NSudoSetTokenPrivilege(
     _In_ TOKEN_PRIVILEGES_LIST Privilege,
     _In_ bool bEnable)
 {
-    TOKEN_PRIVILEGES TP;
+    LUID_AND_ATTRIBUTES RawPrivilege;
 
-    TP.PrivilegeCount = 1;
-    TP.Privileges[0].Luid.HighPart = 0;
-    TP.Privileges[0].Luid.LowPart = Privilege;
-    TP.Privileges[0].Attributes = (DWORD)(bEnable ? SE_PRIVILEGE_ENABLED : 0);
+    RawPrivilege.Luid.HighPart = 0;
+    RawPrivilege.Luid.LowPart = Privilege;
+    RawPrivilege.Attributes = (DWORD)(bEnable ? SE_PRIVILEGE_ENABLED : 0);
 
-    // 设置进程特权
-    return SUCCEEDED(M2AdjustTokenPrivileges(
-        hExistingToken, FALSE, &TP, 0, nullptr, nullptr));
+    DWORD ErrorCode = M2::NSudo::NSudoAdjustTokenPrivileges(
+        hExistingToken, &RawPrivilege, 1);
+    ::SetLastError(ErrorCode);
+    return (ErrorCode == ERROR_SUCCESS);
 }
 
 /*
@@ -320,8 +322,10 @@ BOOL WINAPI NSudoSetTokenAllPrivileges(
             (DWORD)(bEnable ? SE_PRIVILEGE_ENABLED : 0);
 
         // 设置进程特权
-        result = SUCCEEDED(M2AdjustTokenPrivileges(
-            hExistingToken, FALSE, pTPs, 0, nullptr, nullptr));
+        DWORD ErrorCode = M2::NSudo::NSudoAdjustTokenPrivileges(
+            hExistingToken, pTPs->Privileges, pTPs->PrivilegeCount);
+        ::SetLastError(ErrorCode);
+        result = (ErrorCode == ERROR_SUCCESS);
     }
 
     return result;

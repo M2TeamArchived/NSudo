@@ -319,25 +319,6 @@ HRESULT M2CoCreateInstance(
     return hr;
 }
 
-HRESULT M2AdjustTokenPrivileges(
-    _In_ HANDLE TokenHandle,
-    _In_ BOOL DisableAllPrivileges,
-    _In_opt_ PTOKEN_PRIVILEGES NewState,
-    _In_ DWORD BufferLength,
-    _Out_opt_ PTOKEN_PRIVILEGES PreviousState,
-    _Out_opt_ PDWORD ReturnLength)
-{
-    return M2GetLastHResultError(
-        AdjustTokenPrivileges(
-            TokenHandle,
-            DisableAllPrivileges,
-            NewState,
-            BufferLength,
-            PreviousState,
-            ReturnLength),
-        TRUE);
-}
-
 HRESULT M2GetTokenInformation(
     _In_ HANDLE TokenHandle,
     _In_ TOKEN_INFORMATION_CLASS TokenInformationClass,
