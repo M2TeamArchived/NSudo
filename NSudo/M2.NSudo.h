@@ -26,6 +26,8 @@ namespace M2
     namespace NSudo
     {
         using ::NSudoAdjustTokenPrivileges;
+        using ::NSUDO_MANDATORY_LABEL_TYPE;
+        using ::PNSUDO_MANDATORY_LABEL_TYPE;
         using ::NSudoCreateMandatoryLabelSid;
 
         /**

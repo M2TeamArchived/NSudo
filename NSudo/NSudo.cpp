@@ -196,34 +196,6 @@ typedef enum _TOKEN_PRIVILEGES_LIST
 } TOKEN_PRIVILEGES_LIST, *PTOKEN_PRIVILEGES_LIST;
 
 /*
-访问令牌完整性级别定义
-The definitions of the Token Integrity Levels
-*/
-typedef enum _TOKEN_INTEGRITY_LEVELS_LIST
-{
-    // S-1-16-0
-    UntrustedLevel = SECURITY_MANDATORY_UNTRUSTED_RID,
-
-    // S-1-16-4096
-    LowLevel = SECURITY_MANDATORY_LOW_RID,
-
-    // S-1-16-8192
-    MediumLevel = SECURITY_MANDATORY_MEDIUM_RID,
-
-    // S-1-16-8448
-    MediumPlusLevel = SECURITY_MANDATORY_MEDIUM_PLUS_RID,
-
-    // S-1-16-12288
-    HighLevel = SECURITY_MANDATORY_HIGH_RID,
-
-    // S-1-16-16384
-    SystemLevel = SECURITY_MANDATORY_SYSTEM_RID,
-
-    // S-1-16-20480
-    ProtectedLevel = SECURITY_MANDATORY_PROTECTED_PROCESS_RID
-} TOKEN_INTEGRITY_LEVELS_LIST, *PTOKEN_INTEGRITY_LEVELS_LIST;
-
-/*
 NSudoGetCurrentProcessSessionID获取当前进程的会话ID。
 The NSudoGetCurrentProcessSessionID function obtains the Session ID of the
 current process.
@@ -336,7 +308,7 @@ information, call GetLastError.
 */
 BOOL WINAPI NSudoSetTokenIntegrityLevel(
     _In_ HANDLE TokenHandle,
-    _In_ TOKEN_INTEGRITY_LEVELS_LIST IL)
+    _In_ M2::NSudo::NSUDO_MANDATORY_LABEL_TYPE IL)
 {
     BOOL result = FALSE;
     TOKEN_MANDATORY_LABEL TML;
@@ -399,7 +371,7 @@ BOOL WINAPI NSudoCreateLUAToken(
 
     // 设置令牌完整性
     result = NSudoSetTokenIntegrityLevel(
-        hToken, TOKEN_INTEGRITY_LEVELS_LIST::MediumLevel);
+        hToken, M2::NSudo::NSUDO_MANDATORY_LABEL_TYPE::MEDIUM);
     if (!result) goto FuncEnd;
 
     // 获取令牌对应的用户账户SID信息
@@ -1247,15 +1219,6 @@ NSUDO_MESSAGE NSudoCommandLineParser(
         DisableAllPrivileges
     };
 
-    enum class NSudoOptionIntegrityLevelValue
-    {
-        Default,
-        System,
-        High,
-        Medium,
-        Low
-    };
-
     enum class NSudoOptionProcessPriorityValue
     {
         Default,
@@ -1280,8 +1243,6 @@ NSUDO_MESSAGE NSudoCommandLineParser(
         NSudoOptionUserValue::Default;
     NSudoOptionPrivilegesValue PrivilegesMode =
         NSudoOptionPrivilegesValue::Default;
-    NSudoOptionIntegrityLevelValue IntegrityLevelMode =
-        NSudoOptionIntegrityLevelValue::Default;
     NSudoOptionProcessPriorityValue ProcessPriorityMode =
         NSudoOptionProcessPriorityValue::Default;
     NSudoOptionWindowModeValue WindowMode =
@@ -1291,6 +1252,9 @@ NSUDO_MESSAGE NSudoCommandLineParser(
     std::wstring CurrentDirectory = g_ResourceManagement.AppPath;
     DWORD ShowWindowMode = SW_SHOWDEFAULT;
     bool CreateNewConsole = true;
+
+    M2::NSudo::NSUDO_MANDATORY_LABEL_TYPE MandatoryLabelType =
+        M2::NSudo::NSUDO_MANDATORY_LABEL_TYPE::UNTRUSTED;
 
     for (auto& OptionAndParameter : OptionsAndParameters)
     {
@@ -1342,19 +1306,19 @@ NSUDO_MESSAGE NSudoCommandLineParser(
         {
             if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"S"))
             {
-                IntegrityLevelMode = NSudoOptionIntegrityLevelValue::System;
+                MandatoryLabelType = M2::NSudo::NSUDO_MANDATORY_LABEL_TYPE::SYSTEM;
             }
             else if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"H"))
             {
-                IntegrityLevelMode = NSudoOptionIntegrityLevelValue::High;
+                MandatoryLabelType = M2::NSudo::NSUDO_MANDATORY_LABEL_TYPE::HIGH;
             }
             else if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"M"))
             {
-                IntegrityLevelMode = NSudoOptionIntegrityLevelValue::Medium;
+                MandatoryLabelType = M2::NSudo::NSUDO_MANDATORY_LABEL_TYPE::MEDIUM;
             }
             else if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"L"))
             {
-                IntegrityLevelMode = NSudoOptionIntegrityLevelValue::Low;
+                MandatoryLabelType = M2::NSudo::NSUDO_MANDATORY_LABEL_TYPE::LOW;
             }
             else
             {
@@ -1552,30 +1516,9 @@ NSUDO_MESSAGE NSudoCommandLineParser(
         }
     }
 
-    if (NSudoOptionIntegrityLevelValue::System == IntegrityLevelMode)
+    if (MandatoryLabelType != M2::NSudo::NSUDO_MANDATORY_LABEL_TYPE::UNTRUSTED)
     {
-        if (!NSudoSetTokenIntegrityLevel(hToken, SystemLevel))
-        {
-            return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
-        }
-    }
-    else if (NSudoOptionIntegrityLevelValue::High == IntegrityLevelMode)
-    {
-        if (!NSudoSetTokenIntegrityLevel(hToken, HighLevel))
-        {
-            return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
-        }
-    }
-    else if (NSudoOptionIntegrityLevelValue::Medium == IntegrityLevelMode)
-    {
-        if (!NSudoSetTokenIntegrityLevel(hToken, MediumLevel))
-        {
-            return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
-        }
-    }
-    else if (NSudoOptionIntegrityLevelValue::Low == IntegrityLevelMode)
-    {
-        if (!NSudoSetTokenIntegrityLevel(hToken, LowLevel))
+        if (!NSudoSetTokenIntegrityLevel(hToken, MandatoryLabelType))
         {
             return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
         }
