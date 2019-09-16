@@ -26,6 +26,7 @@ namespace M2
     namespace NSudo
     {
         using ::NSudoAdjustTokenPrivileges;
+        using ::NSudoCreateMandatoryLabelSid;
 
         /**
          * Enables or disables privileges in the specified access token.

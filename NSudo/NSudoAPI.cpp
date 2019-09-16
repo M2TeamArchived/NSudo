@@ -46,3 +46,21 @@ EXTERN_C DWORD WINAPI NSudoAdjustTokenPrivileges(
 
     return ErrorCode;
 }
+
+/**
+ * @remark You can read the definition for this function in "NSudoAPI.h".
+ */
+EXTERN_C DWORD WINAPI NSudoCreateMandatoryLabelSid(
+    _Out_ PSID* MandatoryLabelSid,
+    _In_ DWORD MandatoryLabelRid)
+{
+    SID_IDENTIFIER_AUTHORITY SIA = SECURITY_MANDATORY_LABEL_AUTHORITY;
+
+    if (::AllocateAndInitializeSid(
+        &SIA, 1, MandatoryLabelRid, 0, 0, 0, 0, 0, 0, 0, MandatoryLabelSid))
+    {
+        return ::GetLastError();
+    }
+
+    return ERROR_SUCCESS;
+}

@@ -223,12 +223,6 @@ typedef enum _TOKEN_INTEGRITY_LEVELS_LIST
     ProtectedLevel = SECURITY_MANDATORY_PROTECTED_PROCESS_RID
 } TOKEN_INTEGRITY_LEVELS_LIST, *PTOKEN_INTEGRITY_LEVELS_LIST;
 
-// SECURITY_NT_AUTHORITY
-SID_IDENTIFIER_AUTHORITY SIA_NT = SECURITY_NT_AUTHORITY;
-
-// SECURITY_MANDATORY_LABEL_AUTHORITY
-SID_IDENTIFIER_AUTHORITY SIA_IL = SECURITY_MANDATORY_LABEL_AUTHORITY;
-
 /*
 NSudoGetCurrentProcessSessionID获取当前进程的会话ID。
 The NSudoGetCurrentProcessSessionID function obtains the Session ID of the
@@ -346,20 +340,22 @@ BOOL WINAPI NSudoSetTokenIntegrityLevel(
 {
     BOOL result = FALSE;
     TOKEN_MANDATORY_LABEL TML;
-    M2::CSID Sid;
 
     // 初始化SID
-    result = AllocateAndInitializeSid(
-        &SIA_IL, 1, IL, 0, 0, 0, 0, 0, 0, 0, &Sid);
+    DWORD ErrorCode = M2::NSudo::NSudoCreateMandatoryLabelSid(
+        &TML.Label.Sid, IL);
+    ::SetLastError(ErrorCode);
+    result = (ErrorCode == ERROR_SUCCESS);
     if (result)
     {
         // 初始化TOKEN_MANDATORY_LABEL
         TML.Label.Attributes = SE_GROUP_INTEGRITY;
-        TML.Label.Sid = Sid;
 
         // 设置令牌对象
         result = SUCCEEDED(M2SetTokenInformation(
             TokenHandle, TokenIntegrityLevel, &TML, sizeof(TML)));
+
+        ::FreeSid(TML.Label.Sid);
     }
 
     return result;
@@ -388,7 +384,6 @@ BOOL WINAPI NSudoCreateLUAToken(
     M2::CHandle hToken;
     M2::CM2Memory<PTOKEN_USER> pTokenUser;
     M2::CM2Memory<PTOKEN_DEFAULT_DACL> pTokenDacl;
-    M2::CSID pAdminSid;
     M2::CMemory<PACL> NewDefaultDacl;
     PACCESS_ALLOWED_ACE pTempAce = nullptr;
 
@@ -427,13 +422,6 @@ BOOL WINAPI NSudoCreateLUAToken(
         TokenDefaultDacl));
     if (!result) goto FuncEnd;
 
-    // 获取管理员组SID
-    result = AllocateAndInitializeSid(
-        &SIA_NT, 2,
-        SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS,
-        0, 0, 0, 0, 0, 0, &pAdminSid);
-    if (!result) goto FuncEnd;
-
     // 计算新ACL大小
     Length = pTokenDacl->DefaultDacl->AclSize;
     Length += GetLengthSid(pTokenUser->User.Sid);
@@ -467,7 +455,10 @@ BOOL WINAPI NSudoCreateLUAToken(
         GetAce(pTokenDacl->DefaultDacl, i, (PVOID*)&pTempAce);
         ++i)
     {
-        if (EqualSid(pAdminSid, &pTempAce->SidStart)) continue;
+        if (IsWellKnownSid(
+            &pTempAce->SidStart,
+            WELL_KNOWN_SID_TYPE::WinBuiltinAdministratorsSid))
+            continue;
 
         AddAce(
             NewTokenDacl.DefaultDacl,

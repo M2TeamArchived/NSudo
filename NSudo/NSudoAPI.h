@@ -44,4 +44,27 @@ EXTERN_C DWORD WINAPI NSudoAdjustTokenPrivileges(
     _In_ PLUID_AND_ATTRIBUTES Privileges,
     _In_ DWORD PrivilegeCount);
 
+/**
+ * Allocates and initializes a mandatory label security identifier (SID).
+ *
+ * @param MandatoryLabelSid A pointer to a variable that receives the pointer to
+ *        the allocated and initialized mandatory label SID structure.
+ * @param MandatoryLabelRid The mandatory label relative ID (RID) value to place
+ *        in the SID. Currently defined RIDs are:
+ *        SECURITY_MANDATORY_UNTRUSTED_RID
+ *        SECURITY_MANDATORY_LOW_RID
+ *        SECURITY_MANDATORY_MEDIUM_RID
+ *        SECURITY_MANDATORY_MEDIUM_PLUS_RID
+ *        SECURITY_MANDATORY_HIGH_RID
+ *        SECURITY_MANDATORY_SYSTEM_RID
+ *        SECURITY_MANDATORY_PROTECTED_PROCESS_RID
+ * @return Standard Win32 Error. If the function succeeds, the return value is
+ *         ERROR_SUCCESS.
+ * @remark A SID allocated with the NSudoCreateMandatoryLabelSid function must
+ *         be freed by using the FreeSid function.
+ */
+EXTERN_C DWORD WINAPI NSudoCreateMandatoryLabelSid(
+    _Out_ PSID* MandatoryLabelSid,
+    _In_ DWORD MandatoryLabelRid);
+
 #endif
