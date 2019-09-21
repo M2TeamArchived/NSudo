@@ -1862,8 +1862,8 @@ private:
             LogicalRect.top, USER_DEFAULT_SCREEN_DPI, this->m_yDPI);
         LogicalRect.right = MulDiv(
             LogicalRect.right, USER_DEFAULT_SCREEN_DPI, this->m_xDPI);
-        LogicalRect.bottom = MulDiv
-        (LogicalRect.bottom, USER_DEFAULT_SCREEN_DPI, this->m_yDPI);
+        LogicalRect.bottom = MulDiv(
+            LogicalRect.bottom, USER_DEFAULT_SCREEN_DPI, this->m_yDPI);
 
         return result;
     }
