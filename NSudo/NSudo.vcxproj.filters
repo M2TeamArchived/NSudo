@@ -31,9 +31,6 @@
     <Filter Include="MINT">
       <UniqueIdentifier>{9278910f-7a78-4b89-8fd9-20c611a32876}</UniqueIdentifier>
     </Filter>
-    <Filter Include="NSudoAPI">
-      <UniqueIdentifier>{9911bb74-8194-4e48-bfcc-932716e76a81}</UniqueIdentifier>
-    </Filter>
     <Filter Include="M2.NSudo">
       <UniqueIdentifier>{14ce02b3-ae46-4757-9dd3-4a6d3b68782a}</UniqueIdentifier>
     </Filter>
@@ -62,9 +59,6 @@
     <ClInclude Include="MINT.h">
       <Filter>MINT</Filter>
     </ClInclude>
-    <ClInclude Include="NSudoAPI.h">
-      <Filter>NSudoAPI</Filter>
-    </ClInclude>
     <ClInclude Include="M2.NSudo.h">
       <Filter>M2.NSudo</Filter>
     </ClInclude>
@@ -79,9 +73,6 @@
     </ClCompile>
     <ClCompile Include="M2WindowsDownlevelHelpers.cpp">
       <Filter>M2WindowsHelpers</Filter>
-    </ClCompile>
-    <ClCompile Include="NSudoAPI.cpp">
-      <Filter>NSudoAPI</Filter>
     </ClCompile>
     <ClCompile Include="M2.NSudo.cpp">
       <Filter>M2.NSudo</Filter>

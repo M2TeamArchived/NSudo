@@ -1,0 +1,14 @@
+﻿LIBRARY
+
+EXPORTS
+
+NSudoGetFeatureLevel
+NSudoAdjustTokenPrivileges
+NSudoCreateMandatoryLabelSid
+NSudoStartService
+NSudoOpenProcess
+NSudoOpenServiceProcess
+NSudoOpenProcessTokenByProcessHandle
+NSudoOpenCurrentProcessToken
+NSudoOpenProcessTokenByProcessId
+NSudoOpenServiceProcessToken

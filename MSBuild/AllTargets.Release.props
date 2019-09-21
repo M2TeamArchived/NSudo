@@ -3,7 +3,7 @@
   <PropertyGroup>
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)Output\Release\$(Platform)\</OutDir>
-    <IntDir>$(SolutionDir)Output\Release\$(Platform)\Temp\</IntDir>
+    <IntDir>$(SolutionDir)Output\Release\$(Platform)\Build\$(TargetName)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Label="Configuration">
     <UseDebugLibraries>false</UseDebugLibraries>

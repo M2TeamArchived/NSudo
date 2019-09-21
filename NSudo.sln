@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 16.0.28729.10
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NSudo", "NSudo\NSudo.vcxproj", "{DBC9A9EE-78AE-4260-80E8-67D4D04A92C8}"
+	ProjectSection(ProjectDependencies) = postProject
+		{43C2BD57-4D61-42EC-B290-62A32B6FB5C7} = {43C2BD57-4D61-42EC-B290-62A32B6FB5C7}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documents", "Documents", "{C3C42858-2A8F-492A-9B80-B11907E0C95D}"
 	ProjectSection(SolutionItems) = preProject
@@ -22,14 +25,18 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MSBuild", "MSBuild", "{89E7
 		MSBuild\AllTargets.Debug.props = MSBuild\AllTargets.Debug.props
 		MSBuild\AllTargets.Release.props = MSBuild\AllTargets.Release.props
 		MSBuild\AllTargets.VC-LTL.props = MSBuild\AllTargets.VC-LTL.props
+		MSBuild\NSudoAPI.props = MSBuild\NSudoAPI.props
 		MSBuild\NSudoC.props = MSBuild\NSudoC.props
 		MSBuild\NSudoG.props = MSBuild\NSudoG.props
+		MSBuild\VC-LTL.props = MSBuild\VC-LTL.props
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Scripts", "Scripts", "{D3AE8453-0175-4B40-985A-ABDD4B35D985}"
 	ProjectSection(SolutionItems) = preProject
 		Scripts\NSudo.bat = Scripts\NSudo.bat
 	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NSudoAPI", "NSudoAPI\NSudoAPI.vcxproj", "{43C2BD57-4D61-42EC-B290-62A32B6FB5C7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -83,6 +90,38 @@ Global
 		{DBC9A9EE-78AE-4260-80E8-67D4D04A92C8}.Release - GUI|x64.Build.0 = Release - GUI|x64
 		{DBC9A9EE-78AE-4260-80E8-67D4D04A92C8}.Release - GUI|x86.ActiveCfg = Release - GUI|Win32
 		{DBC9A9EE-78AE-4260-80E8-67D4D04A92C8}.Release - GUI|x86.Build.0 = Release - GUI|Win32
+		{43C2BD57-4D61-42EC-B290-62A32B6FB5C7}.Debug - CUI|ARM.ActiveCfg = Debug|ARM
+		{43C2BD57-4D61-42EC-B290-62A32B6FB5C7}.Debug - CUI|ARM.Build.0 = Debug|ARM
+		{43C2BD57-4D61-42EC-B290-62A32B6FB5C7}.Debug - CUI|ARM64.ActiveCfg = Debug|ARM64
+		{43C2BD57-4D61-42EC-B290-62A32B6FB5C7}.Debug - CUI|ARM64.Build.0 = Debug|ARM64
+		{43C2BD57-4D61-42EC-B290-62A32B6FB5C7}.Debug - CUI|x64.ActiveCfg = Debug|x64
+		{43C2BD57-4D61-42EC-B290-62A32B6FB5C7}.Debug - CUI|x64.Build.0 = Debug|x64
+		{43C2BD57-4D61-42EC-B290-62A32B6FB5C7}.Debug - CUI|x86.ActiveCfg = Debug|Win32
+		{43C2BD57-4D61-42EC-B290-62A32B6FB5C7}.Debug - CUI|x86.Build.0 = Debug|Win32
+		{43C2BD57-4D61-42EC-B290-62A32B6FB5C7}.Debug - GUI|ARM.ActiveCfg = Debug|ARM
+		{43C2BD57-4D61-42EC-B290-62A32B6FB5C7}.Debug - GUI|ARM.Build.0 = Debug|ARM
+		{43C2BD57-4D61-42EC-B290-62A32B6FB5C7}.Debug - GUI|ARM64.ActiveCfg = Debug|ARM64
+		{43C2BD57-4D61-42EC-B290-62A32B6FB5C7}.Debug - GUI|ARM64.Build.0 = Debug|ARM64
+		{43C2BD57-4D61-42EC-B290-62A32B6FB5C7}.Debug - GUI|x64.ActiveCfg = Debug|x64
+		{43C2BD57-4D61-42EC-B290-62A32B6FB5C7}.Debug - GUI|x64.Build.0 = Debug|x64
+		{43C2BD57-4D61-42EC-B290-62A32B6FB5C7}.Debug - GUI|x86.ActiveCfg = Debug|Win32
+		{43C2BD57-4D61-42EC-B290-62A32B6FB5C7}.Debug - GUI|x86.Build.0 = Debug|Win32
+		{43C2BD57-4D61-42EC-B290-62A32B6FB5C7}.Release - CUI|ARM.ActiveCfg = Release|ARM
+		{43C2BD57-4D61-42EC-B290-62A32B6FB5C7}.Release - CUI|ARM.Build.0 = Release|ARM
+		{43C2BD57-4D61-42EC-B290-62A32B6FB5C7}.Release - CUI|ARM64.ActiveCfg = Release|ARM64
+		{43C2BD57-4D61-42EC-B290-62A32B6FB5C7}.Release - CUI|ARM64.Build.0 = Release|ARM64
+		{43C2BD57-4D61-42EC-B290-62A32B6FB5C7}.Release - CUI|x64.ActiveCfg = Release|x64
+		{43C2BD57-4D61-42EC-B290-62A32B6FB5C7}.Release - CUI|x64.Build.0 = Release|x64
+		{43C2BD57-4D61-42EC-B290-62A32B6FB5C7}.Release - CUI|x86.ActiveCfg = Release|Win32
+		{43C2BD57-4D61-42EC-B290-62A32B6FB5C7}.Release - CUI|x86.Build.0 = Release|Win32
+		{43C2BD57-4D61-42EC-B290-62A32B6FB5C7}.Release - GUI|ARM.ActiveCfg = Release|ARM
+		{43C2BD57-4D61-42EC-B290-62A32B6FB5C7}.Release - GUI|ARM.Build.0 = Release|ARM
+		{43C2BD57-4D61-42EC-B290-62A32B6FB5C7}.Release - GUI|ARM64.ActiveCfg = Release|ARM64
+		{43C2BD57-4D61-42EC-B290-62A32B6FB5C7}.Release - GUI|ARM64.Build.0 = Release|ARM64
+		{43C2BD57-4D61-42EC-B290-62A32B6FB5C7}.Release - GUI|x64.ActiveCfg = Release|x64
+		{43C2BD57-4D61-42EC-B290-62A32B6FB5C7}.Release - GUI|x64.Build.0 = Release|x64
+		{43C2BD57-4D61-42EC-B290-62A32B6FB5C7}.Release - GUI|x86.ActiveCfg = Release|Win32
+		{43C2BD57-4D61-42EC-B290-62A32B6FB5C7}.Release - GUI|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

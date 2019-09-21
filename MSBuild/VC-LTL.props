@@ -1,0 +1,50 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--
+ * 项目：VC-LTL
+ * 文件：VC-LTL.targets
+ * 用途：适用于 Visual Studio 的 VC-LTL 工具集的目标文件
+ *
+ * 许可：MIT
+ *
+ * 作者：mingkuang (mingkuang AT live.com)
+ * 作者：Mouri_Naruto (Mouri_Naruto AT Outlook.com)
+ *
+ * 使用方法：
+ * 1. 在属性管理器选择所有Release配置，然后右键选择“添加现有属性表”。
+ * 2. 务必保证所有依赖的静态库也均用VC-LTL重新编译。
+-->
+<Project ToolsVersion="4.0" 
+         xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <!-- VC-LTL 工具集目录判定规则，只要把 VC-LTL 放在其中一个位置即可被自动引用 -->
+  <PropertyGroup>
+    
+    <!-- 当自定义 $(VC_LTL_Root) 指定的目录没发现 VC-LTL 工具集，判断本配置文件所在目录是否存在 VC-LTL -->
+    <VC_LTL_Root Condition=" ('$(VC_LTL_Root)'=='') And (Exists('$(MSBuildThisFileDirectory)_msvcrt.h')) ">$(MSBuildThisFileDirectory)</VC_LTL_Root>
+
+    <!-- 如果没发现 VC-LTL 工具集，那么继续判断当前项目根目录是否存在 VC-LTL -->
+    <VC_LTL_Root Condition=" ('$(VC_LTL_Root)'=='') And (Exists('$(ProjectDir)VC-LTL\_msvcrt.h')) ">$(ProjectDir)VC-LTL</VC_LTL_Root>
+
+    <!-- 如果没发现 VC-LTL 工具集，那么继续判断当前解决方案根目录是否存在 VC-LTL -->
+    <VC_LTL_Root Condition=" ('$(VC_LTL_Root)'=='') And ('$(SolutionDir)'!='') And (Exists('$(SolutionDir)VC-LTL\_msvcrt.h')) ">$(SolutionDir)VC-LTL</VC_LTL_Root>
+
+    <!-- 如果没发现 VC-LTL 工具集，那么继续判断当前项目父目录是否存在 VC-LTL -->
+    <VC_LTL_Root Condition=" ('$(VC_LTL_Root)'=='') And (Exists('$(ProjectDir)..\VC-LTL\_msvcrt.h')) ">$(ProjectDir)..\VC-LTL</VC_LTL_Root>
+
+    <!-- 如果没发现 VC-LTL 工具集，那么继续判断当前解决方案父目录是否存在 VC-LTL -->
+    <VC_LTL_Root Condition=" ('$(VC_LTL_Root)'=='') And ('$(SolutionDir)'!='') And (Exists('$(SolutionDir)..\VC-LTL\_msvcrt.h')) ">$(SolutionDir)..\VC-LTL</VC_LTL_Root>
+
+    <!-- 如果根据上述规则还是没发现 VC-LTL 工具集，那么继续尝试通过注册表获取VC-LTL路径，双击 Install.cmd 可以自动产生此注册表键值-->
+    <VC_LTL_Root Condition=" '$(VC_LTL_Root)'=='' ">$(Registry:HKEY_CURRENT_USER\Code\VC-LTL@Root)</VC_LTL_Root>
+    
+  </PropertyGroup>
+
+  <ImportGroup Condition=" '$(VC_LTL_Root)'!=''">
+    <Import Project="$(VC_LTL_Root)\Config\config.props" 
+            Condition="Exists('$(VC_LTL_Root)\Config\config.props')"/>
+
+    <!-- 兼容模式，尝试加载老版本 -->
+    <Import Project="$(VC_LTL_Root)\ltlvcrt.props" 
+            Condition="(!Exists('$(VC_LTL_Root)\Config\config.props')) And (Exists('$(VC_LTL_Root)\ltlvcrt.props'))"/>
+  </ImportGroup>
+</Project>

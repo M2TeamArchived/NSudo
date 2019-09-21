@@ -37,6 +37,7 @@
 #include <fstream>
 #include <map>
 #include <string>
+#include <string_view>
 #include <vector>
 
 #include "json.hpp"
@@ -54,6 +55,140 @@
 #pragma warning(push)
 #pragma warning(disable:4505) // 未引用的本地函数已移除(等级 4)
 #endif
+
+DWORD NSudoRegGetDoubleWordValue(
+    _Out_ PDWORD Value,
+    _In_ HKEY KeyHandle,
+    _In_opt_ LPCWSTR ValueName)
+{
+    DWORD ErrorCode = ERROR_INVALID_PARAMETER;
+
+    if (Value)
+    {
+        DWORD Type = REG_DWORD;
+        DWORD cbData = static_cast<DWORD>(sizeof(DWORD));
+
+        ErrorCode = ::RegQueryValueExW(
+            KeyHandle,
+            ValueName,
+            nullptr,
+            &Type,
+            reinterpret_cast<LPBYTE>(Value),
+            &cbData);
+        if (Type != REG_DWORD)
+        {
+            ErrorCode = ERROR_UNSUPPORTED_TYPE;
+        }
+    }
+
+    return ErrorCode;
+}
+
+DWORD NSudoRegSetDoubleWordValue(
+    _In_ HKEY KeyHandle,
+    _In_opt_ LPCWSTR ValueName,
+    _In_ DWORD Value)
+{
+    return ::RegSetValueExW(
+        KeyHandle,
+        ValueName,
+        0,
+        REG_DWORD,
+        reinterpret_cast<CONST BYTE*>(&Value),
+        static_cast<DWORD>(sizeof(DWORD)));
+}
+
+DWORD NSudoRegGetQuadWordValue(
+    _Out_ PUINT64 Value,
+    _In_ HKEY KeyHandle,
+    _In_opt_ LPCWSTR ValueName)
+{
+    DWORD ErrorCode = ERROR_INVALID_PARAMETER;
+
+    if (Value)
+    {
+        DWORD Type = REG_QWORD;
+        DWORD cbData = static_cast<DWORD>(sizeof(UINT64));
+
+        ErrorCode = ::RegQueryValueExW(
+            KeyHandle,
+            ValueName,
+            nullptr,
+            &Type,
+            reinterpret_cast<LPBYTE>(Value),
+            &cbData);
+        if (Type != REG_QWORD)
+        {
+            ErrorCode = ERROR_UNSUPPORTED_TYPE;
+        }
+    }
+
+    return ErrorCode;
+}
+
+DWORD NSudoRegSetQuadWordValue(
+    _In_ HKEY KeyHandle,
+    _In_opt_ LPCWSTR ValueName,
+    _In_ UINT64 Value)
+{
+    return ::RegSetValueExW(
+        KeyHandle,
+        ValueName,
+        0,
+        REG_QWORD,
+        reinterpret_cast<CONST BYTE*>(&Value),
+        static_cast<DWORD>(sizeof(UINT64)));
+}
+
+
+
+
+
+
+DWORD NSudoRegGetValue(
+    _In_ HKEY hKey,
+    _In_opt_ LPCWSTR lpValueName,
+    _Out_opt_ LPDWORD lpType,
+    _Out_opt_ LPBYTE lpData,
+    _Inout_opt_ LPDWORD lpcbData)
+{
+    return ::RegQueryValueExW(
+        hKey,
+        lpValueName,
+        nullptr,
+        lpType,
+        lpData,
+        lpcbData);
+}
+
+
+DWORD NSudoRegSetStringValue(
+    _In_ HKEY hKey,
+    _In_opt_ LPCWSTR lpValueName,
+    _In_ LPCWSTR Value)
+{
+    return ::RegSetValueExW(
+        hKey,
+        lpValueName,
+        0,
+        REG_SZ,
+        reinterpret_cast<CONST BYTE*>(Value),
+        static_cast<DWORD>(wcslen(Value) + 1) * sizeof(wchar_t));
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 std::wstring GetMessageByID(DWORD MessageID)
 {
@@ -101,25 +236,19 @@ HRESULT CreateCommandStoreItem(
     if (FAILED(hr))
         return hr;
 
-    hr = M2RegSetValue(
+    hr = ::HRESULT_FROM_WIN32(NSudoRegSetStringValue(
         hCommandStoreItem,
         L"",
-        0,
-        REG_SZ,
-        reinterpret_cast<CONST BYTE*>(ItemDescription),
-        static_cast<DWORD>(wcslen(ItemDescription) + 1) * sizeof(wchar_t));
+        ItemDescription));
     if (FAILED(hr))
         return hr;
 
     if (HasLUAShield)
     {
-        hr = M2RegSetValue(
+        hr = ::HRESULT_FROM_WIN32(NSudoRegSetStringValue(
             hCommandStoreItem,
             L"HasLUAShield",
-            0,
-            REG_SZ,
-            reinterpret_cast<CONST BYTE*>(L""),
-            static_cast<DWORD>(wcslen(L"") + 1) * sizeof(wchar_t));
+            L""));
         if (FAILED(hr))
             return hr;
     }
@@ -137,13 +266,10 @@ HRESULT CreateCommandStoreItem(
     if (FAILED(hr))
         return hr;
 
-    hr = M2RegSetValue(
+    hr = ::HRESULT_FROM_WIN32(NSudoRegSetStringValue(
         hCommandStoreItemCommand,
         L"",
-        0,
-        REG_SZ,
-        reinterpret_cast<CONST BYTE*>(ItemCommand),
-        static_cast<DWORD>(wcslen(ItemCommand) + 1) * sizeof(wchar_t));
+        ItemCommand));
     if (FAILED(hr))
         return hr;
 
@@ -983,14 +1109,10 @@ public:
 
         for (size_t i = 0; i < sizeof(ValueList) / sizeof(*ValueList); ++i)
         {
-            hr = M2RegSetValue(
+            hr = ::HRESULT_FROM_WIN32(NSudoRegSetStringValue(
                 hNSudoItem,
                 ValueList[i].lpValueName,
-                0,
-                REG_SZ,
-                reinterpret_cast<CONST BYTE*>(ValueList[i].lpValueData),
-                sizeof(wchar_t) * static_cast<DWORD>(
-                    wcslen(ValueList[i].lpValueData) + 1));
+                ValueList[i].lpValueData));
             if (FAILED(hr))
                 return hr;
 

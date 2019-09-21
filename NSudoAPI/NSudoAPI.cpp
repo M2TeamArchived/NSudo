@@ -1,5 +1,5 @@
 ﻿/*
- * PROJECT:   NSudo
+ * PROJECT:   NSudo Shared Library
  * FILE:      NSudoAPI.cpp
  * PURPOSE:   Implementation for NSudo Shared Library
  *

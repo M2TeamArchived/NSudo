@@ -1,5 +1,5 @@
 ﻿/*
- * PROJECT:   NSudo
+ * PROJECT:   NSudo Shared Library
  * FILE:      NSudoAPI.h
  * PURPOSE:   Definition for NSudo Shared Library
  *
