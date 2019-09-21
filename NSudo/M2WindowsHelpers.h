@@ -1263,54 +1263,6 @@ Platform::String^ M2ConvertByteSizeToString(uint64 ByteSize);
 
 #pragma endregion
 
-#pragma region AccessToken
-
-/**
- * The source type of access token associated with a process.
- */
-typedef enum _M2_PROCESS_ACCESS_TOKEN_SOURCE_TYPE
-{
-    Current,
-    Handle,
-    ProcessId
-} M2_PROCESS_TOKEN_SOURCE_TYPE, * PM2_PROCESS_TOKEN_SOURCE_TYPE;
-
-/**
- * The source information of access token associated with a process.
- */
-typedef struct _M2_PROCESS_ACCESS_TOKEN_SOURCE
-{
-    M2_PROCESS_TOKEN_SOURCE_TYPE Type;
-
-    // When Type == M2_PROCESS_ACCESS_TOKEN_SOURCE::Handle.
-    HANDLE ProcessHandle;
-
-    // When Type == M2_PROCESS_ACCESS_TOKEN_SOURCE::PID.
-    DWORD ProcessId;
-
-} M2_PROCESS_ACCESS_TOKEN_SOURCE, * PM2_PROCESS_ACCESS_TOKEN_SOURCE;
-
-/**
- * Opens the access token associated with a process.
- *
- * @param TokenHandle A pointer to a handle that identifies the newly opened
- *                    access token when the function returns.
- * @param TokenSource The source information of access token associated with a
- *                    process.
- * @param DesiredAccess Specifies an access mask that specifies the requested
- *                      types of access to the access token. These requested
- *                      access types are compared with the discretionary access
- *                      control list (DACL) of the token to determine which
- *                      accesses are granted or denied.
- * @return HRESULT. If the function succeeds, the return value is S_OK.
- */
-HRESULT M2OpenProcessToken(
-    _Out_ PHANDLE TokenHandle,
-    _In_ PM2_PROCESS_ACCESS_TOKEN_SOURCE TokenSource,
-    _In_ DWORD DesiredAccess);
-
-#pragma endregion
-
 #pragma region COM
 
 #ifdef CPPWINRT_VERSION

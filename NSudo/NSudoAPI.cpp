@@ -11,6 +11,19 @@
 #include "NSudoAPI.h"
 
 /**
+ * The feature level of NSudo Shared Library.
+ */
+constexpr DWORD NSudoFeatureLevel = 0;
+
+/**
+ * @remark You can read the definition for this function in "NSudoAPI.h".
+ */
+EXTERN_C DWORD WINAPI NSudoGetFeatureLevel()
+{
+    return NSudoFeatureLevel;
+}
+
+/**
  * @remark You can read the definition for this function in "NSudoAPI.h".
  */
 EXTERN_C DWORD WINAPI NSudoAdjustTokenPrivileges(
@@ -197,6 +210,128 @@ EXTERN_C DWORD WINAPI NSudoStartService(
         {
             ErrorCode = ::GetLastError();
         }
+    }
+
+    return ErrorCode;
+}
+
+/**
+ * @remark You can read the definition for this function in "NSudoAPI.h".
+ */
+EXTERN_C DWORD WINAPI NSudoOpenProcess(
+    _Out_ PHANDLE ProcessHandle,
+    _In_ DWORD DesiredAccess,
+    _In_ BOOL InheritHandle,
+    _In_ DWORD ProcessId)
+{
+    DWORD ErrorCode = ERROR_INVALID_PARAMETER;
+
+    if (ProcessHandle)
+    {
+        *ProcessHandle = ::OpenProcess(
+            DesiredAccess, InheritHandle, ProcessId);
+        if (*ProcessHandle)
+        {
+            ErrorCode = ERROR_SUCCESS;
+        }
+        else
+        {
+            ErrorCode = ::GetLastError();
+        }
+    }
+
+    return ErrorCode;
+}
+
+/**
+ * @remark You can read the definition for this function in "NSudoAPI.h".
+ */
+EXTERN_C DWORD WINAPI NSudoOpenServiceProcess(
+    _Out_ PHANDLE ProcessHandle,
+    _In_ DWORD DesiredAccess,
+    _In_ BOOL InheritHandle,
+    _In_ LPCWSTR ServiceName)
+{
+    SERVICE_STATUS_PROCESS ServiceStatus;
+
+    DWORD ErrorCode = NSudoStartService(&ServiceStatus, ServiceName);
+    if (ErrorCode == ERROR_SUCCESS)
+    {
+        ErrorCode = NSudoOpenProcess(
+            ProcessHandle,
+            DesiredAccess,
+            InheritHandle,
+            ServiceStatus.dwProcessId);
+    }
+
+    return ErrorCode;
+}
+
+/**
+ * @remark You can read the definition for this function in "NSudoAPI.h".
+ */
+EXTERN_C DWORD WINAPI NSudoOpenProcessTokenByProcessHandle(
+    _Out_ PHANDLE TokenHandle,
+    _In_ HANDLE ProcessHandle,
+    _In_ DWORD DesiredAccess)
+{
+    if (!::OpenProcessToken(
+        ProcessHandle, DesiredAccess, TokenHandle))
+    {
+        return ::GetLastError();
+    }
+
+    return ERROR_SUCCESS;
+}
+
+/**
+ * @remark You can read the definition for this function in "NSudoAPI.h".
+ */
+EXTERN_C DWORD WINAPI NSudoOpenCurrentProcessToken(
+    _Out_ PHANDLE TokenHandle,
+    _In_ DWORD DesiredAccess)
+{
+    return NSudoOpenProcessTokenByProcessHandle(
+        TokenHandle, ::GetCurrentProcess(), DesiredAccess);
+}
+
+/**
+ * @remark You can read the definition for this function in "NSudoAPI.h".
+ */
+EXTERN_C DWORD WINAPI NSudoOpenProcessTokenByProcessId(
+    _Out_ PHANDLE TokenHandle,
+    _In_ DWORD ProcessId,
+    _In_ DWORD DesiredAccess)
+{
+    HANDLE ProcessHandle = INVALID_HANDLE_VALUE;
+
+    DWORD ErrorCode = NSudoOpenProcess(
+        &ProcessHandle, MAXIMUM_ALLOWED, FALSE, ProcessId);
+    if (ErrorCode == ERROR_SUCCESS)
+    {
+        ErrorCode = NSudoOpenProcessTokenByProcessHandle(
+            TokenHandle, ProcessHandle, DesiredAccess);
+    }
+
+    return ErrorCode;
+}
+
+/**
+ * @remark You can read the definition for this function in "NSudoAPI.h".
+ */
+EXTERN_C DWORD WINAPI NSudoOpenServiceProcessToken(
+    _Out_ PHANDLE TokenHandle,
+    _In_ LPCWSTR ServiceName,
+    _In_ DWORD DesiredAccess)
+{
+    HANDLE ProcessHandle = INVALID_HANDLE_VALUE;
+
+    DWORD ErrorCode = NSudoOpenServiceProcess(
+        &ProcessHandle, MAXIMUM_ALLOWED, FALSE, ServiceName);
+    if (ErrorCode == ERROR_SUCCESS)
+    {
+        ErrorCode = NSudoOpenProcessTokenByProcessHandle(
+            TokenHandle, ProcessHandle, DesiredAccess);
     }
 
     return ErrorCode;

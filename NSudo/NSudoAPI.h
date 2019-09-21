@@ -14,6 +14,14 @@
 #include <Windows.h>
 
 /**
+ * Gets the feature level of NSudo Shared Library.
+ *
+ * @return The feature level of NSudo Shared Library.
+ *         Feature Level 0 - NSudo 8.0.0
+ */
+EXTERN_C DWORD WINAPI NSudoGetFeatureLevel();
+
+/**
  * Enables or disables privileges in the specified access token.
  *
  * @param TokenHandle A handle to the access token that contains the privileges
@@ -78,22 +86,161 @@ EXTERN_C DWORD WINAPI NSudoCreateMandatoryLabelSid(
  * Starts a service if not started and retrieves the current status of the
  * specified service.
  *
- * @param ServiceStatus Contains process status information for a service.
+ * @param ServiceStatus A pointer to the process status information for a
+ *                      service.
  * @param ServiceName The name of the service to be started. This is the name
- *                      specified by the lpServiceName parameter of the
- *                      CreateService function when the service object was
- *                      created, not the service display name that is shown by
- *                      user interface applications to identify the service.
- *                      The maximum string length is 256 characters. The
- *                      service control manager database preserves the case of
- *                      the characters, but service name comparisons are always
- *                      case insensitive. Forward-slash (/) and backslash ()
- *                      are invalid service name characters.
+ *                    specified by the lpServiceName parameter of the
+ *                    CreateService function when the service object was
+ *                    created, not the service display name that is shown by
+ *                    user interface applications to identify the service.
+ *                    The maximum string length is 256 characters. The service
+ *                    control manager database preserves the case of the
+ *                    characters, but service name comparisons are always case
+ *                    insensitive. Forward-slash (/) and backslash (\) are
+ *                    invalid service name characters.
  * @return Standard Win32 Error. If the function succeeds, the return value is
  *         ERROR_SUCCESS.
  */
 EXTERN_C DWORD WINAPI NSudoStartService(
     _Out_ LPSERVICE_STATUS_PROCESS ServiceStatus,
     _In_ LPCWSTR ServiceName);
+
+/**
+ * Opens an existing local process object.
+ *
+ * @param ProcessHandle A pointer to an open handle to the specified process.
+ * @param DesiredAccess The access to the process object. This access right is
+ *                      checked against the security descriptor for the
+ *                      process. This parameter can be one or more of the
+ *                      process access rights.
+ * @param InheritHandle If this value is TRUE, processes created by this
+ *                      process will inherit the handle. Otherwise, the
+ *                      processes do not inherit this handle.
+ * @param ProcessId The identifier of the local process to be opened.
+ * @return Standard Win32 Error. If the function succeeds, the return value is
+ *         ERROR_SUCCESS.
+ * @remark For more information, see OpenProcess.
+ */
+EXTERN_C DWORD WINAPI NSudoOpenProcess(
+    _Out_ PHANDLE ProcessHandle,
+    _In_ DWORD DesiredAccess,
+    _In_ BOOL InheritHandle,
+    _In_ DWORD ProcessId);
+
+/**
+ * Opens an existing local process object.
+ *
+ * @param ProcessHandle A pointer to an open handle to the specified process.
+ * @param DesiredAccess The access to the process object. This access right is
+ *                      checked against the security descriptor for the
+ *                      process. This parameter can be one or more of the
+ *                      process access rights.
+ * @param InheritHandle If this value is TRUE, processes created by this
+ *                      process will inherit the handle. Otherwise, the
+ *                      processes do not inherit this handle.
+ * @param ServiceName The name of the service to be opened. This is the name
+ *                    specified by the lpServiceName parameter of the
+ *                    CreateService function when the service object was
+ *                    created, not the service display name that is shown by
+ *                    user interface applications to identify the service.
+ *                    The maximum string length is 256 characters. The service
+ *                    control manager database preserves the case of the
+ *                    characters, but service name comparisons are always case
+ *                    insensitive. Forward-slash (/) and backslash (\) are
+ *                    invalid service name characters.
+ * @return Standard Win32 Error. If the function succeeds, the return value is
+ *         ERROR_SUCCESS.
+ * @remark For more information, see OpenProcess.
+ */
+EXTERN_C DWORD WINAPI NSudoOpenServiceProcess(
+    _Out_ PHANDLE ProcessHandle,
+    _In_ DWORD DesiredAccess,
+    _In_ BOOL InheritHandle,
+    _In_ LPCWSTR ServiceName);
+
+/**
+ * Opens the access token associated with a process.
+ *
+ * @param TokenHandle A pointer to a handle that identifies the newly opened
+ *                    access token when the function returns.
+ * @param ProcessHandle A handle to the process whose access token is opened.
+ *                      The process must have the PROCESS_QUERY_INFORMATION
+ *                      access permission.
+ * @param DesiredAccess The access to the process object. This access right is
+ *                      checked against the security descriptor for the
+ *                      process. This parameter can be one or more of the
+ *                      process access rights.
+ * @return Standard Win32 Error. If the function succeeds, the return value is
+ *         ERROR_SUCCESS.
+ * @remark For more information, see OpenProcessToken.
+ */
+EXTERN_C DWORD WINAPI NSudoOpenProcessTokenByProcessHandle(
+    _Out_ PHANDLE TokenHandle,
+    _In_ HANDLE ProcessHandle,
+    _In_ DWORD DesiredAccess);
+
+/**
+ * Opens the access token associated with the current process.
+ *
+ * @param TokenHandle A pointer to a handle that identifies the newly opened
+ *                    access token when the function returns.
+ * @param DesiredAccess The access to the process object. This access right is
+ *                      checked against the security descriptor for the
+ *                      process. This parameter can be one or more of the
+ *                      process access rights.
+ * @return Standard Win32 Error. If the function succeeds, the return value is
+ *         ERROR_SUCCESS.
+ * @remark For more information, see OpenProcessToken.
+ */
+EXTERN_C DWORD WINAPI NSudoOpenCurrentProcessToken(
+    _Out_ PHANDLE TokenHandle,
+    _In_ DWORD DesiredAccess);
+
+/**
+ * Opens the access token associated with a process.
+ *
+ * @param TokenHandle A pointer to a handle that identifies the newly opened
+ *                    access token when the function returns.
+ * @param ProcessId The identifier of the local process to be opened.
+ * @param DesiredAccess The access to the process object. This access right is
+ *                      checked against the security descriptor for the
+ *                      process. This parameter can be one or more of the
+ *                      process access rights.
+ * @return Standard Win32 Error. If the function succeeds, the return value is
+ *         ERROR_SUCCESS.
+ * @remark For more information, see OpenProcessToken.
+ */
+EXTERN_C DWORD WINAPI NSudoOpenProcessTokenByProcessId(
+    _Out_ PHANDLE TokenHandle,
+    _In_ DWORD ProcessId,
+    _In_ DWORD DesiredAccess);
+
+/**
+ * Opens the access token associated with a process.
+ *
+ * @param TokenHandle A pointer to a handle that identifies the newly opened
+ *                    access token when the function returns.
+ * @param ServiceName The name of the service to be opened. This is the name
+ *                    specified by the lpServiceName parameter of the
+ *                    CreateService function when the service object was
+ *                    created, not the service display name that is shown by
+ *                    user interface applications to identify the service.
+ *                    The maximum string length is 256 characters. The service
+ *                    control manager database preserves the case of the
+ *                    characters, but service name comparisons are always case
+ *                    insensitive. Forward-slash (/) and backslash (\) are
+ *                    invalid service name characters.
+ * @param DesiredAccess The access to the process object. This access right is
+ *                      checked against the security descriptor for the
+ *                      process. This parameter can be one or more of the
+ *                      process access rights.
+ * @return Standard Win32 Error. If the function succeeds, the return value is
+ *         ERROR_SUCCESS.
+ * @remark For more information, see OpenProcessToken.
+ */
+EXTERN_C DWORD WINAPI NSudoOpenServiceProcessToken(
+    _Out_ PHANDLE TokenHandle,
+    _In_ LPCWSTR ServiceName,
+    _In_ DWORD DesiredAccess);
 
 #endif

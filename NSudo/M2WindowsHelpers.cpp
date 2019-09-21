@@ -1295,60 +1295,6 @@ Platform::String^ M2ConvertByteSizeToString(uint64 ByteSize)
 
 #pragma endregion
 
-#pragma region AccessToken
-
-/**
- * Opens the access token associated with a process.
- *
- * @param TokenHandle A pointer to a handle that identifies the newly opened
- *                    access token when the function returns.
- * @param TokenSource The source information of access token associated with a
- *                    process.
- * @param DesiredAccess Specifies an access mask that specifies the requested
- *                      types of access to the access token. These requested
- *                      access types are compared with the discretionary access
- *                      control list (DACL) of the token to determine which
- *                      accesses are granted or denied.
- * @return HRESULT. If the function succeeds, the return value is S_OK.
- */
-HRESULT M2OpenProcessToken(
-    _Out_ PHANDLE TokenHandle,
-    _In_ PM2_PROCESS_ACCESS_TOKEN_SOURCE TokenSource,
-    _In_ DWORD DesiredAccess)
-{
-    *TokenHandle = INVALID_HANDLE_VALUE;
-
-    if (!TokenSource)
-        return __HRESULT_FROM_WIN32(ERROR_INVALID_PARAMETER);
-
-    HANDLE ProcessHandle = INVALID_HANDLE_VALUE;
-
-    switch (TokenSource->Type)
-    {
-    case M2_PROCESS_TOKEN_SOURCE_TYPE::Current:
-        ProcessHandle = GetCurrentProcess();
-        break;
-    case M2_PROCESS_TOKEN_SOURCE_TYPE::Handle:
-        ProcessHandle = TokenSource->ProcessHandle;
-        break;
-    case M2_PROCESS_TOKEN_SOURCE_TYPE::ProcessId:
-        ProcessHandle = OpenProcess(
-            MAXIMUM_ALLOWED, FALSE, TokenSource->ProcessId);
-        if (!ProcessHandle)
-            return M2GetLastHResultError();
-        break;
-    default:
-        return __HRESULT_FROM_WIN32(ERROR_INVALID_PARAMETER);
-    }
-
-    if (OpenProcessToken(ProcessHandle, DesiredAccess, TokenHandle))
-        return S_OK;
-
-    return M2GetLastHResultError();
-}
-
-#pragma endregion
-
 #pragma region COM
 
 #ifdef CPPWINRT_VERSION

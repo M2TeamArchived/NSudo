@@ -212,10 +212,10 @@ BOOL WINAPI NSudoGetCurrentProcessSessionID(
     M2::CHandle hToken;
     DWORD ReturnLength = 0;
 
-    M2_PROCESS_ACCESS_TOKEN_SOURCE TokenSource;
-    TokenSource.Type = M2_PROCESS_TOKEN_SOURCE_TYPE::Current;
-    result = SUCCEEDED(M2OpenProcessToken(
-        &hToken, &TokenSource, MAXIMUM_ALLOWED));
+    DWORD ErrorCode = M2::NSudo::NSudoOpenCurrentProcessToken(
+        &hToken, MAXIMUM_ALLOWED);
+    ::SetLastError(ErrorCode);
+    result = (ErrorCode == ERROR_SUCCESS);
     if (result)
     {
         result = SUCCEEDED(M2GetTokenInformation(
@@ -534,11 +534,10 @@ BOOL WINAPI NSudoImpersonateAsSystem()
         if (FAILED(M2QueryWinLogonProcessId(&dwWinLogonPID, dwSessionID)))
             break;
 
-        M2_PROCESS_ACCESS_TOKEN_SOURCE TokenSource;
-        TokenSource.Type = M2_PROCESS_TOKEN_SOURCE_TYPE::ProcessId;
-        TokenSource.ProcessId = dwWinLogonPID;
-        if (FAILED(M2OpenProcessToken(
-            &OriginalToken, &TokenSource, MAXIMUM_ALLOWED)))
+        DWORD ErrorCode = M2::NSudo::NSudoOpenProcessTokenByProcessId(
+            &OriginalToken, dwWinLogonPID, MAXIMUM_ALLOWED);
+        ::SetLastError(ErrorCode);
+        if (ErrorCode != ERROR_SUCCESS)
             break;
 
         result = DuplicateTokenEx(
@@ -600,10 +599,8 @@ bool NSudoCreateProcess(
     BOOL result = FALSE;
 
     M2::CHandle hCurrentToken;
-    M2_PROCESS_ACCESS_TOKEN_SOURCE TokenSource;
-    TokenSource.Type = M2_PROCESS_TOKEN_SOURCE_TYPE::Current;
-    if (SUCCEEDED(M2OpenProcessToken(
-        &hCurrentToken, &TokenSource, MAXIMUM_ALLOWED)))
+    if (M2::NSudo::NSudoOpenCurrentProcessToken(
+        &hCurrentToken, MAXIMUM_ALLOWED) == ERROR_SUCCESS)
     {
         if (CreateEnvironmentBlock(&lpEnvironment, hCurrentToken, TRUE))
         {
@@ -848,10 +845,8 @@ public:
 
             M2::CHandle CurrentProcessToken;
 
-            M2_PROCESS_ACCESS_TOKEN_SOURCE TokenSource;
-            TokenSource.Type = M2_PROCESS_TOKEN_SOURCE_TYPE::Current;
-            if (SUCCEEDED(M2OpenProcessToken(
-                &CurrentProcessToken, &TokenSource, MAXIMUM_ALLOWED)))
+            if (M2::NSudo::NSudoOpenCurrentProcessToken(
+                &CurrentProcessToken, MAXIMUM_ALLOWED) == ERROR_SUCCESS)
             {
                 if (DuplicateTokenEx(
                     CurrentProcessToken,
@@ -1409,18 +1404,8 @@ NSUDO_MESSAGE NSudoCommandLineParser(
 
     if (NSudoOptionUserValue::TrustedInstaller == UserMode)
     {
-        SERVICE_STATUS_PROCESS ssStatus;
-
-        if (M2::NSudo::NSudoStartService(
-            &ssStatus, L"TrustedInstaller") != ERROR_SUCCESS)
-        {
-            return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
-        }
-
-        M2_PROCESS_ACCESS_TOKEN_SOURCE TokenSource;
-        TokenSource.Type = M2_PROCESS_TOKEN_SOURCE_TYPE::ProcessId;
-        TokenSource.ProcessId = ssStatus.dwProcessId;
-        if (FAILED(M2OpenProcessToken(&OriginalToken, &TokenSource, MAXIMUM_ALLOWED)))
+        if (ERROR_SUCCESS != M2::NSudo::NSudoOpenServiceProcessToken(
+            &OriginalToken, L"TrustedInstaller", MAXIMUM_ALLOWED))
         {
             return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
         }
@@ -1434,10 +1419,8 @@ NSUDO_MESSAGE NSudoCommandLineParser(
             return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
         }
 
-        M2_PROCESS_ACCESS_TOKEN_SOURCE TokenSource;
-        TokenSource.Type = M2_PROCESS_TOKEN_SOURCE_TYPE::ProcessId;
-        TokenSource.ProcessId = dwWinLogonPID;
-        if (FAILED(M2OpenProcessToken(&OriginalToken, &TokenSource, MAXIMUM_ALLOWED)))
+        if (ERROR_SUCCESS != M2::NSudo::NSudoOpenProcessTokenByProcessId(
+            &OriginalToken, dwWinLogonPID, MAXIMUM_ALLOWED))
         {
             return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
         }
