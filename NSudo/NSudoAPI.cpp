@@ -92,3 +92,112 @@ EXTERN_C DWORD WINAPI NSudoCreateMandatoryLabelSid(
 
     return ERROR_SUCCESS;
 }
+
+/**
+ * @remark You can read the definition for this function in "NSudoAPI.h".
+ */
+EXTERN_C DWORD WINAPI NSudoStartService(
+    _Out_ LPSERVICE_STATUS_PROCESS ServiceStatus,
+    _In_ LPCWSTR ServiceName)
+{
+    DWORD ErrorCode = ERROR_INVALID_PARAMETER;
+
+    if (ServiceStatus && ServiceName)
+    {
+        ErrorCode = ERROR_SUCCESS;
+
+        memset(ServiceStatus, 0, sizeof(LPSERVICE_STATUS_PROCESS));
+
+        SC_HANDLE hSCM = ::OpenSCManagerW(
+            nullptr, nullptr, SC_MANAGER_CONNECT);
+        if (hSCM)
+        {
+            SC_HANDLE hService = ::OpenServiceW(
+                hSCM, ServiceName, SERVICE_QUERY_STATUS | SERVICE_START);
+            if (hService)
+            {
+                DWORD nBytesNeeded = 0;
+                DWORD nOldCheckPoint = 0;
+                ULONGLONG nLastTick = 0;
+                bool bStartServiceWCalled = false;
+
+                while (::QueryServiceStatusEx(
+                    hService,
+                    SC_STATUS_PROCESS_INFO,
+                    reinterpret_cast<LPBYTE>(ServiceStatus),
+                    sizeof(SERVICE_STATUS_PROCESS),
+                    &nBytesNeeded))
+                {
+                    if (SERVICE_STOPPED == ServiceStatus->dwCurrentState)
+                    {
+                        // Failed if the service had stopped again.
+                        if (bStartServiceWCalled)
+                        {
+                            ErrorCode = ERROR_INVALID_FUNCTION;
+                            break;
+                        }
+
+                        if (!::StartServiceW(hService, 0, nullptr))
+                        {
+                            ErrorCode = ::GetLastError();
+                            break;
+                        }
+
+                        bStartServiceWCalled = true;
+                    }
+                    else if (
+                        SERVICE_STOP_PENDING == ServiceStatus->dwCurrentState ||
+                        SERVICE_START_PENDING == ServiceStatus->dwCurrentState)
+                    {
+                        ULONGLONG nCurrentTick = ::GetTickCount64();
+
+                        if (!nLastTick)
+                        {
+                            nLastTick = nCurrentTick;
+                            nOldCheckPoint = ServiceStatus->dwCheckPoint;
+
+                            // Same as the .Net System.ServiceProcess, wait
+                            // 250ms.
+                            ::SleepEx(250, FALSE);
+                        }
+                        else
+                        {
+                            // Check the timeout if the checkpoint is not
+                            // increased.
+                            if (ServiceStatus->dwCheckPoint <= nOldCheckPoint)
+                            {
+                                ULONGLONG nDiff = nCurrentTick - nLastTick;
+                                if (nDiff > ServiceStatus->dwWaitHint)
+                                {
+                                    ErrorCode = ERROR_TIMEOUT;
+                                    break;
+                                }
+                            }
+
+                            // Continue looping.
+                            nLastTick = 0;
+                        }
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+
+                ::CloseServiceHandle(hService);
+            }
+            else
+            {
+                ErrorCode = ::GetLastError();
+            }
+
+            ::CloseServiceHandle(hSCM);
+        }
+        else
+        {
+            ErrorCode = ::GetLastError();
+        }
+    }
+
+    return ErrorCode;
+}

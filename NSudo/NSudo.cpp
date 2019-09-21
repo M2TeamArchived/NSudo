@@ -49,8 +49,7 @@
 #include "NSudoVersion.h"
 #include "Resources/resource.h"
 
-
- // 为编译通过而禁用的警告
+// 为编译通过而禁用的警告
 #if _MSC_VER >= 1200
 #pragma warning(push)
 #pragma warning(disable:4505) // 未引用的本地函数已移除(等级 4)
@@ -1412,7 +1411,8 @@ NSUDO_MESSAGE NSudoCommandLineParser(
     {
         SERVICE_STATUS_PROCESS ssStatus;
 
-        if (FAILED(M2StartService(L"TrustedInstaller", &ssStatus)))
+        if (M2::NSudo::NSudoStartService(
+            &ssStatus, L"TrustedInstaller") != ERROR_SUCCESS)
         {
             return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
         }

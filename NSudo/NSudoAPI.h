@@ -74,4 +74,26 @@ EXTERN_C DWORD WINAPI NSudoCreateMandatoryLabelSid(
     _Out_ PSID* MandatoryLabelSid,
     _In_ NSUDO_MANDATORY_LABEL_TYPE MandatoryLabelType);
 
+/**
+ * Starts a service if not started and retrieves the current status of the
+ * specified service.
+ *
+ * @param ServiceStatus Contains process status information for a service.
+ * @param ServiceName The name of the service to be started. This is the name
+ *                      specified by the lpServiceName parameter of the
+ *                      CreateService function when the service object was
+ *                      created, not the service display name that is shown by
+ *                      user interface applications to identify the service.
+ *                      The maximum string length is 256 characters. The
+ *                      service control manager database preserves the case of
+ *                      the characters, but service name comparisons are always
+ *                      case insensitive. Forward-slash (/) and backslash ()
+ *                      are invalid service name characters.
+ * @return Standard Win32 Error. If the function succeeds, the return value is
+ *         ERROR_SUCCESS.
+ */
+EXTERN_C DWORD WINAPI NSudoStartService(
+    _Out_ LPSERVICE_STATUS_PROCESS ServiceStatus,
+    _In_ LPCWSTR ServiceName);
+
 #endif

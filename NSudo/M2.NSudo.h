@@ -29,6 +29,7 @@ namespace M2
         using ::NSUDO_MANDATORY_LABEL_TYPE;
         using ::PNSUDO_MANDATORY_LABEL_TYPE;
         using ::NSudoCreateMandatoryLabelSid;
+        using ::NSudoStartService;
 
         /**
          * Enables or disables privileges in the specified access token.

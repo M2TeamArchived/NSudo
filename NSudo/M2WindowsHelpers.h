@@ -323,28 +323,6 @@ namespace M2
 
 #pragma endregion
 
-    /**
-     * The handle definer for SC_HANDLE object.
-     */
-#pragma region CServiceHandle
-
-    struct CServiceHandleDefiner
-    {
-        static inline SC_HANDLE GetInvalidValue()
-        {
-            return nullptr;
-        }
-
-        static inline void Close(SC_HANDLE Object)
-        {
-            CloseServiceHandle(Object);
-        }
-    };
-
-    typedef CObject<SC_HANDLE, CServiceHandleDefiner> CServiceHandle;
-
-#pragma endregion
-
 #endif
 
     /**
@@ -1472,33 +1450,6 @@ HRESULT M2LoadLibraryEx(
 
 #endif
 
-#pragma endregion
-
-#pragma region Service
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
-
-/**
- * Starts a service if not started and retrieves the current status of the
- * specified service.
- *
- * @param lpServiceName The name of the service to be started. This is the name
- *                      specified by the lpServiceName parameter of the
- *                      CreateService function when the service object was
- *                      created, not the service display name that is shown by
- *                      user interface applications to identify the service.
- *                      The maximum string length is 256 characters. The
- *                      service control manager database preserves the case of
- *                      the characters, but service name comparisons are always
- *                      case insensitive. Forward-slash (/) and backslash ()
- *                      are invalid service name characters.
- * @param lpServiceStatus Contains process status information for a service.
- * @return HRESULT. If the function succeeds, the return value is S_OK.
- */
-HRESULT M2StartService(
-    _In_ LPCWSTR lpServiceName,
-    _Out_ LPSERVICE_STATUS_PROCESS lpServiceStatus);
-
-#endif
 #pragma endregion
 
 #pragma region Environment
