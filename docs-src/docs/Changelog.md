@@ -11,6 +11,7 @@
 - Add Itlian Language. (Contributed by garf02.)
 - Use the Semantic Versioning format.
 - Improve several implementations.
+- Add NSudo Shared Library.
 
 **NSudo 6.2.1812.31**
 
