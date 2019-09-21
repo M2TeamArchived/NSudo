@@ -151,50 +151,6 @@ HRESULT CreateCommandStoreItem(
 }
 
 /*
-   访问令牌特权定义
-   The definitions of the Token Privileges
-   */
-typedef enum _TOKEN_PRIVILEGES_LIST
-{
-    SeMinWellKnownPrivilege = 2,
-    SeCreateTokenPrivilege = 2,
-    SeAssignPrimaryTokenPrivilege,
-    SeLockMemoryPrivilege,
-    SeIncreaseQuotaPrivilege,
-    SeMachineAccountPrivilege,
-    SeTcbPrivilege,
-    SeSecurityPrivilege,
-    SeTakeOwnershipPrivilege,
-    SeLoadDriverPrivilege,
-    SeSystemProfilePrivilege,
-    SeSystemtimePrivilege,
-    SeProfileSingleProcessPrivilege,
-    SeIncreaseBasePriorityPrivilege,
-    SeCreatePagefilePrivilege,
-    SeCreatePermanentPrivilege,
-    SeBackupPrivilege,
-    SeRestorePrivilege,
-    SeShutdownPrivilege,
-    SeDebugPrivilege,
-    SeAuditPrivilege,
-    SeSystemEnvironmentPrivilege,
-    SeChangeNotifyPrivilege,
-    SeRemoteShutdownPrivilege,
-    SeUndockPrivilege,
-    SeSyncAgentPrivilege,
-    SeEnableDelegationPrivilege,
-    SeManageVolumePrivilege,
-    SeImpersonatePrivilege,
-    SeCreateGlobalPrivilege,
-    SeTrustedCredManAccessPrivilege,
-    SeRelabelPrivilege,
-    SeIncreaseWorkingSetPrivilege,
-    SeTimeZonePrivilege,
-    SeCreateSymbolicLinkPrivilege,
-    SeMaxWellKnownPrivilege = SeCreateSymbolicLinkPrivilege
-} TOKEN_PRIVILEGES_LIST, *PTOKEN_PRIVILEGES_LIST;
-
-/*
 NSudoGetCurrentProcessSessionID获取当前进程的会话ID。
 The NSudoGetCurrentProcessSessionID function obtains the Session ID of the
 current process.
@@ -227,34 +183,6 @@ BOOL WINAPI NSudoGetCurrentProcessSessionID(
     }
 
     return result;
-}
-
-/*
-NSudoSetTokenPrivilege函数启用或禁用指定的访问令牌的指定特权。启用或禁用一
-个访问令牌的特权需要TOKEN_ADJUST_PRIVILEGES访问权限。
-The NSudoSetTokenPrivilege function enables or disables the specified
-privilege in the specified access token. Enabling or disabling privileges
-in an access token requires TOKEN_ADJUST_PRIVILEGES access.
-
-如果函数执行失败，返回值为NULL。调用GetLastError可获取详细错误码。
-If the function fails, the return value is NULL. To get extended error
-information, call GetLastError.
-*/
-BOOL WINAPI NSudoSetTokenPrivilege(
-    _In_ HANDLE hExistingToken,
-    _In_ TOKEN_PRIVILEGES_LIST Privilege,
-    _In_ bool bEnable)
-{
-    LUID_AND_ATTRIBUTES RawPrivilege;
-
-    RawPrivilege.Luid.HighPart = 0;
-    RawPrivilege.Luid.LowPart = Privilege;
-    RawPrivilege.Attributes = (DWORD)(bEnable ? SE_PRIVILEGE_ENABLED : 0);
-
-    DWORD ErrorCode = M2::NSudo::NSudoAdjustTokenPrivileges(
-        hExistingToken, &RawPrivilege, 1);
-    ::SetLastError(ErrorCode);
-    return (ErrorCode == ERROR_SUCCESS);
 }
 
 /*
@@ -856,10 +784,13 @@ public:
                     TokenPrimary,
                     &this->m_OriginalCurrentProcessToken))
                 {
-                    this->m_IsElevated = NSudoSetTokenPrivilege(
-                        CurrentProcessToken,
-                        SeDebugPrivilege,
-                        true);
+                    std::map<std::wstring, DWORD> Privileges;
+
+                    Privileges.insert(std::pair(
+                        SE_DEBUG_NAME, SE_PRIVILEGE_ENABLED));
+
+                    this->m_IsElevated = (M2::NSudo::AdjustTokenPrivileges(
+                        CurrentProcessToken, Privileges) == ERROR_SUCCESS);
                 }
             }
 
