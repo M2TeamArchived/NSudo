@@ -1245,7 +1245,6 @@ NSUDO_MESSAGE NSudoCommandLineParser(
     bool bArgErr = false;
 
     M2::CHandle hToken;
-    M2::CHandle hTempToken;
 
     // 解析参数列表
 
@@ -1500,18 +1499,9 @@ NSUDO_MESSAGE NSudoCommandLineParser(
     }
     else if (NSudoOptionUserValue::CurrentProcessDropRight == UserMode)
     {
-        if (!DuplicateTokenEx(
-            g_ResourceManagement.OriginalCurrentProcessToken,
-            MAXIMUM_ALLOWED,
-            nullptr,
-            SecurityIdentification,
-            TokenPrimary,
-            &hTempToken))
-        {
-            return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
-        }
-
-        if (!NSudoCreateLUAToken(&OriginalToken, hTempToken))
+        if (!NSudoCreateLUAToken(
+            &OriginalToken,
+            g_ResourceManagement.OriginalCurrentProcessToken))
         {
             return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
         }
