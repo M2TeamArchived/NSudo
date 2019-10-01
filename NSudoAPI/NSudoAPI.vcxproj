@@ -109,9 +109,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="DllMain.cpp" />
+    <ClCompile Include="M2.Base.cpp" />
     <ClCompile Include="NSudoAPI.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="M2.Base.h" />
     <ClInclude Include="NSudoAPI.h" />
   </ItemGroup>
   <ItemGroup>
