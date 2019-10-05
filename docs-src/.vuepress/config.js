@@ -18,16 +18,8 @@
         },
         nav: [
           { text: "Home", link: "/" },
-          {
-            text: 'Downloads',
-            items: [
-              { text: 'Current Release', link: 'https://github.com/M2Team/NSudo/releases/latest' },
-              { text: 'All Releases', link: 'https://github.com/M2Team/NSudo/releases' },
-              { text: 'AppVeyor CI', link: 'https://ci.appveyor.com/project/MouriNaruto/nsudo' },
-              { text: 'Git Repository Mirror - Gitee', link: 'https://gitee.com/M2-Team/NSudo' }
-            ]
-          },
-          { text: "Docs", link: "/docs/" },
+          { text: "Download", link: "/Download" },
+          { text: "Documents", link: "/docs/" },
           {
             text: 'Communities',
             items: [
@@ -68,15 +60,7 @@
         },
         nav: [
           { text: "首页", link: "/zh-hans/" },
-          {
-            text: '下载',
-            items: [
-              { text: '当前版本', link: 'https://github.com/M2Team/NSudo/releases/latest' },
-              { text: '所有版本', link: 'https://github.com/M2Team/NSudo/releases' },
-              { text: 'AppVeyor CI', link: 'https://ci.appveyor.com/project/MouriNaruto/nsudo' },
-              { text: 'Git 镜像仓库 - 码云', link: 'https://gitee.com/M2-Team/NSudo' }
-            ]
-          },
+          { text: "下载", link: "/zh-hans/Download" },
           { text: "文档", link: "/zh-hans/docs/" },
           {
             text: '社区',
@@ -118,15 +102,7 @@
         },
         nav: [
           { text: "主頁", link: "/zh-hant/" },
-          {
-            text: '下載',
-            items: [
-              { text: '當前版本', link: 'https://github.com/M2Team/NSudo/releases/latest' },
-              { text: '所有版本', link: 'https://github.com/M2Team/NSudo/releases' },
-              { text: 'AppVeyor CI', link: 'https://ci.appveyor.com/project/MouriNaruto/nsudo' },
-              { text: 'Git 鏡像倉庫 - 碼雲', link: 'https://gitee.com/M2-Team/NSudo' }
-            ]
-          },
+          { text: "下載", link: "/zh-hant/Download" },
           { text: "文獻", link: "/zh-hant/docs/" },
           {
             text: '社區',
