@@ -12,6 +12,8 @@
 - Use the Semantic Versioning format.
 - Improve several implementations.
 - Add NSudo Shared Library.
+- Remove context menu support because you can use 
+  https://github.com/Thdub/NSudo_Installer for better experience.
 
 **NSudo 6.2.1812.31**
 

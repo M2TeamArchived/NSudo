@@ -67,11 +67,7 @@ n'incluez pas le paramètre "-UseCurrentConsole".
 -H Affiche l'aide.
 -Help Affiche l'aide.
 
-Menu contextuel:
-  -Install Copie NSudo dans le répertoire de Windows, et ajoute le menu 
-           contextuel.
-  -Uninstall Supprime NSudo du répertoire de Windows ainsi que le menu 
-             contextuel.
+Please use https://github.com/Thdub/NSudo_Installer for context menu management.
 
 PS:
     1. Tous les arguments de commande de NSudo sont insensibles à la casse.

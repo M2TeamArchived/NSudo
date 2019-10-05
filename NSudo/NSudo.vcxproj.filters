@@ -99,9 +99,6 @@
     <None Include="Resources\zh-Hans\Translations.json">
       <Filter>Resources\zh-Hans</Filter>
     </None>
-    <None Include="Resources\NSudoContextMenuManagement.json">
-      <Filter>Resources</Filter>
-    </None>
     <None Include="Resources\NSudo.xcf">
       <Filter>Resources</Filter>
     </None>

@@ -64,9 +64,7 @@ include the "-UseCurrentConsole" parameter.
 -H Show this content.
 -Help Show this content.
 
-Context Menu:
-  -Install   Copy NSudo to the Windows directory and add the context menu.
-  -Uninstall Remove NSudo in the Windows directory and the context menu. 
+Please use https://github.com/Thdub/NSudo_Installer for context menu management.
 
 PS:
     1. All NSudo command arguments is case-insensitive.

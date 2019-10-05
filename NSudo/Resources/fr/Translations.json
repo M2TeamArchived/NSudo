@@ -1,12 +1,8 @@
-{
+﻿{
   "Translations": {
     "Button.About": "&A propos",
     "Button.Browse": "&Parcourir",
     "Button.Run": "&Exécuter",
-    "ContextMenu.System": "Exécuter en tant que Système",
-    "ContextMenu.System.EnableAllPrivileges": "Exécuter en tant que Système (Activer tous les privilèges)",
-    "ContextMenu.TI": "Exécuter en tant que TrustedInstaller",
-    "ContextMenu.TI.EnableAllPrivileges": "Exécuter en tant que TrustedInstaller (Activer tous les privilèges)",
     "CurrentProcess": "Processus courant",
     "CurrentUser": "Utilisateur actuel",
     "Default": "Défaut",

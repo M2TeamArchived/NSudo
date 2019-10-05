@@ -234,7 +234,6 @@
     <None Include="Resources\fr\Translations.json" />
     <None Include="Resources\it\Translations.json" />
     <None Include="Resources\NSudo.xcf" />
-    <None Include="Resources\NSudoContextMenuManagement.json" />
     <None Include="Resources\zh-Hans\Translations.json" />
     <None Include="Resources\NSudo.json" />
     <None Include="Resources\zh-Hant\Translations.json" />

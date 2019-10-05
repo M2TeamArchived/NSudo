@@ -69,9 +69,7 @@ il parametro "-UseCurrentConsole".
 -H Visualizza questo contenuto.
 -Help Visualizza questo contenuto.
 
-Menu Contestuale:
-  -Install   Copia NSUDO nella cartella Windows ed aggiunge il menu contestuale.
-  -Uninstall Rimuove NSUDO dalla cartella Windows e rimuove il menu contestuale.
+Please use https://github.com/Thdub/NSudo_Installer for context menu management.
 
 PS:
     1. Tutti i comandi di NSudo non fanno distinzione tra maiuscole e minuscole.

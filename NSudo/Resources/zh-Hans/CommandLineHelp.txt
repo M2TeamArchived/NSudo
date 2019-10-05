@@ -58,9 +58,7 @@ PS：如果你想在新控制台窗口创建进程，请不要包含“-UseCurre
 -H 显示该内容。
 -Help 显示该内容。
 
-上下文菜单管理：
-  -Install   把NSudo拷贝到Windows目录并且添加上下文菜单。
-  -Uninstall 移除在Windows目录的NSudo和上下文菜单。
+上下文菜单管理请使用 https://github.com/Thdub/NSudo_Installer。
 
 PS：
     1. 所有的NSudo命令行参数不区分大小写。

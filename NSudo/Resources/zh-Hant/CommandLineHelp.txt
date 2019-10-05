@@ -59,9 +59,7 @@ PS：如果你想在新控制台視窗建立處理程序，請不要包含「-Us
 -H 顯示該內容。
 -Help 顯示該內容。
 
-上下文清單管理：
-  -Install   把NSudo複製到Windows目錄並且添加上下文清單。
-  -Uninstall 移除在Windows目錄的NSudo和上下文清單。
+上下文清單管理請使用 https://github.com/Thdub/NSudo_Installer。
 
 PS：
     1. 所有的NSudo命令列參數不區分大小寫。

@@ -1,4 +1,4 @@
-# Usage
+﻿# Usage
 
 ## Quick Start
 
@@ -22,11 +22,11 @@ Available options:
     D Current Process (Drop right)
 PS: This is a mandatory parameter.
 
--P:[ Option ] Create a process with specified privilege option.
+-P:[ Option ] Create a process with specified privilege option. 
 Available options:
     E Enable All Privileges
     D Disable All Privileges
-PS: If you want to use the default privileges to create a process, please do
+PS: If you want to use the default privileges to create a process, please do 
 not include the "-P" parameter.
 
 -M:[ Option ] Create a process with specified Integrity Level option.
@@ -35,7 +35,7 @@ Available options:
     H High
     M Medium
     L Low
-PS: If you want to use the default Integrity Level to create a process, please
+PS: If you want to use the default Integrity Level to create a process, please 
 do not include the "-M" parameter.
 
 -Priority:[ Option ] Create a process with specified [rocess priority option.
@@ -55,7 +55,7 @@ Available options:
     Hide
     Maximize
     Minimize
-PS: If you want to use the default window mode to create a process, please do
+PS: If you want to use the default window mode to create a process, please do 
 not include the "-ShowWindowMode" parameter.
 
 -Wait Make NSudo wait for the created process to end before exiting.
@@ -66,7 +66,7 @@ PS: If you want to use the NSudo's current directory, please do not include the
 "-CurrentDirectory" parameter.
 
 -UseCurrentConsole Create a process with the current console window.
-PS: If you want to create a process with the new console window, please do not
+PS: If you want to create a process with the new console window, please do not 
 include the "-UseCurrentConsole" parameter.
 
 -Version Show version information of NSudo.
@@ -75,19 +75,17 @@ include the "-UseCurrentConsole" parameter.
 -H Show this content.
 -Help Show this content.
 
-Context Menu:
-  -Install   Copy NSudo to the Windows directory and add the context menu.
-  -Uninstall Remove NSudo in the Windows directory and the context menu.
+Please use https://github.com/Thdub/NSudo_Installer for context menu management.
 
 PS:
     1. All NSudo command arguments is case-insensitive.
     2. You can use the "/" or "--" override "-" and use the "=" override ":" in
-       the command line parameters.  For example, "/U:T" and "-U=T" are
+       the command line parameters.  For example, "/U:T" and "-U=T" are 
        equivalent.
     3. To ensure the best experience, NSudoC does not support context menu.
 
 Example:
-    If you want to run Command Prompt with TrustedInstaller, enable all
+    If you want to run Command Prompt with TrustedInstaller, enable all 
     privileges and the default Integrity Level.
         NSudo -U:T -P:E cmd
 ```
