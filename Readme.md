@@ -80,3 +80,31 @@ project:
 * The license of the file is left intact.
 * The contribution is correctly attributed in the [Readme](Readme.md)
 file in the repository, as needed.
+
+### How to update documents.
+
+Refer to https://github.com/M2Team/NSudo/pull/29.
+
+To build new docs, you'll need to have [Node.js](https://nodejs.org) and 
+[Yarn](https://yarnpkg.com) installed on your system, and run:
+
+```sh
+# Install dependencies
+yarn
+# Run `build` in package.json
+yarn build
+```
+
+in `docs-src/`.
+
+Docs will be built into `docs`, where GitHub Pages treated as site root. So be
+sure to commit `docs` changes.
+
+CI/CD is not included in this PR, so manual build is required after every docs
+update. `yarn dev` runs a local hot-reload-enabled docs server for easier 
+debugging.
+
+In the long run, using some 3rd-party static hosting like 
+[Netlify](https://netlify.com) would be easier to release docs.
+
+Docs engine is based on [VuePress](https://v1.vuepress.vuejs.org).
