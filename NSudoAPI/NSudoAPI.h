@@ -11,7 +11,7 @@
 #ifndef NSUDO_API
 #define NSUDO_API
 
-#include <Windows.h>
+#include "M2.Base.h"
 
 /**
  * Gets the feature level of NSudo Shared Library.
@@ -128,7 +128,9 @@ EXTERN_C DWORD WINAPI NSudoOpenProcess(
     _In_ DWORD ProcessId);
 
 /**
- * Opens an existing local process object.
+ * Opens an existing local process object associated with a service process,
+ * the calling application must be running within the context of the
+ * Administrator account and have the SE_DEBUG_NAME privilege.
  *
  * @param ProcessHandle A pointer to an open handle to the specified process.
  * @param DesiredAccess The access to the process object. This access right is
@@ -216,7 +218,9 @@ EXTERN_C DWORD WINAPI NSudoOpenProcessTokenByProcessId(
     _In_ DWORD DesiredAccess);
 
 /**
- * Opens the access token associated with a process.
+ * Opens the access token associated with a service process, the calling
+ * application must be running within the context of the Administrator account
+ * and have the SE_DEBUG_NAME privilege.
  *
  * @param TokenHandle A pointer to a handle that identifies the newly opened
  *                    access token when the function returns.
@@ -242,5 +246,58 @@ EXTERN_C DWORD WINAPI NSudoOpenServiceProcessToken(
     _Out_ PHANDLE TokenHandle,
     _In_ LPCWSTR ServiceName,
     _In_ DWORD DesiredAccess);
+
+/**
+ * Opens an existing local process object associated with the Local Security
+ * Authority process, the calling application must be running within the
+ * context of the Administrator account and have the SE_DEBUG_NAME privilege.
+ *
+ * @param ProcessHandle A pointer to an open handle to the specified process.
+ * @param DesiredAccess The access to the process object. This access right is
+ *                      checked against the security descriptor for the
+ *                      process. This parameter can be one or more of the
+ *                      process access rights.
+ * @param InheritHandle If this value is TRUE, processes created by this
+ *                      process will inherit the handle. Otherwise, the
+ *                      processes do not inherit this handle.
+ * @return Standard Win32 Error. If the function succeeds, the return value is
+ *         ERROR_SUCCESS.
+ * @remark For more information, see OpenProcess.
+ */
+EXTERN_C DWORD WINAPI NSudoOpenLsassProcess(
+    _Out_ PHANDLE ProcessHandle,
+    _In_ DWORD DesiredAccess,
+    _In_ BOOL InheritHandle);
+
+/**
+ * Opens the access token associated with the Local Security Authority process,
+ * the calling application must be running within the context of the
+ * Administrator account and have the SE_DEBUG_NAME privilege.
+ *
+ * @param TokenHandle A pointer to a handle that identifies the newly opened
+ *                    access token when the function returns.
+ * @param DesiredAccess The access to the process object. This access right is
+ *                      checked against the security descriptor for the
+ *                      process. This parameter can be one or more of the
+ *                      process access rights.
+ * @return Standard Win32 Error. If the function succeeds, the return value is
+ *         ERROR_SUCCESS.
+ * @remark For more information, see OpenProcessToken.
+ */
+EXTERN_C DWORD WINAPI NSudoOpenLsassProcessToken(
+    _Out_ PHANDLE TokenHandle,
+    _In_ DWORD DesiredAccess);
+
+
+
+
+//MIDL_INTERFACE("8FB3CD81-3E19-4DF0-8D90-308B3D8889CB")
+//INSudoService: public IUnknown
+//{
+//    virtual HRESULT STDMETHODCALLTYPE GetCacheSize(
+//        _Out_ PUINT64 CacheSize) = 0;
+//
+//    virtual HRESULT STDMETHODCALLTYPE DeleteCache() = 0;
+//};
 
 #endif

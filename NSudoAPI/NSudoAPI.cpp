@@ -10,6 +10,12 @@
 
 #include "NSudoAPI.h"
 
+#include <WtsApi32.h>
+#pragma comment(lib, "WtsApi32.lib")
+
+#include <cstdio>
+#include <cwchar>
+
 /**
  * The feature level of NSudo Shared Library.
  */
@@ -335,4 +341,103 @@ EXTERN_C DWORD WINAPI NSudoOpenServiceProcessToken(
     }
 
     return ErrorCode;
+}
+
+/**
+ * @remark You can read the definition for this function in "NSudoAPI.h".
+ */
+EXTERN_C DWORD WINAPI NSudoOpenLsassProcess(
+    _Out_ PHANDLE ProcessHandle,
+    _In_ DWORD DesiredAccess,
+    _In_ BOOL InheritHandle)
+{
+    DWORD ErrorCode = ERROR_NOT_FOUND;
+
+    DWORD dwLsassPID = static_cast<DWORD>(-1);
+
+    PWTS_PROCESS_INFOW pProcesses = nullptr;
+    DWORD dwProcessCount = 0;
+
+    if (::WTSEnumerateProcessesW(
+        WTS_CURRENT_SERVER_HANDLE,
+        0,
+        1,
+        &pProcesses,
+        &dwProcessCount))
+    {
+        for (DWORD i = 0; i < dwProcessCount; ++i)
+        {
+            PWTS_PROCESS_INFOW pProcess = &pProcesses[i];
+
+            if (pProcess->SessionId != 0)
+                continue;
+
+            if (!pProcess->pProcessName)
+                continue;
+
+            if (::_wcsicmp(L"lsass.exe", pProcess->pProcessName) != 0)
+                continue;
+
+            if (!pProcess->pUserSid)
+                continue;
+
+            if (!::IsWellKnownSid(
+                pProcess->pUserSid, WELL_KNOWN_SID_TYPE::WinLocalSystemSid))
+                continue;
+
+            dwLsassPID = pProcess->ProcessId;
+
+            ErrorCode = ERROR_SUCCESS;
+            break;
+        }
+
+        ::WTSFreeMemory(pProcesses);
+    }
+    else
+    {
+        ErrorCode = ::GetLastError();
+    }
+
+    if (ErrorCode == ERROR_SUCCESS)
+    {
+        ErrorCode = NSudoOpenProcess(
+            ProcessHandle,
+            DesiredAccess,
+            InheritHandle,
+            dwLsassPID);
+    }
+
+    return ErrorCode;
+}
+
+/**
+ * @remark You can read the definition for this function in "NSudoAPI.h".
+ */
+EXTERN_C DWORD WINAPI NSudoOpenLsassProcessToken(
+    _Out_ PHANDLE TokenHandle,
+    _In_ DWORD DesiredAccess)
+{
+    HANDLE ProcessHandle = INVALID_HANDLE_VALUE;
+
+    DWORD ErrorCode = NSudoOpenLsassProcess(
+        &ProcessHandle, MAXIMUM_ALLOWED, FALSE);
+    if (ErrorCode == ERROR_SUCCESS)
+    {
+        ErrorCode = NSudoOpenProcessTokenByProcessHandle(
+            TokenHandle, ProcessHandle, DesiredAccess);
+    }
+
+    return ErrorCode;
+}
+
+
+
+
+
+/**
+ * @remark You can read the definition for this function in "NSudoAPI.h".
+ */
+EXTERN_C DWORD WINAPI NSudoCreateSessionToken()
+{
+    return ERROR_SUCCESS;
 }

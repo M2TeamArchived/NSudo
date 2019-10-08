@@ -12,3 +12,5 @@ NSudoOpenProcessTokenByProcessHandle
 NSudoOpenCurrentProcessToken
 NSudoOpenProcessTokenByProcessId
 NSudoOpenServiceProcessToken
+NSudoOpenLsassProcess
+NSudoOpenLsassProcessToken

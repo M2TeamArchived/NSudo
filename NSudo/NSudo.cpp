@@ -319,63 +319,17 @@ FuncEnd: // 扫尾
     return result;
 }
 
-HRESULT M2QueryLsassProcessId(
-    _Out_ PDWORD ProcessId)
-{
-    M2::CWTSMemory<PWTS_PROCESS_INFOW> pProcesses;
-    DWORD dwProcessCount = 0;
-
-    if (WTSEnumerateProcessesW(
-        WTS_CURRENT_SERVER_HANDLE,
-        0,
-        1,
-        &pProcesses,
-        &dwProcessCount))
-    {
-        for (DWORD i = 0; i < dwProcessCount; ++i)
-        {
-            PWTS_PROCESS_INFOW pProcess = &pProcesses[i];
-
-            if (pProcess->SessionId != 0)
-                continue;
-
-            if (!pProcess->pProcessName)
-                continue;
-
-            if (_wcsicmp(L"lsass.exe", pProcess->pProcessName) != 0)
-                continue;
-
-            if (!pProcess->pUserSid)
-                continue;
-
-            if (!IsWellKnownSid(
-                pProcess->pUserSid, WELL_KNOWN_SID_TYPE::WinLocalSystemSid))
-                continue;
-
-            *ProcessId = pProcess->ProcessId;
-            return S_OK;
-        }
-    }
-
-    return HRESULT_FROM_WIN32(ERROR_NOT_FOUND);
-}
-
-BOOL WINAPI NSudoImpersonateAsSystem2()
+BOOL WINAPI NSudoImpersonateAsSystem()
 {
     BOOL result = FALSE;
-
-    DWORD dwLsassPID = static_cast<DWORD>(-1);
 
     M2::CHandle OriginalToken;
     M2::CHandle Token;
 
     do
     {
-        if (FAILED(M2QueryLsassProcessId(&dwLsassPID)))
-            break;
-
-        DWORD ErrorCode = M2::NSudo::NSudoOpenProcessTokenByProcessId(
-            &OriginalToken, dwLsassPID, MAXIMUM_ALLOWED);
+        DWORD ErrorCode = M2::NSudo::NSudoOpenLsassProcessToken(
+            &OriginalToken, MAXIMUM_ALLOWED);
         ::SetLastError(ErrorCode);
         if (ErrorCode != ERROR_SUCCESS)
             break;
@@ -774,7 +728,7 @@ NSUDO_MESSAGE NSudoCommandLineParser(
     }
 
     // 如果未提权或者模拟System权限失败
-    if (!(bElevated && NSudoImpersonateAsSystem2()))
+    if (!(bElevated && NSudoImpersonateAsSystem()))
     {
         return NSUDO_MESSAGE::PRIVILEGE_NOT_HELD;
     }
@@ -1001,15 +955,8 @@ NSUDO_MESSAGE NSudoCommandLineParser(
     }
     else if (NSudoOptionUserValue::System == UserMode)
     {
-        DWORD dwLsassPID = static_cast<DWORD>(-1);
-
-        if (FAILED(M2QueryLsassProcessId(&dwLsassPID)))
-        {
-            return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
-        }
-
-        if (ERROR_SUCCESS != M2::NSudo::NSudoOpenProcessTokenByProcessId(
-            &OriginalToken, dwLsassPID, MAXIMUM_ALLOWED))
+        if (ERROR_SUCCESS != M2::NSudo::NSudoOpenLsassProcessToken(
+            &OriginalToken, MAXIMUM_ALLOWED))
         {
             return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
         }
