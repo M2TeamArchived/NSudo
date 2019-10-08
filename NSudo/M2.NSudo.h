@@ -39,6 +39,7 @@ namespace M2
         using ::NSudoOpenServiceProcessToken;
         using ::NSudoOpenLsassProcess;
         using ::NSudoOpenLsassProcessToken;
+        using ::NSudoCreateSessionToken;
 
         /**
          * Enables or disables privileges in the specified access token.

@@ -14,3 +14,4 @@ NSudoOpenProcessTokenByProcessId
 NSudoOpenServiceProcessToken
 NSudoOpenLsassProcess
 NSudoOpenLsassProcessToken
+NSudoCreateSessionToken

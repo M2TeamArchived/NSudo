@@ -130,7 +130,7 @@ EXTERN_C DWORD WINAPI NSudoOpenProcess(
 /**
  * Opens an existing local process object associated with a service process,
  * the calling application must be running within the context of the
- * Administrator account and have the SE_DEBUG_NAME privilege.
+ * Administrator account and have the SE_DEBUG_NAME privilege enabled.
  *
  * @param ProcessHandle A pointer to an open handle to the specified process.
  * @param DesiredAccess The access to the process object. This access right is
@@ -220,7 +220,7 @@ EXTERN_C DWORD WINAPI NSudoOpenProcessTokenByProcessId(
 /**
  * Opens the access token associated with a service process, the calling
  * application must be running within the context of the Administrator account
- * and have the SE_DEBUG_NAME privilege.
+ * and have the SE_DEBUG_NAME privilege enabled.
  *
  * @param TokenHandle A pointer to a handle that identifies the newly opened
  *                    access token when the function returns.
@@ -250,7 +250,8 @@ EXTERN_C DWORD WINAPI NSudoOpenServiceProcessToken(
 /**
  * Opens an existing local process object associated with the Local Security
  * Authority process, the calling application must be running within the
- * context of the Administrator account and have the SE_DEBUG_NAME privilege.
+ * context of the Administrator account and have the SE_DEBUG_NAME privilege
+ * enabled.
  *
  * @param ProcessHandle A pointer to an open handle to the specified process.
  * @param DesiredAccess The access to the process object. This access right is
@@ -272,7 +273,7 @@ EXTERN_C DWORD WINAPI NSudoOpenLsassProcess(
 /**
  * Opens the access token associated with the Local Security Authority process,
  * the calling application must be running within the context of the
- * Administrator account and have the SE_DEBUG_NAME privilege.
+ * Administrator account and have the SE_DEBUG_NAME privilege enabled.
  *
  * @param TokenHandle A pointer to a handle that identifies the newly opened
  *                    access token when the function returns.
@@ -288,6 +289,23 @@ EXTERN_C DWORD WINAPI NSudoOpenLsassProcessToken(
     _Out_ PHANDLE TokenHandle,
     _In_ DWORD DesiredAccess);
 
+/**
+ * Obtains the primary access token of the logged-on user specified by the
+ * session ID. To call this function successfully, the calling application must
+ * be running within the context of the LocalSystem account and have the
+ * SE_TCB_NAME privilege.
+ *
+ * @param TokenHandle If the function succeeds, receives a pointer to the token
+ *                    handle for the logged-on user. Note that you must call
+ *                    the CloseHandle function to close this handle.
+ * @param SessionId A Remote Desktop Services session identifier. 
+ * @return Standard Win32 Error. If the function succeeds, the return value is
+ *         ERROR_SUCCESS.
+ * @remark For more information, see WTSQueryUserToken.
+ */
+EXTERN_C DWORD WINAPI NSudoCreateSessionToken(
+    _Out_ PHANDLE TokenHandle,
+    _In_ DWORD SessionId);
 
 
 

@@ -295,34 +295,6 @@ namespace M2
 
 #pragma endregion
 
-    /**
-     * The handle definer for memory block allocated via WTS API.
-     */
-#pragma region CWTSMemory
-
-    template<typename TMemoryBlock>
-    struct CWTSMemoryDefiner
-    {
-        static inline TMemoryBlock GetInvalidValue()
-        {
-            return nullptr;
-        }
-
-        static inline void Close(TMemoryBlock Object)
-        {
-            WTSFreeMemory(Object);
-        }
-    };
-
-    template<typename TMemoryBlock>
-    class CWTSMemory :
-        public CObject<TMemoryBlock, CWTSMemoryDefiner<TMemoryBlock>>
-    {
-
-    };
-
-#pragma endregion
-
 #endif
 
     /**

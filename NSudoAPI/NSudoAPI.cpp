@@ -430,14 +430,19 @@ EXTERN_C DWORD WINAPI NSudoOpenLsassProcessToken(
     return ErrorCode;
 }
 
-
-
-
-
 /**
  * @remark You can read the definition for this function in "NSudoAPI.h".
  */
-EXTERN_C DWORD WINAPI NSudoCreateSessionToken()
+EXTERN_C DWORD WINAPI NSudoCreateSessionToken(
+    _Out_ PHANDLE TokenHandle,
+    _In_ DWORD SessionId)
 {
-    return ERROR_SUCCESS;
+    if (WTSQueryUserToken(SessionId, TokenHandle))
+    {
+        return ERROR_SUCCESS;
+    }
+    else
+    {
+        return ::GetLastError();
+    }
 }

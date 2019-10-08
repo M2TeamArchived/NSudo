@@ -26,11 +26,9 @@
 
 #include <commctrl.h>
 #include <Userenv.h>
-#include <WtsApi32.h>
 
 #pragma comment(lib, "comctl32.lib")
 #pragma comment(lib, "Userenv.lib")
-#pragma comment(lib,"WtsApi32.lib")
 
 #include <cstdio>
 #include <cwchar>
@@ -963,7 +961,8 @@ NSUDO_MESSAGE NSudoCommandLineParser(
     }
     else if (NSudoOptionUserValue::CurrentUser == UserMode)
     {
-        if (!WTSQueryUserToken(dwSessionID, &OriginalToken))
+        if (ERROR_SUCCESS != M2::NSudo::NSudoCreateSessionToken(
+            &OriginalToken, dwSessionID))
         {
             return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
         }
