@@ -319,9 +319,8 @@ FuncEnd: // 扫尾
     return result;
 }
 
-HRESULT M2QueryWinLogonProcessId(
-    _Out_ PDWORD ProcessId,
-    _In_ DWORD SessionId)
+HRESULT M2QueryLsassProcessId(
+    _Out_ PDWORD ProcessId)
 {
     M2::CWTSMemory<PWTS_PROCESS_INFOW> pProcesses;
     DWORD dwProcessCount = 0;
@@ -337,13 +336,13 @@ HRESULT M2QueryWinLogonProcessId(
         {
             PWTS_PROCESS_INFOW pProcess = &pProcesses[i];
 
-            if (pProcess->SessionId != SessionId)
+            if (pProcess->SessionId != 0)
                 continue;
 
             if (!pProcess->pProcessName)
                 continue;
 
-            if (_wcsicmp(L"winlogon.exe", pProcess->pProcessName) != 0)
+            if (_wcsicmp(L"lsass.exe", pProcess->pProcessName) != 0)
                 continue;
 
             if (!pProcess->pUserSid)
@@ -361,37 +360,22 @@ HRESULT M2QueryWinLogonProcessId(
     return HRESULT_FROM_WIN32(ERROR_NOT_FOUND);
 }
 
-/*
-NSudoImpersonateAsSystem函数给当前线程分配一个SYSTEM用户模拟令牌。该函数还
-可以使当前线程停止使用模拟令牌。
-The NSudoImpersonateAsSystem function assigns an SYSTEM user impersonation
-token to the current thread. The function can also cause the current thread
-to stop using an impersonation token.
-
-如果函数执行失败，返回值为NULL。调用GetLastError可获取详细错误码。
-If the function fails, the return value is NULL. To get extended error
-information, call GetLastError.
-*/
-BOOL WINAPI NSudoImpersonateAsSystem()
+BOOL WINAPI NSudoImpersonateAsSystem2()
 {
     BOOL result = FALSE;
 
-    DWORD dwSessionID = static_cast<DWORD>(-1);
-    DWORD dwWinLogonPID = static_cast<DWORD>(-1);
+    DWORD dwLsassPID = static_cast<DWORD>(-1);
 
     M2::CHandle OriginalToken;
     M2::CHandle Token;
 
     do
     {
-        result = NSudoGetCurrentProcessSessionID(&dwSessionID);
-        if (!result) break;
-
-        if (FAILED(M2QueryWinLogonProcessId(&dwWinLogonPID, dwSessionID)))
+        if (FAILED(M2QueryLsassProcessId(&dwLsassPID)))
             break;
 
         DWORD ErrorCode = M2::NSudo::NSudoOpenProcessTokenByProcessId(
-            &OriginalToken, dwWinLogonPID, MAXIMUM_ALLOWED);
+            &OriginalToken, dwLsassPID, MAXIMUM_ALLOWED);
         ::SetLastError(ErrorCode);
         if (ErrorCode != ERROR_SUCCESS)
             break;
@@ -790,7 +774,7 @@ NSUDO_MESSAGE NSudoCommandLineParser(
     }
 
     // 如果未提权或者模拟System权限失败
-    if (!(bElevated && NSudoImpersonateAsSystem()))
+    if (!(bElevated && NSudoImpersonateAsSystem2()))
     {
         return NSUDO_MESSAGE::PRIVILEGE_NOT_HELD;
     }
@@ -1017,15 +1001,15 @@ NSUDO_MESSAGE NSudoCommandLineParser(
     }
     else if (NSudoOptionUserValue::System == UserMode)
     {
-        DWORD dwWinLogonPID = static_cast<DWORD>(-1);
+        DWORD dwLsassPID = static_cast<DWORD>(-1);
 
-        if (FAILED(M2QueryWinLogonProcessId(&dwWinLogonPID, dwSessionID)))
+        if (FAILED(M2QueryLsassProcessId(&dwLsassPID)))
         {
             return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
         }
 
         if (ERROR_SUCCESS != M2::NSudo::NSudoOpenProcessTokenByProcessId(
-            &OriginalToken, dwWinLogonPID, MAXIMUM_ALLOWED))
+            &OriginalToken, dwLsassPID, MAXIMUM_ALLOWED))
         {
             return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
         }
