@@ -76,47 +76,6 @@ std::wstring GetMessageByID(DWORD MessageID)
     return MessageString;
 }
 
-/*
-NSudoSetTokenAllPrivileges函数启用或禁用指定的访问令牌的所有特权。启用或禁
-用一个访问令牌的特权需要TOKEN_ADJUST_PRIVILEGES访问权限。
-The NSudoSetTokenAllPrivileges function enables or disables all privileges
-in the specified access token. Enabling or disabling privileges in an
-access token requires TOKEN_ADJUST_PRIVILEGES access.
-
-如果函数执行失败，返回值为NULL。调用GetLastError可获取详细错误码。
-If the function fails, the return value is NULL. To get extended error
-information, call GetLastError.
-*/
-BOOL WINAPI NSudoSetTokenAllPrivileges(
-    _In_ HANDLE hExistingToken,
-    _In_ bool bEnable)
-{
-    BOOL result = FALSE;
-    PTOKEN_PRIVILEGES pTPs = nullptr;
-
-    DWORD ErrorCode = M2::NSudo::GetTokenInformationWithMemory(
-        pTPs, hExistingToken, TokenPrivileges);
-    ::SetLastError(ErrorCode);
-    result = (ErrorCode == ERROR_SUCCESS);
-    if (result)
-    {
-        // 设置特权信息
-        for (DWORD i = 0; i < pTPs->PrivilegeCount; ++i)
-            pTPs->Privileges[i].Attributes =
-            (DWORD)(bEnable ? SE_PRIVILEGE_ENABLED : 0);
-
-        // 设置进程特权
-        ErrorCode = M2::NSudo::NSudoAdjustTokenPrivileges(
-            hExistingToken, pTPs->Privileges, pTPs->PrivilegeCount);
-        ::SetLastError(ErrorCode);
-        result = (ErrorCode == ERROR_SUCCESS);
-
-        M2::NSudo::NSudoFreeMemory(pTPs);
-    }
-
-    return result;
-}
-
 BOOL WINAPI NSudoImpersonateAsSystem()
 {
     BOOL result = FALSE;
@@ -141,11 +100,13 @@ BOOL WINAPI NSudoImpersonateAsSystem()
             &Token);
         if (!result) break;
 
-        result = NSudoSetTokenAllPrivileges(Token, true);
-        if (result)
-        {
-            result = SetThreadToken(nullptr, Token);
-        }
+        ErrorCode = M2::NSudo::NSudoAdjustTokenAllPrivileges(
+            Token, SE_PRIVILEGE_ENABLED);
+        ::SetLastError(ErrorCode);
+        if (ErrorCode != ERROR_SUCCESS)
+            break;
+
+        result = SetThreadToken(nullptr, Token);
 
     } while (false);
 
@@ -153,34 +114,34 @@ BOOL WINAPI NSudoImpersonateAsSystem()
 }
 
 
-typedef void(WINAPI* _NSUDO_START_ROUTINE)(
-    _In_ LPVOID Parameter);
-typedef _NSUDO_START_ROUTINE PNSUDO_START_ROUTINE, LPNSUDO_START_ROUTINE;
-
-EXTERN_C DWORD WINAPI NSudoCreateImpersonateContext(
-    _In_ HANDLE TokenHandle,
-    _In_ DWORD CreationFlags,
-    _In_ LPNSUDO_START_ROUTINE StartAddress,
-    _In_opt_ LPVOID Parameter)
-{
-    DWORD ErrorCode = ERROR_INVALID_PARAMETER;
-
-    if (StartAddress)
-    {
-        if (::SetThreadToken(nullptr, TokenHandle))
-        {
-            StartAddress(Parameter);
-
-            ::SetThreadToken(nullptr, nullptr);
-        }
-        else
-        {
-            ErrorCode = ::GetLastError();
-        }
-    }
-
-    return ErrorCode;
-}
+//typedef void(WINAPI* _NSUDO_START_ROUTINE)(
+//    _In_ LPVOID Parameter);
+//typedef _NSUDO_START_ROUTINE PNSUDO_START_ROUTINE, LPNSUDO_START_ROUTINE;
+//
+//EXTERN_C DWORD WINAPI NSudoCreateImpersonateContext(
+//    _In_ HANDLE TokenHandle,
+//    _In_ DWORD CreationFlags,
+//    _In_ LPNSUDO_START_ROUTINE StartAddress,
+//    _In_opt_ LPVOID Parameter)
+//{
+//    DWORD ErrorCode = ERROR_INVALID_PARAMETER;
+//
+//    if (StartAddress)
+//    {
+//        if (::SetThreadToken(nullptr, TokenHandle))
+//        {
+//            StartAddress(Parameter);
+//
+//            ::SetThreadToken(nullptr, nullptr);
+//        }
+//        else
+//        {
+//            ErrorCode = ::GetLastError();
+//        }
+//    }
+//
+//    return ErrorCode;
+//}
 
 /*
 NSudoCreateProcess函数创建一个新进程和对应的主线程
@@ -848,14 +809,16 @@ NSUDO_MESSAGE NSudoCommandLineParser(
 
     if (NSudoOptionPrivilegesValue::EnableAllPrivileges == PrivilegesMode)
     {
-        if (!NSudoSetTokenAllPrivileges(hToken, true))
+        if (ERROR_SUCCESS != M2::NSudo::NSudoAdjustTokenAllPrivileges(
+            hToken, SE_PRIVILEGE_ENABLED))
         {
             return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
         }
     }
     else if (NSudoOptionPrivilegesValue::DisableAllPrivileges == PrivilegesMode)
     {
-        if (!NSudoSetTokenAllPrivileges(hToken, false))
+        if (ERROR_SUCCESS != M2::NSudo::NSudoAdjustTokenAllPrivileges(
+            hToken, 0))
         {
             return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
         }

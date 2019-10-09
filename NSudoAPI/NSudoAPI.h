@@ -594,4 +594,26 @@ EXTERN_C DWORD WINAPI NSudoOpenThreadTokenByThreadId(
     _In_ DWORD DesiredAccess,
     _In_ BOOL OpenAsSelf);
 
+/**
+ * Enables or disables all privileges in the specified access token.
+ *
+ * @param TokenHandle A handle to the access token that contains the privileges
+ *                    to be modified. The handle must have
+ *                    TOKEN_ADJUST_PRIVILEGES access to the token.
+ * @param Attributes The attributes of all privileges can be a combination of
+ *                   the following values.
+ *                   SE_PRIVILEGE_ENABLED
+ *                       The function enables the privilege.
+ *                   SE_PRIVILEGE_REMOVED
+ *                       The privilege is removed from the list of privileges in
+ *                       the token.
+ *                   None
+ *                       The function disables the privilege.
+ * @return Standard Win32 Error. If the function succeeds, the return value is
+ *         ERROR_SUCCESS.
+ */
+EXTERN_C DWORD WINAPI NSudoAdjustTokenAllPrivileges(
+    _In_ HANDLE TokenHandle,
+    _In_ DWORD Attributes);
+
 #endif

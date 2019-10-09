@@ -867,3 +867,34 @@ EXTERN_C DWORD WINAPI NSudoOpenThreadTokenByThreadId(
 
     return ErrorCode;
 }
+
+/**
+ * @remark You can read the definition for this function in "NSudoAPI.h".
+ */
+EXTERN_C DWORD WINAPI NSudoAdjustTokenAllPrivileges(
+    _In_ HANDLE TokenHandle,
+    _In_ DWORD Attributes)
+{
+    PTOKEN_PRIVILEGES pTokenPrivileges = nullptr;
+
+    DWORD ErrorCode = NSudoGetTokenInformationWithMemory(
+        reinterpret_cast<PVOID*>(&pTokenPrivileges),
+        TokenHandle,
+        TokenPrivileges);
+    if (ErrorCode == ERROR_SUCCESS)
+    {
+        for (DWORD i = 0; i < pTokenPrivileges->PrivilegeCount; ++i)
+        {
+            pTokenPrivileges->Privileges[i].Attributes = Attributes;
+        }
+
+        ErrorCode = NSudoAdjustTokenPrivileges(
+            TokenHandle,
+            pTokenPrivileges->Privileges,
+            pTokenPrivileges->PrivilegeCount);
+
+        NSudoFreeMemory(pTokenPrivileges);
+    }
+
+    return ErrorCode;
+}

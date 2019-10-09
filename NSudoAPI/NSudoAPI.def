@@ -27,3 +27,4 @@ NSudoOpenThread
 NSudoOpenThreadTokenByThreadHandle
 NSudoOpenCurrentThreadToken
 NSudoOpenThreadTokenByThreadId
+NSudoAdjustTokenAllPrivileges
