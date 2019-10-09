@@ -473,3 +473,91 @@ EXTERN_C DWORD WINAPI NSudoFreeMemory(
         return ::GetLastError();
     }
 }
+
+/**
+ * @remark You can read the definition for this function in "NSudoAPI.h".
+ */
+EXTERN_C DWORD WINAPI NSudoGetTokenInformation(
+    _In_ HANDLE TokenHandle,
+    _In_ TOKEN_INFORMATION_CLASS TokenInformationClass,
+    _Out_opt_ LPVOID TokenInformation,
+    _In_ DWORD TokenInformationLength,
+    _Out_ PDWORD ReturnLength)
+{
+    if (::GetTokenInformation(
+        TokenHandle,
+        TokenInformationClass,
+        TokenInformation,
+        TokenInformationLength,
+        ReturnLength))
+    {
+        return ERROR_SUCCESS;
+    }
+    else
+    {
+        return ::GetLastError();
+    }
+}
+
+/**
+ * @remark You can read the definition for this function in "NSudoAPI.h".
+ */
+EXTERN_C DWORD WINAPI NSudoGetTokenInformationWithMemory(
+    _Out_ PVOID* OutputInformation,
+    _In_ HANDLE TokenHandle,
+    _In_ TOKEN_INFORMATION_CLASS TokenInformationClass)
+{
+    *OutputInformation = nullptr;
+
+    DWORD Length = 0;
+
+    DWORD ErrorCode = NSudoGetTokenInformation(
+        TokenHandle,
+        TokenInformationClass,
+        nullptr,
+        0,
+        &Length);
+    if (ErrorCode == ERROR_INSUFFICIENT_BUFFER)
+    {
+        ErrorCode = NSudoAllocMemory(OutputInformation, Length);
+        if (ErrorCode == ERROR_SUCCESS)
+        {
+            ErrorCode = NSudoGetTokenInformation(
+                TokenHandle,
+                TokenInformationClass,
+                *OutputInformation,
+                Length,
+                &Length);
+            if (ErrorCode != ERROR_SUCCESS)
+            {
+                ErrorCode = NSudoFreeMemory(*OutputInformation);
+                *OutputInformation = nullptr;
+            }
+        }
+    }
+
+    return ErrorCode;
+}
+
+/**
+ * @remark You can read the definition for this function in "NSudoAPI.h".
+ */
+EXTERN_C DWORD WINAPI NSudoSetTokenInformation(
+    _In_ HANDLE TokenHandle,
+    _In_ TOKEN_INFORMATION_CLASS TokenInformationClass,
+    _In_ LPVOID TokenInformation,
+    _In_ DWORD TokenInformationLength)
+{
+    if (::SetTokenInformation(
+        TokenHandle,
+        TokenInformationClass,
+        TokenInformation,
+        TokenInformationLength))
+    {
+        return ERROR_SUCCESS;
+    }
+    else
+    {
+        return ::GetLastError();
+    }
+}

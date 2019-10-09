@@ -333,4 +333,81 @@ EXTERN_C DWORD WINAPI NSudoAllocMemory(
 EXTERN_C DWORD WINAPI NSudoFreeMemory(
     _In_ LPVOID Block);
 
+/**
+ * Retrieves a specified type of information about an access token. The calling
+ * process must have appropriate access rights to obtain the information.
+ *
+ * @param TokenHandle A handle to an access token from which information is
+ *                    retrieved.
+ * @param TokenInformationClass Specifies a value from the
+ *                              TOKEN_INFORMATION_CLASS enumerated type to
+ *                              identify the type of information the function
+ *                              retrieves.
+ * @param TokenInformation A pointer to a buffer the function fills with the
+ *                         requested information.
+ * @param TokenInformationLength Specifies the size, in bytes, of the buffer
+ *                               pointed to by the TokenInformation parameter.
+ * @param ReturnLength A pointer to a variable that receives the number of
+ *                     bytes needed for the buffer pointed to by the
+ *                     TokenInformation parameter.
+ * @return Standard Win32 Error. If the function succeeds, the return value is
+ *         ERROR_SUCCESS.
+ * @remark For more information, see GetTokenInformation.
+ */
+EXTERN_C DWORD WINAPI NSudoGetTokenInformation(
+    _In_ HANDLE TokenHandle,
+    _In_ TOKEN_INFORMATION_CLASS TokenInformationClass,
+    _Out_opt_ LPVOID TokenInformation,
+    _In_ DWORD TokenInformationLength,
+    _Out_ PDWORD ReturnLength);
+
+/**
+ * Retrieves a specified type of information about an access token. The calling
+ * process must have appropriate access rights to obtain the information.
+ *
+ * @param OutputInformation A pointer to a buffer the function fills with the
+ *                          requested information. When you have finished using
+ *                          the information, free it by calling the
+ *                          NSudoFreeMemory function. You should also set the
+ *                          pointer to NULL.
+ * @param TokenHandle A handle to an access token from which information is
+ *                    retrieved.
+ * @param TokenInformationClass Specifies a value from the
+ *                              TOKEN_INFORMATION_CLASS enumerated type to
+ *                              identify the type of information the function
+ *                              retrieves.
+ * @return Standard Win32 Error. If the function succeeds, the return value is
+ *         ERROR_SUCCESS.
+ * @remark For more information, see GetTokenInformation.
+ */
+EXTERN_C DWORD WINAPI NSudoGetTokenInformationWithMemory(
+    _Out_ PVOID* OutputInformation,
+    _In_ HANDLE TokenHandle,
+    _In_ TOKEN_INFORMATION_CLASS TokenInformationClass);
+
+/**
+ * Retrieves a specified type of information about an access token. The calling
+ * process must have appropriate access rights to obtain the information.
+ *
+ * @param TokenHandle A handle to the access token for which information is to
+ *                    be set.
+ * @param TokenInformationClass A value from the TOKEN_INFORMATION_CLASS
+ *                              enumerated type that identifies the type of
+ *                              information the function sets. The valid values
+ *                              from TOKEN_INFORMATION_CLASS are described in
+ *                              the TokenInformation parameter.
+ * @param TokenInformation A pointer to a buffer that contains the information
+ *                         set in the access token.
+ * @param TokenInformationLength Specifies the length, in bytes, of the buffer
+ *                               pointed to by TokenInformation.
+ * @return Standard Win32 Error. If the function succeeds, the return value is
+ *         ERROR_SUCCESS.
+ * @remark For more information, see SetTokenInformation.
+ */
+EXTERN_C DWORD WINAPI NSudoSetTokenInformation(
+    _In_ HANDLE TokenHandle,
+    _In_ TOKEN_INFORMATION_CLASS TokenInformationClass,
+    _In_ LPVOID TokenInformation,
+    _In_ DWORD TokenInformationLength);
+
 #endif

@@ -42,6 +42,9 @@ namespace M2
         using ::NSudoCreateSessionToken;
         using ::NSudoAllocMemory;
         using ::NSudoFreeMemory;
+        using ::NSudoGetTokenInformation;
+        using ::NSudoGetTokenInformationWithMemory;
+        using ::NSudoSetTokenInformation;
 
         /**
          * Enables or disables privileges in the specified access token.
@@ -66,6 +69,38 @@ namespace M2
         DWORD AdjustTokenPrivileges(
             HANDLE TokenHandle,
             std::map<std::wstring, DWORD> const& Privileges);
+
+        /**
+         * Retrieves a specified type of information about an access token. The
+         * calling process must have appropriate access rights to obtain the
+         * information.
+         *
+         * @param OutputInformation A pointer to a buffer the function fills
+         *                          with the requested information. When you
+         *                          have finished using the information, free
+         *                          it by calling the NSudoFreeMemory function.
+         *                          You should also set the pointer to NULL.
+         * @param TokenHandle A handle to an access token from which
+         *                    information is retrieved.
+         * @param TokenInformationClass Specifies a value from the
+         *                              TOKEN_INFORMATION_CLASS enumerated type
+         *                              to identify the type of information the
+         *                              function retrieves.
+         * @return Standard Win32 Error. If the function succeeds, the return
+         *         value is ERROR_SUCCESS.
+         * @remark For more information, see GetTokenInformation.
+         */
+        template<typename InformationType>
+        DWORD GetTokenInformationWithMemory(
+            _Out_ InformationType& OutputInformation,
+            _In_ HANDLE TokenHandle,
+            _In_ TOKEN_INFORMATION_CLASS TokenInformationClass)
+        {
+            return NSudoGetTokenInformationWithMemory(
+                reinterpret_cast<PVOID*>(&OutputInformation),
+                TokenHandle,
+                TokenInformationClass);
+        }
     }
 }
 

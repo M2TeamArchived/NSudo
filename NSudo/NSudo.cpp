@@ -100,12 +100,10 @@ BOOL WINAPI NSudoGetCurrentProcessSessionID(
     result = (ErrorCode == ERROR_SUCCESS);
     if (result)
     {
-        result = SUCCEEDED(M2GetTokenInformation(
-            hToken,
-            TokenSessionId,
-            SessionID,
-            sizeof(DWORD),
-            &ReturnLength));
+        ErrorCode = M2::NSudo::NSudoGetTokenInformation(
+            hToken, TokenSessionId, SessionID, sizeof(DWORD), &ReturnLength);
+        ::SetLastError(ErrorCode);
+        result = (ErrorCode == ERROR_SUCCESS);
     }
 
     return result;
@@ -127,12 +125,12 @@ BOOL WINAPI NSudoSetTokenAllPrivileges(
     _In_ bool bEnable)
 {
     BOOL result = FALSE;
-    M2::CM2Memory<PTOKEN_PRIVILEGES> pTPs;
+    PTOKEN_PRIVILEGES pTPs = nullptr;
 
-    result = SUCCEEDED(M2GetTokenInformation(
-        pTPs,
-        hExistingToken,
-        TokenPrivileges));
+    DWORD ErrorCode = M2::NSudo::GetTokenInformationWithMemory(
+        pTPs, hExistingToken, TokenPrivileges);
+    ::SetLastError(ErrorCode);
+    result = (ErrorCode == ERROR_SUCCESS);
     if (result)
     {
         // 设置特权信息
@@ -141,10 +139,12 @@ BOOL WINAPI NSudoSetTokenAllPrivileges(
             (DWORD)(bEnable ? SE_PRIVILEGE_ENABLED : 0);
 
         // 设置进程特权
-        DWORD ErrorCode = M2::NSudo::NSudoAdjustTokenPrivileges(
+        ErrorCode = M2::NSudo::NSudoAdjustTokenPrivileges(
             hExistingToken, pTPs->Privileges, pTPs->PrivilegeCount);
         ::SetLastError(ErrorCode);
         result = (ErrorCode == ERROR_SUCCESS);
+
+        M2::NSudo::NSudoFreeMemory(pTPs);
     }
 
     return result;
@@ -177,8 +177,10 @@ BOOL WINAPI NSudoSetTokenIntegrityLevel(
         TML.Label.Attributes = SE_GROUP_INTEGRITY;
 
         // 设置令牌对象
-        result = SUCCEEDED(M2SetTokenInformation(
-            TokenHandle, TokenIntegrityLevel, &TML, sizeof(TML)));
+        ErrorCode = M2::NSudo::NSudoSetTokenInformation(
+            TokenHandle, TokenIntegrityLevel, &TML, sizeof(TML));
+        ::SetLastError(ErrorCode);
+        result = (ErrorCode == ERROR_SUCCESS);
 
         ::FreeSid(TML.Label.Sid);
     }
@@ -207,13 +209,13 @@ BOOL WINAPI NSudoCreateLUAToken(
     TOKEN_OWNER Owner = { 0 };
     TOKEN_DEFAULT_DACL NewTokenDacl = { 0 };
     M2::CHandle hToken;
-    M2::CM2Memory<PTOKEN_USER> pTokenUser;
-    M2::CM2Memory<PTOKEN_DEFAULT_DACL> pTokenDacl;
+    PTOKEN_USER pTokenUser = nullptr;
+    PTOKEN_DEFAULT_DACL pTokenDacl = nullptr;
     M2::CMemory<PACL> NewDefaultDacl;
     PACCESS_ALLOWED_ACE pTempAce = nullptr;
 
     //创建受限令牌
-    result = CreateRestrictedToken(
+    result = ::CreateRestrictedToken(
         ExistingTokenHandle,
         LUA_TOKEN,
         0, nullptr,
@@ -228,28 +230,30 @@ BOOL WINAPI NSudoCreateLUAToken(
     if (!result) goto FuncEnd;
 
     // 获取令牌对应的用户账户SID信息
-    result = SUCCEEDED(M2GetTokenInformation(
-        pTokenUser,
-        hToken,
-        TokenUser));
+    DWORD ErrorCode = M2::NSudo::GetTokenInformationWithMemory(
+        pTokenUser, hToken, TokenUser);
+    ::SetLastError(ErrorCode);
+    result = (ErrorCode == ERROR_SUCCESS);
     if (!result) goto FuncEnd;
 
     // 设置令牌Owner为当前用户
     Owner.Owner = pTokenUser->User.Sid;
-    result = SUCCEEDED(M2SetTokenInformation(
-        hToken, TokenOwner, &Owner, sizeof(TOKEN_OWNER)));
+    ErrorCode = M2::NSudo::NSudoSetTokenInformation(
+        hToken, TokenOwner, &Owner, sizeof(TOKEN_OWNER));
+    ::SetLastError(ErrorCode);
+    result = (ErrorCode == ERROR_SUCCESS);
     if (!result) goto FuncEnd;
 
     // 获取令牌的DACL信息
-    result = SUCCEEDED(M2GetTokenInformation(
-        pTokenDacl,
-        hToken,
-        TokenDefaultDacl));
+    ErrorCode = M2::NSudo::GetTokenInformationWithMemory(
+        pTokenDacl, hToken, TokenDefaultDacl);
+    ::SetLastError(ErrorCode);
+    result = (ErrorCode == ERROR_SUCCESS);
     if (!result) goto FuncEnd;
 
     // 计算新ACL大小
     Length = pTokenDacl->DefaultDacl->AclSize;
-    Length += GetLengthSid(pTokenUser->User.Sid);
+    Length += ::GetLengthSid(pTokenUser->User.Sid);
     Length += sizeof(ACCESS_ALLOWED_ACE);
 
     // 分配ACL结构内存
@@ -261,14 +265,14 @@ BOOL WINAPI NSudoCreateLUAToken(
     NewTokenDacl.DefaultDacl = NewDefaultDacl;
 
     // 创建ACL
-    result = InitializeAcl(
+    result = ::InitializeAcl(
         NewTokenDacl.DefaultDacl,
         Length,
         pTokenDacl->DefaultDacl->AclRevision);
     if (!result) goto FuncEnd;
 
     // 添加ACE
-    result = AddAccessAllowedAce(
+    result = ::AddAccessAllowedAce(
         NewTokenDacl.DefaultDacl,
         pTokenDacl->DefaultDacl->AclRevision,
         GENERIC_ALL,
@@ -277,15 +281,15 @@ BOOL WINAPI NSudoCreateLUAToken(
 
     // 复制ACE
     for (ULONG i = 0;
-        GetAce(pTokenDacl->DefaultDacl, i, (PVOID*)&pTempAce);
+        ::GetAce(pTokenDacl->DefaultDacl, i, (PVOID*)&pTempAce);
         ++i)
     {
-        if (IsWellKnownSid(
+        if (::IsWellKnownSid(
             &pTempAce->SidStart,
             WELL_KNOWN_SID_TYPE::WinBuiltinAdministratorsSid))
             continue;
 
-        AddAce(
+        ::AddAce(
             NewTokenDacl.DefaultDacl,
             pTokenDacl->DefaultDacl->AclRevision,
             0,
@@ -295,16 +299,20 @@ BOOL WINAPI NSudoCreateLUAToken(
 
     // 设置令牌DACL
     Length += sizeof(TOKEN_DEFAULT_DACL);
-    result = SUCCEEDED(M2SetTokenInformation(
-        hToken, TokenDefaultDacl, &NewTokenDacl, Length));
+    ErrorCode = M2::NSudo::NSudoSetTokenInformation(
+        hToken, TokenDefaultDacl, &NewTokenDacl, Length);
+    ::SetLastError(ErrorCode);
+    result = (ErrorCode == ERROR_SUCCESS);
     if (!result) goto FuncEnd;
 
     // 开启LUA虚拟化
-    result = SUCCEEDED(M2SetTokenInformation(
+    ErrorCode = M2::NSudo::NSudoSetTokenInformation(
         hToken,
         TokenVirtualizationEnabled,
         &EnableTokenVirtualization,
-        sizeof(BOOL)));
+        sizeof(BOOL));
+    ::SetLastError(ErrorCode);
+    result = (ErrorCode == ERROR_SUCCESS);
     if (!result) goto FuncEnd;
 
 FuncEnd: // 扫尾
@@ -312,6 +320,16 @@ FuncEnd: // 扫尾
     if (result)
     {
         *TokenHandle = hToken.Detach();
+    }
+
+    if (pTokenUser)
+    {
+        M2::NSudo::NSudoFreeMemory(pTokenUser);
+    }
+
+    if (pTokenDacl)
+    {
+        M2::NSudo::NSudoFreeMemory(pTokenDacl);
     }
 
     return result;
@@ -1001,11 +1019,11 @@ NSUDO_MESSAGE NSudoCommandLineParser(
         return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
     }
 
-    if (FAILED(M2SetTokenInformation(
+    if (ERROR_SUCCESS != M2::NSudo::NSudoSetTokenInformation(
         hToken,
         TokenSessionId,
         (PVOID)&dwSessionID,
-        sizeof(DWORD))))
+        sizeof(DWORD)))
     {
         return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
     }

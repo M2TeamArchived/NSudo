@@ -17,3 +17,6 @@ NSudoOpenLsassProcessToken
 NSudoCreateSessionToken
 NSudoAllocMemory
 NSudoFreeMemory
+NSudoGetTokenInformation
+NSudoGetTokenInformationWithMemory
+NSudoSetTokenInformation

@@ -881,59 +881,6 @@ HRESULT M2QueryFileEnumerator(
     _Out_ PM2_FILE_ENUMERATOR_INFORMATION FileEnumeratorInformation,
     _In_ M2_FILE_ENUMERATOR_HANDLE FileEnumeratorHandle);
 
-/**
- * Retrieves a specified type of information about an access token. The calling
- * process must have appropriate access rights to obtain the information.
- *
- * @param OutputInformation A pointer to a buffer the function fills with the
- *                          requested information. When you have finished using
- *                          the information, free it by calling the
- *                          M2FreeMemory function. You should also set the
- *                          pointer to NULL.
- * @param TokenHandle A handle to an access token from which information is
- *                    retrieved.
- * @param TokenInformationClass Specifies a value from the
- *                              TOKEN_INFORMATION_CLASS enumerated type to
- *                              identify the type of information the function
- *                              retrieves.
- * @return HRESULT. If the function succeeds, the return value is S_OK.
- * @remark For more information, see GetTokenInformation.
- */
-HRESULT M2GetTokenInformation(
-    _Out_ PVOID* OutputInformation,
-    _In_ HANDLE TokenHandle,
-    _In_ TOKEN_INFORMATION_CLASS TokenInformationClass);
-
-/**
- * Retrieves a specified type of information about an access token. The calling
- * process must have appropriate access rights to obtain the information.
- *
- * @param OutputInformation A pointer to a buffer the function fills with the
- *                          requested information. When you have finished using
- *                          the information, free it by calling the
- *                          M2FreeMemory function. You should also set the
- *                          pointer to NULL.
- * @param TokenHandle A handle to an access token from which information is
- *                    retrieved.
- * @param TokenInformationClass Specifies a value from the
- *                              TOKEN_INFORMATION_CLASS enumerated type to
- *                              identify the type of information the function
- *                              retrieves.
- * @return HRESULT. If the function succeeds, the return value is S_OK.
- * @remark For more information, see GetTokenInformation.
- */
-template<typename InformationType>
-HRESULT M2GetTokenInformation(
-    _Out_ InformationType& OutputInformation,
-    _In_ HANDLE TokenHandle,
-    _In_ TOKEN_INFORMATION_CLASS TokenInformationClass)
-{
-    return M2GetTokenInformation(
-        reinterpret_cast<PVOID*>(&OutputInformation),
-        TokenHandle,
-        TokenInformationClass);
-}
-
 #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
 
 /**
