@@ -20,3 +20,4 @@ NSudoFreeMemory
 NSudoGetTokenInformation
 NSudoGetTokenInformationWithMemory
 NSudoSetTokenInformation
+NSudoSetTokenMandatoryLabel

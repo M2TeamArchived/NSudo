@@ -561,3 +561,27 @@ EXTERN_C DWORD WINAPI NSudoSetTokenInformation(
         return ::GetLastError();
     }
 }
+
+/**
+ * @remark You can read the definition for this function in "NSudoAPI.h".
+ */
+EXTERN_C DWORD WINAPI NSudoSetTokenMandatoryLabel(
+    _In_ HANDLE TokenHandle,
+    _In_ NSUDO_MANDATORY_LABEL_TYPE MandatoryLabelType)
+{
+    TOKEN_MANDATORY_LABEL TML;
+
+    DWORD ErrorCode = NSudoCreateMandatoryLabelSid(
+        &TML.Label.Sid, MandatoryLabelType);
+    if (ErrorCode == ERROR_SUCCESS)
+    {
+        TML.Label.Attributes = SE_GROUP_INTEGRITY;
+
+        ErrorCode = NSudoSetTokenInformation(
+            TokenHandle, TokenIntegrityLevel, &TML, sizeof(TML));
+
+        ::FreeSid(TML.Label.Sid);
+    }
+
+    return ErrorCode;
+}

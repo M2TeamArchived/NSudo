@@ -118,44 +118,6 @@ BOOL WINAPI NSudoSetTokenAllPrivileges(
 }
 
 /*
-NSudoSetTokenIntegrityLevel函数为指定的访问令牌设置完整性标签。
-The NSudoSetTokenIntegrityLevel function sets the integrity level for the
-specified access token.
-
-如果函数执行失败，返回值为NULL。调用GetLastError可获取详细错误码。
-If the function fails, the return value is NULL. To get extended error
-information, call GetLastError.
-*/
-BOOL WINAPI NSudoSetTokenIntegrityLevel(
-    _In_ HANDLE TokenHandle,
-    _In_ M2::NSudo::NSUDO_MANDATORY_LABEL_TYPE IL)
-{
-    BOOL result = FALSE;
-    TOKEN_MANDATORY_LABEL TML;
-
-    // 初始化SID
-    DWORD ErrorCode = M2::NSudo::NSudoCreateMandatoryLabelSid(
-        &TML.Label.Sid, IL);
-    ::SetLastError(ErrorCode);
-    result = (ErrorCode == ERROR_SUCCESS);
-    if (result)
-    {
-        // 初始化TOKEN_MANDATORY_LABEL
-        TML.Label.Attributes = SE_GROUP_INTEGRITY;
-
-        // 设置令牌对象
-        ErrorCode = M2::NSudo::NSudoSetTokenInformation(
-            TokenHandle, TokenIntegrityLevel, &TML, sizeof(TML));
-        ::SetLastError(ErrorCode);
-        result = (ErrorCode == ERROR_SUCCESS);
-
-        ::FreeSid(TML.Label.Sid);
-    }
-
-    return result;
-}
-
-/*
 NSudoCreateLUAToken函数从一个现有的访问令牌创建一个新的LUA访问令牌。
 The NSudoCreateLUAToken function creates a new LUA access token from an
 existing access token.
@@ -192,12 +154,14 @@ BOOL WINAPI NSudoCreateLUAToken(
     if (!result) goto FuncEnd;
 
     // 设置令牌完整性
-    result = NSudoSetTokenIntegrityLevel(
+    DWORD ErrorCode = M2::NSudo::NSudoSetTokenMandatoryLabel(
         hToken, M2::NSudo::NSUDO_MANDATORY_LABEL_TYPE::MEDIUM);
+    ::SetLastError(ErrorCode);
+    result = (ErrorCode == ERROR_SUCCESS);
     if (!result) goto FuncEnd;
 
     // 获取令牌对应的用户账户SID信息
-    DWORD ErrorCode = M2::NSudo::GetTokenInformationWithMemory(
+    ErrorCode = M2::NSudo::GetTokenInformationWithMemory(
         pTokenUser, hToken, TokenUser);
     ::SetLastError(ErrorCode);
     result = (ErrorCode == ERROR_SUCCESS);
@@ -1024,7 +988,8 @@ NSUDO_MESSAGE NSudoCommandLineParser(
 
     if (MandatoryLabelType != M2::NSudo::NSUDO_MANDATORY_LABEL_TYPE::UNTRUSTED)
     {
-        if (!NSudoSetTokenIntegrityLevel(hToken, MandatoryLabelType))
+        if (ERROR_SUCCESS != M2::NSudo::NSudoSetTokenMandatoryLabel(
+            hToken, MandatoryLabelType))
         {
             return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
         }

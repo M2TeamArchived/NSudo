@@ -386,8 +386,9 @@ EXTERN_C DWORD WINAPI NSudoGetTokenInformationWithMemory(
     _In_ TOKEN_INFORMATION_CLASS TokenInformationClass);
 
 /**
- * Retrieves a specified type of information about an access token. The calling
- * process must have appropriate access rights to obtain the information.
+ * Sets various types of information for a specified access token. The
+ * information that this function sets replaces existing information. The
+ * calling process must have appropriate access rights to set the information.
  *
  * @param TokenHandle A handle to the access token for which information is to
  *                    be set.
@@ -409,5 +410,21 @@ EXTERN_C DWORD WINAPI NSudoSetTokenInformation(
     _In_ TOKEN_INFORMATION_CLASS TokenInformationClass,
     _In_ LPVOID TokenInformation,
     _In_ DWORD TokenInformationLength);
+
+/**
+ * Sets mandatory label for a specified access token. The information that this
+ * function sets replaces existing information. The calling process must have
+ * appropriate access rights to set the information.
+ *
+ * @param TokenHandle A handle to the access token for which information is to
+ *                    be set.
+ * @param MandatoryLabelType A value from the MANDATORY_LABEL_TYPE enumerated
+ *        type that identifies the mandatory label.
+ * @return Standard Win32 Error. If the function succeeds, the return value is
+ *         ERROR_SUCCESS.
+ */
+EXTERN_C DWORD WINAPI NSudoSetTokenMandatoryLabel(
+    _In_ HANDLE TokenHandle,
+    _In_ NSUDO_MANDATORY_LABEL_TYPE MandatoryLabelType);
 
 #endif
