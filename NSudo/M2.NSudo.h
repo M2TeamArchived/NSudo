@@ -46,6 +46,8 @@ namespace M2
         using ::NSudoGetTokenInformationWithMemory;
         using ::NSudoSetTokenInformation;
         using ::NSudoSetTokenMandatoryLabel;
+        using ::NSudoCreateRestrictedToken;
+        using ::NSudoCreateLUAToken;
 
         /**
          * Enables or disables privileges in the specified access token.

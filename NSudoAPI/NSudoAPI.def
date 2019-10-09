@@ -21,3 +21,5 @@ NSudoGetTokenInformation
 NSudoGetTokenInformationWithMemory
 NSudoSetTokenInformation
 NSudoSetTokenMandatoryLabel
+NSudoCreateRestrictedToken
+NSudoCreateLUAToken

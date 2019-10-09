@@ -585,3 +585,197 @@ EXTERN_C DWORD WINAPI NSudoSetTokenMandatoryLabel(
 
     return ErrorCode;
 }
+
+/**
+ * @remark You can read the definition for this function in "NSudoAPI.h".
+ */
+EXTERN_C DWORD WINAPI NSudoCreateRestrictedToken(
+    _In_ HANDLE ExistingTokenHandle,
+    _In_ DWORD Flags,
+    _In_ DWORD DisableSidCount,
+    _In_opt_ PSID_AND_ATTRIBUTES SidsToDisable,
+    _In_ DWORD DeletePrivilegeCount,
+    _In_opt_ PLUID_AND_ATTRIBUTES PrivilegesToDelete,
+    _In_ DWORD RestrictedSidCount,
+    _In_opt_ PSID_AND_ATTRIBUTES SidsToRestrict,
+    _Out_ PHANDLE NewTokenHandle)
+{
+    if (::CreateRestrictedToken(
+        ExistingTokenHandle,
+        Flags,
+        DisableSidCount,
+        SidsToDisable,
+        DeletePrivilegeCount,
+        PrivilegesToDelete,
+        RestrictedSidCount,
+        SidsToRestrict,
+        NewTokenHandle))
+    {
+        return ERROR_SUCCESS;
+    }
+    else
+    {
+        return ::GetLastError();
+    }
+}
+
+/**
+ * @remark You can read the definition for this function in "NSudoAPI.h".
+ */
+EXTERN_C DWORD WINAPI NSudoCreateLUAToken(
+    _Out_ PHANDLE TokenHandle,
+    _In_ HANDLE ExistingTokenHandle)
+{
+    DWORD ErrorCode = ERROR_INVALID_PARAMETER;
+    PTOKEN_USER pTokenUser = nullptr;
+    TOKEN_OWNER Owner = { 0 };
+    PTOKEN_DEFAULT_DACL pTokenDacl = nullptr;
+    DWORD Length = 0;
+    PACL NewDefaultDacl = nullptr;
+    TOKEN_DEFAULT_DACL NewTokenDacl = { 0 };
+    PACCESS_ALLOWED_ACE pTempAce = nullptr;
+    BOOL EnableTokenVirtualization = TRUE;
+
+    do
+    {
+        if (!TokenHandle)
+        {
+            break;
+        }
+
+        ErrorCode = NSudoCreateRestrictedToken(
+            ExistingTokenHandle,
+            LUA_TOKEN,
+            0, nullptr,
+            0, nullptr,
+            0, nullptr,
+            TokenHandle);
+        if (ErrorCode != ERROR_SUCCESS)
+        {
+            break;
+        }
+
+        ErrorCode = NSudoSetTokenMandatoryLabel(
+            *TokenHandle, NSUDO_MANDATORY_LABEL_TYPE::MEDIUM);
+        if (ErrorCode != ERROR_SUCCESS)
+        {
+            break;
+        }
+
+        ErrorCode = NSudoGetTokenInformationWithMemory(
+            reinterpret_cast<PVOID*>(&pTokenUser),
+            *TokenHandle,
+            TokenUser);
+        if (ErrorCode != ERROR_SUCCESS)
+        {
+            break;
+        }
+
+        Owner.Owner = pTokenUser->User.Sid;
+        ErrorCode = NSudoSetTokenInformation(
+            *TokenHandle, TokenOwner, &Owner, sizeof(TOKEN_OWNER));
+        if (ErrorCode != ERROR_SUCCESS)
+        {
+            break;
+        }
+
+        ErrorCode = NSudoGetTokenInformationWithMemory(
+            reinterpret_cast<PVOID*>(&pTokenDacl),
+            *TokenHandle,
+            TokenDefaultDacl);
+        if (ErrorCode != ERROR_SUCCESS)
+        {
+            break;
+        }
+
+        Length = pTokenDacl->DefaultDacl->AclSize;
+        Length += ::GetLengthSid(pTokenUser->User.Sid);
+        Length += sizeof(ACCESS_ALLOWED_ACE);
+
+        ErrorCode = NSudoAllocMemory(
+            reinterpret_cast<PVOID*>(&NewDefaultDacl), Length);
+        if (ErrorCode != ERROR_SUCCESS)
+        {
+            break;
+        }
+        NewTokenDacl.DefaultDacl = NewDefaultDacl;
+
+        if (!::InitializeAcl(
+            NewTokenDacl.DefaultDacl,
+            Length,
+            pTokenDacl->DefaultDacl->AclRevision))
+        {
+            ErrorCode = ::GetLastError();
+            break;
+        }
+
+        if (!::AddAccessAllowedAce(
+            NewTokenDacl.DefaultDacl,
+            pTokenDacl->DefaultDacl->AclRevision,
+            GENERIC_ALL,
+            pTokenUser->User.Sid))
+        {
+            ErrorCode = ::GetLastError();
+            break;
+        }
+
+        for (ULONG i = 0;
+            ::GetAce(pTokenDacl->DefaultDacl, i, (PVOID*)&pTempAce);
+            ++i)
+        {
+            if (::IsWellKnownSid(
+                &pTempAce->SidStart,
+                WELL_KNOWN_SID_TYPE::WinBuiltinAdministratorsSid))
+                continue;
+
+            ::AddAce(
+                NewTokenDacl.DefaultDacl,
+                pTokenDacl->DefaultDacl->AclRevision,
+                0,
+                pTempAce,
+                pTempAce->Header.AceSize);
+        }
+
+        Length += sizeof(TOKEN_DEFAULT_DACL);
+        ErrorCode = NSudoSetTokenInformation(
+            *TokenHandle, TokenDefaultDacl, &NewTokenDacl, Length);
+        if (ErrorCode != ERROR_SUCCESS)
+        {
+            break;
+        }
+
+        ErrorCode = NSudoSetTokenInformation(
+            *TokenHandle,
+            TokenVirtualizationEnabled,
+            &EnableTokenVirtualization,
+            sizeof(BOOL));
+        if (ErrorCode != ERROR_SUCCESS)
+        {
+            break;
+        }
+
+    } while (false);
+
+    if (NewDefaultDacl)
+    {
+        NSudoFreeMemory(NewDefaultDacl);
+    }
+
+    if (pTokenDacl)
+    {
+        NSudoFreeMemory(pTokenDacl);
+    }
+
+    if (pTokenUser)
+    {
+        NSudoFreeMemory(pTokenUser);
+    }
+
+    if (ErrorCode != ERROR_SUCCESS)
+    {
+        ::CloseHandle(TokenHandle);
+        *TokenHandle = INVALID_HANDLE_VALUE;
+    }
+
+    return ErrorCode;
+}

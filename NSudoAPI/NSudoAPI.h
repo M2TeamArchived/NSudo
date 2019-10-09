@@ -427,4 +427,76 @@ EXTERN_C DWORD WINAPI NSudoSetTokenMandatoryLabel(
     _In_ HANDLE TokenHandle,
     _In_ NSUDO_MANDATORY_LABEL_TYPE MandatoryLabelType);
 
+/**
+ * Creates a new access token that is a restricted version of an existing
+ * access token. The restricted token can have disabled security identifiers
+ * (SIDs), deleted privileges, and a list of restricting SIDs. For more
+ * information, see Restricted Tokens.
+ *
+ * @param ExistingTokenHandle A handle to a primary or impersonation token. The
+ *                            token can also be a restricted token. The handle
+ *                            must have TOKEN_DUPLICATE access to the token.
+ * @param Flags Specifies additional privilege options. This parameter can be
+ *              zero or a combination of the following values.
+ *              DISABLE_MAX_PRIVILEGE
+ *                  Disables all privileges in the new token except the
+ *                  SeChangeNotifyPrivilege privilege. If this value is
+ *                  specified, the DeletePrivilegeCount and PrivilegesToDelete
+ *                  parameters are ignored.
+ *              SANDBOX_INERT
+ *                  If this value is used, the system does not check AppLocker
+ *                  rules or apply Software Restriction Policies. For AppLocker,
+ *                  this flag disables checks for all four rule collections:
+ *                  Executable, Windows Installer, Script, and DLL.
+ *              LUA_TOKEN
+ *                  The new token is a LUA token.
+ *              WRITE_RESTRICTED
+ *                  The new token contains restricting SIDs that are considered
+ *                  only when evaluating write access.
+ * @param DisableSidCount Specifies the number of entries in the SidsToDisable
+ *                        array.
+ * @param SidsToDisable A pointer to an array of SID_AND_ATTRIBUTES structures
+ *                      that specify the deny-only SIDs in the restricted token.
+ * @param DeletePrivilegeCount Specifies the number of entries in the
+ *                             PrivilegesToDelete array.
+ * @param PrivilegesToDelete A pointer to an array of LUID_AND_ATTRIBUTES
+ *                           structures that specify the privileges to delete
+ *                           in the restricted token.
+ * @param RestrictedSidCount Specifies the number of entries in the
+ *                           SidsToRestrict array.
+ * @param SidsToRestrict A pointer to an array of SID_AND_ATTRIBUTES structures
+ *                       that specify a list of restricting SIDs for the new
+ *                       token.
+ * @param NewTokenHandle A pointer to a variable that receives a handle to the
+ *                       new restricted token.
+ * @return Standard Win32 Error. If the function succeeds, the return value is
+ *         ERROR_SUCCESS.
+ * @remark For more information, see CreateRestrictedToken.
+ */
+EXTERN_C DWORD WINAPI NSudoCreateRestrictedToken(
+    _In_ HANDLE ExistingTokenHandle,
+    _In_ DWORD Flags,
+    _In_ DWORD DisableSidCount,
+    _In_opt_ PSID_AND_ATTRIBUTES SidsToDisable,
+    _In_ DWORD DeletePrivilegeCount,
+    _In_opt_ PLUID_AND_ATTRIBUTES PrivilegesToDelete,
+    _In_ DWORD RestrictedSidCount,
+    _In_opt_ PSID_AND_ATTRIBUTES SidsToRestrict,
+    _Out_ PHANDLE NewTokenHandle);
+
+/**
+ * Creates a new access token that is a LUA version of an existing access token.
+ *
+ * @param TokenHandle A pointer to a variable that receives a handle to the new
+ *                    restricted token.
+ * @param ExistingTokenHandle A handle to a primary or impersonation token. The
+ *                            token can also be a restricted token. The handle
+ *                            must have TOKEN_DUPLICATE access to the token.
+ * @return Standard Win32 Error. If the function succeeds, the return value is
+ *         ERROR_SUCCESS.
+ */
+EXTERN_C DWORD WINAPI NSudoCreateLUAToken(
+    _Out_ PHANDLE TokenHandle,
+    _In_ HANDLE ExistingTokenHandle);
+
 #endif
