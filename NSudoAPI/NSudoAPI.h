@@ -307,15 +307,30 @@ EXTERN_C DWORD WINAPI NSudoCreateSessionToken(
     _Out_ PHANDLE TokenHandle,
     _In_ DWORD SessionId);
 
+/**
+ * Allocates a block of memory from the default heap of the calling process.
+ * The allocated memory will be initialized to zero. The allocated memory is
+ * not movable.
+ *
+ * @param Block A pointer to the allocated memory block.
+ * @param Size The number of bytes to be allocated.
+ * @return Standard Win32 Error. If the function succeeds, the return value is
+ *         ERROR_SUCCESS.
+ */
+EXTERN_C DWORD WINAPI NSudoAllocMemory(
+    _Out_ LPVOID* Block,
+    _In_ SIZE_T Size);
 
-
-//MIDL_INTERFACE("8FB3CD81-3E19-4DF0-8D90-308B3D8889CB")
-//INSudoService: public IUnknown
-//{
-//    virtual HRESULT STDMETHODCALLTYPE GetCacheSize(
-//        _Out_ PUINT64 CacheSize) = 0;
-//
-//    virtual HRESULT STDMETHODCALLTYPE DeleteCache() = 0;
-//};
+/**
+ * Frees a memory block allocated from a heap by the NSudoAllocMemory function.
+ *
+ * @param Block A pointer to the memory block to be freed. This pointer is
+ *              returned by the M2AllocMemory or M2ReAllocMemory function. If
+ *              this pointer is nullptr, the behavior is undefined.
+ * @return Standard Win32 Error. If the function succeeds, the return value is
+ *         ERROR_SUCCESS.
+ */
+EXTERN_C DWORD WINAPI NSudoFreeMemory(
+    _In_ LPVOID Block);
 
 #endif

@@ -57,23 +57,12 @@
   </ImportGroup>
   <ImportGroup Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
-    <Import Project="..\MSBuild\VC-LTL.props" />
-  </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
-    <Import Project="..\MSBuild\VC-LTL.props" />
-  </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <Import Project="..\MSBuild\VC-LTL.props" />
-  </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <Import Project="..\MSBuild\VC-LTL.props" />
-  </ImportGroup>
+	<Import Condition="'$(Configuration)'=='Release'" Project="..\MSBuild\VC-LTL.props" />
+  </ImportGroup> 
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <OutDir>$(SolutionDir)Output\$(Configuration)\$(Platform)\</OutDir>
-    <IntDir>$(SolutionDir)Output\$(Configuration)\$(Platform)\Build\$(MSBuildProjectName)\</IntDir>
+    <IntDir>$(OutDir)Build\$(MSBuildProjectName)\</IntDir>
     <LinkIncremental Condition="'$(Configuration)'=='Debug'">true</LinkIncremental>
     <LinkIncremental Condition="'$(Configuration)'=='Release'">false</LinkIncremental>
     <GenerateManifest>false</GenerateManifest>

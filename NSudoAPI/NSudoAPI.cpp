@@ -437,7 +437,34 @@ EXTERN_C DWORD WINAPI NSudoCreateSessionToken(
     _Out_ PHANDLE TokenHandle,
     _In_ DWORD SessionId)
 {
-    if (WTSQueryUserToken(SessionId, TokenHandle))
+    if (::WTSQueryUserToken(SessionId, TokenHandle))
+    {
+        return ERROR_SUCCESS;
+    }
+    else
+    {
+        return ::GetLastError();
+    }
+}
+
+/**
+ * @remark You can read the definition for this function in "NSudoAPI.h".
+ */
+EXTERN_C DWORD WINAPI NSudoAllocMemory(
+    _Out_ LPVOID* Block,
+    _In_ SIZE_T Size)
+{
+    *Block = ::HeapAlloc(::GetProcessHeap(), HEAP_ZERO_MEMORY, Size);
+    return *Block ? ERROR_SUCCESS : ERROR_NOT_ENOUGH_MEMORY;
+}
+
+/**
+ * @remark You can read the definition for this function in "NSudoAPI.h".
+ */
+EXTERN_C DWORD WINAPI NSudoFreeMemory(
+    _In_ LPVOID Block)
+{
+    if (::HeapFree(::GetProcessHeap(), 0, Block))
     {
         return ERROR_SUCCESS;
     }
