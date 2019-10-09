@@ -77,39 +77,6 @@ std::wstring GetMessageByID(DWORD MessageID)
 }
 
 /*
-NSudoGetCurrentProcessSessionID获取当前进程的会话ID。
-The NSudoGetCurrentProcessSessionID function obtains the Session ID of the
-current process.
-
-如果函数执行失败，返回值为NULL。调用GetLastError可获取详细错误码。
-If the function fails, the return value is NULL. To get extended error
-information, call GetLastError.
-*/
-BOOL WINAPI NSudoGetCurrentProcessSessionID(
-    _Out_ PDWORD SessionID)
-{
-    *SessionID = static_cast<DWORD>(-1);
-
-    BOOL result = FALSE;
-    M2::CHandle hToken;
-    DWORD ReturnLength = 0;
-
-    DWORD ErrorCode = M2::NSudo::NSudoOpenCurrentProcessToken(
-        &hToken, MAXIMUM_ALLOWED);
-    ::SetLastError(ErrorCode);
-    result = (ErrorCode == ERROR_SUCCESS);
-    if (result)
-    {
-        ErrorCode = M2::NSudo::NSudoGetTokenInformation(
-            hToken, TokenSessionId, SessionID, sizeof(DWORD), &ReturnLength);
-        ::SetLastError(ErrorCode);
-        result = (ErrorCode == ERROR_SUCCESS);
-    }
-
-    return result;
-}
-
-/*
 NSudoSetTokenAllPrivileges函数启用或禁用指定的访问令牌的所有特权。启用或禁
 用一个访问令牌的特权需要TOKEN_ADJUST_PRIVILEGES访问权限。
 The NSudoSetTokenAllPrivileges function enables or disables all privileges
@@ -211,7 +178,7 @@ BOOL WINAPI NSudoCreateLUAToken(
     M2::CHandle hToken;
     PTOKEN_USER pTokenUser = nullptr;
     PTOKEN_DEFAULT_DACL pTokenDacl = nullptr;
-    M2::CMemory<PACL> NewDefaultDacl;
+    PACL NewDefaultDacl = nullptr;
     PACCESS_ALLOWED_ACE pTempAce = nullptr;
 
     //创建受限令牌
@@ -257,11 +224,12 @@ BOOL WINAPI NSudoCreateLUAToken(
     Length += sizeof(ACCESS_ALLOWED_ACE);
 
     // 分配ACL结构内存
-    if (!NewDefaultDacl.Alloc(Length))
-    {
-        SetLastError(ERROR_NOT_ENOUGH_MEMORY);
-        goto FuncEnd;
-    }
+
+    ErrorCode = M2::NSudo::NSudoAllocMemory(
+        reinterpret_cast<PVOID*>(&NewDefaultDacl), Length);
+    ::SetLastError(ErrorCode);
+    result = (ErrorCode == ERROR_SUCCESS);
+    if (!result) goto FuncEnd;
     NewTokenDacl.DefaultDacl = NewDefaultDacl;
 
     // 创建ACL
@@ -330,6 +298,11 @@ FuncEnd: // 扫尾
     if (pTokenDacl)
     {
         M2::NSudo::NSudoFreeMemory(pTokenDacl);
+    }
+
+    if (NewDefaultDacl)
+    {
+        M2::NSudo::NSudoFreeMemory(NewDefaultDacl);
     }
 
     return result;
@@ -738,7 +711,13 @@ NSUDO_MESSAGE NSudoCommandLineParser(
     DWORD dwSessionID = (DWORD)-1;
 
     // 获取当前进程会话ID
-    if (!NSudoGetCurrentProcessSessionID(&dwSessionID))
+    DWORD ReturnLength = 0;
+    if (ERROR_SUCCESS != M2::NSudo::NSudoGetTokenInformation(
+        g_ResourceManagement.OriginalCurrentProcessToken,
+        TokenSessionId,
+        &dwSessionID,
+        sizeof(DWORD),
+        &ReturnLength))
     {
         return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
     }
