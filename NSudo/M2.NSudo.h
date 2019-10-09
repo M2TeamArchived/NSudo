@@ -48,6 +48,10 @@ namespace M2
         using ::NSudoSetTokenMandatoryLabel;
         using ::NSudoCreateRestrictedToken;
         using ::NSudoCreateLUAToken;
+        using ::NSudoOpenThread;
+        using ::NSudoOpenThreadTokenByThreadHandle;
+        using ::NSudoOpenCurrentThreadToken;
+        using ::NSudoOpenThreadTokenByThreadId;
 
         /**
          * Enables or disables privileges in the specified access token.

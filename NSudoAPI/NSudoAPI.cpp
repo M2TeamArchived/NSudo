@@ -317,6 +317,8 @@ EXTERN_C DWORD WINAPI NSudoOpenProcessTokenByProcessId(
     {
         ErrorCode = NSudoOpenProcessTokenByProcessHandle(
             TokenHandle, ProcessHandle, DesiredAccess);
+
+        ::CloseHandle(ProcessHandle);
     }
 
     return ErrorCode;
@@ -338,6 +340,8 @@ EXTERN_C DWORD WINAPI NSudoOpenServiceProcessToken(
     {
         ErrorCode = NSudoOpenProcessTokenByProcessHandle(
             TokenHandle, ProcessHandle, DesiredAccess);
+
+        ::CloseHandle(ProcessHandle);
     }
 
     return ErrorCode;
@@ -425,6 +429,8 @@ EXTERN_C DWORD WINAPI NSudoOpenLsassProcessToken(
     {
         ErrorCode = NSudoOpenProcessTokenByProcessHandle(
             TokenHandle, ProcessHandle, DesiredAccess);
+
+        ::CloseHandle(ProcessHandle);
     }
 
     return ErrorCode;
@@ -775,6 +781,88 @@ EXTERN_C DWORD WINAPI NSudoCreateLUAToken(
     {
         ::CloseHandle(TokenHandle);
         *TokenHandle = INVALID_HANDLE_VALUE;
+    }
+
+    return ErrorCode;
+}
+
+/**
+ * @remark You can read the definition for this function in "NSudoAPI.h".
+ */
+EXTERN_C DWORD WINAPI NSudoOpenThread(
+    _Out_ PHANDLE ThreadHandle,
+    _In_ DWORD DesiredAccess,
+    _In_ BOOL InheritHandle,
+    _In_ DWORD ThreadId)
+{
+    DWORD ErrorCode = ERROR_INVALID_PARAMETER;
+
+    if (ThreadHandle)
+    {
+        *ThreadHandle = ::OpenThread(
+            DesiredAccess, InheritHandle, ThreadId);
+        if (*ThreadHandle)
+        {
+            ErrorCode = ERROR_SUCCESS;
+        }
+        else
+        {
+            ErrorCode = ::GetLastError();
+        }
+    }
+
+    return ErrorCode;
+}
+
+/**
+ * @remark You can read the definition for this function in "NSudoAPI.h".
+ */
+EXTERN_C DWORD WINAPI NSudoOpenThreadTokenByThreadHandle(
+    _Out_ PHANDLE TokenHandle,
+    _In_ HANDLE ThreadHandle,
+    _In_ DWORD DesiredAccess,
+    _In_ BOOL OpenAsSelf)
+{
+    if (!::OpenThreadToken(
+        ThreadHandle, DesiredAccess, OpenAsSelf, TokenHandle))
+    {
+        return ::GetLastError();
+    }
+
+    return ERROR_SUCCESS;
+}
+
+/**
+ * @remark You can read the definition for this function in "NSudoAPI.h".
+ */
+EXTERN_C DWORD WINAPI NSudoOpenCurrentThreadToken(
+    _Out_ PHANDLE TokenHandle,
+    _In_ DWORD DesiredAccess,
+    _In_ BOOL OpenAsSelf)
+{
+    return NSudoOpenThreadTokenByThreadHandle(
+        TokenHandle, ::GetCurrentThread(), DesiredAccess, OpenAsSelf);
+}
+
+/**
+ * @remark You can read the definition for this function in "NSudoAPI.h".
+ */
+EXTERN_C DWORD WINAPI NSudoOpenThreadTokenByThreadId(
+    _Out_ PHANDLE TokenHandle,
+    _In_ DWORD ThreadId,
+    _In_ DWORD DesiredAccess,
+    _In_ BOOL OpenAsSelf)
+{
+    HANDLE ThreadHandle = INVALID_HANDLE_VALUE;
+
+    DWORD ErrorCode = NSudoOpenThread(
+        &ThreadHandle, MAXIMUM_ALLOWED, FALSE, ThreadId);
+    if (ErrorCode == ERROR_SUCCESS)
+    {
+        ErrorCode = NSudoOpenThreadTokenByThreadHandle(
+            TokenHandle, ThreadHandle, DesiredAccess, OpenAsSelf);
+
+        ::CloseHandle(ThreadHandle);
     }
 
     return ErrorCode;

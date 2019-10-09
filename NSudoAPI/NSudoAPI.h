@@ -499,4 +499,99 @@ EXTERN_C DWORD WINAPI NSudoCreateLUAToken(
     _Out_ PHANDLE TokenHandle,
     _In_ HANDLE ExistingTokenHandle);
 
+/**
+ * Opens an existing thread object.
+ *
+ * @param ThreadHandle A pointer to an open handle to the specified thread.
+ * @param DesiredAccess The access to the thread object. This access right is
+ *                      checked against the security descriptor for the thread.
+ *                      This parameter can be one or more of the thread access
+ *                      rights.
+ * @param InheritHandle If this value is TRUE, processes created by this
+ *                      process will inherit the handle. Otherwise, the
+ *                      processes do not inherit this handle.
+ * @param ThreadId The identifier of the thread to be opened.
+ * @return Standard Win32 Error. If the function succeeds, the return value is
+ *         ERROR_SUCCESS.
+ * @remark For more information, see OpenThread.
+ */
+EXTERN_C DWORD WINAPI NSudoOpenThread(
+    _Out_ PHANDLE ThreadHandle,
+    _In_ DWORD DesiredAccess,
+    _In_ BOOL InheritHandle,
+    _In_ DWORD ThreadId);
+
+/**
+ * Opens the access token associated with a thread.
+ *
+ * @param TokenHandle A pointer to a variable that receives the handle to the
+ *                    newly opened access token.
+ * @param ThreadHandle A handle to the thread whose access token is opened.
+ * @param DesiredAccess Specifies an access mask that specifies the requested
+ *                      types of access to the access token. These requested
+ *                      access types are reconciled against the token's
+ *                      discretionary access control list (DACL) to determine
+ *                      which accesses are granted or denied.
+ * @param OpenAsSelf TRUE if the access check is to be made against the
+ *                   process-level security context. FALSE if the access check
+ *                   is to be made against the current security context of the
+ *                   thread calling the OpenThreadToken function.
+ * @return Standard Win32 Error. If the function succeeds, the return value is
+ *         ERROR_SUCCESS.
+ * @remark For more information, see OpenThreadToken.
+ */
+EXTERN_C DWORD WINAPI NSudoOpenThreadTokenByThreadHandle(
+    _Out_ PHANDLE TokenHandle,
+    _In_ HANDLE ThreadHandle,
+    _In_ DWORD DesiredAccess,
+    _In_ BOOL OpenAsSelf);
+
+/**
+ * Opens the access token associated with the current thread.
+ *
+ * @param TokenHandle A pointer to a variable that receives the handle to the
+ *                    newly opened access token.
+ * @param DesiredAccess Specifies an access mask that specifies the requested
+ *                      types of access to the access token. These requested
+ *                      access types are reconciled against the token's
+ *                      discretionary access control list (DACL) to determine
+ *                      which accesses are granted or denied.
+ * @param OpenAsSelf TRUE if the access check is to be made against the
+ *                   process-level security context. FALSE if the access check
+ *                   is to be made against the current security context of the
+ *                   thread calling the OpenThreadToken function.
+ * @return Standard Win32 Error. If the function succeeds, the return value is
+ *         ERROR_SUCCESS.
+ * @remark For more information, see OpenThreadToken.
+ */
+EXTERN_C DWORD WINAPI NSudoOpenCurrentThreadToken(
+    _Out_ PHANDLE TokenHandle,
+    _In_ DWORD DesiredAccess,
+    _In_ BOOL OpenAsSelf);
+
+/**
+ * Opens the access token associated with a thread.
+ *
+ * @param TokenHandle A pointer to a variable that receives the handle to the
+ *                    newly opened access token.
+ * @param ThreadId The identifier of the thread to be opened.
+ * @param DesiredAccess Specifies an access mask that specifies the requested
+ *                      types of access to the access token. These requested
+ *                      access types are reconciled against the token's
+ *                      discretionary access control list (DACL) to determine
+ *                      which accesses are granted or denied.
+ * @param OpenAsSelf TRUE if the access check is to be made against the
+ *                   process-level security context. FALSE if the access check
+ *                   is to be made against the current security context of the
+ *                   thread calling the OpenThreadToken function.
+ * @return Standard Win32 Error. If the function succeeds, the return value is
+ *         ERROR_SUCCESS.
+ * @remark For more information, see OpenThreadToken.
+ */
+EXTERN_C DWORD WINAPI NSudoOpenThreadTokenByThreadId(
+    _Out_ PHANDLE TokenHandle,
+    _In_ DWORD ThreadId,
+    _In_ DWORD DesiredAccess,
+    _In_ BOOL OpenAsSelf);
+
 #endif

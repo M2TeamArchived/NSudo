@@ -152,6 +152,36 @@ BOOL WINAPI NSudoImpersonateAsSystem()
     return result;
 }
 
+
+typedef void(WINAPI* _NSUDO_START_ROUTINE)(
+    _In_ LPVOID Parameter);
+typedef _NSUDO_START_ROUTINE PNSUDO_START_ROUTINE, LPNSUDO_START_ROUTINE;
+
+EXTERN_C DWORD WINAPI NSudoCreateImpersonateContext(
+    _In_ HANDLE TokenHandle,
+    _In_ DWORD CreationFlags,
+    _In_ LPNSUDO_START_ROUTINE StartAddress,
+    _In_opt_ LPVOID Parameter)
+{
+    DWORD ErrorCode = ERROR_INVALID_PARAMETER;
+
+    if (StartAddress)
+    {
+        if (::SetThreadToken(nullptr, TokenHandle))
+        {
+            StartAddress(Parameter);
+
+            ::SetThreadToken(nullptr, nullptr);
+        }
+        else
+        {
+            ErrorCode = ::GetLastError();
+        }
+    }
+
+    return ErrorCode;
+}
+
 /*
 NSudoCreateProcess函数创建一个新进程和对应的主线程
 The NSudoCreateProcess function creates a new process and its primary thread.

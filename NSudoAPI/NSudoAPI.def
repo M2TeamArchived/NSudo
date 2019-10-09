@@ -23,3 +23,7 @@ NSudoSetTokenInformation
 NSudoSetTokenMandatoryLabel
 NSudoCreateRestrictedToken
 NSudoCreateLUAToken
+NSudoOpenThread
+NSudoOpenThreadTokenByThreadHandle
+NSudoOpenCurrentThreadToken
+NSudoOpenThreadTokenByThreadId
