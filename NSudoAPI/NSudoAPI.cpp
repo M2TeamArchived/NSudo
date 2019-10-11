@@ -925,3 +925,28 @@ EXTERN_C DWORD WINAPI NSudoSetCurrentThreadToken(
 
     return ERROR_SUCCESS;
 }
+
+/**
+ * @remark You can read the definition for this function in "NSudoAPI.h".
+ */
+EXTERN_C DWORD WINAPI NSudoDuplicateToken(
+    _In_ HANDLE ExistingTokenHandle,
+    _In_ DWORD DesiredAccess,
+    _In_opt_ LPSECURITY_ATTRIBUTES TokenAttributes,
+    _In_ SECURITY_IMPERSONATION_LEVEL ImpersonationLevel,
+    _In_ TOKEN_TYPE TokenType,
+    _Out_ PHANDLE NewTokenHandle)
+{
+    if (!::DuplicateTokenEx(
+        ExistingTokenHandle,
+        DesiredAccess,
+        TokenAttributes,
+        ImpersonationLevel,
+        TokenType,
+        NewTokenHandle))
+    {
+        return ::GetLastError();
+    }
+
+    return ERROR_SUCCESS;
+}

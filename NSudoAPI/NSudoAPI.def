@@ -30,3 +30,4 @@ NSudoOpenThreadTokenByThreadId
 NSudoAdjustTokenAllPrivileges
 NSudoReAllocMemory
 NSudoSetCurrentThreadToken
+NSudoDuplicateToken

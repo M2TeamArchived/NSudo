@@ -652,4 +652,42 @@ EXTERN_C DWORD WINAPI NSudoReAllocMemory(
 EXTERN_C DWORD WINAPI NSudoSetCurrentThreadToken(
     _In_opt_ HANDLE TokenHandle);
 
+/**
+ * Creates a new access token that duplicates an existing token. This function
+ * can create either a primary token or an impersonation token.
+ *
+ * @param ExistingTokenHandle A handle to an access token opened with
+ *                            TOKEN_DUPLICATE access.
+ * @param DesiredAccess Specifies the requested access rights for the new
+ *                      token. To request all access rights that are valid for
+ *                      the caller, specify MAXIMUM_ALLOWED.
+ * @param TokenAttributes A pointer to a SECURITY_ATTRIBUTES structure that
+ *                        specifies a security descriptor for the new token and
+ *                        determines whether child processes can inherit the
+ *                        token.
+ * @param ImpersonationLevel Specifies a value from the
+ *                           SECURITY_IMPERSONATION_LEVEL enumeration that
+ *                           indicates the impersonation level of the new
+ *                           token.
+ * @param TokenType Specifies one of the following values from the TOKEN_TYPE
+ *                  enumeration.
+ *                  TokenPrimary
+ *                      The new token is a primary token that you can use in
+ *                      the CreateProcessAsUser function.
+ *                  TokenImpersonation
+ *                      The new token is an impersonation token.
+ * @param NewTokenHandle A pointer to a HANDLE variable that receives the new
+ *                       token.
+ * @return Standard Win32 Error. If the function succeeds, the return value is
+ *         ERROR_SUCCESS.
+ * @remark For more information, see DuplicateTokenEx.
+ */
+EXTERN_C DWORD WINAPI NSudoDuplicateToken(
+    _In_ HANDLE ExistingTokenHandle,
+    _In_ DWORD DesiredAccess,
+    _In_opt_ LPSECURITY_ATTRIBUTES TokenAttributes,
+    _In_ SECURITY_IMPERSONATION_LEVEL ImpersonationLevel,
+    _In_ TOKEN_TYPE TokenType,
+    _Out_ PHANDLE NewTokenHandle);
+
 #endif
