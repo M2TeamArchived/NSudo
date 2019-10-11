@@ -433,6 +433,8 @@ EXTERN_C DWORD WINAPI NSudoSetTokenMandatoryLabel(
  * (SIDs), deleted privileges, and a list of restricting SIDs. For more
  * information, see Restricted Tokens.
  *
+ * @param NewTokenHandle A pointer to a variable that receives a handle to the
+ *                       new restricted token.
  * @param ExistingTokenHandle A handle to a primary or impersonation token. The
  *                            token can also be a restricted token. The handle
  *                            must have TOKEN_DUPLICATE access to the token.
@@ -467,13 +469,12 @@ EXTERN_C DWORD WINAPI NSudoSetTokenMandatoryLabel(
  * @param SidsToRestrict A pointer to an array of SID_AND_ATTRIBUTES structures
  *                       that specify a list of restricting SIDs for the new
  *                       token.
- * @param NewTokenHandle A pointer to a variable that receives a handle to the
- *                       new restricted token.
  * @return Standard Win32 Error. If the function succeeds, the return value is
  *         ERROR_SUCCESS.
  * @remark For more information, see CreateRestrictedToken.
  */
 EXTERN_C DWORD WINAPI NSudoCreateRestrictedToken(
+    _Out_ PHANDLE NewTokenHandle,
     _In_ HANDLE ExistingTokenHandle,
     _In_ DWORD Flags,
     _In_ DWORD DisableSidCount,
@@ -481,8 +482,7 @@ EXTERN_C DWORD WINAPI NSudoCreateRestrictedToken(
     _In_ DWORD DeletePrivilegeCount,
     _In_opt_ PLUID_AND_ATTRIBUTES PrivilegesToDelete,
     _In_ DWORD RestrictedSidCount,
-    _In_opt_ PSID_AND_ATTRIBUTES SidsToRestrict,
-    _Out_ PHANDLE NewTokenHandle);
+    _In_opt_ PSID_AND_ATTRIBUTES SidsToRestrict);
 
 /**
  * Creates a new access token that is a LUA version of an existing access token.
@@ -656,6 +656,8 @@ EXTERN_C DWORD WINAPI NSudoSetCurrentThreadToken(
  * Creates a new access token that duplicates an existing token. This function
  * can create either a primary token or an impersonation token.
  *
+ * @param NewTokenHandle A pointer to a HANDLE variable that receives the new
+ *                       token.
  * @param ExistingTokenHandle A handle to an access token opened with
  *                            TOKEN_DUPLICATE access.
  * @param DesiredAccess Specifies the requested access rights for the new
@@ -676,18 +678,16 @@ EXTERN_C DWORD WINAPI NSudoSetCurrentThreadToken(
  *                      the CreateProcessAsUser function.
  *                  TokenImpersonation
  *                      The new token is an impersonation token.
- * @param NewTokenHandle A pointer to a HANDLE variable that receives the new
- *                       token.
  * @return Standard Win32 Error. If the function succeeds, the return value is
  *         ERROR_SUCCESS.
  * @remark For more information, see DuplicateTokenEx.
  */
 EXTERN_C DWORD WINAPI NSudoDuplicateToken(
+    _Out_ PHANDLE NewTokenHandle,
     _In_ HANDLE ExistingTokenHandle,
     _In_ DWORD DesiredAccess,
     _In_opt_ LPSECURITY_ATTRIBUTES TokenAttributes,
     _In_ SECURITY_IMPERSONATION_LEVEL ImpersonationLevel,
-    _In_ TOKEN_TYPE TokenType,
-    _Out_ PHANDLE NewTokenHandle);
+    _In_ TOKEN_TYPE TokenType);
 
 #endif

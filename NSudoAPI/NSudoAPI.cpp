@@ -596,6 +596,7 @@ EXTERN_C DWORD WINAPI NSudoSetTokenMandatoryLabel(
  * @remark You can read the definition for this function in "NSudoAPI.h".
  */
 EXTERN_C DWORD WINAPI NSudoCreateRestrictedToken(
+    _Out_ PHANDLE NewTokenHandle,
     _In_ HANDLE ExistingTokenHandle,
     _In_ DWORD Flags,
     _In_ DWORD DisableSidCount,
@@ -603,8 +604,7 @@ EXTERN_C DWORD WINAPI NSudoCreateRestrictedToken(
     _In_ DWORD DeletePrivilegeCount,
     _In_opt_ PLUID_AND_ATTRIBUTES PrivilegesToDelete,
     _In_ DWORD RestrictedSidCount,
-    _In_opt_ PSID_AND_ATTRIBUTES SidsToRestrict,
-    _Out_ PHANDLE NewTokenHandle)
+    _In_opt_ PSID_AND_ATTRIBUTES SidsToRestrict)
 {
     if (::CreateRestrictedToken(
         ExistingTokenHandle,
@@ -650,12 +650,8 @@ EXTERN_C DWORD WINAPI NSudoCreateLUAToken(
         }
 
         ErrorCode = NSudoCreateRestrictedToken(
-            ExistingTokenHandle,
-            LUA_TOKEN,
-            0, nullptr,
-            0, nullptr,
-            0, nullptr,
-            TokenHandle);
+            TokenHandle, ExistingTokenHandle, LUA_TOKEN,
+            0, nullptr, 0, nullptr, 0, nullptr);
         if (ErrorCode != ERROR_SUCCESS)
         {
             break;
@@ -930,12 +926,12 @@ EXTERN_C DWORD WINAPI NSudoSetCurrentThreadToken(
  * @remark You can read the definition for this function in "NSudoAPI.h".
  */
 EXTERN_C DWORD WINAPI NSudoDuplicateToken(
+    _Out_ PHANDLE NewTokenHandle,
     _In_ HANDLE ExistingTokenHandle,
     _In_ DWORD DesiredAccess,
     _In_opt_ LPSECURITY_ATTRIBUTES TokenAttributes,
     _In_ SECURITY_IMPERSONATION_LEVEL ImpersonationLevel,
-    _In_ TOKEN_TYPE TokenType,
-    _Out_ PHANDLE NewTokenHandle)
+    _In_ TOKEN_TYPE TokenType)
 {
     if (!::DuplicateTokenEx(
         ExistingTokenHandle,
