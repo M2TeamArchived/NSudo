@@ -423,21 +423,42 @@ public:
     {
         ShortCutList.clear();
 
-        FILE* FileStream = nullptr;
-
-        if (::_wfopen_s(&FileStream, ShortCutListPath.c_str(), L"r") == 0
-            && FileStream)
+        HANDLE FileHandle = ::CreateFileW(
+            ShortCutListPath.c_str(),
+            GENERIC_READ,
+            FILE_SHARE_READ,
+            nullptr,
+            OPEN_EXISTING,
+            FILE_FLAG_SEQUENTIAL_SCAN,
+            nullptr);
+        if (FileHandle != INVALID_HANDLE_VALUE)
         {
-            nlohmann::json ConfigJSON = nlohmann::json::parse(FileStream);
+            DWORD FileSize = ::GetFileSize(FileHandle, nullptr);
 
-            for (auto& Item : ConfigJSON["ShortCutList_V2"].items())
+            HANDLE FileMapping = CreateFileMappingW(
+                FileHandle, nullptr, PAGE_WRITECOPY, 0, 0, nullptr);
+            if (FileMapping)
             {
-                ShortCutList.emplace(std::make_pair(
-                    M2MakeUTF16String(Item.key()),
-                    M2MakeUTF16String(Item.value())));
+                const char* MapAddress = reinterpret_cast<const char*>(
+                    MapViewOfFile(FileMapping, FILE_MAP_COPY, 0, 0, FileSize));
+                if (MapAddress)
+                {
+                    nlohmann::json ConfigJSON = nlohmann::json::parse(MapAddress);
+
+                    for (auto& Item : ConfigJSON["ShortCutList_V2"].items())
+                    {
+                        ShortCutList.emplace(std::make_pair(
+                            M2MakeUTF16String(Item.key()),
+                            M2MakeUTF16String(Item.value())));
+                    }
+
+                    ::UnmapViewOfFile(MapAddress);
+                }             
+
+                ::CloseHandle(FileMapping);
             }
 
-            ::fclose(FileStream);
+            ::CloseHandle(FileHandle);
         }
     }
 
