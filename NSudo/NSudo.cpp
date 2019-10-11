@@ -855,7 +855,7 @@ NSUDO_MESSAGE NSudoCommandLineParser(
     }
     else if (NSudoOptionUserValue::CurrentProcess == UserMode)
     {
-        if (!ERROR_SUCCESS != M2::NSudo::NSudoDuplicateToken(
+        if (ERROR_SUCCESS != M2::NSudo::NSudoDuplicateToken(
             &OriginalToken,
             g_ResourceManagement.OriginalCurrentProcessToken,
             MAXIMUM_ALLOWED,
