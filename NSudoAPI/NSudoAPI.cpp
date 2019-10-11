@@ -911,3 +911,17 @@ EXTERN_C DWORD WINAPI NSudoReAllocMemory(
         ::GetProcessHeap(), HEAP_ZERO_MEMORY, OldBlock, NewSize);
     return *NewBlock ? ERROR_SUCCESS : ERROR_NOT_ENOUGH_MEMORY;
 }
+
+/**
+ * @remark You can read the definition for this function in "NSudoAPI.h".
+ */
+EXTERN_C DWORD WINAPI NSudoSetCurrentThreadToken(
+    _In_opt_ HANDLE TokenHandle)
+{
+    if (!::SetThreadToken(nullptr, TokenHandle))
+    {
+        return ::GetLastError();
+    }
+
+    return ERROR_SUCCESS;
+}

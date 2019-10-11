@@ -54,6 +54,7 @@ namespace M2
         using ::NSudoOpenThreadTokenByThreadId;
         using ::NSudoAdjustTokenAllPrivileges;
         using ::NSudoReAllocMemory;
+        using ::NSudoSetCurrentThreadToken;
 
         /**
          * Enables or disables privileges in the specified access token.

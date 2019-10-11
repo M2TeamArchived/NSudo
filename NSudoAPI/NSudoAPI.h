@@ -638,4 +638,18 @@ EXTERN_C DWORD WINAPI NSudoReAllocMemory(
     _In_ PVOID OldBlock,
     _In_ SIZE_T NewSize);
 
+/**
+ * Assigns an impersonation token to a thread. The function can also cause a
+ * thread to stop using an impersonation token.
+ *
+ * @param TokenHandle A handle to the impersonation token to assign to the
+ *                    thread. If TokenHandle is NULL, the function causes the
+ *                    thread to stop using an impersonation token.
+ * @return Standard Win32 Error. If the function succeeds, the return value is
+ *         ERROR_SUCCESS.
+ * @remark For more information, see SetThreadToken.
+ */
+EXTERN_C DWORD WINAPI NSudoSetCurrentThreadToken(
+    _In_opt_ HANDLE TokenHandle);
+
 #endif
