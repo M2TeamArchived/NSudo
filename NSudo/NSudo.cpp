@@ -40,6 +40,8 @@
 
 #include "json.hpp"
 
+//#include "jsmn.h"
+
 #if defined(NSUDO_GUI_WINDOWS)
 #include <atlbase.h>
 #include <atlwin.h>
@@ -91,14 +93,16 @@ BOOL WINAPI NSudoImpersonateAsSystem()
         if (ErrorCode != ERROR_SUCCESS)
             break;
 
-        result = DuplicateTokenEx(
+        ErrorCode = M2::NSudo::NSudoDuplicateToken(
+            &Token,
             OriginalToken,
             MAXIMUM_ALLOWED,
             nullptr,
             SecurityImpersonation,
-            TokenImpersonation,
-            &Token);
-        if (!result) break;
+            TokenImpersonation);
+        ::SetLastError(ErrorCode);
+        if (ErrorCode != ERROR_SUCCESS)
+            break;
 
         ErrorCode = M2::NSudo::NSudoAdjustTokenAllPrivileges(
             Token, SE_PRIVILEGE_ENABLED);
@@ -106,7 +110,9 @@ BOOL WINAPI NSudoImpersonateAsSystem()
         if (ErrorCode != ERROR_SUCCESS)
             break;
 
-        result = SetThreadToken(nullptr, Token);
+        ErrorCode = M2::NSudo::NSudoSetCurrentThreadToken(Token);
+        ::SetLastError(ErrorCode);
+        result = (ErrorCode == ERROR_SUCCESS);
 
     } while (false);
 
@@ -232,6 +238,20 @@ bool NSudoCreateProcess(
 #pragma warning(pop)
 #endif
 
+/*void x()
+{
+    JobObjectCreateSilo;
+    JobObjectExtendedLimitInformation;
+    JobObjectCpuRateControlInformation;
+    JobObjectReserved23Information; // JobObjectSiloSystemRoot
+    JobObjectReserved25Information; // JobObjectThreadImpersonationInformation
+    JobObjectReserved13Information; // JobObjectContainerId
+    JobObjectReserved15Information; // JobObjectSiloRootDirectory
+    JobObjectReserved16Information; // JobObjectServerSiloBasicInformation
+    JobObjectReserved17Information; // JobObjectServerSiloUserSharedData
+    JobObjectReserved18Information; // JobObjectServerSiloInitialize
+}*/
+
 // The NSudo message enum.
 enum NSUDO_MESSAGE
 {
@@ -310,6 +330,75 @@ public:
             L"String",
             MAKEINTRESOURCEW(IDR_String_Translations))))
         {
+            //const char* JsonString =
+            //    reinterpret_cast<const char*>(ResourceInfo.Pointer) + 3;
+            //size_t JsonStringLength = ResourceInfo.Size - 3;
+
+            //jsmn_parser JsonParser;
+            //::jsmn_init(&JsonParser);
+
+            //int JsonTokensCount = 0;
+            //unsigned int JsonTokensAllocatedCount = 256;
+
+            //jsmntok_t* JsonTokens = reinterpret_cast<jsmntok_t*>(::malloc(
+            //    sizeof(jsmntok_t) * JsonTokensAllocatedCount));
+            //if (JsonTokens)
+            //{
+            //    JsonTokensCount = ::jsmn_parse(
+            //        &JsonParser,
+            //        JsonString,
+            //        JsonStringLength,
+            //        JsonTokens,
+            //        JsonTokensAllocatedCount);
+            //    while (JsonTokensCount == JSMN_ERROR_NOMEM)
+            //    {
+            //        JsonTokensAllocatedCount += JsonTokensAllocatedCount >> 1;
+            //        JsonTokens = reinterpret_cast<jsmntok_t*>(::realloc(
+            //            JsonTokens,
+            //            sizeof(jsmntok_t) * JsonTokensAllocatedCount));
+            //        if (JsonTokens)
+            //        {
+            //            JsonTokensCount = ::jsmn_parse(
+            //                &JsonParser,
+            //                JsonString,
+            //                JsonStringLength,
+            //                JsonTokens,
+            //                JsonTokensAllocatedCount);
+            //        }
+            //    }
+            //}
+
+            ///* Assume the top-level element is an object */
+            //if (JsonTokensCount < 1 || JsonTokens[0].type != JSMN_OBJECT)
+            //{
+            //    return;
+            //}
+
+            //if ((JsonTokensCount - 1) % 2 != 0)
+            //{
+            //    return;
+            //}
+
+            //for (int i = 1; i < JsonTokensCount; i += 2)
+            //{
+            //    struct
+            //    {
+            //        jsmntype_t Type;
+            //        std::wstring Name;
+            //        int Size;
+
+            //    } CurrentToken;
+
+            //    StringTranslations.emplace(std::make_pair(
+            //        std::string(
+            //            JsonString + JsonTokens[i].start,
+            //            JsonTokens[i].end - JsonTokens[i].start),
+            //        M2MakeUTF16String(std::string(
+            //            JsonString + JsonTokens[i + 1].start,
+            //            JsonTokens[i + 1].end - JsonTokens[i + 1].start))));
+            //}
+
+
             nlohmann::json StringTranslationsJSON =
                 nlohmann::json::parse(std::string(
                     reinterpret_cast<const char*>(ResourceInfo.Pointer),
@@ -336,7 +425,7 @@ public:
 
         FILE* FileStream = nullptr;
 
-        if (_wfopen_s(&FileStream, ShortCutListPath.c_str(), L"r") == 0
+        if (::_wfopen_s(&FileStream, ShortCutListPath.c_str(), L"r") == 0
             && FileStream)
         {
             nlohmann::json ConfigJSON = nlohmann::json::parse(FileStream);
@@ -348,7 +437,7 @@ public:
                     M2MakeUTF16String(Item.value())));
             }
 
-            fclose(FileStream);
+            ::fclose(FileStream);
         }
     }
 
@@ -431,13 +520,13 @@ public:
             if (M2::NSudo::NSudoOpenCurrentProcessToken(
                 &CurrentProcessToken, MAXIMUM_ALLOWED) == ERROR_SUCCESS)
             {
-                if (DuplicateTokenEx(
+                if (M2::NSudo::NSudoDuplicateToken(
+                    &this->m_OriginalCurrentProcessToken,
                     CurrentProcessToken,
                     MAXIMUM_ALLOWED,
                     nullptr,
                     SecurityIdentification,
-                    TokenPrimary,
-                    &this->m_OriginalCurrentProcessToken))
+                    TokenPrimary) == ERROR_SUCCESS)
                 {
                     std::map<std::wstring, DWORD> Privileges;
 
@@ -766,13 +855,13 @@ NSUDO_MESSAGE NSudoCommandLineParser(
     }
     else if (NSudoOptionUserValue::CurrentProcess == UserMode)
     {
-        if (!DuplicateTokenEx(
+        if (!ERROR_SUCCESS != M2::NSudo::NSudoDuplicateToken(
+            &OriginalToken,
             g_ResourceManagement.OriginalCurrentProcessToken,
             MAXIMUM_ALLOWED,
             nullptr,
             SecurityIdentification,
-            TokenPrimary,
-            &OriginalToken))
+            TokenPrimary))
         {
             return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
         }
@@ -787,13 +876,13 @@ NSUDO_MESSAGE NSudoCommandLineParser(
         }
     }
 
-    if (!DuplicateTokenEx(
+    if (ERROR_SUCCESS != M2::NSudo::NSudoDuplicateToken(
+        &hToken,
         OriginalToken,
         MAXIMUM_ALLOWED,
         nullptr,
         SecurityIdentification,
-        TokenPrimary,
-        &hToken))
+        TokenPrimary))
     {
         return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
     }
@@ -894,7 +983,7 @@ NSUDO_MESSAGE NSudoCommandLineParser(
         return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
     }
 
-    RevertToSelf();
+    M2::NSudo::NSudoSetCurrentThreadToken(nullptr);
 
     return NSUDO_MESSAGE::SUCCESS;
 }
