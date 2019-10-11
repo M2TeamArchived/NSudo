@@ -44,9 +44,9 @@ EXTERN_C DWORD WINAPI NSudoAdjustTokenPrivileges(
         DWORD PSize = sizeof(LUID_AND_ATTRIBUTES) * PrivilegeCount;
         DWORD TPSize = PSize + sizeof(DWORD);
 
-        PTOKEN_PRIVILEGES pTP = reinterpret_cast<PTOKEN_PRIVILEGES>(
-            ::HeapAlloc(::GetProcessHeap(), 0, TPSize));
-        if (pTP)
+        PTOKEN_PRIVILEGES pTP = nullptr;
+        ErrorCode = NSudoAllocMemory(reinterpret_cast<LPVOID*>(&pTP), TPSize);
+        if (ErrorCode == ERROR_SUCCESS)
         {
             pTP->PrivilegeCount = PrivilegeCount;
             memcpy(pTP->Privileges, Privileges, PSize);
@@ -55,7 +55,7 @@ EXTERN_C DWORD WINAPI NSudoAdjustTokenPrivileges(
                 TokenHandle, FALSE, pTP, TPSize, nullptr, nullptr);
             ErrorCode = ::GetLastError();
 
-            ::HeapFree(::GetProcessHeap(), 0, pTP);
+            NSudoFreeMemory(pTP);
         }
         else
         {
