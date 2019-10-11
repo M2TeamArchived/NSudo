@@ -898,3 +898,16 @@ EXTERN_C DWORD WINAPI NSudoAdjustTokenAllPrivileges(
 
     return ErrorCode;
 }
+
+/**
+ * @remark You can read the definition for this function in "NSudoAPI.h".
+ */
+EXTERN_C DWORD WINAPI NSudoReAllocMemory(
+    _Out_ PVOID* NewBlock,
+    _In_ PVOID OldBlock,
+    _In_ SIZE_T NewSize)
+{
+    *NewBlock = ::HeapReAlloc(
+        ::GetProcessHeap(), HEAP_ZERO_MEMORY, OldBlock, NewSize);
+    return *NewBlock ? ERROR_SUCCESS : ERROR_NOT_ENOUGH_MEMORY;
+}

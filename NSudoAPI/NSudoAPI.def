@@ -28,3 +28,4 @@ NSudoOpenThreadTokenByThreadHandle
 NSudoOpenCurrentThreadToken
 NSudoOpenThreadTokenByThreadId
 NSudoAdjustTokenAllPrivileges
+NSudoReAllocMemory

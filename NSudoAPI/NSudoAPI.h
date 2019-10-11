@@ -616,4 +616,26 @@ EXTERN_C DWORD WINAPI NSudoAdjustTokenAllPrivileges(
     _In_ HANDLE TokenHandle,
     _In_ DWORD Attributes);
 
+/**
+ * Reallocates a block of memory from the default heap of the calling process.
+ * If the reallocation request is for a larger size, the additional region of
+ * memory beyond the original size be initialized to zero. This function
+ * enables you to resize a memory block and change other memory block
+ * properties. The allocated memory is not movable.
+ *
+ * @param NewBlock A pointer to the allocated memory block.
+ * @param OldBlock A pointer to the block of memory that the function
+ *                 reallocates. This pointer is returned by an earlier call to
+ *                 the NSudoAllocMemory or NSudoReAllocMemory function.
+ * @param NewSize The new size of the memory block, in bytes. A memory block's
+ *                size can be increased or decreased by using this function.
+ * @return Standard Win32 Error. If the function succeeds, the return value is
+ *         ERROR_SUCCESS. If the function fails, the original memory is not
+ *         freed, and the original handle and pointer are still valid.
+ */
+EXTERN_C DWORD WINAPI NSudoReAllocMemory(
+    _Out_ PVOID* NewBlock,
+    _In_ PVOID OldBlock,
+    _In_ SIZE_T NewSize);
+
 #endif
