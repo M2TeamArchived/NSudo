@@ -34,6 +34,9 @@
     <Filter Include="M2.NSudo">
       <UniqueIdentifier>{14ce02b3-ae46-4757-9dd3-4a6d3b68782a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="jsmn">
+      <UniqueIdentifier>{8a69e9f9-81b2-4ea6-ab2b-a0ff63ebe305}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Resources\resource.h">
@@ -61,6 +64,9 @@
     </ClInclude>
     <ClInclude Include="M2.NSudo.h">
       <Filter>M2.NSudo</Filter>
+    </ClInclude>
+    <ClInclude Include="jsmn.h">
+      <Filter>jsmn</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
