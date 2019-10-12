@@ -3,6 +3,7 @@
 **NSudo 8.0.0-alpha2**
 
 - Update links information in NSudo binaries.
+- Convert C API to COM interface in NSudo Shared Library.
 
 **NSudo 8.0.0-alpha1**
 

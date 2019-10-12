@@ -413,6 +413,284 @@ public:
         _In_ TOKEN_TYPE TokenType,
         _Out_ PHANDLE NewTokenHandle) = 0;
 
+    /**
+     * Opens an existing local process object.
+     *
+     * @param DesiredAccess The access to the process object. This access right
+     *                      is checked against the security descriptor for the
+     *                      process. This parameter can be one or more of the
+     *                      process access rights.
+     * @param InheritHandle If this value is TRUE, processes created by this
+     *                      process will inherit the handle. Otherwise, the
+     *                      processes do not inherit this handle.
+     * @param ProcessId The identifier of the local process to be opened.
+     * @param ProcessHandle A pointer to an open handle to the specified
+     *                      process.
+     * @return HRESULT. If the function succeeds, the return value is S_OK.
+     * @remark For more information, see OpenProcess.
+     */
+    virtual HRESULT STDMETHODCALLTYPE OpenProcess(
+        _In_ DWORD DesiredAccess,
+        _In_ BOOL InheritHandle,
+        _In_ DWORD ProcessId,
+        _Out_ PHANDLE ProcessHandle) = 0;
+
+    /**
+     * Opens an existing local process object associated with a service
+     * process, the calling application must be running within the context
+     * of the Administrator account and have the SE_DEBUG_NAME privilege
+     * enabled.
+     *
+     * @param DesiredAccess The access to the process object. This access right
+     *                      is checked against the security descriptor for the
+     *                      process. This parameter can be one or more of the
+     *                      process access rights.
+     * @param InheritHandle If this value is TRUE, processes created by this
+     *                      process will inherit the handle. Otherwise, the
+     *                      processes do not inherit this handle.
+     * @param ServiceName The name of the service to be started. This is the
+     *                    name specified by the lpServiceName parameter of the
+     *                    CreateService function when the service object was
+     *                    created, not the service display name that is shown by
+     *                    user interface applications to identify the service.
+     *                    The maximum string length is 256 characters. The
+     *                    service control manager database preserves the case of
+     *                    the characters, but service name comparisons are
+     *                    always case insensitive. Forward-slash (/) and
+     *                    backslash (\) are invalid service name characters.
+     * @param ProcessHandle A pointer to an open handle to the specified
+     *                      process.
+     * @return HRESULT. If the function succeeds, the return value is S_OK.
+     * @remark For more information, see OpenProcess.
+     */
+    virtual HRESULT STDMETHODCALLTYPE OpenServiceProcess(
+        _In_ DWORD DesiredAccess,
+        _In_ BOOL InheritHandle,
+        _In_ LPCWSTR ServiceName,
+        _Out_ PHANDLE ProcessHandle) = 0;
+
+    /**
+     * Opens an existing local process object associated with the Local
+     * Security Authority process, the calling application must be running
+     * within the context of the Administrator account and have the
+     * SE_DEBUG_NAME privilege enabled.
+     *
+     * @param DesiredAccess The access to the process object. This access right
+     *                      is checked against the security descriptor for the
+     *                      process. This parameter can be one or more of the
+     *                      process access rights.
+     * @param InheritHandle If this value is TRUE, processes created by this
+     *                      process will inherit the handle. Otherwise, the
+     *                      processes do not inherit this handle.
+     * @param ProcessHandle A pointer to an open handle to the specified
+     *                      process.
+     * @return HRESULT. If the function succeeds, the return value is S_OK.
+     * @remark For more information, see OpenProcess.
+     */
+    virtual HRESULT STDMETHODCALLTYPE OpenLsassProcess(
+        _In_ DWORD DesiredAccess,
+        _In_ BOOL InheritHandle,
+        _Out_ PHANDLE ProcessHandle) = 0;
+
+    /**
+     * Opens the access token associated with a process.
+     *
+     * @param ProcessHandle A handle to the process whose access token is
+     *                      opened. The process must have the
+     *                      PROCESS_QUERY_INFORMATION access permission.
+     * @param DesiredAccess The access to the process object. This access right
+     *                      is checked against the security descriptor for the
+     *                      process. This parameter can be one or more of the
+     *                      process access rights.
+     * @param TokenHandle A pointer to a handle that identifies the newly
+     *                    opened access token when the function returns.
+     * @return HRESULT. If the function succeeds, the return value is S_OK.
+     * @remark For more information, see OpenProcessToken.
+     */
+    virtual HRESULT STDMETHODCALLTYPE OpenProcessTokenByProcessHandle(
+        _In_ HANDLE ProcessHandle,
+        _In_ DWORD DesiredAccess,
+        _Out_ PHANDLE TokenHandle) = 0;
+
+    /**
+     * Opens the access token associated with the current process.
+     *
+     * @param DesiredAccess The access to the process object. This access right
+     *                      is checked against the security descriptor for the
+     *                      process. This parameter can be one or more of the
+     *                      process access rights.
+     * @param TokenHandle A pointer to a handle that identifies the newly
+     *                    opened access token when the function returns.
+     * @return HRESULT. If the function succeeds, the return value is S_OK.
+     * @remark For more information, see OpenProcessToken.
+     */
+    virtual HRESULT STDMETHODCALLTYPE OpenCurrentProcessToken(
+        _In_ DWORD DesiredAccess,
+        _Out_ PHANDLE TokenHandle) = 0;
+
+    /**
+     * Opens the access token associated with a process.
+     *
+     * @param ProcessId The identifier of the local process to be opened.
+     * @param DesiredAccess The access to the process object. This access right
+     *                      is checked against the security descriptor for the
+     *                      process. This parameter can be one or more of the
+     *                      process access rights.
+     * @param TokenHandle A pointer to a handle that identifies the newly
+     *                    opened access token when the function returns.
+     * @return HRESULT. If the function succeeds, the return value is S_OK.
+     * @remark For more information, see OpenProcessToken.
+     */
+    virtual HRESULT STDMETHODCALLTYPE OpenProcessTokenByProcessId(
+        _In_ DWORD ProcessId,
+        _In_ DWORD DesiredAccess,
+        _Out_ PHANDLE TokenHandle) = 0;
+
+    /**
+     * Opens the access token associated with a service process, the calling
+     * application must be running within the context of the Administrator
+     * account and have the SE_DEBUG_NAME privilege enabled.
+     *
+     * @param ServiceName The name of the service to be started. This is the
+     *                    name specified by the lpServiceName parameter of the
+     *                    CreateService function when the service object was
+     *                    created, not the service display name that is shown by
+     *                    user interface applications to identify the service.
+     *                    The maximum string length is 256 characters. The
+     *                    service control manager database preserves the case of
+     *                    the characters, but service name comparisons are
+     *                    always case insensitive. Forward-slash (/) and
+     *                    backslash (\) are invalid service name characters.
+     * @param DesiredAccess The access to the process object. This access right
+     *                      is checked against the security descriptor for the
+     *                      process. This parameter can be one or more of the
+     *                      process access rights.
+     * @param TokenHandle A pointer to a handle that identifies the newly
+     *                    opened access token when the function returns.
+     * @return HRESULT. If the function succeeds, the return value is S_OK.
+     * @remark For more information, see OpenProcessToken.
+     */
+    virtual HRESULT STDMETHODCALLTYPE OpenServiceProcessToken(
+        _In_ LPCWSTR ServiceName,
+        _In_ DWORD DesiredAccess,
+        _Out_ PHANDLE TokenHandle) = 0;
+
+    /**
+     * Opens the access token associated with the Local Security Authority
+     * process, the calling application must be running within the context
+     * of the Administrator account and have the SE_DEBUG_NAME privilege
+     * enabled.
+     *
+     * @param DesiredAccess The access to the process object. This access right
+     *                      is checked against the security descriptor for the
+     *                      process. This parameter can be one or more of the
+     *                      process access rights.
+     * @param TokenHandle A pointer to a handle that identifies the newly
+     *                    opened access token when the function returns.
+     * @return HRESULT. If the function succeeds, the return value is S_OK.
+     * @remark For more information, see OpenProcessToken.
+     */
+    virtual HRESULT STDMETHODCALLTYPE OpenLsassProcessToken(
+        _In_ DWORD DesiredAccess,
+        _Out_ PHANDLE TokenHandle) = 0;
+
+    /**
+     * Opens an existing thread object.
+     *
+     * @param DesiredAccess The access to the thread object. This access right
+     *                      is checked against the security descriptor for the
+     *                      thread. This parameter can be one or more of the
+     *                      thread access rights.
+     * @param InheritHandle If this value is TRUE, processes created by this
+     *                      process will inherit the handle. Otherwise, the
+     *                      processes do not inherit this handle.
+     * @param ThreadId The identifier of the thread to be opened.
+     * @param ThreadHandle A pointer to an open handle to the specified thread.
+     * @return HRESULT. If the function succeeds, the return value is S_OK.
+     * @remark For more information, see OpenThread.
+     */
+    virtual HRESULT STDMETHODCALLTYPE OpenThread(
+        _In_ DWORD DesiredAccess,
+        _In_ BOOL InheritHandle,
+        _In_ DWORD ThreadId,
+        _Out_ PHANDLE ThreadHandle) = 0;
+
+    /**
+     * Opens the access token associated with a thread.
+     *
+     * @param DesiredAccess Specifies an access mask that specifies the
+     *                      requested types of access to the access token.
+     *                      These requested access types are reconciled
+     *                      against the token's discretionary access control
+     *                      list (DACL) to determine which accesses are granted
+     *                      or denied.
+     * @param OpenAsSelf TRUE if the access check is to be made against the
+     *                   process-level security context. FALSE if the access
+     *                   check is to be made against the current security
+     *                   context of the thread calling the OpenThreadToken
+     *                   function.
+     * @param TokenHandle A pointer to a variable that receives the handle to
+     *                    the newly opened access token.
+     * @param ThreadHandle A handle to the thread whose access token is opened.
+     * @return HRESULT. If the function succeeds, the return value is S_OK.
+     * @remark For more information, see OpenThreadToken.
+     */
+    virtual HRESULT STDMETHODCALLTYPE OpenThreadTokenByThreadHandle(
+        _In_ HANDLE ThreadHandle,
+        _In_ DWORD DesiredAccess,
+        _In_ BOOL OpenAsSelf,
+        _Out_ PHANDLE TokenHandle) = 0;
+
+    /**
+     * Opens the access token associated with the current thread.
+     *
+     * @param DesiredAccess Specifies an access mask that specifies the
+     *                      requested types of access to the access token.
+     *                      These requested access types are reconciled
+     *                      against the token's discretionary access control
+     *                      list (DACL) to determine which accesses are granted
+     *                      or denied.
+     * @param OpenAsSelf TRUE if the access check is to be made against the
+     *                   process-level security context. FALSE if the access
+     *                   check is to be made against the current security
+     *                   context of the thread calling the OpenThreadToken
+     *                   function.
+     * @param TokenHandle A pointer to a variable that receives the handle to
+     *                    the newly opened access token.
+     * @return HRESULT. If the function succeeds, the return value is S_OK.
+     * @remark For more information, see OpenThreadToken.
+     */
+    virtual HRESULT STDMETHODCALLTYPE OpenCurrentThreadToken(
+        _In_ DWORD DesiredAccess,
+        _In_ BOOL OpenAsSelf,
+        _Out_ PHANDLE TokenHandle) = 0;
+
+    /**
+     * Opens the access token associated with a thread.
+     *
+     * @param ThreadId The identifier of the thread to be opened.
+     * @param DesiredAccess Specifies an access mask that specifies the
+     *                      requested types of access to the access token.
+     *                      These requested access types are reconciled
+     *                      against the token's discretionary access control
+     *                      list (DACL) to determine which accesses are granted
+     *                      or denied.
+     * @param OpenAsSelf TRUE if the access check is to be made against the
+     *                   process-level security context. FALSE if the access
+     *                   check is to be made against the current security
+     *                   context of the thread calling the OpenThreadToken
+     *                   function.
+     * @param TokenHandle A pointer to a variable that receives the handle to
+     *                    the newly opened access token.
+     * @return HRESULT. If the function succeeds, the return value is S_OK.
+     * @remark For more information, see OpenThreadToken.
+     */
+    virtual HRESULT STDMETHODCALLTYPE OpenThreadTokenByThreadId(
+        _In_ DWORD ThreadId,
+        _In_ DWORD DesiredAccess,
+        _In_ BOOL OpenAsSelf,
+        _Out_ PHANDLE TokenHandle) = 0;
+
 };
 
 EXTERN_GUID(
@@ -429,302 +707,5 @@ EXTERN_GUID(
 HRESULT WINAPI NSudoCreateInstance(
     _In_ REFIID InterfaceId,
     _Out_ PVOID* Instance);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/**
- * Opens an existing local process object.
- *
- * @param ProcessHandle A pointer to an open handle to the specified process.
- * @param DesiredAccess The access to the process object. This access right is
- *                      checked against the security descriptor for the
- *                      process. This parameter can be one or more of the
- *                      process access rights.
- * @param InheritHandle If this value is TRUE, processes created by this
- *                      process will inherit the handle. Otherwise, the
- *                      processes do not inherit this handle.
- * @param ProcessId The identifier of the local process to be opened.
- * @return Standard Win32 Error. If the function succeeds, the return value is
- *         ERROR_SUCCESS.
- * @remark For more information, see OpenProcess.
- */
-EXTERN_C DWORD WINAPI NSudoOpenProcess(
-    _Out_ PHANDLE ProcessHandle,
-    _In_ DWORD DesiredAccess,
-    _In_ BOOL InheritHandle,
-    _In_ DWORD ProcessId);
-
-/**
- * Opens an existing local process object associated with a service process,
- * the calling application must be running within the context of the
- * Administrator account and have the SE_DEBUG_NAME privilege enabled.
- *
- * @param ProcessHandle A pointer to an open handle to the specified process.
- * @param DesiredAccess The access to the process object. This access right is
- *                      checked against the security descriptor for the
- *                      process. This parameter can be one or more of the
- *                      process access rights.
- * @param InheritHandle If this value is TRUE, processes created by this
- *                      process will inherit the handle. Otherwise, the
- *                      processes do not inherit this handle.
- * @param ServiceName The name of the service to be opened. This is the name
- *                    specified by the lpServiceName parameter of the
- *                    CreateService function when the service object was
- *                    created, not the service display name that is shown by
- *                    user interface applications to identify the service.
- *                    The maximum string length is 256 characters. The service
- *                    control manager database preserves the case of the
- *                    characters, but service name comparisons are always case
- *                    insensitive. Forward-slash (/) and backslash (\) are
- *                    invalid service name characters.
- * @return Standard Win32 Error. If the function succeeds, the return value is
- *         ERROR_SUCCESS.
- * @remark For more information, see OpenProcess.
- */
-EXTERN_C DWORD WINAPI NSudoOpenServiceProcess(
-    _Out_ PHANDLE ProcessHandle,
-    _In_ DWORD DesiredAccess,
-    _In_ BOOL InheritHandle,
-    _In_ LPCWSTR ServiceName);
-
-/**
- * Opens an existing local process object associated with the Local Security
- * Authority process, the calling application must be running within the
- * context of the Administrator account and have the SE_DEBUG_NAME privilege
- * enabled.
- *
- * @param ProcessHandle A pointer to an open handle to the specified process.
- * @param DesiredAccess The access to the process object. This access right is
- *                      checked against the security descriptor for the
- *                      process. This parameter can be one or more of the
- *                      process access rights.
- * @param InheritHandle If this value is TRUE, processes created by this
- *                      process will inherit the handle. Otherwise, the
- *                      processes do not inherit this handle.
- * @return Standard Win32 Error. If the function succeeds, the return value is
- *         ERROR_SUCCESS.
- * @remark For more information, see OpenProcess.
- */
-EXTERN_C DWORD WINAPI NSudoOpenLsassProcess(
-    _Out_ PHANDLE ProcessHandle,
-    _In_ DWORD DesiredAccess,
-    _In_ BOOL InheritHandle);
-
-/**
- * Opens the access token associated with a process.
- *
- * @param TokenHandle A pointer to a handle that identifies the newly opened
- *                    access token when the function returns.
- * @param ProcessHandle A handle to the process whose access token is opened.
- *                      The process must have the PROCESS_QUERY_INFORMATION
- *                      access permission.
- * @param DesiredAccess The access to the process object. This access right is
- *                      checked against the security descriptor for the
- *                      process. This parameter can be one or more of the
- *                      process access rights.
- * @return Standard Win32 Error. If the function succeeds, the return value is
- *         ERROR_SUCCESS.
- * @remark For more information, see OpenProcessToken.
- */
-EXTERN_C DWORD WINAPI NSudoOpenProcessTokenByProcessHandle(
-    _Out_ PHANDLE TokenHandle,
-    _In_ HANDLE ProcessHandle,
-    _In_ DWORD DesiredAccess);
-
-/**
- * Opens the access token associated with the current process.
- *
- * @param TokenHandle A pointer to a handle that identifies the newly opened
- *                    access token when the function returns.
- * @param DesiredAccess The access to the process object. This access right is
- *                      checked against the security descriptor for the
- *                      process. This parameter can be one or more of the
- *                      process access rights.
- * @return Standard Win32 Error. If the function succeeds, the return value is
- *         ERROR_SUCCESS.
- * @remark For more information, see OpenProcessToken.
- */
-EXTERN_C DWORD WINAPI NSudoOpenCurrentProcessToken(
-    _Out_ PHANDLE TokenHandle,
-    _In_ DWORD DesiredAccess);
-
-/**
- * Opens the access token associated with a process.
- *
- * @param TokenHandle A pointer to a handle that identifies the newly opened
- *                    access token when the function returns.
- * @param ProcessId The identifier of the local process to be opened.
- * @param DesiredAccess The access to the process object. This access right is
- *                      checked against the security descriptor for the
- *                      process. This parameter can be one or more of the
- *                      process access rights.
- * @return Standard Win32 Error. If the function succeeds, the return value is
- *         ERROR_SUCCESS.
- * @remark For more information, see OpenProcessToken.
- */
-EXTERN_C DWORD WINAPI NSudoOpenProcessTokenByProcessId(
-    _Out_ PHANDLE TokenHandle,
-    _In_ DWORD ProcessId,
-    _In_ DWORD DesiredAccess);
-
-/**
- * Opens the access token associated with a service process, the calling
- * application must be running within the context of the Administrator account
- * and have the SE_DEBUG_NAME privilege enabled.
- *
- * @param TokenHandle A pointer to a handle that identifies the newly opened
- *                    access token when the function returns.
- * @param ServiceName The name of the service to be opened. This is the name
- *                    specified by the lpServiceName parameter of the
- *                    CreateService function when the service object was
- *                    created, not the service display name that is shown by
- *                    user interface applications to identify the service.
- *                    The maximum string length is 256 characters. The service
- *                    control manager database preserves the case of the
- *                    characters, but service name comparisons are always case
- *                    insensitive. Forward-slash (/) and backslash (\) are
- *                    invalid service name characters.
- * @param DesiredAccess The access to the process object. This access right is
- *                      checked against the security descriptor for the
- *                      process. This parameter can be one or more of the
- *                      process access rights.
- * @return Standard Win32 Error. If the function succeeds, the return value is
- *         ERROR_SUCCESS.
- * @remark For more information, see OpenProcessToken.
- */
-EXTERN_C DWORD WINAPI NSudoOpenServiceProcessToken(
-    _Out_ PHANDLE TokenHandle,
-    _In_ LPCWSTR ServiceName,
-    _In_ DWORD DesiredAccess);
-
-/**
- * Opens the access token associated with the Local Security Authority process,
- * the calling application must be running within the context of the
- * Administrator account and have the SE_DEBUG_NAME privilege enabled.
- *
- * @param TokenHandle A pointer to a handle that identifies the newly opened
- *                    access token when the function returns.
- * @param DesiredAccess The access to the process object. This access right is
- *                      checked against the security descriptor for the
- *                      process. This parameter can be one or more of the
- *                      process access rights.
- * @return Standard Win32 Error. If the function succeeds, the return value is
- *         ERROR_SUCCESS.
- * @remark For more information, see OpenProcessToken.
- */
-EXTERN_C DWORD WINAPI NSudoOpenLsassProcessToken(
-    _Out_ PHANDLE TokenHandle,
-    _In_ DWORD DesiredAccess);
-
-/**
- * Opens an existing thread object.
- *
- * @param ThreadHandle A pointer to an open handle to the specified thread.
- * @param DesiredAccess The access to the thread object. This access right is
- *                      checked against the security descriptor for the thread.
- *                      This parameter can be one or more of the thread access
- *                      rights.
- * @param InheritHandle If this value is TRUE, processes created by this
- *                      process will inherit the handle. Otherwise, the
- *                      processes do not inherit this handle.
- * @param ThreadId The identifier of the thread to be opened.
- * @return Standard Win32 Error. If the function succeeds, the return value is
- *         ERROR_SUCCESS.
- * @remark For more information, see OpenThread.
- */
-EXTERN_C DWORD WINAPI NSudoOpenThread(
-    _Out_ PHANDLE ThreadHandle,
-    _In_ DWORD DesiredAccess,
-    _In_ BOOL InheritHandle,
-    _In_ DWORD ThreadId);
-
-/**
- * Opens the access token associated with a thread.
- *
- * @param TokenHandle A pointer to a variable that receives the handle to the
- *                    newly opened access token.
- * @param ThreadHandle A handle to the thread whose access token is opened.
- * @param DesiredAccess Specifies an access mask that specifies the requested
- *                      types of access to the access token. These requested
- *                      access types are reconciled against the token's
- *                      discretionary access control list (DACL) to determine
- *                      which accesses are granted or denied.
- * @param OpenAsSelf TRUE if the access check is to be made against the
- *                   process-level security context. FALSE if the access check
- *                   is to be made against the current security context of the
- *                   thread calling the OpenThreadToken function.
- * @return Standard Win32 Error. If the function succeeds, the return value is
- *         ERROR_SUCCESS.
- * @remark For more information, see OpenThreadToken.
- */
-EXTERN_C DWORD WINAPI NSudoOpenThreadTokenByThreadHandle(
-    _Out_ PHANDLE TokenHandle,
-    _In_ HANDLE ThreadHandle,
-    _In_ DWORD DesiredAccess,
-    _In_ BOOL OpenAsSelf);
-
-/**
- * Opens the access token associated with the current thread.
- *
- * @param TokenHandle A pointer to a variable that receives the handle to the
- *                    newly opened access token.
- * @param DesiredAccess Specifies an access mask that specifies the requested
- *                      types of access to the access token. These requested
- *                      access types are reconciled against the token's
- *                      discretionary access control list (DACL) to determine
- *                      which accesses are granted or denied.
- * @param OpenAsSelf TRUE if the access check is to be made against the
- *                   process-level security context. FALSE if the access check
- *                   is to be made against the current security context of the
- *                   thread calling the OpenThreadToken function.
- * @return Standard Win32 Error. If the function succeeds, the return value is
- *         ERROR_SUCCESS.
- * @remark For more information, see OpenThreadToken.
- */
-EXTERN_C DWORD WINAPI NSudoOpenCurrentThreadToken(
-    _Out_ PHANDLE TokenHandle,
-    _In_ DWORD DesiredAccess,
-    _In_ BOOL OpenAsSelf);
-
-/**
- * Opens the access token associated with a thread.
- *
- * @param TokenHandle A pointer to a variable that receives the handle to the
- *                    newly opened access token.
- * @param ThreadId The identifier of the thread to be opened.
- * @param DesiredAccess Specifies an access mask that specifies the requested
- *                      types of access to the access token. These requested
- *                      access types are reconciled against the token's
- *                      discretionary access control list (DACL) to determine
- *                      which accesses are granted or denied.
- * @param OpenAsSelf TRUE if the access check is to be made against the
- *                   process-level security context. FALSE if the access check
- *                   is to be made against the current security context of the
- *                   thread calling the OpenThreadToken function.
- * @return Standard Win32 Error. If the function succeeds, the return value is
- *         ERROR_SUCCESS.
- * @remark For more information, see OpenThreadToken.
- */
-EXTERN_C DWORD WINAPI NSudoOpenThreadTokenByThreadId(
-    _Out_ PHANDLE TokenHandle,
-    _In_ DWORD ThreadId,
-    _In_ DWORD DesiredAccess,
-    _In_ BOOL OpenAsSelf);
 
 #endif

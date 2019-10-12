@@ -2,17 +2,4 @@
 
 EXPORTS
 
-NSudoOpenProcess
-NSudoOpenServiceProcess
-NSudoOpenProcessTokenByProcessHandle
-NSudoOpenCurrentProcessToken
-NSudoOpenProcessTokenByProcessId
-NSudoOpenServiceProcessToken
-NSudoOpenLsassProcess
-NSudoOpenLsassProcessToken
-NSudoOpenThread
-NSudoOpenThreadTokenByThreadHandle
-NSudoOpenCurrentThreadToken
-NSudoOpenThreadTokenByThreadId
-
 NSudoCreateInstance

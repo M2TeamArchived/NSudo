@@ -78,91 +78,6 @@ std::wstring GetMessageByID(DWORD MessageID)
     return MessageString;
 }
 
-/*
-NSudoCreateProcess函数创建一个新进程和对应的主线程
-The NSudoCreateProcess function creates a new process and its primary thread.
-
-如果函数执行失败，返回值为NULL。调用GetLastError可获取详细错误码。
-If the function fails, the return value is NULL. To get extended error
-information, call GetLastError.
-*/
-bool NSudoCreateProcess(
-    _In_opt_ HANDLE hToken,
-    _Inout_ LPCWSTR lpCommandLine,
-    _In_opt_ LPCWSTR lpCurrentDirectory,
-    _In_ DWORD WaitInterval,
-    _In_ DWORD ProcessPriority = 0,
-    _In_ DWORD ShowWindowMode = SW_SHOWDEFAULT,
-    _In_ bool CreateNewConsole = true)
-{
-    DWORD dwCreationFlags = CREATE_SUSPENDED | CREATE_UNICODE_ENVIRONMENT;
-
-    if (CreateNewConsole)
-    {
-        dwCreationFlags |= CREATE_NEW_CONSOLE;
-    }
-
-    STARTUPINFOW StartupInfo = { 0 };
-    PROCESS_INFORMATION ProcessInfo = { 0 };
-
-    StartupInfo.cb = sizeof(STARTUPINFOW);
-
-    StartupInfo.lpDesktop = const_cast<LPWSTR>(L"WinSta0\\Default");
-
-    StartupInfo.dwFlags |= STARTF_USESHOWWINDOW;
-    StartupInfo.wShowWindow = static_cast<WORD>(ShowWindowMode);
-
-    LPVOID lpEnvironment = nullptr;
-
-    BOOL result = FALSE;
-
-    M2::CHandle hCurrentToken;
-    if (M2::NSudo::NSudoOpenCurrentProcessToken(
-        &hCurrentToken, MAXIMUM_ALLOWED) == ERROR_SUCCESS)
-    {
-        if (CreateEnvironmentBlock(&lpEnvironment, hCurrentToken, TRUE))
-        {
-            std::wstring ExpandedString;
-
-            if (SUCCEEDED(M2ExpandEnvironmentStrings(
-                ExpandedString,
-                lpCommandLine)))
-            {
-                result = CreateProcessAsUserW(
-                    hToken,
-                    nullptr,
-                    const_cast<LPWSTR>(ExpandedString.c_str()),
-                    nullptr,
-                    nullptr,
-                    FALSE,
-                    dwCreationFlags,
-                    lpEnvironment,
-                    lpCurrentDirectory,
-                    &StartupInfo,
-                    &ProcessInfo);
-
-                if (result)
-                {
-                    SetPriorityClass(ProcessInfo.hProcess, ProcessPriority);
-
-                    ResumeThread(ProcessInfo.hThread);
-
-                    WaitForSingleObjectEx(
-                        ProcessInfo.hProcess, WaitInterval, FALSE);
-
-                    M2CloseHandle(ProcessInfo.hProcess);
-                    M2CloseHandle(ProcessInfo.hThread);
-                }
-            }
-
-            DestroyEnvironmentBlock(lpEnvironment);
-        }
-    }
-
-    //返回结果
-    return result;
-}
-
 #if _MSC_VER >= 1200
 #pragma warning(pop)
 #endif
@@ -473,7 +388,10 @@ public:
 
     void UnInitialize()
     {
-       
+        if (this->pNSudoClient)
+        {
+            this->pNSudoClient->Release();
+        }
     }
 
     std::wstring GetTranslation(
@@ -491,14 +409,146 @@ public:
 
 CNSudoResourceManagement g_ResourceManagement;
 
+/**
+ * Enables or disables privileges in the specified access token.
+ *
+ * @param TokenHandle A handle to the access token that contains the
+ *                    privileges to be modified. The handle must have
+ *                    TOKEN_ADJUST_PRIVILEGES access to the token.
+ * @param Privileges A key value map of privilege name and attributes.
+ *                   The attributes of a privilege can be a combination
+ *                   of the following values.
+ *                   SE_PRIVILEGE_ENABLED
+ *                       The function enables the privilege.
+ *                   SE_PRIVILEGE_REMOVED
+ *                       The privilege is removed from the list of
+ *                       privileges in the token.
+ *                   None
+ *                       The function disables the privilege.
+ * @return Standard Win32 Error. If the function succeeds, the return
+ *         value is ERROR_SUCCESS.
+ * @remark For more information, see AdjustTokenPrivileges.
+ */
+HRESULT NSudoAdjustTokenPrivileges(
+    HANDLE TokenHandle,
+    std::map<std::wstring, DWORD> const& Privileges)
+{
+    std::vector<LUID_AND_ATTRIBUTES> RawPrivileges;
+
+    for (auto const& Privilege : Privileges)
+    {
+        LUID_AND_ATTRIBUTES RawPrivilege;
+
+        if (!::LookupPrivilegeValueW(
+            nullptr, Privilege.first.c_str(), &RawPrivilege.Luid))
+        {
+            return ::GetLastError();
+        }
+
+        RawPrivilege.Attributes = Privilege.second;
+
+        RawPrivileges.push_back(RawPrivilege);
+    }
+
+    return g_ResourceManagement.pNSudoClient->AdjustTokenPrivileges(
+        TokenHandle,
+        &RawPrivileges[0],
+        static_cast<DWORD>(RawPrivileges.size()));
+}
+
+/*
+NSudoCreateProcess函数创建一个新进程和对应的主线程
+The NSudoCreateProcess function creates a new process and its primary thread.
+
+如果函数执行失败，返回值为NULL。调用GetLastError可获取详细错误码。
+If the function fails, the return value is NULL. To get extended error
+information, call GetLastError.
+*/
+bool NSudoCreateProcess(
+    _In_opt_ HANDLE hToken,
+    _Inout_ LPCWSTR lpCommandLine,
+    _In_opt_ LPCWSTR lpCurrentDirectory,
+    _In_ DWORD WaitInterval,
+    _In_ DWORD ProcessPriority = 0,
+    _In_ DWORD ShowWindowMode = SW_SHOWDEFAULT,
+    _In_ bool CreateNewConsole = true)
+{
+    DWORD dwCreationFlags = CREATE_SUSPENDED | CREATE_UNICODE_ENVIRONMENT;
+
+    if (CreateNewConsole)
+    {
+        dwCreationFlags |= CREATE_NEW_CONSOLE;
+    }
+
+    STARTUPINFOW StartupInfo = { 0 };
+    PROCESS_INFORMATION ProcessInfo = { 0 };
+
+    StartupInfo.cb = sizeof(STARTUPINFOW);
+
+    StartupInfo.lpDesktop = const_cast<LPWSTR>(L"WinSta0\\Default");
+
+    StartupInfo.dwFlags |= STARTF_USESHOWWINDOW;
+    StartupInfo.wShowWindow = static_cast<WORD>(ShowWindowMode);
+
+    LPVOID lpEnvironment = nullptr;
+
+    BOOL result = FALSE;
+
+    M2::CHandle hCurrentToken;
+    if (g_ResourceManagement.pNSudoClient->OpenCurrentProcessToken(
+        MAXIMUM_ALLOWED, &hCurrentToken) == S_OK)
+    {
+        if (CreateEnvironmentBlock(&lpEnvironment, hCurrentToken, TRUE))
+        {
+            std::wstring ExpandedString;
+
+            if (SUCCEEDED(M2ExpandEnvironmentStrings(
+                ExpandedString,
+                lpCommandLine)))
+            {
+                result = CreateProcessAsUserW(
+                    hToken,
+                    nullptr,
+                    const_cast<LPWSTR>(ExpandedString.c_str()),
+                    nullptr,
+                    nullptr,
+                    FALSE,
+                    dwCreationFlags,
+                    lpEnvironment,
+                    lpCurrentDirectory,
+                    &StartupInfo,
+                    &ProcessInfo);
+
+                if (result)
+                {
+                    SetPriorityClass(ProcessInfo.hProcess, ProcessPriority);
+
+                    ResumeThread(ProcessInfo.hThread);
+
+                    WaitForSingleObjectEx(
+                        ProcessInfo.hProcess, WaitInterval, FALSE);
+
+                    M2CloseHandle(ProcessInfo.hProcess);
+                    M2CloseHandle(ProcessInfo.hThread);
+                }
+            }
+
+            DestroyEnvironmentBlock(lpEnvironment);
+        }
+    }
+
+    //返回结果
+    return result;
+}
+
 class ThreadTokenContext
 {
 public:
 
-    DWORD ErrorCode;
+    HRESULT hr;
 
     ThreadTokenContext(HANDLE TokenHandle) :
-        ErrorCode(HRESULT_CODE(g_ResourceManagement.pNSudoClient->SetCurrentThreadToken(TokenHandle)))
+        hr(g_ResourceManagement.pNSudoClient->SetCurrentThreadToken(TokenHandle))
     {
     }
 
@@ -540,31 +590,31 @@ NSUDO_MESSAGE NSudoCommandLineParser(
         }
     }
 
-    DWORD ErrorCode = ERROR_SUCCESS;
+    HRESULT hr = S_OK;
 
     M2::CHandle DuplicatedToken;
-    if (ErrorCode == ERROR_SUCCESS)
+    if (hr == S_OK)
     {
         M2::CHandle  CurrentProcessToken;
-        ErrorCode = M2::NSudo::NSudoOpenCurrentProcessToken(
-            &CurrentProcessToken, MAXIMUM_ALLOWED);
-        if (ErrorCode == ERROR_SUCCESS)
+        hr = g_ResourceManagement.pNSudoClient->OpenCurrentProcessToken(
+            MAXIMUM_ALLOWED, &CurrentProcessToken);
+        if (hr == S_OK)
         {
-            ErrorCode = HRESULT_CODE(g_ResourceManagement.pNSudoClient->DuplicateToken(
+            hr = g_ResourceManagement.pNSudoClient->DuplicateToken(
                 CurrentProcessToken,
                 MAXIMUM_ALLOWED,
                 nullptr,
                 SecurityImpersonation,
                 TokenImpersonation,
-                &DuplicatedToken));
-            if (ErrorCode == ERROR_SUCCESS)
+                &DuplicatedToken);
+            if (hr == S_OK)
             {
                 std::map<std::wstring, DWORD> Privileges;
 
                 Privileges.insert(std::pair(
                     SE_DEBUG_NAME, SE_PRIVILEGE_ENABLED));
 
-                ErrorCode = M2::NSudo::AdjustTokenPrivileges(
+                hr = NSudoAdjustTokenPrivileges(
                     DuplicatedToken, Privileges);
             }
         }
@@ -573,8 +623,7 @@ NSUDO_MESSAGE NSudoCommandLineParser(
     ThreadTokenContext CurrentThreadTokenContext(DuplicatedToken);
 
     // 如果未获取 SeDebugPrivilege 权限，大概率不是管理员权限
-    if (!(ErrorCode == ERROR_SUCCESS &&
-        CurrentThreadTokenContext.ErrorCode == ERROR_SUCCESS))
+    if (!(hr == S_OK && CurrentThreadTokenContext.hr == S_OK))
     {
         return NSUDO_MESSAGE::PRIVILEGE_NOT_HELD;
     }
@@ -582,21 +631,21 @@ NSUDO_MESSAGE NSudoCommandLineParser(
     DWORD dwSessionID = static_cast<DWORD>(-1);
 
     M2::CHandle CurrentThreadToken;
-    ErrorCode = M2::NSudo::NSudoOpenCurrentThreadToken(
-        &CurrentThreadToken, MAXIMUM_ALLOWED, FALSE);   
-    if (ErrorCode == ERROR_SUCCESS)
+    hr = g_ResourceManagement.pNSudoClient->OpenCurrentThreadToken(
+        MAXIMUM_ALLOWED, FALSE, &CurrentThreadToken);
+    if (hr == S_OK)
     {
         DWORD ReturnLength = 0;
-        ErrorCode = HRESULT_CODE(g_ResourceManagement.pNSudoClient->GetTokenInformation(
+        hr = g_ResourceManagement.pNSudoClient->GetTokenInformation(
             CurrentThreadToken,
             TokenSessionId,
             &dwSessionID,
             sizeof(DWORD),
-            &ReturnLength));
+            &ReturnLength);
     }
 
     // 获取当前会话 ID 失败
-    if (ErrorCode != ERROR_SUCCESS)
+    if (hr != S_OK)
     {
         return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
     }
@@ -606,21 +655,21 @@ NSUDO_MESSAGE NSudoCommandLineParser(
     {
         M2::CHandle OriginalToken;
 
-        ErrorCode = M2::NSudo::NSudoOpenLsassProcessToken(
-            &OriginalToken, MAXIMUM_ALLOWED);
-        if (ErrorCode == ERROR_SUCCESS)
+        hr = g_ResourceManagement.pNSudoClient->OpenLsassProcessToken(
+            MAXIMUM_ALLOWED, &OriginalToken);
+        if (hr == S_OK)
         {
-            ErrorCode = HRESULT_CODE(g_ResourceManagement.pNSudoClient->DuplicateToken(
+            hr = g_ResourceManagement.pNSudoClient->DuplicateToken(
                 OriginalToken,
                 MAXIMUM_ALLOWED,
                 nullptr,
                 SecurityImpersonation,
                 TokenImpersonation,
-                &SystemToken));
-            if (ErrorCode == ERROR_SUCCESS)
+                &SystemToken);
+            if (hr == S_OK)
             {
-                ErrorCode = HRESULT_CODE(g_ResourceManagement.pNSudoClient->AdjustTokenAllPrivileges(
-                    SystemToken, SE_PRIVILEGE_ENABLED));
+                hr = g_ResourceManagement.pNSudoClient->AdjustTokenAllPrivileges(
+                    SystemToken, SE_PRIVILEGE_ENABLED);
             }
         }
     }
@@ -628,8 +677,7 @@ NSUDO_MESSAGE NSudoCommandLineParser(
     ThreadTokenContext SystemTokenContext(SystemToken);
 
     // 如果模拟System权限失败
-    if (!(ErrorCode == ERROR_SUCCESS &&
-        SystemTokenContext.ErrorCode == ERROR_SUCCESS))
+    if (!(hr == S_OK && SystemTokenContext.hr == S_OK))
     {
         return NSUDO_MESSAGE::PRIVILEGE_NOT_HELD;
     }
@@ -848,16 +896,16 @@ NSUDO_MESSAGE NSudoCommandLineParser(
 
     if (NSudoOptionUserValue::TrustedInstaller == UserMode)
     {
-        if (ERROR_SUCCESS != M2::NSudo::NSudoOpenServiceProcessToken(
-            &OriginalToken, L"TrustedInstaller", MAXIMUM_ALLOWED))
+        if (S_OK != g_ResourceManagement.pNSudoClient->OpenServiceProcessToken(
+            L"TrustedInstaller", MAXIMUM_ALLOWED, &OriginalToken))
         {
             return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
         }
     }
     else if (NSudoOptionUserValue::System == UserMode)
     {
-        if (ERROR_SUCCESS != M2::NSudo::NSudoOpenLsassProcessToken(
-            &OriginalToken, MAXIMUM_ALLOWED))
+        if (S_OK != g_ResourceManagement.pNSudoClient->OpenLsassProcessToken(
+            MAXIMUM_ALLOWED, &OriginalToken))
         {
             return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
         }
@@ -872,8 +920,8 @@ NSUDO_MESSAGE NSudoCommandLineParser(
     }
     else if (NSudoOptionUserValue::CurrentProcess == UserMode)
     {
-        if (ERROR_SUCCESS != M2::NSudo::NSudoOpenCurrentProcessToken(
-            &OriginalToken, MAXIMUM_ALLOWED))
+        if (S_OK != g_ResourceManagement.pNSudoClient->OpenCurrentProcessToken(
+            MAXIMUM_ALLOWED, &OriginalToken))
         {
             return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
         }
@@ -881,17 +929,17 @@ NSUDO_MESSAGE NSudoCommandLineParser(
     else if (NSudoOptionUserValue::CurrentProcessDropRight == UserMode)
     {
         HANDLE CurrentProcessToken = nullptr;
-        ErrorCode = M2::NSudo::NSudoOpenCurrentProcessToken(
-            &CurrentProcessToken, MAXIMUM_ALLOWED);
-        if (ErrorCode == ERROR_SUCCESS)
+        hr = g_ResourceManagement.pNSudoClient->OpenCurrentProcessToken(
+            MAXIMUM_ALLOWED, &CurrentProcessToken);
+        if (hr == S_OK)
         {
-            ErrorCode = HRESULT_CODE(g_ResourceManagement.pNSudoClient->CreateLUAToken(
-                CurrentProcessToken, &OriginalToken));
+            hr = g_ResourceManagement.pNSudoClient->CreateLUAToken(
+                CurrentProcessToken, &OriginalToken);
 
             ::CloseHandle(CurrentProcessToken);
         }
 
-        if (ERROR_SUCCESS != ErrorCode)
+        if (S_OK != hr)
         {
             return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
         }

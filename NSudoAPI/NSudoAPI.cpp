@@ -10,6 +10,9 @@
 
 #include "NSudoAPI.h"
 
+#include <cstdio>
+#include <cwchar>
+
 #include <WtsApi32.h>
 #pragma comment(lib, "WtsApi32.lib")
 
@@ -18,9 +21,6 @@
  */
 class CNSudoClient : public M2::Base::CComClass<CNSudoClient, INSudoClient>
 {
-private:
-
-
 public:
 
     M2_BASE_COM_INTERFACE_MAP_BEGIN;
@@ -653,6 +653,303 @@ public:
 
         return S_OK;
     }
+
+    /**
+     * @remark You can read the definition for this function in "NSudoAPI.h".
+     */
+    virtual HRESULT STDMETHODCALLTYPE OpenProcess(
+        _In_ DWORD DesiredAccess,
+        _In_ BOOL InheritHandle,
+        _In_ DWORD ProcessId,
+        _Out_ PHANDLE ProcessHandle)
+    {
+        HRESULT hr = E_INVALIDARG;
+
+        if (ProcessHandle)
+        {
+            *ProcessHandle = ::OpenProcess(
+                DesiredAccess, InheritHandle, ProcessId);
+            if (*ProcessHandle)
+            {
+                hr = S_OK;
+            }
+            else
+            {
+                hr = ::HRESULT_FROM_WIN32(::GetLastError());
+            }
+        }
+
+        return hr;
+    }
+
+    /**
+     * @remark You can read the definition for this function in "NSudoAPI.h".
+     */
+    virtual HRESULT STDMETHODCALLTYPE OpenServiceProcess(
+        _In_ DWORD DesiredAccess,
+        _In_ BOOL InheritHandle,
+        _In_ LPCWSTR ServiceName,
+        _Out_ PHANDLE ProcessHandle)
+    {
+        SERVICE_STATUS_PROCESS ServiceStatus;
+
+        HRESULT hr = this->StartWindowsService(ServiceName, &ServiceStatus);
+        if (hr == S_OK)
+        {
+            hr = this->OpenProcess(
+                DesiredAccess,
+                InheritHandle,
+                ServiceStatus.dwProcessId,
+                ProcessHandle);
+        }
+
+        return hr;
+    }
+
+    /**
+     * @remark You can read the definition for this function in "NSudoAPI.h".
+     */
+    virtual HRESULT STDMETHODCALLTYPE OpenLsassProcess(
+        _In_ DWORD DesiredAccess,
+        _In_ BOOL InheritHandle,
+        _Out_ PHANDLE ProcessHandle)
+    {
+        HRESULT hr = ::HRESULT_FROM_WIN32(ERROR_NOT_FOUND);
+
+        DWORD dwLsassPID = static_cast<DWORD>(-1);
+
+        PWTS_PROCESS_INFOW pProcesses = nullptr;
+        DWORD dwProcessCount = 0;
+
+        if (::WTSEnumerateProcessesW(
+            WTS_CURRENT_SERVER_HANDLE,
+            0,
+            1,
+            &pProcesses,
+            &dwProcessCount))
+        {
+            for (DWORD i = 0; i < dwProcessCount; ++i)
+            {
+                PWTS_PROCESS_INFOW pProcess = &pProcesses[i];
+
+                if (pProcess->SessionId != 0)
+                    continue;
+
+                if (!pProcess->pProcessName)
+                    continue;
+
+                if (::_wcsicmp(L"lsass.exe", pProcess->pProcessName) != 0)
+                    continue;
+
+                if (!pProcess->pUserSid)
+                    continue;
+
+                if (!::IsWellKnownSid(
+                    pProcess->pUserSid, WELL_KNOWN_SID_TYPE::WinLocalSystemSid))
+                    continue;
+
+                dwLsassPID = pProcess->ProcessId;
+
+                hr = S_OK;
+                break;
+            }
+
+            ::WTSFreeMemory(pProcesses);
+        }
+        else
+        {
+            hr = ::HRESULT_FROM_WIN32(::GetLastError());
+        }
+
+        if (hr == S_OK)
+        {
+            hr = this->OpenProcess(
+                DesiredAccess,
+                InheritHandle,
+                dwLsassPID,
+                ProcessHandle);
+        }
+
+        return hr;
+    }
+
+    /**
+     * @remark You can read the definition for this function in "NSudoAPI.h".
+     */
+    virtual HRESULT STDMETHODCALLTYPE OpenProcessTokenByProcessHandle(
+        _In_ HANDLE ProcessHandle,
+        _In_ DWORD DesiredAccess,
+        _Out_ PHANDLE TokenHandle)
+    {
+        if (!::OpenProcessToken(
+            ProcessHandle, DesiredAccess, TokenHandle))
+        {
+            return ::HRESULT_FROM_WIN32(::GetLastError());
+        }
+
+        return S_OK;
+    }
+
+    /**
+     * @remark You can read the definition for this function in "NSudoAPI.h".
+     */
+    virtual HRESULT STDMETHODCALLTYPE OpenCurrentProcessToken(
+        _In_ DWORD DesiredAccess,
+        _Out_ PHANDLE TokenHandle)
+    {
+        return this->OpenProcessTokenByProcessHandle(
+            ::GetCurrentProcess(), DesiredAccess, TokenHandle);
+    }
+
+    /**
+     * @remark You can read the definition for this function in "NSudoAPI.h".
+     */
+    virtual HRESULT STDMETHODCALLTYPE OpenProcessTokenByProcessId(
+        _In_ DWORD ProcessId,
+        _In_ DWORD DesiredAccess,
+        _Out_ PHANDLE TokenHandle)
+    {
+        HANDLE ProcessHandle = INVALID_HANDLE_VALUE;
+
+        HRESULT hr = this->OpenProcess(
+            MAXIMUM_ALLOWED, FALSE, ProcessId, &ProcessHandle);
+        if (hr == S_OK)
+        {
+            hr = this->OpenProcessTokenByProcessHandle(
+                ProcessHandle, DesiredAccess, TokenHandle);
+
+            ::CloseHandle(ProcessHandle);
+        }
+
+        return hr;
+    }
+
+    /**
+     * @remark You can read the definition for this function in "NSudoAPI.h".
+     */
+    virtual HRESULT STDMETHODCALLTYPE OpenServiceProcessToken(
+        _In_ LPCWSTR ServiceName,
+        _In_ DWORD DesiredAccess,
+        _Out_ PHANDLE TokenHandle)
+    {
+        HANDLE ProcessHandle = INVALID_HANDLE_VALUE;
+
+        HRESULT hr = this->OpenServiceProcess(
+            MAXIMUM_ALLOWED, FALSE, ServiceName, &ProcessHandle);
+        if (hr == S_OK)
+        {
+            hr = this->OpenProcessTokenByProcessHandle(
+                ProcessHandle, DesiredAccess, TokenHandle);
+
+            ::CloseHandle(ProcessHandle);
+        }
+
+        return hr;
+    }
+
+    /**
+     * @remark You can read the definition for this function in "NSudoAPI.h".
+     */
+    virtual HRESULT STDMETHODCALLTYPE OpenLsassProcessToken(
+        _In_ DWORD DesiredAccess,
+        _Out_ PHANDLE TokenHandle)
+    {
+        HANDLE ProcessHandle = INVALID_HANDLE_VALUE;
+
+        HRESULT hr = this->OpenLsassProcess(
+            MAXIMUM_ALLOWED, FALSE, &ProcessHandle);
+        if (hr == S_OK)
+        {
+            hr = this->OpenProcessTokenByProcessHandle(
+                ProcessHandle, DesiredAccess, TokenHandle);
+
+            ::CloseHandle(ProcessHandle);
+        }
+
+        return hr;
+    }
+
+    /**
+     * @remark You can read the definition for this function in "NSudoAPI.h".
+     */
+    virtual HRESULT STDMETHODCALLTYPE OpenThread(
+        _In_ DWORD DesiredAccess,
+        _In_ BOOL InheritHandle,
+        _In_ DWORD ThreadId,
+        _Out_ PHANDLE ThreadHandle)
+    {
+        HRESULT hr = E_INVALIDARG;
+
+        if (ThreadHandle)
+        {
+            *ThreadHandle = ::OpenThread(
+                DesiredAccess, InheritHandle, ThreadId);
+            if (*ThreadHandle)
+            {
+                hr = S_OK;
+            }
+            else
+            {
+                hr = ::HRESULT_FROM_WIN32(::GetLastError());
+            }
+        }
+
+        return hr;
+    }
+
+    /**
+     * @remark You can read the definition for this function in "NSudoAPI.h".
+     */
+    virtual HRESULT STDMETHODCALLTYPE OpenThreadTokenByThreadHandle(
+        _In_ HANDLE ThreadHandle,
+        _In_ DWORD DesiredAccess,
+        _In_ BOOL OpenAsSelf,
+        _Out_ PHANDLE TokenHandle)
+    {
+        if (!::OpenThreadToken(
+            ThreadHandle, DesiredAccess, OpenAsSelf, TokenHandle))
+        {
+            return ::HRESULT_FROM_WIN32(::GetLastError());
+        }
+
+        return S_OK;
+    }
+
+    /**
+     * @remark You can read the definition for this function in "NSudoAPI.h".
+     */
+    virtual HRESULT STDMETHODCALLTYPE OpenCurrentThreadToken(
+        _In_ DWORD DesiredAccess,
+        _In_ BOOL OpenAsSelf,
+        _Out_ PHANDLE TokenHandle)
+    {
+        return this->OpenThreadTokenByThreadHandle(
+            ::GetCurrentThread(), DesiredAccess, OpenAsSelf, TokenHandle);
+    }
+
+    /**
+     * @remark You can read the definition for this function in "NSudoAPI.h".
+     */
+    virtual HRESULT STDMETHODCALLTYPE OpenThreadTokenByThreadId(
+        _In_ DWORD ThreadId,
+        _In_ DWORD DesiredAccess,
+        _In_ BOOL OpenAsSelf,
+        _Out_ PHANDLE TokenHandle)
+    {
+        HANDLE ThreadHandle = INVALID_HANDLE_VALUE;
+
+        HRESULT hr = this->OpenThread(
+            MAXIMUM_ALLOWED, FALSE, ThreadId, &ThreadHandle);
+        if (hr == S_OK)
+        {
+            hr = this->OpenThreadTokenByThreadHandle(
+                ThreadHandle, DesiredAccess, OpenAsSelf, TokenHandle);
+
+            ::CloseHandle(ThreadHandle);
+        }
+
+        return hr;
+    }
 };
 
 /**
@@ -672,310 +969,4 @@ HRESULT WINAPI NSudoCreateInstance(
         *Instance = nullptr;
         return E_NOTIMPL;
     }
-}
-
-
-
-
-
-
-#include <cstdio>
-#include <cwchar>
-
-/**
- * @remark You can read the definition for this function in "NSudoAPI.h".
- */
-EXTERN_C DWORD WINAPI NSudoOpenProcess(
-    _Out_ PHANDLE ProcessHandle,
-    _In_ DWORD DesiredAccess,
-    _In_ BOOL InheritHandle,
-    _In_ DWORD ProcessId)
-{
-    DWORD ErrorCode = ERROR_INVALID_PARAMETER;
-
-    if (ProcessHandle)
-    {
-        *ProcessHandle = ::OpenProcess(
-            DesiredAccess, InheritHandle, ProcessId);
-        if (*ProcessHandle)
-        {
-            ErrorCode = ERROR_SUCCESS;
-        }
-        else
-        {
-            ErrorCode = ::GetLastError();
-        }
-    }
-
-    return ErrorCode;
-}
-
-/**
- * @remark You can read the definition for this function in "NSudoAPI.h".
- */
-EXTERN_C DWORD WINAPI NSudoOpenServiceProcess(
-    _Out_ PHANDLE ProcessHandle,
-    _In_ DWORD DesiredAccess,
-    _In_ BOOL InheritHandle,
-    _In_ LPCWSTR ServiceName)
-{
-    SERVICE_STATUS_PROCESS ServiceStatus;
-
-    DWORD ErrorCode = HRESULT_CODE(CNSudoClient().StartWindowsService(
-        ServiceName, &ServiceStatus));
-    if (ErrorCode == ERROR_SUCCESS)
-    {
-        ErrorCode = NSudoOpenProcess(
-            ProcessHandle,
-            DesiredAccess,
-            InheritHandle,
-            ServiceStatus.dwProcessId);
-    }
-
-    return ErrorCode;
-}
-
-/**
- * @remark You can read the definition for this function in "NSudoAPI.h".
- */
-EXTERN_C DWORD WINAPI NSudoOpenProcessTokenByProcessHandle(
-    _Out_ PHANDLE TokenHandle,
-    _In_ HANDLE ProcessHandle,
-    _In_ DWORD DesiredAccess)
-{
-    if (!::OpenProcessToken(
-        ProcessHandle, DesiredAccess, TokenHandle))
-    {
-        return ::GetLastError();
-    }
-
-    return ERROR_SUCCESS;
-}
-
-/**
- * @remark You can read the definition for this function in "NSudoAPI.h".
- */
-EXTERN_C DWORD WINAPI NSudoOpenCurrentProcessToken(
-    _Out_ PHANDLE TokenHandle,
-    _In_ DWORD DesiredAccess)
-{
-    return NSudoOpenProcessTokenByProcessHandle(
-        TokenHandle, ::GetCurrentProcess(), DesiredAccess);
-}
-
-/**
- * @remark You can read the definition for this function in "NSudoAPI.h".
- */
-EXTERN_C DWORD WINAPI NSudoOpenProcessTokenByProcessId(
-    _Out_ PHANDLE TokenHandle,
-    _In_ DWORD ProcessId,
-    _In_ DWORD DesiredAccess)
-{
-    HANDLE ProcessHandle = INVALID_HANDLE_VALUE;
-
-    DWORD ErrorCode = NSudoOpenProcess(
-        &ProcessHandle, MAXIMUM_ALLOWED, FALSE, ProcessId);
-    if (ErrorCode == ERROR_SUCCESS)
-    {
-        ErrorCode = NSudoOpenProcessTokenByProcessHandle(
-            TokenHandle, ProcessHandle, DesiredAccess);
-
-        ::CloseHandle(ProcessHandle);
-    }
-
-    return ErrorCode;
-}
-
-/**
- * @remark You can read the definition for this function in "NSudoAPI.h".
- */
-EXTERN_C DWORD WINAPI NSudoOpenServiceProcessToken(
-    _Out_ PHANDLE TokenHandle,
-    _In_ LPCWSTR ServiceName,
-    _In_ DWORD DesiredAccess)
-{
-    HANDLE ProcessHandle = INVALID_HANDLE_VALUE;
-
-    DWORD ErrorCode = NSudoOpenServiceProcess(
-        &ProcessHandle, MAXIMUM_ALLOWED, FALSE, ServiceName);
-    if (ErrorCode == ERROR_SUCCESS)
-    {
-        ErrorCode = NSudoOpenProcessTokenByProcessHandle(
-            TokenHandle, ProcessHandle, DesiredAccess);
-
-        ::CloseHandle(ProcessHandle);
-    }
-
-    return ErrorCode;
-}
-
-/**
- * @remark You can read the definition for this function in "NSudoAPI.h".
- */
-EXTERN_C DWORD WINAPI NSudoOpenLsassProcess(
-    _Out_ PHANDLE ProcessHandle,
-    _In_ DWORD DesiredAccess,
-    _In_ BOOL InheritHandle)
-{
-    DWORD ErrorCode = ERROR_NOT_FOUND;
-
-    DWORD dwLsassPID = static_cast<DWORD>(-1);
-
-    PWTS_PROCESS_INFOW pProcesses = nullptr;
-    DWORD dwProcessCount = 0;
-
-    if (::WTSEnumerateProcessesW(
-        WTS_CURRENT_SERVER_HANDLE,
-        0,
-        1,
-        &pProcesses,
-        &dwProcessCount))
-    {
-        for (DWORD i = 0; i < dwProcessCount; ++i)
-        {
-            PWTS_PROCESS_INFOW pProcess = &pProcesses[i];
-
-            if (pProcess->SessionId != 0)
-                continue;
-
-            if (!pProcess->pProcessName)
-                continue;
-
-            if (::_wcsicmp(L"lsass.exe", pProcess->pProcessName) != 0)
-                continue;
-
-            if (!pProcess->pUserSid)
-                continue;
-
-            if (!::IsWellKnownSid(
-                pProcess->pUserSid, WELL_KNOWN_SID_TYPE::WinLocalSystemSid))
-                continue;
-
-            dwLsassPID = pProcess->ProcessId;
-
-            ErrorCode = ERROR_SUCCESS;
-            break;
-        }
-
-        ::WTSFreeMemory(pProcesses);
-    }
-    else
-    {
-        ErrorCode = ::GetLastError();
-    }
-
-    if (ErrorCode == ERROR_SUCCESS)
-    {
-        ErrorCode = NSudoOpenProcess(
-            ProcessHandle,
-            DesiredAccess,
-            InheritHandle,
-            dwLsassPID);
-    }
-
-    return ErrorCode;
-}
-
-/**
- * @remark You can read the definition for this function in "NSudoAPI.h".
- */
-EXTERN_C DWORD WINAPI NSudoOpenLsassProcessToken(
-    _Out_ PHANDLE TokenHandle,
-    _In_ DWORD DesiredAccess)
-{
-    HANDLE ProcessHandle = INVALID_HANDLE_VALUE;
-
-    DWORD ErrorCode = NSudoOpenLsassProcess(
-        &ProcessHandle, MAXIMUM_ALLOWED, FALSE);
-    if (ErrorCode == ERROR_SUCCESS)
-    {
-        ErrorCode = NSudoOpenProcessTokenByProcessHandle(
-            TokenHandle, ProcessHandle, DesiredAccess);
-
-        ::CloseHandle(ProcessHandle);
-    }
-
-    return ErrorCode;
-}
-
-/**
- * @remark You can read the definition for this function in "NSudoAPI.h".
- */
-EXTERN_C DWORD WINAPI NSudoOpenThread(
-    _Out_ PHANDLE ThreadHandle,
-    _In_ DWORD DesiredAccess,
-    _In_ BOOL InheritHandle,
-    _In_ DWORD ThreadId)
-{
-    DWORD ErrorCode = ERROR_INVALID_PARAMETER;
-
-    if (ThreadHandle)
-    {
-        *ThreadHandle = ::OpenThread(
-            DesiredAccess, InheritHandle, ThreadId);
-        if (*ThreadHandle)
-        {
-            ErrorCode = ERROR_SUCCESS;
-        }
-        else
-        {
-            ErrorCode = ::GetLastError();
-        }
-    }
-
-    return ErrorCode;
-}
-
-/**
- * @remark You can read the definition for this function in "NSudoAPI.h".
- */
-EXTERN_C DWORD WINAPI NSudoOpenThreadTokenByThreadHandle(
-    _Out_ PHANDLE TokenHandle,
-    _In_ HANDLE ThreadHandle,
-    _In_ DWORD DesiredAccess,
-    _In_ BOOL OpenAsSelf)
-{
-    if (!::OpenThreadToken(
-        ThreadHandle, DesiredAccess, OpenAsSelf, TokenHandle))
-    {
-        return ::GetLastError();
-    }
-
-    return ERROR_SUCCESS;
-}
-
-/**
- * @remark You can read the definition for this function in "NSudoAPI.h".
- */
-EXTERN_C DWORD WINAPI NSudoOpenCurrentThreadToken(
-    _Out_ PHANDLE TokenHandle,
-    _In_ DWORD DesiredAccess,
-    _In_ BOOL OpenAsSelf)
-{
-    return NSudoOpenThreadTokenByThreadHandle(
-        TokenHandle, ::GetCurrentThread(), DesiredAccess, OpenAsSelf);
-}
-
-/**
- * @remark You can read the definition for this function in "NSudoAPI.h".
- */
-EXTERN_C DWORD WINAPI NSudoOpenThreadTokenByThreadId(
-    _Out_ PHANDLE TokenHandle,
-    _In_ DWORD ThreadId,
-    _In_ DWORD DesiredAccess,
-    _In_ BOOL OpenAsSelf)
-{
-    HANDLE ThreadHandle = INVALID_HANDLE_VALUE;
-
-    DWORD ErrorCode = NSudoOpenThread(
-        &ThreadHandle, MAXIMUM_ALLOWED, FALSE, ThreadId);
-    if (ErrorCode == ERROR_SUCCESS)
-    {
-        ErrorCode = NSudoOpenThreadTokenByThreadHandle(
-            TokenHandle, ThreadHandle, DesiredAccess, OpenAsSelf);
-
-        ::CloseHandle(ThreadHandle);
-    }
-
-    return ErrorCode;
 }
