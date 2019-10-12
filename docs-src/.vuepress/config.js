@@ -19,21 +19,8 @@
         nav: [
           { text: "Home", link: "/" },
           { text: "Download", link: "/Download" },
-          { text: "Documents", link: "/docs/" },
-          {
-            text: 'Communities',
-            items: [
-              { text: 'GitHub', link: 'https://github.com/M2Team/NSudo/issues' },
-              { text: 'My Digital Life', link: 'https://forums.mydigitallife.net/threads/59268' },
-              { text: 'QQ Group', link: 'https://shang.qq.com/wpa/qunwpa?idkey=ac879ff5e88f85115597a9ec5f3dbbf28a6b84d7352e2fe03b7cbacf58bb6d53'}
-            ]
-          },
-          {
-            text: "Contact",
-            items: [
-              { text: 'E-mail', link: 'mailto:Mouri_Naruto@Outlook.com' }
-            ]
-          }
+          { text: "Support", link: "/Support" },
+          { text: "Documents", link: "/docs/" }
         ],
         sidebar: {
           "/docs/": [
@@ -61,21 +48,8 @@
         nav: [
           { text: "首页", link: "/zh-hans/" },
           { text: "下载", link: "/zh-hans/Download" },
-          { text: "文档", link: "/zh-hans/docs/" },
-          {
-            text: '社区',
-            items: [
-              { text: 'GitHub', link: 'https://github.com/M2Team/NSudo/issues' },
-              { text: 'My Digital Life', link: 'https://forums.mydigitallife.net/threads/59268' },
-              { text: 'QQ 群', link: 'https://shang.qq.com/wpa/qunwpa?idkey=ac879ff5e88f85115597a9ec5f3dbbf28a6b84d7352e2fe03b7cbacf58bb6d53' }
-            ]
-          },
-          {
-            text: "联系方式",
-            items: [
-              { text: '邮箱', link: 'mailto:Mouri_Naruto@Outlook.com' }
-            ]
-          }
+          { text: "支持", link: "/zh-hans/Support" },
+          { text: "文档", link: "/zh-hans/docs/" }
         ],
         sidebar: {
           "/zh-hans/docs/": [
@@ -103,21 +77,8 @@
         nav: [
           { text: "主頁", link: "/zh-hant/" },
           { text: "下載", link: "/zh-hant/Download" },
-          { text: "文獻", link: "/zh-hant/docs/" },
-          {
-            text: '社區',
-            items: [
-              { text: 'GitHub', link: 'https://github.com/M2Team/NSudo/issues' },
-              { text: 'My Digital Life', link: 'https://forums.mydigitallife.net/threads/59268' },
-              { text: 'QQ 群組', link: 'https://shang.qq.com/wpa/qunwpa?idkey=ac879ff5e88f85115597a9ec5f3dbbf28a6b84d7352e2fe03b7cbacf58bb6d53' }
-            ]
-          },
-          {
-            text: "聯繫方式",
-            items: [
-              { text: '電郵', link: 'mailto:Mouri_Naruto@Outlook.com' }
-            ]
-          }
+          { text: "支援", link: "/zh-hant/Support" },
+          { text: "文獻", link: "/zh-hant/docs/" }
         ],
         sidebar: {
           "/zh-hant/docs/": [
