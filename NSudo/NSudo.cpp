@@ -19,7 +19,7 @@
 
 #pragma endregion
 
-#include "M2.NSudo.h"
+#include "NSudoAPI.h"
 
 #include "M2WindowsHelpers.h"
 #include "M2Win32GUIHelpers.h"
@@ -739,8 +739,8 @@ NSUDO_MESSAGE NSudoCommandLineParser(
     DWORD ShowWindowMode = SW_SHOWDEFAULT;
     bool CreateNewConsole = true;
 
-    M2::NSudo::NSUDO_MANDATORY_LABEL_TYPE MandatoryLabelType =
-        M2::NSudo::NSUDO_MANDATORY_LABEL_TYPE::UNTRUSTED;
+    NSUDO_MANDATORY_LABEL_TYPE MandatoryLabelType =
+        NSUDO_MANDATORY_LABEL_TYPE::UNTRUSTED;
 
     for (auto& OptionAndParameter : OptionsAndParameters)
     {
@@ -792,19 +792,19 @@ NSUDO_MESSAGE NSudoCommandLineParser(
         {
             if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"S"))
             {
-                MandatoryLabelType = M2::NSudo::NSUDO_MANDATORY_LABEL_TYPE::SYSTEM;
+                MandatoryLabelType = NSUDO_MANDATORY_LABEL_TYPE::SYSTEM;
             }
             else if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"H"))
             {
-                MandatoryLabelType = M2::NSudo::NSUDO_MANDATORY_LABEL_TYPE::HIGH;
+                MandatoryLabelType = NSUDO_MANDATORY_LABEL_TYPE::HIGH;
             }
             else if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"M"))
             {
-                MandatoryLabelType = M2::NSudo::NSUDO_MANDATORY_LABEL_TYPE::MEDIUM;
+                MandatoryLabelType = NSUDO_MANDATORY_LABEL_TYPE::MEDIUM;
             }
             else if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"L"))
             {
-                MandatoryLabelType = M2::NSudo::NSUDO_MANDATORY_LABEL_TYPE::LOW;
+                MandatoryLabelType = NSUDO_MANDATORY_LABEL_TYPE::LOW;
             }
             else
             {
@@ -982,7 +982,7 @@ NSUDO_MESSAGE NSudoCommandLineParser(
         }
     }
 
-    if (MandatoryLabelType != M2::NSudo::NSUDO_MANDATORY_LABEL_TYPE::UNTRUSTED)
+    if (MandatoryLabelType != NSUDO_MANDATORY_LABEL_TYPE::UNTRUSTED)
     {
         if (S_OK != g_ResourceManagement.pNSudoClient->SetTokenMandatoryLabel(
             hToken, MandatoryLabelType))

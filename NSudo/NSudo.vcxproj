@@ -208,7 +208,6 @@
     <ClInclude Include="CIBuild.h" />
     <ClInclude Include="jsmn.h" />
     <ClInclude Include="json.hpp" />
-    <ClInclude Include="M2.NSudo.h" />
     <ClInclude Include="M2MessageDialogResource.h" />
     <ClInclude Include="M2Win32GUIHelpers.h" />
     <ClInclude Include="M2WindowsDownlevelHelpers.h" />
@@ -218,7 +217,6 @@
     <ClInclude Include="Resources\resource.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="M2.NSudo.cpp" />
     <ClCompile Include="M2Win32GUIHelpers.cpp" />
     <ClCompile Include="M2WindowsDownlevelHelpers.cpp" />
     <ClCompile Include="M2WindowsHelpers.cpp" />

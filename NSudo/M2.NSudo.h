@@ -21,16 +21,6 @@
 #include <string>
 #include <vector>
 
-namespace M2
-{
-    namespace NSudo
-    {
-        using ::NSUDO_MANDATORY_LABEL_TYPE;
-        using ::PNSUDO_MANDATORY_LABEL_TYPE;
-        using ::INSudoClient;
-        using ::NSudoCreateInstance;
 
-    }
-}
 
 #endif

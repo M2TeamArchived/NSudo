@@ -955,7 +955,7 @@ public:
 /**
  * @remark You can read the definition for this function in "NSudoAPI.h".
  */
-HRESULT WINAPI NSudoCreateInstance(
+EXTERN_C HRESULT WINAPI NSudoCreateInstance(
     _In_ REFIID InterfaceId,
     _Out_ PVOID* Instance)
 {
@@ -967,6 +967,6 @@ HRESULT WINAPI NSudoCreateInstance(
     else
     {
         *Instance = nullptr;
-        return E_NOTIMPL;
+        return E_NOINTERFACE;
     }
 }

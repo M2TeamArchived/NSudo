@@ -704,7 +704,7 @@ EXTERN_GUID(
  * @param Object A location to store the interface pointer to return.
  * @return HRESULT. If the function succeeds, the return value is S_OK.
  */
-HRESULT WINAPI NSudoCreateInstance(
+EXTERN_C HRESULT WINAPI NSudoCreateInstance(
     _In_ REFIID InterfaceId,
     _Out_ PVOID* Instance);
 
