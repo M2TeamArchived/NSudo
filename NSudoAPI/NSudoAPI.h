@@ -232,7 +232,6 @@ public:
         _In_ NSUDO_MANDATORY_LABEL_TYPE MandatoryLabelType,
         _Out_ PSID* MandatoryLabelSid) = 0;
 
-
     /**
      * Sets mandatory label for a specified access token. The information that
      * this function sets replaces existing information. The calling process
@@ -248,6 +247,171 @@ public:
     virtual HRESULT STDMETHODCALLTYPE SetTokenMandatoryLabel(
         _In_ HANDLE TokenHandle,
         _In_ NSUDO_MANDATORY_LABEL_TYPE MandatoryLabelType) = 0;
+
+    /**
+     * Starts a service if not started and retrieves the current status of the
+     * specified service.
+     *
+     * @param ServiceName The name of the service to be started. This is the
+     *                    name specified by the lpServiceName parameter of the
+     *                    CreateService function when the service object was
+     *                    created, not the service display name that is shown by
+     *                    user interface applications to identify the service.
+     *                    The maximum string length is 256 characters. The
+     *                    service control manager database preserves the case of
+     *                    the characters, but service name comparisons are
+     *                    always case insensitive. Forward-slash (/) and
+     *                    backslash (\) are invalid service name characters.
+     * @param ServiceStatus A pointer to the process status information for a
+     *                      service.
+     * @return HRESULT. If the function succeeds, the return value is S_OK.
+     */
+    virtual HRESULT STDMETHODCALLTYPE StartWindowsService(
+        _In_ LPCWSTR ServiceName,
+        _Out_ LPSERVICE_STATUS_PROCESS ServiceStatus) = 0;
+
+    /**
+     * Obtains the primary access token of the logged-on user specified by the
+     * session ID. To call this function successfully, the calling application
+     * must be running within the context of the LocalSystem account and have
+     * the SE_TCB_NAME privilege.
+     *
+     * @param SessionId A Remote Desktop Services session identifier.
+     * @param TokenHandle If the function succeeds, receives a pointer to the
+     *                    token handle for the logged-on user. Note that you
+     *                    must call the CloseHandle function to close this
+     *                    handle.
+     * @return HRESULT. If the function succeeds, the return value is S_OK.
+     * @remark For more information, see WTSQueryUserToken.
+     */
+    virtual HRESULT STDMETHODCALLTYPE CreateSessionToken(
+        _In_ DWORD SessionId,
+        _Out_ PHANDLE TokenHandle) = 0;
+
+    /**
+     * Creates a new access token that is a restricted version of an
+     * existing access token. The restricted token can have disabled
+     * security identifiers (SIDs), deleted privileges, and a list of
+     * restricting SIDs. For more information, see Restricted Tokens.
+     *
+     * @param ExistingTokenHandle A handle to a primary or impersonation token.
+     *                            The token can also be a restricted token. The
+     *                            handle must have TOKEN_DUPLICATE access to
+     *                            the token.
+     * @param Flags Specifies additional privilege options. This parameter can
+     *              be zero or a combination of the following values.
+     *              DISABLE_MAX_PRIVILEGE
+     *                  Disables all privileges in the new token except the
+     *                  SeChangeNotifyPrivilege privilege. If this value is
+     *                  specified, the DeletePrivilegeCount and
+     *                  PrivilegesToDelete parameters are ignored.
+     *              SANDBOX_INERT
+     *                  If this value is used, the system does not check
+     *                  AppLocker rules or apply Software Restriction
+     *                  Policies. For AppLocker, this flag disables checks
+     *                  for all four rule collections: Executable, Windows
+     *                  Installer, Script, and DLL.
+     *              LUA_TOKEN
+     *                  The new token is a LUA token.
+     *              WRITE_RESTRICTED
+     *                  The new token contains restricting SIDs that are
+     *                  considered only when evaluating write access.
+     * @param DisableSidCount Specifies the number of entries in the
+     *                        SidsToDisable array.
+     * @param SidsToDisable A pointer to an array of SID_AND_ATTRIBUTES
+     *                      structures that specify the deny-only SIDs
+     *                      in the restricted token.
+     * @param DeletePrivilegeCount Specifies the number of entries in the
+     *                             PrivilegesToDelete array.
+     * @param PrivilegesToDelete A pointer to an array of LUID_AND_ATTRIBUTES
+     *                           structures that specify the privileges to
+     *                           delete in the restricted token.
+     * @param RestrictedSidCount Specifies the number of entries in the
+     *                           SidsToRestrict array.
+     * @param SidsToRestrict A pointer to an array of SID_AND_ATTRIBUTES
+     *                       structures that specify a list of restricting
+     *                       SIDs for the new token.
+     * @param NewTokenHandle A pointer to a variable that receives a handle to
+     *                       the new restricted token.
+     * @return HRESULT. If the function succeeds, the return value is S_OK.
+     * @remark For more information, see CreateRestrictedToken.
+     */
+    virtual HRESULT STDMETHODCALLTYPE CreateRestrictedToken(
+        _In_ HANDLE ExistingTokenHandle,
+        _In_ DWORD Flags,
+        _In_ DWORD DisableSidCount,
+        _In_opt_ PSID_AND_ATTRIBUTES SidsToDisable,
+        _In_ DWORD DeletePrivilegeCount,
+        _In_opt_ PLUID_AND_ATTRIBUTES PrivilegesToDelete,
+        _In_ DWORD RestrictedSidCount,
+        _In_opt_ PSID_AND_ATTRIBUTES SidsToRestrict,
+        _Out_ PHANDLE NewTokenHandle) = 0;
+
+    /**
+     * Creates a new access token that is a LUA version of an existing access
+     * token.
+     *
+     * @param TokenHandle A pointer to a variable that receives a handle to the
+     *                    new restricted token.
+     * @param ExistingTokenHandle A handle to a primary or impersonation token.
+     *                            The token can also be a restricted token. The
+     *                            handle must have TOKEN_DUPLICATE access to
+     *                            the token.
+     * @return HRESULT. If the function succeeds, the return value is S_OK.
+     */
+    virtual HRESULT STDMETHODCALLTYPE CreateLUAToken(
+        _In_ HANDLE ExistingTokenHandle,
+        _Out_ PHANDLE TokenHandle) = 0;
+
+    /**
+     * Assigns an impersonation token to a thread. The function can also cause
+     * a thread to stop using an impersonation token.
+     *
+     * @param TokenHandle A handle to the impersonation token to assign to the
+     *                    thread. If TokenHandle is NULL, the function causes
+     *                    the thread to stop using an impersonation token.
+     * @return HRESULT. If the function succeeds, the return value is S_OK.
+     * @remark For more information, see SetThreadToken.
+     */
+    virtual HRESULT STDMETHODCALLTYPE SetCurrentThreadToken(
+        _In_opt_ HANDLE TokenHandle) = 0;
+
+    /**
+     * Creates a new access token that duplicates an existing token. This
+     * function can create either a primary token or an impersonation token.
+     *
+     * @param ExistingTokenHandle A handle to an access token opened with
+     *                            TOKEN_DUPLICATE access.
+     * @param DesiredAccess Specifies the requested access rights for the new
+     *                      token. To request all access rights that are valid
+     *                      for the caller, specify MAXIMUM_ALLOWED.
+     * @param TokenAttributes A pointer to a SECURITY_ATTRIBUTES structure that
+     *                        specifies a security descriptor for the new token
+     *                        and determines whether child processes can
+     *                        inherit the token.
+     * @param ImpersonationLevel Specifies a value from the
+     *                           SECURITY_IMPERSONATION_LEVEL enumeration that
+     *                           indicates the impersonation level of the new
+     *                           token.
+     * @param TokenType Specifies one of the following values from the
+     *                  TOKEN_TYPE enumeration.
+     *                  TokenPrimary
+     *                      The new token is a primary token that you can use
+     *                      in the CreateProcessAsUser function.
+     *                  TokenImpersonation
+     *                      The new token is an impersonation token.
+     * @param NewTokenHandle A pointer to a HANDLE variable that receives the
+     *                       new token.
+     * @return HRESULT. If the function succeeds, the return value is S_OK.
+     * @remark For more information, see DuplicateTokenEx.
+     */
+    virtual HRESULT STDMETHODCALLTYPE DuplicateToken(
+        _In_ HANDLE ExistingTokenHandle,
+        _In_ DWORD DesiredAccess,
+        _In_opt_ LPSECURITY_ATTRIBUTES TokenAttributes,
+        _In_ SECURITY_IMPERSONATION_LEVEL ImpersonationLevel,
+        _In_ TOKEN_TYPE TokenType,
+        _Out_ PHANDLE NewTokenHandle) = 0;
 
 };
 
@@ -282,28 +446,7 @@ HRESULT WINAPI NSudoCreateInstance(
 
 
 
-/**
- * Starts a service if not started and retrieves the current status of the
- * specified service.
- *
- * @param ServiceStatus A pointer to the process status information for a
- *                      service.
- * @param ServiceName The name of the service to be started. This is the name
- *                    specified by the lpServiceName parameter of the
- *                    CreateService function when the service object was
- *                    created, not the service display name that is shown by
- *                    user interface applications to identify the service.
- *                    The maximum string length is 256 characters. The service
- *                    control manager database preserves the case of the
- *                    characters, but service name comparisons are always case
- *                    insensitive. Forward-slash (/) and backslash (\) are
- *                    invalid service name characters.
- * @return Standard Win32 Error. If the function succeeds, the return value is
- *         ERROR_SUCCESS.
- */
-EXTERN_C DWORD WINAPI NSudoStartService(
-    _Out_ LPSERVICE_STATUS_PROCESS ServiceStatus,
-    _In_ LPCWSTR ServiceName);
+
 
 /**
  * Opens an existing local process object.
@@ -359,6 +502,29 @@ EXTERN_C DWORD WINAPI NSudoOpenServiceProcess(
     _In_ DWORD DesiredAccess,
     _In_ BOOL InheritHandle,
     _In_ LPCWSTR ServiceName);
+
+/**
+ * Opens an existing local process object associated with the Local Security
+ * Authority process, the calling application must be running within the
+ * context of the Administrator account and have the SE_DEBUG_NAME privilege
+ * enabled.
+ *
+ * @param ProcessHandle A pointer to an open handle to the specified process.
+ * @param DesiredAccess The access to the process object. This access right is
+ *                      checked against the security descriptor for the
+ *                      process. This parameter can be one or more of the
+ *                      process access rights.
+ * @param InheritHandle If this value is TRUE, processes created by this
+ *                      process will inherit the handle. Otherwise, the
+ *                      processes do not inherit this handle.
+ * @return Standard Win32 Error. If the function succeeds, the return value is
+ *         ERROR_SUCCESS.
+ * @remark For more information, see OpenProcess.
+ */
+EXTERN_C DWORD WINAPI NSudoOpenLsassProcess(
+    _Out_ PHANDLE ProcessHandle,
+    _In_ DWORD DesiredAccess,
+    _In_ BOOL InheritHandle);
 
 /**
  * Opens the access token associated with a process.
@@ -448,29 +614,6 @@ EXTERN_C DWORD WINAPI NSudoOpenServiceProcessToken(
     _In_ DWORD DesiredAccess);
 
 /**
- * Opens an existing local process object associated with the Local Security
- * Authority process, the calling application must be running within the
- * context of the Administrator account and have the SE_DEBUG_NAME privilege
- * enabled.
- *
- * @param ProcessHandle A pointer to an open handle to the specified process.
- * @param DesiredAccess The access to the process object. This access right is
- *                      checked against the security descriptor for the
- *                      process. This parameter can be one or more of the
- *                      process access rights.
- * @param InheritHandle If this value is TRUE, processes created by this
- *                      process will inherit the handle. Otherwise, the
- *                      processes do not inherit this handle.
- * @return Standard Win32 Error. If the function succeeds, the return value is
- *         ERROR_SUCCESS.
- * @remark For more information, see OpenProcess.
- */
-EXTERN_C DWORD WINAPI NSudoOpenLsassProcess(
-    _Out_ PHANDLE ProcessHandle,
-    _In_ DWORD DesiredAccess,
-    _In_ BOOL InheritHandle);
-
-/**
  * Opens the access token associated with the Local Security Authority process,
  * the calling application must be running within the context of the
  * Administrator account and have the SE_DEBUG_NAME privilege enabled.
@@ -488,96 +631,6 @@ EXTERN_C DWORD WINAPI NSudoOpenLsassProcess(
 EXTERN_C DWORD WINAPI NSudoOpenLsassProcessToken(
     _Out_ PHANDLE TokenHandle,
     _In_ DWORD DesiredAccess);
-
-/**
- * Obtains the primary access token of the logged-on user specified by the
- * session ID. To call this function successfully, the calling application must
- * be running within the context of the LocalSystem account and have the
- * SE_TCB_NAME privilege.
- *
- * @param TokenHandle If the function succeeds, receives a pointer to the token
- *                    handle for the logged-on user. Note that you must call
- *                    the CloseHandle function to close this handle.
- * @param SessionId A Remote Desktop Services session identifier. 
- * @return Standard Win32 Error. If the function succeeds, the return value is
- *         ERROR_SUCCESS.
- * @remark For more information, see WTSQueryUserToken.
- */
-EXTERN_C DWORD WINAPI NSudoCreateSessionToken(
-    _Out_ PHANDLE TokenHandle,
-    _In_ DWORD SessionId);
-
-/**
- * Creates a new access token that is a restricted version of an existing
- * access token. The restricted token can have disabled security identifiers
- * (SIDs), deleted privileges, and a list of restricting SIDs. For more
- * information, see Restricted Tokens.
- *
- * @param NewTokenHandle A pointer to a variable that receives a handle to the
- *                       new restricted token.
- * @param ExistingTokenHandle A handle to a primary or impersonation token. The
- *                            token can also be a restricted token. The handle
- *                            must have TOKEN_DUPLICATE access to the token.
- * @param Flags Specifies additional privilege options. This parameter can be
- *              zero or a combination of the following values.
- *              DISABLE_MAX_PRIVILEGE
- *                  Disables all privileges in the new token except the
- *                  SeChangeNotifyPrivilege privilege. If this value is
- *                  specified, the DeletePrivilegeCount and PrivilegesToDelete
- *                  parameters are ignored.
- *              SANDBOX_INERT
- *                  If this value is used, the system does not check AppLocker
- *                  rules or apply Software Restriction Policies. For AppLocker,
- *                  this flag disables checks for all four rule collections:
- *                  Executable, Windows Installer, Script, and DLL.
- *              LUA_TOKEN
- *                  The new token is a LUA token.
- *              WRITE_RESTRICTED
- *                  The new token contains restricting SIDs that are considered
- *                  only when evaluating write access.
- * @param DisableSidCount Specifies the number of entries in the SidsToDisable
- *                        array.
- * @param SidsToDisable A pointer to an array of SID_AND_ATTRIBUTES structures
- *                      that specify the deny-only SIDs in the restricted token.
- * @param DeletePrivilegeCount Specifies the number of entries in the
- *                             PrivilegesToDelete array.
- * @param PrivilegesToDelete A pointer to an array of LUID_AND_ATTRIBUTES
- *                           structures that specify the privileges to delete
- *                           in the restricted token.
- * @param RestrictedSidCount Specifies the number of entries in the
- *                           SidsToRestrict array.
- * @param SidsToRestrict A pointer to an array of SID_AND_ATTRIBUTES structures
- *                       that specify a list of restricting SIDs for the new
- *                       token.
- * @return Standard Win32 Error. If the function succeeds, the return value is
- *         ERROR_SUCCESS.
- * @remark For more information, see CreateRestrictedToken.
- */
-EXTERN_C DWORD WINAPI NSudoCreateRestrictedToken(
-    _Out_ PHANDLE NewTokenHandle,
-    _In_ HANDLE ExistingTokenHandle,
-    _In_ DWORD Flags,
-    _In_ DWORD DisableSidCount,
-    _In_opt_ PSID_AND_ATTRIBUTES SidsToDisable,
-    _In_ DWORD DeletePrivilegeCount,
-    _In_opt_ PLUID_AND_ATTRIBUTES PrivilegesToDelete,
-    _In_ DWORD RestrictedSidCount,
-    _In_opt_ PSID_AND_ATTRIBUTES SidsToRestrict);
-
-/**
- * Creates a new access token that is a LUA version of an existing access token.
- *
- * @param TokenHandle A pointer to a variable that receives a handle to the new
- *                    restricted token.
- * @param ExistingTokenHandle A handle to a primary or impersonation token. The
- *                            token can also be a restricted token. The handle
- *                            must have TOKEN_DUPLICATE access to the token.
- * @return Standard Win32 Error. If the function succeeds, the return value is
- *         ERROR_SUCCESS.
- */
-EXTERN_C DWORD WINAPI NSudoCreateLUAToken(
-    _Out_ PHANDLE TokenHandle,
-    _In_ HANDLE ExistingTokenHandle);
 
 /**
  * Opens an existing thread object.
@@ -673,59 +726,5 @@ EXTERN_C DWORD WINAPI NSudoOpenThreadTokenByThreadId(
     _In_ DWORD ThreadId,
     _In_ DWORD DesiredAccess,
     _In_ BOOL OpenAsSelf);
-
-
-
-/**
- * Assigns an impersonation token to a thread. The function can also cause a
- * thread to stop using an impersonation token.
- *
- * @param TokenHandle A handle to the impersonation token to assign to the
- *                    thread. If TokenHandle is NULL, the function causes the
- *                    thread to stop using an impersonation token.
- * @return Standard Win32 Error. If the function succeeds, the return value is
- *         ERROR_SUCCESS.
- * @remark For more information, see SetThreadToken.
- */
-EXTERN_C DWORD WINAPI NSudoSetCurrentThreadToken(
-    _In_opt_ HANDLE TokenHandle);
-
-/**
- * Creates a new access token that duplicates an existing token. This function
- * can create either a primary token or an impersonation token.
- *
- * @param NewTokenHandle A pointer to a HANDLE variable that receives the new
- *                       token.
- * @param ExistingTokenHandle A handle to an access token opened with
- *                            TOKEN_DUPLICATE access.
- * @param DesiredAccess Specifies the requested access rights for the new
- *                      token. To request all access rights that are valid for
- *                      the caller, specify MAXIMUM_ALLOWED.
- * @param TokenAttributes A pointer to a SECURITY_ATTRIBUTES structure that
- *                        specifies a security descriptor for the new token and
- *                        determines whether child processes can inherit the
- *                        token.
- * @param ImpersonationLevel Specifies a value from the
- *                           SECURITY_IMPERSONATION_LEVEL enumeration that
- *                           indicates the impersonation level of the new
- *                           token.
- * @param TokenType Specifies one of the following values from the TOKEN_TYPE
- *                  enumeration.
- *                  TokenPrimary
- *                      The new token is a primary token that you can use in
- *                      the CreateProcessAsUser function.
- *                  TokenImpersonation
- *                      The new token is an impersonation token.
- * @return Standard Win32 Error. If the function succeeds, the return value is
- *         ERROR_SUCCESS.
- * @remark For more information, see DuplicateTokenEx.
- */
-EXTERN_C DWORD WINAPI NSudoDuplicateToken(
-    _Out_ PHANDLE NewTokenHandle,
-    _In_ HANDLE ExistingTokenHandle,
-    _In_ DWORD DesiredAccess,
-    _In_opt_ LPSECURITY_ATTRIBUTES TokenAttributes,
-    _In_ SECURITY_IMPERSONATION_LEVEL ImpersonationLevel,
-    _In_ TOKEN_TYPE TokenType);
 
 #endif

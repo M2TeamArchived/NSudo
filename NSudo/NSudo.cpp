@@ -498,13 +498,13 @@ public:
     DWORD ErrorCode;
 
     ThreadTokenContext(HANDLE TokenHandle) :
-        ErrorCode(M2::NSudo::NSudoSetCurrentThreadToken(TokenHandle))
+        ErrorCode(HRESULT_CODE(g_ResourceManagement.pNSudoClient->SetCurrentThreadToken(TokenHandle)))
     {
     }
 
     ~ThreadTokenContext()
     {
-        M2::NSudo::NSudoSetCurrentThreadToken(nullptr);
+        g_ResourceManagement.pNSudoClient->SetCurrentThreadToken(nullptr);
     }
   
 };
@@ -550,13 +550,13 @@ NSUDO_MESSAGE NSudoCommandLineParser(
             &CurrentProcessToken, MAXIMUM_ALLOWED);
         if (ErrorCode == ERROR_SUCCESS)
         {
-            ErrorCode = M2::NSudo::NSudoDuplicateToken(
-                &DuplicatedToken,
+            ErrorCode = HRESULT_CODE(g_ResourceManagement.pNSudoClient->DuplicateToken(
                 CurrentProcessToken,
                 MAXIMUM_ALLOWED,
                 nullptr,
                 SecurityImpersonation,
-                TokenImpersonation);
+                TokenImpersonation,
+                &DuplicatedToken));
             if (ErrorCode == ERROR_SUCCESS)
             {
                 std::map<std::wstring, DWORD> Privileges;
@@ -610,13 +610,13 @@ NSUDO_MESSAGE NSudoCommandLineParser(
             &OriginalToken, MAXIMUM_ALLOWED);
         if (ErrorCode == ERROR_SUCCESS)
         {
-            ErrorCode = M2::NSudo::NSudoDuplicateToken(
-                &SystemToken,
+            ErrorCode = HRESULT_CODE(g_ResourceManagement.pNSudoClient->DuplicateToken(
                 OriginalToken,
                 MAXIMUM_ALLOWED,
                 nullptr,
                 SecurityImpersonation,
-                TokenImpersonation);
+                TokenImpersonation,
+                &SystemToken));
             if (ErrorCode == ERROR_SUCCESS)
             {
                 ErrorCode = HRESULT_CODE(g_ResourceManagement.pNSudoClient->AdjustTokenAllPrivileges(
@@ -864,8 +864,8 @@ NSUDO_MESSAGE NSudoCommandLineParser(
     }
     else if (NSudoOptionUserValue::CurrentUser == UserMode)
     {
-        if (ERROR_SUCCESS != M2::NSudo::NSudoCreateSessionToken(
-            &OriginalToken, dwSessionID))
+        if (S_OK != g_ResourceManagement.pNSudoClient->CreateSessionToken(
+            dwSessionID, &OriginalToken))
         {
             return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
         }
@@ -885,8 +885,8 @@ NSUDO_MESSAGE NSudoCommandLineParser(
             &CurrentProcessToken, MAXIMUM_ALLOWED);
         if (ErrorCode == ERROR_SUCCESS)
         {
-            ErrorCode = M2::NSudo::NSudoCreateLUAToken(
-                &OriginalToken, CurrentProcessToken);
+            ErrorCode = HRESULT_CODE(g_ResourceManagement.pNSudoClient->CreateLUAToken(
+                CurrentProcessToken, &OriginalToken));
 
             ::CloseHandle(CurrentProcessToken);
         }
@@ -897,13 +897,13 @@ NSUDO_MESSAGE NSudoCommandLineParser(
         }
     }
 
-    if (ERROR_SUCCESS != M2::NSudo::NSudoDuplicateToken(
-        &hToken,
+    if (S_OK != g_ResourceManagement.pNSudoClient->DuplicateToken(
         OriginalToken,
         MAXIMUM_ALLOWED,
         nullptr,
         SecurityIdentification,
-        TokenPrimary))
+        TokenPrimary,
+        &hToken))
     {
         return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
     }

@@ -27,7 +27,6 @@ namespace M2
     {
         using ::NSUDO_MANDATORY_LABEL_TYPE;
         using ::PNSUDO_MANDATORY_LABEL_TYPE;
-        using ::NSudoStartService;
         using ::NSudoOpenProcess;
         using ::NSudoOpenServiceProcess;
         using ::NSudoOpenProcessTokenByProcessHandle;
@@ -36,15 +35,10 @@ namespace M2
         using ::NSudoOpenServiceProcessToken;
         using ::NSudoOpenLsassProcess;
         using ::NSudoOpenLsassProcessToken;
-        using ::NSudoCreateSessionToken;
-        using ::NSudoCreateRestrictedToken;
-        using ::NSudoCreateLUAToken;
         using ::NSudoOpenThread;
         using ::NSudoOpenThreadTokenByThreadHandle;
         using ::NSudoOpenCurrentThreadToken;
         using ::NSudoOpenThreadTokenByThreadId;
-        using ::NSudoSetCurrentThreadToken;
-        using ::NSudoDuplicateToken;
 
         using ::INSudoClient;
         using ::NSudoCreateInstance;
