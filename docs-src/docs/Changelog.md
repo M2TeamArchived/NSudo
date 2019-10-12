@@ -1,5 +1,9 @@
 ﻿# Changelog
 
+**NSudo 8.0.0-alpha2**
+
+- Update links information in NSudo binaries.
+
 **NSudo 8.0.0-alpha1**
 
 - Update JSON for Modern C++ to 3.7.0.
