@@ -25,11 +25,8 @@ namespace M2
 {
     namespace NSudo
     {
-        using ::NSudoGetFeatureLevel;
-        using ::NSudoAdjustTokenPrivileges;
         using ::NSUDO_MANDATORY_LABEL_TYPE;
         using ::PNSUDO_MANDATORY_LABEL_TYPE;
-        using ::NSudoCreateMandatoryLabelSid;
         using ::NSudoStartService;
         using ::NSudoOpenProcess;
         using ::NSudoOpenServiceProcess;
@@ -40,22 +37,17 @@ namespace M2
         using ::NSudoOpenLsassProcess;
         using ::NSudoOpenLsassProcessToken;
         using ::NSudoCreateSessionToken;
-        using ::NSudoAllocMemory;
-        using ::NSudoFreeMemory;
-        using ::NSudoGetTokenInformation;
-        using ::NSudoGetTokenInformationWithMemory;
-        using ::NSudoSetTokenInformation;
-        using ::NSudoSetTokenMandatoryLabel;
         using ::NSudoCreateRestrictedToken;
         using ::NSudoCreateLUAToken;
         using ::NSudoOpenThread;
         using ::NSudoOpenThreadTokenByThreadHandle;
         using ::NSudoOpenCurrentThreadToken;
         using ::NSudoOpenThreadTokenByThreadId;
-        using ::NSudoAdjustTokenAllPrivileges;
-        using ::NSudoReAllocMemory;
         using ::NSudoSetCurrentThreadToken;
         using ::NSudoDuplicateToken;
+
+        using ::INSudoClient;
+        using ::NSudoCreateInstance;
 
         /**
          * Enables or disables privileges in the specified access token.

@@ -21,18 +21,40 @@ namespace M2
 {
     namespace Base
     {
+        //*************************************************************************
+    // COM对象模板
+    // COM Object Template
+    //*************************************************************************
+
+#define M2_BASE_COM_INTERFACE_ENTRY(Interface) \
+	if (::IsEqualIID(InterfaceId, __uuidof(Interface))) \
+	{ \
+        this->AddRef(); \
+		*Object = static_cast<Interface*>(this); \
+		return S_OK; \
+	}
+
+#define M2_BASE_COM_INTERFACE_MAP_BEGIN \
+	FORCEINLINE HRESULT InternalQueryInterface( \
+		_In_ REFIID InterfaceId, \
+        _Out_ PVOID* Object) \
+	{
+
+#define M2_BASE_COM_INTERFACE_MAP_END \
+	M2_BASE_COM_INTERFACE_ENTRY(IUnknown); \
+    \
+    *Object = nullptr; \
+	return E_NOINTERFACE; \
+	}
+
         /**
          * Base class to implement IUnknown. You can choose to derive your COM
          * classes from this class, or simply implement IUnknown in each of
          * your classes.
          */
-        class CUnknown : public IUnknown
+        template <class TBaseClass, class TInterface>
+        class CComClass : public TInterface
         {
-
-            /*
-             * Private data members and methods. These are only accessible by
-             * the methods of this class.
-             */
         private:
 
             /*
@@ -41,56 +63,51 @@ namespace M2
              */
             LONG m_ReferenceCount;
 
-
-            /*
-             * Protected data members and methods. These are accessible by the
-             * subclasses but not by other classes.
-             */
-        protected:
+        public:
 
             /**
-             * Constructor for an instance of the CUnknown class. This simply
+             * Constructor for an instance of the CComClass class. This simply
              * initializes the reference count of the object to 1. The caller
              * is expected to call Release() if it wants to delete the object
              * once it has been allocated.
              *
              * @remark The constructor is protected to ensure that only the
-             *         subclasses of CUnknown can create and destroy instances.
+             *         subclasses of CComClass can create and destroy instances.
              */
-            CUnknown();
+            CComClass() :
+                m_ReferenceCount(1)
+            {
+            }
 
             /**
-             * The destructor MUST be virtual. Since any instance of a CUnknown
+             * The destructor MUST be virtual. Since any instance of a CComClass
              * derived class should only be deleted from within the Release
-             * method of CUnknown class, the destructor MUST be virtual or only
-             * CUnknown::~CUnknown will get invoked on deletion.
+             * method of CComClass class, the destructor MUST be virtual or only
+             * CComClass::~CComClass will get invoked on deletion.
              *
              * @remark The destructor is protected to ensure that only the
-             *         subclasses of CUnknown can create and destroy instances.
+             *         subclasses of CComClass can create and destroy instances.
              */
-            virtual ~CUnknown() = default;
-
-            /*
-             * Public Methods. These are accessible by any class.
-             */
-        public:
+            virtual ~CComClass() = default;
 
             /**
-             * This helper method references the object and returns a pointer
-             * to the object's IUnknown interface. This allows other methods to
-             * convert a CUnknown pointer into an IUnknown pointer without a
-             * typecast and without calling QueryInterface and dealing with the
-             * return value.
+             * This method provides the basic support for query interface on
+             * CComClass. If the interface requested is IUnknown it references
+             * the object and returns an interface pointer. Otherwise it
+             * returns an error.
              *
-             * @return A pointer to the object's IUnknown interface.
+             * @param InterfaceId The IID being requested.
+             * @param Object A location to store the interface pointer to
+             *               return.
+             * @return S_OK or E_NOINTERFACE.
              */
-            IUnknown* QueryIUnknown();
-
-
-            /*
-             * COM IUnknown interface methods.
-             */
-        public:
+            virtual HRESULT STDMETHODCALLTYPE QueryInterface(
+                _In_ REFIID InterfaceId,
+                _Out_ PVOID* Object)
+            {
+                return static_cast<TBaseClass*>(this)->InternalQueryInterface(
+                    InterfaceId, Object);
+            }
 
             /**
              * This method adds one to the object's reference count.
@@ -99,7 +116,10 @@ namespace M2
              *         for debugging as the object's actual reference count can
              *         change while the caller examines the return value.
              */
-            virtual ULONG STDMETHODCALLTYPE AddRef();
+            virtual ULONG STDMETHODCALLTYPE AddRef()
+            {
+                return ::InterlockedIncrement(&this->m_ReferenceCount);
+            }
 
             /**
              * This method subtracts one to the object's reference count. If
@@ -111,23 +131,17 @@ namespace M2
              *         other call may have caused deletion, but this one
              *         didn't).
              */
-            virtual ULONG STDMETHODCALLTYPE Release();
+            virtual ULONG STDMETHODCALLTYPE Release()
+            {
+                ULONG Count = ::InterlockedDecrement(&this->m_ReferenceCount);
 
-            /**
-             * This method provides the basic support for query interface on
-             * CUnknown. If the interface requested is IUnknown it references
-             * the object and returns an interface pointer. Otherwise it
-             * returns an error.
-             *
-             * @param InterfaceId The IID being requested.
-             * @param Object A location to store the interface pointer to
-             *               return.
-             * @return S_OK or E_NOINTERFACE.
-             */
-            virtual HRESULT STDMETHODCALLTYPE QueryInterface(
-                _In_ REFIID InterfaceId,
-                _Out_ PVOID* Object);
+                if (Count == 0)
+                {
+                    delete this;
+                }
 
+                return Count;
+            }
         };
     }
 }

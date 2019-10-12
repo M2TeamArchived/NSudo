@@ -14,45 +14,6 @@
 #include "M2.Base.h"
 
 /**
- * Gets the feature level of NSudo Shared Library.
- *
- * @return The feature level of NSudo Shared Library.
- *         Feature Level 0 - NSudo 8.0.0
- */
-EXTERN_C DWORD WINAPI NSudoGetFeatureLevel();
-
-/**
- * Enables or disables privileges in the specified access token.
- *
- * @param TokenHandle A handle to the access token that contains the privileges
- *                    to be modified. The handle must have
- *                    TOKEN_ADJUST_PRIVILEGES access to the token.
- * @param Privileges A pointer to an array of LUID_AND_ATTRIBUTES structures
- *                   that specifies an array of privileges and their attributes.
- *                   Each structure contains the LUID and attributes of a
- *                   privilege. To get the name of the privilege associated with
- *                   a LUID, call the LookupPrivilegeName function, passing the
- *                   address of the LUID as the value of the lpLuid parameter.
- *                   The attributes of a privilege can be a combination of the
- *                   following values.
- *                   SE_PRIVILEGE_ENABLED
- *                       The function enables the privilege.
- *                   SE_PRIVILEGE_REMOVED
- *                       The privilege is removed from the list of privileges in
- *                       the token.
- *                   None
- *                       The function disables the privilege.
- * @param PrivilegeCount The number of entries in the Privileges array.
- * @return Standard Win32 Error. If the function succeeds, the return value is
- *         ERROR_SUCCESS.
- * @remark For more information, see AdjustTokenPrivileges.
- */
-EXTERN_C DWORD WINAPI NSudoAdjustTokenPrivileges(
-    _In_ HANDLE TokenHandle,
-    _In_ PLUID_AND_ATTRIBUTES Privileges,
-    _In_ DWORD PrivilegeCount);
-
-/**
  * Contains values that specify the type of mandatory label.
  */
 typedef enum _NSUDO_MANDATORY_LABEL_TYPE
@@ -67,20 +28,259 @@ typedef enum _NSUDO_MANDATORY_LABEL_TYPE
 } NSUDO_MANDATORY_LABEL_TYPE, *PNSUDO_MANDATORY_LABEL_TYPE;
 
 /**
- * Allocates and initializes a mandatory label security identifier (SID).
- *
- * @param MandatoryLabelSid A pointer to a variable that receives the pointer to
- *        the allocated and initialized mandatory label SID structure.
- * @param MandatoryLabelType A value from the MANDATORY_LABEL_TYPE enumerated
- *        type that identifies the mandatory label.
- * @return Standard Win32 Error. If the function succeeds, the return value is
- *         ERROR_SUCCESS.
- * @remark A SID allocated with the NSudoCreateMandatoryLabelSid function must
- *         be freed by using the FreeSid function.
+ * NSudo Shared Library Interface V1
  */
-EXTERN_C DWORD WINAPI NSudoCreateMandatoryLabelSid(
-    _Out_ PSID* MandatoryLabelSid,
-    _In_ NSUDO_MANDATORY_LABEL_TYPE MandatoryLabelType);
+MIDL_INTERFACE("8BD99D5D-2811-4036-A21E-63328115B364")
+INSudoClient : public IUnknown
+{
+public:
+
+    /**
+     * Allocates a block of memory from the default heap of the calling
+     * process. The allocated memory will be initialized to zero. The
+     * allocated memory is not movable.
+     *
+     * @param Size The number of bytes to be allocated.
+     * @param Block A pointer to the allocated memory block.
+     * @return HRESULT. If the function succeeds, the return value is S_OK.
+     */
+    virtual HRESULT STDMETHODCALLTYPE AllocMemory(
+         _In_ SIZE_T Size,
+         _Out_ LPVOID* Block) = 0;
+
+    /**
+     * Reallocates a block of memory from the default heap of the calling
+     * process. If the reallocation request is for a larger size, the
+     * additional region of memory beyond the original size be initialized
+     * to zero. This function enables you to resize a memory block and change
+     * other memory block properties. The allocated memory is not movable.
+     *
+     * @param OldBlock A pointer to the block of memory that the function
+     *                 reallocates. This pointer is returned by an earlier
+     *                 call to the AllocMemory or ReAllocMemory method.
+     * @param NewSize The new size of the memory block, in bytes. A memory
+     *                block's size can be increased or decreased by using
+     *                this function.
+     * @param NewBlock A pointer to the allocated memory block.
+     * @return HRESULT. If the function succeeds, the return value is S_OK.
+     *         If the function fails, the original memory is not freed, and
+     *         the original handle and pointer are still valid.
+     */
+    virtual HRESULT STDMETHODCALLTYPE ReAllocMemory(
+        _In_ PVOID OldBlock,
+        _In_ SIZE_T NewSize,
+        _Out_ PVOID* NewBlock) = 0;
+
+    /**
+     * Frees a memory block allocated from a heap by the AllocMemory or
+     * ReAllocMemory method.
+     *
+     * @param Block A pointer to the memory block to be freed. This pointer is
+     *              returned by the AllocMemory or ReAllocMemory method. If
+     *              this pointer is nullptr, the behavior is undefined.
+     * @return HRESULT. If the function succeeds, the return value is S_OK.
+     */
+    virtual HRESULT STDMETHODCALLTYPE FreeMemory(
+        _In_ LPVOID Block) = 0;
+
+    /**
+     * Retrieves a specified type of information about an access token. The
+     * calling process must have appropriate access rights to obtain the
+     * information.
+     *
+     * @param TokenHandle A handle to an access token from which information is
+     *                    retrieved.
+     * @param TokenInformationClass Specifies a value from the
+     *                              TOKEN_INFORMATION_CLASS enumerated type to
+     *                              identify the type of information the
+     *                              function retrieves.
+     * @param TokenInformation A pointer to a buffer the function fills with
+     *                         the requested information.
+     * @param TokenInformationLength Specifies the size, in bytes, of the
+     *                               buffer pointed to by the TokenInformation
+     *                               parameter.
+     * @param ReturnLength A pointer to a variable that receives the number of
+     *                     bytes needed for the buffer pointed to by the
+     *                     TokenInformation parameter.
+     * @return HRESULT. If the function succeeds, the return value is S_OK.
+     * @remark For more information, see GetTokenInformation.
+     */
+    virtual HRESULT STDMETHODCALLTYPE GetTokenInformation(
+        _In_ HANDLE TokenHandle,
+        _In_ TOKEN_INFORMATION_CLASS TokenInformationClass,
+        _Out_opt_ LPVOID TokenInformation,
+        _In_ DWORD TokenInformationLength,
+        _Out_ PDWORD ReturnLength) = 0;
+
+    /**
+     * Retrieves a specified type of information about an access token. The
+     * calling process must have appropriate access rights to obtain the
+     * information.
+     *
+     * @param TokenHandle A handle to an access token from which information is
+     *                    retrieved.
+     * @param TokenInformationClass Specifies a value from the
+     *                              TOKEN_INFORMATION_CLASS enumerated type to
+     *                              identify the type of information the
+     *                              function retrieves.
+     * @param OutputInformation A pointer to a buffer the function fills with
+     *                          the requested information. When you have
+     *                          finished using the information, free it by
+     *                          calling the FreeMemory method. You should also
+     *                          set the pointer to NULL.
+     * @return HRESULT. If the function succeeds, the return value is S_OK.
+     * @remark For more information, see GetTokenInformation.
+     */
+    virtual HRESULT STDMETHODCALLTYPE GetTokenInformationWithMemory(
+        _In_ HANDLE TokenHandle,
+        _In_ TOKEN_INFORMATION_CLASS TokenInformationClass,
+        _Out_ PVOID* OutputInformation) = 0;
+
+    /**
+     * Sets various types of information for a specified access token. The
+     * information that this function sets replaces existing information. The
+     * calling process must have appropriate access rights to set the
+     * information.
+     *
+     * @param TokenHandle A handle to the access token for which information is
+     *                    to be set.
+     * @param TokenInformationClass A value from the TOKEN_INFORMATION_CLASS
+     *                              enumerated type that identifies the type of
+     *                              information the function sets. The valid
+     *                              values from TOKEN_INFORMATION_CLASS are
+     *                              described in the TokenInformation
+     *                              parameter.
+     * @param TokenInformation A pointer to a buffer that contains the
+     *                         information set in the access token.
+     * @param TokenInformationLength Specifies the length, in bytes, of the
+     *                               buffer pointed to by TokenInformation.
+     * @return HRESULT. If the function succeeds, the return value is S_OK.
+     * @remark For more information, see SetTokenInformation.
+     */
+    virtual HRESULT STDMETHODCALLTYPE SetTokenInformation(
+        _In_ HANDLE TokenHandle,
+        _In_ TOKEN_INFORMATION_CLASS TokenInformationClass,
+        _In_ LPVOID TokenInformation,
+        _In_ DWORD TokenInformationLength) = 0;
+
+    /**
+     * Enables or disables privileges in the specified access token.
+     *
+     * @param TokenHandle A handle to the access token that contains the
+     *                    privileges to be modified. The handle must have
+     *                    TOKEN_ADJUST_PRIVILEGES access to the token.
+     * @param Privileges A pointer to an array of LUID_AND_ATTRIBUTES
+     *                   structures that specifies an array of privileges
+     *                   and their attributes. Each structure contains the
+     *                   LUID and attributes of a privilege. To get the name
+     *                   of the privilege associated with a LUID, call the
+     *                   LookupPrivilegeName function, passing the address of
+     *                   the LUID as the value of the lpLuid parameter. The
+     *                   attributes of a privilege can be a combination of the
+     *                   following values.
+     *                   SE_PRIVILEGE_ENABLED
+     *                       The function enables the privilege.
+     *                   SE_PRIVILEGE_REMOVED
+     *                       The privilege is removed from the list of
+     *                       privileges in the token.
+     *                   None
+     *                       The function disables the privilege.
+     * @param PrivilegeCount The number of entries in the Privileges array.
+     * @return HRESULT. If the function succeeds, the return value is S_OK.
+     * @remark For more information, see AdjustTokenPrivileges.
+     */
+    virtual HRESULT STDMETHODCALLTYPE AdjustTokenPrivileges(
+        _In_ HANDLE TokenHandle,
+        _In_ PLUID_AND_ATTRIBUTES Privileges,
+        _In_ DWORD PrivilegeCount) = 0;
+
+    /**
+     * Enables or disables all privileges in the specified access token.
+     *
+     * @param TokenHandle A handle to the access token that contains the
+     *                    privileges to be modified. The handle must have
+     *                    TOKEN_ADJUST_PRIVILEGES access to the token.
+     * @param Attributes The attributes of all privileges can be a combination
+     *                   of the following values.
+     *                   SE_PRIVILEGE_ENABLED
+     *                       The function enables the privilege.
+     *                   SE_PRIVILEGE_REMOVED
+     *                       The privilege is removed from the list of
+     *                       privileges in the token.
+     *                   None
+     *                       The function disables the privilege.
+     * @return HRESULT. If the function succeeds, the return value is S_OK.
+     */
+    virtual HRESULT STDMETHODCALLTYPE AdjustTokenAllPrivileges(
+        _In_ HANDLE TokenHandle,
+        _In_ DWORD Attributes) = 0;
+
+    /**
+     * Allocates and initializes a mandatory label security identifier (SID).
+     *
+     * @param MandatoryLabelType A value from the MANDATORY_LABEL_TYPE
+     *                           enumerated type that identifies the
+     *                           mandatory label.
+     * @param MandatoryLabelSid A pointer to a variable that receives the
+     *                          pointer to the allocated and initialized
+     *                          mandatory label SID structure.
+     * @return HRESULT. If the function succeeds, the return value is S_OK.
+     * @remark A SID allocated with the NSudoCreateMandatoryLabelSid function
+     *         must be freed by using the FreeSid function.
+     */
+    virtual HRESULT STDMETHODCALLTYPE CreateMandatoryLabelSid(
+        _In_ NSUDO_MANDATORY_LABEL_TYPE MandatoryLabelType,
+        _Out_ PSID* MandatoryLabelSid) = 0;
+
+
+    /**
+     * Sets mandatory label for a specified access token. The information that
+     * this function sets replaces existing information. The calling process
+     * must have appropriate access rights to set the information.
+     *
+     * @param TokenHandle A handle to the access token for which information is
+     *                    to be set.
+     * @param MandatoryLabelType A value from the MANDATORY_LABEL_TYPE
+     *                           enumerated type that identifies the
+     *                           mandatory label.
+     * @return HRESULT. If the function succeeds, the return value is S_OK.
+     */
+    virtual HRESULT STDMETHODCALLTYPE SetTokenMandatoryLabel(
+        _In_ HANDLE TokenHandle,
+        _In_ NSUDO_MANDATORY_LABEL_TYPE MandatoryLabelType) = 0;
+
+};
+
+EXTERN_GUID(
+    IID_INSudoClient,
+    0x8bd99d5d, 0x2811, 0x4036, 0xa2, 0x1e, 0x63, 0x32, 0x81, 0x15, 0xb3, 0x64);
+
+/**
+ * Creates an interface object and returns a pointer to it.
+ *
+ * @param InterfaceId The Interface ID being requested.
+ * @param Object A location to store the interface pointer to return.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ */
+HRESULT WINAPI NSudoCreateInstance(
+    _In_ REFIID InterfaceId,
+    _Out_ PVOID* Instance);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /**
  * Starts a service if not started and retrieves the current status of the
@@ -308,126 +508,6 @@ EXTERN_C DWORD WINAPI NSudoCreateSessionToken(
     _In_ DWORD SessionId);
 
 /**
- * Allocates a block of memory from the default heap of the calling process.
- * The allocated memory will be initialized to zero. The allocated memory is
- * not movable.
- *
- * @param Block A pointer to the allocated memory block.
- * @param Size The number of bytes to be allocated.
- * @return Standard Win32 Error. If the function succeeds, the return value is
- *         ERROR_SUCCESS.
- */
-EXTERN_C DWORD WINAPI NSudoAllocMemory(
-    _Out_ LPVOID* Block,
-    _In_ SIZE_T Size);
-
-/**
- * Frees a memory block allocated from a heap by the NSudoAllocMemory function.
- *
- * @param Block A pointer to the memory block to be freed. This pointer is
- *              returned by the M2AllocMemory or M2ReAllocMemory function. If
- *              this pointer is nullptr, the behavior is undefined.
- * @return Standard Win32 Error. If the function succeeds, the return value is
- *         ERROR_SUCCESS.
- */
-EXTERN_C DWORD WINAPI NSudoFreeMemory(
-    _In_ LPVOID Block);
-
-/**
- * Retrieves a specified type of information about an access token. The calling
- * process must have appropriate access rights to obtain the information.
- *
- * @param TokenHandle A handle to an access token from which information is
- *                    retrieved.
- * @param TokenInformationClass Specifies a value from the
- *                              TOKEN_INFORMATION_CLASS enumerated type to
- *                              identify the type of information the function
- *                              retrieves.
- * @param TokenInformation A pointer to a buffer the function fills with the
- *                         requested information.
- * @param TokenInformationLength Specifies the size, in bytes, of the buffer
- *                               pointed to by the TokenInformation parameter.
- * @param ReturnLength A pointer to a variable that receives the number of
- *                     bytes needed for the buffer pointed to by the
- *                     TokenInformation parameter.
- * @return Standard Win32 Error. If the function succeeds, the return value is
- *         ERROR_SUCCESS.
- * @remark For more information, see GetTokenInformation.
- */
-EXTERN_C DWORD WINAPI NSudoGetTokenInformation(
-    _In_ HANDLE TokenHandle,
-    _In_ TOKEN_INFORMATION_CLASS TokenInformationClass,
-    _Out_opt_ LPVOID TokenInformation,
-    _In_ DWORD TokenInformationLength,
-    _Out_ PDWORD ReturnLength);
-
-/**
- * Retrieves a specified type of information about an access token. The calling
- * process must have appropriate access rights to obtain the information.
- *
- * @param OutputInformation A pointer to a buffer the function fills with the
- *                          requested information. When you have finished using
- *                          the information, free it by calling the
- *                          NSudoFreeMemory function. You should also set the
- *                          pointer to NULL.
- * @param TokenHandle A handle to an access token from which information is
- *                    retrieved.
- * @param TokenInformationClass Specifies a value from the
- *                              TOKEN_INFORMATION_CLASS enumerated type to
- *                              identify the type of information the function
- *                              retrieves.
- * @return Standard Win32 Error. If the function succeeds, the return value is
- *         ERROR_SUCCESS.
- * @remark For more information, see GetTokenInformation.
- */
-EXTERN_C DWORD WINAPI NSudoGetTokenInformationWithMemory(
-    _Out_ PVOID* OutputInformation,
-    _In_ HANDLE TokenHandle,
-    _In_ TOKEN_INFORMATION_CLASS TokenInformationClass);
-
-/**
- * Sets various types of information for a specified access token. The
- * information that this function sets replaces existing information. The
- * calling process must have appropriate access rights to set the information.
- *
- * @param TokenHandle A handle to the access token for which information is to
- *                    be set.
- * @param TokenInformationClass A value from the TOKEN_INFORMATION_CLASS
- *                              enumerated type that identifies the type of
- *                              information the function sets. The valid values
- *                              from TOKEN_INFORMATION_CLASS are described in
- *                              the TokenInformation parameter.
- * @param TokenInformation A pointer to a buffer that contains the information
- *                         set in the access token.
- * @param TokenInformationLength Specifies the length, in bytes, of the buffer
- *                               pointed to by TokenInformation.
- * @return Standard Win32 Error. If the function succeeds, the return value is
- *         ERROR_SUCCESS.
- * @remark For more information, see SetTokenInformation.
- */
-EXTERN_C DWORD WINAPI NSudoSetTokenInformation(
-    _In_ HANDLE TokenHandle,
-    _In_ TOKEN_INFORMATION_CLASS TokenInformationClass,
-    _In_ LPVOID TokenInformation,
-    _In_ DWORD TokenInformationLength);
-
-/**
- * Sets mandatory label for a specified access token. The information that this
- * function sets replaces existing information. The calling process must have
- * appropriate access rights to set the information.
- *
- * @param TokenHandle A handle to the access token for which information is to
- *                    be set.
- * @param MandatoryLabelType A value from the MANDATORY_LABEL_TYPE enumerated
- *        type that identifies the mandatory label.
- * @return Standard Win32 Error. If the function succeeds, the return value is
- *         ERROR_SUCCESS.
- */
-EXTERN_C DWORD WINAPI NSudoSetTokenMandatoryLabel(
-    _In_ HANDLE TokenHandle,
-    _In_ NSUDO_MANDATORY_LABEL_TYPE MandatoryLabelType);
-
-/**
  * Creates a new access token that is a restricted version of an existing
  * access token. The restricted token can have disabled security identifiers
  * (SIDs), deleted privileges, and a list of restricting SIDs. For more
@@ -594,49 +674,7 @@ EXTERN_C DWORD WINAPI NSudoOpenThreadTokenByThreadId(
     _In_ DWORD DesiredAccess,
     _In_ BOOL OpenAsSelf);
 
-/**
- * Enables or disables all privileges in the specified access token.
- *
- * @param TokenHandle A handle to the access token that contains the privileges
- *                    to be modified. The handle must have
- *                    TOKEN_ADJUST_PRIVILEGES access to the token.
- * @param Attributes The attributes of all privileges can be a combination of
- *                   the following values.
- *                   SE_PRIVILEGE_ENABLED
- *                       The function enables the privilege.
- *                   SE_PRIVILEGE_REMOVED
- *                       The privilege is removed from the list of privileges in
- *                       the token.
- *                   None
- *                       The function disables the privilege.
- * @return Standard Win32 Error. If the function succeeds, the return value is
- *         ERROR_SUCCESS.
- */
-EXTERN_C DWORD WINAPI NSudoAdjustTokenAllPrivileges(
-    _In_ HANDLE TokenHandle,
-    _In_ DWORD Attributes);
 
-/**
- * Reallocates a block of memory from the default heap of the calling process.
- * If the reallocation request is for a larger size, the additional region of
- * memory beyond the original size be initialized to zero. This function
- * enables you to resize a memory block and change other memory block
- * properties. The allocated memory is not movable.
- *
- * @param NewBlock A pointer to the allocated memory block.
- * @param OldBlock A pointer to the block of memory that the function
- *                 reallocates. This pointer is returned by an earlier call to
- *                 the NSudoAllocMemory or NSudoReAllocMemory function.
- * @param NewSize The new size of the memory block, in bytes. A memory block's
- *                size can be increased or decreased by using this function.
- * @return Standard Win32 Error. If the function succeeds, the return value is
- *         ERROR_SUCCESS. If the function fails, the original memory is not
- *         freed, and the original handle and pointer are still valid.
- */
-EXTERN_C DWORD WINAPI NSudoReAllocMemory(
-    _Out_ PVOID* NewBlock,
-    _In_ PVOID OldBlock,
-    _In_ SIZE_T NewSize);
 
 /**
  * Assigns an impersonation token to a thread. The function can also cause a

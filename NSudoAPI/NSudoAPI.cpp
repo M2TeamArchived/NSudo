@@ -10,107 +10,317 @@
 
 #include "NSudoAPI.h"
 
+/**
+ * NSudo Shared Library Interface Implementation
+ */
+class CNSudoClient : public M2::Base::CComClass<CNSudoClient, INSudoClient>
+{
+private:
+
+
+public:
+
+    M2_BASE_COM_INTERFACE_MAP_BEGIN;
+        M2_BASE_COM_INTERFACE_ENTRY(INSudoClient);
+    M2_BASE_COM_INTERFACE_MAP_END;
+
+    CNSudoClient() = default;
+
+    virtual ~CNSudoClient() = default;
+
+    /**
+     * @remark You can read the definition for this function in "NSudoAPI.h".
+     */
+    virtual HRESULT STDMETHODCALLTYPE AllocMemory(
+        _In_ SIZE_T Size,
+        _Out_ LPVOID* Block)
+    {
+        *Block = ::HeapAlloc(::GetProcessHeap(), HEAP_ZERO_MEMORY, Size);
+        return *Block ? S_OK : ::HRESULT_FROM_WIN32(ERROR_NOT_ENOUGH_MEMORY);
+    }
+
+    /**
+     * @remark You can read the definition for this function in "NSudoAPI.h".
+     */
+    virtual HRESULT STDMETHODCALLTYPE ReAllocMemory(
+        _In_ PVOID OldBlock,
+        _In_ SIZE_T NewSize,
+        _Out_ PVOID* NewBlock)
+    {
+        *NewBlock = ::HeapReAlloc(
+            ::GetProcessHeap(), HEAP_ZERO_MEMORY, OldBlock, NewSize);
+        return *NewBlock ? S_OK : ::HRESULT_FROM_WIN32(ERROR_NOT_ENOUGH_MEMORY);
+    }
+
+    /**
+     * @remark You can read the definition for this function in "NSudoAPI.h".
+     */
+    virtual HRESULT STDMETHODCALLTYPE FreeMemory(
+        _In_ LPVOID Block)
+    {
+        if (::HeapFree(::GetProcessHeap(), 0, Block))
+        {
+            return S_OK;
+        }
+        else
+        {
+            return ::HRESULT_FROM_WIN32(::GetLastError());
+        }
+    }
+
+    /**
+     * @remark You can read the definition for this function in "NSudoAPI.h".
+     */
+    virtual HRESULT STDMETHODCALLTYPE GetTokenInformation(
+        _In_ HANDLE TokenHandle,
+        _In_ TOKEN_INFORMATION_CLASS TokenInformationClass,
+        _Out_opt_ LPVOID TokenInformation,
+        _In_ DWORD TokenInformationLength,
+        _Out_ PDWORD ReturnLength)
+    {
+        if (::GetTokenInformation(
+            TokenHandle,
+            TokenInformationClass,
+            TokenInformation,
+            TokenInformationLength,
+            ReturnLength))
+        {
+            return S_OK;
+        }
+        else
+        {
+            return ::HRESULT_FROM_WIN32(::GetLastError());
+        }
+    }
+
+    /**
+      * @remark You can read the definition for this function in "NSudoAPI.h".
+      */
+    virtual HRESULT STDMETHODCALLTYPE GetTokenInformationWithMemory(
+        _In_ HANDLE TokenHandle,
+        _In_ TOKEN_INFORMATION_CLASS TokenInformationClass,
+        _Out_ PVOID* OutputInformation)
+    {
+        *OutputInformation = nullptr;
+
+        DWORD Length = 0;
+
+        HRESULT hr = this->GetTokenInformation(
+            TokenHandle,
+            TokenInformationClass,
+            nullptr,
+            0,
+            &Length);
+        if (hr == ::HRESULT_FROM_WIN32(ERROR_INSUFFICIENT_BUFFER))
+        {
+            hr = this->AllocMemory(Length, OutputInformation);
+            if (hr == S_OK)
+            {
+                hr = this->GetTokenInformation(
+                    TokenHandle,
+                    TokenInformationClass,
+                    *OutputInformation,
+                    Length,
+                    &Length);
+                if (hr != S_OK)
+                {
+                    this->FreeMemory(*OutputInformation);
+                    *OutputInformation = nullptr;
+                }
+            }
+        }
+
+        return hr;
+    }
+
+    /**
+     * @remark You can read the definition for this function in "NSudoAPI.h".
+     */
+    virtual HRESULT STDMETHODCALLTYPE SetTokenInformation(
+        _In_ HANDLE TokenHandle,
+        _In_ TOKEN_INFORMATION_CLASS TokenInformationClass,
+        _In_ LPVOID TokenInformation,
+        _In_ DWORD TokenInformationLength)
+    {
+        if (::SetTokenInformation(
+            TokenHandle,
+            TokenInformationClass,
+            TokenInformation,
+            TokenInformationLength))
+        {
+            return S_OK;
+        }
+        else
+        {
+            return ::HRESULT_FROM_WIN32(::GetLastError());
+        }
+    }
+
+    /**
+     * @remark You can read the definition for this function in "NSudoAPI.h".
+     */
+    virtual HRESULT STDMETHODCALLTYPE AdjustTokenPrivileges(
+        _In_ HANDLE TokenHandle,
+        _In_ PLUID_AND_ATTRIBUTES Privileges,
+        _In_ DWORD PrivilegeCount)
+    {
+        HRESULT hr = E_INVALIDARG;
+
+        if (Privileges && PrivilegeCount)
+        {
+            DWORD PSize = sizeof(LUID_AND_ATTRIBUTES) * PrivilegeCount;
+            DWORD TPSize = PSize + sizeof(DWORD);
+
+            PTOKEN_PRIVILEGES pTP = nullptr;
+
+            hr = this->AllocMemory(TPSize, reinterpret_cast<LPVOID*>(&pTP));
+            if (hr == S_OK)
+            {
+                pTP->PrivilegeCount = PrivilegeCount;
+                memcpy(pTP->Privileges, Privileges, PSize);
+
+                ::AdjustTokenPrivileges(
+                    TokenHandle, FALSE, pTP, TPSize, nullptr, nullptr);
+                hr = ::HRESULT_FROM_WIN32(::GetLastError());
+
+                this->FreeMemory(pTP);
+            }
+        }
+
+        return hr;
+    }
+
+    /**
+     * @remark You can read the definition for this function in "NSudoAPI.h".
+     */
+    virtual HRESULT STDMETHODCALLTYPE AdjustTokenAllPrivileges(
+        _In_ HANDLE TokenHandle,
+        _In_ DWORD Attributes)
+    {
+        PTOKEN_PRIVILEGES pTokenPrivileges = nullptr;
+
+        HRESULT hr = this->GetTokenInformationWithMemory(
+            TokenHandle,
+            TokenPrivileges,
+            reinterpret_cast<PVOID*>(&pTokenPrivileges));
+        if (hr == S_OK)
+        {
+            for (DWORD i = 0; i < pTokenPrivileges->PrivilegeCount; ++i)
+            {
+                pTokenPrivileges->Privileges[i].Attributes = Attributes;
+            }
+
+            hr = this->AdjustTokenPrivileges(
+                TokenHandle,
+                pTokenPrivileges->Privileges,
+                pTokenPrivileges->PrivilegeCount);
+
+            this->FreeMemory(pTokenPrivileges);
+        }
+
+        return hr;
+    }
+
+    /**
+     * @remark You can read the definition for this function in "NSudoAPI.h".
+     */
+    virtual HRESULT STDMETHODCALLTYPE CreateMandatoryLabelSid(
+        _In_ NSUDO_MANDATORY_LABEL_TYPE MandatoryLabelType,
+        _Out_ PSID* MandatoryLabelSid)
+    {
+        DWORD MandatoryLabelRid;
+        switch (MandatoryLabelType)
+        {
+        case NSUDO_MANDATORY_LABEL_TYPE::UNTRUSTED:
+            MandatoryLabelRid = SECURITY_MANDATORY_UNTRUSTED_RID;
+            break;
+        case NSUDO_MANDATORY_LABEL_TYPE::LOW:
+            MandatoryLabelRid = SECURITY_MANDATORY_LOW_RID;
+            break;
+        case NSUDO_MANDATORY_LABEL_TYPE::MEDIUM:
+            MandatoryLabelRid = SECURITY_MANDATORY_MEDIUM_RID;
+            break;
+        case NSUDO_MANDATORY_LABEL_TYPE::MEDIUM_PLUS:
+            MandatoryLabelRid = SECURITY_MANDATORY_MEDIUM_PLUS_RID;
+            break;
+        case NSUDO_MANDATORY_LABEL_TYPE::HIGH:
+            MandatoryLabelRid = SECURITY_MANDATORY_HIGH_RID;
+            break;
+        case NSUDO_MANDATORY_LABEL_TYPE::SYSTEM:
+            MandatoryLabelRid = SECURITY_MANDATORY_SYSTEM_RID;
+            break;
+        case NSUDO_MANDATORY_LABEL_TYPE::PROTECTED_PROCESS:
+            MandatoryLabelRid = SECURITY_MANDATORY_PROTECTED_PROCESS_RID;
+            break;
+        default:
+            return E_INVALIDARG;
+        }
+
+        SID_IDENTIFIER_AUTHORITY SIA = SECURITY_MANDATORY_LABEL_AUTHORITY;
+
+        if (!::AllocateAndInitializeSid(
+            &SIA, 1, MandatoryLabelRid, 0, 0, 0, 0, 0, 0, 0, MandatoryLabelSid))
+        {
+            return ::HRESULT_FROM_WIN32(::GetLastError());
+        }
+
+        return S_OK;
+    }
+
+    /**
+     * @remark You can read the definition for this function in "NSudoAPI.h".
+     */
+    virtual HRESULT STDMETHODCALLTYPE SetTokenMandatoryLabel(
+        _In_ HANDLE TokenHandle,
+        _In_ NSUDO_MANDATORY_LABEL_TYPE MandatoryLabelType)
+    {
+        TOKEN_MANDATORY_LABEL TML;
+
+        HRESULT hr = this->CreateMandatoryLabelSid(
+            MandatoryLabelType, &TML.Label.Sid);
+        if (hr == S_OK)
+        {
+            TML.Label.Attributes = SE_GROUP_INTEGRITY;
+
+            hr = this->SetTokenInformation(
+                TokenHandle, TokenIntegrityLevel, &TML, sizeof(TML));
+
+            ::FreeSid(TML.Label.Sid);
+        }
+
+        return hr;
+    }
+};
+
+/**
+ * @remark You can read the definition for this function in "NSudoAPI.h".
+ */
+HRESULT WINAPI NSudoCreateInstance(
+    _In_ REFIID InterfaceId,
+    _Out_ PVOID* Instance)
+{
+    if (::IsEqualIID(InterfaceId, IID_INSudoClient))
+    {
+        *Instance = new CNSudoClient();
+        return S_OK;
+    }
+    else
+    {
+        *Instance = nullptr;
+        return E_NOTIMPL;
+    }
+}
+
+
+
+
+
+
 #include <WtsApi32.h>
 #pragma comment(lib, "WtsApi32.lib")
 
 #include <cstdio>
 #include <cwchar>
-
-/**
- * The feature level of NSudo Shared Library.
- */
-constexpr DWORD NSudoFeatureLevel = 0;
-
-/**
- * @remark You can read the definition for this function in "NSudoAPI.h".
- */
-EXTERN_C DWORD WINAPI NSudoGetFeatureLevel()
-{
-    return NSudoFeatureLevel;
-}
-
-/**
- * @remark You can read the definition for this function in "NSudoAPI.h".
- */
-EXTERN_C DWORD WINAPI NSudoAdjustTokenPrivileges(
-    _In_ HANDLE TokenHandle,
-    _In_ PLUID_AND_ATTRIBUTES Privileges,
-    _In_ DWORD PrivilegeCount)
-{
-    DWORD ErrorCode = ERROR_INVALID_PARAMETER;
-
-    if (Privileges && PrivilegeCount)
-    {
-        DWORD PSize = sizeof(LUID_AND_ATTRIBUTES) * PrivilegeCount;
-        DWORD TPSize = PSize + sizeof(DWORD);
-
-        PTOKEN_PRIVILEGES pTP = nullptr;
-        ErrorCode = NSudoAllocMemory(reinterpret_cast<LPVOID*>(&pTP), TPSize);
-        if (ErrorCode == ERROR_SUCCESS)
-        {
-            pTP->PrivilegeCount = PrivilegeCount;
-            memcpy(pTP->Privileges, Privileges, PSize);
-
-            ::AdjustTokenPrivileges(
-                TokenHandle, FALSE, pTP, TPSize, nullptr, nullptr);
-            ErrorCode = ::GetLastError();
-
-            NSudoFreeMemory(pTP);
-        }
-        else
-        {
-            ErrorCode = ERROR_NOT_ENOUGH_MEMORY;
-        }
-    }
-
-    return ErrorCode;
-}
-
-/**
- * @remark You can read the definition for this function in "NSudoAPI.h".
- */
-EXTERN_C DWORD WINAPI NSudoCreateMandatoryLabelSid(
-    _Out_ PSID* MandatoryLabelSid,
-    _In_ NSUDO_MANDATORY_LABEL_TYPE MandatoryLabelType)
-{
-    DWORD MandatoryLabelRid;
-    switch (MandatoryLabelType)
-    {
-    case NSUDO_MANDATORY_LABEL_TYPE::UNTRUSTED:
-        MandatoryLabelRid = SECURITY_MANDATORY_UNTRUSTED_RID;
-        break;
-    case NSUDO_MANDATORY_LABEL_TYPE::LOW:
-        MandatoryLabelRid = SECURITY_MANDATORY_LOW_RID;
-        break;
-    case NSUDO_MANDATORY_LABEL_TYPE::MEDIUM:
-        MandatoryLabelRid = SECURITY_MANDATORY_MEDIUM_RID;
-        break;
-    case NSUDO_MANDATORY_LABEL_TYPE::MEDIUM_PLUS:
-        MandatoryLabelRid = SECURITY_MANDATORY_MEDIUM_PLUS_RID;
-        break;
-    case NSUDO_MANDATORY_LABEL_TYPE::HIGH:
-        MandatoryLabelRid = SECURITY_MANDATORY_HIGH_RID;
-        break;
-    case NSUDO_MANDATORY_LABEL_TYPE::SYSTEM:
-        MandatoryLabelRid = SECURITY_MANDATORY_SYSTEM_RID;
-        break;
-    case NSUDO_MANDATORY_LABEL_TYPE::PROTECTED_PROCESS:
-        MandatoryLabelRid = SECURITY_MANDATORY_PROTECTED_PROCESS_RID;
-        break;
-    default:
-        return ERROR_INVALID_PARAMETER;
-    }
-
-    SID_IDENTIFIER_AUTHORITY SIA = SECURITY_MANDATORY_LABEL_AUTHORITY;
-
-    if (!::AllocateAndInitializeSid(
-        &SIA, 1, MandatoryLabelRid, 0, 0, 0, 0, 0, 0, 0, MandatoryLabelSid))
-    {
-        return ::GetLastError();
-    }
-
-    return ERROR_SUCCESS;
-}
 
 /**
  * @remark You can read the definition for this function in "NSudoAPI.h".
@@ -456,145 +666,6 @@ EXTERN_C DWORD WINAPI NSudoCreateSessionToken(
 /**
  * @remark You can read the definition for this function in "NSudoAPI.h".
  */
-EXTERN_C DWORD WINAPI NSudoAllocMemory(
-    _Out_ LPVOID* Block,
-    _In_ SIZE_T Size)
-{
-    *Block = ::HeapAlloc(::GetProcessHeap(), HEAP_ZERO_MEMORY, Size);
-    return *Block ? ERROR_SUCCESS : ERROR_NOT_ENOUGH_MEMORY;
-}
-
-/**
- * @remark You can read the definition for this function in "NSudoAPI.h".
- */
-EXTERN_C DWORD WINAPI NSudoFreeMemory(
-    _In_ LPVOID Block)
-{
-    if (::HeapFree(::GetProcessHeap(), 0, Block))
-    {
-        return ERROR_SUCCESS;
-    }
-    else
-    {
-        return ::GetLastError();
-    }
-}
-
-/**
- * @remark You can read the definition for this function in "NSudoAPI.h".
- */
-EXTERN_C DWORD WINAPI NSudoGetTokenInformation(
-    _In_ HANDLE TokenHandle,
-    _In_ TOKEN_INFORMATION_CLASS TokenInformationClass,
-    _Out_opt_ LPVOID TokenInformation,
-    _In_ DWORD TokenInformationLength,
-    _Out_ PDWORD ReturnLength)
-{
-    if (::GetTokenInformation(
-        TokenHandle,
-        TokenInformationClass,
-        TokenInformation,
-        TokenInformationLength,
-        ReturnLength))
-    {
-        return ERROR_SUCCESS;
-    }
-    else
-    {
-        return ::GetLastError();
-    }
-}
-
-/**
- * @remark You can read the definition for this function in "NSudoAPI.h".
- */
-EXTERN_C DWORD WINAPI NSudoGetTokenInformationWithMemory(
-    _Out_ PVOID* OutputInformation,
-    _In_ HANDLE TokenHandle,
-    _In_ TOKEN_INFORMATION_CLASS TokenInformationClass)
-{
-    *OutputInformation = nullptr;
-
-    DWORD Length = 0;
-
-    DWORD ErrorCode = NSudoGetTokenInformation(
-        TokenHandle,
-        TokenInformationClass,
-        nullptr,
-        0,
-        &Length);
-    if (ErrorCode == ERROR_INSUFFICIENT_BUFFER)
-    {
-        ErrorCode = NSudoAllocMemory(OutputInformation, Length);
-        if (ErrorCode == ERROR_SUCCESS)
-        {
-            ErrorCode = NSudoGetTokenInformation(
-                TokenHandle,
-                TokenInformationClass,
-                *OutputInformation,
-                Length,
-                &Length);
-            if (ErrorCode != ERROR_SUCCESS)
-            {
-                ErrorCode = NSudoFreeMemory(*OutputInformation);
-                *OutputInformation = nullptr;
-            }
-        }
-    }
-
-    return ErrorCode;
-}
-
-/**
- * @remark You can read the definition for this function in "NSudoAPI.h".
- */
-EXTERN_C DWORD WINAPI NSudoSetTokenInformation(
-    _In_ HANDLE TokenHandle,
-    _In_ TOKEN_INFORMATION_CLASS TokenInformationClass,
-    _In_ LPVOID TokenInformation,
-    _In_ DWORD TokenInformationLength)
-{
-    if (::SetTokenInformation(
-        TokenHandle,
-        TokenInformationClass,
-        TokenInformation,
-        TokenInformationLength))
-    {
-        return ERROR_SUCCESS;
-    }
-    else
-    {
-        return ::GetLastError();
-    }
-}
-
-/**
- * @remark You can read the definition for this function in "NSudoAPI.h".
- */
-EXTERN_C DWORD WINAPI NSudoSetTokenMandatoryLabel(
-    _In_ HANDLE TokenHandle,
-    _In_ NSUDO_MANDATORY_LABEL_TYPE MandatoryLabelType)
-{
-    TOKEN_MANDATORY_LABEL TML;
-
-    DWORD ErrorCode = NSudoCreateMandatoryLabelSid(
-        &TML.Label.Sid, MandatoryLabelType);
-    if (ErrorCode == ERROR_SUCCESS)
-    {
-        TML.Label.Attributes = SE_GROUP_INTEGRITY;
-
-        ErrorCode = NSudoSetTokenInformation(
-            TokenHandle, TokenIntegrityLevel, &TML, sizeof(TML));
-
-        ::FreeSid(TML.Label.Sid);
-    }
-
-    return ErrorCode;
-}
-
-/**
- * @remark You can read the definition for this function in "NSudoAPI.h".
- */
 EXTERN_C DWORD WINAPI NSudoCreateRestrictedToken(
     _Out_ PHANDLE NewTokenHandle,
     _In_ HANDLE ExistingTokenHandle,
@@ -657,34 +728,34 @@ EXTERN_C DWORD WINAPI NSudoCreateLUAToken(
             break;
         }
 
-        ErrorCode = NSudoSetTokenMandatoryLabel(
-            *TokenHandle, NSUDO_MANDATORY_LABEL_TYPE::MEDIUM);
+        ErrorCode = HRESULT_CODE(CNSudoClient().SetTokenMandatoryLabel(
+            *TokenHandle, NSUDO_MANDATORY_LABEL_TYPE::MEDIUM));
         if (ErrorCode != ERROR_SUCCESS)
         {
             break;
         }
 
-        ErrorCode = NSudoGetTokenInformationWithMemory(
-            reinterpret_cast<PVOID*>(&pTokenUser),
+        ErrorCode = HRESULT_CODE(CNSudoClient().GetTokenInformationWithMemory(
             *TokenHandle,
-            TokenUser);
+            TokenUser,
+            reinterpret_cast<PVOID*>(&pTokenUser)));
         if (ErrorCode != ERROR_SUCCESS)
         {
             break;
         }
 
         Owner.Owner = pTokenUser->User.Sid;
-        ErrorCode = NSudoSetTokenInformation(
-            *TokenHandle, TokenOwner, &Owner, sizeof(TOKEN_OWNER));
+        ErrorCode = HRESULT_CODE(CNSudoClient().SetTokenInformation(
+            *TokenHandle, TokenOwner, &Owner, sizeof(TOKEN_OWNER)));
         if (ErrorCode != ERROR_SUCCESS)
         {
             break;
         }
 
-        ErrorCode = NSudoGetTokenInformationWithMemory(
-            reinterpret_cast<PVOID*>(&pTokenDacl),
+        ErrorCode = HRESULT_CODE(CNSudoClient().GetTokenInformationWithMemory(
             *TokenHandle,
-            TokenDefaultDacl);
+            TokenDefaultDacl,
+            reinterpret_cast<PVOID*>(&pTokenDacl)));
         if (ErrorCode != ERROR_SUCCESS)
         {
             break;
@@ -694,8 +765,8 @@ EXTERN_C DWORD WINAPI NSudoCreateLUAToken(
         Length += ::GetLengthSid(pTokenUser->User.Sid);
         Length += sizeof(ACCESS_ALLOWED_ACE);
 
-        ErrorCode = NSudoAllocMemory(
-            reinterpret_cast<PVOID*>(&NewDefaultDacl), Length);
+        ErrorCode = HRESULT_CODE(CNSudoClient().AllocMemory(
+            Length, reinterpret_cast<PVOID*>(&NewDefaultDacl)));
         if (ErrorCode != ERROR_SUCCESS)
         {
             break;
@@ -739,18 +810,18 @@ EXTERN_C DWORD WINAPI NSudoCreateLUAToken(
         }
 
         Length += sizeof(TOKEN_DEFAULT_DACL);
-        ErrorCode = NSudoSetTokenInformation(
-            *TokenHandle, TokenDefaultDacl, &NewTokenDacl, Length);
+        ErrorCode = HRESULT_CODE(CNSudoClient().SetTokenInformation(
+            *TokenHandle, TokenDefaultDacl, &NewTokenDacl, Length));
         if (ErrorCode != ERROR_SUCCESS)
         {
             break;
         }
 
-        ErrorCode = NSudoSetTokenInformation(
+        ErrorCode = HRESULT_CODE(CNSudoClient().SetTokenInformation(
             *TokenHandle,
             TokenVirtualizationEnabled,
             &EnableTokenVirtualization,
-            sizeof(BOOL));
+            sizeof(BOOL)));
         if (ErrorCode != ERROR_SUCCESS)
         {
             break;
@@ -760,17 +831,17 @@ EXTERN_C DWORD WINAPI NSudoCreateLUAToken(
 
     if (NewDefaultDacl)
     {
-        NSudoFreeMemory(NewDefaultDacl);
+        CNSudoClient().FreeMemory(NewDefaultDacl);
     }
 
     if (pTokenDacl)
     {
-        NSudoFreeMemory(pTokenDacl);
+        CNSudoClient().FreeMemory(pTokenDacl);
     }
 
     if (pTokenUser)
     {
-        NSudoFreeMemory(pTokenUser);
+        CNSudoClient().FreeMemory(pTokenUser);
     }
 
     if (ErrorCode != ERROR_SUCCESS)
@@ -867,50 +938,6 @@ EXTERN_C DWORD WINAPI NSudoOpenThreadTokenByThreadId(
 /**
  * @remark You can read the definition for this function in "NSudoAPI.h".
  */
-EXTERN_C DWORD WINAPI NSudoAdjustTokenAllPrivileges(
-    _In_ HANDLE TokenHandle,
-    _In_ DWORD Attributes)
-{
-    PTOKEN_PRIVILEGES pTokenPrivileges = nullptr;
-
-    DWORD ErrorCode = NSudoGetTokenInformationWithMemory(
-        reinterpret_cast<PVOID*>(&pTokenPrivileges),
-        TokenHandle,
-        TokenPrivileges);
-    if (ErrorCode == ERROR_SUCCESS)
-    {
-        for (DWORD i = 0; i < pTokenPrivileges->PrivilegeCount; ++i)
-        {
-            pTokenPrivileges->Privileges[i].Attributes = Attributes;
-        }
-
-        ErrorCode = NSudoAdjustTokenPrivileges(
-            TokenHandle,
-            pTokenPrivileges->Privileges,
-            pTokenPrivileges->PrivilegeCount);
-
-        NSudoFreeMemory(pTokenPrivileges);
-    }
-
-    return ErrorCode;
-}
-
-/**
- * @remark You can read the definition for this function in "NSudoAPI.h".
- */
-EXTERN_C DWORD WINAPI NSudoReAllocMemory(
-    _Out_ PVOID* NewBlock,
-    _In_ PVOID OldBlock,
-    _In_ SIZE_T NewSize)
-{
-    *NewBlock = ::HeapReAlloc(
-        ::GetProcessHeap(), HEAP_ZERO_MEMORY, OldBlock, NewSize);
-    return *NewBlock ? ERROR_SUCCESS : ERROR_NOT_ENOUGH_MEMORY;
-}
-
-/**
- * @remark You can read the definition for this function in "NSudoAPI.h".
- */
 EXTERN_C DWORD WINAPI NSudoSetCurrentThreadToken(
     _In_opt_ HANDLE TokenHandle)
 {
@@ -943,6 +970,6 @@ EXTERN_C DWORD WINAPI NSudoDuplicateToken(
     {
         return ::GetLastError();
     }
-
+    
     return ERROR_SUCCESS;
 }

@@ -2,9 +2,6 @@
 
 EXPORTS
 
-NSudoGetFeatureLevel
-NSudoAdjustTokenPrivileges
-NSudoCreateMandatoryLabelSid
 NSudoStartService
 NSudoOpenProcess
 NSudoOpenServiceProcess
@@ -15,19 +12,13 @@ NSudoOpenServiceProcessToken
 NSudoOpenLsassProcess
 NSudoOpenLsassProcessToken
 NSudoCreateSessionToken
-NSudoAllocMemory
-NSudoFreeMemory
-NSudoGetTokenInformation
-NSudoGetTokenInformationWithMemory
-NSudoSetTokenInformation
-NSudoSetTokenMandatoryLabel
 NSudoCreateRestrictedToken
 NSudoCreateLUAToken
 NSudoOpenThread
 NSudoOpenThreadTokenByThreadHandle
 NSudoOpenCurrentThreadToken
 NSudoOpenThreadTokenByThreadId
-NSudoAdjustTokenAllPrivileges
-NSudoReAllocMemory
 NSudoSetCurrentThreadToken
 NSudoDuplicateToken
+
+NSudoCreateInstance

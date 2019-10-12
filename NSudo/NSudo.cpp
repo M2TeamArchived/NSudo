@@ -430,6 +430,8 @@ public:
     const std::map<std::wstring, std::wstring>& ShortCutList =
         this->m_ShortCutList;
 
+    INSudoClient* pNSudoClient = nullptr;
+
 public:
     CNSudoResourceManagement() = default;
 
@@ -457,6 +459,13 @@ public:
 
             CNSudoShortCutAdapter::Read(
                 this->AppPath + L"\\NSudo.json", this->m_ShortCutList);
+
+            HRESULT hr = NSudoCreateInstance(
+                IID_INSudoClient, reinterpret_cast<PVOID*>(&this->pNSudoClient));
+            if (FAILED(hr))
+            {
+                ::ExitProcess(hr);
+            }
 
             this->m_IsInitialized = true;
         }
@@ -578,12 +587,12 @@ NSUDO_MESSAGE NSudoCommandLineParser(
     if (ErrorCode == ERROR_SUCCESS)
     {
         DWORD ReturnLength = 0;
-        ErrorCode = M2::NSudo::NSudoGetTokenInformation(
+        ErrorCode = HRESULT_CODE(g_ResourceManagement.pNSudoClient->GetTokenInformation(
             CurrentThreadToken,
             TokenSessionId,
             &dwSessionID,
             sizeof(DWORD),
-            &ReturnLength);
+            &ReturnLength));
     }
 
     // 获取当前会话 ID 失败
@@ -610,8 +619,8 @@ NSUDO_MESSAGE NSudoCommandLineParser(
                 TokenImpersonation);
             if (ErrorCode == ERROR_SUCCESS)
             {
-                ErrorCode = M2::NSudo::NSudoAdjustTokenAllPrivileges(
-                    SystemToken, SE_PRIVILEGE_ENABLED);
+                ErrorCode = HRESULT_CODE(g_ResourceManagement.pNSudoClient->AdjustTokenAllPrivileges(
+                    SystemToken, SE_PRIVILEGE_ENABLED));
             }
         }
     }
@@ -899,7 +908,7 @@ NSUDO_MESSAGE NSudoCommandLineParser(
         return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
     }
 
-    if (ERROR_SUCCESS != M2::NSudo::NSudoSetTokenInformation(
+    if (S_OK != g_ResourceManagement.pNSudoClient->SetTokenInformation(
         hToken,
         TokenSessionId,
         (PVOID)&dwSessionID,
@@ -910,7 +919,7 @@ NSUDO_MESSAGE NSudoCommandLineParser(
 
     if (NSudoOptionPrivilegesValue::EnableAllPrivileges == PrivilegesMode)
     {
-        if (ERROR_SUCCESS != M2::NSudo::NSudoAdjustTokenAllPrivileges(
+        if (S_OK != g_ResourceManagement.pNSudoClient->AdjustTokenAllPrivileges(
             hToken, SE_PRIVILEGE_ENABLED))
         {
             return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
@@ -918,7 +927,7 @@ NSUDO_MESSAGE NSudoCommandLineParser(
     }
     else if (NSudoOptionPrivilegesValue::DisableAllPrivileges == PrivilegesMode)
     {
-        if (ERROR_SUCCESS != M2::NSudo::NSudoAdjustTokenAllPrivileges(
+        if (S_OK != g_ResourceManagement.pNSudoClient->AdjustTokenAllPrivileges(
             hToken, 0))
         {
             return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
@@ -927,7 +936,7 @@ NSUDO_MESSAGE NSudoCommandLineParser(
 
     if (MandatoryLabelType != M2::NSudo::NSUDO_MANDATORY_LABEL_TYPE::UNTRUSTED)
     {
-        if (ERROR_SUCCESS != M2::NSudo::NSudoSetTokenMandatoryLabel(
+        if (S_OK != g_ResourceManagement.pNSudoClient->SetTokenMandatoryLabel(
             hToken, MandatoryLabelType))
         {
             return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;

@@ -34,8 +34,20 @@ DWORD M2::NSudo::AdjustTokenPrivileges(
         RawPrivileges.push_back(RawPrivilege);
     }
 
-    return NSudoAdjustTokenPrivileges(
-        TokenHandle,
-        &RawPrivileges[0],
-        static_cast<DWORD>(RawPrivileges.size()));
+    DWORD ErrorCode = ERROR_NOINTERFACE;
+
+    INSudoClient* pNSudoClient = nullptr;
+
+    if (SUCCEEDED(NSudoCreateInstance(
+        IID_INSudoClient, reinterpret_cast<PVOID*>(&pNSudoClient))))
+    {
+        ErrorCode = HRESULT_CODE(pNSudoClient->AdjustTokenPrivileges(
+            TokenHandle,
+            &RawPrivileges[0],
+            static_cast<DWORD>(RawPrivileges.size())));
+
+        pNSudoClient->Release();
+    }
+
+    return ErrorCode;
 }
