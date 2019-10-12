@@ -10,6 +10,8 @@
 
 #include "NSudoAPI.h"
 
+#include "M2.Base.h"
+
 #include <cstdio>
 #include <cwchar>
 

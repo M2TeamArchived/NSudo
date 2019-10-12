@@ -11,7 +11,7 @@
 #ifndef NSUDO_API
 #define NSUDO_API
 
-#include "M2.Base.h"
+#include <Windows.h>
 
 /**
  * Contains values that specify the type of mandatory label.
