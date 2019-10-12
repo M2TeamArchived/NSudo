@@ -345,7 +345,7 @@ public:
     const std::map<std::wstring, std::wstring>& ShortCutList =
         this->m_ShortCutList;
 
-    INSudoClient* pNSudoClient = nullptr;
+    ::INSudoClient* pNSudoClient = nullptr;
 
 public:
     CNSudoResourceManagement() = default;
@@ -375,8 +375,9 @@ public:
             CNSudoShortCutAdapter::Read(
                 this->AppPath + L"\\NSudo.json", this->m_ShortCutList);
 
-            HRESULT hr = NSudoCreateInstance(
-                IID_INSudoClient, reinterpret_cast<PVOID*>(&this->pNSudoClient));
+            HRESULT hr = ::NSudoCreateInstance(
+                ::IID_INSudoClient,
+                reinterpret_cast<PVOID*>(&this->pNSudoClient));
             if (FAILED(hr))
             {
                 ::ExitProcess(hr);
