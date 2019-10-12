@@ -1,7 +1,3 @@
 ﻿
 
-联系方式：
-    GitHub：https://github.com/M2Team/NSudo
-    MDL 论坛帖子：https://forums.mydigitallife.net/threads/59268/
-    吾爱破解论坛帖子：https://www.52pojie.cn/thread-847059-1-1.html
-    邮箱：Mouri_Naruto@Outlook.com
+欲了解更多信息，请访问 https://m2team.github.io/NSudo/zh-hans。

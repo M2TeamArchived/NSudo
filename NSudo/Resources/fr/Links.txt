@@ -1,7 +1,3 @@
 ﻿
 
-Communication:
-    GitHub: https://github.com/M2Team/NSudo
-    Fil de discussion MDL: https://forums.mydigitallife.net/threads/59268/
-    Fil de discussion 52pojie: https://www.52pojie.cn/thread-847059-1-1.html
-    E-mail: Mouri_Naruto@Outlook.com
+Pour plus d'informations, veuillez consulter https://m2team.github.io/NSudo.
