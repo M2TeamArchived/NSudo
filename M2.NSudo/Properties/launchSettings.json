@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "M2.NSudo": {
+      "commandName": "Project",
+      "nativeDebugging": true
+    }
+  }
+}
