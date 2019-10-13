@@ -693,15 +693,16 @@ public:
 
 };
 
-EXTERN_GUID(
-    IID_INSudoClient,
-    0x8bd99d5d, 0x2811, 0x4036, 0xa2, 0x1e, 0x63, 0x32, 0x81, 0x15, 0xb3, 0x64);
+/**
+ * NSudo Shared Library Interface V1 Interface ID
+ */
+EXTERN_C const IID IID_INSudoClient;
 
 /**
  * Creates an interface object and returns a pointer to it.
  *
  * @param InterfaceId The Interface ID being requested.
- * @param Object A location to store the interface pointer to return.
+ * @param Instance A location to store the interface pointer to return.
  * @return HRESULT. If the function succeeds, the return value is S_OK.
  */
 EXTERN_C HRESULT WINAPI NSudoCreateInstance(

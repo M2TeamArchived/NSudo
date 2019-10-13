@@ -954,6 +954,10 @@ public:
     }
 };
 
+// {8BD99D5D-2811-4036-A21E-63328115B364}
+DEFINE_GUID(IID_INSudoClient,
+    0x8bd99d5d, 0x2811, 0x4036, 0xa2, 0x1e, 0x63, 0x32, 0x81, 0x15, 0xb3, 0x64);
+
 /**
  * @remark You can read the definition for this function in "NSudoAPI.h".
  */
