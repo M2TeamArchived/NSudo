@@ -11,6 +11,10 @@
 #ifndef NSUDO_API
 #define NSUDO_API
 
+#ifndef __cplusplus
+#error "[NSudoAPI] You should use a C++ compiler."
+#endif
+
 #include <Windows.h>
 
 /**

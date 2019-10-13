@@ -12,7 +12,7 @@
 #define M2_BASE
 
 #ifndef __cplusplus
-#error "[M2.NSudo] You should use a C++ compiler."
+#error "[M2.Base] You should use a C++ compiler."
 #endif
 
 #include <Windows.h>
