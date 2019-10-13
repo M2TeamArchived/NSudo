@@ -42,7 +42,7 @@ public:
      *
      * @param Size The number of bytes to be allocated.
      * @param Block A pointer to the allocated memory block.
-     * @return HRESULT. If the function succeeds, the return value is S_OK.
+     * @return HRESULT. If the method succeeds, the return value is S_OK.
      */
     virtual HRESULT STDMETHODCALLTYPE AllocMemory(
          _In_ SIZE_T Size,
@@ -62,7 +62,7 @@ public:
      *                block's size can be increased or decreased by using
      *                this function.
      * @param NewBlock A pointer to the allocated memory block.
-     * @return HRESULT. If the function succeeds, the return value is S_OK.
+     * @return HRESULT. If the method succeeds, the return value is S_OK.
      *         If the function fails, the original memory is not freed, and
      *         the original handle and pointer are still valid.
      */
@@ -78,7 +78,7 @@ public:
      * @param Block A pointer to the memory block to be freed. This pointer is
      *              returned by the AllocMemory or ReAllocMemory method. If
      *              this pointer is nullptr, the behavior is undefined.
-     * @return HRESULT. If the function succeeds, the return value is S_OK.
+     * @return HRESULT. If the method succeeds, the return value is S_OK.
      */
     virtual HRESULT STDMETHODCALLTYPE FreeMemory(
         _In_ LPVOID Block) = 0;
@@ -102,7 +102,7 @@ public:
      * @param ReturnLength A pointer to a variable that receives the number of
      *                     bytes needed for the buffer pointed to by the
      *                     TokenInformation parameter.
-     * @return HRESULT. If the function succeeds, the return value is S_OK.
+     * @return HRESULT. If the method succeeds, the return value is S_OK.
      * @remark For more information, see GetTokenInformation.
      */
     virtual HRESULT STDMETHODCALLTYPE GetTokenInformation(
@@ -128,7 +128,7 @@ public:
      *                          finished using the information, free it by
      *                          calling the FreeMemory method. You should also
      *                          set the pointer to NULL.
-     * @return HRESULT. If the function succeeds, the return value is S_OK.
+     * @return HRESULT. If the method succeeds, the return value is S_OK.
      * @remark For more information, see GetTokenInformation.
      */
     virtual HRESULT STDMETHODCALLTYPE GetTokenInformationWithMemory(
@@ -154,7 +154,7 @@ public:
      *                         information set in the access token.
      * @param TokenInformationLength Specifies the length, in bytes, of the
      *                               buffer pointed to by TokenInformation.
-     * @return HRESULT. If the function succeeds, the return value is S_OK.
+     * @return HRESULT. If the method succeeds, the return value is S_OK.
      * @remark For more information, see SetTokenInformation.
      */
     virtual HRESULT STDMETHODCALLTYPE SetTokenInformation(
@@ -174,8 +174,8 @@ public:
      *                   and their attributes. Each structure contains the
      *                   LUID and attributes of a privilege. To get the name
      *                   of the privilege associated with a LUID, call the
-     *                   LookupPrivilegeName function, passing the address of
-     *                   the LUID as the value of the lpLuid parameter. The
+     *                   GetPrivilegeValue method, passing the address of the
+     *                   LUID as the value of the lpLuid parameter. The
      *                   attributes of a privilege can be a combination of the
      *                   following values.
      *                   SE_PRIVILEGE_ENABLED
@@ -186,7 +186,7 @@ public:
      *                   None
      *                       The function disables the privilege.
      * @param PrivilegeCount The number of entries in the Privileges array.
-     * @return HRESULT. If the function succeeds, the return value is S_OK.
+     * @return HRESULT. If the method succeeds, the return value is S_OK.
      * @remark For more information, see AdjustTokenPrivileges.
      */
     virtual HRESULT STDMETHODCALLTYPE AdjustTokenPrivileges(
@@ -209,7 +209,7 @@ public:
      *                       privileges in the token.
      *                   None
      *                       The function disables the privilege.
-     * @return HRESULT. If the function succeeds, the return value is S_OK.
+     * @return HRESULT. If the method succeeds, the return value is S_OK.
      */
     virtual HRESULT STDMETHODCALLTYPE AdjustTokenAllPrivileges(
         _In_ HANDLE TokenHandle,
@@ -218,15 +218,15 @@ public:
     /**
      * Allocates and initializes a mandatory label security identifier (SID).
      *
-     * @param MandatoryLabelType A value from the MANDATORY_LABEL_TYPE
+     * @param MandatoryLabelType A value from the NSUDO_MANDATORY_LABEL_TYPE
      *                           enumerated type that identifies the
      *                           mandatory label.
      * @param MandatoryLabelSid A pointer to a variable that receives the
      *                          pointer to the allocated and initialized
      *                          mandatory label SID structure.
-     * @return HRESULT. If the function succeeds, the return value is S_OK.
-     * @remark A SID allocated with the NSudoCreateMandatoryLabelSid function
-     *         must be freed by using the FreeSid function.
+     * @return HRESULT. If the method succeeds, the return value is S_OK.
+     * @remark A SID allocated with the CreateMandatoryLabelSid method must be
+     *         freed by using the FreeSid function.
      */
     virtual HRESULT STDMETHODCALLTYPE CreateMandatoryLabelSid(
         _In_ NSUDO_MANDATORY_LABEL_TYPE MandatoryLabelType,
@@ -239,10 +239,10 @@ public:
      *
      * @param TokenHandle A handle to the access token for which information is
      *                    to be set.
-     * @param MandatoryLabelType A value from the MANDATORY_LABEL_TYPE
+     * @param MandatoryLabelType A value from the NSUDO_MANDATORY_LABEL_TYPE
      *                           enumerated type that identifies the
      *                           mandatory label.
-     * @return HRESULT. If the function succeeds, the return value is S_OK.
+     * @return HRESULT. If the method succeeds, the return value is S_OK.
      */
     virtual HRESULT STDMETHODCALLTYPE SetTokenMandatoryLabel(
         _In_ HANDLE TokenHandle,
@@ -253,7 +253,7 @@ public:
      * specified service.
      *
      * @param ServiceName The name of the service to be started. This is the
-     *                    name specified by the lpServiceName parameter of the
+     *                    name specified by the ServiceName parameter of the
      *                    CreateService function when the service object was
      *                    created, not the service display name that is shown by
      *                    user interface applications to identify the service.
@@ -264,7 +264,7 @@ public:
      *                    backslash (\) are invalid service name characters.
      * @param ServiceStatus A pointer to the process status information for a
      *                      service.
-     * @return HRESULT. If the function succeeds, the return value is S_OK.
+     * @return HRESULT. If the method succeeds, the return value is S_OK.
      */
     virtual HRESULT STDMETHODCALLTYPE StartWindowsService(
         _In_ LPCWSTR ServiceName,
@@ -281,7 +281,7 @@ public:
      *                    token handle for the logged-on user. Note that you
      *                    must call the CloseHandle function to close this
      *                    handle.
-     * @return HRESULT. If the function succeeds, the return value is S_OK.
+     * @return HRESULT. If the method succeeds, the return value is S_OK.
      * @remark For more information, see WTSQueryUserToken.
      */
     virtual HRESULT STDMETHODCALLTYPE CreateSessionToken(
@@ -333,7 +333,7 @@ public:
      *                       SIDs for the new token.
      * @param NewTokenHandle A pointer to a variable that receives a handle to
      *                       the new restricted token.
-     * @return HRESULT. If the function succeeds, the return value is S_OK.
+     * @return HRESULT. If the method succeeds, the return value is S_OK.
      * @remark For more information, see CreateRestrictedToken.
      */
     virtual HRESULT STDMETHODCALLTYPE CreateRestrictedToken(
@@ -351,13 +351,13 @@ public:
      * Creates a new access token that is a LUA version of an existing access
      * token.
      *
-     * @param TokenHandle A pointer to a variable that receives a handle to the
-     *                    new restricted token.
      * @param ExistingTokenHandle A handle to a primary or impersonation token.
      *                            The token can also be a restricted token. The
      *                            handle must have TOKEN_DUPLICATE access to
      *                            the token.
-     * @return HRESULT. If the function succeeds, the return value is S_OK.
+     * @param TokenHandle A pointer to a variable that receives a handle to the
+     *                    new restricted token.
+     * @return HRESULT. If the method succeeds, the return value is S_OK.
      */
     virtual HRESULT STDMETHODCALLTYPE CreateLUAToken(
         _In_ HANDLE ExistingTokenHandle,
@@ -370,7 +370,7 @@ public:
      * @param TokenHandle A handle to the impersonation token to assign to the
      *                    thread. If TokenHandle is NULL, the function causes
      *                    the thread to stop using an impersonation token.
-     * @return HRESULT. If the function succeeds, the return value is S_OK.
+     * @return HRESULT. If the method succeeds, the return value is S_OK.
      * @remark For more information, see SetThreadToken.
      */
     virtual HRESULT STDMETHODCALLTYPE SetCurrentThreadToken(
@@ -400,9 +400,9 @@ public:
      *                      in the CreateProcessAsUser function.
      *                  TokenImpersonation
      *                      The new token is an impersonation token.
-     * @param NewTokenHandle A pointer to a HANDLE variable that receives the
+     * @param NewTokenHandle A pointer to a handle variable that receives the
      *                       new token.
-     * @return HRESULT. If the function succeeds, the return value is S_OK.
+     * @return HRESULT. If the method succeeds, the return value is S_OK.
      * @remark For more information, see DuplicateTokenEx.
      */
     virtual HRESULT STDMETHODCALLTYPE DuplicateToken(
@@ -426,7 +426,7 @@ public:
      * @param ProcessId The identifier of the local process to be opened.
      * @param ProcessHandle A pointer to an open handle to the specified
      *                      process.
-     * @return HRESULT. If the function succeeds, the return value is S_OK.
+     * @return HRESULT. If the method succeeds, the return value is S_OK.
      * @remark For more information, see OpenProcess.
      */
     virtual HRESULT STDMETHODCALLTYPE OpenProcess(
@@ -449,7 +449,7 @@ public:
      *                      process will inherit the handle. Otherwise, the
      *                      processes do not inherit this handle.
      * @param ServiceName The name of the service to be started. This is the
-     *                    name specified by the lpServiceName parameter of the
+     *                    name specified by the ServiceName parameter of the
      *                    CreateService function when the service object was
      *                    created, not the service display name that is shown by
      *                    user interface applications to identify the service.
@@ -460,7 +460,7 @@ public:
      *                    backslash (\) are invalid service name characters.
      * @param ProcessHandle A pointer to an open handle to the specified
      *                      process.
-     * @return HRESULT. If the function succeeds, the return value is S_OK.
+     * @return HRESULT. If the method succeeds, the return value is S_OK.
      * @remark For more information, see OpenProcess.
      */
     virtual HRESULT STDMETHODCALLTYPE OpenServiceProcess(
@@ -484,7 +484,7 @@ public:
      *                      processes do not inherit this handle.
      * @param ProcessHandle A pointer to an open handle to the specified
      *                      process.
-     * @return HRESULT. If the function succeeds, the return value is S_OK.
+     * @return HRESULT. If the method succeeds, the return value is S_OK.
      * @remark For more information, see OpenProcess.
      */
     virtual HRESULT STDMETHODCALLTYPE OpenLsassProcess(
@@ -504,7 +504,7 @@ public:
      *                      process access rights.
      * @param TokenHandle A pointer to a handle that identifies the newly
      *                    opened access token when the function returns.
-     * @return HRESULT. If the function succeeds, the return value is S_OK.
+     * @return HRESULT. If the method succeeds, the return value is S_OK.
      * @remark For more information, see OpenProcessToken.
      */
     virtual HRESULT STDMETHODCALLTYPE OpenProcessTokenByProcessHandle(
@@ -521,7 +521,7 @@ public:
      *                      process access rights.
      * @param TokenHandle A pointer to a handle that identifies the newly
      *                    opened access token when the function returns.
-     * @return HRESULT. If the function succeeds, the return value is S_OK.
+     * @return HRESULT. If the method succeeds, the return value is S_OK.
      * @remark For more information, see OpenProcessToken.
      */
     virtual HRESULT STDMETHODCALLTYPE OpenCurrentProcessToken(
@@ -538,7 +538,7 @@ public:
      *                      process access rights.
      * @param TokenHandle A pointer to a handle that identifies the newly
      *                    opened access token when the function returns.
-     * @return HRESULT. If the function succeeds, the return value is S_OK.
+     * @return HRESULT. If the method succeeds, the return value is S_OK.
      * @remark For more information, see OpenProcessToken.
      */
     virtual HRESULT STDMETHODCALLTYPE OpenProcessTokenByProcessId(
@@ -552,7 +552,7 @@ public:
      * account and have the SE_DEBUG_NAME privilege enabled.
      *
      * @param ServiceName The name of the service to be started. This is the
-     *                    name specified by the lpServiceName parameter of the
+     *                    name specified by the ServiceName parameter of the
      *                    CreateService function when the service object was
      *                    created, not the service display name that is shown by
      *                    user interface applications to identify the service.
@@ -567,7 +567,7 @@ public:
      *                      process access rights.
      * @param TokenHandle A pointer to a handle that identifies the newly
      *                    opened access token when the function returns.
-     * @return HRESULT. If the function succeeds, the return value is S_OK.
+     * @return HRESULT. If the method succeeds, the return value is S_OK.
      * @remark For more information, see OpenProcessToken.
      */
     virtual HRESULT STDMETHODCALLTYPE OpenServiceProcessToken(
@@ -587,7 +587,7 @@ public:
      *                      process access rights.
      * @param TokenHandle A pointer to a handle that identifies the newly
      *                    opened access token when the function returns.
-     * @return HRESULT. If the function succeeds, the return value is S_OK.
+     * @return HRESULT. If the method succeeds, the return value is S_OK.
      * @remark For more information, see OpenProcessToken.
      */
     virtual HRESULT STDMETHODCALLTYPE OpenLsassProcessToken(
@@ -606,7 +606,7 @@ public:
      *                      processes do not inherit this handle.
      * @param ThreadId The identifier of the thread to be opened.
      * @param ThreadHandle A pointer to an open handle to the specified thread.
-     * @return HRESULT. If the function succeeds, the return value is S_OK.
+     * @return HRESULT. If the method succeeds, the return value is S_OK.
      * @remark For more information, see OpenThread.
      */
     virtual HRESULT STDMETHODCALLTYPE OpenThread(
@@ -618,6 +618,7 @@ public:
     /**
      * Opens the access token associated with a thread.
      *
+     * @param ThreadHandle A handle to the thread whose access token is opened.
      * @param DesiredAccess Specifies an access mask that specifies the
      *                      requested types of access to the access token.
      *                      These requested access types are reconciled
@@ -631,8 +632,7 @@ public:
      *                   function.
      * @param TokenHandle A pointer to a variable that receives the handle to
      *                    the newly opened access token.
-     * @param ThreadHandle A handle to the thread whose access token is opened.
-     * @return HRESULT. If the function succeeds, the return value is S_OK.
+     * @return HRESULT. If the method succeeds, the return value is S_OK.
      * @remark For more information, see OpenThreadToken.
      */
     virtual HRESULT STDMETHODCALLTYPE OpenThreadTokenByThreadHandle(
@@ -657,7 +657,7 @@ public:
      *                   function.
      * @param TokenHandle A pointer to a variable that receives the handle to
      *                    the newly opened access token.
-     * @return HRESULT. If the function succeeds, the return value is S_OK.
+     * @return HRESULT. If the method succeeds, the return value is S_OK.
      * @remark For more information, see OpenThreadToken.
      */
     virtual HRESULT STDMETHODCALLTYPE OpenCurrentThreadToken(
@@ -682,7 +682,7 @@ public:
      *                   function.
      * @param TokenHandle A pointer to a variable that receives the handle to
      *                    the newly opened access token.
-     * @return HRESULT. If the function succeeds, the return value is S_OK.
+     * @return HRESULT. If the method succeeds, the return value is S_OK.
      * @remark For more information, see OpenThreadToken.
      */
     virtual HRESULT STDMETHODCALLTYPE OpenThreadTokenByThreadId(
@@ -702,7 +702,7 @@ public:
      *             "SeSecurityPrivilege".
      * @param Value A pointer to a variable that receives the LUID by which the
      *              privilege is known on the local system.
-     * @return HRESULT. If the function succeeds, the return value is S_OK.
+     * @return HRESULT. If the method succeeds, the return value is S_OK.
      * @remark For more information, see LookupPrivilegeValue.
      */
     virtual HRESULT STDMETHODCALLTYPE GetPrivilegeValue(

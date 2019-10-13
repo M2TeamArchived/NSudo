@@ -34,7 +34,7 @@ public:
     virtual ~CNSudoClient() = default;
 
     /**
-     * @remark You can read the definition for this function in "NSudoAPI.h".
+     * @remark You can read the definition for this method in "NSudoAPI.h".
      */
     virtual HRESULT STDMETHODCALLTYPE AllocMemory(
         _In_ SIZE_T Size,
@@ -45,7 +45,7 @@ public:
     }
 
     /**
-     * @remark You can read the definition for this function in "NSudoAPI.h".
+     * @remark You can read the definition for this method in "NSudoAPI.h".
      */
     virtual HRESULT STDMETHODCALLTYPE ReAllocMemory(
         _In_ PVOID OldBlock,
@@ -58,7 +58,7 @@ public:
     }
 
     /**
-     * @remark You can read the definition for this function in "NSudoAPI.h".
+     * @remark You can read the definition for this method in "NSudoAPI.h".
      */
     virtual HRESULT STDMETHODCALLTYPE FreeMemory(
         _In_ LPVOID Block)
@@ -72,7 +72,7 @@ public:
     }
 
     /**
-     * @remark You can read the definition for this function in "NSudoAPI.h".
+     * @remark You can read the definition for this method in "NSudoAPI.h".
      */
     virtual HRESULT STDMETHODCALLTYPE GetTokenInformation(
         _In_ HANDLE TokenHandle,
@@ -95,7 +95,7 @@ public:
     }
 
     /**
-      * @remark You can read the definition for this function in "NSudoAPI.h".
+      * @remark You can read the definition for this method in "NSudoAPI.h".
       */
     virtual HRESULT STDMETHODCALLTYPE GetTokenInformationWithMemory(
         _In_ HANDLE TokenHandle,
@@ -135,7 +135,7 @@ public:
     }
 
     /**
-     * @remark You can read the definition for this function in "NSudoAPI.h".
+     * @remark You can read the definition for this method in "NSudoAPI.h".
      */
     virtual HRESULT STDMETHODCALLTYPE SetTokenInformation(
         _In_ HANDLE TokenHandle,
@@ -156,7 +156,7 @@ public:
     }
 
     /**
-     * @remark You can read the definition for this function in "NSudoAPI.h".
+     * @remark You can read the definition for this method in "NSudoAPI.h".
      */
     virtual HRESULT STDMETHODCALLTYPE AdjustTokenPrivileges(
         _In_ HANDLE TokenHandle,
@@ -190,7 +190,7 @@ public:
     }
 
     /**
-     * @remark You can read the definition for this function in "NSudoAPI.h".
+     * @remark You can read the definition for this method in "NSudoAPI.h".
      */
     virtual HRESULT STDMETHODCALLTYPE AdjustTokenAllPrivileges(
         _In_ HANDLE TokenHandle,
@@ -221,7 +221,7 @@ public:
     }
 
     /**
-     * @remark You can read the definition for this function in "NSudoAPI.h".
+     * @remark You can read the definition for this method in "NSudoAPI.h".
      */
     virtual HRESULT STDMETHODCALLTYPE CreateMandatoryLabelSid(
         _In_ NSUDO_MANDATORY_LABEL_TYPE MandatoryLabelType,
@@ -267,7 +267,7 @@ public:
     }
 
     /**
-     * @remark You can read the definition for this function in "NSudoAPI.h".
+     * @remark You can read the definition for this method in "NSudoAPI.h".
      */
     virtual HRESULT STDMETHODCALLTYPE SetTokenMandatoryLabel(
         _In_ HANDLE TokenHandle,
@@ -291,7 +291,7 @@ public:
     }
 
     /**
-     * @remark You can read the definition for this function in "NSudoAPI.h".
+     * @remark You can read the definition for this method in "NSudoAPI.h".
      */
     virtual HRESULT STDMETHODCALLTYPE StartWindowsService(
         _In_ LPCWSTR ServiceName,
@@ -404,7 +404,7 @@ public:
     }
 
     /**
-     * @remark You can read the definition for this function in "NSudoAPI.h".
+     * @remark You can read the definition for this method in "NSudoAPI.h".
      */
     virtual HRESULT STDMETHODCALLTYPE CreateSessionToken(
         _In_ DWORD SessionId,
@@ -419,7 +419,7 @@ public:
     }
 
     /**
-     * @remark You can read the definition for this function in "NSudoAPI.h".
+     * @remark You can read the definition for this method in "NSudoAPI.h".
      */
     virtual HRESULT STDMETHODCALLTYPE CreateRestrictedToken(
         _In_ HANDLE ExistingTokenHandle,
@@ -450,7 +450,7 @@ public:
     }
 
     /**
-     * @remark You can read the definition for this function in "NSudoAPI.h".
+     * @remark You can read the definition for this method in "NSudoAPI.h".
      */
     virtual HRESULT STDMETHODCALLTYPE CreateLUAToken(
         _In_ HANDLE ExistingTokenHandle,
@@ -608,7 +608,7 @@ public:
     }
 
     /**
-     * @remark You can read the definition for this function in "NSudoAPI.h".
+     * @remark You can read the definition for this method in "NSudoAPI.h".
      */
     virtual HRESULT STDMETHODCALLTYPE SetCurrentThreadToken(
         _In_opt_ HANDLE TokenHandle)
@@ -622,7 +622,7 @@ public:
     }
 
     /**
-     * @remark You can read the definition for this function in "NSudoAPI.h".
+     * @remark You can read the definition for this method in "NSudoAPI.h".
      */
     virtual HRESULT STDMETHODCALLTYPE DuplicateToken(
         _In_ HANDLE ExistingTokenHandle,
@@ -647,7 +647,7 @@ public:
     }
 
     /**
-     * @remark You can read the definition for this function in "NSudoAPI.h".
+     * @remark You can read the definition for this method in "NSudoAPI.h".
      */
     virtual HRESULT STDMETHODCALLTYPE OpenProcess(
         _In_ DWORD DesiredAccess,
@@ -675,7 +675,7 @@ public:
     }
 
     /**
-     * @remark You can read the definition for this function in "NSudoAPI.h".
+     * @remark You can read the definition for this method in "NSudoAPI.h".
      */
     virtual HRESULT STDMETHODCALLTYPE OpenServiceProcess(
         _In_ DWORD DesiredAccess,
@@ -699,7 +699,7 @@ public:
     }
 
     /**
-     * @remark You can read the definition for this function in "NSudoAPI.h".
+     * @remark You can read the definition for this method in "NSudoAPI.h".
      */
     virtual HRESULT STDMETHODCALLTYPE OpenLsassProcess(
         _In_ DWORD DesiredAccess,
@@ -766,7 +766,7 @@ public:
     }
 
     /**
-     * @remark You can read the definition for this function in "NSudoAPI.h".
+     * @remark You can read the definition for this method in "NSudoAPI.h".
      */
     virtual HRESULT STDMETHODCALLTYPE OpenProcessTokenByProcessHandle(
         _In_ HANDLE ProcessHandle,
@@ -783,7 +783,7 @@ public:
     }
 
     /**
-     * @remark You can read the definition for this function in "NSudoAPI.h".
+     * @remark You can read the definition for this method in "NSudoAPI.h".
      */
     virtual HRESULT STDMETHODCALLTYPE OpenCurrentProcessToken(
         _In_ DWORD DesiredAccess,
@@ -794,7 +794,7 @@ public:
     }
 
     /**
-     * @remark You can read the definition for this function in "NSudoAPI.h".
+     * @remark You can read the definition for this method in "NSudoAPI.h".
      */
     virtual HRESULT STDMETHODCALLTYPE OpenProcessTokenByProcessId(
         _In_ DWORD ProcessId,
@@ -817,7 +817,7 @@ public:
     }
 
     /**
-     * @remark You can read the definition for this function in "NSudoAPI.h".
+     * @remark You can read the definition for this method in "NSudoAPI.h".
      */
     virtual HRESULT STDMETHODCALLTYPE OpenServiceProcessToken(
         _In_ LPCWSTR ServiceName,
@@ -840,7 +840,7 @@ public:
     }
 
     /**
-     * @remark You can read the definition for this function in "NSudoAPI.h".
+     * @remark You can read the definition for this method in "NSudoAPI.h".
      */
     virtual HRESULT STDMETHODCALLTYPE OpenLsassProcessToken(
         _In_ DWORD DesiredAccess,
@@ -862,7 +862,7 @@ public:
     }
 
     /**
-     * @remark You can read the definition for this function in "NSudoAPI.h".
+     * @remark You can read the definition for this method in "NSudoAPI.h".
      */
     virtual HRESULT STDMETHODCALLTYPE OpenThread(
         _In_ DWORD DesiredAccess,
@@ -890,7 +890,7 @@ public:
     }
 
     /**
-     * @remark You can read the definition for this function in "NSudoAPI.h".
+     * @remark You can read the definition for this method in "NSudoAPI.h".
      */
     virtual HRESULT STDMETHODCALLTYPE OpenThreadTokenByThreadHandle(
         _In_ HANDLE ThreadHandle,
@@ -908,7 +908,7 @@ public:
     }
 
     /**
-     * @remark You can read the definition for this function in "NSudoAPI.h".
+     * @remark You can read the definition for this method in "NSudoAPI.h".
      */
     virtual HRESULT STDMETHODCALLTYPE OpenCurrentThreadToken(
         _In_ DWORD DesiredAccess,
@@ -920,7 +920,7 @@ public:
     }
 
     /**
-     * @remark You can read the definition for this function in "NSudoAPI.h".
+     * @remark You can read the definition for this method in "NSudoAPI.h".
      */
     virtual HRESULT STDMETHODCALLTYPE OpenThreadTokenByThreadId(
         _In_ DWORD ThreadId,
@@ -944,7 +944,7 @@ public:
     }
 
     /**
-     * @remark You can read the definition for this function in "NSudoAPI.h".
+     * @remark You can read the definition for this method in "NSudoAPI.h".
      */
     virtual HRESULT STDMETHODCALLTYPE GetPrivilegeValue(
         _In_ LPCWSTR Name,
