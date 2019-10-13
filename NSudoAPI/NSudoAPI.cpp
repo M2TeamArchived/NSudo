@@ -63,14 +63,12 @@ public:
     virtual HRESULT STDMETHODCALLTYPE FreeMemory(
         _In_ LPVOID Block)
     {
-        if (::HeapFree(::GetProcessHeap(), 0, Block))
-        {
-            return S_OK;
-        }
-        else
+        if (!::HeapFree(::GetProcessHeap(), 0, Block))
         {
             return ::HRESULT_FROM_WIN32(::GetLastError());
         }
+
+        return S_OK;
     }
 
     /**
@@ -83,19 +81,17 @@ public:
         _In_ DWORD TokenInformationLength,
         _Out_ PDWORD ReturnLength)
     {
-        if (::GetTokenInformation(
+        if (!::GetTokenInformation(
             TokenHandle,
             TokenInformationClass,
             TokenInformation,
             TokenInformationLength,
             ReturnLength))
         {
-            return S_OK;
-        }
-        else
-        {
             return ::HRESULT_FROM_WIN32(::GetLastError());
         }
+
+        return S_OK;
     }
 
     /**
@@ -147,18 +143,16 @@ public:
         _In_ LPVOID TokenInformation,
         _In_ DWORD TokenInformationLength)
     {
-        if (::SetTokenInformation(
+        if (!::SetTokenInformation(
             TokenHandle,
             TokenInformationClass,
             TokenInformation,
             TokenInformationLength))
         {
-            return S_OK;
-        }
-        else
-        {
             return ::HRESULT_FROM_WIN32(::GetLastError());
         }
+
+        return S_OK;
     }
 
     /**
@@ -416,14 +410,12 @@ public:
         _In_ DWORD SessionId,
         _Out_ PHANDLE TokenHandle)
     {
-        if (::WTSQueryUserToken(SessionId, TokenHandle))
-        {
-            return S_OK;
-        }
-        else
+        if (!::WTSQueryUserToken(SessionId, TokenHandle))
         {
             return ::HRESULT_FROM_WIN32(::GetLastError());
         }
+
+        return S_OK;
     }
 
     /**
@@ -440,7 +432,7 @@ public:
         _In_opt_ PSID_AND_ATTRIBUTES SidsToRestrict,
         _Out_ PHANDLE NewTokenHandle)
     {
-        if (::CreateRestrictedToken(
+        if (!::CreateRestrictedToken(
             ExistingTokenHandle,
             Flags,
             DisableSidCount,
@@ -451,12 +443,10 @@ public:
             SidsToRestrict,
             NewTokenHandle))
         {
-            return S_OK;
-        }
-        else
-        {
             return ::HRESULT_FROM_WIN32(::GetLastError());
         }
+
+        return S_OK;
     }
 
     /**
@@ -951,6 +941,21 @@ public:
         }
 
         return hr;
+    }
+
+    /**
+     * @remark You can read the definition for this function in "NSudoAPI.h".
+     */
+    virtual HRESULT STDMETHODCALLTYPE GetPrivilegeValue(
+        _In_ LPCWSTR Name,
+        _Out_ PLUID Value)
+    {
+        if (!::LookupPrivilegeValueW(nullptr, Name, Value))
+        {
+            return ::HRESULT_FROM_WIN32(::GetLastError());
+        }
+
+        return S_OK;
     }
 };
 

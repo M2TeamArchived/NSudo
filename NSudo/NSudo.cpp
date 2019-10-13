@@ -440,10 +440,11 @@ HRESULT NSudoAdjustTokenPrivileges(
     {
         LUID_AND_ATTRIBUTES RawPrivilege;
 
-        if (!::LookupPrivilegeValueW(
-            nullptr, Privilege.first.c_str(), &RawPrivilege.Luid))
+        HRESULT hr = g_ResourceManagement.pNSudoClient->GetPrivilegeValue(
+            Privilege.first.c_str(), &RawPrivilege.Luid);
+        if (hr != S_OK)
         {
-            return ::GetLastError();
+            return hr;
         }
 
         RawPrivilege.Attributes = Privilege.second;

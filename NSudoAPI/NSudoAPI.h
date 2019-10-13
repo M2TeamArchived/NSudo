@@ -691,6 +691,23 @@ public:
         _In_ BOOL OpenAsSelf,
         _Out_ PHANDLE TokenHandle) = 0;
 
+    /**
+     * Retrieves the locally unique identifier (LUID) used on the local system
+     * to locally represent the specified privilege name.
+     *
+     * @param Name A pointer to a null-terminated string that specifies the
+     *             name of the privilege, as defined in the Winnt.h header
+     *             file. For example, this parameter could specify the
+     *             constant, SE_SECURITY_NAME, or its corresponding string,
+     *             "SeSecurityPrivilege".
+     * @param Value A pointer to a variable that receives the LUID by which the
+     *              privilege is known on the local system.
+     * @return HRESULT. If the function succeeds, the return value is S_OK.
+     * @remark For more information, see LookupPrivilegeValue.
+     */
+    virtual HRESULT STDMETHODCALLTYPE GetPrivilegeValue(
+        _In_ LPCWSTR Name,
+        _Out_ PLUID Value) = 0;
 };
 
 /**
