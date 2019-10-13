@@ -695,8 +695,22 @@ public:
 
 /**
  * NSudo Shared Library Interface V1 Interface ID
+ * {8BD99D5D-2811-4036-A21E-63328115B364}
  */
-EXTERN_C const IID IID_INSudoClient;
+EXTERN_C const IID DECLSPEC_SELECTANY IID_INSudoClient =
+{
+    0x8BD99D5D,
+    0x2811,
+    0x4036,
+    0xA2,
+    0x1E,
+    0x63,
+    0x32,
+    0x81,
+    0x15,
+    0xB3,
+    0x64
+};
 
 /**
  * Creates an interface object and returns a pointer to it.
