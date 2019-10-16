@@ -32,7 +32,7 @@ typedef enum _NSUDO_MANDATORY_LABEL_TYPE
 } NSUDO_MANDATORY_LABEL_TYPE, *PNSUDO_MANDATORY_LABEL_TYPE;
 
 /**
- * NSudo Shared Library Interface V1
+ * NSudo Shared Library Client Interface V1
  */
 MIDL_INTERFACE("8BD99D5D-2811-4036-A21E-63328115B364")
 INSudoClient : public IUnknown
@@ -715,7 +715,7 @@ public:
 };
 
 /**
- * NSudo Shared Library Interface V1 Interface ID
+ * NSudo Shared Library Client Interface V1 Interface ID
  * {8BD99D5D-2811-4036-A21E-63328115B364}
  */
 EXTERN_C const IID DECLSPEC_SELECTANY IID_INSudoClient =
@@ -723,14 +723,7 @@ EXTERN_C const IID DECLSPEC_SELECTANY IID_INSudoClient =
     0x8BD99D5D,
     0x2811,
     0x4036,
-    0xA2,
-    0x1E,
-    0x63,
-    0x32,
-    0x81,
-    0x15,
-    0xB3,
-    0x64
+    {0xA2, 0x1E, 0x63, 0x32, 0x81, 0x15, 0xB3, 0x64}
 };
 
 /**

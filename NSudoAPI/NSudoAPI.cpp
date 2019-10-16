@@ -19,7 +19,7 @@
 #pragma comment(lib, "WtsApi32.lib")
 
 /**
- * NSudo Shared Library Interface Implementation
+ * NSudo Shared Library Client Interface Implementation
  */
 class CNSudoClient : public M2::Base::CComClass<CNSudoClient, INSudoClient>
 {

@@ -128,7 +128,7 @@ namespace M2.NSudo
     }
 
     /// <summary>
-    /// NSudo Shared Library Interface V1
+    /// NSudo Shared Library Client Interface V1
     /// </summary>
     [Guid("8BD99D5D-2811-4036-A21E-63328115B364")]
     [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]

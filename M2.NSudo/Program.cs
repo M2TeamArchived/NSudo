@@ -1,10 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Reflection;
 using System.Runtime.InteropServices;
 
 namespace M2.NSudo
 {
     public class NSudoInstance
     {
+
         /// <summary>
         /// Creates an interface object and returns a pointer to it.
         /// </summary>
@@ -14,27 +17,26 @@ namespace M2.NSudo
         /// <returns>
         /// A location to store the interface pointer to return.
         /// </returns>
-        [
-            DllImport(
-                "NSudoAPI.dll",
-                CharSet = CharSet.Unicode,
-                ExactSpelling = true)
-        ]
-        
-        private static extern int NSudoCreateInstance(
-            [MarshalAs(UnmanagedType.LPStruct)] Guid InterfaceId,
-            [MarshalAs(UnmanagedType.Interface)] out object Instance);
+        [DllImport("NSudoAPI.dll",CallingConvention = CallingConvention.Winapi, CharSet = CharSet.Unicode, ExactSpelling =true, PreserveSig =false)]
+        [return: MarshalAs(UnmanagedType.Interface)]
+        private static extern object NSudoCreateInstance(
+            [MarshalAs(UnmanagedType.LPStruct)] Guid InterfaceId);
+        // UnmanagedFunctionPointer
 
-        public static object Create()
+        public static object Create(/*Dictionary<Architecture, string> BinaryPaths*/)
         {
-            object Instance;
-            int hr = NSudoCreateInstance(
-                new Guid("8BD99D5D-2811-4036-A21E-63328115B364"), out Instance);
-            if (hr != 0)
-            {
-                throw new ExternalException("-", hr);
-            }
-            return Instance;
+            //if (BinaryPaths.Count == 0)
+            //{
+            //    BinaryPaths[Architecture.X86] = "F:\\GitHub\\M2Team\\NSudo\\Output\\Release\\Win32\\NSudoAPI.dll";
+            //    BinaryPaths[Architecture.X64] = "F:\\GitHub\\M2Team\\NSudo\\Output\\Release\\x64\\NSudoAPI.dll";
+            //    BinaryPaths[Architecture.Arm] = "F:\\GitHub\\M2Team\\NSudo\\Output\\Release\\ARM\\NSudoAPI.dll";
+            //    BinaryPaths[Architecture.Arm64] = "F:\\GitHub\\M2Team\\NSudo\\Output\\Release\\ARM64\\NSudoAPI.dll";
+            //}
+
+            //BinaryPaths[RuntimeInformation.ProcessArchitecture] = "";
+
+            return NSudoCreateInstance(
+                new Guid("8BD99D5D-2811-4036-A21E-63328115B364"));
         }
     }
 
