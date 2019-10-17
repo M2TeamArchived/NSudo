@@ -3,130 +3,6 @@ using System.Runtime.InteropServices;
 
 namespace M2.NSudo
 {
-    public enum TOKEN_INFORMATION_CLASS
-    {
-        TokenUser = 1,
-        TokenGroups,
-        TokenPrivileges,
-        TokenOwner,
-        TokenPrimaryGroup,
-        TokenDefaultDacl,
-        TokenSource,
-        TokenType,
-        TokenImpersonationLevel,
-        TokenStatistics,
-        TokenRestrictedSids,
-        TokenSessionId,
-        TokenGroupsAndPrivileges,
-        TokenSessionReference,
-        TokenSandBoxInert,
-        TokenAuditPolicy,
-        TokenOrigin,
-        TokenElevationType,
-        TokenLinkedToken,
-        TokenElevation,
-        TokenHasRestrictions,
-        TokenAccessInformation,
-        TokenVirtualizationAllowed,
-        TokenVirtualizationEnabled,
-        TokenIntegrityLevel,
-        TokenUIAccess,
-        TokenMandatoryPolicy,
-        TokenLogonSid,
-        TokenIsAppContainer,
-        TokenCapabilities,
-        TokenAppContainerSid,
-        TokenAppContainerNumber,
-        TokenUserClaimAttributes,
-        TokenDeviceClaimAttributes,
-        TokenRestrictedUserClaimAttributes,
-        TokenRestrictedDeviceClaimAttributes,
-        TokenDeviceGroups,
-        TokenRestrictedDeviceGroups,
-        TokenSecurityAttributes,
-        TokenIsRestricted,
-        TokenProcessTrustLevel,
-        TokenPrivateNameSpace,
-        TokenSingletonAttributes,
-        TokenBnoIsolation,
-        TokenChildProcessFlags,
-        TokenIsLessPrivilegedAppContainer,
-        TokenIsSandboxed,
-        TokenOriginatingProcessTrustLevel,
-        MaxTokenInfoClass
-    }
-
-    [StructLayout(LayoutKind.Sequential)]
-    public struct LUID
-    {
-        public UInt32 LowPart;
-        public Int32 HighPart;
-    }
-
-    [StructLayout(LayoutKind.Sequential, Pack = 4)]
-    public struct LUID_AND_ATTRIBUTES
-    {
-        public LUID Luid;
-        public UInt32 Attributes;
-    }
-
-    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
-    public struct SERVICE_STATUS_PROCESS
-    {
-        public int serviceType;
-        public int currentState;
-        public int controlsAccepted;
-        public int win32ExitCode;
-        public int serviceSpecificExitCode;
-        public int checkPoint;
-        public int waitHint;
-        public int processID;
-        public int serviceFlags;
-    }
-
-    [StructLayout(LayoutKind.Sequential)]
-    public struct SID_AND_ATTRIBUTES
-    {
-        public IntPtr Sid;
-        public uint Attributes;
-    }
-
-    [StructLayout(LayoutKind.Sequential)]
-    public struct SECURITY_ATTRIBUTES
-    {
-        public int nLength;
-        public IntPtr lpSecurityDescriptor;
-        public int bInheritHandle;
-    }
-
-    public enum SECURITY_IMPERSONATION_LEVEL
-    {
-        SecurityAnonymous,
-        SecurityIdentification,
-        SecurityImpersonation,
-        SecurityDelegation
-    }
-
-    public enum TOKEN_TYPE
-    {
-        TokenPrimary = 1,
-        TokenImpersonation
-    }
-
-    /// <summary>
-    /// Contains values that specify the type of mandatory label.
-    /// </summary>
-    public enum NSUDO_MANDATORY_LABEL_TYPE
-    {
-        UNTRUSTED,
-        LOW,
-        MEDIUM,
-        MEDIUM_PLUS,
-        HIGH,
-        SYSTEM,
-        PROTECTED_PROCESS,
-    }
-
     /// <summary>
     /// NSudo Shared Library Client Interface V1
     /// </summary>
@@ -215,7 +91,7 @@ namespace M2.NSudo
         /// </remarks>
         public UInt32 GetTokenInformation(
             IntPtr TokenHandle,
-            TOKEN_INFORMATION_CLASS TokenInformationClass,
+            Win32.TOKEN_INFORMATION_CLASS TokenInformationClass,
             out IntPtr TokenInformation,
             UInt32 TokenInformationLength);
 
@@ -242,7 +118,7 @@ namespace M2.NSudo
         /// </remarks>
         public IntPtr GetTokenInformationWithMemory(
             IntPtr TokenHandle,
-            TOKEN_INFORMATION_CLASS TokenInformationClass);
+            Win32.TOKEN_INFORMATION_CLASS TokenInformationClass);
 
         /// <summary>
         /// Sets various types of information for a specified access token. The
@@ -272,7 +148,7 @@ namespace M2.NSudo
         /// </remarks>
         public void SetTokenInformation(
             IntPtr TokenHandle,
-            TOKEN_INFORMATION_CLASS TokenInformationClass,
+            Win32.TOKEN_INFORMATION_CLASS TokenInformationClass,
             IntPtr TokenInformation,
             UInt32 TokenInformationLength);
 
@@ -307,7 +183,7 @@ namespace M2.NSudo
         /// </remarks>
         public void AdjustTokenPrivileges(
             IntPtr TokenHandle,
-            ref LUID_AND_ATTRIBUTES Privileges,
+            ref Win32.LUID_AND_ATTRIBUTES Privileges,
             UInt32 PrivilegeCount);
 
         /// <summary>
@@ -387,7 +263,7 @@ namespace M2.NSudo
         /// <returns>
         /// The process status information for a service.
         /// </returns>
-        public SERVICE_STATUS_PROCESS StartWindowsService(
+        public Win32.SERVICE_STATUS_PROCESS StartWindowsService(
             [MarshalAs(UnmanagedType.LPWStr)] string ServiceName);
 
         /// <summary>
@@ -471,11 +347,11 @@ namespace M2.NSudo
             IntPtr ExistingTokenHandle,
             UInt32 Flags,
             UInt32 DisableSidCount,
-            ref SID_AND_ATTRIBUTES SidsToDisable,
+            ref Win32.SID_AND_ATTRIBUTES SidsToDisable,
             UInt32 DeletePrivilegeCount,
-            ref LUID_AND_ATTRIBUTES PrivilegesToDelete,
+            ref Win32.LUID_AND_ATTRIBUTES PrivilegesToDelete,
             UInt32 RestrictedSidCount,
-            ref SID_AND_ATTRIBUTES SidsToRestrict);
+            ref Win32.SID_AND_ATTRIBUTES SidsToRestrict);
 
         /// <summary>
         /// Creates a new access token that is a LUA version of an existing 
@@ -547,9 +423,9 @@ namespace M2.NSudo
         public IntPtr DuplicateToken(
             IntPtr ExistingTokenHandle,
             UInt32 DesiredAccess,
-            ref SECURITY_ATTRIBUTES TokenAttributes,
-            SECURITY_IMPERSONATION_LEVEL ImpersonationLevel,
-            TOKEN_TYPE TokenType);
+            ref Win32.SECURITY_ATTRIBUTES TokenAttributes,
+            Win32.SECURITY_IMPERSONATION_LEVEL ImpersonationLevel,
+            Win32.TOKEN_TYPE TokenType);
 
         /// <summary>
         /// Opens an existing local process object.
@@ -887,7 +763,7 @@ namespace M2.NSudo
         /// <remarks>
         /// For more information, see LookupPrivilegeValue.
         /// </remarks>
-        public LUID GetPrivilegeValue(
+        public Win32.LUID GetPrivilegeValue(
             [MarshalAs(UnmanagedType.LPWStr)] string Name);
     }
 }
