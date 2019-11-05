@@ -223,7 +223,6 @@
   <ItemGroup>
     <ClInclude Include="CIBuild.h" />
     <ClInclude Include="jsmn.h" />
-    <ClInclude Include="json.hpp" />
     <ClInclude Include="M2MessageDialogResource.h" />
     <ClInclude Include="M2Win32GUIHelpers.h" />
     <ClInclude Include="M2WindowsDownlevelHelpers.h" />

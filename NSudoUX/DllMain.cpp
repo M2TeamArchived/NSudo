@@ -10,6 +10,10 @@
 
 #include <Windows.h>
 
+EXTERN_C HMODULE g_NSudoUXModule = nullptr;
+
+void NSudoUXInitialize();
+
 BOOL APIENTRY DllMain(
     HMODULE hModule,
     DWORD  ul_reason_for_call,
@@ -21,6 +25,8 @@ BOOL APIENTRY DllMain(
     switch (ul_reason_for_call)
     {
     case DLL_PROCESS_ATTACH:
+        g_NSudoUXModule = hModule;
+        NSudoUXInitialize();
         break;
     case DLL_THREAD_ATTACH:
         break;

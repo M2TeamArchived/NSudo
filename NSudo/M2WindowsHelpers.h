@@ -1266,38 +1266,6 @@ std::wstring M2GetCurrentProcessModulePath();
 #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
 
 /**
- * The resource info struct.
- */
-typedef struct _M2_RESOURCE_INFO
-{
-    DWORD Size;
-    LPVOID Pointer;
-} M2_RESOURCE_INFO, * PM2_RESOURCE_INFO;
-
-/**
- * Obtain the best matching resource with the specified type and name in the
- * specified module.
- *
- * @param lpResourceInfo The resource info which contains the pointer and size.
- * @param hModule A handle to the module whose portable executable file or an
- *                accompanying MUI file contains the resource. If this
- *                parameter is NULL, the function searches the module used to
- *                create the current process.
- * @param lpType The resource type. Alternately, rather than a pointer, this
- *               parameter can be MAKEINTRESOURCE(ID), where ID is the integer
- *               identifier of the given resource type.
- * @param lpName The name of the resource. Alternately, rather than a pointer,
- *               this parameter can be MAKEINTRESOURCE(ID), where ID is the
- *               integer identifier of the resource.
- * @return HRESULT. If the function succeeds, the return value is S_OK.
- */
-HRESULT M2LoadResource(
-    _Out_ PM2_RESOURCE_INFO lpResourceInfo,
-    _In_opt_ HMODULE hModule,
-    _In_ LPCWSTR lpType,
-    _In_ LPCWSTR lpName);
-
-/**
  * Loads the specified module with the optimization of the mitigation of DLL
  * preloading attacks into the address space of the calling process safely. The
  * specified module may cause other modules to be loaded.

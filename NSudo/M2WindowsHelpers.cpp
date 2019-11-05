@@ -1408,51 +1408,6 @@ std::wstring M2GetCurrentProcessModulePath()
 #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
 
 /**
- * Obtain the best matching resource with the specified type and name in the
- * specified module.
- *
- * @param lpResourceInfo The resource info which contains the pointer and size.
- * @param hModule A handle to the module whose portable executable file or an
- *                accompanying MUI file contains the resource. If this
- *                parameter is NULL, the function searches the module used to
- *                create the current process.
- * @param lpType The resource type. Alternately, rather than a pointer, this
- *               parameter can be MAKEINTRESOURCE(ID), where ID is the integer
- *               identifier of the given resource type.
- * @param lpName The name of the resource. Alternately, rather than a pointer,
- *               this parameter can be MAKEINTRESOURCE(ID), where ID is the
- *               integer identifier of the resource.
- * @return HRESULT. If the function succeeds, the return value is S_OK.
- */
-HRESULT M2LoadResource(
-    _Out_ PM2_RESOURCE_INFO lpResourceInfo,
-    _In_opt_ HMODULE hModule,
-    _In_ LPCWSTR lpType,
-    _In_ LPCWSTR lpName)
-{
-    if (!lpResourceInfo)
-        return E_INVALIDARG;
-
-    lpResourceInfo->Size = 0;
-    lpResourceInfo->Pointer = nullptr;
-
-    HRSRC ResourceFind = FindResourceExW(
-        hModule, lpType, lpName, MAKELANGID(LANG_NEUTRAL, SUBLANG_NEUTRAL));
-    if (!ResourceFind)
-        return M2GetLastHResultError();
-
-    lpResourceInfo->Size = SizeofResource(hModule, ResourceFind);
-
-    HGLOBAL ResourceLoad = LoadResource(hModule, ResourceFind);
-    if (!ResourceLoad)
-        return M2GetLastHResultError();
-
-    lpResourceInfo->Pointer = LockResource(ResourceLoad);
-
-    return S_OK;
-}
-
-/**
  * Loads the specified module with the optimization of the mitigation of DLL
  * preloading attacks into the address space of the calling process safely. The
  * specified module may cause other modules to be loaded.
