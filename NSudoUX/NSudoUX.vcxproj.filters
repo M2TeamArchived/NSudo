@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="NSudoUX.cpp">
+      <Filter>NSudoUX</Filter>
+    </ClCompile>
+    <ClCompile Include="DllMain.cpp">
+      <Filter>NSudoUX.dll</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="NSudoUX">
+      <UniqueIdentifier>{4e4ee1fb-692c-42a2-8569-1502176912c0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NSudoUX.dll">
+      <UniqueIdentifier>{ef7ab174-0d5f-4682-ae16-b6b3546ca5e8}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="NSudoUX.h">
+      <Filter>NSudoUX</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="NSudoUX.def">
+      <Filter>NSudoUX.dll</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="NSudoUXVersion.rc">
+      <Filter>NSudoUX.dll</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>
