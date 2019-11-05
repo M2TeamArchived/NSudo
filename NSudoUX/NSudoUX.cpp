@@ -9,3 +9,8 @@
  */
 
 #include "NSudoUX.h"
+
+EXTERN_C HRESULT WINAPI NSudoUXInitialize()
+{
+	return S_OK;
+}

@@ -15,20 +15,87 @@
     <Filter Include="NSudoUX.dll">
       <UniqueIdentifier>{ef7ab174-0d5f-4682-ae16-b6b3546ca5e8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{4a86e863-a195-4206-b3f7-758953e94aea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources\en">
+      <UniqueIdentifier>{9f3c2f3b-758b-4c09-8f0c-71572f9ac865}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources\fr">
+      <UniqueIdentifier>{a99c1851-99f2-4ae3-86ec-bee1e4d15bac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources\it">
+      <UniqueIdentifier>{a893f89e-e682-4db4-80ca-6c1c51cdaa67}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources\zh-Hans">
+      <UniqueIdentifier>{4d15f14e-4efc-4295-8950-3a36f60db35f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources\zh-Hant">
+      <UniqueIdentifier>{d5a37132-ae09-4ac1-9b24-ce673f1abec7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="NSudoUX.h">
       <Filter>NSudoUX</Filter>
     </ClInclude>
+    <ClInclude Include="Resources\resource.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NSudoUX.def">
       <Filter>NSudoUX.dll</Filter>
+    </None>
+    <None Include="Resources\en\Translations.json">
+      <Filter>Resources\en</Filter>
+    </None>
+    <None Include="Resources\fr\Translations.json">
+      <Filter>Resources\fr</Filter>
+    </None>
+    <None Include="Resources\it\Translations.json">
+      <Filter>Resources\it</Filter>
+    </None>
+    <None Include="Resources\zh-Hans\Translations.json">
+      <Filter>Resources\zh-Hans</Filter>
+    </None>
+    <None Include="Resources\zh-Hant\Translations.json">
+      <Filter>Resources\zh-Hant</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="NSudoUXVersion.rc">
       <Filter>NSudoUX.dll</Filter>
     </ResourceCompile>
+    <ResourceCompile Include="Resources\NSudoUX.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Resources\en\CommandLineHelp.txt">
+      <Filter>Resources\en</Filter>
+    </Text>
+    <Text Include="Resources\en\Links.txt">
+      <Filter>Resources\en</Filter>
+    </Text>
+    <Text Include="Resources\fr\CommandLineHelp.txt">
+      <Filter>Resources\fr</Filter>
+    </Text>
+    <Text Include="Resources\fr\Links.txt">
+      <Filter>Resources\fr</Filter>
+    </Text>
+    <Text Include="Resources\it\CommandLineHelp.txt">
+      <Filter>Resources\it</Filter>
+    </Text>
+    <Text Include="Resources\it\Links.txt">
+      <Filter>Resources\it</Filter>
+    </Text>
+    <Text Include="Resources\zh-Hans\CommandLineHelp.txt">
+      <Filter>Resources\zh-Hans</Filter>
+    </Text>
+    <Text Include="Resources\zh-Hans\Links.txt">
+      <Filter>Resources\zh-Hans</Filter>
+    </Text>
+    <Text Include="Resources\zh-Hant\CommandLineHelp.txt">
+      <Filter>Resources\zh-Hant</Filter>
+    </Text>
+    <Text Include="Resources\zh-Hant\Links.txt">
+      <Filter>Resources\zh-Hant</Filter>
+    </Text>
   </ItemGroup>
 </Project>

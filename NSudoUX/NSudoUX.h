@@ -17,6 +17,9 @@
 
 #include <Windows.h>
 
+#include "Resources/resource.h"
+
+EXTERN_C HRESULT WINAPI NSudoUXInitialize();
 
 
 #endif

@@ -50,6 +50,8 @@
 #include "NSudoVersion.h"
 #include "Resources/resource.h"
 
+#include <NSudoUX.h>
+
 // 为编译通过而禁用的警告
 #if _MSC_VER >= 1200
 #pragma warning(push)
@@ -128,7 +130,7 @@ private:
         M2_RESOURCE_INFO ResourceInfo = { 0 };
         if (SUCCEEDED(M2LoadResource(
             &ResourceInfo,
-            GetModuleHandleW(nullptr),
+            ::GetModuleHandleW(L"NSudoUX.dll"),
             L"String",
             MAKEINTRESOURCEW(uID))))
         {
@@ -170,7 +172,7 @@ public:
         M2_RESOURCE_INFO ResourceInfo = { 0 };
         if (SUCCEEDED(M2LoadResource(
             &ResourceInfo,
-            GetModuleHandleW(nullptr),
+            ::GetModuleHandleW(L"NSudoUX.dll"),
             L"String",
             MAKEINTRESOURCEW(IDR_String_Translations))))
         {
@@ -362,6 +364,8 @@ public:
     {
         if (!this->m_IsInitialized)
         {
+            NSudoUXInitialize();
+
             this->m_Instance = GetModuleHandleW(nullptr);
 
             this->m_ExePath = M2GetCurrentProcessModulePath();

@@ -102,6 +102,7 @@
     <Import Project="..\MSBuild\AllTargets.Release.props" />
     <Import Project="..\MSBuild\NSudoC.props" />
     <Import Project="..\MSBuild\NSudoAPI.props" />
+    <Import Project="..\MSBuild\NSudoUX.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release - GUI|Win32'" Label="PropertySheets">
     <Import Project="..\MSBuild\AllTargets.VC-LTL.props" />
@@ -109,6 +110,7 @@
     <Import Project="..\MSBuild\AllTargets.Release.props" />
     <Import Project="..\MSBuild\NSudoG.props" />
     <Import Project="..\MSBuild\NSudoAPI.props" />
+    <Import Project="..\MSBuild\NSudoUX.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release - CUI|x64'" Label="PropertySheets">
     <Import Project="..\MSBuild\AllTargets.VC-LTL.props" />
@@ -116,6 +118,7 @@
     <Import Project="..\MSBuild\AllTargets.Release.props" />
     <Import Project="..\MSBuild\NSudoC.props" />
     <Import Project="..\MSBuild\NSudoAPI.props" />
+    <Import Project="..\MSBuild\NSudoUX.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release - GUI|x64'" Label="PropertySheets">
     <Import Project="..\MSBuild\AllTargets.VC-LTL.props" />
@@ -123,6 +126,7 @@
     <Import Project="..\MSBuild\AllTargets.Release.props" />
     <Import Project="..\MSBuild\NSudoG.props" />
     <Import Project="..\MSBuild\NSudoAPI.props" />
+    <Import Project="..\MSBuild\NSudoUX.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release - CUI|ARM64'" Label="PropertySheets">
     <Import Project="..\MSBuild\AllTargets.VC-LTL.props" />
@@ -130,6 +134,7 @@
     <Import Project="..\MSBuild\AllTargets.Release.props" />
     <Import Project="..\MSBuild\NSudoC.props" />
     <Import Project="..\MSBuild\NSudoAPI.props" />
+    <Import Project="..\MSBuild\NSudoUX.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release - GUI|ARM64'" Label="PropertySheets">
     <Import Project="..\MSBuild\AllTargets.VC-LTL.props" />
@@ -137,6 +142,7 @@
     <Import Project="..\MSBuild\AllTargets.Release.props" />
     <Import Project="..\MSBuild\NSudoG.props" />
     <Import Project="..\MSBuild\NSudoAPI.props" />
+    <Import Project="..\MSBuild\NSudoUX.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release - CUI|ARM'" Label="PropertySheets">
     <Import Project="..\MSBuild\AllTargets.VC-LTL.props" />
@@ -144,6 +150,7 @@
     <Import Project="..\MSBuild\AllTargets.Release.props" />
     <Import Project="..\MSBuild\NSudoC.props" />
     <Import Project="..\MSBuild\NSudoAPI.props" />
+    <Import Project="..\MSBuild\NSudoUX.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release - GUI|ARM'" Label="PropertySheets">
     <Import Project="..\MSBuild\AllTargets.VC-LTL.props" />
@@ -151,54 +158,63 @@
     <Import Project="..\MSBuild\AllTargets.Release.props" />
     <Import Project="..\MSBuild\NSudoG.props" />
     <Import Project="..\MSBuild\NSudoAPI.props" />
+    <Import Project="..\MSBuild\NSudoUX.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug - CUI|ARM'">
     <Import Project="..\MSBuild\AllTargets.Common.props" />
     <Import Project="..\MSBuild\AllTargets.Debug.props" />
     <Import Project="..\MSBuild\NSudoC.props" />
     <Import Project="..\MSBuild\NSudoAPI.props" />
+    <Import Project="..\MSBuild\NSudoUX.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug - CUI|ARM64'">
     <Import Project="..\MSBuild\AllTargets.Common.props" />
     <Import Project="..\MSBuild\AllTargets.Debug.props" />
     <Import Project="..\MSBuild\NSudoC.props" />
     <Import Project="..\MSBuild\NSudoAPI.props" />
+    <Import Project="..\MSBuild\NSudoUX.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug - CUI|x64'">
     <Import Project="..\MSBuild\AllTargets.Common.props" />
     <Import Project="..\MSBuild\AllTargets.Debug.props" />
     <Import Project="..\MSBuild\NSudoC.props" />
     <Import Project="..\MSBuild\NSudoAPI.props" />
+    <Import Project="..\MSBuild\NSudoUX.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug - CUI|Win32'">
     <Import Project="..\MSBuild\AllTargets.Common.props" />
     <Import Project="..\MSBuild\AllTargets.Debug.props" />
     <Import Project="..\MSBuild\NSudoC.props" />
     <Import Project="..\MSBuild\NSudoAPI.props" />
+    <Import Project="..\MSBuild\NSudoUX.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug - GUI|ARM'">
     <Import Project="..\MSBuild\AllTargets.Common.props" />
     <Import Project="..\MSBuild\AllTargets.Debug.props" />
     <Import Project="..\MSBuild\NSudoG.props" />
     <Import Project="..\MSBuild\NSudoAPI.props" />
+    <Import Project="..\MSBuild\NSudoUX.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug - GUI|ARM64'">
     <Import Project="..\MSBuild\AllTargets.Common.props" />
     <Import Project="..\MSBuild\AllTargets.Debug.props" />
     <Import Project="..\MSBuild\NSudoG.props" />
     <Import Project="..\MSBuild\NSudoAPI.props" />
+    <Import Project="..\MSBuild\NSudoUX.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug - GUI|Win32'">
     <Import Project="..\MSBuild\AllTargets.Common.props" />
     <Import Project="..\MSBuild\AllTargets.Debug.props" />
     <Import Project="..\MSBuild\NSudoG.props" />
     <Import Project="..\MSBuild\NSudoAPI.props" />
+    <Import Project="..\MSBuild\NSudoUX.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug - GUI|x64'">
     <Import Project="..\MSBuild\AllTargets.Common.props" />
     <Import Project="..\MSBuild\AllTargets.Debug.props" />
     <Import Project="..\MSBuild\NSudoG.props" />
     <Import Project="..\MSBuild\NSudoAPI.props" />
+    <Import Project="..\MSBuild\NSudoUX.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
@@ -229,31 +245,14 @@
     <ResourceCompile Include="Resources\Version.rc" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\en\Translations.json" />
-    <None Include="Resources\fr\Translations.json" />
-    <None Include="Resources\it\Translations.json" />
     <None Include="Resources\NSudo.xcf" />
-    <None Include="Resources\zh-Hans\Translations.json" />
     <None Include="Resources\NSudo.json" />
-    <None Include="Resources\zh-Hant\Translations.json" />
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="Resources\NSudoConsole.manifest" />
     <Manifest Include="Resources\NSudoWindows.manifest">
       <SubType>Designer</SubType>
     </Manifest>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="Resources\en\CommandLineHelp.txt" />
-    <Text Include="Resources\en\Links.txt" />
-    <Text Include="Resources\fr\CommandLineHelp.txt" />
-    <Text Include="Resources\fr\Links.txt" />
-    <Text Include="Resources\it\CommandLineHelp.txt" />
-    <Text Include="Resources\it\Links.txt" />
-    <Text Include="Resources\zh-Hans\CommandLineHelp.txt" />
-    <Text Include="Resources\zh-Hans\Links.txt" />
-    <Text Include="Resources\zh-Hant\CommandLineHelp.txt" />
-    <Text Include="Resources\zh-Hant\Links.txt" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Resources\NSudo.ico" />

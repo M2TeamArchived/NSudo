@@ -102,12 +102,31 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="NSudoUX.h" />
+    <ClInclude Include="Resources\resource.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Resources\en\Translations.json" />
+    <None Include="Resources\fr\Translations.json" />
+    <None Include="Resources\it\Translations.json" />
+    <None Include="Resources\zh-Hans\Translations.json" />
+    <None Include="Resources\zh-Hant\Translations.json" />
     <None Include="NSudoUX.def" />
   </ItemGroup>
   <ItemGroup>
+    <ResourceCompile Include="Resources\NSudoUX.rc" />
     <ResourceCompile Include="NSudoUXVersion.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Resources\en\CommandLineHelp.txt" />
+    <Text Include="Resources\en\Links.txt" />
+    <Text Include="Resources\fr\CommandLineHelp.txt" />
+    <Text Include="Resources\fr\Links.txt" />
+    <Text Include="Resources\it\CommandLineHelp.txt" />
+    <Text Include="Resources\it\Links.txt" />
+    <Text Include="Resources\zh-Hans\CommandLineHelp.txt" />
+    <Text Include="Resources\zh-Hans\Links.txt" />
+    <Text Include="Resources\zh-Hant\CommandLineHelp.txt" />
+    <Text Include="Resources\zh-Hant\Links.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
