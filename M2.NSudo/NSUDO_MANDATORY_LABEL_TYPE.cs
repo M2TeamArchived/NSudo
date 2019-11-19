@@ -5,6 +5,7 @@
     /// </summary>
     public enum NSUDO_MANDATORY_LABEL_TYPE
     {
+#pragma warning disable CS1591
         UNTRUSTED,
         LOW,
         MEDIUM,
@@ -12,5 +13,6 @@
         HIGH,
         SYSTEM,
         PROTECTED_PROCESS,
+#pragma warning restore CS1591
     }
 }

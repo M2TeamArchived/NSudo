@@ -19,19 +19,20 @@
 #pragma comment(lib, "WtsApi32.lib")
 
 /**
- * NSudo Shared Library Client Interface Implementation
+ * NSudo Shared Library Memory Manager Interface Implementation
  */
-class CNSudoClient : public M2::Base::CComClass<CNSudoClient, INSudoClient>
+class CNSudoMemoryManager :
+    public M2::Base::CComClass<CNSudoMemoryManager, INSudoMemoryManager>
 {
 public:
 
     M2_BASE_COM_INTERFACE_MAP_BEGIN;
-        M2_BASE_COM_INTERFACE_ENTRY(INSudoClient);
+        M2_BASE_COM_INTERFACE_ENTRY(INSudoMemoryManager);
     M2_BASE_COM_INTERFACE_MAP_END;
 
-    CNSudoClient() = default;
+    CNSudoMemoryManager() = default;
 
-    virtual ~CNSudoClient() = default;
+    virtual ~CNSudoMemoryManager() = default;
 
     /**
      * @remark You can read the definition for this method in "NSudoAPI.h".
@@ -69,6 +70,33 @@ public:
         }
 
         return S_OK;
+    }
+};
+
+/**
+ * NSudo Shared Library Client Interface Implementation
+ */
+class CNSudoClient : public M2::Base::CComClass<CNSudoClient, INSudoClient>
+{
+private:
+
+    INSudoMemoryManager* m_pNSudoMemoryManager = nullptr;
+
+public:
+
+    M2_BASE_COM_INTERFACE_MAP_BEGIN;
+        M2_BASE_COM_INTERFACE_ENTRY(INSudoClient);
+    M2_BASE_COM_INTERFACE_MAP_END;
+
+    CNSudoClient() = default;
+
+    virtual ~CNSudoClient() = default;
+
+    HRESULT Initialize()
+    {
+        return ::NSudoCreateInstance(
+            IID_INSudoMemoryManager,
+            reinterpret_cast<PVOID*>(&this->m_pNSudoMemoryManager));
     }
 
     /**
@@ -114,7 +142,8 @@ public:
             &Length);
         if (hr == ::HRESULT_FROM_WIN32(ERROR_INSUFFICIENT_BUFFER))
         {
-            hr = this->AllocMemory(Length, OutputInformation);
+            hr = this->m_pNSudoMemoryManager->AllocMemory(
+                Length, OutputInformation);
             if (hr == S_OK)
             {
                 hr = this->GetTokenInformation(
@@ -125,7 +154,8 @@ public:
                     &Length);
                 if (hr != S_OK)
                 {
-                    this->FreeMemory(*OutputInformation);
+                    this->m_pNSudoMemoryManager->FreeMemory(
+                        *OutputInformation);
                     *OutputInformation = nullptr;
                 }
             }
@@ -172,7 +202,8 @@ public:
 
             PTOKEN_PRIVILEGES pTP = nullptr;
 
-            hr = this->AllocMemory(TPSize, reinterpret_cast<LPVOID*>(&pTP));
+            hr = this->m_pNSudoMemoryManager->AllocMemory(
+                TPSize, reinterpret_cast<LPVOID*>(&pTP));
             if (hr == S_OK)
             {
                 pTP->PrivilegeCount = PrivilegeCount;
@@ -182,7 +213,7 @@ public:
                     TokenHandle, FALSE, pTP, TPSize, nullptr, nullptr);
                 hr = ::HRESULT_FROM_WIN32(::GetLastError());
 
-                this->FreeMemory(pTP);
+                this->m_pNSudoMemoryManager->FreeMemory(pTP);
             }
         }
 
@@ -214,7 +245,7 @@ public:
                 pTokenPrivileges->Privileges,
                 pTokenPrivileges->PrivilegeCount);
 
-            this->FreeMemory(pTokenPrivileges);
+            this->m_pNSudoMemoryManager->FreeMemory(pTokenPrivileges);
         }
 
         return hr;
@@ -519,7 +550,7 @@ public:
             Length += ::GetLengthSid(pTokenUser->User.Sid);
             Length += sizeof(ACCESS_ALLOWED_ACE);
 
-            hr = this->AllocMemory(
+            hr = this->m_pNSudoMemoryManager->AllocMemory(
                 Length, reinterpret_cast<PVOID*>(&NewDefaultDacl));
             if (hr != S_OK)
             {
@@ -585,17 +616,17 @@ public:
 
         if (NewDefaultDacl)
         {
-            this->FreeMemory(NewDefaultDacl);
+            this->m_pNSudoMemoryManager->FreeMemory(NewDefaultDacl);
         }
 
         if (pTokenDacl)
         {
-            this->FreeMemory(pTokenDacl);
+            this->m_pNSudoMemoryManager->FreeMemory(pTokenDacl);
         }
 
         if (pTokenUser)
         {
-            this->FreeMemory(pTokenUser);
+            this->m_pNSudoMemoryManager->FreeMemory(pTokenUser);
         }
 
         if (hr != S_OK)
@@ -966,10 +997,16 @@ EXTERN_C HRESULT WINAPI NSudoCreateInstance(
     _In_ REFIID InterfaceId,
     _Out_ PVOID* Instance)
 {
-    if (::IsEqualIID(InterfaceId, IID_INSudoClient))
+    if (::IsEqualIID(InterfaceId, IID_INSudoMemoryManager))
     {
-        *Instance = new CNSudoClient();
+        *Instance = new CNSudoMemoryManager();
         return S_OK;
+    }
+    else if (::IsEqualIID(InterfaceId, IID_INSudoClient))
+    {
+        CNSudoClient* pNSudoClient= new CNSudoClient();
+        *Instance = pNSudoClient;
+        return pNSudoClient->Initialize();
     }
     else
     {

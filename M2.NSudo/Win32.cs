@@ -3,9 +3,11 @@ using System.Runtime.InteropServices;
 
 namespace M2.NSudo
 {
+#pragma warning disable CS1591
     public class Win32
     {
         public enum TOKEN_INFORMATION_CLASS
+
         {
             TokenUser = 1,
             TokenGroups,
@@ -125,4 +127,6 @@ namespace M2.NSudo
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool FreeLibrary(IntPtr hModule);
     }
+#pragma warning restore CS1591
 }
+

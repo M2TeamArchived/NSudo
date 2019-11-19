@@ -18,24 +18,11 @@
 #include <Windows.h>
 
 /**
- * Contains values that specify the type of mandatory label.
+ * NSudo Shared Library Memory Manager Interface V1
+ * {B4A4FB65-3E5C-4645-9DB0-2DE76AF7E5AC}
  */
-typedef enum _NSUDO_MANDATORY_LABEL_TYPE
-{
-    UNTRUSTED,
-    LOW,
-    MEDIUM,
-    MEDIUM_PLUS,
-    HIGH,
-    SYSTEM,
-    PROTECTED_PROCESS,
-} NSUDO_MANDATORY_LABEL_TYPE, *PNSUDO_MANDATORY_LABEL_TYPE;
-
-/**
- * NSudo Shared Library Client Interface V1
- */
-MIDL_INTERFACE("8BD99D5D-2811-4036-A21E-63328115B364")
-INSudoClient : public IUnknown
+MIDL_INTERFACE("B4A4FB65-3E5C-4645-9DB0-2DE76AF7E5AC")
+INSudoMemoryManager : public IUnknown
 {
 public:
 
@@ -86,6 +73,29 @@ public:
      */
     virtual HRESULT STDMETHODCALLTYPE FreeMemory(
         _In_ LPVOID Block) = 0;
+};
+
+/**
+ * Contains values that specify the type of mandatory label.
+ */
+typedef enum _NSUDO_MANDATORY_LABEL_TYPE
+{
+    UNTRUSTED,
+    LOW,
+    MEDIUM,
+    MEDIUM_PLUS,
+    HIGH,
+    SYSTEM,
+    PROTECTED_PROCESS,
+} NSUDO_MANDATORY_LABEL_TYPE, *PNSUDO_MANDATORY_LABEL_TYPE;
+
+/**
+ * NSudo Shared Library Client Interface V1
+ */
+MIDL_INTERFACE("8BD99D5D-2811-4036-A21E-63328115B364")
+INSudoClient : public IUnknown
+{
+public:
 
     /**
      * Retrieves a specified type of information about an access token. The
@@ -130,8 +140,8 @@ public:
      * @param OutputInformation A pointer to a buffer the function fills with
      *                          the requested information. When you have
      *                          finished using the information, free it by
-     *                          calling the FreeMemory method. You should also
-     *                          set the pointer to NULL.
+     *                          calling the INSudoMemoryManager::FreeMemory
+     *                          method. You should also set the pointer to NULL.
      * @return HRESULT. If the method succeeds, the return value is S_OK.
      * @remark For more information, see GetTokenInformation.
      */
@@ -715,6 +725,18 @@ public:
 };
 
 /**
+ * NSudo Shared Library Memory Manager Interface V1 Interface ID
+ * {B4A4FB65-3E5C-4645-9DB0-2DE76AF7E5AC}
+ */
+EXTERN_C const IID DECLSPEC_SELECTANY IID_INSudoMemoryManager =
+{
+    0xB4A4FB65,
+    0x3E5C,
+    0x4645,
+    { 0x9D, 0xB0, 0x2D, 0xE7, 0x6A, 0xF7, 0xE5, 0xAC }
+};
+
+/**
  * NSudo Shared Library Client Interface V1 Interface ID
  * {8BD99D5D-2811-4036-A21E-63328115B364}
  */
@@ -723,7 +745,7 @@ EXTERN_C const IID DECLSPEC_SELECTANY IID_INSudoClient =
     0x8BD99D5D,
     0x2811,
     0x4036,
-    {0xA2, 0x1E, 0x63, 0x32, 0x81, 0x15, 0xB3, 0x64}
+    { 0xA2, 0x1E, 0x63, 0x32, 0x81, 0x15, 0xB3, 0x64 }
 };
 
 /**
