@@ -135,6 +135,7 @@ public:
     const std::map<std::wstring, BSTR>& ShortCutList =
         this->m_ShortCutList;
 
+    INSudoMemoryManager* pNSudoMemoryManager = nullptr;
     INSudoClient* pNSudoClient = nullptr;
 
 public:
@@ -163,10 +164,20 @@ public:
             NSudoUXLoadShortCut(
                 (this->AppPath + L"\\NSudo.json").c_str(), this->m_ShortCutList);
 
-            HRESULT hr = ::NSudoCreateInstance(
+            HRESULT hr = S_OK;
+
+            hr = ::NSudoCreateInstance(
+                IID_INSudoMemoryManager,
+                reinterpret_cast<PVOID*>(&this->pNSudoMemoryManager));
+            if (S_OK != hr)
+            {
+                ::ExitProcess(hr);
+            }
+
+            hr = ::NSudoCreateInstance(
                 IID_INSudoClient,
                 reinterpret_cast<PVOID*>(&this->pNSudoClient));
-            if (FAILED(hr))
+            if (S_OK != hr)
             {
                 ::ExitProcess(hr);
             }
