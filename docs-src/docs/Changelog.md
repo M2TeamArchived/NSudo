@@ -4,6 +4,9 @@
 
 - Update links information in NSudo binaries.
 - Convert C API to COM interface in NSudo Shared Library.
+- Add .Net interoperability support.
+- Add NSudo User Experience Library.
+- Optimize the icon resource size.
 
 **NSudo 8.0.0-alpha1**
 
