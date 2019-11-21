@@ -748,6 +748,20 @@ EXTERN_C const IID DECLSPEC_SELECTANY IID_INSudoClient =
     { 0xA2, 0x1E, 0x63, 0x32, 0x81, 0x15, 0xB3, 0x64 }
 };
 
+#ifdef NSUDOAPI_USING_STATIC_LIBRARY
+
+/**
+ * Initialize the NSudo Shared Library.
+ */
+EXTERN_C void WINAPI NSudoInitialize();
+
+/**
+ * Uninitialize the NSudo Shared Library.
+ */
+EXTERN_C void WINAPI NSudoUninitialize();
+
+#endif
+
 /**
  * Creates an interface object and returns a pointer to it.
  *

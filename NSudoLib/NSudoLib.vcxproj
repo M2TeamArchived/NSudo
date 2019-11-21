@@ -36,14 +36,14 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
-    <ProjectGuid>{43C2BD57-4D61-42EC-B290-62A32B6FB5C7}</ProjectGuid>
+    <ProjectGuid>{074549F9-9197-41FE-A8ED-8BFA2A0E2549}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>NSudoAPI</RootNamespace>
+    <RootNamespace>NSudoLib</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
     <UseDebugLibraries Condition="'$(Configuration)'=='Debug'">true</UseDebugLibraries>
@@ -58,7 +58,6 @@
   <ImportGroup Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Condition="'$(Configuration)'=='Release'" Project="..\MSBuild\VC-LTL.props" />
-    <Import Project="..\MSBuild\NSudoLib.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
@@ -77,7 +76,7 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <EnableEnhancedInstructionSet Condition="'$(Platform)'=='Win32'">NoExtensions</EnableEnhancedInstructionSet>
-      <PreprocessorDefinitions>NSUDOAPI_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NSUDOAPI_USING_STATIC_LIBRARY;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Platform)'=='Win32'">WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)'=='Debug'">_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary Condition="'$(Configuration)'=='Debug'">MultiThreadedDebug</RuntimeLibrary>
@@ -97,14 +96,13 @@
       <ModuleDefinitionFile>NSudoAPI.def</ModuleDefinitionFile>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="DllMain.cpp" />
+    <ItemGroup>
+    <ClCompile Include="M2.Base.cpp" />
+    <ClCompile Include="NSudoAPI.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="NSudoAPI.def" />
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="NSudoAPIVersion.rc" />
+    <ClInclude Include="M2.Base.h" />
+    <ClInclude Include="NSudoAPI.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

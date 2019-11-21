@@ -1,34 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="NSudoAPI.cpp">
-      <Filter>NSudoAPI</Filter>
-    </ClCompile>
     <ClCompile Include="DllMain.cpp">
       <Filter>NSudoAPI.dll</Filter>
     </ClCompile>
-    <ClCompile Include="M2.Base.cpp">
-      <Filter>M2.Base</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Filter Include="NSudoAPI">
-      <UniqueIdentifier>{4e4ee1fb-692c-42a2-8569-1502176912c0}</UniqueIdentifier>
-    </Filter>
     <Filter Include="NSudoAPI.dll">
       <UniqueIdentifier>{ef7ab174-0d5f-4682-ae16-b6b3546ca5e8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="M2.Base">
-      <UniqueIdentifier>{15cdd790-fb32-457d-a55f-03853cf0a2cb}</UniqueIdentifier>
-    </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="NSudoAPI.h">
-      <Filter>NSudoAPI</Filter>
-    </ClInclude>
-    <ClInclude Include="M2.Base.h">
-      <Filter>M2.Base</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="NSudoAPI.def">

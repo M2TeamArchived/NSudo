@@ -988,9 +988,9 @@ public:
 INSudoClient* g_pNSudoClient = nullptr;
 
 /**
- * Initialize the NSudo Shared Library.
+ * @remark You can read the definition for this function in "NSudoAPI.h".
  */
-void NSudoInitialize()
+EXTERN_C void WINAPI NSudoInitialize()
 {
     g_pNSudoMemoryManager = new CNSudoMemoryManager();
 
@@ -998,9 +998,9 @@ void NSudoInitialize()
 }
 
 /**
- * Uninitialize the NSudo Shared Library.
+ * @remark You can read the definition for this function in "NSudoAPI.h".
  */
-void NSudoUninitialize()
+EXTERN_C void WINAPI NSudoUninitialize()
 {
     g_pNSudoMemoryManager->Release();
 

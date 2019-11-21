@@ -335,6 +335,8 @@ public:
                         i += JsonTokens[i + 1].size + 1;
                     }
                 }
+
+                ::free(JsonTokens);
             }
         }
     }
@@ -414,6 +416,8 @@ public:
                                 i += JsonTokens[i + 1].size + 1;
                             }
                         }
+
+                        ::free(JsonTokens);
                     }
 
                     ::UnmapViewOfFile(MapAddress);
@@ -483,6 +487,8 @@ public:
     {
         if (!this->m_IsInitialized)
         {
+            ::NSudoInitialize();
+
             this->m_Instance = GetModuleHandleW(nullptr);
 
             this->m_ExePath = M2GetCurrentProcessModulePath();
@@ -524,6 +530,8 @@ public:
         {
             this->pNSudoClient->Release();
         }
+
+        ::NSudoUninitialize();
     }
 
     std::wstring GetTranslation(

@@ -8,10 +8,7 @@
  * DEVELOPER: Mouri_Naruto (Mouri_Naruto AT Outlook.com)
  */
 
-#include <Windows.h>
-
-void NSudoInitialize();
-void NSudoUninitialize();
+#include <NSudoAPI.h>
 
 BOOL APIENTRY DllMain(
     HMODULE hModule,
@@ -24,14 +21,14 @@ BOOL APIENTRY DllMain(
     switch (ul_reason_for_call)
     {
     case DLL_PROCESS_ATTACH:
-        NSudoInitialize();
+        ::NSudoInitialize();
         break;
     case DLL_THREAD_ATTACH:
         break;
     case DLL_THREAD_DETACH:
         break;
     case DLL_PROCESS_DETACH:
-        NSudoUninitialize();
+        ::NSudoUninitialize();
         break;
     }
     return TRUE;

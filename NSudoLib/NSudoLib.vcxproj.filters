@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="M2.Base">
+      <UniqueIdentifier>{baba3b73-1ced-454e-982a-1e748b25054c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NSudoAPI">
+      <UniqueIdentifier>{5c8e874d-d1d4-4a9e-b03d-d324fdc5eb88}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="M2.Base.cpp">
+      <Filter>M2.Base</Filter>
+    </ClCompile>
+    <ClCompile Include="NSudoAPI.cpp">
+      <Filter>NSudoAPI</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="M2.Base.h">
+      <Filter>M2.Base</Filter>
+    </ClInclude>
+    <ClInclude Include="NSudoAPI.h">
+      <Filter>NSudoAPI</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
