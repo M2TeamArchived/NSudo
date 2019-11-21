@@ -1,8 +1,0 @@
-﻿LIBRARY
-
-EXPORTS
-
-NSudoUXGetTranslation
-NSudoUXGetMessageString
-
-NSudoUXLoadShortCut

@@ -19,6 +19,9 @@
 #define IDC_STATIC_USER                 1017
 #define IDC_STATIC_OPEN                 1018
 #define IDC_STATIC                      -1
+#define IDR_String_Translations         2000
+#define IDR_String_CommandLineHelp      2002
+#define IDR_String_Links                2003
 
 // Next default values for new objects
 // 

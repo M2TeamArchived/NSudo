@@ -4,6 +4,21 @@
     <Filter Include="Resources">
       <UniqueIdentifier>{81593d0a-42a7-416c-973a-51197fe4964b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resources\en">
+      <UniqueIdentifier>{fe1cd679-7ac6-4f17-87b6-716a8c0a26ba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources\zh-Hans">
+      <UniqueIdentifier>{45810c56-ef87-461b-90d7-41ea716bd02f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources\fr">
+      <UniqueIdentifier>{ed5897a1-70ee-4a1b-b3b8-50e5bde92645}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources\zh-Hant">
+      <UniqueIdentifier>{c2cb0683-a576-4ca3-9e96-468cdb2dcf2d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources\it">
+      <UniqueIdentifier>{89725381-74d1-4bfc-88d1-17c573878803}</UniqueIdentifier>
+    </Filter>
     <Filter Include="M2Win32GUIHelpers">
       <UniqueIdentifier>{8922a117-fe10-4d1b-b38d-4d6e465d5758}</UniqueIdentifier>
     </Filter>
@@ -12,6 +27,9 @@
     </Filter>
     <Filter Include="MINT">
       <UniqueIdentifier>{9278910f-7a78-4b89-8fd9-20c611a32876}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="jsmn">
+      <UniqueIdentifier>{8a69e9f9-81b2-4ea6-ab2b-a0ff63ebe305}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -34,6 +52,9 @@
     </ClInclude>
     <ClInclude Include="MINT.h">
       <Filter>MINT</Filter>
+    </ClInclude>
+    <ClInclude Include="jsmn.h">
+      <Filter>jsmn</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -63,11 +84,26 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Resources\en\Translations.json">
+      <Filter>Resources\en</Filter>
+    </None>
+    <None Include="Resources\zh-Hans\Translations.json">
+      <Filter>Resources\zh-Hans</Filter>
+    </None>
     <None Include="Resources\NSudo.xcf">
       <Filter>Resources</Filter>
     </None>
     <None Include="Resources\NSudo.json">
       <Filter>Resources</Filter>
+    </None>
+    <None Include="Resources\fr\Translations.json">
+      <Filter>Resources\fr</Filter>
+    </None>
+    <None Include="Resources\zh-Hant\Translations.json">
+      <Filter>Resources\zh-Hant</Filter>
+    </None>
+    <None Include="Resources\it\Translations.json">
+      <Filter>Resources\it</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -77,6 +113,38 @@
     <Manifest Include="Resources\NSudoWindows.manifest">
       <Filter>Resources</Filter>
     </Manifest>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Resources\en\CommandLineHelp.txt">
+      <Filter>Resources\en</Filter>
+    </Text>
+    <Text Include="Resources\en\Links.txt">
+      <Filter>Resources\en</Filter>
+    </Text>
+    <Text Include="Resources\zh-Hans\CommandLineHelp.txt">
+      <Filter>Resources\zh-Hans</Filter>
+    </Text>
+    <Text Include="Resources\zh-Hans\Links.txt">
+      <Filter>Resources\zh-Hans</Filter>
+    </Text>
+    <Text Include="Resources\fr\CommandLineHelp.txt">
+      <Filter>Resources\fr</Filter>
+    </Text>
+    <Text Include="Resources\fr\Links.txt">
+      <Filter>Resources\fr</Filter>
+    </Text>
+    <Text Include="Resources\zh-Hant\CommandLineHelp.txt">
+      <Filter>Resources\zh-Hant</Filter>
+    </Text>
+    <Text Include="Resources\zh-Hant\Links.txt">
+      <Filter>Resources\zh-Hant</Filter>
+    </Text>
+    <Text Include="Resources\it\CommandLineHelp.txt">
+      <Filter>Resources\it</Filter>
+    </Text>
+    <Text Include="Resources\it\Links.txt">
+      <Filter>Resources\it</Filter>
+    </Text>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Resources\NSudo.ico">
