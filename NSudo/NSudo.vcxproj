@@ -211,7 +211,6 @@
     <ClInclude Include="M2Win32GUIHelpers.h" />
     <ClInclude Include="M2WindowsDownlevelHelpers.h" />
     <ClInclude Include="M2WindowsHelpers.h" />
-    <ClInclude Include="MINT.h" />
     <ClInclude Include="NSudoVersion.h" />
     <ClInclude Include="Resources\resource.h" />
   </ItemGroup>

@@ -25,9 +25,6 @@
     <Filter Include="M2WindowsHelpers">
       <UniqueIdentifier>{a323b30b-30bf-4e37-a088-8fcb9ab27a39}</UniqueIdentifier>
     </Filter>
-    <Filter Include="MINT">
-      <UniqueIdentifier>{9278910f-7a78-4b89-8fd9-20c611a32876}</UniqueIdentifier>
-    </Filter>
     <Filter Include="jsmn">
       <UniqueIdentifier>{8a69e9f9-81b2-4ea6-ab2b-a0ff63ebe305}</UniqueIdentifier>
     </Filter>
@@ -49,9 +46,6 @@
     </ClInclude>
     <ClInclude Include="M2WindowsDownlevelHelpers.h">
       <Filter>M2WindowsHelpers</Filter>
-    </ClInclude>
-    <ClInclude Include="MINT.h">
-      <Filter>MINT</Filter>
     </ClInclude>
     <ClInclude Include="jsmn.h">
       <Filter>jsmn</Filter>
