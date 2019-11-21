@@ -7,6 +7,7 @@
 - Add .Net interoperability support.
 - Add NSudo User Experience Library.
 - Optimize the icon resource size.
+- Use jsmn instead of JSON for Modern C++.
 
 **NSudo 8.0.0-alpha1**
 

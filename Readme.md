@@ -17,9 +17,9 @@ under the source code repository.
 
 ## 3rd-party libraries which used
 
-- JSON for Modern C++
-  - Copyright: Niels Lohmann
-  - License: https://github.com/nlohmann/json/blob/develop/LICENSE.MIT
+- Jsmn
+  - Copyright: Serge Zaitsev
+  - License: https://github.com/zserge/jsmn/blob/master/LICENSE
 - (Optional) VC-LTL
   - Copyright: Chuyu Team
   - License: https://github.com/Chuyu-Team/VC-LTL/blob/master/LICENSE.txt

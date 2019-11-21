@@ -102,6 +102,70 @@ std::wstring M2MakeUTF16String(const std::string& UTF8String)
     return UTF16String;
 }
 
+#include "jsmn.h"
+
+bool JsmnParseJson(
+    _Out_ jsmntok_t** JsonTokens,
+    _Out_ std::int32_t* JsonTokensCount,
+    _In_ const char* JsonString,
+    _In_ std::size_t JsonStringLength)
+{
+    if (!(JsonTokens && JsonTokensCount && JsonString && JsonStringLength))
+    {
+        return false;
+    }
+
+    *JsonTokens = nullptr;
+    *JsonTokensCount = 0;
+
+    jsmn_parser Parser;
+
+    ::jsmn_init(&Parser);
+    std::int32_t TokenCount = ::jsmn_parse(
+        &Parser, JsonString, JsonStringLength, nullptr, 0);
+
+    jsmntok_t* Tokens = reinterpret_cast<jsmntok_t*>(::malloc(
+        TokenCount * sizeof(jsmntok_t)));
+    if (Tokens)
+    {
+        ::jsmn_init(&Parser);
+        std::int32_t TokensCount = ::jsmn_parse(
+            &Parser, JsonString, JsonStringLength, Tokens, TokenCount);
+        if (TokensCount > 0)
+        {
+            *JsonTokens = Tokens;
+            *JsonTokensCount = TokensCount;
+        }
+        else
+        {
+            ::free(Tokens);
+        }
+    }
+
+    return Tokens;
+}
+
+bool JsmnJsonEqual(
+    _In_ const char* JsonString,
+    _In_ jsmntok_t* JsonTokens,
+    _In_ const char* String)
+{
+    if (JsonTokens->type == JSMN_STRING)
+    {
+        const char* CurrentToken = JsonString + JsonTokens->start;
+        std::size_t CurrentTokenLength = JsonTokens->end - JsonTokens->start;
+        if (::strlen(String) == CurrentTokenLength)
+        {
+            if (::strncmp(CurrentToken, String, CurrentTokenLength) == 0)
+            {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
 const char* NSudoMessageTranslationID[] =
 {
     "Message.Success",
@@ -179,16 +243,53 @@ public:
             L"String",
             MAKEINTRESOURCEW(IDR_String_Translations))))
         {
-            nlohmann::json StringTranslationsJSON =
-                nlohmann::json::parse(std::string(
-                    reinterpret_cast<const char*>(ResourceInfo.Pointer),
-                    ResourceInfo.Size));
+            const char* JsonString =
+                reinterpret_cast<const char*>(ResourceInfo.Pointer) + 3;
+            std::size_t JsonStringLength =
+                ResourceInfo.Size - 3;
 
-            for (auto& Item : StringTranslationsJSON["Translations"].items())
+            jsmntok_t* JsonTokens = nullptr;
+            std::int32_t JsonTokensCount = 0;
+            if (JsmnParseJson(
+                &JsonTokens,
+                &JsonTokensCount,
+                JsonString,
+                JsonStringLength))
             {
-                this->m_StringTranslations.emplace(std::make_pair(
-                    Item.key(),
-                    this->MakeBStr(M2MakeUTF16String(Item.value()).c_str())));
+                for (size_t i = 0; i < JsonTokensCount; ++i)
+                {
+                    if (JsmnJsonEqual(
+                        JsonString,
+                        &JsonTokens[i],
+                        "Translations"))
+                    {
+                        if (JsonTokens[i + 1].type != JSMN_OBJECT)
+                        {
+                            continue;
+                        }
+
+                        for (size_t j = 0; j < JsonTokens[i + 1].size; ++j)
+                        {
+                            jsmntok_t& Key = JsonTokens[i + (j * 2) + 2];
+                            jsmntok_t& Value = JsonTokens[i + (j * 2) + 3];
+
+                            if (Key.type != JSMN_STRING ||
+                                Value.type != JSMN_STRING)
+                            {
+                                continue;
+                            }
+
+                            this->m_StringTranslations.emplace(std::make_pair(
+                                std::string(
+                                    JsonString + Key.start,
+                                    Key.end - Key.start),
+                                this->MakeBStr(M2MakeUTF16String(std::string(
+                                    JsonString + Value.start,
+                                    Value.end - Value.start)).c_str())));
+                        }
+                        i += JsonTokens[i + 1].size + 1;
+                    }
+                }
             }
         }
     }
@@ -245,13 +346,51 @@ EXTERN_C void WINAPI NSudoUXLoadShortCut(
                 MapViewOfFile(FileMapping, FILE_MAP_COPY, 0, 0, FileSize));
             if (MapAddress)
             {
-                nlohmann::json ConfigJSON = nlohmann::json::parse(MapAddress);
+                const char* JsonString = MapAddress + 3;
+                std::size_t JsonStringLength = FileSize - 3;
 
-                for (auto& Item : ConfigJSON["ShortCutList_V2"].items())
+                jsmntok_t* JsonTokens = nullptr;
+                std::int32_t JsonTokensCount = 0;
+                if (JsmnParseJson(
+                    &JsonTokens,
+                    &JsonTokensCount,
+                    JsonString,
+                    JsonStringLength))
                 {
-                    ShortCutList.emplace(std::make_pair(
-                        M2MakeUTF16String(Item.key()),
-                        g_UXResources.MakeBStr(M2MakeUTF16String(Item.value()).c_str())));
+                    for (size_t i = 0; i < JsonTokensCount; ++i)
+                    {
+                        if (JsmnJsonEqual(
+                            JsonString,
+                            &JsonTokens[i],
+                            "ShortCutList_V2"))
+                        {
+                            if (JsonTokens[i + 1].type != JSMN_OBJECT)
+                            {
+                                continue;
+                            }
+
+                            for (size_t j = 0; j < JsonTokens[i + 1].size; ++j)
+                            {
+                                jsmntok_t& Key = JsonTokens[i + (j * 2) + 2];
+                                jsmntok_t& Value = JsonTokens[i + (j * 2) + 3];
+
+                                if (Key.type != JSMN_STRING ||
+                                    Value.type != JSMN_STRING)
+                                {
+                                    continue;
+                                }
+
+                                ShortCutList.emplace(std::make_pair(
+                                    M2MakeUTF16String(std::string(
+                                        JsonString + Key.start,
+                                        Key.end - Key.start)),
+                                    g_UXResources.MakeBStr(M2MakeUTF16String(std::string(
+                                        JsonString + Value.start,
+                                        Value.end - Value.start)).c_str())));
+                            }
+                            i += JsonTokens[i + 1].size + 1;
+                        }
+                    }
                 }
 
                 ::UnmapViewOfFile(MapAddress);

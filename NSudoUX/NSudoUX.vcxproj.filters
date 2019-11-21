@@ -33,9 +33,6 @@
     <Filter Include="Resources\zh-Hant">
       <UniqueIdentifier>{d5a37132-ae09-4ac1-9b24-ce673f1abec7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="JSON for Modern C++">
-      <UniqueIdentifier>{c63a8f92-c18d-410b-8404-6cc126ae9fbb}</UniqueIdentifier>
-    </Filter>
     <Filter Include="jsmn">
       <UniqueIdentifier>{08a10cde-738b-4c83-b49f-e783591b06d1}</UniqueIdentifier>
     </Filter>
@@ -45,9 +42,6 @@
       <Filter>NSudoUX</Filter>
     </ClInclude>
     <ClInclude Include="Resources\resource.h" />
-    <ClInclude Include="json.hpp">
-      <Filter>JSON for Modern C++</Filter>
-    </ClInclude>
     <ClInclude Include="jsmn.h">
       <Filter>jsmn</Filter>
     </ClInclude>
