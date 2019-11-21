@@ -101,6 +101,7 @@
     <ClCompile Include="NSudoUX.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="jsmn.h" />
     <ClInclude Include="json.hpp" />
     <ClInclude Include="NSudoUX.h" />
     <ClInclude Include="Resources\resource.h" />

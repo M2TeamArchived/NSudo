@@ -13,9 +13,6 @@
     <Filter Include="MINT">
       <UniqueIdentifier>{9278910f-7a78-4b89-8fd9-20c611a32876}</UniqueIdentifier>
     </Filter>
-    <Filter Include="jsmn">
-      <UniqueIdentifier>{8a69e9f9-81b2-4ea6-ab2b-a0ff63ebe305}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Resources\resource.h">
@@ -37,9 +34,6 @@
     </ClInclude>
     <ClInclude Include="MINT.h">
       <Filter>MINT</Filter>
-    </ClInclude>
-    <ClInclude Include="jsmn.h">
-      <Filter>jsmn</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
