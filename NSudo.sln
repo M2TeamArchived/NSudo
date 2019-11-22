@@ -24,11 +24,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MSBuild", "MSBuild", "{89E7
 		MSBuild\AllTargets.Common.props = MSBuild\AllTargets.Common.props
 		MSBuild\AllTargets.Debug.props = MSBuild\AllTargets.Debug.props
 		MSBuild\AllTargets.Release.props = MSBuild\AllTargets.Release.props
-		MSBuild\AllTargets.VC-LTL.props = MSBuild\AllTargets.VC-LTL.props
 		MSBuild\NSudoAPI.props = MSBuild\NSudoAPI.props
 		MSBuild\NSudoC.props = MSBuild\NSudoC.props
 		MSBuild\NSudoG.props = MSBuild\NSudoG.props
-		MSBuild\NSudoUX.props = MSBuild\NSudoUX.props
+		MSBuild\NSudoLib.props = MSBuild\NSudoLib.props
 		MSBuild\VC-LTL.props = MSBuild\VC-LTL.props
 	EndProjectSection
 EndProject

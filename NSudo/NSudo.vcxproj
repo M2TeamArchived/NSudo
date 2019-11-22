@@ -97,56 +97,56 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release - CUI|Win32'" Label="PropertySheets">
-    <Import Project="..\MSBuild\AllTargets.VC-LTL.props" />
+    <Import Project="..\MSBuild\VC-LTL.props" />
     <Import Project="..\MSBuild\AllTargets.Common.props" />
     <Import Project="..\MSBuild\AllTargets.Release.props" />
     <Import Project="..\MSBuild\NSudoC.props" />
     <Import Project="..\MSBuild\NSudoLib.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release - GUI|Win32'" Label="PropertySheets">
-    <Import Project="..\MSBuild\AllTargets.VC-LTL.props" />
+    <Import Project="..\MSBuild\VC-LTL.props" />
     <Import Project="..\MSBuild\AllTargets.Common.props" />
     <Import Project="..\MSBuild\AllTargets.Release.props" />
     <Import Project="..\MSBuild\NSudoG.props" />
     <Import Project="..\MSBuild\NSudoLib.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release - CUI|x64'" Label="PropertySheets">
-    <Import Project="..\MSBuild\AllTargets.VC-LTL.props" />
+    <Import Project="..\MSBuild\VC-LTL.props" />
     <Import Project="..\MSBuild\AllTargets.Common.props" />
     <Import Project="..\MSBuild\AllTargets.Release.props" />
     <Import Project="..\MSBuild\NSudoC.props" />
     <Import Project="..\MSBuild\NSudoLib.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release - GUI|x64'" Label="PropertySheets">
-    <Import Project="..\MSBuild\AllTargets.VC-LTL.props" />
+    <Import Project="..\MSBuild\VC-LTL.props" />
     <Import Project="..\MSBuild\AllTargets.Common.props" />
     <Import Project="..\MSBuild\AllTargets.Release.props" />
     <Import Project="..\MSBuild\NSudoG.props" />
     <Import Project="..\MSBuild\NSudoLib.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release - CUI|ARM64'" Label="PropertySheets">
-    <Import Project="..\MSBuild\AllTargets.VC-LTL.props" />
+    <Import Project="..\MSBuild\VC-LTL.props" />
     <Import Project="..\MSBuild\AllTargets.Common.props" />
     <Import Project="..\MSBuild\AllTargets.Release.props" />
     <Import Project="..\MSBuild\NSudoC.props" />
     <Import Project="..\MSBuild\NSudoLib.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release - GUI|ARM64'" Label="PropertySheets">
-    <Import Project="..\MSBuild\AllTargets.VC-LTL.props" />
+    <Import Project="..\MSBuild\VC-LTL.props" />
     <Import Project="..\MSBuild\AllTargets.Common.props" />
     <Import Project="..\MSBuild\AllTargets.Release.props" />
     <Import Project="..\MSBuild\NSudoG.props" />
     <Import Project="..\MSBuild\NSudoLib.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release - CUI|ARM'" Label="PropertySheets">
-    <Import Project="..\MSBuild\AllTargets.VC-LTL.props" />
+    <Import Project="..\MSBuild\VC-LTL.props" />
     <Import Project="..\MSBuild\AllTargets.Common.props" />
     <Import Project="..\MSBuild\AllTargets.Release.props" />
     <Import Project="..\MSBuild\NSudoC.props" />
     <Import Project="..\MSBuild\NSudoLib.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release - GUI|ARM'" Label="PropertySheets">
-    <Import Project="..\MSBuild\AllTargets.VC-LTL.props" />
+    <Import Project="..\MSBuild\VC-LTL.props" />
     <Import Project="..\MSBuild\AllTargets.Common.props" />
     <Import Project="..\MSBuild\AllTargets.Release.props" />
     <Import Project="..\MSBuild\NSudoG.props" />
