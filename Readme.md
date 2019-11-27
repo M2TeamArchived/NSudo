@@ -22,7 +22,7 @@ under the source code repository.
   - License: https://github.com/zserge/jsmn/blob/master/LICENSE
 - (Optional) VC-LTL
   - Copyright: Chuyu Team
-  - License: https://github.com/Chuyu-Team/VC-LTL/blob/master/LICENSE.txt
+  - License: https://github.com/Chuyu-Team/VC-LTL/blob/master/LICENSE
 
 ## Code of Conduct
 
