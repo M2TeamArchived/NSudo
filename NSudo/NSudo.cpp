@@ -171,15 +171,34 @@ bool JsmnParseJson(
     return Tokens;
 }
 
+typedef struct _JSON_TOKEN_INFO
+{
+    jsmntype_t Type;
+    const char* Name;
+    std::size_t NameLength;
+    int Size;
+} JSON_TOKEN_INFO, *PJSON_TOKEN_INFO;
+
+void JsmnGetTokenInfo(
+    _Out_ PJSON_TOKEN_INFO JsonTokenInfo,
+    _In_ const char* JsonString,
+    _In_ jsmntok_t* JsonToken)
+{
+    JsonTokenInfo->Type = JsonToken->type;
+    JsonTokenInfo->Name = JsonString + JsonToken->start;
+    JsonTokenInfo->NameLength = JsonToken->end - JsonToken->start;
+    JsonTokenInfo->Size = JsonToken->size;
+}
+
 bool JsmnJsonEqual(
     _In_ const char* JsonString,
-    _In_ jsmntok_t* JsonTokens,
+    _In_ jsmntok_t* JsonToken,
     _In_ const char* String)
 {
-    if (JsonTokens->type == JSMN_STRING)
+    if (JsonToken->type == JSMN_STRING)
     {
-        const char* CurrentToken = JsonString + JsonTokens->start;
-        std::size_t CurrentTokenLength = JsonTokens->end - JsonTokens->start;
+        const char* CurrentToken = JsonString + JsonToken->start;
+        std::size_t CurrentTokenLength = JsonToken->end - JsonToken->start;
         if (::strlen(String) == CurrentTokenLength)
         {
             if (::strncmp(CurrentToken, String, CurrentTokenLength) == 0)
@@ -639,7 +658,7 @@ bool NSudoCreateProcess(
     if (g_ResourceManagement.pNSudoClient->OpenCurrentProcessToken(
         MAXIMUM_ALLOWED, &hCurrentToken) == S_OK)
     {
-        if (CreateEnvironmentBlock(&lpEnvironment, hCurrentToken, TRUE))
+        if (CreateEnvironmentBlock(&lpEnvironment, hToken, TRUE))
         {
             std::wstring ExpandedString;
 
@@ -822,6 +841,84 @@ NSUDO_MESSAGE NSudoCommandLineParser(
     {
         return NSUDO_MESSAGE::PRIVILEGE_NOT_HELD;
     }
+
+
+
+
+
+    //HANDLE UserToken = INVALID_HANDLE_VALUE;
+    //if (::LogonUserExW(
+    //    L"YoloUser",
+    //    L".",
+    //    L"123456",
+    //    LOGON32_LOGON_INTERACTIVE,
+    //    LOGON32_PROVIDER_DEFAULT,
+    //    &UserToken,
+    //    nullptr,
+    //    nullptr,
+    //    nullptr,
+    //    nullptr))
+    //{
+    //    //BOOL re = ImpersonateLoggedOnUser(UserToken);
+    //    //re = re;
+
+    //    DWORD ReturnLength = 0;
+    //    TOKEN_LINKED_TOKEN LinkedToken = { 0 };
+    //    hr = g_ResourceManagement.pNSudoClient->GetTokenInformation(UserToken, TokenLinkedToken, &LinkedToken, sizeof(LinkedToken), &ReturnLength);
+
+    //    
+
+    //    PROFILEINFOW ProfileInfo = { 0 };
+    //    ProfileInfo.dwSize = sizeof(PROFILEINFOW);
+    //    ProfileInfo.lpUserName = L"YoloUser";
+
+    //    if (::LoadUserProfileW(LinkedToken.LinkedToken, &ProfileInfo))
+    //    {
+
+    //        //hr = g_ResourceManagement.pNSudoClient->GetTokenInformation(UserToken, TokenLogonSid);
+
+    //        //wchar_t NameBuffer[260];
+    //        //DWORD LengthNeeded = 0;
+    //        //::GetUserObjectInformationW(
+    //        //    //::GetProcessWindowStation(),
+    //        //    ::GetThreadDesktop(::GetCurrentThreadId()),
+    //        //    UOI_NAME,
+    //        //    NameBuffer,
+    //        //    sizeof(NameBuffer),
+    //        //    &LengthNeeded);
+
+    //        /*DWORD ReturnLength = 0;
+    //        hr = g_ResourceManagement.pNSudoClient->GetTokenInformation(
+    //            UserToken,
+    //            TokenSessionId,
+    //            &dwSessionID,
+    //            sizeof(DWORD),
+    //            &ReturnLength);*/
+
+    //        //::ImpersonateLoggedOnUser(UserToken);
+    //        NSudoCreateProcess(
+    //            LinkedToken.LinkedToken,
+    //            L"E:\\source\\repos\\GUIDemoForLegacyWindows\\Release\\GUIDemoForLegacyWindows.exe",
+    //            nullptr,
+    //            INFINITE);
+
+    //        HRESULT hr2 = ::GetLastError();
+    //        hr2 = hr2;
+
+    //        ::UnloadUserProfile(LinkedToken.LinkedToken, ProfileInfo.hProfile);
+    //    }
+
+    //    ::CloseHandle(UserToken);
+    //}
+
+
+    // 0xc0000142
+
+    
+    
+
+
+
 
     bool bArgErr = false;
 
