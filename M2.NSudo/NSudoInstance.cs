@@ -41,10 +41,18 @@ namespace M2.NSudo
 
             if (BinaryPaths.Count == 0)
             {
-                BinaryPaths[Architecture.X86] = BaseDirectory + "Win32\\NSudoAPI.dll";
-                BinaryPaths[Architecture.X64] = BaseDirectory + "x64\\NSudoAPI.dll";
-                BinaryPaths[Architecture.Arm] = BaseDirectory + "ARM\\NSudoAPI.dll";
-                BinaryPaths[Architecture.Arm64] = BaseDirectory + "ARM64\\NSudoAPI.dll";
+                BinaryPaths.TryAdd(
+                    Architecture.X86, 
+                    BaseDirectory + "Win32\\NSudoAPI.dll");
+                BinaryPaths.TryAdd(
+                    Architecture.X64,
+                    BaseDirectory + "x64\\NSudoAPI.dll");
+                BinaryPaths.TryAdd(
+                    Architecture.Arm,
+                    BaseDirectory + "ARM\\NSudoAPI.dll");
+                BinaryPaths.TryAdd(
+                    Architecture.Arm64,
+                    BaseDirectory + "ARM64\\NSudoAPI.dll");
             }
 
             this.ModuleHandle = Win32.LoadLibrary(
@@ -124,7 +132,7 @@ namespace M2.NSudo
         /// <returns>
         /// An INSudoMemoryManager interface object to return.
         /// </returns>
-        public INSudoMemoryManager CreateNSudoMemoryManager()
+        public INSudoMemoryManager CreateMemoryManager()
         {
             return (INSudoMemoryManager)this.CreateInstance(
                 new Guid("B4A4FB65-3E5C-4645-9DB0-2DE76AF7E5AC"));
