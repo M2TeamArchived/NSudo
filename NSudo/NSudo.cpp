@@ -616,91 +616,6 @@ HRESULT NSudoAdjustTokenPrivileges(
         static_cast<DWORD>(RawPrivileges.size()));
 }
 
-/*
-NSudoCreateProcess函数创建一个新进程和对应的主线程
-The NSudoCreateProcess function creates a new process and its primary thread.
-
-如果函数执行失败，返回值为NULL。调用GetLastError可获取详细错误码。
-If the function fails, the return value is NULL. To get extended error
-information, call GetLastError.
-*/
-bool NSudoCreateProcess(
-    _In_opt_ HANDLE hToken,
-    _Inout_ LPCWSTR lpCommandLine,
-    _In_opt_ LPCWSTR lpCurrentDirectory,
-    _In_ DWORD WaitInterval,
-    _In_ DWORD ProcessPriority = 0,
-    _In_ DWORD ShowWindowMode = SW_SHOWDEFAULT,
-    _In_ bool CreateNewConsole = true)
-{
-    DWORD dwCreationFlags = CREATE_SUSPENDED | CREATE_UNICODE_ENVIRONMENT;
-
-    if (CreateNewConsole)
-    {
-        dwCreationFlags |= CREATE_NEW_CONSOLE;
-    }
-
-    STARTUPINFOW StartupInfo = { 0 };
-    PROCESS_INFORMATION ProcessInfo = { 0 };
-
-    StartupInfo.cb = sizeof(STARTUPINFOW);
-
-    StartupInfo.lpDesktop = const_cast<LPWSTR>(L"WinSta0\\Default");
-
-    StartupInfo.dwFlags |= STARTF_USESHOWWINDOW;
-    StartupInfo.wShowWindow = static_cast<WORD>(ShowWindowMode);
-
-    LPVOID lpEnvironment = nullptr;
-
-    BOOL result = FALSE;
-
-    M2::CHandle hCurrentToken;
-    if (g_ResourceManagement.pNSudoClient->OpenCurrentProcessToken(
-        MAXIMUM_ALLOWED, &hCurrentToken) == S_OK)
-    {
-        if (CreateEnvironmentBlock(&lpEnvironment, hToken, TRUE))
-        {
-            std::wstring ExpandedString;
-
-            if (SUCCEEDED(M2ExpandEnvironmentStrings(
-                ExpandedString,
-                lpCommandLine)))
-            {
-                result = CreateProcessAsUserW(
-                    hToken,
-                    nullptr,
-                    const_cast<LPWSTR>(ExpandedString.c_str()),
-                    nullptr,
-                    nullptr,
-                    FALSE,
-                    dwCreationFlags,
-                    lpEnvironment,
-                    lpCurrentDirectory,
-                    &StartupInfo,
-                    &ProcessInfo);
-
-                if (result)
-                {
-                    SetPriorityClass(ProcessInfo.hProcess, ProcessPriority);
-
-                    ResumeThread(ProcessInfo.hThread);
-
-                    WaitForSingleObjectEx(
-                        ProcessInfo.hProcess, WaitInterval, FALSE);
-
-                    M2CloseHandle(ProcessInfo.hProcess);
-                    M2CloseHandle(ProcessInfo.hThread);
-                }
-            }
-
-            DestroyEnvironmentBlock(lpEnvironment);
-        }
-    }
-
-    //返回结果
-    return result;
-}
-
 class ThreadTokenContext
 {
 public:
@@ -1278,14 +1193,71 @@ NSUDO_MESSAGE NSudoCommandLineParser(
         return NSUDO_MESSAGE::INVALID_COMMAND_PARAMETER;
     }
 
-    if (!NSudoCreateProcess(
-        hToken,
-        UnresolvedCommandLine.c_str(),
-        CurrentDirectory.c_str(),
-        WaitInterval,
-        ProcessPriority,
-        ShowWindowMode,
-        CreateNewConsole))
+    DWORD dwCreationFlags = CREATE_SUSPENDED | CREATE_UNICODE_ENVIRONMENT;
+
+    if (CreateNewConsole)
+    {
+        dwCreationFlags |= CREATE_NEW_CONSOLE;
+    }
+
+    STARTUPINFOW StartupInfo = { 0 };
+    PROCESS_INFORMATION ProcessInfo = { 0 };
+
+    StartupInfo.cb = sizeof(STARTUPINFOW);
+
+    StartupInfo.lpDesktop = const_cast<LPWSTR>(L"WinSta0\\Default");
+
+    StartupInfo.dwFlags |= STARTF_USESHOWWINDOW;
+    StartupInfo.wShowWindow = static_cast<WORD>(ShowWindowMode);
+
+    LPVOID lpEnvironment = nullptr;
+
+    BOOL result = FALSE;
+
+    M2::CHandle hCurrentToken;
+    if (g_ResourceManagement.pNSudoClient->OpenCurrentProcessToken(
+        MAXIMUM_ALLOWED, &hCurrentToken) == S_OK)
+    {
+        if (CreateEnvironmentBlock(&lpEnvironment, hToken, TRUE))
+        {
+            std::wstring ExpandedString;
+
+            if (SUCCEEDED(M2ExpandEnvironmentStrings(
+                ExpandedString,
+                UnresolvedCommandLine.c_str())))
+            {
+                result = CreateProcessAsUserW(
+                    hToken,
+                    nullptr,
+                    const_cast<LPWSTR>(ExpandedString.c_str()),
+                    nullptr,
+                    nullptr,
+                    FALSE,
+                    dwCreationFlags,
+                    lpEnvironment,
+                    CurrentDirectory.c_str(),
+                    &StartupInfo,
+                    &ProcessInfo);
+
+                if (result)
+                {
+                    SetPriorityClass(ProcessInfo.hProcess, ProcessPriority);
+
+                    ResumeThread(ProcessInfo.hThread);
+
+                    WaitForSingleObjectEx(
+                        ProcessInfo.hProcess, WaitInterval, FALSE);
+
+                    M2CloseHandle(ProcessInfo.hProcess);
+                    M2CloseHandle(ProcessInfo.hThread);
+                }
+            }
+
+            DestroyEnvironmentBlock(lpEnvironment);
+        }
+    }
+
+    if (!result)
     {
         return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
     }
