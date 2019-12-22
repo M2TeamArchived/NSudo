@@ -90,6 +90,19 @@ typedef enum _NSUDO_MANDATORY_LABEL_TYPE
 } NSUDO_MANDATORY_LABEL_TYPE, *PNSUDO_MANDATORY_LABEL_TYPE;
 
 /**
+ * Contains values that specify the type of process priority class.
+ */
+typedef enum _NSUDO_PROCESS_PRIORITY_CLASS_TYPE
+{
+    IDLE,
+    BELOW_NORMAL,
+    NORMAL,
+    ABOVE_NORMAL,
+    HIGH,
+    REALTIME,
+} NSUDO_PROCESS_PRIORITY_CLASS_TYPE, *PNSUDO_PROCESS_PRIORITY_CLASS_TYPE;
+
+/**
  * NSudo Shared Library Client Interface V1
  */
 MIDL_INTERFACE("8BD99D5D-2811-4036-A21E-63328115B364")
@@ -722,6 +735,23 @@ public:
     virtual HRESULT STDMETHODCALLTYPE GetPrivilegeValue(
         _In_ LPCWSTR Name,
         _Out_ PLUID Value) = 0;
+
+    /**
+     * Sets the priority class for the specified process. This value together
+     * with the priority value of each thread of the process determines each
+     * thread's base priority level.
+     *
+     * @param ProcessHandle A handle to the process. The handle must have the
+     *                      PROCESS_SET_INFORMATION access right. 
+     * @param ProcessPriorityClassType A value from the
+     *                                 NSUDO_PROCESS_PRIORITY_CLASS_TYPE
+     *                                 enumerated type that identifies the
+     *                                 process priority class.
+     * @return HRESULT. If the method succeeds, the return value is S_OK.
+     */
+    virtual HRESULT STDMETHODCALLTYPE SetProcessPriorityClass(
+        _In_ HANDLE ProcessHandle,
+        _In_ NSUDO_PROCESS_PRIORITY_CLASS_TYPE ProcessPriorityClassType) = 0;
 };
 
 /**

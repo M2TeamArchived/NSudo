@@ -984,6 +984,46 @@ public:
         return S_OK;
     }
 
+    /**
+     * @remark You can read the definition for this method in "NSudoAPI.h".
+     */
+    virtual HRESULT STDMETHODCALLTYPE SetProcessPriorityClass(
+        _In_ HANDLE ProcessHandle,
+        _In_ NSUDO_PROCESS_PRIORITY_CLASS_TYPE ProcessPriorityClassType)
+    {
+        DWORD ProcessPriority;
+        switch (ProcessPriorityClassType)
+        {
+        case NSUDO_PROCESS_PRIORITY_CLASS_TYPE::IDLE:
+            ProcessPriority = IDLE_PRIORITY_CLASS;
+            break;
+        case NSUDO_PROCESS_PRIORITY_CLASS_TYPE::BELOW_NORMAL:
+            ProcessPriority = BELOW_NORMAL_PRIORITY_CLASS;
+            break;
+        case NSUDO_PROCESS_PRIORITY_CLASS_TYPE::NORMAL:
+            ProcessPriority = NORMAL_PRIORITY_CLASS;
+            break;
+        case NSUDO_PROCESS_PRIORITY_CLASS_TYPE::ABOVE_NORMAL:
+            ProcessPriority = ABOVE_NORMAL_PRIORITY_CLASS;
+            break;
+        case NSUDO_PROCESS_PRIORITY_CLASS_TYPE::HIGH:
+            ProcessPriority = HIGH_PRIORITY_CLASS;
+            break;
+        case NSUDO_PROCESS_PRIORITY_CLASS_TYPE::REALTIME:
+            ProcessPriority = REALTIME_PRIORITY_CLASS;
+            break;
+        default:
+            return E_INVALIDARG;
+        }
+
+        if (!::SetPriorityClass(ProcessHandle, ProcessPriority))
+        {
+            return ::HRESULT_FROM_WIN32(::GetLastError());
+        }
+
+        return S_OK;
+    }
+
     /*virtual HRESULT STDMETHODCALLTYPE ExCreateFile()
     {
         return E_NOTIMPL;

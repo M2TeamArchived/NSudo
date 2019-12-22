@@ -713,5 +713,22 @@ namespace M2.NSudo
         /// </remarks>
         public Win32.LUID GetPrivilegeValue(
             [MarshalAs(UnmanagedType.LPWStr)] string Name);
+
+        /// <summary>
+        /// Sets the priority class for the specified process. This value 
+        /// together with the priority value of each thread of the process 
+        /// determines each thread's base priority level.
+        /// </summary>
+        /// <param name="ProcessHandle">
+        /// A handle to the process. The handle must have the 
+        /// PROCESS_SET_INFORMATION access right.
+        /// </param>
+        /// <param name="ProcessPriorityClassType">
+        /// A value from the NSUDO_PROCESS_PRIORITY_CLASS_TYPE enumerated type
+        /// that identifies the process priority class.
+        /// </param>
+        public void SetProcessPriorityClass(
+            IntPtr ProcessHandle,
+            NSUDO_PROCESS_PRIORITY_CLASS_TYPE ProcessPriorityClassType);
     }
 }

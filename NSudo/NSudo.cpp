@@ -858,17 +858,6 @@ NSUDO_MESSAGE NSudoCommandLineParser(
         DisableAllPrivileges
     };
 
-    enum class NSudoOptionProcessPriorityValue
-    {
-        Default,
-        Idle,
-        BelowNormal,
-        Normal,
-        AboveNormal,
-        High,
-        RealTime
-    };
-
     enum class NSudoOptionWindowModeValue
     {
         Default,
@@ -882,8 +871,6 @@ NSUDO_MESSAGE NSudoCommandLineParser(
         NSudoOptionUserValue::Default;
     NSudoOptionPrivilegesValue PrivilegesMode =
         NSudoOptionPrivilegesValue::Default;
-    NSudoOptionProcessPriorityValue ProcessPriorityMode =
-        NSudoOptionProcessPriorityValue::Default;
     NSudoOptionWindowModeValue WindowMode =
         NSudoOptionWindowModeValue::Default;
 
@@ -894,6 +881,9 @@ NSUDO_MESSAGE NSudoCommandLineParser(
 
     NSUDO_MANDATORY_LABEL_TYPE MandatoryLabelType =
         NSUDO_MANDATORY_LABEL_TYPE::UNTRUSTED;
+
+    NSUDO_PROCESS_PRIORITY_CLASS_TYPE ProcessPriorityClassType =
+        NSUDO_PROCESS_PRIORITY_CLASS_TYPE::NORMAL;
 
     for (auto& OptionAndParameter : OptionsAndParameters)
     {
@@ -973,27 +963,27 @@ NSUDO_MESSAGE NSudoCommandLineParser(
         {
             if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"Idle"))
             {
-                ProcessPriorityMode = NSudoOptionProcessPriorityValue::Idle;
+                ProcessPriorityClassType = NSUDO_PROCESS_PRIORITY_CLASS_TYPE::IDLE;
             }
             else if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"BelowNormal"))
             {
-                ProcessPriorityMode = NSudoOptionProcessPriorityValue::BelowNormal;
+                ProcessPriorityClassType = NSUDO_PROCESS_PRIORITY_CLASS_TYPE::BELOW_NORMAL;
             }
             else if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"Normal"))
             {
-                ProcessPriorityMode = NSudoOptionProcessPriorityValue::Normal;
+                ProcessPriorityClassType = NSUDO_PROCESS_PRIORITY_CLASS_TYPE::NORMAL;
             }
             else if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"AboveNormal"))
             {
-                ProcessPriorityMode = NSudoOptionProcessPriorityValue::AboveNormal;
+                ProcessPriorityClassType = NSUDO_PROCESS_PRIORITY_CLASS_TYPE::ABOVE_NORMAL;
             }
             else if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"High"))
             {
-                ProcessPriorityMode = NSudoOptionProcessPriorityValue::High;
+                ProcessPriorityClassType = NSUDO_PROCESS_PRIORITY_CLASS_TYPE::HIGH;
             }
             else if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"RealTime"))
             {
-                ProcessPriorityMode = NSudoOptionProcessPriorityValue::RealTime;
+                ProcessPriorityClassType = NSUDO_PROCESS_PRIORITY_CLASS_TYPE::REALTIME;
             }
             else
             {
@@ -1144,33 +1134,6 @@ NSUDO_MESSAGE NSudoCommandLineParser(
         }
     }
 
-    DWORD ProcessPriority = 0;
-
-    if (NSudoOptionProcessPriorityValue::Idle == ProcessPriorityMode)
-    {
-        ProcessPriority = IDLE_PRIORITY_CLASS;
-    }
-    else if (NSudoOptionProcessPriorityValue::BelowNormal == ProcessPriorityMode)
-    {
-        ProcessPriority = BELOW_NORMAL_PRIORITY_CLASS;
-    }
-    else if (NSudoOptionProcessPriorityValue::Normal == ProcessPriorityMode)
-    {
-        ProcessPriority = NORMAL_PRIORITY_CLASS;
-    }
-    else if (NSudoOptionProcessPriorityValue::AboveNormal == ProcessPriorityMode)
-    {
-        ProcessPriority = ABOVE_NORMAL_PRIORITY_CLASS;
-    }
-    else if (NSudoOptionProcessPriorityValue::High == ProcessPriorityMode)
-    {
-        ProcessPriority = HIGH_PRIORITY_CLASS;
-    }
-    else if (NSudoOptionProcessPriorityValue::RealTime == ProcessPriorityMode)
-    {
-        ProcessPriority = REALTIME_PRIORITY_CLASS;
-    }
-
     if (NSudoOptionWindowModeValue::Show == WindowMode)
     {
         ShowWindowMode = SW_SHOW;
@@ -1241,7 +1204,9 @@ NSUDO_MESSAGE NSudoCommandLineParser(
 
                 if (result)
                 {
-                    SetPriorityClass(ProcessInfo.hProcess, ProcessPriority);
+                    g_ResourceManagement.pNSudoClient->SetProcessPriorityClass(
+                        ProcessInfo.hProcess,
+                        ProcessPriorityClassType);
 
                     ResumeThread(ProcessInfo.hThread);
 
