@@ -97,10 +97,25 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Detours\creatwth.cpp" />
+    <ClCompile Include="Detours\detours.cpp" />
+    <ClCompile Include="Detours\disasm.cpp" />
+    <ClCompile Include="Detours\disolarm.cpp" />
+    <ClCompile Include="Detours\disolarm64.cpp" />
+    <ClCompile Include="Detours\disolia64.cpp" />
+    <ClCompile Include="Detours\disolx64.cpp" />
+    <ClCompile Include="Detours\disolx86.cpp" />
+    <ClCompile Include="Detours\image.cpp" />
+    <ClCompile Include="Detours\modules.cpp" />
     <ClCompile Include="NSudoDevilMode.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="NSudoDevilModeVersion.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Detours\detours.h" />
+    <ClInclude Include="Detours\detver.h" />
+    <ClInclude Include="Detours\uimports.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
