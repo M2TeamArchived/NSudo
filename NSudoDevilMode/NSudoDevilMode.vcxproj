@@ -100,11 +100,6 @@
     <ClCompile Include="Detours\creatwth.cpp" />
     <ClCompile Include="Detours\detours.cpp" />
     <ClCompile Include="Detours\disasm.cpp" />
-    <ClCompile Include="Detours\disolarm.cpp" />
-    <ClCompile Include="Detours\disolarm64.cpp" />
-    <ClCompile Include="Detours\disolia64.cpp" />
-    <ClCompile Include="Detours\disolx64.cpp" />
-    <ClCompile Include="Detours\disolx86.cpp" />
     <ClCompile Include="Detours\image.cpp" />
     <ClCompile Include="Detours\modules.cpp" />
     <ClCompile Include="NSudoDevilMode.cpp" />

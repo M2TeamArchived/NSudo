@@ -14,21 +14,6 @@
     <ClCompile Include="Detours\disasm.cpp">
       <Filter>Detours</Filter>
     </ClCompile>
-    <ClCompile Include="Detours\disolarm.cpp">
-      <Filter>Detours</Filter>
-    </ClCompile>
-    <ClCompile Include="Detours\disolarm64.cpp">
-      <Filter>Detours</Filter>
-    </ClCompile>
-    <ClCompile Include="Detours\disolia64.cpp">
-      <Filter>Detours</Filter>
-    </ClCompile>
-    <ClCompile Include="Detours\disolx64.cpp">
-      <Filter>Detours</Filter>
-    </ClCompile>
-    <ClCompile Include="Detours\disolx86.cpp">
-      <Filter>Detours</Filter>
-    </ClCompile>
     <ClCompile Include="Detours\image.cpp">
       <Filter>Detours</Filter>
     </ClCompile>
