@@ -116,6 +116,7 @@
     <ClInclude Include="Detours\detours.h" />
     <ClInclude Include="Detours\detver.h" />
     <ClInclude Include="Detours\uimports.h" />
+    <ClInclude Include="MINT.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

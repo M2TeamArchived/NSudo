@@ -10,9 +10,19 @@
 
 #include <Windows.h>
 
+#include <vector>
+
+#include "MINT.h"
 #include "Detours/detours.h"
 
+struct DetouredFunction
+{
+    PVOID Original;
+    PVOID Detoured;
+};
+
 static LONG dwSlept = 0;
+
 
 // Target pointer for the uninstrumented Sleep API.
 //
@@ -38,14 +48,8 @@ BOOL APIENTRY DllMain(
     UNREFERENCED_PARAMETER(Module);
     UNREFERENCED_PARAMETER(Reserved);
 
-    if (DetourIsHelperProcess()) {
-        return TRUE;
-    }
-
     if (DLL_PROCESS_ATTACH == Reason)
     {
-        DetourRestoreAfterWith();
-
         DetourTransactionBegin();
         DetourUpdateThread(GetCurrentThread());
         DetourAttach(&reinterpret_cast<PVOID&>(TrueSleep), TimedSleep);

@@ -40,6 +40,9 @@
     <Filter Include="Detours">
       <UniqueIdentifier>{802124d1-ad20-47fe-a90a-a9b24fd36071}</UniqueIdentifier>
     </Filter>
+    <Filter Include="MINT">
+      <UniqueIdentifier>{d0a476f7-2375-4d12-830b-653059102778}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Detours\detours.h">
@@ -50,6 +53,9 @@
     </ClInclude>
     <ClInclude Include="Detours\uimports.h">
       <Filter>Detours</Filter>
+    </ClInclude>
+    <ClInclude Include="MINT.h">
+      <Filter>MINT</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
