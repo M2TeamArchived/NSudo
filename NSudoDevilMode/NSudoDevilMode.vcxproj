@@ -97,10 +97,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Detours\creatwth.cpp" />
     <ClCompile Include="Detours\detours.cpp" />
     <ClCompile Include="Detours\disasm.cpp" />
-    <ClCompile Include="Detours\image.cpp" />
     <ClCompile Include="Detours\modules.cpp" />
     <ClCompile Include="NSudoDevilMode.cpp" />
   </ItemGroup>
@@ -110,7 +108,6 @@
   <ItemGroup>
     <ClInclude Include="Detours\detours.h" />
     <ClInclude Include="Detours\detver.h" />
-    <ClInclude Include="Detours\uimports.h" />
     <ClInclude Include="MINT.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

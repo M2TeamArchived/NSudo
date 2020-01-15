@@ -5,16 +5,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="NSudoDevilMode.cpp" />
-    <ClCompile Include="Detours\creatwth.cpp">
-      <Filter>Detours</Filter>
-    </ClCompile>
     <ClCompile Include="Detours\detours.cpp">
       <Filter>Detours</Filter>
     </ClCompile>
     <ClCompile Include="Detours\disasm.cpp">
-      <Filter>Detours</Filter>
-    </ClCompile>
-    <ClCompile Include="Detours\image.cpp">
       <Filter>Detours</Filter>
     </ClCompile>
     <ClCompile Include="Detours\modules.cpp">
@@ -34,9 +28,6 @@
       <Filter>Detours</Filter>
     </ClInclude>
     <ClInclude Include="Detours\detver.h">
-      <Filter>Detours</Filter>
-    </ClInclude>
-    <ClInclude Include="Detours\uimports.h">
       <Filter>Detours</Filter>
     </ClInclude>
     <ClInclude Include="MINT.h">

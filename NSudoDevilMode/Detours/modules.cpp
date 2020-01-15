@@ -1,4 +1,4 @@
-//////////////////////////////////////////////////////////////////////////////
+﻿//////////////////////////////////////////////////////////////////////////////
 //
 //  Module Enumeration Functions (modules.cpp of detours.lib)
 //
@@ -836,69 +836,6 @@ PVOID WINAPI DetourFindPayloadEx(_In_ REFGUID rguid,
     }
     SetLastError(ERROR_MOD_NOT_FOUND);
     return NULL;
-}
-
-BOOL WINAPI DetourRestoreAfterWithEx(_In_reads_bytes_(cbData) PVOID pvData,
-                                     _In_ DWORD cbData)
-{
-    PDETOUR_EXE_RESTORE pder = (PDETOUR_EXE_RESTORE)pvData;
-
-    if (pder->cb != sizeof(*pder) || pder->cb > cbData) {
-        SetLastError(ERROR_BAD_EXE_FORMAT);
-        return FALSE;
-    }
-
-    DWORD dwPermIdh = ~0u;
-    DWORD dwPermInh = ~0u;
-    DWORD dwPermClr = ~0u;
-    DWORD dwIgnore;
-    BOOL fSucceeded = FALSE;
-    BOOL fUpdated32To64 = FALSE;
-
-    if (pder->pclr != NULL && pder->clr.Flags != ((PDETOUR_CLR_HEADER)pder->pclr)->Flags) {
-        // If we had to promote the 32/64-bit agnostic IL to 64-bit, we can't restore
-        // that.
-        fUpdated32To64 = TRUE;
-    }
-
-    if (DetourVirtualProtectSameExecute(pder->pidh, pder->cbidh,
-                                        PAGE_EXECUTE_READWRITE, &dwPermIdh)) {
-        if (DetourVirtualProtectSameExecute(pder->pinh, pder->cbinh,
-                                            PAGE_EXECUTE_READWRITE, &dwPermInh)) {
-
-            CopyMemory(pder->pidh, &pder->idh, pder->cbidh);
-            CopyMemory(pder->pinh, &pder->inh, pder->cbinh);
-
-            if (pder->pclr != NULL && !fUpdated32To64) {
-                if (DetourVirtualProtectSameExecute(pder->pclr, pder->cbclr,
-                                                    PAGE_EXECUTE_READWRITE, &dwPermClr)) {
-                    CopyMemory(pder->pclr, &pder->clr, pder->cbclr);
-                    VirtualProtect(pder->pclr, pder->cbclr, dwPermClr, &dwIgnore);
-                    fSucceeded = TRUE;
-                }
-            }
-            else {
-                fSucceeded = TRUE;
-            }
-            VirtualProtect(pder->pinh, pder->cbinh, dwPermInh, &dwIgnore);
-        }
-        VirtualProtect(pder->pidh, pder->cbidh, dwPermIdh, &dwIgnore);
-    }
-    return fSucceeded;
-}
-
-BOOL WINAPI DetourRestoreAfterWith()
-{
-    PVOID pvData;
-    DWORD cbData;
-
-    pvData = DetourFindPayloadEx(DETOUR_EXE_RESTORE_GUID, &cbData);
-
-    if (pvData != NULL && cbData != 0) {
-        return DetourRestoreAfterWithEx(pvData, cbData);
-    }
-    SetLastError(ERROR_MOD_NOT_FOUND);
-    return FALSE;
 }
 
 //  End of File

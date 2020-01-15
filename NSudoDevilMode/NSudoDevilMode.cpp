@@ -162,6 +162,26 @@ namespace FunctionType
 static PVOID OriginalAddress[FunctionType::MaxFunctionType];
 
 
+NTSTATUS NTAPI OriginalNtCreateKey(
+    _Out_ PHANDLE KeyHandle,
+    _In_ ACCESS_MASK DesiredAccess,
+    _In_ POBJECT_ATTRIBUTES ObjectAttributes,
+    _Reserved_ ULONG TitleIndex,
+    _In_opt_ PUNICODE_STRING Class,
+    _In_ ULONG CreateOptions,
+    _Out_opt_ PULONG Disposition)
+{
+    return reinterpret_cast<decltype(NtCreateKey)*>(
+        OriginalAddress[FunctionType::NtCreateKey])(
+            KeyHandle,
+            DesiredAccess,
+            ObjectAttributes,
+            TitleIndex,
+            Class,
+            CreateOptions,
+            Disposition);
+}
+
 NTSTATUS NTAPI DetouredNtCreateKey(
     _Out_ PHANDLE KeyHandle,
     _In_ ACCESS_MASK DesiredAccess,
@@ -178,10 +198,6 @@ NTSTATUS NTAPI DetouredNtCreateKey(
         CreateOptions |= REG_OPTION_BACKUP_RESTORE;
     }
 
-    decltype(NtCreateKey)* OriginalNtCreateKey =
-        reinterpret_cast<decltype(NtCreateKey)*>(
-            OriginalAddress[FunctionType::NtCreateKey]);
-
     return OriginalNtCreateKey(
         KeyHandle,
         DesiredAccess,
@@ -190,6 +206,29 @@ NTSTATUS NTAPI DetouredNtCreateKey(
         Class,
         CreateOptions,
         Disposition);
+}
+
+
+NTSTATUS NTAPI OriginalNtCreateKeyTransacted(
+    _Out_ PHANDLE KeyHandle,
+    _In_ ACCESS_MASK DesiredAccess,
+    _In_ POBJECT_ATTRIBUTES ObjectAttributes,
+    _Reserved_ ULONG TitleIndex,
+    _In_opt_ PUNICODE_STRING Class,
+    _In_ ULONG CreateOptions,
+    _In_ HANDLE TransactionHandle,
+    _Out_opt_ PULONG Disposition)
+{
+    return reinterpret_cast<decltype(NtCreateKeyTransacted)*>(
+        OriginalAddress[FunctionType::NtCreateKeyTransacted])(
+            KeyHandle,
+            DesiredAccess,
+            ObjectAttributes,
+            TitleIndex,
+            Class,
+            CreateOptions,
+            TransactionHandle,
+            Disposition);
 }
 
 NTSTATUS NTAPI DetouredNtCreateKeyTransacted(
@@ -209,10 +248,6 @@ NTSTATUS NTAPI DetouredNtCreateKeyTransacted(
         CreateOptions |= REG_OPTION_BACKUP_RESTORE;
     }
 
-    decltype(NtCreateKeyTransacted)* OriginalNtCreateKeyTransacted =
-        reinterpret_cast<decltype(NtCreateKeyTransacted)*>(
-            OriginalAddress[FunctionType::NtCreateKeyTransacted]);
-
     return OriginalNtCreateKeyTransacted(
         KeyHandle,
         DesiredAccess,
@@ -222,6 +257,19 @@ NTSTATUS NTAPI DetouredNtCreateKeyTransacted(
         CreateOptions,
         TransactionHandle,
         Disposition);
+}
+
+
+NTSTATUS NTAPI OriginalNtOpenKey(
+    _Out_ PHANDLE KeyHandle,
+    _In_ ACCESS_MASK DesiredAccess,
+    _In_ POBJECT_ATTRIBUTES ObjectAttributes)
+{
+    return reinterpret_cast<decltype(NtOpenKey)*>(
+        OriginalAddress[FunctionType::NtOpenKey])(
+            KeyHandle,
+            DesiredAccess,
+            ObjectAttributes);
 }
 
 NTSTATUS NTAPI DetouredNtOpenKey(
@@ -251,6 +299,21 @@ NTSTATUS NTAPI DetouredNtOpenKey(
     }
 
     return Status;
+}
+
+
+NTSTATUS NTAPI OriginalNtOpenKeyTransacted(
+    _Out_ PHANDLE KeyHandle,
+    _In_ ACCESS_MASK DesiredAccess,
+    _In_ POBJECT_ATTRIBUTES ObjectAttributes,
+    _In_ HANDLE TransactionHandle)
+{
+    return reinterpret_cast<decltype(NtOpenKeyTransacted)*>(
+        OriginalAddress[FunctionType::NtOpenKeyTransacted])(
+            KeyHandle,
+            DesiredAccess,
+            ObjectAttributes,
+            TransactionHandle);
 }
 
 NTSTATUS NTAPI DetouredNtOpenKeyTransacted(
@@ -284,6 +347,21 @@ NTSTATUS NTAPI DetouredNtOpenKeyTransacted(
     return Status;
 }
 
+
+NTSTATUS NTAPI OriginalNtOpenKeyEx(
+    _Out_ PHANDLE KeyHandle,
+    _In_ ACCESS_MASK DesiredAccess,
+    _In_ POBJECT_ATTRIBUTES ObjectAttributes,
+    _In_ ULONG OpenOptions)
+{
+    return reinterpret_cast<decltype(NtOpenKeyEx)*>(
+        OriginalAddress[FunctionType::NtOpenKeyEx])(
+            KeyHandle,
+            DesiredAccess,
+            ObjectAttributes,
+            OpenOptions);
+}
+
 NTSTATUS NTAPI DetouredNtOpenKeyEx(
     _Out_ PHANDLE KeyHandle,
     _In_ ACCESS_MASK DesiredAccess,
@@ -297,15 +375,28 @@ NTSTATUS NTAPI DetouredNtOpenKeyEx(
         OpenOptions |= REG_OPTION_BACKUP_RESTORE;
     }
 
-    decltype(NtOpenKeyEx)* OriginalNtOpenKeyEx =
-        reinterpret_cast<decltype(NtOpenKeyEx)*>(
-            OriginalAddress[FunctionType::NtOpenKeyEx]);
-
     return OriginalNtOpenKeyEx(
         KeyHandle,
         DesiredAccess,
         ObjectAttributes,
         OpenOptions);
+}
+
+
+NTSTATUS NTAPI OriginalNtOpenKeyTransactedEx(
+    _Out_ PHANDLE KeyHandle,
+    _In_ ACCESS_MASK DesiredAccess,
+    _In_ POBJECT_ATTRIBUTES ObjectAttributes,
+    _In_ ULONG OpenOptions,
+    _In_ HANDLE TransactionHandle)
+{
+    return reinterpret_cast<decltype(NtOpenKeyTransactedEx)*>(
+        OriginalAddress[FunctionType::NtOpenKeyTransactedEx])(
+            KeyHandle,
+            DesiredAccess,
+            ObjectAttributes,
+            OpenOptions,
+            TransactionHandle);
 }
 
 NTSTATUS NTAPI DetouredNtOpenKeyTransactedEx(
@@ -322,10 +413,6 @@ NTSTATUS NTAPI DetouredNtOpenKeyTransactedEx(
         OpenOptions |= REG_OPTION_BACKUP_RESTORE;
     }
 
-    decltype(NtOpenKeyTransactedEx)* OriginalNtOpenKeyTransactedEx =
-        reinterpret_cast<decltype(NtOpenKeyTransactedEx)*>(
-            OriginalAddress[FunctionType::NtOpenKeyTransactedEx]);
-
     return OriginalNtOpenKeyTransactedEx(
         KeyHandle,
         DesiredAccess,
@@ -333,6 +420,36 @@ NTSTATUS NTAPI DetouredNtOpenKeyTransactedEx(
         OpenOptions,
         TransactionHandle);
 }
+
+
+NTSTATUS NTAPI OriginalNtCreateFile(
+    _Out_ PHANDLE FileHandle,
+    _In_ ACCESS_MASK DesiredAccess,
+    _In_ POBJECT_ATTRIBUTES ObjectAttributes,
+    _Out_ PIO_STATUS_BLOCK IoStatusBlock,
+    _In_opt_ PLARGE_INTEGER AllocationSize,
+    _In_ ULONG FileAttributes,
+    _In_ ULONG ShareAccess,
+    _In_ ULONG CreateDisposition,
+    _In_ ULONG CreateOptions,
+    _In_reads_bytes_opt_(EaLength) PVOID EaBuffer,
+    _In_ ULONG EaLength)
+{
+    return reinterpret_cast<decltype(NtCreateFile)*>(
+        OriginalAddress[FunctionType::NtCreateFile])(
+            FileHandle,
+            DesiredAccess,
+            ObjectAttributes,
+            IoStatusBlock,
+            AllocationSize,
+            FileAttributes,
+            ShareAccess,
+            CreateDisposition,
+            CreateOptions,
+            EaBuffer,
+            EaLength);
+}
+
 
 NTSTATUS NTAPI DetouredNtCreateFile(
     _Out_ PHANDLE FileHandle,
@@ -354,10 +471,6 @@ NTSTATUS NTAPI DetouredNtCreateFile(
         CreateOptions |= FILE_OPEN_FOR_BACKUP_INTENT;
     }
 
-    decltype(NtCreateFile)* OriginalNtCreateFile =
-        reinterpret_cast<decltype(NtCreateFile)*>(
-            OriginalAddress[FunctionType::NtCreateFile]);
-
     return OriginalNtCreateFile(
         FileHandle,
         DesiredAccess,
@@ -370,6 +483,25 @@ NTSTATUS NTAPI DetouredNtCreateFile(
         CreateOptions,
         EaBuffer,
         EaLength);
+}
+
+
+NTSTATUS NTAPI OriginalNtOpenFile(
+    _Out_ PHANDLE FileHandle,
+    _In_ ACCESS_MASK DesiredAccess,
+    _In_ POBJECT_ATTRIBUTES ObjectAttributes,
+    _Out_ PIO_STATUS_BLOCK IoStatusBlock,
+    _In_ ULONG ShareAccess,
+    _In_ ULONG OpenOptions)
+{
+    return reinterpret_cast<decltype(NtOpenFile)*>(
+        OriginalAddress[FunctionType::NtOpenFile])(
+            FileHandle,
+            DesiredAccess,
+            ObjectAttributes,
+            IoStatusBlock,
+            ShareAccess,
+            OpenOptions);
 }
 
 NTSTATUS NTAPI DetouredNtOpenFile(
@@ -386,10 +518,6 @@ NTSTATUS NTAPI DetouredNtOpenFile(
     {
         OpenOptions |= FILE_OPEN_FOR_BACKUP_INTENT;
     }
-
-    decltype(NtOpenFile)* OriginalNtOpenFile =
-        reinterpret_cast<decltype(NtOpenFile)*>(
-            OriginalAddress[FunctionType::NtOpenFile]);
 
     return OriginalNtOpenFile(
         FileHandle,
