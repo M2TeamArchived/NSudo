@@ -15,7 +15,125 @@
 #include "MINT.h"
 #include "Detours/detours.h"
 
-static HANDLE PrivilegedAccessToken = INVALID_HANDLE_VALUE;
+
+HRESULT NSudoDevilModeCreatePrivilegedToken(
+    _Out_ PHANDLE NewTokenHandle)
+{
+    bool Result = false;
+    HANDLE CurrentProcessToken = INVALID_HANDLE_VALUE;
+
+    if (::OpenProcessToken(
+        ::GetCurrentProcess(),
+        MAXIMUM_ALLOWED,
+        &CurrentProcessToken))
+    {
+        if (::DuplicateTokenEx(
+            CurrentProcessToken,
+            MAXIMUM_ALLOWED,
+            nullptr,
+            SecurityImpersonation,
+            TokenImpersonation,
+            NewTokenHandle))
+        {
+            Result = true;
+        }
+
+        ::CloseHandle(CurrentProcessToken);
+    }
+
+    if (Result)
+    {
+        LPCWSTR Privileges[] = { SE_BACKUP_NAME, SE_RESTORE_NAME };
+
+        for (size_t i = 0; i < sizeof(Privileges) / sizeof(*Privileges); ++i)
+        {
+            TOKEN_PRIVILEGES TP;
+
+            TP.PrivilegeCount = 1;
+            TP.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
+
+            if (!::LookupPrivilegeValueW(
+                nullptr,
+                Privileges[i],
+                &TP.Privileges[0].Luid))
+            {
+                Result = false;
+                break;
+            }
+
+            if (!::AdjustTokenPrivileges(
+                *NewTokenHandle,
+                FALSE,
+                &TP,
+                sizeof(TP),
+                nullptr,
+                nullptr))
+            {
+                Result = false;
+                break;
+            }
+        }
+    }
+
+    if (Result)
+    {
+        return S_OK;
+    }
+    else
+    {
+        ::CloseHandle(*NewTokenHandle);
+        *NewTokenHandle = INVALID_HANDLE_VALUE;
+
+        return ::HRESULT_FROM_WIN32(::GetLastError());;
+    }
+}
+
+static HRESULT g_hrCreatePrivilegedToken = E_FAIL;
+static HANDLE g_PrivilegedAccessToken = INVALID_HANDLE_VALUE;
+
+class AccessTokenContext
+{
+private:
+    bool m_Result = false;
+    HANDLE m_OriginalAccessToken = INVALID_HANDLE_VALUE;
+
+public:
+    AccessTokenContext()
+    {
+        if (SUCCEEDED(g_hrCreatePrivilegedToken))
+        {
+            if (!::OpenThreadToken(
+                ::GetCurrentThread(),
+                MAXIMUM_ALLOWED,
+                TRUE,
+                &this->m_OriginalAccessToken))
+            {
+                if (ERROR_NO_TOKEN == ::GetLastError())
+                {
+                    this->m_OriginalAccessToken = nullptr;
+                }
+            }
+
+            if (::SetThreadToken(nullptr, g_PrivilegedAccessToken))
+            {
+                this->m_Result = true;
+            }
+        }
+    }
+
+    ~AccessTokenContext()
+    {
+        if (this->m_Result)
+        {
+            ::SetThreadToken(nullptr, this->m_OriginalAccessToken);
+        }
+    }
+
+    bool GetResult()
+    {
+        return this->m_Result;
+    }
+};
 
 
 static decltype(NtClose)* g_NtClose = nullptr;
@@ -53,6 +171,13 @@ NTSTATUS NTAPI DetouredNtCreateKey(
     _In_ ULONG CreateOptions,
     _Out_opt_ PULONG Disposition)
 {
+    AccessTokenContext Context;
+
+    if (Context.GetResult())
+    {
+        CreateOptions |= REG_OPTION_BACKUP_RESTORE;
+    }
+
     decltype(NtCreateKey)* OriginalNtCreateKey =
         reinterpret_cast<decltype(NtCreateKey)*>(
             OriginalAddress[FunctionType::NtCreateKey]);
@@ -63,7 +188,7 @@ NTSTATUS NTAPI DetouredNtCreateKey(
         ObjectAttributes,
         TitleIndex,
         Class,
-        CreateOptions | REG_OPTION_BACKUP_RESTORE,
+        CreateOptions,
         Disposition);
 }
 
@@ -77,6 +202,13 @@ NTSTATUS NTAPI DetouredNtCreateKeyTransacted(
     _In_ HANDLE TransactionHandle,
     _Out_opt_ PULONG Disposition)
 {
+    AccessTokenContext Context;
+
+    if (Context.GetResult())
+    {
+        CreateOptions |= REG_OPTION_BACKUP_RESTORE;
+    }
+
     decltype(NtCreateKeyTransacted)* OriginalNtCreateKeyTransacted =
         reinterpret_cast<decltype(NtCreateKeyTransacted)*>(
             OriginalAddress[FunctionType::NtCreateKeyTransacted]);
@@ -87,7 +219,7 @@ NTSTATUS NTAPI DetouredNtCreateKeyTransacted(
         ObjectAttributes,
         TitleIndex,
         Class,
-        CreateOptions | REG_OPTION_BACKUP_RESTORE,
+        CreateOptions,
         TransactionHandle,
         Disposition);
 }
@@ -158,6 +290,13 @@ NTSTATUS NTAPI DetouredNtOpenKeyEx(
     _In_ POBJECT_ATTRIBUTES ObjectAttributes,
     _In_ ULONG OpenOptions)
 {
+    AccessTokenContext Context;
+
+    if (Context.GetResult())
+    {
+        OpenOptions |= REG_OPTION_BACKUP_RESTORE;
+    }
+
     decltype(NtOpenKeyEx)* OriginalNtOpenKeyEx =
         reinterpret_cast<decltype(NtOpenKeyEx)*>(
             OriginalAddress[FunctionType::NtOpenKeyEx]);
@@ -166,7 +305,7 @@ NTSTATUS NTAPI DetouredNtOpenKeyEx(
         KeyHandle,
         DesiredAccess,
         ObjectAttributes,
-        OpenOptions | REG_OPTION_BACKUP_RESTORE);
+        OpenOptions);
 }
 
 NTSTATUS NTAPI DetouredNtOpenKeyTransactedEx(
@@ -176,6 +315,13 @@ NTSTATUS NTAPI DetouredNtOpenKeyTransactedEx(
     _In_ ULONG OpenOptions,
     _In_ HANDLE TransactionHandle)
 {
+    AccessTokenContext Context;
+
+    if (Context.GetResult())
+    {
+        OpenOptions |= REG_OPTION_BACKUP_RESTORE;
+    }
+
     decltype(NtOpenKeyTransactedEx)* OriginalNtOpenKeyTransactedEx =
         reinterpret_cast<decltype(NtOpenKeyTransactedEx)*>(
             OriginalAddress[FunctionType::NtOpenKeyTransactedEx]);
@@ -184,7 +330,7 @@ NTSTATUS NTAPI DetouredNtOpenKeyTransactedEx(
         KeyHandle,
         DesiredAccess,
         ObjectAttributes,
-        OpenOptions | REG_OPTION_BACKUP_RESTORE,
+        OpenOptions,
         TransactionHandle);
 }
 
@@ -201,6 +347,13 @@ NTSTATUS NTAPI DetouredNtCreateFile(
     _In_reads_bytes_opt_(EaLength) PVOID EaBuffer,
     _In_ ULONG EaLength)
 {
+    AccessTokenContext Context;
+
+    if (Context.GetResult())
+    {
+        CreateOptions |= FILE_OPEN_FOR_BACKUP_INTENT;
+    }
+
     decltype(NtCreateFile)* OriginalNtCreateFile =
         reinterpret_cast<decltype(NtCreateFile)*>(
             OriginalAddress[FunctionType::NtCreateFile]);
@@ -214,7 +367,7 @@ NTSTATUS NTAPI DetouredNtCreateFile(
         FileAttributes,
         ShareAccess,
         CreateDisposition,
-        CreateOptions | FILE_OPEN_FOR_BACKUP_INTENT,
+        CreateOptions,
         EaBuffer,
         EaLength);
 }
@@ -227,6 +380,13 @@ NTSTATUS NTAPI DetouredNtOpenFile(
     _In_ ULONG ShareAccess,
     _In_ ULONG OpenOptions)
 {
+    AccessTokenContext Context;
+
+    if (Context.GetResult())
+    {
+        OpenOptions |= FILE_OPEN_FOR_BACKUP_INTENT;
+    }
+
     decltype(NtOpenFile)* OriginalNtOpenFile =
         reinterpret_cast<decltype(NtOpenFile)*>(
             OriginalAddress[FunctionType::NtOpenFile]);
@@ -237,7 +397,7 @@ NTSTATUS NTAPI DetouredNtOpenFile(
         ObjectAttributes,
         IoStatusBlock,
         ShareAccess,
-        OpenOptions | FILE_OPEN_FOR_BACKUP_INTENT);
+        OpenOptions);
 }
 
 
@@ -258,10 +418,8 @@ static PVOID DetouredAddress[FunctionType::MaxFunctionType] =
  */
 EXTERN_C void WINAPI NSudoDevilModeInitialize()
 {
-    /*
-    SeBackupPrivilege                         备份文件和目录                     已禁用
-    SeRestorePrivilege                        还原文件和目录                     已禁用
-    */
+    g_hrCreatePrivilegedToken = NSudoDevilModeCreatePrivilegedToken(
+        &g_PrivilegedAccessToken);
 
     HMODULE ModuleHandle = GetModuleHandleW(L"ntdll.dll");
 
@@ -327,7 +485,10 @@ EXTERN_C void WINAPI NSudoDevilModeUninitialize()
 
     DetourTransactionCommit();
 
-    CloseHandle(PrivilegedAccessToken);
+    if (SUCCEEDED(g_hrCreatePrivilegedToken))
+    {
+        CloseHandle(g_PrivilegedAccessToken);
+    }
 }
 
 BOOL APIENTRY DllMain(
