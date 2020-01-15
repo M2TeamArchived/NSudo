@@ -78,7 +78,7 @@ public:
 /**
  * Contains values that specify the type of mandatory label.
  */
-typedef enum _NSUDO_MANDATORY_LABEL_TYPE
+typedef enum class _NSUDO_MANDATORY_LABEL_TYPE
 {
     UNTRUSTED,
     LOW,
@@ -92,7 +92,7 @@ typedef enum _NSUDO_MANDATORY_LABEL_TYPE
 /**
  * Contains values that specify the type of process priority class.
  */
-typedef enum _NSUDO_PROCESS_PRIORITY_CLASS_TYPE
+typedef enum class _NSUDO_PROCESS_PRIORITY_CLASS_TYPE
 {
     IDLE,
     BELOW_NORMAL,
