@@ -15,130 +15,128 @@
 #include "MINT.h"
 #include "Detours/detours.h"
 
-
-HRESULT NSudoDevilModeCreatePrivilegedToken(
+NTSTATUS NSudoDevilModeCreatePrivilegedToken(
     _Out_ PHANDLE NewTokenHandle)
 {
-    bool Result = false;
+    *NewTokenHandle = INVALID_HANDLE_VALUE;
+
+    NTSTATUS Status = STATUS_SUCCESS;
     HANDLE CurrentProcessToken = INVALID_HANDLE_VALUE;
 
-    if (::OpenProcessToken(
-        ::GetCurrentProcess(),
+    Status = ::NtOpenProcessToken(
+        NtCurrentProcess(),
         MAXIMUM_ALLOWED,
-        &CurrentProcessToken))
+        &CurrentProcessToken);
+    if (NT_SUCCESS(Status))
     {
-        if (::DuplicateTokenEx(
+        SECURITY_QUALITY_OF_SERVICE SQOS;
+        SQOS.Length = sizeof(SECURITY_QUALITY_OF_SERVICE);
+        SQOS.ImpersonationLevel = SecurityImpersonation;
+        SQOS.ContextTrackingMode = FALSE;
+        SQOS.EffectiveOnly = FALSE;
+
+        OBJECT_ATTRIBUTES OA;
+        OA.Length = sizeof(OBJECT_ATTRIBUTES);
+        OA.RootDirectory = nullptr;
+        OA.ObjectName = nullptr;
+        OA.Attributes = 0;
+        OA.SecurityDescriptor = nullptr;
+        OA.SecurityQualityOfService = &SQOS;
+
+        Status = ::NtDuplicateToken(
             CurrentProcessToken,
             MAXIMUM_ALLOWED,
-            nullptr,
-            SecurityImpersonation,
+            &OA,
+            FALSE,
             TokenImpersonation,
-            NewTokenHandle))
-        {
-            Result = true;
-        }
+            NewTokenHandle);
 
-        ::CloseHandle(CurrentProcessToken);
+        ::NtClose(CurrentProcessToken);
     }
 
-    if (Result)
+    if (NT_SUCCESS(Status))
     {
-        LPCWSTR Privileges[] = { SE_BACKUP_NAME, SE_RESTORE_NAME };
-
-        for (size_t i = 0; i < sizeof(Privileges) / sizeof(*Privileges); ++i)
+        ULONG TPSize = 2 * sizeof(LUID_AND_ATTRIBUTES) + sizeof(DWORD);
+        PTOKEN_PRIVILEGES pTP = reinterpret_cast<PTOKEN_PRIVILEGES>(
+            ::RtlAllocateHeap(RtlProcessHeap(), HEAP_ZERO_MEMORY, TPSize));
+        if (pTP)
         {
-            TOKEN_PRIVILEGES TP;
+            pTP->PrivilegeCount = 2;
 
-            TP.PrivilegeCount = 1;
-            TP.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
+            pTP->Privileges[0].Luid.LowPart = SE_BACKUP_PRIVILEGE;
+            pTP->Privileges[0].Luid.HighPart = 0;
+            pTP->Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
 
-            if (!::LookupPrivilegeValueW(
-                nullptr,
-                Privileges[i],
-                &TP.Privileges[0].Luid))
-            {
-                Result = false;
-                break;
-            }
+            pTP->Privileges[1].Luid.LowPart = SE_RESTORE_PRIVILEGE;
+            pTP->Privileges[1].Luid.HighPart = 0;
+            pTP->Privileges[1].Attributes = SE_PRIVILEGE_ENABLED;
 
-            if (!::AdjustTokenPrivileges(
+            Status = ::NtAdjustPrivilegesToken(
                 *NewTokenHandle,
                 FALSE,
-                &TP,
-                sizeof(TP),
+                pTP,
+                TPSize,
                 nullptr,
-                nullptr))
+                nullptr);
+            if (ERROR_SUCCESS != Status)
             {
-                Result = false;
-                break;
+                ::NtClose(*NewTokenHandle);
+                *NewTokenHandle = INVALID_HANDLE_VALUE;
+
+                Status = STATUS_NOT_SUPPORTED;
             }
+
+            ::RtlFreeHeap(RtlProcessHeap(), 0, pTP);
         }
     }
 
-    if (Result)
-    {
-        return S_OK;
-    }
-    else
-    {
-        ::CloseHandle(*NewTokenHandle);
-        *NewTokenHandle = INVALID_HANDLE_VALUE;
-
-        return ::HRESULT_FROM_WIN32(::GetLastError());;
-    }
+    return Status;
 }
 
-static HRESULT g_hrCreatePrivilegedToken = E_FAIL;
+static NTSTATUS g_CreatePrivilegedTokenStatus = STATUS_SUCCESS;
 static HANDLE g_PrivilegedAccessToken = INVALID_HANDLE_VALUE;
 
-class AccessTokenContext
+NTSTATUS NSudoDevilModeEnterPrivilegedContext(
+    _Out_ PHANDLE OriginalTokenHandle)
 {
-private:
-    bool m_Result = false;
-    HANDLE m_OriginalAccessToken = INVALID_HANDLE_VALUE;
-
-public:
-    AccessTokenContext()
+    if (!NT_SUCCESS(g_CreatePrivilegedTokenStatus))
     {
-        if (SUCCEEDED(g_hrCreatePrivilegedToken))
-        {
-            if (!::OpenThreadToken(
-                ::GetCurrentThread(),
-                MAXIMUM_ALLOWED,
-                TRUE,
-                &this->m_OriginalAccessToken))
-            {
-                if (ERROR_NO_TOKEN == ::GetLastError())
-                {
-                    this->m_OriginalAccessToken = nullptr;
-                }
-            }
-
-            if (::SetThreadToken(nullptr, g_PrivilegedAccessToken))
-            {
-                this->m_Result = true;
-            }
-        }
+        return g_CreatePrivilegedTokenStatus;
     }
 
-    ~AccessTokenContext()
+    if (!NT_SUCCESS(::NtOpenThreadToken(
+        NtCurrentThread(),
+        MAXIMUM_ALLOWED,
+        TRUE,
+        OriginalTokenHandle)))
     {
-        if (this->m_Result)
-        {
-            ::SetThreadToken(nullptr, this->m_OriginalAccessToken);
-        }
+        *OriginalTokenHandle = nullptr;
     }
 
-    bool GetResult()
+    return ::NtSetInformationThread(
+        NtCurrentThread(),
+        ThreadImpersonationToken,
+        &g_PrivilegedAccessToken,
+        sizeof(HANDLE));
+}
+
+NTSTATUS NSudoDevilModeLeavePrivilegedContext(
+    _Out_ HANDLE OriginalTokenHandle)
+{
+    NTSTATUS Status = ::NtSetInformationThread(
+        NtCurrentThread(),
+        ThreadImpersonationToken,
+        &OriginalTokenHandle,
+        sizeof(HANDLE));
+
+    if (OriginalTokenHandle != nullptr &&
+        OriginalTokenHandle != INVALID_HANDLE_VALUE)
     {
-        return this->m_Result;
+        ::NtClose(OriginalTokenHandle);
     }
-};
 
-
-static decltype(NtClose)* g_NtClose = nullptr;
-static decltype(NtDeleteKey)* g_NtDeleteKey = nullptr;
-
+    return Status;
+}
 
 namespace FunctionType
 {
@@ -159,7 +157,17 @@ namespace FunctionType
 }
 
 
-static PVOID OriginalAddress[FunctionType::MaxFunctionType];
+static PVOID OriginalAddress[FunctionType::MaxFunctionType] =
+{
+    ::NtCreateKey,
+    ::NtCreateKeyTransacted,
+    ::NtOpenKey,
+    ::NtOpenKeyTransacted,
+    nullptr,
+    nullptr,
+    ::NtCreateFile,
+    ::NtOpenFile
+};
 
 
 NTSTATUS NTAPI OriginalNtCreateKey(
@@ -191,14 +199,15 @@ NTSTATUS NTAPI DetouredNtCreateKey(
     _In_ ULONG CreateOptions,
     _Out_opt_ PULONG Disposition)
 {
-    AccessTokenContext Context;
-
-    if (Context.GetResult())
+    HANDLE OriginalTokenHandle = INVALID_HANDLE_VALUE;
+    NTSTATUS ContextStatus = NSudoDevilModeEnterPrivilegedContext(
+        &OriginalTokenHandle);
+    if (NT_SUCCESS(ContextStatus))
     {
         CreateOptions |= REG_OPTION_BACKUP_RESTORE;
     }
 
-    return OriginalNtCreateKey(
+    NTSTATUS Status = OriginalNtCreateKey(
         KeyHandle,
         DesiredAccess,
         ObjectAttributes,
@@ -206,6 +215,13 @@ NTSTATUS NTAPI DetouredNtCreateKey(
         Class,
         CreateOptions,
         Disposition);
+
+    if (NT_SUCCESS(ContextStatus))
+    {
+        NSudoDevilModeLeavePrivilegedContext(OriginalTokenHandle);
+    }
+
+    return Status;
 }
 
 
@@ -241,14 +257,15 @@ NTSTATUS NTAPI DetouredNtCreateKeyTransacted(
     _In_ HANDLE TransactionHandle,
     _Out_opt_ PULONG Disposition)
 {
-    AccessTokenContext Context;
-
-    if (Context.GetResult())
+    HANDLE OriginalTokenHandle = INVALID_HANDLE_VALUE;
+    NTSTATUS ContextStatus = NSudoDevilModeEnterPrivilegedContext(
+        &OriginalTokenHandle);
+    if (NT_SUCCESS(ContextStatus))
     {
         CreateOptions |= REG_OPTION_BACKUP_RESTORE;
     }
 
-    return OriginalNtCreateKeyTransacted(
+    NTSTATUS Status = OriginalNtCreateKeyTransacted(
         KeyHandle,
         DesiredAccess,
         ObjectAttributes,
@@ -257,6 +274,13 @@ NTSTATUS NTAPI DetouredNtCreateKeyTransacted(
         CreateOptions,
         TransactionHandle,
         Disposition);
+
+    if (NT_SUCCESS(ContextStatus))
+    {
+        NSudoDevilModeLeavePrivilegedContext(OriginalTokenHandle);
+    }
+
+    return Status;
 }
 
 
@@ -290,9 +314,9 @@ NTSTATUS NTAPI DetouredNtOpenKey(
 
     if (REG_CREATED_NEW_KEY == Disposition)
     {
-        g_NtDeleteKey(*KeyHandle);
+        ::NtDeleteKey(*KeyHandle);
 
-        g_NtClose(*KeyHandle);
+        ::NtClose(*KeyHandle);
         *KeyHandle = nullptr;
 
         Status = STATUS_OBJECT_NAME_NOT_FOUND;
@@ -336,9 +360,9 @@ NTSTATUS NTAPI DetouredNtOpenKeyTransacted(
 
     if (REG_CREATED_NEW_KEY == Disposition)
     {
-        g_NtDeleteKey(*KeyHandle);
+        ::NtDeleteKey(*KeyHandle);
 
-        g_NtClose(*KeyHandle);
+        ::NtClose(*KeyHandle);
         *KeyHandle = nullptr;
 
         Status = STATUS_OBJECT_NAME_NOT_FOUND;
@@ -368,18 +392,26 @@ NTSTATUS NTAPI DetouredNtOpenKeyEx(
     _In_ POBJECT_ATTRIBUTES ObjectAttributes,
     _In_ ULONG OpenOptions)
 {
-    AccessTokenContext Context;
-
-    if (Context.GetResult())
+    HANDLE OriginalTokenHandle = INVALID_HANDLE_VALUE;
+    NTSTATUS ContextStatus = NSudoDevilModeEnterPrivilegedContext(
+        &OriginalTokenHandle);
+    if (NT_SUCCESS(ContextStatus))
     {
         OpenOptions |= REG_OPTION_BACKUP_RESTORE;
     }
 
-    return OriginalNtOpenKeyEx(
+    NTSTATUS Status = OriginalNtOpenKeyEx(
         KeyHandle,
         DesiredAccess,
         ObjectAttributes,
         OpenOptions);
+
+    if (NT_SUCCESS(ContextStatus))
+    {
+        NSudoDevilModeLeavePrivilegedContext(OriginalTokenHandle);
+    }
+
+    return Status;
 }
 
 
@@ -406,19 +438,27 @@ NTSTATUS NTAPI DetouredNtOpenKeyTransactedEx(
     _In_ ULONG OpenOptions,
     _In_ HANDLE TransactionHandle)
 {
-    AccessTokenContext Context;
-
-    if (Context.GetResult())
+    HANDLE OriginalTokenHandle = INVALID_HANDLE_VALUE;
+    NTSTATUS ContextStatus = NSudoDevilModeEnterPrivilegedContext(
+        &OriginalTokenHandle);
+    if (NT_SUCCESS(ContextStatus))
     {
         OpenOptions |= REG_OPTION_BACKUP_RESTORE;
     }
 
-    return OriginalNtOpenKeyTransactedEx(
+    NTSTATUS Status = OriginalNtOpenKeyTransactedEx(
         KeyHandle,
         DesiredAccess,
         ObjectAttributes,
         OpenOptions,
         TransactionHandle);
+
+    if (NT_SUCCESS(ContextStatus))
+    {
+        NSudoDevilModeLeavePrivilegedContext(OriginalTokenHandle);
+    }
+
+    return Status;
 }
 
 
@@ -464,14 +504,15 @@ NTSTATUS NTAPI DetouredNtCreateFile(
     _In_reads_bytes_opt_(EaLength) PVOID EaBuffer,
     _In_ ULONG EaLength)
 {
-    AccessTokenContext Context;
-
-    if (Context.GetResult())
+    HANDLE OriginalTokenHandle = INVALID_HANDLE_VALUE;
+    NTSTATUS ContextStatus = NSudoDevilModeEnterPrivilegedContext(
+        &OriginalTokenHandle);
+    if (NT_SUCCESS(ContextStatus))
     {
         CreateOptions |= FILE_OPEN_FOR_BACKUP_INTENT;
     }
 
-    return OriginalNtCreateFile(
+    NTSTATUS Status = OriginalNtCreateFile(
         FileHandle,
         DesiredAccess,
         ObjectAttributes,
@@ -483,6 +524,13 @@ NTSTATUS NTAPI DetouredNtCreateFile(
         CreateOptions,
         EaBuffer,
         EaLength);
+
+    if (NT_SUCCESS(ContextStatus))
+    {
+        NSudoDevilModeLeavePrivilegedContext(OriginalTokenHandle);
+    }
+
+    return Status;
 }
 
 
@@ -512,20 +560,28 @@ NTSTATUS NTAPI DetouredNtOpenFile(
     _In_ ULONG ShareAccess,
     _In_ ULONG OpenOptions)
 {
-    AccessTokenContext Context;
-
-    if (Context.GetResult())
+    HANDLE OriginalTokenHandle = INVALID_HANDLE_VALUE;
+    NTSTATUS ContextStatus = NSudoDevilModeEnterPrivilegedContext(
+        &OriginalTokenHandle);
+    if (NT_SUCCESS(ContextStatus))
     {
         OpenOptions |= FILE_OPEN_FOR_BACKUP_INTENT;
     }
 
-    return OriginalNtOpenFile(
+    NTSTATUS Status = OriginalNtOpenFile(
         FileHandle,
         DesiredAccess,
         ObjectAttributes,
         IoStatusBlock,
         ShareAccess,
         OpenOptions);
+
+    if (NT_SUCCESS(ContextStatus))
+    {
+        NSudoDevilModeLeavePrivilegedContext(OriginalTokenHandle);
+    }
+
+    return Status;
 }
 
 
@@ -546,35 +602,17 @@ static PVOID DetouredAddress[FunctionType::MaxFunctionType] =
  */
 EXTERN_C void WINAPI NSudoDevilModeInitialize()
 {
-    g_hrCreatePrivilegedToken = NSudoDevilModeCreatePrivilegedToken(
+    g_CreatePrivilegedTokenStatus = NSudoDevilModeCreatePrivilegedToken(
         &g_PrivilegedAccessToken);
 
-    HMODULE ModuleHandle = GetModuleHandleW(L"ntdll.dll");
+    HMODULE ModuleHandle = ::GetModuleHandleW(L"ntdll.dll");
 
     if (nullptr != ModuleHandle)
     {
-        g_NtClose = reinterpret_cast<decltype(NtClose)*>(
-            GetProcAddress(ModuleHandle, "NtClose"));
-        g_NtDeleteKey = reinterpret_cast<decltype(NtDeleteKey)*>(
-            GetProcAddress(ModuleHandle, "NtDeleteKey"));
-
-        OriginalAddress[FunctionType::NtCreateKey] = GetProcAddress(
-            ModuleHandle, "NtCreateKey");
-        OriginalAddress[FunctionType::NtCreateKeyTransacted] = GetProcAddress(
-            ModuleHandle, "NtCreateKeyTransacted");
-        OriginalAddress[FunctionType::NtOpenKey] = GetProcAddress(
-            ModuleHandle, "NtOpenKey");
-        OriginalAddress[FunctionType::NtOpenKeyTransacted] = GetProcAddress(
-            ModuleHandle, "NtOpenKeyTransacted");
-        OriginalAddress[FunctionType::NtOpenKeyEx] = GetProcAddress(
-            ModuleHandle, "NtOpenKeyEx");
-        OriginalAddress[FunctionType::NtOpenKeyTransactedEx] = GetProcAddress(
-            ModuleHandle, "NtOpenKeyTransactedEx");
-
-        OriginalAddress[FunctionType::NtCreateFile] = GetProcAddress(
-            ModuleHandle, "NtCreateFile");
-        OriginalAddress[FunctionType::NtOpenFile] = GetProcAddress(
-            ModuleHandle, "NtOpenFile");
+        OriginalAddress[FunctionType::NtOpenKeyEx] =
+            ::GetProcAddress(ModuleHandle, "NtOpenKeyEx");
+        OriginalAddress[FunctionType::NtOpenKeyTransactedEx] =
+            ::GetProcAddress(ModuleHandle, "NtOpenKeyTransactedEx");
     }
 
     DetourTransactionBegin();
@@ -613,9 +651,9 @@ EXTERN_C void WINAPI NSudoDevilModeUninitialize()
 
     DetourTransactionCommit();
 
-    if (SUCCEEDED(g_hrCreatePrivilegedToken))
+    if (NT_SUCCESS(g_CreatePrivilegedTokenStatus))
     {
-        CloseHandle(g_PrivilegedAccessToken);
+        ::NtClose(g_PrivilegedAccessToken);
     }
 }
 
