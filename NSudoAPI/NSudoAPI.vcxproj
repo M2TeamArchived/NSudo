@@ -1,5 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\VC-LTL.4.0.3.8\build\native\VC-LTL.props" Condition="Exists('..\packages\VC-LTL.4.0.3.8\build\native\VC-LTL.props')" />
+  <Import Project="..\packages\YY.VCRT.14.24.28314.Library.4.0.3.8\build\native\YY.VCRT.14.24.28314.Library.props" Condition="Exists('..\packages\YY.VCRT.14.24.28314.Library.4.0.3.8\build\native\YY.VCRT.14.24.28314.Library.props')" />
+  <Import Project="..\packages\YY.VCRT.14.24.28314.Header.4.0.3.8\build\native\YY.VCRT.14.24.28314.Header.props" Condition="Exists('..\packages\YY.VCRT.14.24.28314.Header.4.0.3.8\build\native\YY.VCRT.14.24.28314.Header.props')" />
+  <Import Project="..\packages\YY.VCRT.14.23.28105.Library.4.0.3.8\build\native\YY.VCRT.14.23.28105.Library.props" Condition="Exists('..\packages\YY.VCRT.14.23.28105.Library.4.0.3.8\build\native\YY.VCRT.14.23.28105.Library.props')" />
+  <Import Project="..\packages\YY.VCRT.14.23.28105.Header.4.0.3.8\build\native\YY.VCRT.14.23.28105.Header.props" Condition="Exists('..\packages\YY.VCRT.14.23.28105.Header.4.0.3.8\build\native\YY.VCRT.14.23.28105.Header.props')" />
+  <Import Project="..\packages\YY.VCRT.14.22.27905.Library.4.0.3.8\build\native\YY.VCRT.14.22.27905.Library.props" Condition="Exists('..\packages\YY.VCRT.14.22.27905.Library.4.0.3.8\build\native\YY.VCRT.14.22.27905.Library.props')" />
+  <Import Project="..\packages\YY.VCRT.14.22.27905.Header.4.0.3.8\build\native\YY.VCRT.14.22.27905.Header.props" Condition="Exists('..\packages\YY.VCRT.14.22.27905.Header.4.0.3.8\build\native\YY.VCRT.14.22.27905.Header.props')" />
+  <Import Project="..\packages\YY.VCRT.14.21.27702.Library.4.0.3.8\build\native\YY.VCRT.14.21.27702.Library.props" Condition="Exists('..\packages\YY.VCRT.14.21.27702.Library.4.0.3.8\build\native\YY.VCRT.14.21.27702.Library.props')" />
+  <Import Project="..\packages\YY.VCRT.14.21.27702.Header.4.0.3.8\build\native\YY.VCRT.14.21.27702.Header.props" Condition="Exists('..\packages\YY.VCRT.14.21.27702.Header.4.0.3.8\build\native\YY.VCRT.14.21.27702.Header.props')" />
+  <Import Project="..\packages\YY.VCRT.14.20.27508.Library.4.0.3.8\build\native\YY.VCRT.14.20.27508.Library.props" Condition="Exists('..\packages\YY.VCRT.14.20.27508.Library.4.0.3.8\build\native\YY.VCRT.14.20.27508.Library.props')" />
+  <Import Project="..\packages\YY.VCRT.14.20.27508.Header.4.0.3.8\build\native\YY.VCRT.14.20.27508.Header.props" Condition="Exists('..\packages\YY.VCRT.14.20.27508.Header.4.0.3.8\build\native\YY.VCRT.14.20.27508.Header.props')" />
+  <Import Project="..\packages\YY.VCRT.14.16.27023.Library.4.0.3.8\build\native\YY.VCRT.14.16.27023.Library.props" Condition="Exists('..\packages\YY.VCRT.14.16.27023.Library.4.0.3.8\build\native\YY.VCRT.14.16.27023.Library.props')" />
+  <Import Project="..\packages\YY.VCRT.14.16.27023.Header.4.0.3.8\build\native\YY.VCRT.14.16.27023.Header.props" Condition="Exists('..\packages\YY.VCRT.14.16.27023.Header.4.0.3.8\build\native\YY.VCRT.14.16.27023.Header.props')" />
+  <Import Project="..\packages\YY.VCRT.14.15.26726.Library.4.0.3.8\build\native\YY.VCRT.14.15.26726.Library.props" Condition="Exists('..\packages\YY.VCRT.14.15.26726.Library.4.0.3.8\build\native\YY.VCRT.14.15.26726.Library.props')" />
+  <Import Project="..\packages\YY.VCRT.14.15.26726.Header.4.0.3.8\build\native\YY.VCRT.14.15.26726.Header.props" Condition="Exists('..\packages\YY.VCRT.14.15.26726.Header.4.0.3.8\build\native\YY.VCRT.14.15.26726.Header.props')" />
+  <Import Project="..\packages\YY.VCRT.14.14.26428.Library.4.0.3.8\build\native\YY.VCRT.14.14.26428.Library.props" Condition="Exists('..\packages\YY.VCRT.14.14.26428.Library.4.0.3.8\build\native\YY.VCRT.14.14.26428.Library.props')" />
+  <Import Project="..\packages\YY.VCRT.14.14.26428.Header.4.0.3.8\build\native\YY.VCRT.14.14.26428.Header.props" Condition="Exists('..\packages\YY.VCRT.14.14.26428.Header.4.0.3.8\build\native\YY.VCRT.14.14.26428.Header.props')" />
+  <Import Project="..\packages\YY.VCRT.14.13.26128.Library.4.0.3.8\build\native\YY.VCRT.14.13.26128.Library.props" Condition="Exists('..\packages\YY.VCRT.14.13.26128.Library.4.0.3.8\build\native\YY.VCRT.14.13.26128.Library.props')" />
+  <Import Project="..\packages\YY.VCRT.14.13.26128.Header.4.0.3.8\build\native\YY.VCRT.14.13.26128.Header.props" Condition="Exists('..\packages\YY.VCRT.14.13.26128.Header.4.0.3.8\build\native\YY.VCRT.14.13.26128.Header.props')" />
+  <Import Project="..\packages\YY.VCRT.14.12.25827.Library.4.0.3.8\build\native\YY.VCRT.14.12.25827.Library.props" Condition="Exists('..\packages\YY.VCRT.14.12.25827.Library.4.0.3.8\build\native\YY.VCRT.14.12.25827.Library.props')" />
+  <Import Project="..\packages\YY.VCRT.14.12.25827.Header.4.0.3.8\build\native\YY.VCRT.14.12.25827.Header.props" Condition="Exists('..\packages\YY.VCRT.14.12.25827.Header.4.0.3.8\build\native\YY.VCRT.14.12.25827.Header.props')" />
+  <Import Project="..\packages\YY.VCRT.14.11.25503.Library.4.0.3.8\build\native\YY.VCRT.14.11.25503.Library.props" Condition="Exists('..\packages\YY.VCRT.14.11.25503.Library.4.0.3.8\build\native\YY.VCRT.14.11.25503.Library.props')" />
+  <Import Project="..\packages\YY.VCRT.14.11.25503.Header.4.0.3.8\build\native\YY.VCRT.14.11.25503.Header.props" Condition="Exists('..\packages\YY.VCRT.14.11.25503.Header.4.0.3.8\build\native\YY.VCRT.14.11.25503.Header.props')" />
+  <Import Project="..\packages\YY.VCRT.14.10.25017.Library.4.0.3.8\build\native\YY.VCRT.14.10.25017.Library.props" Condition="Exists('..\packages\YY.VCRT.14.10.25017.Library.4.0.3.8\build\native\YY.VCRT.14.10.25017.Library.props')" />
+  <Import Project="..\packages\YY.VCRT.14.10.25017.Header.4.0.3.8\build\native\YY.VCRT.14.10.25017.Header.props" Condition="Exists('..\packages\YY.VCRT.14.10.25017.Header.4.0.3.8\build\native\YY.VCRT.14.10.25017.Header.props')" />
+  <Import Project="..\packages\YY.VCRT.14.0.24231.Library.4.0.3.8\build\native\YY.VCRT.14.0.24231.Library.props" Condition="Exists('..\packages\YY.VCRT.14.0.24231.Library.4.0.3.8\build\native\YY.VCRT.14.0.24231.Library.props')" />
+  <Import Project="..\packages\YY.VCRT.14.0.24231.Header.4.0.3.8\build\native\YY.VCRT.14.0.24231.Header.props" Condition="Exists('..\packages\YY.VCRT.14.0.24231.Header.4.0.3.8\build\native\YY.VCRT.14.0.24231.Header.props')" />
+  <Import Project="..\packages\YY.VCRT.14.0.24225.Library.4.0.3.8\build\native\YY.VCRT.14.0.24225.Library.props" Condition="Exists('..\packages\YY.VCRT.14.0.24225.Library.4.0.3.8\build\native\YY.VCRT.14.0.24225.Library.props')" />
+  <Import Project="..\packages\YY.VCRT.14.0.24225.Header.4.0.3.8\build\native\YY.VCRT.14.0.24225.Header.props" Condition="Exists('..\packages\YY.VCRT.14.0.24225.Header.4.0.3.8\build\native\YY.VCRT.14.0.24225.Header.props')" />
+  <Import Project="..\packages\YY.VCRT.14.0.24210.Library.4.0.3.8\build\native\YY.VCRT.14.0.24210.Library.props" Condition="Exists('..\packages\YY.VCRT.14.0.24210.Library.4.0.3.8\build\native\YY.VCRT.14.0.24210.Library.props')" />
+  <Import Project="..\packages\YY.VCRT.14.0.24210.Header.4.0.3.8\build\native\YY.VCRT.14.0.24210.Header.props" Condition="Exists('..\packages\YY.VCRT.14.0.24210.Header.4.0.3.8\build\native\YY.VCRT.14.0.24210.Header.props')" />
+  <Import Project="..\packages\YY.VCRT.14.0.23918.Library.4.0.3.8\build\native\YY.VCRT.14.0.23918.Library.props" Condition="Exists('..\packages\YY.VCRT.14.0.23918.Library.4.0.3.8\build\native\YY.VCRT.14.0.23918.Library.props')" />
+  <Import Project="..\packages\YY.VCRT.14.0.23918.Header.4.0.3.8\build\native\YY.VCRT.14.0.23918.Header.props" Condition="Exists('..\packages\YY.VCRT.14.0.23918.Header.4.0.3.8\build\native\YY.VCRT.14.0.23918.Header.props')" />
+  <Import Project="..\packages\YY.UCRT.Shared.4.0.3.8\build\native\YY.UCRT.Shared.props" Condition="Exists('..\packages\YY.UCRT.Shared.4.0.3.8\build\native\YY.UCRT.Shared.props')" />
+  <Import Project="..\packages\YY.UCRT.10.0.18362.0.Package.4.0.3.8\build\native\YY.UCRT.10.0.18362.0.Package.props" Condition="Exists('..\packages\YY.UCRT.10.0.18362.0.Package.4.0.3.8\build\native\YY.UCRT.10.0.18362.0.Package.props')" />
+  <Import Project="..\packages\YY.UCRT.10.0.17763.0.Package.4.0.3.8\build\native\YY.UCRT.10.0.17763.0.Package.props" Condition="Exists('..\packages\YY.UCRT.10.0.17763.0.Package.4.0.3.8\build\native\YY.UCRT.10.0.17763.0.Package.props')" />
+  <Import Project="..\packages\YY.UCRT.10.0.17134.0.Package.4.0.3.8\build\native\YY.UCRT.10.0.17134.0.Package.props" Condition="Exists('..\packages\YY.UCRT.10.0.17134.0.Package.4.0.3.8\build\native\YY.UCRT.10.0.17134.0.Package.props')" />
+  <Import Project="..\packages\YY.UCRT.10.0.16299.0.Package.4.0.3.8\build\native\YY.UCRT.10.0.16299.0.Package.props" Condition="Exists('..\packages\YY.UCRT.10.0.16299.0.Package.4.0.3.8\build\native\YY.UCRT.10.0.16299.0.Package.props')" />
+  <Import Project="..\packages\YY.UCRT.10.0.15063.0.Package.4.0.3.8\build\native\YY.UCRT.10.0.15063.0.Package.props" Condition="Exists('..\packages\YY.UCRT.10.0.15063.0.Package.4.0.3.8\build\native\YY.UCRT.10.0.15063.0.Package.props')" />
+  <Import Project="..\packages\YY.UCRT.10.0.10240.0.Package.4.0.3.8\build\native\YY.UCRT.10.0.10240.0.Package.props" Condition="Exists('..\packages\YY.UCRT.10.0.10240.0.Package.4.0.3.8\build\native\YY.UCRT.10.0.10240.0.Package.props')" />
+  <Import Project="..\packages\YY.NuGet.Import.Helper.1.0.0.2\build\native\YY.NuGet.Import.Helper.props" Condition="Exists('..\packages\YY.NuGet.Import.Helper.1.0.0.2\build\native\YY.NuGet.Import.Helper.props')" />
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|ARM">
       <Configuration>Debug</Configuration>
@@ -76,7 +117,7 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-	  <AdditionalOptions>/d2FH4- %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/d2FH4- %(AdditionalOptions)</AdditionalOptions>
       <EnableEnhancedInstructionSet Condition="'$(Platform)'=='Win32'">NoExtensions</EnableEnhancedInstructionSet>
       <PreprocessorDefinitions>NSUDOAPI_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Platform)'=='Win32'">WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -103,11 +144,60 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="NSudoAPI.def" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="NSudoAPIVersion.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
+    <Import Project="..\packages\YY.NuGet.Import.Helper.1.0.0.2\build\native\YY.NuGet.Import.Helper.targets" Condition="Exists('..\packages\YY.NuGet.Import.Helper.1.0.0.2\build\native\YY.NuGet.Import.Helper.targets')" />
   </ImportGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\YY.NuGet.Import.Helper.1.0.0.2\build\native\YY.NuGet.Import.Helper.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\YY.NuGet.Import.Helper.1.0.0.2\build\native\YY.NuGet.Import.Helper.props'))" />
+    <Error Condition="!Exists('..\packages\YY.NuGet.Import.Helper.1.0.0.2\build\native\YY.NuGet.Import.Helper.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\YY.NuGet.Import.Helper.1.0.0.2\build\native\YY.NuGet.Import.Helper.targets'))" />
+    <Error Condition="!Exists('..\packages\YY.UCRT.10.0.10240.0.Package.4.0.3.8\build\native\YY.UCRT.10.0.10240.0.Package.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\YY.UCRT.10.0.10240.0.Package.4.0.3.8\build\native\YY.UCRT.10.0.10240.0.Package.props'))" />
+    <Error Condition="!Exists('..\packages\YY.UCRT.10.0.15063.0.Package.4.0.3.8\build\native\YY.UCRT.10.0.15063.0.Package.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\YY.UCRT.10.0.15063.0.Package.4.0.3.8\build\native\YY.UCRT.10.0.15063.0.Package.props'))" />
+    <Error Condition="!Exists('..\packages\YY.UCRT.10.0.16299.0.Package.4.0.3.8\build\native\YY.UCRT.10.0.16299.0.Package.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\YY.UCRT.10.0.16299.0.Package.4.0.3.8\build\native\YY.UCRT.10.0.16299.0.Package.props'))" />
+    <Error Condition="!Exists('..\packages\YY.UCRT.10.0.17134.0.Package.4.0.3.8\build\native\YY.UCRT.10.0.17134.0.Package.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\YY.UCRT.10.0.17134.0.Package.4.0.3.8\build\native\YY.UCRT.10.0.17134.0.Package.props'))" />
+    <Error Condition="!Exists('..\packages\YY.UCRT.10.0.17763.0.Package.4.0.3.8\build\native\YY.UCRT.10.0.17763.0.Package.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\YY.UCRT.10.0.17763.0.Package.4.0.3.8\build\native\YY.UCRT.10.0.17763.0.Package.props'))" />
+    <Error Condition="!Exists('..\packages\YY.UCRT.10.0.18362.0.Package.4.0.3.8\build\native\YY.UCRT.10.0.18362.0.Package.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\YY.UCRT.10.0.18362.0.Package.4.0.3.8\build\native\YY.UCRT.10.0.18362.0.Package.props'))" />
+    <Error Condition="!Exists('..\packages\YY.UCRT.Shared.4.0.3.8\build\native\YY.UCRT.Shared.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\YY.UCRT.Shared.4.0.3.8\build\native\YY.UCRT.Shared.props'))" />
+    <Error Condition="!Exists('..\packages\YY.VCRT.14.0.23918.Header.4.0.3.8\build\native\YY.VCRT.14.0.23918.Header.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\YY.VCRT.14.0.23918.Header.4.0.3.8\build\native\YY.VCRT.14.0.23918.Header.props'))" />
+    <Error Condition="!Exists('..\packages\YY.VCRT.14.0.23918.Library.4.0.3.8\build\native\YY.VCRT.14.0.23918.Library.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\YY.VCRT.14.0.23918.Library.4.0.3.8\build\native\YY.VCRT.14.0.23918.Library.props'))" />
+    <Error Condition="!Exists('..\packages\YY.VCRT.14.0.24210.Header.4.0.3.8\build\native\YY.VCRT.14.0.24210.Header.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\YY.VCRT.14.0.24210.Header.4.0.3.8\build\native\YY.VCRT.14.0.24210.Header.props'))" />
+    <Error Condition="!Exists('..\packages\YY.VCRT.14.0.24210.Library.4.0.3.8\build\native\YY.VCRT.14.0.24210.Library.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\YY.VCRT.14.0.24210.Library.4.0.3.8\build\native\YY.VCRT.14.0.24210.Library.props'))" />
+    <Error Condition="!Exists('..\packages\YY.VCRT.14.0.24225.Header.4.0.3.8\build\native\YY.VCRT.14.0.24225.Header.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\YY.VCRT.14.0.24225.Header.4.0.3.8\build\native\YY.VCRT.14.0.24225.Header.props'))" />
+    <Error Condition="!Exists('..\packages\YY.VCRT.14.0.24225.Library.4.0.3.8\build\native\YY.VCRT.14.0.24225.Library.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\YY.VCRT.14.0.24225.Library.4.0.3.8\build\native\YY.VCRT.14.0.24225.Library.props'))" />
+    <Error Condition="!Exists('..\packages\YY.VCRT.14.0.24231.Header.4.0.3.8\build\native\YY.VCRT.14.0.24231.Header.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\YY.VCRT.14.0.24231.Header.4.0.3.8\build\native\YY.VCRT.14.0.24231.Header.props'))" />
+    <Error Condition="!Exists('..\packages\YY.VCRT.14.0.24231.Library.4.0.3.8\build\native\YY.VCRT.14.0.24231.Library.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\YY.VCRT.14.0.24231.Library.4.0.3.8\build\native\YY.VCRT.14.0.24231.Library.props'))" />
+    <Error Condition="!Exists('..\packages\YY.VCRT.14.10.25017.Header.4.0.3.8\build\native\YY.VCRT.14.10.25017.Header.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\YY.VCRT.14.10.25017.Header.4.0.3.8\build\native\YY.VCRT.14.10.25017.Header.props'))" />
+    <Error Condition="!Exists('..\packages\YY.VCRT.14.10.25017.Library.4.0.3.8\build\native\YY.VCRT.14.10.25017.Library.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\YY.VCRT.14.10.25017.Library.4.0.3.8\build\native\YY.VCRT.14.10.25017.Library.props'))" />
+    <Error Condition="!Exists('..\packages\YY.VCRT.14.11.25503.Header.4.0.3.8\build\native\YY.VCRT.14.11.25503.Header.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\YY.VCRT.14.11.25503.Header.4.0.3.8\build\native\YY.VCRT.14.11.25503.Header.props'))" />
+    <Error Condition="!Exists('..\packages\YY.VCRT.14.11.25503.Library.4.0.3.8\build\native\YY.VCRT.14.11.25503.Library.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\YY.VCRT.14.11.25503.Library.4.0.3.8\build\native\YY.VCRT.14.11.25503.Library.props'))" />
+    <Error Condition="!Exists('..\packages\YY.VCRT.14.12.25827.Header.4.0.3.8\build\native\YY.VCRT.14.12.25827.Header.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\YY.VCRT.14.12.25827.Header.4.0.3.8\build\native\YY.VCRT.14.12.25827.Header.props'))" />
+    <Error Condition="!Exists('..\packages\YY.VCRT.14.12.25827.Library.4.0.3.8\build\native\YY.VCRT.14.12.25827.Library.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\YY.VCRT.14.12.25827.Library.4.0.3.8\build\native\YY.VCRT.14.12.25827.Library.props'))" />
+    <Error Condition="!Exists('..\packages\YY.VCRT.14.13.26128.Header.4.0.3.8\build\native\YY.VCRT.14.13.26128.Header.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\YY.VCRT.14.13.26128.Header.4.0.3.8\build\native\YY.VCRT.14.13.26128.Header.props'))" />
+    <Error Condition="!Exists('..\packages\YY.VCRT.14.13.26128.Library.4.0.3.8\build\native\YY.VCRT.14.13.26128.Library.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\YY.VCRT.14.13.26128.Library.4.0.3.8\build\native\YY.VCRT.14.13.26128.Library.props'))" />
+    <Error Condition="!Exists('..\packages\YY.VCRT.14.14.26428.Header.4.0.3.8\build\native\YY.VCRT.14.14.26428.Header.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\YY.VCRT.14.14.26428.Header.4.0.3.8\build\native\YY.VCRT.14.14.26428.Header.props'))" />
+    <Error Condition="!Exists('..\packages\YY.VCRT.14.14.26428.Library.4.0.3.8\build\native\YY.VCRT.14.14.26428.Library.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\YY.VCRT.14.14.26428.Library.4.0.3.8\build\native\YY.VCRT.14.14.26428.Library.props'))" />
+    <Error Condition="!Exists('..\packages\YY.VCRT.14.15.26726.Header.4.0.3.8\build\native\YY.VCRT.14.15.26726.Header.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\YY.VCRT.14.15.26726.Header.4.0.3.8\build\native\YY.VCRT.14.15.26726.Header.props'))" />
+    <Error Condition="!Exists('..\packages\YY.VCRT.14.15.26726.Library.4.0.3.8\build\native\YY.VCRT.14.15.26726.Library.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\YY.VCRT.14.15.26726.Library.4.0.3.8\build\native\YY.VCRT.14.15.26726.Library.props'))" />
+    <Error Condition="!Exists('..\packages\YY.VCRT.14.16.27023.Header.4.0.3.8\build\native\YY.VCRT.14.16.27023.Header.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\YY.VCRT.14.16.27023.Header.4.0.3.8\build\native\YY.VCRT.14.16.27023.Header.props'))" />
+    <Error Condition="!Exists('..\packages\YY.VCRT.14.16.27023.Library.4.0.3.8\build\native\YY.VCRT.14.16.27023.Library.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\YY.VCRT.14.16.27023.Library.4.0.3.8\build\native\YY.VCRT.14.16.27023.Library.props'))" />
+    <Error Condition="!Exists('..\packages\YY.VCRT.14.20.27508.Header.4.0.3.8\build\native\YY.VCRT.14.20.27508.Header.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\YY.VCRT.14.20.27508.Header.4.0.3.8\build\native\YY.VCRT.14.20.27508.Header.props'))" />
+    <Error Condition="!Exists('..\packages\YY.VCRT.14.20.27508.Library.4.0.3.8\build\native\YY.VCRT.14.20.27508.Library.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\YY.VCRT.14.20.27508.Library.4.0.3.8\build\native\YY.VCRT.14.20.27508.Library.props'))" />
+    <Error Condition="!Exists('..\packages\YY.VCRT.14.21.27702.Header.4.0.3.8\build\native\YY.VCRT.14.21.27702.Header.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\YY.VCRT.14.21.27702.Header.4.0.3.8\build\native\YY.VCRT.14.21.27702.Header.props'))" />
+    <Error Condition="!Exists('..\packages\YY.VCRT.14.21.27702.Library.4.0.3.8\build\native\YY.VCRT.14.21.27702.Library.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\YY.VCRT.14.21.27702.Library.4.0.3.8\build\native\YY.VCRT.14.21.27702.Library.props'))" />
+    <Error Condition="!Exists('..\packages\YY.VCRT.14.22.27905.Header.4.0.3.8\build\native\YY.VCRT.14.22.27905.Header.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\YY.VCRT.14.22.27905.Header.4.0.3.8\build\native\YY.VCRT.14.22.27905.Header.props'))" />
+    <Error Condition="!Exists('..\packages\YY.VCRT.14.22.27905.Library.4.0.3.8\build\native\YY.VCRT.14.22.27905.Library.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\YY.VCRT.14.22.27905.Library.4.0.3.8\build\native\YY.VCRT.14.22.27905.Library.props'))" />
+    <Error Condition="!Exists('..\packages\YY.VCRT.14.23.28105.Header.4.0.3.8\build\native\YY.VCRT.14.23.28105.Header.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\YY.VCRT.14.23.28105.Header.4.0.3.8\build\native\YY.VCRT.14.23.28105.Header.props'))" />
+    <Error Condition="!Exists('..\packages\YY.VCRT.14.23.28105.Library.4.0.3.8\build\native\YY.VCRT.14.23.28105.Library.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\YY.VCRT.14.23.28105.Library.4.0.3.8\build\native\YY.VCRT.14.23.28105.Library.props'))" />
+    <Error Condition="!Exists('..\packages\YY.VCRT.14.24.28314.Header.4.0.3.8\build\native\YY.VCRT.14.24.28314.Header.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\YY.VCRT.14.24.28314.Header.4.0.3.8\build\native\YY.VCRT.14.24.28314.Header.props'))" />
+    <Error Condition="!Exists('..\packages\YY.VCRT.14.24.28314.Library.4.0.3.8\build\native\YY.VCRT.14.24.28314.Library.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\YY.VCRT.14.24.28314.Library.4.0.3.8\build\native\YY.VCRT.14.24.28314.Library.props'))" />
+    <Error Condition="!Exists('..\packages\VC-LTL.4.0.3.8\build\native\VC-LTL.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\VC-LTL.4.0.3.8\build\native\VC-LTL.props'))" />
+  </Target>
 </Project>

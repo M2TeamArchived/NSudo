@@ -99,6 +99,7 @@
     <None Include="Resources\it\Translations.json">
       <Filter>Resources\it</Filter>
     </None>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="Resources\NSudoConsole.manifest">
