@@ -56,9 +56,8 @@ NTSTATUS NSudoDevilModeCreatePrivilegedToken(
 
     if (NT_SUCCESS(Status))
     {
-        ULONG TPSize = 2 * sizeof(LUID_AND_ATTRIBUTES) + sizeof(DWORD);
-        PTOKEN_PRIVILEGES pTP = reinterpret_cast<PTOKEN_PRIVILEGES>(
-            ::RtlAllocateHeap(RtlProcessHeap(), HEAP_ZERO_MEMORY, TPSize));
+        uint8_t TPRawBlock[2 * sizeof(LUID_AND_ATTRIBUTES) + sizeof(DWORD)];
+        PTOKEN_PRIVILEGES pTP = reinterpret_cast<PTOKEN_PRIVILEGES>(TPRawBlock);
         if (pTP)
         {
             pTP->PrivilegeCount = 2;
@@ -75,7 +74,7 @@ NTSTATUS NSudoDevilModeCreatePrivilegedToken(
                 *NewTokenHandle,
                 FALSE,
                 pTP,
-                TPSize,
+                sizeof(TPRawBlock),
                 nullptr,
                 nullptr);
             if (ERROR_SUCCESS != Status)
@@ -85,8 +84,6 @@ NTSTATUS NSudoDevilModeCreatePrivilegedToken(
 
                 Status = STATUS_NOT_SUPPORTED;
             }
-
-            ::RtlFreeHeap(RtlProcessHeap(), 0, pTP);
         }
     }
 
@@ -607,7 +604,7 @@ EXTERN_C void WINAPI NSudoDevilModeInitialize()
 
     HMODULE ModuleHandle = ::GetModuleHandleW(L"ntdll.dll");
 
-    if (nullptr != ModuleHandle)
+    if (ModuleHandle)
     {
         OriginalAddress[FunctionType::NtOpenKeyEx] =
             ::GetProcAddress(ModuleHandle, "NtOpenKeyEx");
@@ -620,12 +617,10 @@ EXTERN_C void WINAPI NSudoDevilModeInitialize()
 
     for (size_t i = 0; i < FunctionType::MaxFunctionType; ++i)
     {
-        if (nullptr == OriginalAddress[i])
+        if (OriginalAddress[i])
         {
-            continue;
+            DetourAttach(&OriginalAddress[i], DetouredAddress[i]);
         }
-
-        DetourAttach(&OriginalAddress[i], DetouredAddress[i]);
     }
 
     DetourTransactionCommit();
@@ -641,12 +636,10 @@ EXTERN_C void WINAPI NSudoDevilModeUninitialize()
 
     for (size_t i = 0; i < FunctionType::MaxFunctionType; ++i)
     {
-        if (nullptr == OriginalAddress[i])
+        if (OriginalAddress[i])
         {
-            continue;
+            DetourDetach(&OriginalAddress[i], DetouredAddress[i]);
         }
-
-        DetourDetach(&OriginalAddress[i], DetouredAddress[i]);
     }
 
     DetourTransactionCommit();
