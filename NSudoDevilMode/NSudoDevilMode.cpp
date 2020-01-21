@@ -58,32 +58,30 @@ NTSTATUS NSudoDevilModeCreatePrivilegedToken(
     {
         uint8_t TPRawBlock[2 * sizeof(LUID_AND_ATTRIBUTES) + sizeof(DWORD)];
         PTOKEN_PRIVILEGES pTP = reinterpret_cast<PTOKEN_PRIVILEGES>(TPRawBlock);
-        if (pTP)
+
+        pTP->PrivilegeCount = 2;
+
+        pTP->Privileges[0].Luid.LowPart = SE_BACKUP_PRIVILEGE;
+        pTP->Privileges[0].Luid.HighPart = 0;
+        pTP->Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
+
+        pTP->Privileges[1].Luid.LowPart = SE_RESTORE_PRIVILEGE;
+        pTP->Privileges[1].Luid.HighPart = 0;
+        pTP->Privileges[1].Attributes = SE_PRIVILEGE_ENABLED;
+
+        Status = ::NtAdjustPrivilegesToken(
+            *NewTokenHandle,
+            FALSE,
+            pTP,
+            sizeof(TPRawBlock),
+            nullptr,
+            nullptr);
+        if (ERROR_SUCCESS != Status)
         {
-            pTP->PrivilegeCount = 2;
+            ::NtClose(*NewTokenHandle);
+            *NewTokenHandle = INVALID_HANDLE_VALUE;
 
-            pTP->Privileges[0].Luid.LowPart = SE_BACKUP_PRIVILEGE;
-            pTP->Privileges[0].Luid.HighPart = 0;
-            pTP->Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
-
-            pTP->Privileges[1].Luid.LowPart = SE_RESTORE_PRIVILEGE;
-            pTP->Privileges[1].Luid.HighPart = 0;
-            pTP->Privileges[1].Attributes = SE_PRIVILEGE_ENABLED;
-
-            Status = ::NtAdjustPrivilegesToken(
-                *NewTokenHandle,
-                FALSE,
-                pTP,
-                sizeof(TPRawBlock),
-                nullptr,
-                nullptr);
-            if (ERROR_SUCCESS != Status)
-            {
-                ::NtClose(*NewTokenHandle);
-                *NewTokenHandle = INVALID_HANDLE_VALUE;
-
-                Status = STATUS_NOT_SUPPORTED;
-            }
+            Status = STATUS_NOT_SUPPORTED;
         }
     }
 
