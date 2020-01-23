@@ -10,7 +10,7 @@
 
 #include <Windows.h>
 
-#include <vector>
+#include <stdint.h>
 
 #include "MINT.h"
 #include "Detours/detours.h"
@@ -505,7 +505,7 @@ NTSTATUS NTAPI DetouredNtOpenFile(
 /**
  * Initialize the NSudo Devil Mode.
  */
-EXTERN_C void WINAPI NSudoDevilModeInitialize()
+void NSudoDevilModeInitialize()
 {
     NTSTATUS Status = STATUS_SUCCESS;
     HANDLE CurrentProcessToken = INVALID_HANDLE_VALUE;
@@ -619,43 +619,13 @@ EXTERN_C void WINAPI NSudoDevilModeInitialize()
         g_SharedData.DetouredAddress[FunctionType::NtOpenKeyTransactedEx] =
             ::DetouredNtOpenKeyTransactedEx;
     }
-
-    DetourTransactionBegin();
-    DetourUpdateThread(GetCurrentThread());
-
-    for (size_t i = 0; i < FunctionType::MaxFunctionType; ++i)
-    {
-        if (g_SharedData.OriginalAddress[i])
-        {
-            DetourAttach(
-                &g_SharedData.OriginalAddress[i],
-                g_SharedData.DetouredAddress[i]);
-        }
-    }
-
-    DetourTransactionCommit();
 }
 
 /**
  * Uninitialize the NSudo Devil Mode.
  */
-EXTERN_C void WINAPI NSudoDevilModeUninitialize()
+void NSudoDevilModeUninitialize()
 {
-    DetourTransactionBegin();
-    DetourUpdateThread(GetCurrentThread());
-
-    for (size_t i = 0; i < FunctionType::MaxFunctionType; ++i)
-    {
-        if (g_SharedData.OriginalAddress[i])
-        {
-            DetourDetach(
-                &g_SharedData.OriginalAddress[i],
-                g_SharedData.DetouredAddress[i]);
-        }
-    }
-
-    DetourTransactionCommit();
-
     if (g_SharedData.PrivilegedToken != INVALID_HANDLE_VALUE)
     {
         ::NtClose(g_SharedData.PrivilegedToken);
@@ -670,13 +640,41 @@ BOOL APIENTRY DllMain(
     UNREFERENCED_PARAMETER(Module);
     UNREFERENCED_PARAMETER(Reserved);
 
-    if (DLL_PROCESS_ATTACH == Reason)
+    if (DLL_PROCESS_ATTACH == Reason || DLL_PROCESS_DETACH == Reason)
     {
-        NSudoDevilModeInitialize();
-    }
-    else if (DLL_PROCESS_DETACH == Reason)
-    {
-        NSudoDevilModeUninitialize();
+        if (DLL_PROCESS_ATTACH == Reason)
+        {
+            NSudoDevilModeInitialize();
+        }
+
+        DetourTransactionBegin();
+        DetourUpdateThread(GetCurrentThread());
+
+        for (size_t i = 0; i < FunctionType::MaxFunctionType; ++i)
+        {
+            if (g_SharedData.OriginalAddress[i])
+            {
+                if (DLL_PROCESS_ATTACH == Reason)
+                {
+                    DetourAttach(
+                        &g_SharedData.OriginalAddress[i],
+                        g_SharedData.DetouredAddress[i]);
+                }
+                else if (DLL_PROCESS_DETACH == Reason)
+                {
+                    DetourDetach(
+                        &g_SharedData.OriginalAddress[i],
+                        g_SharedData.DetouredAddress[i]);
+                }
+            }
+        }
+
+        DetourTransactionCommit();
+
+        if (DLL_PROCESS_DETACH == Reason)
+        {
+            NSudoDevilModeUninitialize();
+        }
     }
 
     return TRUE;
