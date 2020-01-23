@@ -5,10 +5,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="NSudoDevilMode.cpp" />
-    <ClCompile Include="Detours\disasm.cpp">
+    <ClCompile Include="detours.cpp">
       <Filter>Detours</Filter>
     </ClCompile>
-    <ClCompile Include="Detours\detours.cpp">
+    <ClCompile Include="disasm.cpp">
       <Filter>Detours</Filter>
     </ClCompile>
   </ItemGroup>
@@ -21,11 +21,11 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Detours\detours.h">
-      <Filter>Detours</Filter>
-    </ClInclude>
     <ClInclude Include="MINT.h">
       <Filter>MINT</Filter>
+    </ClInclude>
+    <ClInclude Include="detours.h">
+      <Filter>Detours</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
