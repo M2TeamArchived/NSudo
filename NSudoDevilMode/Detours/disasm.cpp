@@ -12,6 +12,8 @@
 #include "detours.h"
 #include <limits.h>
 
+#include "../MINT.h"
+
 #if DETOURS_VERSION != 0x4c0c1   // 0xMAJORcMINORcPATCH
 #error detours.h version mismatch
 #endif
@@ -350,7 +352,7 @@ PBYTE CDetourDis::CopyInstruction(PBYTE pbDst, PBYTE pbSrc)
     }
     if (NULL == pbSrc) {
         // We can't copy a non-existent instruction.
-        SetLastError(ERROR_INVALID_DATA);
+        NtCurrentTeb()->LastErrorValue = ERROR_INVALID_DATA;
         return NULL;
     }
 

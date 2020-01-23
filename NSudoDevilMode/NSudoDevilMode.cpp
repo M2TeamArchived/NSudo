@@ -605,19 +605,43 @@ void NSudoDevilModeInitialize()
     g_SharedData.DetouredAddress[FunctionType::NtOpenFile] =
         ::DetouredNtOpenFile;
 
-    HMODULE ModuleHandle = ::GetModuleHandleW(L"ntdll.dll");
-
-    if (ModuleHandle)
+    UNICODE_STRING NtdllName;
+    ::RtlInitUnicodeString(
+        &NtdllName,
+        const_cast<PWSTR>(L"ntdll.dll"));
+    PVOID NtdllModuleHandle = nullptr;
+    ::LdrGetDllHandleEx(
+        0,
+        nullptr,
+        nullptr,
+        &NtdllName,
+        &NtdllModuleHandle);
+    if (NtdllModuleHandle)
     {
-        g_SharedData.OriginalAddress[FunctionType::NtOpenKeyEx] =
-            ::GetProcAddress(ModuleHandle, "NtOpenKeyEx");
+        ANSI_STRING FunctionName;
+
+        ::RtlInitAnsiString(
+            &FunctionName,
+            const_cast<PSTR>("NtOpenKeyEx"));
+        ::LdrGetProcedureAddress(
+            NtdllModuleHandle,
+            &FunctionName,
+            0,
+            &g_SharedData.OriginalAddress[FunctionType::NtOpenKeyEx]);
         g_SharedData.DetouredAddress[FunctionType::NtOpenKeyEx] =
             ::DetouredNtOpenKeyEx;
 
-        g_SharedData.OriginalAddress[FunctionType::NtOpenKeyTransactedEx] =
-            ::GetProcAddress(ModuleHandle, "NtOpenKeyTransactedEx");
+        ::RtlInitAnsiString(
+            &FunctionName,
+            const_cast<PSTR>("NtOpenKeyTransactedEx"));
+        ::LdrGetProcedureAddress(
+            NtdllModuleHandle,
+            &FunctionName,
+            0,
+            &g_SharedData.OriginalAddress[FunctionType::NtOpenKeyTransactedEx]);
         g_SharedData.DetouredAddress[FunctionType::NtOpenKeyTransactedEx] =
             ::DetouredNtOpenKeyTransactedEx;
+
     }
 }
 
@@ -648,7 +672,7 @@ BOOL APIENTRY DllMain(
         }
 
         DetourTransactionBegin();
-        DetourUpdateThread(GetCurrentThread());
+        DetourUpdateThread(NtCurrentThread());
 
         for (size_t i = 0; i < FunctionType::MaxFunctionType; ++i)
         {
