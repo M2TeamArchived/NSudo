@@ -13,7 +13,7 @@
 #include <stdint.h>
 
 #include "MINT.h"
-#include "Detours/detours.h"
+#include "detours.h"
 
 namespace FunctionType
 {
