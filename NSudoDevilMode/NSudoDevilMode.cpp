@@ -703,3 +703,5 @@ BOOL APIENTRY DllMain(
 
     return TRUE;
 }
+
+#pragma comment(linker, "/entry:DllMain")

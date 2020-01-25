@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    
+    <libkcrt_Platform Condition="'$(Platform)'=='ARM'">arm</libkcrt_Platform>
+    <libkcrt_Platform Condition="'$(Platform)'=='ARM64'">arm64</libkcrt_Platform>
+    <libkcrt_Platform Condition="'$(Platform)'=='Win32'">x86</libkcrt_Platform>
+    <libkcrt_Platform Condition="'$(Platform)'=='x64'">x64</libkcrt_Platform>
+    
+    <libkcrt_LibraryPath>$(MSBuildThisFileDirectory)$(libkcrt_Platform)\</libkcrt_LibraryPath>
+
+    <LibraryPath>$(libkcrt_LibraryPath);$(LibraryPath);</LibraryPath>
+    
+  </PropertyGroup>
+  
+  <ItemDefinitionGroup>
+    <ClCompile>
+
+      <!-- Disable features which libkcrt not supported -->
+
+      <SDLCheck></SDLCheck>
+      <ExceptionHandling>false</ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      
+    </ClCompile>
+    <Link>
+      
+      <!-- Ignore the VCRT libraries -->
+      
+      <IgnoreSpecificDefaultLibraries>libcmtd.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>libvcruntimed.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>libucrtd.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>msvcrtd.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>vcruntimed.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>ucrtd.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>libcmt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>libvcruntime.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>libucrt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>msvcrt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>vcruntime.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>ucrt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      
+      <!-- Include the libkcrt libraries -->
+      <AdditionalDependencies>libkcrt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      
+    </Link>
+  </ItemDefinitionGroup>
+</Project>
