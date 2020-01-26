@@ -21,7 +21,6 @@
       <SDLCheck></SDLCheck>
       <ExceptionHandling>false</ExceptionHandling>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
-      <BufferSecurityCheck>false</BufferSecurityCheck>
       
     </ClCompile>
     <Link>

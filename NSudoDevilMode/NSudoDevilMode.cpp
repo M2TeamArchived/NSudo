@@ -704,4 +704,18 @@ BOOL APIENTRY DllMain(
     return TRUE;
 }
 
-#pragma comment(linker, "/entry:DllMain")
+
+
+
+BOOL APIENTRY libkcrt_DllMain(
+    HMODULE Module,
+    DWORD  Reason,
+    LPVOID Reserved)
+{
+    if (Reason == DLL_PROCESS_ATTACH)
+        __security_init_cookie();
+
+    return DllMain(Module, Reason, Reserved);
+}
+
+#pragma comment(linker, "/entry:libkcrt_DllMain")
