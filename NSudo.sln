@@ -28,7 +28,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MSBuild", "MSBuild", "{89E7
 		MSBuild\NSudoC.props = MSBuild\NSudoC.props
 		MSBuild\NSudoG.props = MSBuild\NSudoG.props
 		MSBuild\NSudoLib.props = MSBuild\NSudoLib.props
-		MSBuild\VC-LTL.props = MSBuild\VC-LTL.props
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Scripts", "Scripts", "{D3AE8453-0175-4B40-985A-ABDD4B35D985}"
