@@ -88,7 +88,7 @@
       <IntrinsicFunctions Condition="'$(Configuration)'=='Release'">true</IntrinsicFunctions>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding Condition="'$(Configuration)'=='Release'">true</EnableCOMDATFolding>
       <OptimizeReferences Condition="'$(Configuration)'=='Release'">true</OptimizeReferences>
