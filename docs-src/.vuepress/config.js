@@ -6,7 +6,7 @@
     docsDir: "docs-src",
     editLinks: true,
     locales: {
-      "/": {
+      "/en-us/": {
         selectText: "Languages",
         label: "English",
         editLinkText: "Edit this page on GitHub",
@@ -17,19 +17,19 @@
           }
         },
         nav: [
-          { text: "Home", link: "/" },
-          { text: "Download", link: "/Download" },
-          { text: "Support", link: "/Support" },
-          { text: "Documents", link: "/docs/" }
+          { text: "Home", link: "/en-us/" },
+          { text: "Download", link: "/en-us/Download" },
+          { text: "Support", link: "/en-us/Support" },
+          { text: "Documents", link: "/en-us/docs/" }
         ],
         sidebar: {
-          "/docs/": [
-            "/docs/",
+          "/en-us/docs/": [
+            "/en-us/docs/",
             {
               title: "Documents",
               children: [
-                "/docs/Changelog",
-                ["/docs/People", "Relevant People"]
+                "/en-us/docs/Changelog",
+                ["/en-us/docs/People", "Relevant People"]
               ]
             }
           ]
@@ -58,7 +58,7 @@
               title: "档案",
               children: [
                 ["/zh-hans/docs/Changelog", "更新日志"],
-                ["/docs/People", "相关人士"]
+                ["/en-us/docs/People", "相关人士"]
               ]
             }
           ]
@@ -87,7 +87,7 @@
               title: "檔案",
               children: [
                 ["/zh-hant/docs/Changelog", "變更紀錄"],
-                ["/docs/People", "相關人士"]
+                ["/en-us/docs/People", "相關人士"]
               ]
             }
           ]
@@ -96,7 +96,7 @@
     }
   },
   locales: {
-    "/": {
+    "/en-us/": {
       lang: "en-US",
       title: "NSudo",
       description: "A Powerful System Administration Tool"
