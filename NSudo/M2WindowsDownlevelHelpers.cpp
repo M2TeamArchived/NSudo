@@ -39,12 +39,6 @@ HRESULT M2GetLastHResultError(
         UseLastErrorWhenSucceeded));
 }
 
-HRESULT M2CloseHandle(
-    _In_ HANDLE hObject)
-{
-    return M2GetLastHResultError(CloseHandle(hObject));
-}
-
 HRESULT M2CreateThread(
     _Out_ PHANDLE lpThreadHandle,
     _In_opt_ LPSECURITY_ATTRIBUTES lpThreadAttributes,

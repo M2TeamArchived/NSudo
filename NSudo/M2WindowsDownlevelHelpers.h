@@ -50,16 +50,6 @@ HRESULT M2GetLastHResultError(
     _In_ BOOL UseLastErrorWhenSucceeded = FALSE);
 
 /**
- * Closes an open object handle.
- *
- * @param hObject A valid handle to an open object.
- * @return HRESULT. If the function succeeds, the return value is S_OK.
- * @remark For more information, see CloseHandle.
- */
-HRESULT M2CloseHandle(
-    _In_ HANDLE hObject);
-
-/**
  * Creates a thread to execute within the virtual address space of the calling
  * process.
  *

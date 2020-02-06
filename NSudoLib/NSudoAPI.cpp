@@ -17,9 +17,6 @@
 #include <cstdio>
 #include <cwchar>
 
-#include <WtsApi32.h>
-#pragma comment(lib, "WtsApi32.lib")
-
 #include <Userenv.h>
 #pragma comment(lib, "Userenv.lib")
 
@@ -116,9 +113,7 @@ public:
         _In_ HANDLE TokenHandle,
         _In_ DWORD Attributes)
     {
-        return ::MileAdjustTokenAllPrivileges(
-            TokenHandle,
-            Attributes);
+        return ::MileAdjustTokenAllPrivileges(TokenHandle, Attributes);
     }
 
     /**
@@ -198,9 +193,7 @@ public:
         _In_ LPCWSTR ServiceName,
         _Out_ LPSERVICE_STATUS_PROCESS ServiceStatus)
     {
-        return ::MileStartService(
-            ServiceName,
-            ServiceStatus);
+        return ::MileStartService(ServiceName, ServiceStatus);
     }
 
     /**
@@ -210,12 +203,7 @@ public:
         _In_ DWORD SessionId,
         _Out_ PHANDLE TokenHandle)
     {
-        if (!::WTSQueryUserToken(SessionId, TokenHandle))
-        {
-            return ::HRESULT_FROM_WIN32(::GetLastError());
-        }
-
-        return S_OK;
+        return ::MileCreateSessionToken(SessionId, TokenHandle);
     }
 
     /**
@@ -232,7 +220,7 @@ public:
         _In_opt_ PSID_AND_ATTRIBUTES SidsToRestrict,
         _Out_ PHANDLE NewTokenHandle)
     {
-        if (!::CreateRestrictedToken(
+        return ::MileCreateRestrictedToken(
             ExistingTokenHandle,
             Flags,
             DisableSidCount,
@@ -241,12 +229,7 @@ public:
             PrivilegesToDelete,
             RestrictedSidCount,
             SidsToRestrict,
-            NewTokenHandle))
-        {
-            return ::HRESULT_FROM_WIN32(::GetLastError());
-        }
-
-        return S_OK;
+            NewTokenHandle);
     }
 
     /**
@@ -400,7 +383,7 @@ public:
 
         if (hr != S_OK)
         {
-            ::CloseHandle(TokenHandle);
+            ::MileCloseHandle(TokenHandle);
             *TokenHandle = INVALID_HANDLE_VALUE;
         }
 
@@ -506,53 +489,9 @@ public:
         _In_ BOOL InheritHandle,
         _Out_ PHANDLE ProcessHandle)
     {
-        HRESULT hr = ::HRESULT_FROM_WIN32(ERROR_NOT_FOUND);
-
         DWORD dwLsassPID = static_cast<DWORD>(-1);
 
-        PWTS_PROCESS_INFOW pProcesses = nullptr;
-        DWORD dwProcessCount = 0;
-
-        if (::WTSEnumerateProcessesW(
-            WTS_CURRENT_SERVER_HANDLE,
-            0,
-            1,
-            &pProcesses,
-            &dwProcessCount))
-        {
-            for (DWORD i = 0; i < dwProcessCount; ++i)
-            {
-                PWTS_PROCESS_INFOW pProcess = &pProcesses[i];
-
-                if (pProcess->SessionId != 0)
-                    continue;
-
-                if (!pProcess->pProcessName)
-                    continue;
-
-                if (::_wcsicmp(L"lsass.exe", pProcess->pProcessName) != 0)
-                    continue;
-
-                if (!pProcess->pUserSid)
-                    continue;
-
-                if (!::IsWellKnownSid(
-                    pProcess->pUserSid, WELL_KNOWN_SID_TYPE::WinLocalSystemSid))
-                    continue;
-
-                dwLsassPID = pProcess->ProcessId;
-
-                hr = S_OK;
-                break;
-            }
-
-            ::WTSFreeMemory(pProcesses);
-        }
-        else
-        {
-            hr = ::HRESULT_FROM_WIN32(::GetLastError());
-        }
-
+        HRESULT hr = ::MileGetLsassProcessId(&dwLsassPID);
         if (hr == S_OK)
         {
             hr = this->OpenProcess(
@@ -610,7 +549,7 @@ public:
             hr = this->OpenProcessTokenByProcessHandle(
                 ProcessHandle, DesiredAccess, TokenHandle);
 
-            ::CloseHandle(ProcessHandle);
+            ::MileCloseHandle(ProcessHandle);
         }
 
         return hr;
@@ -633,7 +572,7 @@ public:
             hr = this->OpenProcessTokenByProcessHandle(
                 ProcessHandle, DesiredAccess, TokenHandle);
 
-            ::CloseHandle(ProcessHandle);
+            ::MileCloseHandle(ProcessHandle);
         }
 
         return hr;
@@ -655,7 +594,7 @@ public:
             hr = this->OpenProcessTokenByProcessHandle(
                 ProcessHandle, DesiredAccess, TokenHandle);
 
-            ::CloseHandle(ProcessHandle);
+            ::MileCloseHandle(ProcessHandle);
         }
 
         return hr;
@@ -737,7 +676,7 @@ public:
             hr = this->OpenThreadTokenByThreadHandle(
                 ThreadHandle, DesiredAccess, OpenAsSelf, TokenHandle);
 
-            ::CloseHandle(ThreadHandle);
+            ::MileCloseHandle(ThreadHandle);
         }
 
         return hr;
@@ -750,9 +689,7 @@ public:
         _In_ LPCWSTR Name,
         _Out_ PLUID Value)
     {
-        return ::MileGetPrivilegeValue(
-            Name,
-            Value);
+        return ::MileGetPrivilegeValue(Name, Value);
     }
 
     /**

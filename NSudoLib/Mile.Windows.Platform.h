@@ -227,4 +227,98 @@ EXTERN_C HRESULT WINAPI MileStartService(
  */
 EXTERN_C ULONGLONG WINAPI MileGetTickCount();
 
+/**
+ * Closes an open object handle.
+ *
+ * @param hObject A valid handle to an open object.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ * @remark For more information, see CloseHandle.
+ */
+EXTERN_C HRESULT WINAPI MileCloseHandle(
+    _In_ HANDLE hObject);
+
+/**
+ * Obtains the primary access token of the logged-on user specified by the
+ * session ID. To call this function successfully, the calling application must
+ * be running within the context of the LocalSystem account and have the
+ * SE_TCB_NAME privilege.
+ *
+ * @param SessionId A Remote Desktop Services session identifier.
+ * @param TokenHandle If the function succeeds, receives a pointer to the token
+ *                    handle for the logged-on user. Note that you must call
+ *                    the MileCloseHandle function to close this handle.
+ * @return HRESULT. If the method succeeds, the return value is S_OK.
+ * @remark For more information, see WTSQueryUserToken.
+ */
+EXTERN_C HRESULT WINAPI MileCreateSessionToken(
+    _In_ DWORD SessionId,
+    _Out_ PHANDLE TokenHandle);
+
+/**
+ * Creates a new access token that is a restricted version of an existing
+ * access token. The restricted token can have disabled security identifiers
+ * (SIDs), deleted privileges, and a list of restricting SIDs. For more
+ * information, see Restricted Tokens.
+ *
+ * @param ExistingTokenHandle A handle to a primary or impersonation token. The
+ *                            token can also be a restricted token. The handle
+ *                            must have TOKEN_DUPLICATE access to the token.
+ * @param Flags Specifies additional privilege options. This parameter can be
+ *              zero or a combination of the following values.
+ *              DISABLE_MAX_PRIVILEGE
+ *                  Disables all privileges in the new token except the
+ *                  SeChangeNotifyPrivilege privilege. If this value is
+ *                  specified, the DeletePrivilegeCount and PrivilegesToDelete
+ *                  parameters are ignored.
+ *              SANDBOX_INERT
+ *                  If this value is used, the system does not check AppLocker
+ *                  rules or apply Software Restriction Policies. For
+ *                  AppLocker, this flag disables checks for all four rule
+ *                  collections: Executable, Windows Installer, Script, and
+ *                  DLL.
+ *              LUA_TOKEN
+ *                  The new token is a LUA token.
+ *              WRITE_RESTRICTED
+ *                  The new token contains restricting SIDs that are considered
+ *                  only when evaluating write access.
+ * @param DisableSidCount Specifies the number of entries in the SidsToDisable
+ *                        array.
+ * @param SidsToDisable A pointer to an array of SID_AND_ATTRIBUTES structures
+ *                      that specify the deny-only SIDs in the restricted
+ *                      token.
+ * @param DeletePrivilegeCount Specifies the number of entries in the
+ *                             PrivilegesToDelete array.
+ * @param PrivilegesToDelete A pointer to an array of LUID_AND_ATTRIBUTES
+ *                           structures that specify the privileges to delete
+ *                           in the restricted token.
+ * @param RestrictedSidCount Specifies the number of entries in the
+ *                           SidsToRestrict array.
+ * @param SidsToRestrict A pointer to an array of SID_AND_ATTRIBUTES structures
+ *                       that specify a list of restricting SIDs for the new
+ *                       token.
+ * @param NewTokenHandle A pointer to a variable that receives a handle to the
+ *                       new restricted token.
+ * @return HRESULT. If the method succeeds, the return value is S_OK.
+ * @remark For more information, see CreateRestrictedToken.
+ */
+EXTERN_C HRESULT WINAPI MileCreateRestrictedToken(
+    _In_ HANDLE ExistingTokenHandle,
+    _In_ DWORD Flags,
+    _In_ DWORD DisableSidCount,
+    _In_opt_ PSID_AND_ATTRIBUTES SidsToDisable,
+    _In_ DWORD DeletePrivilegeCount,
+    _In_opt_ PLUID_AND_ATTRIBUTES PrivilegesToDelete,
+    _In_ DWORD RestrictedSidCount,
+    _In_opt_ PSID_AND_ATTRIBUTES SidsToRestrict,
+    _Out_ PHANDLE NewTokenHandle);
+
+/**
+ * Gets the identifier of the Local Security Authority process.
+ *
+ * @param ProcessId The identifier of the Local Security Authority process.
+ * @return HRESULT. If the method succeeds, the return value is S_OK.
+ */
+EXTERN_C HRESULT WINAPI MileGetLsassProcessId(
+    _Out_ PDWORD ProcessId);
+
 #endif // !MILE_WINDOWS_PLATFORM

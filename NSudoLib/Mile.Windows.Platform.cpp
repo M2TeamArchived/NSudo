@@ -10,6 +10,9 @@
 
 #include "Mile.Windows.Platform.h"
 
+#include <WtsApi32.h>
+#pragma comment(lib, "WtsApi32.lib")
+
 /**
  * @remark You can read the definition for this function in
  *         "Mile.Windows.Platform.h".
@@ -281,4 +284,130 @@ EXTERN_C ULONGLONG WINAPI MileGetTickCount()
     }
 
     return ::GetTickCount64();
+}
+
+/**
+ * @remark You can read the definition for this function in
+ *         "Mile.Windows.Platform.h".
+ */
+EXTERN_C HRESULT WINAPI MileCloseHandle(
+    _In_ HANDLE hObject)
+{
+    if (!::CloseHandle(hObject))
+    {
+        return ::HRESULT_FROM_WIN32(::GetLastError());;
+    }
+
+    return S_OK;
+}
+
+/**
+ * @remark You can read the definition for this function in
+ *         "Mile.Windows.Platform.h".
+ */
+EXTERN_C HRESULT WINAPI MileCreateSessionToken(
+    _In_ DWORD SessionId,
+    _Out_ PHANDLE TokenHandle)
+{
+    if (!::WTSQueryUserToken(SessionId, TokenHandle))
+    {
+        return ::HRESULT_FROM_WIN32(::GetLastError());
+    }
+
+    return S_OK;
+}
+
+/**
+ * @remark You can read the definition for this function in
+ *         "Mile.Windows.Platform.h".
+ */
+EXTERN_C HRESULT WINAPI MileCreateRestrictedToken(
+    _In_ HANDLE ExistingTokenHandle,
+    _In_ DWORD Flags,
+    _In_ DWORD DisableSidCount,
+    _In_opt_ PSID_AND_ATTRIBUTES SidsToDisable,
+    _In_ DWORD DeletePrivilegeCount,
+    _In_opt_ PLUID_AND_ATTRIBUTES PrivilegesToDelete,
+    _In_ DWORD RestrictedSidCount,
+    _In_opt_ PSID_AND_ATTRIBUTES SidsToRestrict,
+    _Out_ PHANDLE NewTokenHandle)
+{
+    if (!::CreateRestrictedToken(
+        ExistingTokenHandle,
+        Flags,
+        DisableSidCount,
+        SidsToDisable,
+        DeletePrivilegeCount,
+        PrivilegesToDelete,
+        RestrictedSidCount,
+        SidsToRestrict,
+        NewTokenHandle))
+    {
+        return ::HRESULT_FROM_WIN32(::GetLastError());
+    }
+
+    return S_OK;
+}
+
+/**
+ * @remark You can read the definition for this function in
+ *         "Mile.Windows.Platform.h".
+ */
+EXTERN_C HRESULT WINAPI MileGetLsassProcessId(
+    _Out_ PDWORD ProcessId)
+{
+    HRESULT hr = E_INVALIDARG;
+
+    if (ProcessId)
+    {
+        hr = ::HRESULT_FROM_WIN32(ERROR_NOT_FOUND);
+
+        *ProcessId = static_cast<DWORD>(-1);
+
+        PWTS_PROCESS_INFOW pProcesses = nullptr;
+        DWORD dwProcessCount = 0;
+
+        if (::WTSEnumerateProcessesW(
+            WTS_CURRENT_SERVER_HANDLE,
+            0,
+            1,
+            &pProcesses,
+            &dwProcessCount))
+        {
+            for (DWORD i = 0; i < dwProcessCount; ++i)
+            {
+                PWTS_PROCESS_INFOW pProcess = &pProcesses[i];
+
+                if (pProcess->SessionId != 0)
+                    continue;
+
+                if (!pProcess->pProcessName)
+                    continue;
+
+                if (::_wcsicmp(L"lsass.exe", pProcess->pProcessName) != 0)
+                    continue;
+
+                if (!pProcess->pUserSid)
+                    continue;
+
+                if (!::IsWellKnownSid(
+                    pProcess->pUserSid,
+                    WELL_KNOWN_SID_TYPE::WinLocalSystemSid))
+                    continue;
+
+                *ProcessId = pProcess->ProcessId;
+
+                hr = S_OK;
+                break;
+            }
+
+            ::WTSFreeMemory(pProcesses);
+        }
+        else
+        {
+            hr = ::HRESULT_FROM_WIN32(::GetLastError());
+        }
+    }
+
+    return hr;
 }
