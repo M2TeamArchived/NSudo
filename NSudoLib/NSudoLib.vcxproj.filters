@@ -7,7 +7,7 @@
     <Filter Include="NSudoAPI">
       <UniqueIdentifier>{5c8e874d-d1d4-4a9e-b03d-d324fdc5eb88}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Mile">
+    <Filter Include="Mile.Windows">
       <UniqueIdentifier>{e240fff7-5b73-4600-9322-2ab64a7f5a35}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -18,8 +18,8 @@
     <ClCompile Include="NSudoAPI.cpp">
       <Filter>NSudoAPI</Filter>
     </ClCompile>
-    <ClCompile Include="Mile.cpp">
-      <Filter>Mile</Filter>
+    <ClCompile Include="Mile.Windows.cpp">
+      <Filter>Mile.Windows</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -29,8 +29,8 @@
     <ClInclude Include="NSudoAPI.h">
       <Filter>NSudoAPI</Filter>
     </ClInclude>
-    <ClInclude Include="Mile.h">
-      <Filter>Mile</Filter>
+    <ClInclude Include="Mile.Windows.h">
+      <Filter>Mile.Windows</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
