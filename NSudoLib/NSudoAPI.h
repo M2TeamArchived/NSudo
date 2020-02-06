@@ -18,64 +18,6 @@
 #include <Windows.h>
 
 /**
- * NSudo Shared Library Memory Manager Interface V1
- * {B4A4FB65-3E5C-4645-9DB0-2DE76AF7E5AC}
- */
-MIDL_INTERFACE("B4A4FB65-3E5C-4645-9DB0-2DE76AF7E5AC")
-INSudoMemoryManager : public IUnknown
-{
-public:
-
-    /**
-     * Allocates a block of memory from the default heap of the calling
-     * process. The allocated memory will be initialized to zero. The
-     * allocated memory is not movable.
-     *
-     * @param Size The number of bytes to be allocated.
-     * @param Block A pointer to the allocated memory block.
-     * @return HRESULT. If the method succeeds, the return value is S_OK.
-     */
-    virtual HRESULT STDMETHODCALLTYPE AllocMemory(
-         _In_ SIZE_T Size,
-         _Out_ LPVOID* Block) = 0;
-
-    /**
-     * Reallocates a block of memory from the default heap of the calling
-     * process. If the reallocation request is for a larger size, the
-     * additional region of memory beyond the original size be initialized
-     * to zero. This function enables you to resize a memory block and change
-     * other memory block properties. The allocated memory is not movable.
-     *
-     * @param OldBlock A pointer to the block of memory that the function
-     *                 reallocates. This pointer is returned by an earlier
-     *                 call to the AllocMemory or ReAllocMemory method.
-     * @param NewSize The new size of the memory block, in bytes. A memory
-     *                block's size can be increased or decreased by using
-     *                this function.
-     * @param NewBlock A pointer to the allocated memory block.
-     * @return HRESULT. If the method succeeds, the return value is S_OK.
-     *         If the function fails, the original memory is not freed, and
-     *         the original handle and pointer are still valid.
-     */
-    virtual HRESULT STDMETHODCALLTYPE ReAllocMemory(
-        _In_ PVOID OldBlock,
-        _In_ SIZE_T NewSize,
-        _Out_ PVOID* NewBlock) = 0;
-
-    /**
-     * Frees a memory block allocated from a heap by the AllocMemory or
-     * ReAllocMemory method.
-     *
-     * @param Block A pointer to the memory block to be freed. This pointer is
-     *              returned by the AllocMemory or ReAllocMemory method. If
-     *              this pointer is nullptr, the behavior is undefined.
-     * @return HRESULT. If the method succeeds, the return value is S_OK.
-     */
-    virtual HRESULT STDMETHODCALLTYPE FreeMemory(
-        _In_ LPVOID Block) = 0;
-};
-
-/**
  * Contains values that specify the type of mandatory label.
  */
 typedef enum class _NSUDO_MANDATORY_LABEL_TYPE
@@ -109,6 +51,17 @@ MIDL_INTERFACE("8BD99D5D-2811-4036-A21E-63328115B364")
 INSudoClient : public IUnknown
 {
 public:
+
+    /**
+     * Frees a memory block allocated by methods in the INSudoClient interface.
+     *
+     * @param Block A pointer to the memory block to be freed. This pointer is
+     *              returned by methods in the INSudoClient interface. If this
+     *              pointer is nullptr, the behavior is undefined.
+     * @return HRESULT. If the method succeeds, the return value is S_OK.
+     */
+    virtual HRESULT STDMETHODCALLTYPE FreeMemory(
+        _In_ LPVOID Block) = 0;
 
     /**
      * Retrieves a specified type of information about an access token. The
@@ -153,7 +106,7 @@ public:
      * @param OutputInformation A pointer to a buffer the function fills with
      *                          the requested information. When you have
      *                          finished using the information, free it by
-     *                          calling the INSudoMemoryManager::FreeMemory
+     *                          calling the INSudoClient::FreeMemory
      *                          method. You should also set the pointer to NULL.
      * @return HRESULT. If the method succeeds, the return value is S_OK.
      * @remark For more information, see GetTokenInformation.
@@ -752,18 +705,6 @@ public:
     virtual HRESULT STDMETHODCALLTYPE SetProcessPriorityClass(
         _In_ HANDLE ProcessHandle,
         _In_ NSUDO_PROCESS_PRIORITY_CLASS_TYPE ProcessPriorityClassType) = 0;
-};
-
-/**
- * NSudo Shared Library Memory Manager Interface V1 Interface ID
- * {B4A4FB65-3E5C-4645-9DB0-2DE76AF7E5AC}
- */
-EXTERN_C const IID DECLSPEC_SELECTANY IID_INSudoMemoryManager =
-{
-    0xB4A4FB65,
-    0x3E5C,
-    0x4645,
-    { 0x9D, 0xB0, 0x2D, 0xE7, 0x6A, 0xF7, 0xE5, 0xAC }
 };
 
 /**

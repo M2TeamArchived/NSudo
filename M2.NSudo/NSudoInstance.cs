@@ -125,17 +125,5 @@ namespace M2.NSudo
             return (INSudoClient)this.CreateInstance(
                 new Guid("8BD99D5D-2811-4036-A21E-63328115B364"));
         }
-
-        /// <summary>
-        /// Creates an INSudoMemoryManager interface object.
-        /// </summary>
-        /// <returns>
-        /// An INSudoMemoryManager interface object to return.
-        /// </returns>
-        public INSudoMemoryManager CreateMemoryManager()
-        {
-            return (INSudoMemoryManager)this.CreateInstance(
-                new Guid("B4A4FB65-3E5C-4645-9DB0-2DE76AF7E5AC"));
-        }
     }
 }

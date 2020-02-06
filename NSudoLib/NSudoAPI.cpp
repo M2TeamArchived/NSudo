@@ -10,6 +10,8 @@
 
 #include "NSudoAPI.h"
 
+#include "Mile.Windows.h"
+
 #include "M2.Base.h"
 
 #include <cstdio>
@@ -20,66 +22,6 @@
 
 #include <Userenv.h>
 #pragma comment(lib, "Userenv.lib")
-
-/**
- * NSudo Shared Library Memory Manager Interface Implementation
- */
-class CNSudoMemoryManager :
-    public M2::Base::CComClass<CNSudoMemoryManager, INSudoMemoryManager>
-{
-public:
-
-    M2_BASE_COM_INTERFACE_MAP_BEGIN;
-        M2_BASE_COM_INTERFACE_ENTRY(INSudoMemoryManager);
-    M2_BASE_COM_INTERFACE_MAP_END;
-
-    CNSudoMemoryManager() = default;
-
-    virtual ~CNSudoMemoryManager() = default;
-
-    /**
-     * @remark You can read the definition for this method in "NSudoAPI.h".
-     */
-    virtual HRESULT STDMETHODCALLTYPE AllocMemory(
-        _In_ SIZE_T Size,
-        _Out_ LPVOID* Block)
-    {
-        *Block = ::HeapAlloc(::GetProcessHeap(), HEAP_ZERO_MEMORY, Size);
-        return *Block ? S_OK : ::HRESULT_FROM_WIN32(ERROR_NOT_ENOUGH_MEMORY);
-    }
-
-    /**
-     * @remark You can read the definition for this method in "NSudoAPI.h".
-     */
-    virtual HRESULT STDMETHODCALLTYPE ReAllocMemory(
-        _In_ PVOID OldBlock,
-        _In_ SIZE_T NewSize,
-        _Out_ PVOID* NewBlock)
-    {
-        *NewBlock = ::HeapReAlloc(
-            ::GetProcessHeap(), HEAP_ZERO_MEMORY, OldBlock, NewSize);
-        return *NewBlock ? S_OK : ::HRESULT_FROM_WIN32(ERROR_NOT_ENOUGH_MEMORY);
-    }
-
-    /**
-     * @remark You can read the definition for this method in "NSudoAPI.h".
-     */
-    virtual HRESULT STDMETHODCALLTYPE FreeMemory(
-        _In_ LPVOID Block)
-    {
-        if (!::HeapFree(::GetProcessHeap(), 0, Block))
-        {
-            return ::HRESULT_FROM_WIN32(::GetLastError());
-        }
-
-        return S_OK;
-    }
-};
-
-/**
- * NSudo Shared Library Memory Manager Interface Shared Instance
- */
-INSudoMemoryManager* g_pNSudoMemoryManager = nullptr;
 
 /**
  * NSudo Shared Library Client Interface Implementation
@@ -95,6 +37,15 @@ public:
     CNSudoClient() = default;
 
     virtual ~CNSudoClient() = default;
+
+    /**
+     * @remark You can read the definition for this method in "NSudoAPI.h".
+     */
+    virtual HRESULT STDMETHODCALLTYPE FreeMemory(
+        _In_ LPVOID Block)
+    {
+        return ::MileFreeMemory(Block);
+    }
 
     /**
      * @remark You can read the definition for this method in "NSudoAPI.h".
@@ -139,7 +90,7 @@ public:
             &Length);
         if (hr == ::HRESULT_FROM_WIN32(ERROR_INSUFFICIENT_BUFFER))
         {
-            hr = g_pNSudoMemoryManager->AllocMemory(Length, OutputInformation);
+            hr = ::MileAllocMemory(Length, OutputInformation);
             if (hr == S_OK)
             {
                 hr = this->GetTokenInformation(
@@ -150,7 +101,7 @@ public:
                     &Length);
                 if (hr != S_OK)
                 {
-                    g_pNSudoMemoryManager->FreeMemory(*OutputInformation);
+                    ::MileFreeMemory(*OutputInformation);
                     *OutputInformation = nullptr;
                 }
             }
@@ -197,8 +148,7 @@ public:
 
             PTOKEN_PRIVILEGES pTP = nullptr;
 
-            hr = g_pNSudoMemoryManager->AllocMemory(
-                TPSize, reinterpret_cast<LPVOID*>(&pTP));
+            hr = ::MileAllocMemory(TPSize, reinterpret_cast<LPVOID*>(&pTP));
             if (hr == S_OK)
             {
                 pTP->PrivilegeCount = PrivilegeCount;
@@ -208,7 +158,7 @@ public:
                     TokenHandle, FALSE, pTP, TPSize, nullptr, nullptr);
                 hr = ::HRESULT_FROM_WIN32(::GetLastError());
 
-                g_pNSudoMemoryManager->FreeMemory(pTP);
+                ::MileFreeMemory(pTP);
             }
         }
 
@@ -240,7 +190,7 @@ public:
                 pTokenPrivileges->Privileges,
                 pTokenPrivileges->PrivilegeCount);
 
-            g_pNSudoMemoryManager->FreeMemory(pTokenPrivileges);
+            ::MileFreeMemory(pTokenPrivileges);
         }
 
         return hr;
@@ -545,7 +495,7 @@ public:
             Length += ::GetLengthSid(pTokenUser->User.Sid);
             Length += sizeof(ACCESS_ALLOWED_ACE);
 
-            hr = g_pNSudoMemoryManager->AllocMemory(
+            hr = ::MileAllocMemory(
                 Length, reinterpret_cast<PVOID*>(&NewDefaultDacl));
             if (hr != S_OK)
             {
@@ -611,17 +561,17 @@ public:
 
         if (NewDefaultDacl)
         {
-            g_pNSudoMemoryManager->FreeMemory(NewDefaultDacl);
+            ::MileFreeMemory(NewDefaultDacl);
         }
 
         if (pTokenDacl)
         {
-            g_pNSudoMemoryManager->FreeMemory(pTokenDacl);
+            ::MileFreeMemory(pTokenDacl);
         }
 
         if (pTokenUser)
         {
-            g_pNSudoMemoryManager->FreeMemory(pTokenUser);
+            ::MileFreeMemory(pTokenUser);
         }
 
         if (hr != S_OK)
@@ -1137,8 +1087,6 @@ INSudoClient* g_pNSudoClient = nullptr;
  */
 EXTERN_C void WINAPI NSudoInitialize()
 {
-    g_pNSudoMemoryManager = new CNSudoMemoryManager();
-
     g_pNSudoClient = new CNSudoClient();
 }
 
@@ -1147,8 +1095,6 @@ EXTERN_C void WINAPI NSudoInitialize()
  */
 EXTERN_C void WINAPI NSudoUninitialize()
 {
-    g_pNSudoMemoryManager->Release();
-
     g_pNSudoClient->Release();
 }
 
@@ -1161,11 +1107,7 @@ EXTERN_C HRESULT WINAPI NSudoCreateInstance(
 {
     IUnknown* pRawInstance = nullptr;
 
-    if (::IsEqualIID(InterfaceId, IID_INSudoMemoryManager))
-    {
-        pRawInstance = g_pNSudoMemoryManager;
-    }
-    else if (::IsEqualIID(InterfaceId, IID_INSudoClient))
+    if (::IsEqualIID(InterfaceId, IID_INSudoClient))
     {
         pRawInstance = g_pNSudoClient;
     }

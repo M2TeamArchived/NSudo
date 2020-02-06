@@ -11,6 +11,18 @@ namespace M2.NSudo
     public interface INSudoClient
     {
         /// <summary>
+        /// Frees a memory block allocated from a heap by the AllocMemory or 
+        /// ReAllocMemory method.
+        /// </summary>
+        /// <param name="Block">
+        /// A pointer to the memory block to be freed. This pointer is returned
+        /// by the AllocMemory or ReAllocMemory method. If this pointer is 
+        /// nullptr, the behavior is undefined.
+        /// </param>
+        public void FreeMemory(
+            IntPtr Block);
+
+        /// <summary>
         /// Retrieves a specified type of information about an access token. 
         /// The calling process must have appropriate access rights to obtain
         /// the information.
@@ -58,7 +70,7 @@ namespace M2.NSudo
         /// <returns>
         /// A pointer to a buffer the function fills with the requested 
         /// information. When you have finished using the information, free it
-        /// by calling the INSudoMemoryManager::FreeMemory method. You should 
+        /// by calling the INSudoClient::FreeMemory method. You should 
         /// also set the pointer to NULL.
         /// </returns>
         /// <remarks>
