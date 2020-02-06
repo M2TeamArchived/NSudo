@@ -139,10 +139,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="M2.Base.cpp" />
+    <ClCompile Include="Mile.cpp" />
     <ClCompile Include="NSudoAPI.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="M2.Base.h" />
+    <ClInclude Include="Mile.h" />
     <ClInclude Include="NSudoAPI.h" />
   </ItemGroup>
   <ItemGroup>
