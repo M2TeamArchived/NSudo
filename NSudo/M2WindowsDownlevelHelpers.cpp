@@ -79,21 +79,6 @@ DWORD M2GetNumberOfHardwareThreads()
     return SystemInfo.dwNumberOfProcessors;
 }
 
-ULONGLONG M2GetTickCount()
-{
-    LARGE_INTEGER Frequency = { 0 }, PerformanceCount = { 0 };
-
-    if (QueryPerformanceFrequency(&Frequency))
-    {
-        if (QueryPerformanceCounter(&PerformanceCount))
-        {
-            return (PerformanceCount.QuadPart * 1000 / Frequency.QuadPart);
-        }
-    }
-
-    return GetTickCount64();
-}
-
 #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
 
 HRESULT M2CreateFile(

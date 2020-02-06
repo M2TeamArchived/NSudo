@@ -57,17 +57,12 @@ public:
         _In_ DWORD TokenInformationLength,
         _Out_ PDWORD ReturnLength)
     {
-        if (!::GetTokenInformation(
+        return ::MileGetTokenInformation(
             TokenHandle,
             TokenInformationClass,
             TokenInformation,
             TokenInformationLength,
-            ReturnLength))
-        {
-            return ::HRESULT_FROM_WIN32(::GetLastError());
-        }
-
-        return S_OK;
+            ReturnLength);
     }
 
     /**
@@ -78,36 +73,10 @@ public:
         _In_ TOKEN_INFORMATION_CLASS TokenInformationClass,
         _Out_ PVOID* OutputInformation)
     {
-        *OutputInformation = nullptr;
-
-        DWORD Length = 0;
-
-        HRESULT hr = this->GetTokenInformation(
+        return ::MileGetTokenInformationWithMemory(
             TokenHandle,
             TokenInformationClass,
-            nullptr,
-            0,
-            &Length);
-        if (hr == ::HRESULT_FROM_WIN32(ERROR_INSUFFICIENT_BUFFER))
-        {
-            hr = ::MileAllocMemory(Length, OutputInformation);
-            if (hr == S_OK)
-            {
-                hr = this->GetTokenInformation(
-                    TokenHandle,
-                    TokenInformationClass,
-                    *OutputInformation,
-                    Length,
-                    &Length);
-                if (hr != S_OK)
-                {
-                    ::MileFreeMemory(*OutputInformation);
-                    *OutputInformation = nullptr;
-                }
-            }
-        }
-
-        return hr;
+            OutputInformation);
     }
 
     /**
@@ -119,16 +88,11 @@ public:
         _In_ LPVOID TokenInformation,
         _In_ DWORD TokenInformationLength)
     {
-        if (!::SetTokenInformation(
+        return ::MileSetTokenInformation(
             TokenHandle,
             TokenInformationClass,
             TokenInformation,
-            TokenInformationLength))
-        {
-            return ::HRESULT_FROM_WIN32(::GetLastError());
-        }
-
-        return S_OK;
+            TokenInformationLength);
     }
 
     /**
@@ -139,30 +103,10 @@ public:
         _In_ PLUID_AND_ATTRIBUTES Privileges,
         _In_ DWORD PrivilegeCount)
     {
-        HRESULT hr = E_INVALIDARG;
-
-        if (Privileges && PrivilegeCount)
-        {
-            DWORD PSize = sizeof(LUID_AND_ATTRIBUTES) * PrivilegeCount;
-            DWORD TPSize = PSize + sizeof(DWORD);
-
-            PTOKEN_PRIVILEGES pTP = nullptr;
-
-            hr = ::MileAllocMemory(TPSize, reinterpret_cast<LPVOID*>(&pTP));
-            if (hr == S_OK)
-            {
-                pTP->PrivilegeCount = PrivilegeCount;
-                memcpy(pTP->Privileges, Privileges, PSize);
-
-                ::AdjustTokenPrivileges(
-                    TokenHandle, FALSE, pTP, TPSize, nullptr, nullptr);
-                hr = ::HRESULT_FROM_WIN32(::GetLastError());
-
-                ::MileFreeMemory(pTP);
-            }
-        }
-
-        return hr;
+        return ::MileAdjustTokenPrivilegesSimple(
+            TokenHandle,
+            Privileges,
+            PrivilegeCount);
     }
 
     /**
@@ -172,28 +116,9 @@ public:
         _In_ HANDLE TokenHandle,
         _In_ DWORD Attributes)
     {
-        PTOKEN_PRIVILEGES pTokenPrivileges = nullptr;
-
-        HRESULT hr = this->GetTokenInformationWithMemory(
+        return ::MileAdjustTokenAllPrivileges(
             TokenHandle,
-            TokenPrivileges,
-            reinterpret_cast<PVOID*>(&pTokenPrivileges));
-        if (hr == S_OK)
-        {
-            for (DWORD i = 0; i < pTokenPrivileges->PrivilegeCount; ++i)
-            {
-                pTokenPrivileges->Privileges[i].Attributes = Attributes;
-            }
-
-            hr = this->AdjustTokenPrivileges(
-                TokenHandle,
-                pTokenPrivileges->Privileges,
-                pTokenPrivileges->PrivilegeCount);
-
-            ::MileFreeMemory(pTokenPrivileges);
-        }
-
-        return hr;
+            Attributes);
     }
 
     /**
@@ -273,110 +198,9 @@ public:
         _In_ LPCWSTR ServiceName,
         _Out_ LPSERVICE_STATUS_PROCESS ServiceStatus)
     {
-        HRESULT hr = E_INVALIDARG;
-
-        if (ServiceStatus && ServiceName)
-        {
-            hr = S_OK;
-
-            memset(ServiceStatus, 0, sizeof(LPSERVICE_STATUS_PROCESS));
-
-            SC_HANDLE hSCM = ::OpenSCManagerW(
-                nullptr, nullptr, SC_MANAGER_CONNECT);
-            if (hSCM)
-            {
-                SC_HANDLE hService = ::OpenServiceW(
-                    hSCM, ServiceName, SERVICE_QUERY_STATUS | SERVICE_START);
-                if (hService)
-                {
-                    DWORD nBytesNeeded = 0;
-                    DWORD nOldCheckPoint = 0;
-                    ULONGLONG nLastTick = 0;
-                    bool bStartServiceWCalled = false;
-
-                    while (::QueryServiceStatusEx(
-                        hService,
-                        SC_STATUS_PROCESS_INFO,
-                        reinterpret_cast<LPBYTE>(ServiceStatus),
-                        sizeof(SERVICE_STATUS_PROCESS),
-                        &nBytesNeeded))
-                    {
-                        if (SERVICE_STOPPED == ServiceStatus->dwCurrentState)
-                        {
-                            // Failed if the service had stopped again.
-                            if (bStartServiceWCalled)
-                            {
-                                hr = S_FALSE;
-                                break;
-                            }
-
-                            if (!::StartServiceW(hService, 0, nullptr))
-                            {
-                                hr = ::HRESULT_FROM_WIN32(::GetLastError());
-                                break;
-                            }
-
-                            bStartServiceWCalled = true;
-                        }
-                        else if (
-                            SERVICE_STOP_PENDING
-                            == ServiceStatus->dwCurrentState ||
-                            SERVICE_START_PENDING
-                            == ServiceStatus->dwCurrentState)
-                        {
-                            ULONGLONG nCurrentTick = ::GetTickCount64();
-
-                            if (!nLastTick)
-                            {
-                                nLastTick = nCurrentTick;
-                                nOldCheckPoint = ServiceStatus->dwCheckPoint;
-
-                                // Same as the .Net System.ServiceProcess, wait
-                                // 250ms.
-                                ::SleepEx(250, FALSE);
-                            }
-                            else
-                            {
-                                // Check the timeout if the checkpoint is not
-                                // increased.
-                                if (ServiceStatus->dwCheckPoint
-                                    <= nOldCheckPoint)
-                                {
-                                    ULONGLONG nDiff = nCurrentTick - nLastTick;
-                                    if (nDiff > ServiceStatus->dwWaitHint)
-                                    {
-                                        hr = ::HRESULT_FROM_WIN32(
-                                            ERROR_TIMEOUT);
-                                        break;
-                                    }
-                                }
-
-                                // Continue looping.
-                                nLastTick = 0;
-                            }
-                        }
-                        else
-                        {
-                            break;
-                        }
-                    }
-
-                    ::CloseServiceHandle(hService);
-                }
-                else
-                {
-                    hr = ::HRESULT_FROM_WIN32(::GetLastError());
-                }
-
-                ::CloseServiceHandle(hSCM);
-            }
-            else
-            {
-                hr = ::HRESULT_FROM_WIN32(::GetLastError());
-            }
-        }
-
-        return hr;
+        return ::MileStartService(
+            ServiceName,
+            ServiceStatus);
     }
 
     /**
@@ -926,12 +750,9 @@ public:
         _In_ LPCWSTR Name,
         _Out_ PLUID Value)
     {
-        if (!::LookupPrivilegeValueW(nullptr, Name, Value))
-        {
-            return ::HRESULT_FROM_WIN32(::GetLastError());
-        }
-
-        return S_OK;
+        return ::MileGetPrivilegeValue(
+            Name,
+            Value);
     }
 
     /**

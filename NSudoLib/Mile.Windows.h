@@ -64,4 +64,79 @@ EXTERN_C HRESULT WINAPI MileReAllocMemory(
 EXTERN_C HRESULT WINAPI MileFreeMemory(
     _In_ LPVOID Block);
 
+/**
+ * Retrieves a specified type of information about an access token. The calling
+ * process must have appropriate access rights to obtain the information.
+ *
+ * @param TokenHandle A handle to an access token from which information is
+ *                    retrieved.
+ * @param TokenInformationClass Specifies a value from the
+ *                              TOKEN_INFORMATION_CLASS enumerated type to
+ *                              identify the type of information the function
+ *                              retrieves.
+ * @param OutputInformation A pointer to a buffer the function fills with the
+ *                          requested information. When you have finished using
+ *                          the information, free it by calling the
+ *                          MileFreeMemory function. You should also set the
+ *                          pointer to nullptr.
+ * @return HRESULT. If the method succeeds, the return value is S_OK.
+ * @remark For more information, see GetTokenInformation.
+ */
+EXTERN_C HRESULT WINAPI MileGetTokenInformationWithMemory(
+    _In_ HANDLE TokenHandle,
+    _In_ TOKEN_INFORMATION_CLASS TokenInformationClass,
+    _Out_ PVOID* OutputInformation);
+
+/**
+ * Enables or disables privileges in the specified access token.
+ *
+ * @param TokenHandle A handle to the access token that contains the privileges
+ *                    to be modified. The handle must have
+ *                    TOKEN_ADJUST_PRIVILEGES access to the token.
+ * @param Privileges A pointer to an array of LUID_AND_ATTRIBUTES structures
+ *                   that specifies an array of privileges and their
+ *                   attributes. Each structure contains the LUID and
+ *                   attributes of a privilege. To get the name of the
+ *                   privilege associated with a LUID, call the
+ *                   MileGetPrivilegeValue function, passing the address of the
+ *                   LUID as the value of the lpLuid parameter. The attributes
+ *                   of a privilege can be a combination of the following
+ *                   values.
+ *                   SE_PRIVILEGE_ENABLED
+ *                       The function enables the privilege.
+ *                   SE_PRIVILEGE_REMOVED
+ *                       The privilege is removed from the list of privileges
+ *                       in the token.
+ *                   None
+ *                       The function disables the privilege.
+ * @param PrivilegeCount The number of entries in the Privileges array.
+ * @return HRESULT. If the method succeeds, the return value is S_OK.
+ * @remark For more information, see AdjustTokenPrivileges.
+ */
+EXTERN_C HRESULT WINAPI MileAdjustTokenPrivilegesSimple(
+    _In_ HANDLE TokenHandle,
+    _In_ PLUID_AND_ATTRIBUTES Privileges,
+    _In_ DWORD PrivilegeCount);
+
+/**
+ * Enables or disables all privileges in the specified access token.
+ *
+ * @param TokenHandle A handle to the access token that contains the privileges
+ *                    to be modified. The handle must have
+ *                    TOKEN_ADJUST_PRIVILEGES access to the token.
+ * @param Attributes The attributes of all privileges can be a combination of
+ *                   the following values.
+ *                   SE_PRIVILEGE_ENABLED
+ *                       The function enables the privilege.
+ *                   SE_PRIVILEGE_REMOVED
+ *                       The privilege is removed from the list of privileges
+ *                       in the token.
+ *                   None
+ *                       The function disables the privilege.
+ * @return HRESULT. If the method succeeds, the return value is S_OK.
+ */
+EXTERN_C HRESULT WINAPI MileAdjustTokenAllPrivileges(
+    _In_ HANDLE TokenHandle,
+    _In_ DWORD Attributes);
+
 #endif // !MILE_WINDOWS
