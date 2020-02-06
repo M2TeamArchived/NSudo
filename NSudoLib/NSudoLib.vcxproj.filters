@@ -21,6 +21,9 @@
     <ClCompile Include="Mile.Windows.cpp">
       <Filter>Mile.Windows</Filter>
     </ClCompile>
+    <ClCompile Include="Mile.Windows.Platform.cpp">
+      <Filter>Mile.Windows</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="M2.Base.h">
@@ -30,6 +33,9 @@
       <Filter>NSudoAPI</Filter>
     </ClInclude>
     <ClInclude Include="Mile.Windows.h">
+      <Filter>Mile.Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="Mile.Windows.Platform.h">
       <Filter>Mile.Windows</Filter>
     </ClInclude>
   </ItemGroup>

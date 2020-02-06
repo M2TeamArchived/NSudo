@@ -643,55 +643,6 @@ namespace M2
 #define _M2_WINDOWS_BASE_EXTENDED_HELPERS_
 
 /**
- * Allocates a block of memory from the default heap of the calling process.
- * The allocated memory will be initialized to zero. The allocated memory is
- * not movable.
- *
- * @param AllocatedMemoryBlock A pointer to the allocated memory block.
- * @param MemoryBlockSize The number of bytes to be allocated.
- * @return HRESULT. If the function succeeds, the return value is S_OK.
- */
-HRESULT M2AllocMemory(
-    _Out_ PVOID* AllocatedMemoryBlock,
-    _In_ SIZE_T MemoryBlockSize);
-
-/**
- * Reallocates a block of memory from the default heap of the calling process.
- * If the reallocation request is for a larger size, the additional region of
- * memory beyond the original size be initialized to zero. This function
- * enables you to resize a memory block and change other memory block
- * properties. The allocated memory is not movable.
- *
- * @param NewAllocatedMemoryBlock A pointer to the allocated memory block.
- * @param OldAllocatedMemoryBlock A pointer to the block of memory that the
- *                                function reallocates. This pointer is
- *                                returned by an earlier call to the
- *                                M2AllocMemory or M2ReAllocMemory function.
- * @param NewMemoryBlockSize The new size of the memory block, in bytes. A
- *                           memory block's size can be increased or decreased
- *                           by using this function.
- * @return HRESULT. If the function succeeds, the return value is S_OK. If the
- *         function fails, the original memory is not freed, and the original
- *         handle and pointer are still valid.
- */
-HRESULT M2ReAllocMemory(
-    _Out_ PVOID* NewAllocatedMemoryBlock,
-    _In_ PVOID OldAllocatedMemoryBlock,
-    _In_ SIZE_T NewMemoryBlockSize);
-
-/**
- * Frees a memory block allocated from a heap by the M2AllocMemory and
- * M2ReAllocMemory function.
- *
- * @param AllocatedMemoryBlock A pointer to the memory block to be freed. This
- * pointer is returned by the M2AllocMemory or M2ReAllocMemory function. If
- * this pointer is nullptr, the behavior is undefined.
- * @return HRESULT. If the function succeeds, the return value is S_OK.
- */
-HRESULT M2FreeMemory(
-    _In_ PVOID AllocatedMemoryBlock);
-
-/**
  * Retrieves file system attributes for a specified file or directory.
  *
  * @param FileHandle A handle to the file that contains the information to be

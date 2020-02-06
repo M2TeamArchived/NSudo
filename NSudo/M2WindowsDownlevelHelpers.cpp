@@ -39,35 +39,6 @@ HRESULT M2GetLastHResultError(
         UseLastErrorWhenSucceeded));
 }
 
-HRESULT M2HeapAlloc(
-    _Out_ PVOID* lpNewMem,
-    _In_ HANDLE hHeap,
-    _In_ DWORD dwFlags,
-    _In_ SIZE_T dwBytes)
-{
-    *lpNewMem = HeapAlloc(hHeap, dwFlags, dwBytes);
-    return *lpNewMem ? S_OK : __HRESULT_FROM_WIN32(ERROR_NOT_ENOUGH_MEMORY);
-}
-
-HRESULT M2HeapReAlloc(
-    _Out_ PVOID* lpNewMem,
-    _Inout_ HANDLE hHeap,
-    _In_ DWORD dwFlags,
-    _In_ LPVOID lpMem,
-    _In_ SIZE_T dwBytes)
-{
-    *lpNewMem = HeapReAlloc(hHeap, dwFlags, lpMem, dwBytes);
-    return *lpNewMem ? S_OK : __HRESULT_FROM_WIN32(ERROR_NOT_ENOUGH_MEMORY);
-}
-
-HRESULT M2HeapFree(
-    _Inout_ HANDLE hHeap,
-    _In_ DWORD dwFlags,
-    _In_ LPVOID lpMem)
-{
-    return M2GetLastHResultError(HeapFree(hHeap, dwFlags, lpMem));
-}
-
 HRESULT M2CloseHandle(
     _In_ HANDLE hObject)
 {

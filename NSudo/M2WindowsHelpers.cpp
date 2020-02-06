@@ -10,74 +10,9 @@
 
 #include "M2WindowsHelpers.h"
 
+#include <Mile.Windows.h>
+
 #ifdef _M2_WINDOWS_BASE_EXTENDED_HELPERS_
-
-/**
- * Allocates a block of memory from the default heap of the calling process.
- * The allocated memory will be initialized to zero. The allocated memory is
- * not movable.
- *
- * @param AllocatedMemoryBlock A pointer to the allocated memory block.
- * @param MemoryBlockSize The number of bytes to be allocated.
- * @return HRESULT. If the function succeeds, the return value is S_OK.
- */
-HRESULT M2AllocMemory(
-    _Out_ PVOID* AllocatedMemoryBlock,
-    _In_ SIZE_T MemoryBlockSize)
-{
-    return M2HeapAlloc(
-        AllocatedMemoryBlock,
-        GetProcessHeap(),
-        HEAP_ZERO_MEMORY,
-        MemoryBlockSize);
-}
-
-/**
- * Reallocates a block of memory from the default heap of the calling process.
- * If the reallocation request is for a larger size, the additional region of
- * memory beyond the original size be initialized to zero. This function
- * enables you to resize a memory block and change other memory block
- * properties. The allocated memory is not movable.
- *
- * @param NewAllocatedMemoryBlock A pointer to the allocated memory block.
- * @param OldAllocatedMemoryBlock A pointer to the block of memory that the
- *                                function reallocates. This pointer is
- *                                returned by an earlier call to the
- *                                M2AllocMemory or M2ReAllocMemory function.
- * @param NewMemoryBlockSize The new size of the memory block, in bytes. A
- *                           memory block's size can be increased or decreased
- *                           by using this function.
- * @return HRESULT. If the function succeeds, the return value is S_OK. If the
- *         function fails, the original memory is not freed, and the original
- *         handle and pointer are still valid.
- */
-HRESULT M2ReAllocMemory(
-    _Out_ PVOID* NewAllocatedMemoryBlock,
-    _In_ PVOID OldAllocatedMemoryBlock,
-    _In_ SIZE_T NewMemoryBlockSize)
-{
-    return M2HeapReAlloc(
-        NewAllocatedMemoryBlock,
-        GetProcessHeap(),
-        HEAP_ZERO_MEMORY,
-        OldAllocatedMemoryBlock,
-        NewMemoryBlockSize);
-}
-
-/**
- * Frees a memory block allocated from a heap by the M2AllocMemory and
- * M2ReAllocMemory function.
- *
- * @param AllocatedMemoryBlock A pointer to the memory block to be freed. This
- * pointer is returned by the M2AllocMemory or M2ReAllocMemory function. If
- * this pointer is nullptr, the behavior is undefined.
- * @return HRESULT. If the function succeeds, the return value is S_OK.
- */
-HRESULT M2FreeMemory(
-    _In_ PVOID AllocatedMemoryBlock)
-{
-    return M2HeapFree(GetProcessHeap(), 0, AllocatedMemoryBlock);
-}
 
 /**
  * Retrieves file system attributes for a specified file or directory.
@@ -340,9 +275,9 @@ HRESULT M2CreateFileEnumerator(
     *FileEnumeratorHandle = nullptr;
 
     PM2_FILE_ENUMERATOR_OBJECT Object = nullptr;
-    HRESULT hr = M2AllocMemory(
-        reinterpret_cast<PVOID*>(&Object),
-        sizeof(M2_FILE_ENUMERATOR_OBJECT));
+    HRESULT hr = ::MileAllocMemory(
+        sizeof(M2_FILE_ENUMERATOR_OBJECT),
+        reinterpret_cast<PVOID*>(&Object));
     if (SUCCEEDED(hr))
     {
         Object->FileHandle = FileHandle;
@@ -365,7 +300,7 @@ HRESULT M2CloseFileEnumerator(
     if (!FileEnumeratorHandle)
         return __HRESULT_FROM_WIN32(ERROR_INVALID_PARAMETER);
 
-    return M2FreeMemory(FileEnumeratorHandle);
+    return ::MileFreeMemory(FileEnumeratorHandle);
 }
 
 /**
@@ -491,7 +426,7 @@ HRESULT M2RegQueryStringValue(
         &cbData);
     if (SUCCEEDED(hr))
     {
-        hr = M2AllocMemory(reinterpret_cast<PVOID*>(lpData), cbData);
+        hr = ::MileAllocMemory(cbData, reinterpret_cast<PVOID*>(lpData));
         if (SUCCEEDED(hr))
         {
             DWORD Type = 0;
@@ -506,7 +441,7 @@ HRESULT M2RegQueryStringValue(
                 hr = __HRESULT_FROM_WIN32(ERROR_ILLEGAL_ELEMENT_ADDRESS);
 
             if (FAILED(hr))
-                hr = M2FreeMemory(*lpData);
+                hr = ::MileFreeMemory(*lpData);
         }
     }
 
@@ -556,7 +491,7 @@ HRESULT M2CoCheckInterfaceName(
                 hr = E_NOINTERFACE;
             }
 
-            M2FreeMemory(InterfaceTypeName);
+            ::MileFreeMemory(InterfaceTypeName);
         }
 
         M2RegCloseKey(hKey);

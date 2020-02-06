@@ -15,7 +15,7 @@
 #error "[Mile.Windows] You should use a C++ compiler."
 #endif // !__cplusplus
 
-#include <Windows.h>
+#include "Mile.Windows.Platform.h"
 
 /**
  * Allocates a block of memory from the default heap of the calling process.
@@ -50,7 +50,7 @@ EXTERN_C HRESULT WINAPI MileAllocMemory(
 EXTERN_C HRESULT WINAPI MileReAllocMemory(
     _In_ PVOID OldBlock,
     _In_ SIZE_T NewSize,
-    _Out_ PVOID* NewBlock);
+    _Out_ LPVOID* NewBlock);
 
 /**
  * Frees a memory block allocated from a heap by the MileAllocMemory or
