@@ -282,6 +282,8 @@ EXTERN_C HRESULT WINAPI MileGetPrivilegeValue(
     return S_OK;
 }
 
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
 /**
  * @remark You can read the definition for this function in "Mile.Windows.h".
  */
@@ -395,6 +397,8 @@ EXTERN_C HRESULT WINAPI MileStartService(
     return hr;
 }
 
+#endif
+
 /**
  * @remark You can read the definition for this function in "Mile.Windows.h".
  */
@@ -427,6 +431,8 @@ EXTERN_C HRESULT WINAPI MileCloseHandle(
     return S_OK;
 }
 
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
 /**
  * @remark You can read the definition for this function in "Mile.Windows.h".
  */
@@ -441,6 +447,10 @@ EXTERN_C HRESULT WINAPI MileCreateSessionToken(
 
     return S_OK;
 }
+
+#endif
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
 
 /**
  * @remark You can read the definition for this function in "Mile.Windows.h".
@@ -472,6 +482,10 @@ EXTERN_C HRESULT WINAPI MileCreateRestrictedToken(
 
     return S_OK;
 }
+
+#endif
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
 
 /**
  * @remark You can read the definition for this function in "Mile.Windows.h".
@@ -534,3 +548,5 @@ EXTERN_C HRESULT WINAPI MileGetLsassProcessId(
 
     return hr;
 }
+
+#endif

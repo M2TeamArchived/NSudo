@@ -319,6 +319,8 @@ EXTERN_C HRESULT WINAPI MileGetPrivilegeValue(
     _In_ LPCWSTR Name,
     _Out_ PLUID Value);
 
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
 /**
  * Starts a service if not started and retrieves the current status of the
  * specified service.
@@ -341,6 +343,8 @@ EXTERN_C HRESULT WINAPI MileStartService(
     _In_ LPCWSTR ServiceName,
     _Out_ LPSERVICE_STATUS_PROCESS ServiceStatus);
 
+#endif
+
 /**
  * Retrieves the number of milliseconds that have elapsed since the system was
  * started.
@@ -359,6 +363,8 @@ EXTERN_C ULONGLONG WINAPI MileGetTickCount();
 EXTERN_C HRESULT WINAPI MileCloseHandle(
     _In_ HANDLE hObject);
 
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
 /**
  * Obtains the primary access token of the logged-on user specified by the
  * session ID. To call this function successfully, the calling application must
@@ -375,6 +381,10 @@ EXTERN_C HRESULT WINAPI MileCloseHandle(
 EXTERN_C HRESULT WINAPI MileCreateSessionToken(
     _In_ DWORD SessionId,
     _Out_ PHANDLE TokenHandle);
+
+#endif
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
 
 /**
  * Creates a new access token that is a restricted version of an existing
@@ -434,6 +444,10 @@ EXTERN_C HRESULT WINAPI MileCreateRestrictedToken(
     _In_opt_ PSID_AND_ATTRIBUTES SidsToRestrict,
     _Out_ PHANDLE NewTokenHandle);
 
+#endif
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
 /**
  * Gets the identifier of the Local Security Authority process.
  *
@@ -442,5 +456,7 @@ EXTERN_C HRESULT WINAPI MileCreateRestrictedToken(
  */
 EXTERN_C HRESULT WINAPI MileGetLsassProcessId(
     _Out_ PDWORD ProcessId);
+
+#endif
 
 #endif // !MILE_WINDOWS
