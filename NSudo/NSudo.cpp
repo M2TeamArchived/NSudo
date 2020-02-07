@@ -20,6 +20,7 @@
 #pragma endregion
 
 #include "NSudoAPI.h"
+#include <Mile.Windows.h>
 
 #include "M2WindowsHelpers.h"
 #include "M2Win32GUIHelpers.h"
@@ -442,10 +443,10 @@ public:
                     ::UnmapViewOfFile(MapAddress);
                 }
 
-                ::CloseHandle(FileMapping);
+                ::MileCloseHandle(FileMapping);
             }
 
-            ::CloseHandle(FileHandle);
+            ::MileCloseHandle(FileHandle);
         }
     }
 
@@ -488,8 +489,6 @@ public:
     const std::map<std::wstring, std::wstring>& ShortCutList =
         this->m_ShortCutList;
 
-    INSudoClient* pNSudoClient = nullptr;
-
 public:
     CNSudoResourceManagement() = default;
 
@@ -505,8 +504,6 @@ public:
     {
         if (!this->m_IsInitialized)
         {
-            ::NSudoInitialize();
-
             this->m_Instance = GetModuleHandleW(nullptr);
 
             this->m_ExePath = M2GetCurrentProcessModulePath();
@@ -520,28 +517,13 @@ public:
             CNSudoShortCutAdapter::Read(
                 this->AppPath + L"\\NSudo.json", this->m_ShortCutList);
 
-            HRESULT hr = S_OK;
-
-            hr = ::NSudoCreateInstance(
-                IID_INSudoClient,
-                reinterpret_cast<PVOID*>(&this->pNSudoClient));
-            if (S_OK != hr)
-            {
-                ::ExitProcess(hr);
-            }
-
             this->m_IsInitialized = true;
         }
     }
 
     void UnInitialize()
     {
-        if (this->pNSudoClient)
-        {
-            this->pNSudoClient->Release();
-        }
-
-        ::NSudoUninitialize();
+        // TODO: Empty
     }
 
     std::wstring GetTranslation(
@@ -589,7 +571,7 @@ HRESULT NSudoAdjustTokenPrivileges(
     {
         LUID_AND_ATTRIBUTES RawPrivilege;
 
-        HRESULT hr = g_ResourceManagement.pNSudoClient->GetPrivilegeValue(
+        HRESULT hr = ::MileGetPrivilegeValue(
             Privilege.first.c_str(), &RawPrivilege.Luid);
         if (hr != S_OK)
         {
@@ -601,7 +583,7 @@ HRESULT NSudoAdjustTokenPrivileges(
         RawPrivileges.push_back(RawPrivilege);
     }
 
-    return g_ResourceManagement.pNSudoClient->AdjustTokenPrivileges(
+    return ::MileAdjustTokenPrivilegesSimple(
         TokenHandle,
         &RawPrivileges[0],
         static_cast<DWORD>(RawPrivileges.size()));
@@ -614,13 +596,13 @@ public:
     HRESULT hr;
 
     ThreadTokenContext(HANDLE TokenHandle) :
-        hr(g_ResourceManagement.pNSudoClient->SetCurrentThreadToken(TokenHandle))
+        hr(::MileSetCurrentThreadToken(TokenHandle))
     {
     }
 
     ~ThreadTokenContext()
     {
-        g_ResourceManagement.pNSudoClient->SetCurrentThreadToken(nullptr);
+        ::MileSetCurrentThreadToken(nullptr);
     }
 
 };
@@ -662,11 +644,11 @@ NSUDO_MESSAGE NSudoCommandLineParser(
     if (hr == S_OK)
     {
         M2::CHandle  CurrentProcessToken;
-        hr = g_ResourceManagement.pNSudoClient->OpenCurrentProcessToken(
+        hr = ::MileOpenCurrentProcessToken(
             MAXIMUM_ALLOWED, &CurrentProcessToken);
         if (hr == S_OK)
         {
-            hr = g_ResourceManagement.pNSudoClient->DuplicateToken(
+            hr = ::MileDuplicateToken(
                 CurrentProcessToken,
                 MAXIMUM_ALLOWED,
                 nullptr,
@@ -680,8 +662,7 @@ NSUDO_MESSAGE NSudoCommandLineParser(
                 Privileges.insert(std::pair(
                     SE_DEBUG_NAME, SE_PRIVILEGE_ENABLED));
 
-                hr = NSudoAdjustTokenPrivileges(
-                    DuplicatedToken, Privileges);
+                hr = NSudoAdjustTokenPrivileges(DuplicatedToken, Privileges);
             }
         }
     }
@@ -697,12 +678,12 @@ NSUDO_MESSAGE NSudoCommandLineParser(
     DWORD dwSessionID = static_cast<DWORD>(-1);
 
     M2::CHandle CurrentThreadToken;
-    hr = g_ResourceManagement.pNSudoClient->OpenCurrentThreadToken(
+    hr = ::MileOpenCurrentThreadToken(
         MAXIMUM_ALLOWED, FALSE, &CurrentThreadToken);
     if (hr == S_OK)
     {
         DWORD ReturnLength = 0;
-        hr = g_ResourceManagement.pNSudoClient->GetTokenInformation(
+        hr = ::MileGetTokenInformation(
             CurrentThreadToken,
             TokenSessionId,
             &dwSessionID,
@@ -721,11 +702,10 @@ NSUDO_MESSAGE NSudoCommandLineParser(
     {
         M2::CHandle OriginalToken;
 
-        hr = g_ResourceManagement.pNSudoClient->OpenLsassProcessToken(
-            MAXIMUM_ALLOWED, &OriginalToken);
+        hr = ::MileOpenLsassProcessToken(MAXIMUM_ALLOWED, &OriginalToken);
         if (hr == S_OK)
         {
-            hr = g_ResourceManagement.pNSudoClient->DuplicateToken(
+            hr = ::MileDuplicateToken(
                 OriginalToken,
                 MAXIMUM_ALLOWED,
                 nullptr,
@@ -734,7 +714,7 @@ NSUDO_MESSAGE NSudoCommandLineParser(
                 &SystemToken);
             if (hr == S_OK)
             {
-                hr = g_ResourceManagement.pNSudoClient->AdjustTokenAllPrivileges(
+                hr = ::MileAdjustTokenAllPrivileges(
                     SystemToken, SE_PRIVILEGE_ENABLED);
             }
         }
@@ -814,7 +794,7 @@ NSUDO_MESSAGE NSudoCommandLineParser(
     //        ::UnloadUserProfile(LinkedToken.LinkedToken, ProfileInfo.hProfile);
     //    }
 
-    //    ::CloseHandle(UserToken);
+    //    ::MileCloseHandle(UserToken);
     //}
 
 
@@ -1030,7 +1010,7 @@ NSUDO_MESSAGE NSudoCommandLineParser(
 
     if (NSudoOptionUserValue::TrustedInstaller == UserMode)
     {
-        if (S_OK != g_ResourceManagement.pNSudoClient->OpenServiceProcessToken(
+        if (S_OK != ::MileOpenServiceProcessToken(
             L"TrustedInstaller", MAXIMUM_ALLOWED, &OriginalToken))
         {
             return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
@@ -1038,7 +1018,7 @@ NSUDO_MESSAGE NSudoCommandLineParser(
     }
     else if (NSudoOptionUserValue::System == UserMode)
     {
-        if (S_OK != g_ResourceManagement.pNSudoClient->OpenLsassProcessToken(
+        if (S_OK != ::MileOpenLsassProcessToken(
             MAXIMUM_ALLOWED, &OriginalToken))
         {
             return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
@@ -1046,7 +1026,7 @@ NSUDO_MESSAGE NSudoCommandLineParser(
     }
     else if (NSudoOptionUserValue::CurrentUser == UserMode)
     {
-        if (S_OK != g_ResourceManagement.pNSudoClient->CreateSessionToken(
+        if (S_OK != ::MileCreateSessionToken(
             dwSessionID, &OriginalToken))
         {
             return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
@@ -1054,7 +1034,7 @@ NSUDO_MESSAGE NSudoCommandLineParser(
     }
     else if (NSudoOptionUserValue::CurrentProcess == UserMode)
     {
-        if (S_OK != g_ResourceManagement.pNSudoClient->OpenCurrentProcessToken(
+        if (S_OK != ::MileOpenCurrentProcessToken(
             MAXIMUM_ALLOWED, &OriginalToken))
         {
             return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
@@ -1063,14 +1043,14 @@ NSUDO_MESSAGE NSudoCommandLineParser(
     else if (NSudoOptionUserValue::CurrentProcessDropRight == UserMode)
     {
         HANDLE CurrentProcessToken = nullptr;
-        hr = g_ResourceManagement.pNSudoClient->OpenCurrentProcessToken(
+        hr = ::MileOpenCurrentProcessToken(
             MAXIMUM_ALLOWED, &CurrentProcessToken);
         if (hr == S_OK)
         {
-            hr = g_ResourceManagement.pNSudoClient->CreateLUAToken(
+            hr = ::MileCreateLUAToken(
                 CurrentProcessToken, &OriginalToken);
 
-            ::CloseHandle(CurrentProcessToken);
+            ::MileCloseHandle(CurrentProcessToken);
         }
 
         if (S_OK != hr)
@@ -1079,7 +1059,7 @@ NSUDO_MESSAGE NSudoCommandLineParser(
         }
     }
 
-    if (S_OK != g_ResourceManagement.pNSudoClient->DuplicateToken(
+    if (S_OK != ::MileDuplicateToken(
         OriginalToken,
         MAXIMUM_ALLOWED,
         nullptr,
@@ -1090,7 +1070,7 @@ NSUDO_MESSAGE NSudoCommandLineParser(
         return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
     }
 
-    if (S_OK != g_ResourceManagement.pNSudoClient->SetTokenInformation(
+    if (S_OK != ::MileSetTokenInformation(
         hToken,
         TokenSessionId,
         (PVOID)&dwSessionID,
@@ -1101,7 +1081,7 @@ NSUDO_MESSAGE NSudoCommandLineParser(
 
     if (NSudoOptionPrivilegesValue::EnableAllPrivileges == PrivilegesMode)
     {
-        if (S_OK != g_ResourceManagement.pNSudoClient->AdjustTokenAllPrivileges(
+        if (S_OK != ::MileAdjustTokenAllPrivileges(
             hToken, SE_PRIVILEGE_ENABLED))
         {
             return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
@@ -1109,8 +1089,7 @@ NSUDO_MESSAGE NSudoCommandLineParser(
     }
     else if (NSudoOptionPrivilegesValue::DisableAllPrivileges == PrivilegesMode)
     {
-        if (S_OK != g_ResourceManagement.pNSudoClient->AdjustTokenAllPrivileges(
-            hToken, 0))
+        if (S_OK != ::MileAdjustTokenAllPrivileges(hToken, 0))
         {
             return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
         }
@@ -1118,8 +1097,35 @@ NSUDO_MESSAGE NSudoCommandLineParser(
 
     if (MandatoryLabelType != NSUDO_MANDATORY_LABEL_TYPE::UNTRUSTED)
     {
-        if (S_OK != g_ResourceManagement.pNSudoClient->SetTokenMandatoryLabel(
-            hToken, MandatoryLabelType))
+        DWORD MandatoryLabelRid;
+        switch (MandatoryLabelType)
+        {
+        case NSUDO_MANDATORY_LABEL_TYPE::UNTRUSTED:
+            MandatoryLabelRid = SECURITY_MANDATORY_UNTRUSTED_RID;
+            break;
+        case NSUDO_MANDATORY_LABEL_TYPE::LOW:
+            MandatoryLabelRid = SECURITY_MANDATORY_LOW_RID;
+            break;
+        case NSUDO_MANDATORY_LABEL_TYPE::MEDIUM:
+            MandatoryLabelRid = SECURITY_MANDATORY_MEDIUM_RID;
+            break;
+        case NSUDO_MANDATORY_LABEL_TYPE::MEDIUM_PLUS:
+            MandatoryLabelRid = SECURITY_MANDATORY_MEDIUM_PLUS_RID;
+            break;
+        case NSUDO_MANDATORY_LABEL_TYPE::HIGH:
+            MandatoryLabelRid = SECURITY_MANDATORY_HIGH_RID;
+            break;
+        case NSUDO_MANDATORY_LABEL_TYPE::SYSTEM:
+            MandatoryLabelRid = SECURITY_MANDATORY_SYSTEM_RID;
+            break;
+        case NSUDO_MANDATORY_LABEL_TYPE::PROTECTED_PROCESS:
+            MandatoryLabelRid = SECURITY_MANDATORY_PROTECTED_PROCESS_RID;
+            break;
+        default:
+            return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
+        }
+
+        if (S_OK != ::MileSetTokenMandatoryLabel(hToken, MandatoryLabelRid))
         {
             return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
         }
@@ -1169,7 +1175,7 @@ NSUDO_MESSAGE NSudoCommandLineParser(
     BOOL result = FALSE;
 
     M2::CHandle hCurrentToken;
-    if (g_ResourceManagement.pNSudoClient->OpenCurrentProcessToken(
+    if (::MileOpenCurrentProcessToken(
         MAXIMUM_ALLOWED, &hCurrentToken) == S_OK)
     {
         if (CreateEnvironmentBlock(&lpEnvironment, hToken, TRUE))
@@ -1195,9 +1201,34 @@ NSUDO_MESSAGE NSudoCommandLineParser(
 
                 if (result)
                 {
-                    g_ResourceManagement.pNSudoClient->SetProcessPriorityClass(
+                    DWORD ProcessPriority;
+                    switch (ProcessPriorityClassType)
+                    {
+                    case NSUDO_PROCESS_PRIORITY_CLASS_TYPE::IDLE:
+                        ProcessPriority = IDLE_PRIORITY_CLASS;
+                        break;
+                    case NSUDO_PROCESS_PRIORITY_CLASS_TYPE::BELOW_NORMAL:
+                        ProcessPriority = BELOW_NORMAL_PRIORITY_CLASS;
+                        break;
+                    case NSUDO_PROCESS_PRIORITY_CLASS_TYPE::NORMAL:
+                        ProcessPriority = NORMAL_PRIORITY_CLASS;
+                        break;
+                    case NSUDO_PROCESS_PRIORITY_CLASS_TYPE::ABOVE_NORMAL:
+                        ProcessPriority = ABOVE_NORMAL_PRIORITY_CLASS;
+                        break;
+                    case NSUDO_PROCESS_PRIORITY_CLASS_TYPE::HIGH:
+                        ProcessPriority = HIGH_PRIORITY_CLASS;
+                        break;
+                    case NSUDO_PROCESS_PRIORITY_CLASS_TYPE::REALTIME:
+                        ProcessPriority = REALTIME_PRIORITY_CLASS;
+                        break;
+                    default:
+                        return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
+                    }
+
+                    ::MileSetPriorityClass(
                         ProcessInfo.hProcess,
-                        ProcessPriorityClassType);
+                        ProcessPriority);
 
                     ResumeThread(ProcessInfo.hThread);
 
