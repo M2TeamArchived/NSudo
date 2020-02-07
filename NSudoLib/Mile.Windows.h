@@ -470,7 +470,7 @@ EXTERN_C DWORD WINAPI MileSleep(
  *                      service.
  * @return HRESULT. If the method succeeds, the return value is S_OK.
  */
-EXTERN_C HRESULT WINAPI MileStartService(
+EXTERN_C HRESULT WINAPI MileStartServiceSimple(
     _In_ LPCWSTR ServiceName,
     _Out_ LPSERVICE_STATUS_PROCESS ServiceStatus);
 

@@ -141,7 +141,7 @@ namespace M2
 
         static inline void Close(HANDLE Object)
         {
-            M2CloseHandle(Object);
+            ::MileCloseHandle(Object);
         }
     };
 

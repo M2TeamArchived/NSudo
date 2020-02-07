@@ -1204,8 +1204,8 @@ NSUDO_MESSAGE NSudoCommandLineParser(
                     WaitForSingleObjectEx(
                         ProcessInfo.hProcess, WaitInterval, FALSE);
 
-                    M2CloseHandle(ProcessInfo.hProcess);
-                    M2CloseHandle(ProcessInfo.hThread);
+                    ::MileCloseHandle(ProcessInfo.hProcess);
+                    ::MileCloseHandle(ProcessInfo.hThread);
                 }
             }
 

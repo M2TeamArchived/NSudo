@@ -13,7 +13,7 @@
 #ifndef _M2_WINDOWS_DOWNLEVEL_HELPERS_
 #define _M2_WINDOWS_DOWNLEVEL_HELPERS_
 
-#include <Windows.h>
+#include <Mile.Windows.h>
 
 /**
  * Retrieves the calling thread's last-error code value. The last-error code is

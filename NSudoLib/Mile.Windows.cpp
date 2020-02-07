@@ -412,7 +412,7 @@ EXTERN_C DWORD WINAPI MileSleep(
 /**
  * @remark You can read the definition for this function in "Mile.Windows.h".
  */
-EXTERN_C HRESULT WINAPI MileStartService(
+EXTERN_C HRESULT WINAPI MileStartServiceSimple(
     _In_ LPCWSTR ServiceName,
     _Out_ LPSERVICE_STATUS_PROCESS ServiceStatus)
 {

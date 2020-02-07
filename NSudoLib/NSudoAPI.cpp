@@ -201,7 +201,7 @@ public:
         _In_ LPCWSTR ServiceName,
         _Out_ LPSERVICE_STATUS_PROCESS ServiceStatus)
     {
-        return ::MileStartService(ServiceName, ServiceStatus);
+        return ::MileStartServiceSimple(ServiceName, ServiceStatus);
     }
 
     /**
