@@ -550,3 +550,193 @@ EXTERN_C HRESULT WINAPI MileGetLsassProcessId(
 }
 
 #endif
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C HRESULT WINAPI MileAllocateAndInitializeSid(
+    _In_ PSID_IDENTIFIER_AUTHORITY pIdentifierAuthority,
+    _In_ BYTE nSubAuthorityCount,
+    _In_ DWORD nSubAuthority0,
+    _In_ DWORD nSubAuthority1,
+    _In_ DWORD nSubAuthority2,
+    _In_ DWORD nSubAuthority3,
+    _In_ DWORD nSubAuthority4,
+    _In_ DWORD nSubAuthority5,
+    _In_ DWORD nSubAuthority6,
+    _In_ DWORD nSubAuthority7,
+    _Outptr_ PSID* pSid)
+{
+    if (!::AllocateAndInitializeSid(
+        pIdentifierAuthority,
+        nSubAuthorityCount,
+        nSubAuthority0,
+        nSubAuthority1,
+        nSubAuthority2,
+        nSubAuthority3,
+        nSubAuthority4,
+        nSubAuthority5,
+        nSubAuthority6,
+        nSubAuthority7,
+        pSid))
+    {
+        return ::HRESULT_FROM_WIN32(::GetLastError());
+    }
+
+    return S_OK;
+}
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C PVOID WINAPI MileFreeSid(
+    _In_ PSID pSid)
+{
+    return ::FreeSid(pSid);
+}
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C HRESULT WINAPI MileSetCurrentThreadToken(
+    _In_opt_ HANDLE TokenHandle)
+{
+    if (!::SetThreadToken(nullptr, TokenHandle))
+    {
+        return ::HRESULT_FROM_WIN32(::GetLastError());
+    }
+
+    return S_OK;
+}
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C HRESULT WINAPI MileDuplicateToken(
+    _In_ HANDLE ExistingTokenHandle,
+    _In_ DWORD DesiredAccess,
+    _In_opt_ LPSECURITY_ATTRIBUTES TokenAttributes,
+    _In_ SECURITY_IMPERSONATION_LEVEL ImpersonationLevel,
+    _In_ TOKEN_TYPE TokenType,
+    _Out_ PHANDLE NewTokenHandle)
+{
+    if (!::DuplicateTokenEx(
+        ExistingTokenHandle,
+        DesiredAccess,
+        TokenAttributes,
+        ImpersonationLevel,
+        TokenType,
+        NewTokenHandle))
+    {
+        return ::HRESULT_FROM_WIN32(::GetLastError());
+    }
+
+    return S_OK;
+}
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C HRESULT WINAPI MileOpenProcess(
+    _In_ DWORD DesiredAccess,
+    _In_ BOOL InheritHandle,
+    _In_ DWORD ProcessId,
+    _Out_ PHANDLE ProcessHandle)
+{
+    HRESULT hr = E_INVALIDARG;
+
+    if (ProcessHandle)
+    {
+        *ProcessHandle = ::OpenProcess(
+            DesiredAccess, InheritHandle, ProcessId);
+        if (*ProcessHandle)
+        {
+            hr = S_OK;
+        }
+        else
+        {
+            hr = ::HRESULT_FROM_WIN32(::GetLastError());
+        }
+    }
+
+    return hr;
+}
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C HANDLE WINAPI MileGetCurrentProcess()
+{
+    return ::GetCurrentProcess();
+}
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C HRESULT WINAPI MileOpenThread(
+    _In_ DWORD DesiredAccess,
+    _In_ BOOL InheritHandle,
+    _In_ DWORD ThreadId,
+    _Out_ PHANDLE ThreadHandle)
+{
+    HRESULT hr = E_INVALIDARG;
+
+    if (ThreadHandle)
+    {
+        *ThreadHandle = ::OpenThread(
+            DesiredAccess, InheritHandle, ThreadId);
+        if (*ThreadHandle)
+        {
+            hr = S_OK;
+        }
+        else
+        {
+            hr = ::HRESULT_FROM_WIN32(::GetLastError());
+        }
+    }
+
+    return hr;
+}
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C HANDLE WINAPI MileGetCurrentThread()
+{
+    return ::GetCurrentThread();
+}
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C HRESULT WINAPI MileOpenProcessToken(
+    _In_ HANDLE ProcessHandle,
+    _In_ DWORD DesiredAccess,
+    _Out_ PHANDLE TokenHandle)
+{
+    if (!::OpenProcessToken(
+        ProcessHandle, DesiredAccess, TokenHandle))
+    {
+        return ::HRESULT_FROM_WIN32(::GetLastError());
+    }
+
+    return S_OK;
+}
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C HRESULT WINAPI MileOpenThreadToken(
+    _In_ HANDLE ThreadHandle,
+    _In_ DWORD DesiredAccess,
+    _In_ BOOL OpenAsSelf,
+    _Out_ PHANDLE TokenHandle)
+{
+    if (!::OpenThreadToken(
+        ThreadHandle, DesiredAccess, OpenAsSelf, TokenHandle))
+    {
+        return ::HRESULT_FROM_WIN32(::GetLastError());
+    }
+
+    return S_OK;
+}

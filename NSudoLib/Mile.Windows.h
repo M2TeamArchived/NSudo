@@ -459,4 +459,207 @@ EXTERN_C HRESULT WINAPI MileGetLsassProcessId(
 
 #endif
 
+/**
+ * Allocates and initializes a security identifier (SID) with up to eight
+ * subauthorities.
+ *
+ * @param pIdentifierAuthority A pointer to a SID_IDENTIFIER_AUTHORITY
+ *                             structure. This structure provides the top-level
+ *                             identifier authority value to set in the SID.
+ * @param nSubAuthorityCount Specifies the number of subauthorities to place in
+ *                           the SID. This parameter also identifies how many
+ *                           of the subauthority parameters have meaningful
+ *                           values. This parameter must contain a value from 1
+ *                           to 8.
+ * @param nSubAuthority0 Subauthority value to place in the SID.
+ * @param nSubAuthority1 Subauthority value to place in the SID.
+ * @param nSubAuthority2 Subauthority value to place in the SID.
+ * @param nSubAuthority3 Subauthority value to place in the SID.
+ * @param nSubAuthority4 Subauthority value to place in the SID.
+ * @param nSubAuthority5 Subauthority value to place in the SID.
+ * @param nSubAuthority6 Subauthority value to place in the SID.
+ * @param nSubAuthority7 Subauthority value to place in the SID.
+ * @param pSid A pointer to a variable that receives the pointer to the
+ *             allocated and initialized SID structure.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ * @remark For more information, see AllocateAndInitializeSid.
+ */
+EXTERN_C HRESULT WINAPI MileAllocateAndInitializeSid(
+    _In_ PSID_IDENTIFIER_AUTHORITY pIdentifierAuthority,
+    _In_ BYTE nSubAuthorityCount,
+    _In_ DWORD nSubAuthority0,
+    _In_ DWORD nSubAuthority1,
+    _In_ DWORD nSubAuthority2,
+    _In_ DWORD nSubAuthority3,
+    _In_ DWORD nSubAuthority4,
+    _In_ DWORD nSubAuthority5,
+    _In_ DWORD nSubAuthority6,
+    _In_ DWORD nSubAuthority7,
+    _Outptr_ PSID* pSid);
+
+/**
+ * Frees a security identifier (SID) previously allocated by using the
+ * MileAllocateAndInitializeSid function.
+ *
+ * @param pSid A pointer to the SID structure to free.
+ * @return If the function succeeds, the function returns nullptr. If the
+ *         function fails, it returns a pointer to the SID structure
+ *         represented by the pSid parameter.
+ * @remark For more information, see FreeSid.
+ */
+EXTERN_C PVOID WINAPI MileFreeSid(
+    _In_ PSID pSid);
+
+/**
+ * Assigns an impersonation token to a thread. The function can also cause a
+ * thread to stop using an impersonation token.
+ *
+ * @param TokenHandle A handle to the impersonation token to assign to the
+ *                    thread. If TokenHandle is NULL, the function causes the
+ *                    thread to stop using an impersonation token.
+ * @return HRESULT. If the method succeeds, the return value is S_OK.
+ * @remark For more information, see SetThreadToken.
+ */
+EXTERN_C HRESULT WINAPI MileSetCurrentThreadToken(
+    _In_opt_ HANDLE TokenHandle);
+
+/**
+ * Creates a new access token that duplicates an existing token. This function
+ * can create either a primary token or an impersonation token.
+ *
+ * @param ExistingTokenHandle A handle to an access token opened with
+ *                            TOKEN_DUPLICATE access.
+ * @param DesiredAccess Specifies the requested access rights for the new
+ *                      token. To request all access rights that are valid for
+ *                      the caller, specify MAXIMUM_ALLOWED.
+ * @param TokenAttributes A pointer to a SECURITY_ATTRIBUTES structure that
+ *                        specifies a security descriptor for the new token and
+ *                        determines whether child processes can inherit the
+ *                        token.
+ * @param ImpersonationLevel Specifies a value from the
+ *                           SECURITY_IMPERSONATION_LEVEL enumeration that
+ *                           indicates the impersonation level of the new
+ *                           token.
+ * @param TokenType Specifies one of the following values from the TOKEN_TYPE
+ *                  enumeration.
+ *                  TokenPrimary
+ *                      The new token is a primary token that you can use in
+ *                      the CreateProcessAsUser function.
+ *                  TokenImpersonation
+ *                      The new token is an impersonation token.
+ * @param NewTokenHandle A pointer to a handle variable that receives the new
+ *                       token.
+ * @return HRESULT. If the method succeeds, the return value is S_OK.
+ * @remark For more information, see DuplicateTokenEx.
+ */
+EXTERN_C HRESULT WINAPI MileDuplicateToken(
+    _In_ HANDLE ExistingTokenHandle,
+    _In_ DWORD DesiredAccess,
+    _In_opt_ LPSECURITY_ATTRIBUTES TokenAttributes,
+    _In_ SECURITY_IMPERSONATION_LEVEL ImpersonationLevel,
+    _In_ TOKEN_TYPE TokenType,
+    _Out_ PHANDLE NewTokenHandle);
+
+/**
+ * Opens an existing local process object.
+ *
+ * @param DesiredAccess The access to the process object. This access right is
+ *                      checked against the security descriptor for the
+ *                      process. This parameter can be one or more of the
+ *                      process access rights.
+ * @param InheritHandle If this value is TRUE, processes created by this
+ *                      process will inherit the handle. Otherwise, the
+ *                      processes do not inherit this handle.
+ * @param ProcessId The identifier of the local process to be opened.
+ * @param ProcessHandle A pointer to an open handle to the specified process.
+ * @return HRESULT. If the method succeeds, the return value is S_OK.
+ * @remark For more information, see OpenProcess.
+ */
+EXTERN_C HRESULT WINAPI MileOpenProcess(
+    _In_ DWORD DesiredAccess,
+    _In_ BOOL InheritHandle,
+    _In_ DWORD ProcessId,
+    _Out_ PHANDLE ProcessHandle);
+
+/**
+ * Retrieves a pseudo handle for the current process.
+ *
+ * @return The return value is a pseudo handle to the current process.
+ * @remark For more information, see GetCurrentProcess.
+ */
+EXTERN_C HANDLE WINAPI MileGetCurrentProcess();
+
+/**
+ * Opens an existing thread object.
+ *
+ * @param DesiredAccess The access to the thread object. This access right is
+ *                      checked against the security descriptor for the thread.
+ *                      This parameter can be one or more of the thread access
+ *                      rights.
+ * @param InheritHandle If this value is TRUE, processes created by this
+ *                      process will inherit the handle. Otherwise, the
+ *                      processes do not inherit this handle.
+ * @param ThreadId The identifier of the thread to be opened.
+ * @param ThreadHandle A pointer to an open handle to the specified thread.
+ * @return HRESULT. If the method succeeds, the return value is S_OK.
+ * @remark For more information, see OpenThread.
+ */
+EXTERN_C HRESULT WINAPI MileOpenThread(
+    _In_ DWORD DesiredAccess,
+    _In_ BOOL InheritHandle,
+    _In_ DWORD ThreadId,
+    _Out_ PHANDLE ThreadHandle);
+
+/**
+ * Retrieves a pseudo handle for the calling thread.
+ *
+ * @return The return value is a pseudo handle for the current thread.
+ * @remark For more information, see GetCurrentThread.
+ */
+EXTERN_C HANDLE WINAPI MileGetCurrentThread();
+
+/**
+ * Opens the access token associated with a process.
+ *
+ * @param ProcessHandle A handle to the process whose access token is opened.
+ *                      The process must have the PROCESS_QUERY_INFORMATION
+ *                      access permission.
+ * @param DesiredAccess The access to the process object. This access right is
+ *                      checked against the security descriptor for the
+ *                      process. This parameter can be one or more of the
+ *                      process access rights.
+ * @param TokenHandle A pointer to a handle that identifies the newly opened
+ *                    access token when the function returns.
+ * @return HRESULT. If the method succeeds, the return value is S_OK.
+ * @remark For more information, see OpenProcessToken.
+ */
+EXTERN_C HRESULT WINAPI MileOpenProcessToken(
+    _In_ HANDLE ProcessHandle,
+    _In_ DWORD DesiredAccess,
+    _Out_ PHANDLE TokenHandle);
+
+/**
+ * Opens the access token associated with a thread.
+ *
+ * @param ThreadHandle A handle to the thread whose access token is opened.
+ * @param DesiredAccess Specifies an access mask that specifies the requested
+ *                      types of access to the access token. These requested
+ *                      access types are reconciled against the token's
+ *                      discretionary access control list (DACL) to determine
+ *                      which accesses are granted or denied.
+ * @param OpenAsSelf TRUE if the access check is to be made against the
+ *                   process-level security context. FALSE if the access check
+ *                   is to be made against the current security context of the
+ *                   thread calling the MileOpenThreadToken function.
+ * @param TokenHandle A pointer to a variable that receives the handle to the
+ *                    newly opened access token.
+ * @return HRESULT. If the method succeeds, the return value is S_OK.
+ * @remark For more information, see OpenThreadToken.
+ */
+EXTERN_C HRESULT WINAPI MileOpenThreadToken(
+    _In_ HANDLE ThreadHandle,
+    _In_ DWORD DesiredAccess,
+    _In_ BOOL OpenAsSelf,
+    _Out_ PHANDLE TokenHandle);
+
 #endif // !MILE_WINDOWS

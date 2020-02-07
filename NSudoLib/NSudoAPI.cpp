@@ -153,13 +153,8 @@ public:
 
         SID_IDENTIFIER_AUTHORITY SIA = SECURITY_MANDATORY_LABEL_AUTHORITY;
 
-        if (!::AllocateAndInitializeSid(
-            &SIA, 1, MandatoryLabelRid, 0, 0, 0, 0, 0, 0, 0, MandatoryLabelSid))
-        {
-            return ::HRESULT_FROM_WIN32(::GetLastError());
-        }
-
-        return S_OK;
+        return ::MileAllocateAndInitializeSid(
+            &SIA, 1, MandatoryLabelRid, 0, 0, 0, 0, 0, 0, 0, MandatoryLabelSid);
     }
 
     /**
@@ -180,7 +175,7 @@ public:
             hr = this->SetTokenInformation(
                 TokenHandle, TokenIntegrityLevel, &TML, sizeof(TML));
 
-            ::FreeSid(TML.Label.Sid);
+            ::MileFreeSid(TML.Label.Sid);
         }
 
         return hr;
@@ -396,12 +391,7 @@ public:
     virtual HRESULT STDMETHODCALLTYPE SetCurrentThreadToken(
         _In_opt_ HANDLE TokenHandle)
     {
-        if (!::SetThreadToken(nullptr, TokenHandle))
-        {
-            return ::HRESULT_FROM_WIN32(::GetLastError());
-        }
-
-        return S_OK;
+        return ::MileSetCurrentThreadToken(TokenHandle);
     }
 
     /**
@@ -415,18 +405,13 @@ public:
         _In_ TOKEN_TYPE TokenType,
         _Out_ PHANDLE NewTokenHandle)
     {
-        if (!::DuplicateTokenEx(
+        return ::MileDuplicateToken(
             ExistingTokenHandle,
             DesiredAccess,
             TokenAttributes,
             ImpersonationLevel,
             TokenType,
-            NewTokenHandle))
-        {
-            return ::HRESULT_FROM_WIN32(::GetLastError());
-        }
-
-        return S_OK;
+            NewTokenHandle);
     }
 
     /**
@@ -438,23 +423,11 @@ public:
         _In_ DWORD ProcessId,
         _Out_ PHANDLE ProcessHandle)
     {
-        HRESULT hr = E_INVALIDARG;
-
-        if (ProcessHandle)
-        {
-            *ProcessHandle = ::OpenProcess(
-                DesiredAccess, InheritHandle, ProcessId);
-            if (*ProcessHandle)
-            {
-                hr = S_OK;
-            }
-            else
-            {
-                hr = ::HRESULT_FROM_WIN32(::GetLastError());
-            }
-        }
-
-        return hr;
+        return ::MileOpenProcess(
+            DesiredAccess,
+            InheritHandle,
+            ProcessId,
+            ProcessHandle);
     }
 
     /**
@@ -512,13 +485,8 @@ public:
         _In_ DWORD DesiredAccess,
         _Out_ PHANDLE TokenHandle)
     {
-        if (!::OpenProcessToken(
-            ProcessHandle, DesiredAccess, TokenHandle))
-        {
-            return ::HRESULT_FROM_WIN32(::GetLastError());
-        }
-
-        return S_OK;
+        return ::MileOpenProcessToken(
+            ProcessHandle, DesiredAccess, TokenHandle);
     }
 
     /**
@@ -529,7 +497,7 @@ public:
         _Out_ PHANDLE TokenHandle)
     {
         return this->OpenProcessTokenByProcessHandle(
-            ::GetCurrentProcess(), DesiredAccess, TokenHandle);
+            ::MileGetCurrentProcess(), DesiredAccess, TokenHandle);
     }
 
     /**
@@ -609,23 +577,11 @@ public:
         _In_ DWORD ThreadId,
         _Out_ PHANDLE ThreadHandle)
     {
-        HRESULT hr = E_INVALIDARG;
-
-        if (ThreadHandle)
-        {
-            *ThreadHandle = ::OpenThread(
-                DesiredAccess, InheritHandle, ThreadId);
-            if (*ThreadHandle)
-            {
-                hr = S_OK;
-            }
-            else
-            {
-                hr = ::HRESULT_FROM_WIN32(::GetLastError());
-            }
-        }
-
-        return hr;
+        return ::MileOpenThread(
+            DesiredAccess,
+            InheritHandle,
+            ThreadId,
+            ThreadHandle);
     }
 
     /**
@@ -637,13 +593,8 @@ public:
         _In_ BOOL OpenAsSelf,
         _Out_ PHANDLE TokenHandle)
     {
-        if (!::OpenThreadToken(
-            ThreadHandle, DesiredAccess, OpenAsSelf, TokenHandle))
-        {
-            return ::HRESULT_FROM_WIN32(::GetLastError());
-        }
-
-        return S_OK;
+        return ::MileOpenThreadToken(
+            ThreadHandle, DesiredAccess, OpenAsSelf, TokenHandle);
     }
 
     /**
@@ -655,7 +606,7 @@ public:
         _Out_ PHANDLE TokenHandle)
     {
         return this->OpenThreadTokenByThreadHandle(
-            ::GetCurrentThread(), DesiredAccess, OpenAsSelf, TokenHandle);
+            ::MileGetCurrentThread(), DesiredAccess, OpenAsSelf, TokenHandle);
     }
 
     /**
