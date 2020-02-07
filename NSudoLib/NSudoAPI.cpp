@@ -304,19 +304,8 @@ public:
         _In_ LPCWSTR ServiceName,
         _Out_ PHANDLE ProcessHandle)
     {
-        SERVICE_STATUS_PROCESS ServiceStatus;
-
-        HRESULT hr = this->StartWindowsService(ServiceName, &ServiceStatus);
-        if (hr == S_OK)
-        {
-            hr = this->OpenProcess(
-                DesiredAccess,
-                InheritHandle,
-                ServiceStatus.dwProcessId,
-                ProcessHandle);
-        }
-
-        return hr;
+        return ::MileOpenServiceProcess(
+            DesiredAccess, InheritHandle, ServiceName, ProcessHandle);
     }
 
     /**
@@ -327,19 +316,8 @@ public:
         _In_ BOOL InheritHandle,
         _Out_ PHANDLE ProcessHandle)
     {
-        DWORD dwLsassPID = static_cast<DWORD>(-1);
-
-        HRESULT hr = ::MileGetLsassProcessId(&dwLsassPID);
-        if (hr == S_OK)
-        {
-            hr = this->OpenProcess(
-                DesiredAccess,
-                InheritHandle,
-                dwLsassPID,
-                ProcessHandle);
-        }
-
-        return hr;
+        return ::MileOpenLsassProcess(
+            DesiredAccess, InheritHandle, ProcessHandle);
     }
 
     /**
@@ -361,8 +339,7 @@ public:
         _In_ DWORD DesiredAccess,
         _Out_ PHANDLE TokenHandle)
     {
-        return this->OpenProcessTokenByProcessHandle(
-            ::MileGetCurrentProcess(), DesiredAccess, TokenHandle);
+        return ::MileOpenCurrentProcessToken(DesiredAccess, TokenHandle);
     }
 
     /**
@@ -373,19 +350,10 @@ public:
         _In_ DWORD DesiredAccess,
         _Out_ PHANDLE TokenHandle)
     {
-        HANDLE ProcessHandle = INVALID_HANDLE_VALUE;
-
-        HRESULT hr = this->OpenProcess(
-            MAXIMUM_ALLOWED, FALSE, ProcessId, &ProcessHandle);
-        if (hr == S_OK)
-        {
-            hr = this->OpenProcessTokenByProcessHandle(
-                ProcessHandle, DesiredAccess, TokenHandle);
-
-            ::MileCloseHandle(ProcessHandle);
-        }
-
-        return hr;
+        return ::MileOpenProcessTokenByProcessId(
+            ProcessId,
+            DesiredAccess,
+            TokenHandle);
     }
 
     /**
@@ -396,19 +364,10 @@ public:
         _In_ DWORD DesiredAccess,
         _Out_ PHANDLE TokenHandle)
     {
-        HANDLE ProcessHandle = INVALID_HANDLE_VALUE;
-
-        HRESULT hr = this->OpenServiceProcess(
-            MAXIMUM_ALLOWED, FALSE, ServiceName, &ProcessHandle);
-        if (hr == S_OK)
-        {
-            hr = this->OpenProcessTokenByProcessHandle(
-                ProcessHandle, DesiredAccess, TokenHandle);
-
-            ::MileCloseHandle(ProcessHandle);
-        }
-
-        return hr;
+        return ::MileOpenServiceProcessToken(
+            ServiceName,
+            DesiredAccess,
+            TokenHandle);
     }
 
     /**
@@ -418,19 +377,7 @@ public:
         _In_ DWORD DesiredAccess,
         _Out_ PHANDLE TokenHandle)
     {
-        HANDLE ProcessHandle = INVALID_HANDLE_VALUE;
-
-        HRESULT hr = this->OpenLsassProcess(
-            MAXIMUM_ALLOWED, FALSE, &ProcessHandle);
-        if (hr == S_OK)
-        {
-            hr = this->OpenProcessTokenByProcessHandle(
-                ProcessHandle, DesiredAccess, TokenHandle);
-
-            ::MileCloseHandle(ProcessHandle);
-        }
-
-        return hr;
+        return ::MileOpenLsassProcessToken(DesiredAccess, TokenHandle);
     }
 
     /**
@@ -470,8 +417,10 @@ public:
         _In_ BOOL OpenAsSelf,
         _Out_ PHANDLE TokenHandle)
     {
-        return this->OpenThreadTokenByThreadHandle(
-            ::MileGetCurrentThread(), DesiredAccess, OpenAsSelf, TokenHandle);
+        return ::MileOpenCurrentThreadToken(
+            DesiredAccess,
+            OpenAsSelf,
+            TokenHandle);
     }
 
     /**
@@ -483,19 +432,11 @@ public:
         _In_ BOOL OpenAsSelf,
         _Out_ PHANDLE TokenHandle)
     {
-        HANDLE ThreadHandle = INVALID_HANDLE_VALUE;
-
-        HRESULT hr = this->OpenThread(
-            MAXIMUM_ALLOWED, FALSE, ThreadId, &ThreadHandle);
-        if (hr == S_OK)
-        {
-            hr = this->OpenThreadTokenByThreadHandle(
-                ThreadHandle, DesiredAccess, OpenAsSelf, TokenHandle);
-
-            ::MileCloseHandle(ThreadHandle);
-        }
-
-        return hr;
+        return ::MileOpenThreadTokenByThreadId(
+            ThreadId,
+            DesiredAccess,
+            OpenAsSelf,
+            TokenHandle);
     }
 
     /**

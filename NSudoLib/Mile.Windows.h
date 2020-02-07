@@ -980,4 +980,201 @@ EXTERN_C HRESULT WINAPI MileCreateLUAToken(
     _In_ HANDLE ExistingTokenHandle,
     _Out_ PHANDLE TokenHandle);
 
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+/**
+ * Opens an existing local process object associated with a service process,
+ * the calling application must be running within the context of the
+ * Administrator account and have the SE_DEBUG_NAME privilege enabled.
+ *
+ * @param DesiredAccess The access to the process object. This access right is
+ *                      checked against the security descriptor for the
+ *                      process. This parameter can be one or more of the
+ *                      process access rights.
+ * @param InheritHandle If this value is TRUE, processes created by this
+ *                      process will inherit the handle. Otherwise, the
+ *                      processes do not inherit this handle.
+ * @param ServiceName The name of the service to be started. This is the name
+ *                    specified by the ServiceName parameter of the
+ *                    CreateService function when the service object was
+ *                    created, not the service display name that is shown by
+ *                    user interface applications to identify the service. The
+ *                    maximum string length is 256 characters. The service
+ *                    control manager database preserves the case of the
+ *                    characters, but service name comparisons are always case
+ *                    insensitive. Forward-slash (/) and backslash (\) are
+ *                    invalid service name characters.
+ * @param ProcessHandle A pointer to an open handle to the specified process.
+ * @return HRESULT. If the method succeeds, the return value is S_OK.
+ * @remark For more information, see OpenProcess.
+ */
+EXTERN_C HRESULT WINAPI MileOpenServiceProcess(
+    _In_ DWORD DesiredAccess,
+    _In_ BOOL InheritHandle,
+    _In_ LPCWSTR ServiceName,
+    _Out_ PHANDLE ProcessHandle);
+
+#endif
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+/**
+ * Opens an existing local process object associated with the Local Security
+ * Authority process, the calling application must be running within the
+ * context of the Administrator account and have the SE_DEBUG_NAME privilege
+ * enabled.
+ *
+ * @param DesiredAccess The access to the process object. This access right is
+ *                      checked against the security descriptor for the
+ *                      process. This parameter can be one or more of the
+ *                      process access rights.
+ * @param InheritHandle If this value is TRUE, processes created by this
+ *                      process will inherit the handle. Otherwise, the
+ *                      processes do not inherit this handle.
+ * @param ProcessHandle A pointer to an open handle to the specified process.
+ * @return HRESULT. If the method succeeds, the return value is S_OK.
+ * @remark For more information, see OpenProcess.
+ */
+EXTERN_C HRESULT WINAPI MileOpenLsassProcess(
+    _In_ DWORD DesiredAccess,
+    _In_ BOOL InheritHandle,
+    _Out_ PHANDLE ProcessHandle);
+
+#endif
+
+/**
+ * Opens the access token associated with the current process.
+ *
+ * @param DesiredAccess The access to the process object. This access right is
+ *                      checked against the security descriptor for the
+ *                      process. This parameter can be one or more of the
+ *                      process access rights.
+ * @param TokenHandle A pointer to a handle that identifies the newly opened
+ *                    access token when the function returns.
+ * @return HRESULT. If the method succeeds, the return value is S_OK.
+ * @remark For more information, see OpenProcessToken.
+ */
+EXTERN_C HRESULT WINAPI MileOpenCurrentProcessToken(
+    _In_ DWORD DesiredAccess,
+    _Out_ PHANDLE TokenHandle);
+
+/**
+ * Opens the access token associated with a process.
+ *
+ * @param ProcessId The identifier of the local process to be opened.
+ * @param DesiredAccess The access to the process object. This access right is
+ *                      checked against the security descriptor for the
+ *                      process. This parameter can be one or more of the
+ *                      process access rights.
+ * @param TokenHandle A pointer to a handle that identifies the newly opened
+ *                    access token when the function returns.
+ * @return HRESULT. If the method succeeds, the return value is S_OK.
+ * @remark For more information, see OpenProcessToken.
+ */
+EXTERN_C HRESULT WINAPI MileOpenProcessTokenByProcessId(
+    _In_ DWORD ProcessId,
+    _In_ DWORD DesiredAccess,
+    _Out_ PHANDLE TokenHandle);
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+/**
+ * Opens the access token associated with a service process, the calling
+ * application must be running within the context of the Administrator account
+ * and have the SE_DEBUG_NAME privilege enabled.
+ *
+ * @param ServiceName The name of the service to be started. This is the name
+ *                    specified by the ServiceName parameter of the
+ *                    CreateService function when the service object was
+ *                    created, not the service display name that is shown by
+ *                    user interface applications to identify the service.
+ *                    The maximum string length is 256 characters. The service
+ *                    control manager database preserves the case of the
+ *                    characters, but service name comparisons are always case
+ *                    insensitive. Forward-slash (/) and backslash (\) are
+ *                    invalid service name characters.
+ * @param DesiredAccess The access to the process object. This access right is
+ *                      checked against the security descriptor for the
+ *                      process. This parameter can be one or more of the
+ *                      process access rights.
+ * @param TokenHandle A pointer to a handle that identifies the newly opened
+ *                    access token when the function returns.
+ * @return HRESULT. If the method succeeds, the return value is S_OK.
+ * @remark For more information, see OpenProcessToken.
+ */
+EXTERN_C HRESULT WINAPI MileOpenServiceProcessToken(
+    _In_ LPCWSTR ServiceName,
+    _In_ DWORD DesiredAccess,
+    _Out_ PHANDLE TokenHandle);
+
+#endif
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+/**
+ * Opens the access token associated with the Local Security Authority process,
+ * the calling application must be running within the context of the
+ * Administrator account and have the SE_DEBUG_NAME privilege enabled.
+ *
+ * @param DesiredAccess The access to the process object. This access right is
+ *                      checked against the security descriptor for the
+ *                      process. This parameter can be one or more of the
+ *                      process access rights.
+ * @param TokenHandle A pointer to a handle that identifies the newly opened
+ *                    access token when the function returns.
+ * @return HRESULT. If the method succeeds, the return value is S_OK.
+ * @remark For more information, see OpenProcessToken.
+ */
+EXTERN_C HRESULT WINAPI MileOpenLsassProcessToken(
+    _In_ DWORD DesiredAccess,
+    _Out_ PHANDLE TokenHandle);
+
+#endif
+
+/**
+ * Opens the access token associated with the current thread.
+ *
+ * @param DesiredAccess Specifies an access mask that specifies the requested
+ *                      types of access to the access token. These requested
+ *                      access types are reconciled against the token's
+ *                      discretionary access control list (DACL) to determine
+ *                      which accesses are granted or denied.
+ * @param OpenAsSelf TRUE if the access check is to be made against the
+ *                   process-level security context. FALSE if the access check
+ *                   is to be made against the current security context of the
+ *                   thread calling the OpenThreadToken function.
+ * @param TokenHandle A pointer to a variable that receives the handle to the
+ *                    newly opened access token.
+ * @return HRESULT. If the method succeeds, the return value is S_OK.
+ * @remark For more information, see OpenThreadToken.
+ */
+EXTERN_C HRESULT WINAPI MileOpenCurrentThreadToken(
+    _In_ DWORD DesiredAccess,
+    _In_ BOOL OpenAsSelf,
+    _Out_ PHANDLE TokenHandle);
+
+/**
+ * Opens the access token associated with a thread.
+ *
+ * @param ThreadId The identifier of the thread to be opened.
+ * @param DesiredAccess Specifies an access mask that specifies the requested
+ *                      types of access to the access token. These requested
+ *                      access types are reconciled against the token's
+ *                      discretionary access control list (DACL) to determine
+ *                      which accesses are granted or denied.
+ * @param OpenAsSelf TRUE if the access check is to be made against the
+ *                   process-level security context. FALSE if the access check
+ *                   is to be made against the current security context of the
+ *                   thread calling the OpenThreadToken function.
+ * @param TokenHandle A pointer to a variable that receives the handle to the
+ *                    newly opened access token.
+ * @return HRESULT. If the method succeeds, the return value is S_OK.
+ * @remark For more information, see OpenThreadToken.
+ */
+EXTERN_C HRESULT WINAPI MileOpenThreadTokenByThreadId(
+    _In_ DWORD ThreadId,
+    _In_ DWORD DesiredAccess,
+    _In_ BOOL OpenAsSelf,
+    _Out_ PHANDLE TokenHandle);
+
 #endif // !MILE_WINDOWS

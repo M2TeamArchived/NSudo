@@ -1162,3 +1162,180 @@ EXTERN_C HRESULT WINAPI MileCreateLUAToken(
 
     return hr;
 }
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C HRESULT WINAPI MileOpenServiceProcess(
+    _In_ DWORD DesiredAccess,
+    _In_ BOOL InheritHandle,
+    _In_ LPCWSTR ServiceName,
+    _Out_ PHANDLE ProcessHandle)
+{
+    SERVICE_STATUS_PROCESS ServiceStatus;
+
+    HRESULT hr = ::MileStartServiceSimple(ServiceName, &ServiceStatus);
+    if (hr == S_OK)
+    {
+        hr = ::MileOpenProcess(
+            DesiredAccess,
+            InheritHandle,
+            ServiceStatus.dwProcessId,
+            ProcessHandle);
+    }
+
+    return hr;
+}
+
+#endif
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C HRESULT WINAPI MileOpenLsassProcess(
+    _In_ DWORD DesiredAccess,
+    _In_ BOOL InheritHandle,
+    _Out_ PHANDLE ProcessHandle)
+{
+    DWORD dwLsassPID = static_cast<DWORD>(-1);
+
+    HRESULT hr = ::MileGetLsassProcessId(&dwLsassPID);
+    if (hr == S_OK)
+    {
+        hr = ::MileOpenProcess(
+            DesiredAccess,
+            InheritHandle,
+            dwLsassPID,
+            ProcessHandle);
+    }
+
+    return hr;
+}
+
+#endif
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C HRESULT WINAPI MileOpenCurrentProcessToken(
+    _In_ DWORD DesiredAccess,
+    _Out_ PHANDLE TokenHandle)
+{
+    return ::MileOpenProcessToken(
+        ::MileGetCurrentProcess(), DesiredAccess, TokenHandle);
+}
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C HRESULT WINAPI MileOpenProcessTokenByProcessId(
+    _In_ DWORD ProcessId,
+    _In_ DWORD DesiredAccess,
+    _Out_ PHANDLE TokenHandle)
+{
+    HANDLE ProcessHandle = INVALID_HANDLE_VALUE;
+
+    HRESULT hr = ::MileOpenProcess(
+        MAXIMUM_ALLOWED, FALSE, ProcessId, &ProcessHandle);
+    if (hr == S_OK)
+    {
+        hr = ::MileOpenProcessToken(ProcessHandle, DesiredAccess, TokenHandle);
+
+        ::MileCloseHandle(ProcessHandle);
+    }
+
+    return hr;
+}
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C HRESULT WINAPI MileOpenServiceProcessToken(
+    _In_ LPCWSTR ServiceName,
+    _In_ DWORD DesiredAccess,
+    _Out_ PHANDLE TokenHandle)
+{
+    HANDLE ProcessHandle = INVALID_HANDLE_VALUE;
+
+    HRESULT hr = ::MileOpenServiceProcess(
+        MAXIMUM_ALLOWED, FALSE, ServiceName, &ProcessHandle);
+    if (hr == S_OK)
+    {
+        hr = ::MileOpenProcessToken(
+            ProcessHandle, DesiredAccess, TokenHandle);
+
+        ::MileCloseHandle(ProcessHandle);
+    }
+
+    return hr;
+}
+
+#endif
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C HRESULT WINAPI MileOpenLsassProcessToken(
+    _In_ DWORD DesiredAccess,
+    _Out_ PHANDLE TokenHandle)
+{
+    HANDLE ProcessHandle = INVALID_HANDLE_VALUE;
+
+    HRESULT hr = ::MileOpenLsassProcess(
+        MAXIMUM_ALLOWED, FALSE, &ProcessHandle);
+    if (hr == S_OK)
+    {
+        hr = ::MileOpenProcessToken(
+            ProcessHandle, DesiredAccess, TokenHandle);
+
+        ::MileCloseHandle(ProcessHandle);
+    }
+
+    return hr;
+}
+
+#endif
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C HRESULT WINAPI MileOpenCurrentThreadToken(
+    _In_ DWORD DesiredAccess,
+    _In_ BOOL OpenAsSelf,
+    _Out_ PHANDLE TokenHandle)
+{
+    return ::MileOpenThreadToken(
+        ::MileGetCurrentThread(), DesiredAccess, OpenAsSelf, TokenHandle);
+}
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C HRESULT WINAPI MileOpenThreadTokenByThreadId(
+    _In_ DWORD ThreadId,
+    _In_ DWORD DesiredAccess,
+    _In_ BOOL OpenAsSelf,
+    _Out_ PHANDLE TokenHandle)
+{
+    HANDLE ThreadHandle = INVALID_HANDLE_VALUE;
+
+    HRESULT hr = ::MileOpenThread(
+        MAXIMUM_ALLOWED, FALSE, ThreadId, &ThreadHandle);
+    if (hr == S_OK)
+    {
+        hr = ::MileOpenThreadToken(
+            ThreadHandle, DesiredAccess, OpenAsSelf, TokenHandle);
+
+        ::MileCloseHandle(ThreadHandle);
+    }
+
+    return hr;
+}
