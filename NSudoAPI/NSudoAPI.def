@@ -2,4 +2,4 @@
 
 EXPORTS
 
-NSudoCreateInstance
+NSudoCreateProcess

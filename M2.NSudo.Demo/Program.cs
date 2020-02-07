@@ -8,15 +8,16 @@ namespace M2.NSudo.Demo
         {
             NSudoInstance instance = new NSudoInstance();
 
-            INSudoClient client = instance.CreateClient();
-
-            IntPtr currentProcessToken = client.OpenCurrentProcessToken(0x02000000);
-            if (currentProcessToken != null)
-            {
-                client.AdjustTokenAllPrivileges(currentProcessToken, 0x00000002);
-            }
-
-            Console.WriteLine("Hello World!");
+            instance.CreateProcess(
+                NSUDO_USER_MODE_TYPE.TRUSTED_INSTALLER,
+                NSUDO_PRIVILEGES_MODE_TYPE.ENABLE_ALL_PRIVILEGES,
+                NSUDO_MANDATORY_LABEL_TYPE.SYSTEM,
+                NSUDO_PROCESS_PRIORITY_CLASS_TYPE.NORMAL,
+                NSUDO_SHOW_WINDOW_MODE_TYPE.DEFAULT,
+                0,
+                true, 
+                "cmd",
+                null);
 
             Console.ReadKey();
         }

@@ -17,474 +17,698 @@
 #include <cstdio>
 #include <cwchar>
 
+#include <map>
+#include <string>
+#include <vector>
+
 #include <Userenv.h>
 #pragma comment(lib, "Userenv.lib")
 
+namespace M2
+{
+    /**
+     * Disable C++ Object Copying
+     */
+    class CDisableObjectCopying
+    {
+    protected:
+        CDisableObjectCopying() = default;
+        ~CDisableObjectCopying() = default;
+
+    private:
+        CDisableObjectCopying(
+            const CDisableObjectCopying&) = delete;
+        CDisableObjectCopying& operator=(
+            const CDisableObjectCopying&) = delete;
+    };
+
+    /**
+     * Disable C++ Object Moving
+     */
+    class CDisableObjectMoving
+    {
+    protected:
+        CDisableObjectMoving() = default;
+        ~CDisableObjectMoving() = default;
+
+    private:
+        CDisableObjectMoving(
+            const CDisableObjectCopying&&) = delete;
+        CDisableObjectMoving& operator=(
+            const CDisableObjectCopying&&) = delete;
+    };
+
+    /**
+     * The implementation of smart object.
+     */
+    template<typename TObject, typename TObjectDefiner>
+    class CObject : CDisableObjectCopying, CDisableObjectMoving
+    {
+    protected:
+        TObject m_Object;
+    public:
+        CObject(TObject Object = TObjectDefiner::GetInvalidValue()) :
+            m_Object(Object)
+        {
+
+        }
+
+        ~CObject()
+        {
+            this->Close();
+        }
+
+        TObject* operator&()
+        {
+            return &this->m_Object;
+        }
+
+        TObject operator=(TObject Object)
+        {
+            if (Object != this->m_Object)
+            {
+                this->Close();
+                this->m_Object = Object;
+            }
+            return (this->m_Object);
+        }
+
+        operator TObject()
+        {
+            return this->m_Object;
+        }
+
+        bool IsInvalid()
+        {
+            return (this->m_Object == TObjectDefiner::GetInvalidValue());
+        }
+
+        TObject Detach()
+        {
+            TObject Object = this->m_Object;
+            this->m_Object = TObjectDefiner::GetInvalidValue();
+            return Object;
+        }
+
+        void Close()
+        {
+            if (!this->IsInvalid())
+            {
+                TObjectDefiner::Close(this->m_Object);
+                this->m_Object = TObjectDefiner::GetInvalidValue();
+            }
+        }
+
+        TObject operator->() const
+        {
+            return this->m_Object;
+        }
+    };
+
+    /**
+     * The handle definer for HANDLE object.
+     */
+#pragma region CHandle
+
+    struct CHandleDefiner
+    {
+        static inline HANDLE GetInvalidValue()
+        {
+            return INVALID_HANDLE_VALUE;
+        }
+
+        static inline void Close(HANDLE Object)
+        {
+            ::MileCloseHandle(Object);
+        }
+    };
+
+    typedef CObject<HANDLE, CHandleDefiner> CHandle;
+
+#pragma endregion
+}
+
 /**
- * NSudo Shared Library Client Interface Implementation
+ * Enables or disables privileges in the specified access token.
+ *
+ * @param TokenHandle A handle to the access token that contains the
+ *                    privileges to be modified. The handle must have
+ *                    TOKEN_ADJUST_PRIVILEGES access to the token.
+ * @param Privileges A key value map of privilege name and attributes.
+ *                   The attributes of a privilege can be a combination
+ *                   of the following values.
+ *                   SE_PRIVILEGE_ENABLED
+ *                       The function enables the privilege.
+ *                   SE_PRIVILEGE_REMOVED
+ *                       The privilege is removed from the list of
+ *                       privileges in the token.
+ *                   None
+ *                       The function disables the privilege.
+ * @return Standard Win32 Error. If the function succeeds, the return
+ *         value is ERROR_SUCCESS.
+ * @remark For more information, see AdjustTokenPrivileges.
  */
-class CNSudoClient : public M2::Base::CComClass<CNSudoClient, INSudoClient>
+HRESULT NSudoAdjustTokenPrivileges(
+    HANDLE TokenHandle,
+    std::map<std::wstring, DWORD> const& Privileges)
+{
+    std::vector<LUID_AND_ATTRIBUTES> RawPrivileges;
+
+    for (auto const& Privilege : Privileges)
+    {
+        LUID_AND_ATTRIBUTES RawPrivilege;
+
+        HRESULT hr = ::MileGetPrivilegeValue(
+            Privilege.first.c_str(), &RawPrivilege.Luid);
+        if (hr != S_OK)
+        {
+            return hr;
+        }
+
+        RawPrivilege.Attributes = Privilege.second;
+
+        RawPrivileges.push_back(RawPrivilege);
+    }
+
+    return ::MileAdjustTokenPrivilegesSimple(
+        TokenHandle,
+        &RawPrivileges[0],
+        static_cast<DWORD>(RawPrivileges.size()));
+}
+
+class ThreadTokenContext
 {
 public:
 
-    M2_BASE_COM_INTERFACE_MAP_BEGIN;
-        M2_BASE_COM_INTERFACE_ENTRY(INSudoClient);
-    M2_BASE_COM_INTERFACE_MAP_END;
+    HRESULT hr;
 
-    CNSudoClient() = default;
-
-    virtual ~CNSudoClient() = default;
-
-    /**
-     * @remark You can read the definition for this method in "NSudoAPI.h".
-     */
-    virtual HRESULT STDMETHODCALLTYPE FreeMemory(
-        _In_ LPVOID Block)
+    ThreadTokenContext(HANDLE TokenHandle) :
+        hr(::MileSetCurrentThreadToken(TokenHandle))
     {
-        return ::MileFreeMemory(Block);
     }
 
-    /**
-     * @remark You can read the definition for this method in "NSudoAPI.h".
-     */
-    virtual HRESULT STDMETHODCALLTYPE GetTokenInformation(
-        _In_ HANDLE TokenHandle,
-        _In_ TOKEN_INFORMATION_CLASS TokenInformationClass,
-        _Out_opt_ LPVOID TokenInformation,
-        _In_ DWORD TokenInformationLength,
-        _Out_ PDWORD ReturnLength)
+    ~ThreadTokenContext()
     {
-        return ::MileGetTokenInformation(
-            TokenHandle,
-            TokenInformationClass,
-            TokenInformation,
-            TokenInformationLength,
-            ReturnLength);
+        ::MileSetCurrentThreadToken(nullptr);
     }
 
-    /**
-      * @remark You can read the definition for this method in "NSudoAPI.h".
-      */
-    virtual HRESULT STDMETHODCALLTYPE GetTokenInformationWithMemory(
-        _In_ HANDLE TokenHandle,
-        _In_ TOKEN_INFORMATION_CLASS TokenInformationClass,
-        _Out_ PVOID* OutputInformation)
-    {
-        return ::MileGetTokenInformationWithMemory(
-            TokenHandle,
-            TokenInformationClass,
-            OutputInformation);
-    }
+};
 
-    /**
-     * @remark You can read the definition for this method in "NSudoAPI.h".
-     */
-    virtual HRESULT STDMETHODCALLTYPE SetTokenInformation(
-        _In_ HANDLE TokenHandle,
-        _In_ TOKEN_INFORMATION_CLASS TokenInformationClass,
-        _In_ LPVOID TokenInformation,
-        _In_ DWORD TokenInformationLength)
-    {
-        return ::MileSetTokenInformation(
-            TokenHandle,
-            TokenInformationClass,
-            TokenInformation,
-            TokenInformationLength);
-    }
+/**
+ * Expands environment-variable strings and replaces them with the values
+ * defined for the current user.
+ *
+ * @param ExpandedString The expanded string.
+ * @param VariableName The environment-variable string you need to expand.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ */
+HRESULT pM2ExpandEnvironmentStrings(
+    std::wstring& ExpandedString,
+    const std::wstring& VariableName)
+{
+    HRESULT hr = S_OK;
 
-    /**
-     * @remark You can read the definition for this method in "NSudoAPI.h".
-     */
-    virtual HRESULT STDMETHODCALLTYPE AdjustTokenPrivileges(
-        _In_ HANDLE TokenHandle,
-        _In_ PLUID_AND_ATTRIBUTES Privileges,
-        _In_ DWORD PrivilegeCount)
+    do
     {
-        return ::MileAdjustTokenPrivilegesSimple(
-            TokenHandle,
-            Privileges,
-            PrivilegeCount);
-    }
-
-    /**
-     * @remark You can read the definition for this method in "NSudoAPI.h".
-     */
-    virtual HRESULT STDMETHODCALLTYPE AdjustTokenAllPrivileges(
-        _In_ HANDLE TokenHandle,
-        _In_ DWORD Attributes)
-    {
-        return ::MileAdjustTokenAllPrivileges(TokenHandle, Attributes);
-    }
-
-    /**
-     * @remark You can read the definition for this method in "NSudoAPI.h".
-     */
-    virtual HRESULT STDMETHODCALLTYPE CreateMandatoryLabelSid(
-        _In_ NSUDO_MANDATORY_LABEL_TYPE MandatoryLabelType,
-        _Out_ PSID* MandatoryLabelSid)
-    {
-        DWORD MandatoryLabelRid;
-        switch (MandatoryLabelType)
+        DWORD Length = ExpandEnvironmentStringsW(
+            VariableName.c_str(),
+            nullptr,
+            0);
+        if (0 == Length)
         {
-        case NSUDO_MANDATORY_LABEL_TYPE::UNTRUSTED:
-            MandatoryLabelRid = SECURITY_MANDATORY_UNTRUSTED_RID;
+            hr = ::HRESULT_FROM_WIN32(::GetLastError());
             break;
-        case NSUDO_MANDATORY_LABEL_TYPE::LOW:
-            MandatoryLabelRid = SECURITY_MANDATORY_LOW_RID;
-            break;
-        case NSUDO_MANDATORY_LABEL_TYPE::MEDIUM:
-            MandatoryLabelRid = SECURITY_MANDATORY_MEDIUM_RID;
-            break;
-        case NSUDO_MANDATORY_LABEL_TYPE::MEDIUM_PLUS:
-            MandatoryLabelRid = SECURITY_MANDATORY_MEDIUM_PLUS_RID;
-            break;
-        case NSUDO_MANDATORY_LABEL_TYPE::HIGH:
-            MandatoryLabelRid = SECURITY_MANDATORY_HIGH_RID;
-            break;
-        case NSUDO_MANDATORY_LABEL_TYPE::SYSTEM:
-            MandatoryLabelRid = SECURITY_MANDATORY_SYSTEM_RID;
-            break;
-        case NSUDO_MANDATORY_LABEL_TYPE::PROTECTED_PROCESS:
-            MandatoryLabelRid = SECURITY_MANDATORY_PROTECTED_PROCESS_RID;
-            break;
-        default:
-            return E_INVALIDARG;
         }
 
-        return ::MileCreateMandatoryLabelSid(
-            MandatoryLabelRid,
-            MandatoryLabelSid);
-    }
+        ExpandedString.resize(Length - 1);
 
-    /**
-     * @remark You can read the definition for this method in "NSudoAPI.h".
-     */
-    virtual HRESULT STDMETHODCALLTYPE SetTokenMandatoryLabel(
-        _In_ HANDLE TokenHandle,
-        _In_ NSUDO_MANDATORY_LABEL_TYPE MandatoryLabelType)
-    {
-        DWORD MandatoryLabelRid;
-        switch (MandatoryLabelType)
+        Length = ExpandEnvironmentStringsW(
+            VariableName.c_str(),
+            &ExpandedString[0],
+            static_cast<DWORD>(ExpandedString.size() + 1));
+        if (0 == Length)
         {
-        case NSUDO_MANDATORY_LABEL_TYPE::UNTRUSTED:
-            MandatoryLabelRid = SECURITY_MANDATORY_UNTRUSTED_RID;
+            hr = ::HRESULT_FROM_WIN32(::GetLastError());
             break;
-        case NSUDO_MANDATORY_LABEL_TYPE::LOW:
-            MandatoryLabelRid = SECURITY_MANDATORY_LOW_RID;
+        }
+        if (ExpandedString.size() != Length - 1)
+        {
+            hr = E_UNEXPECTED;
             break;
-        case NSUDO_MANDATORY_LABEL_TYPE::MEDIUM:
-            MandatoryLabelRid = SECURITY_MANDATORY_MEDIUM_RID;
-            break;
-        case NSUDO_MANDATORY_LABEL_TYPE::MEDIUM_PLUS:
-            MandatoryLabelRid = SECURITY_MANDATORY_MEDIUM_PLUS_RID;
-            break;
-        case NSUDO_MANDATORY_LABEL_TYPE::HIGH:
-            MandatoryLabelRid = SECURITY_MANDATORY_HIGH_RID;
-            break;
-        case NSUDO_MANDATORY_LABEL_TYPE::SYSTEM:
-            MandatoryLabelRid = SECURITY_MANDATORY_SYSTEM_RID;
-            break;
-        case NSUDO_MANDATORY_LABEL_TYPE::PROTECTED_PROCESS:
-            MandatoryLabelRid = SECURITY_MANDATORY_PROTECTED_PROCESS_RID;
-            break;
-        default:
-            return E_INVALIDARG;
         }
 
-        return ::MileSetTokenMandatoryLabel(TokenHandle, MandatoryLabelRid);
+    } while (false);
+
+    if (FAILED(hr))
+    {
+        ExpandedString.clear();
     }
 
-    /**
-     * @remark You can read the definition for this method in "NSudoAPI.h".
-     */
-    virtual HRESULT STDMETHODCALLTYPE StartWindowsService(
-        _In_ LPCWSTR ServiceName,
-        _Out_ LPSERVICE_STATUS_PROCESS ServiceStatus)
+    return hr;
+}
+
+/**
+ * @remark You can read the definition for this function in "NSudoAPI.h".
+ */
+EXTERN_C HRESULT WINAPI NSudoCreateProcess(
+    _In_ NSUDO_USER_MODE_TYPE UserModeType,
+    _In_ NSUDO_PRIVILEGES_MODE_TYPE PrivilegesModeType,
+    _In_ NSUDO_MANDATORY_LABEL_TYPE MandatoryLabelType,
+    _In_ NSUDO_PROCESS_PRIORITY_CLASS_TYPE ProcessPriorityClassType,
+    _In_ NSUDO_SHOW_WINDOW_MODE_TYPE ShowWindowModeType,
+    _In_ DWORD WaitInterval,
+    _In_ BOOL CreateNewConsole,
+    _In_ LPCWSTR CommandLine,
+    _In_opt_ LPCWSTR CurrentDirectory)
+{
+    DWORD MandatoryLabelRid;
+    switch (MandatoryLabelType)
     {
-        return ::MileStartServiceSimple(ServiceName, ServiceStatus);
+    case NSUDO_MANDATORY_LABEL_TYPE::UNTRUSTED:
+        MandatoryLabelRid = SECURITY_MANDATORY_UNTRUSTED_RID;
+        break;
+    case NSUDO_MANDATORY_LABEL_TYPE::LOW:
+        MandatoryLabelRid = SECURITY_MANDATORY_LOW_RID;
+        break;
+    case NSUDO_MANDATORY_LABEL_TYPE::MEDIUM:
+        MandatoryLabelRid = SECURITY_MANDATORY_MEDIUM_RID;
+        break;
+    case NSUDO_MANDATORY_LABEL_TYPE::MEDIUM_PLUS:
+        MandatoryLabelRid = SECURITY_MANDATORY_MEDIUM_PLUS_RID;
+        break;
+    case NSUDO_MANDATORY_LABEL_TYPE::HIGH:
+        MandatoryLabelRid = SECURITY_MANDATORY_HIGH_RID;
+        break;
+    case NSUDO_MANDATORY_LABEL_TYPE::SYSTEM:
+        MandatoryLabelRid = SECURITY_MANDATORY_SYSTEM_RID;
+        break;
+    case NSUDO_MANDATORY_LABEL_TYPE::PROTECTED_PROCESS:
+        MandatoryLabelRid = SECURITY_MANDATORY_PROTECTED_PROCESS_RID;
+        break;
+    default:
+        return E_INVALIDARG;
     }
 
-    /**
-     * @remark You can read the definition for this method in "NSudoAPI.h".
-     */
-    virtual HRESULT STDMETHODCALLTYPE CreateSessionToken(
-        _In_ DWORD SessionId,
-        _Out_ PHANDLE TokenHandle)
+    DWORD ProcessPriority;
+    switch (ProcessPriorityClassType)
     {
-        return ::MileCreateSessionToken(SessionId, TokenHandle);
+    case NSUDO_PROCESS_PRIORITY_CLASS_TYPE::IDLE:
+        ProcessPriority = IDLE_PRIORITY_CLASS;
+        break;
+    case NSUDO_PROCESS_PRIORITY_CLASS_TYPE::BELOW_NORMAL:
+        ProcessPriority = BELOW_NORMAL_PRIORITY_CLASS;
+        break;
+    case NSUDO_PROCESS_PRIORITY_CLASS_TYPE::NORMAL:
+        ProcessPriority = NORMAL_PRIORITY_CLASS;
+        break;
+    case NSUDO_PROCESS_PRIORITY_CLASS_TYPE::ABOVE_NORMAL:
+        ProcessPriority = ABOVE_NORMAL_PRIORITY_CLASS;
+        break;
+    case NSUDO_PROCESS_PRIORITY_CLASS_TYPE::HIGH:
+        ProcessPriority = HIGH_PRIORITY_CLASS;
+        break;
+    case NSUDO_PROCESS_PRIORITY_CLASS_TYPE::REALTIME:
+        ProcessPriority = REALTIME_PRIORITY_CLASS;
+        break;
+    default:
+        return E_INVALIDARG;
     }
 
-    /**
-     * @remark You can read the definition for this method in "NSudoAPI.h".
-     */
-    virtual HRESULT STDMETHODCALLTYPE CreateRestrictedToken(
-        _In_ HANDLE ExistingTokenHandle,
-        _In_ DWORD Flags,
-        _In_ DWORD DisableSidCount,
-        _In_opt_ PSID_AND_ATTRIBUTES SidsToDisable,
-        _In_ DWORD DeletePrivilegeCount,
-        _In_opt_ PLUID_AND_ATTRIBUTES PrivilegesToDelete,
-        _In_ DWORD RestrictedSidCount,
-        _In_opt_ PSID_AND_ATTRIBUTES SidsToRestrict,
-        _Out_ PHANDLE NewTokenHandle)
+    DWORD ShowWindowMode;
+    switch (ShowWindowModeType)
     {
-        return ::MileCreateRestrictedToken(
-            ExistingTokenHandle,
-            Flags,
-            DisableSidCount,
-            SidsToDisable,
-            DeletePrivilegeCount,
-            PrivilegesToDelete,
-            RestrictedSidCount,
-            SidsToRestrict,
-            NewTokenHandle);
+    case NSUDO_SHOW_WINDOW_MODE_TYPE::DEFAULT:
+        ShowWindowMode = SW_SHOWDEFAULT;
+        break;
+    case NSUDO_SHOW_WINDOW_MODE_TYPE::SHOW:
+        ShowWindowMode = SW_SHOW;
+        break;
+    case NSUDO_SHOW_WINDOW_MODE_TYPE::HIDE:
+        ShowWindowMode = SW_HIDE;
+        break;
+    case NSUDO_SHOW_WINDOW_MODE_TYPE::MAXIMIZE:
+        ShowWindowMode = SW_MAXIMIZE;
+        break;
+    case NSUDO_SHOW_WINDOW_MODE_TYPE::MINIMIZE:
+        ShowWindowMode = SW_MINIMIZE;
+        break;
+    default:
+        return E_INVALIDARG;
     }
 
-    /**
-     * @remark You can read the definition for this method in "NSudoAPI.h".
-     */
-    virtual HRESULT STDMETHODCALLTYPE CreateLUAToken(
-        _In_ HANDLE ExistingTokenHandle,
-        _Out_ PHANDLE TokenHandle)
+    HRESULT hr = S_OK;
+
+    M2::CHandle CurrentProcessToken;
+    M2::CHandle DuplicatedCurrentProcessToken;
+    DWORD SessionID = static_cast<DWORD>(-1);
+
+    M2::CHandle OriginalLsassProcessToken;
+    M2::CHandle SystemToken;
+
+    M2::CHandle hToken;
+    M2::CHandle OriginalToken;
+
+    std::map<std::wstring, DWORD> Privileges;
+    Privileges.insert(std::pair(SE_DEBUG_NAME, SE_PRIVILEGE_ENABLED));
+
+    DWORD ReturnLength = 0;
+
+    hr = ::MileOpenCurrentProcessToken(
+        MAXIMUM_ALLOWED, &CurrentProcessToken);
+    if (hr != S_OK)
     {
-        return ::MileCreateLUAToken(ExistingTokenHandle, TokenHandle);
+        return hr;
     }
 
-    /**
-     * @remark You can read the definition for this method in "NSudoAPI.h".
-     */
-    virtual HRESULT STDMETHODCALLTYPE SetCurrentThreadToken(
-        _In_opt_ HANDLE TokenHandle)
+    hr = ::MileDuplicateToken(
+        CurrentProcessToken,
+        MAXIMUM_ALLOWED,
+        nullptr,
+        SecurityImpersonation,
+        TokenImpersonation,
+        &DuplicatedCurrentProcessToken);
+    if (hr != S_OK)
     {
-        return ::MileSetCurrentThreadToken(TokenHandle);
+        return hr;
     }
 
-    /**
-     * @remark You can read the definition for this method in "NSudoAPI.h".
-     */
-    virtual HRESULT STDMETHODCALLTYPE DuplicateToken(
-        _In_ HANDLE ExistingTokenHandle,
-        _In_ DWORD DesiredAccess,
-        _In_opt_ LPSECURITY_ATTRIBUTES TokenAttributes,
-        _In_ SECURITY_IMPERSONATION_LEVEL ImpersonationLevel,
-        _In_ TOKEN_TYPE TokenType,
-        _Out_ PHANDLE NewTokenHandle)
+    hr = NSudoAdjustTokenPrivileges(
+        DuplicatedCurrentProcessToken,
+        Privileges);
+    if (hr != S_OK)
     {
-        return ::MileDuplicateToken(
-            ExistingTokenHandle,
-            DesiredAccess,
-            TokenAttributes,
-            ImpersonationLevel,
-            TokenType,
-            NewTokenHandle);
+        return hr;
     }
 
-    /**
-     * @remark You can read the definition for this method in "NSudoAPI.h".
-     */
-    virtual HRESULT STDMETHODCALLTYPE OpenProcess(
-        _In_ DWORD DesiredAccess,
-        _In_ BOOL InheritHandle,
-        _In_ DWORD ProcessId,
-        _Out_ PHANDLE ProcessHandle)
+    ThreadTokenContext CurrentThreadTokenContext(
+        DuplicatedCurrentProcessToken);
+    if (CurrentThreadTokenContext.hr != S_OK)
     {
-        return ::MileOpenProcess(
-            DesiredAccess,
-            InheritHandle,
-            ProcessId,
-            ProcessHandle);
+        return hr;
     }
 
-    /**
-     * @remark You can read the definition for this method in "NSudoAPI.h".
-     */
-    virtual HRESULT STDMETHODCALLTYPE OpenServiceProcess(
-        _In_ DWORD DesiredAccess,
-        _In_ BOOL InheritHandle,
-        _In_ LPCWSTR ServiceName,
-        _Out_ PHANDLE ProcessHandle)
+    hr = ::MileOpenCurrentThreadToken(
+        MAXIMUM_ALLOWED, FALSE, &CurrentProcessToken);
+    if (hr != S_OK)
     {
-        return ::MileOpenServiceProcess(
-            DesiredAccess, InheritHandle, ServiceName, ProcessHandle);
+        return hr;
     }
 
-    /**
-     * @remark You can read the definition for this method in "NSudoAPI.h".
-     */
-    virtual HRESULT STDMETHODCALLTYPE OpenLsassProcess(
-        _In_ DWORD DesiredAccess,
-        _In_ BOOL InheritHandle,
-        _Out_ PHANDLE ProcessHandle)
+    hr = ::MileGetTokenInformation(
+        CurrentProcessToken,
+        TokenSessionId,
+        &SessionID,
+        sizeof(DWORD),
+        &ReturnLength);
+    if (hr != S_OK)
     {
-        return ::MileOpenLsassProcess(
-            DesiredAccess, InheritHandle, ProcessHandle);
+        return hr;
     }
 
-    /**
-     * @remark You can read the definition for this method in "NSudoAPI.h".
-     */
-    virtual HRESULT STDMETHODCALLTYPE OpenProcessTokenByProcessHandle(
-        _In_ HANDLE ProcessHandle,
-        _In_ DWORD DesiredAccess,
-        _Out_ PHANDLE TokenHandle)
+    hr = ::MileOpenLsassProcessToken(
+        MAXIMUM_ALLOWED,
+        &OriginalLsassProcessToken);
+    if (hr != S_OK)
     {
-        return ::MileOpenProcessToken(
-            ProcessHandle, DesiredAccess, TokenHandle);
+        return hr;
     }
 
-    /**
-     * @remark You can read the definition for this method in "NSudoAPI.h".
-     */
-    virtual HRESULT STDMETHODCALLTYPE OpenCurrentProcessToken(
-        _In_ DWORD DesiredAccess,
-        _Out_ PHANDLE TokenHandle)
+    hr = ::MileDuplicateToken(
+        OriginalLsassProcessToken,
+        MAXIMUM_ALLOWED,
+        nullptr,
+        SecurityImpersonation,
+        TokenImpersonation,
+        &SystemToken);
+    if (hr != S_OK)
     {
-        return ::MileOpenCurrentProcessToken(DesiredAccess, TokenHandle);
+        return hr;
     }
 
-    /**
-     * @remark You can read the definition for this method in "NSudoAPI.h".
-     */
-    virtual HRESULT STDMETHODCALLTYPE OpenProcessTokenByProcessId(
-        _In_ DWORD ProcessId,
-        _In_ DWORD DesiredAccess,
-        _Out_ PHANDLE TokenHandle)
+    hr = ::MileAdjustTokenAllPrivileges(
+        SystemToken,
+        SE_PRIVILEGE_ENABLED);
+    if (hr != S_OK)
     {
-        return ::MileOpenProcessTokenByProcessId(
-            ProcessId,
-            DesiredAccess,
-            TokenHandle);
+        return hr;
     }
 
-    /**
-     * @remark You can read the definition for this method in "NSudoAPI.h".
-     */
-    virtual HRESULT STDMETHODCALLTYPE OpenServiceProcessToken(
-        _In_ LPCWSTR ServiceName,
-        _In_ DWORD DesiredAccess,
-        _Out_ PHANDLE TokenHandle)
+    ThreadTokenContext SystemTokenContext(SystemToken);
+    if (SystemTokenContext.hr != S_OK)
     {
-        return ::MileOpenServiceProcessToken(
-            ServiceName,
-            DesiredAccess,
-            TokenHandle);
+        return hr;
     }
 
-    /**
-     * @remark You can read the definition for this method in "NSudoAPI.h".
-     */
-    virtual HRESULT STDMETHODCALLTYPE OpenLsassProcessToken(
-        _In_ DWORD DesiredAccess,
-        _Out_ PHANDLE TokenHandle)
+    if (NSUDO_USER_MODE_TYPE::TRUSTED_INSTALLER == UserModeType)
     {
-        return ::MileOpenLsassProcessToken(DesiredAccess, TokenHandle);
-    }
-
-    /**
-     * @remark You can read the definition for this method in "NSudoAPI.h".
-     */
-    virtual HRESULT STDMETHODCALLTYPE OpenThread(
-        _In_ DWORD DesiredAccess,
-        _In_ BOOL InheritHandle,
-        _In_ DWORD ThreadId,
-        _Out_ PHANDLE ThreadHandle)
-    {
-        return ::MileOpenThread(
-            DesiredAccess,
-            InheritHandle,
-            ThreadId,
-            ThreadHandle);
-    }
-
-    /**
-     * @remark You can read the definition for this method in "NSudoAPI.h".
-     */
-    virtual HRESULT STDMETHODCALLTYPE OpenThreadTokenByThreadHandle(
-        _In_ HANDLE ThreadHandle,
-        _In_ DWORD DesiredAccess,
-        _In_ BOOL OpenAsSelf,
-        _Out_ PHANDLE TokenHandle)
-    {
-        return ::MileOpenThreadToken(
-            ThreadHandle, DesiredAccess, OpenAsSelf, TokenHandle);
-    }
-
-    /**
-     * @remark You can read the definition for this method in "NSudoAPI.h".
-     */
-    virtual HRESULT STDMETHODCALLTYPE OpenCurrentThreadToken(
-        _In_ DWORD DesiredAccess,
-        _In_ BOOL OpenAsSelf,
-        _Out_ PHANDLE TokenHandle)
-    {
-        return ::MileOpenCurrentThreadToken(
-            DesiredAccess,
-            OpenAsSelf,
-            TokenHandle);
-    }
-
-    /**
-     * @remark You can read the definition for this method in "NSudoAPI.h".
-     */
-    virtual HRESULT STDMETHODCALLTYPE OpenThreadTokenByThreadId(
-        _In_ DWORD ThreadId,
-        _In_ DWORD DesiredAccess,
-        _In_ BOOL OpenAsSelf,
-        _Out_ PHANDLE TokenHandle)
-    {
-        return ::MileOpenThreadTokenByThreadId(
-            ThreadId,
-            DesiredAccess,
-            OpenAsSelf,
-            TokenHandle);
-    }
-
-    /**
-     * @remark You can read the definition for this method in "NSudoAPI.h".
-     */
-    virtual HRESULT STDMETHODCALLTYPE GetPrivilegeValue(
-        _In_ LPCWSTR Name,
-        _Out_ PLUID Value)
-    {
-        return ::MileGetPrivilegeValue(Name, Value);
-    }
-
-    /**
-     * @remark You can read the definition for this method in "NSudoAPI.h".
-     */
-    virtual HRESULT STDMETHODCALLTYPE SetProcessPriorityClass(
-        _In_ HANDLE ProcessHandle,
-        _In_ NSUDO_PROCESS_PRIORITY_CLASS_TYPE ProcessPriorityClassType)
-    {
-        DWORD ProcessPriority;
-        switch (ProcessPriorityClassType)
+        hr = ::MileOpenServiceProcessToken(
+            L"TrustedInstaller",
+            MAXIMUM_ALLOWED,
+            &OriginalToken);
+        if (hr != S_OK)
         {
-        case NSUDO_PROCESS_PRIORITY_CLASS_TYPE::IDLE:
-            ProcessPriority = IDLE_PRIORITY_CLASS;
-            break;
-        case NSUDO_PROCESS_PRIORITY_CLASS_TYPE::BELOW_NORMAL:
-            ProcessPriority = BELOW_NORMAL_PRIORITY_CLASS;
-            break;
-        case NSUDO_PROCESS_PRIORITY_CLASS_TYPE::NORMAL:
-            ProcessPriority = NORMAL_PRIORITY_CLASS;
-            break;
-        case NSUDO_PROCESS_PRIORITY_CLASS_TYPE::ABOVE_NORMAL:
-            ProcessPriority = ABOVE_NORMAL_PRIORITY_CLASS;
-            break;
-        case NSUDO_PROCESS_PRIORITY_CLASS_TYPE::HIGH:
-            ProcessPriority = HIGH_PRIORITY_CLASS;
-            break;
-        case NSUDO_PROCESS_PRIORITY_CLASS_TYPE::REALTIME:
-            ProcessPriority = REALTIME_PRIORITY_CLASS;
-            break;
-        default:
-            return E_INVALIDARG;
+            return hr;
+        }
+    }
+    else if (NSUDO_USER_MODE_TYPE::SYSTEM == UserModeType)
+    {
+        hr = ::MileOpenLsassProcessToken(MAXIMUM_ALLOWED, &OriginalToken);
+        if (hr != S_OK)
+        {
+            return hr;
+        }
+    }
+    else if (NSUDO_USER_MODE_TYPE::CURRENT_USER == UserModeType)
+    {
+        hr = ::MileCreateSessionToken(SessionID, &OriginalToken);
+        if (hr != S_OK)
+        {
+            return hr;
+        }
+    }
+    else if (NSUDO_USER_MODE_TYPE::CURRENT_PROCESS == UserModeType)
+    {
+        hr = ::MileOpenCurrentProcessToken(MAXIMUM_ALLOWED, &OriginalToken);
+        if (hr != S_OK)
+        {
+            return hr;
+        }
+    }
+    else if (NSUDO_USER_MODE_TYPE::CURRENT_PROCESS_DROP_RIGHT == UserModeType)
+    {
+        HANDLE hCurrentProcessToken = nullptr;
+        hr = ::MileOpenCurrentProcessToken(
+            MAXIMUM_ALLOWED,
+            &hCurrentProcessToken);
+        if (hr == S_OK)
+        {
+            hr = ::MileCreateLUAToken(hCurrentProcessToken, &OriginalToken);
+
+            ::MileCloseHandle(hCurrentProcessToken);
         }
 
-        return ::MileSetPriorityClass(ProcessHandle, ProcessPriority);
+        if (hr != S_OK)
+        {
+            return hr;
+        }
+    }
+    else
+    {
+        return E_INVALIDARG;
     }
 
-    /*virtual HRESULT STDMETHODCALLTYPE ExCreateFile()
+    hr = ::MileDuplicateToken(
+        OriginalToken,
+        MAXIMUM_ALLOWED,
+        nullptr,
+        SecurityIdentification,
+        TokenPrimary,
+        &hToken);
+    if (hr != S_OK)
+    {
+        return hr;
+    }
+
+    hr = ::MileSetTokenInformation(
+        hToken,
+        TokenSessionId,
+        (PVOID)&SessionID,
+        sizeof(DWORD));
+    if (hr != S_OK)
+    {
+        return hr;
+    }
+
+    switch (PrivilegesModeType)
+    {
+    case NSUDO_PRIVILEGES_MODE_TYPE::ENABLE_ALL_PRIVILEGES:
+
+        hr = ::MileAdjustTokenAllPrivileges(hToken, SE_PRIVILEGE_ENABLED);
+        if (hr != S_OK)
+        {
+            return hr;
+        }
+
+        break;
+    case NSUDO_PRIVILEGES_MODE_TYPE::DISABLE_ALL_PRIVILEGES:
+
+        hr = ::MileAdjustTokenAllPrivileges(hToken, 0);
+        if (hr != S_OK)
+        {
+            return hr;
+        }
+
+        break;
+    default:
+        break;
+    }
+
+    if (NSUDO_MANDATORY_LABEL_TYPE::UNTRUSTED != MandatoryLabelType)
+    {
+        hr = ::MileSetTokenMandatoryLabel(hToken, MandatoryLabelRid);
+        if (hr != S_OK)
+        {
+            return hr;
+        }
+    }
+
+    DWORD dwCreationFlags = CREATE_SUSPENDED | CREATE_UNICODE_ENVIRONMENT;
+
+    if (CreateNewConsole)
+    {
+        dwCreationFlags |= CREATE_NEW_CONSOLE;
+    }
+
+    STARTUPINFOW StartupInfo = { 0 };
+    PROCESS_INFORMATION ProcessInfo = { 0 };
+
+    StartupInfo.cb = sizeof(STARTUPINFOW);
+
+    StartupInfo.lpDesktop = const_cast<LPWSTR>(L"WinSta0\\Default");
+
+    StartupInfo.dwFlags |= STARTF_USESHOWWINDOW;
+    StartupInfo.wShowWindow = static_cast<WORD>(ShowWindowMode);
+
+    LPVOID lpEnvironment = nullptr;
+
+    std::wstring ExpandedString;
+
+    if (::CreateEnvironmentBlock(&lpEnvironment, hToken, TRUE))
+    {
+        hr = pM2ExpandEnvironmentStrings(
+            ExpandedString,
+            CommandLine);
+        if (SUCCEEDED(hr))
+        {
+            if (::CreateProcessAsUserW(
+                hToken,
+                nullptr,
+                const_cast<LPWSTR>(ExpandedString.c_str()),
+                nullptr,
+                nullptr,
+                FALSE,
+                dwCreationFlags,
+                lpEnvironment,
+                CurrentDirectory,
+                &StartupInfo,
+                &ProcessInfo))
+            {
+                ::MileSetPriorityClass(
+                    ProcessInfo.hProcess, ProcessPriority);
+
+                ::ResumeThread(ProcessInfo.hThread);
+
+                ::WaitForSingleObjectEx(
+                    ProcessInfo.hProcess, WaitInterval, FALSE);
+
+                ::MileCloseHandle(ProcessInfo.hProcess);
+                ::MileCloseHandle(ProcessInfo.hThread);
+            }
+            else
+            {
+                hr = ::HRESULT_FROM_WIN32(::GetLastError());
+            }
+        }
+
+        ::DestroyEnvironmentBlock(lpEnvironment);
+    }
+    else
+    {
+        hr = ::HRESULT_FROM_WIN32(::GetLastError());
+    }
+
+    return S_OK;
+}
+
+//HANDLE UserToken = INVALID_HANDLE_VALUE;
+    //if (::LogonUserExW(
+    //    L"YoloUser",
+    //    L".",
+    //    L"123456",
+    //    LOGON32_LOGON_INTERACTIVE,
+    //    LOGON32_PROVIDER_DEFAULT,
+    //    &UserToken,
+    //    nullptr,
+    //    nullptr,
+    //    nullptr,
+    //    nullptr))
+    //{
+    //    //BOOL re = ImpersonateLoggedOnUser(UserToken);
+    //    //re = re;
+
+    //    DWORD ReturnLength = 0;
+    //    TOKEN_LINKED_TOKEN LinkedToken = { 0 };
+    //    hr = g_ResourceManagement.pNSudoClient->GetTokenInformation(UserToken, TokenLinkedToken, &LinkedToken, sizeof(LinkedToken), &ReturnLength);
+
+    //    
+
+    //    PROFILEINFOW ProfileInfo = { 0 };
+    //    ProfileInfo.dwSize = sizeof(PROFILEINFOW);
+    //    ProfileInfo.lpUserName = L"YoloUser";
+
+    //    if (::LoadUserProfileW(LinkedToken.LinkedToken, &ProfileInfo))
+    //    {
+
+    //        //hr = g_ResourceManagement.pNSudoClient->GetTokenInformation(UserToken, TokenLogonSid);
+
+    //        //wchar_t NameBuffer[260];
+    //        //DWORD LengthNeeded = 0;
+    //        //::GetUserObjectInformationW(
+    //        //    //::GetProcessWindowStation(),
+    //        //    ::GetThreadDesktop(::GetCurrentThreadId()),
+    //        //    UOI_NAME,
+    //        //    NameBuffer,
+    //        //    sizeof(NameBuffer),
+    //        //    &LengthNeeded);
+
+    //        /*DWORD ReturnLength = 0;
+    //        hr = g_ResourceManagement.pNSudoClient->GetTokenInformation(
+    //            UserToken,
+    //            TokenSessionId,
+    //            &dwSessionID,
+    //            sizeof(DWORD),
+    //            &ReturnLength);*/
+
+    //        //::ImpersonateLoggedOnUser(UserToken);
+    //        NSudoCreateProcess(
+    //            LinkedToken.LinkedToken,
+    //            L"E:\\source\\repos\\GUIDemoForLegacyWindows\\Release\\GUIDemoForLegacyWindows.exe",
+    //            nullptr,
+    //            INFINITE);
+
+    //        HRESULT hr2 = ::GetLastError();
+    //        hr2 = hr2;
+
+    //        ::UnloadUserProfile(LinkedToken.LinkedToken, ProfileInfo.hProfile);
+    //    }
+
+    //    ::MileCloseHandle(UserToken);
+    //}
+
+
+    // 0xc0000142
+
+/*virtual HRESULT STDMETHODCALLTYPE ExCreateFile()
     {
         return E_NOTIMPL;
     }
@@ -585,50 +809,3 @@ public:
     {
         return E_NOTIMPL;
     }*/
-};
-
-/**
- * NSudo Shared Library Client Interface Shared Instance
- */
-INSudoClient* g_pNSudoClient = nullptr;
-
-/**
- * @remark You can read the definition for this function in "NSudoAPI.h".
- */
-EXTERN_C void WINAPI NSudoInitialize()
-{
-    g_pNSudoClient = new CNSudoClient();
-}
-
-/**
- * @remark You can read the definition for this function in "NSudoAPI.h".
- */
-EXTERN_C void WINAPI NSudoUninitialize()
-{
-    g_pNSudoClient->Release();
-}
-
-/**
- * @remark You can read the definition for this function in "NSudoAPI.h".
- */
-EXTERN_C HRESULT WINAPI NSudoCreateInstance(
-    _In_ REFIID InterfaceId,
-    _Out_ PVOID* Instance)
-{
-    IUnknown* pRawInstance = nullptr;
-
-    if (::IsEqualIID(InterfaceId, IID_INSudoClient))
-    {
-        pRawInstance = g_pNSudoClient;
-    }
-
-    if (!pRawInstance)
-    {
-        *Instance = nullptr;
-        return E_NOINTERFACE;
-    }
-
-    pRawInstance->AddRef();
-    *Instance = pRawInstance;
-    return S_OK;
-}

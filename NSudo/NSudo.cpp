@@ -541,72 +541,6 @@ public:
 
 CNSudoResourceManagement g_ResourceManagement;
 
-/**
- * Enables or disables privileges in the specified access token.
- *
- * @param TokenHandle A handle to the access token that contains the
- *                    privileges to be modified. The handle must have
- *                    TOKEN_ADJUST_PRIVILEGES access to the token.
- * @param Privileges A key value map of privilege name and attributes.
- *                   The attributes of a privilege can be a combination
- *                   of the following values.
- *                   SE_PRIVILEGE_ENABLED
- *                       The function enables the privilege.
- *                   SE_PRIVILEGE_REMOVED
- *                       The privilege is removed from the list of
- *                       privileges in the token.
- *                   None
- *                       The function disables the privilege.
- * @return Standard Win32 Error. If the function succeeds, the return
- *         value is ERROR_SUCCESS.
- * @remark For more information, see AdjustTokenPrivileges.
- */
-HRESULT NSudoAdjustTokenPrivileges(
-    HANDLE TokenHandle,
-    std::map<std::wstring, DWORD> const& Privileges)
-{
-    std::vector<LUID_AND_ATTRIBUTES> RawPrivileges;
-
-    for (auto const& Privilege : Privileges)
-    {
-        LUID_AND_ATTRIBUTES RawPrivilege;
-
-        HRESULT hr = ::MileGetPrivilegeValue(
-            Privilege.first.c_str(), &RawPrivilege.Luid);
-        if (hr != S_OK)
-        {
-            return hr;
-        }
-
-        RawPrivilege.Attributes = Privilege.second;
-
-        RawPrivileges.push_back(RawPrivilege);
-    }
-
-    return ::MileAdjustTokenPrivilegesSimple(
-        TokenHandle,
-        &RawPrivileges[0],
-        static_cast<DWORD>(RawPrivileges.size()));
-}
-
-class ThreadTokenContext
-{
-public:
-
-    HRESULT hr;
-
-    ThreadTokenContext(HANDLE TokenHandle) :
-        hr(::MileSetCurrentThreadToken(TokenHandle))
-    {
-    }
-
-    ~ThreadTokenContext()
-    {
-        ::MileSetCurrentThreadToken(nullptr);
-    }
-
-};
-
 // 解析命令行
 NSUDO_MESSAGE NSudoCommandLineParser(
     _In_ std::wstring& ApplicationName,
@@ -619,7 +553,6 @@ NSUDO_MESSAGE NSudoCommandLineParser(
     {
         auto OptionAndParameter = *OptionsAndParameters.begin();
 
-
         if (0 == _wcsicmp(OptionAndParameter.first.c_str(), L"?") ||
             0 == _wcsicmp(OptionAndParameter.first.c_str(), L"H") ||
             0 == _wcsicmp(OptionAndParameter.first.c_str(), L"Help"))
@@ -629,7 +562,7 @@ NSUDO_MESSAGE NSudoCommandLineParser(
         }
         else if (0 == _wcsicmp(OptionAndParameter.first.c_str(), L"Version"))
         {
-            // 如果选项名是 "?", "H" 或 "Help"，则显示 NSudo 版本号。
+            // 如果选项名是 "Version"，则显示 NSudo 版本号。
             return NSUDO_MESSAGE::NEED_TO_SHOW_NSUDO_VERSION;
         }
         else
@@ -638,217 +571,19 @@ NSUDO_MESSAGE NSudoCommandLineParser(
         }
     }
 
-    HRESULT hr = S_OK;
-
-    M2::CHandle DuplicatedToken;
-    if (hr == S_OK)
-    {
-        M2::CHandle  CurrentProcessToken;
-        hr = ::MileOpenCurrentProcessToken(
-            MAXIMUM_ALLOWED, &CurrentProcessToken);
-        if (hr == S_OK)
-        {
-            hr = ::MileDuplicateToken(
-                CurrentProcessToken,
-                MAXIMUM_ALLOWED,
-                nullptr,
-                SecurityImpersonation,
-                TokenImpersonation,
-                &DuplicatedToken);
-            if (hr == S_OK)
-            {
-                std::map<std::wstring, DWORD> Privileges;
-
-                Privileges.insert(std::pair(
-                    SE_DEBUG_NAME, SE_PRIVILEGE_ENABLED));
-
-                hr = NSudoAdjustTokenPrivileges(DuplicatedToken, Privileges);
-            }
-        }
-    }
-
-    ThreadTokenContext CurrentThreadTokenContext(DuplicatedToken);
-
-    // 如果未获取 SeDebugPrivilege 权限，大概率不是管理员权限
-    if (!(hr == S_OK && CurrentThreadTokenContext.hr == S_OK))
-    {
-        return NSUDO_MESSAGE::PRIVILEGE_NOT_HELD;
-    }
-
-    DWORD dwSessionID = static_cast<DWORD>(-1);
-
-    M2::CHandle CurrentThreadToken;
-    hr = ::MileOpenCurrentThreadToken(
-        MAXIMUM_ALLOWED, FALSE, &CurrentThreadToken);
-    if (hr == S_OK)
-    {
-        DWORD ReturnLength = 0;
-        hr = ::MileGetTokenInformation(
-            CurrentThreadToken,
-            TokenSessionId,
-            &dwSessionID,
-            sizeof(DWORD),
-            &ReturnLength);
-    }
-
-    // 获取当前会话 ID 失败
-    if (hr != S_OK)
-    {
-        return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
-    }
-
-    M2::CHandle SystemToken;
-
-    {
-        M2::CHandle OriginalToken;
-
-        hr = ::MileOpenLsassProcessToken(MAXIMUM_ALLOWED, &OriginalToken);
-        if (hr == S_OK)
-        {
-            hr = ::MileDuplicateToken(
-                OriginalToken,
-                MAXIMUM_ALLOWED,
-                nullptr,
-                SecurityImpersonation,
-                TokenImpersonation,
-                &SystemToken);
-            if (hr == S_OK)
-            {
-                hr = ::MileAdjustTokenAllPrivileges(
-                    SystemToken, SE_PRIVILEGE_ENABLED);
-            }
-        }
-    }
-
-    ThreadTokenContext SystemTokenContext(SystemToken);
-
-    // 如果模拟System权限失败
-    if (!(hr == S_OK && SystemTokenContext.hr == S_OK))
-    {
-        return NSUDO_MESSAGE::PRIVILEGE_NOT_HELD;
-    }
-
-
-
-
-
-    //HANDLE UserToken = INVALID_HANDLE_VALUE;
-    //if (::LogonUserExW(
-    //    L"YoloUser",
-    //    L".",
-    //    L"123456",
-    //    LOGON32_LOGON_INTERACTIVE,
-    //    LOGON32_PROVIDER_DEFAULT,
-    //    &UserToken,
-    //    nullptr,
-    //    nullptr,
-    //    nullptr,
-    //    nullptr))
-    //{
-    //    //BOOL re = ImpersonateLoggedOnUser(UserToken);
-    //    //re = re;
-
-    //    DWORD ReturnLength = 0;
-    //    TOKEN_LINKED_TOKEN LinkedToken = { 0 };
-    //    hr = g_ResourceManagement.pNSudoClient->GetTokenInformation(UserToken, TokenLinkedToken, &LinkedToken, sizeof(LinkedToken), &ReturnLength);
-
-    //    
-
-    //    PROFILEINFOW ProfileInfo = { 0 };
-    //    ProfileInfo.dwSize = sizeof(PROFILEINFOW);
-    //    ProfileInfo.lpUserName = L"YoloUser";
-
-    //    if (::LoadUserProfileW(LinkedToken.LinkedToken, &ProfileInfo))
-    //    {
-
-    //        //hr = g_ResourceManagement.pNSudoClient->GetTokenInformation(UserToken, TokenLogonSid);
-
-    //        //wchar_t NameBuffer[260];
-    //        //DWORD LengthNeeded = 0;
-    //        //::GetUserObjectInformationW(
-    //        //    //::GetProcessWindowStation(),
-    //        //    ::GetThreadDesktop(::GetCurrentThreadId()),
-    //        //    UOI_NAME,
-    //        //    NameBuffer,
-    //        //    sizeof(NameBuffer),
-    //        //    &LengthNeeded);
-
-    //        /*DWORD ReturnLength = 0;
-    //        hr = g_ResourceManagement.pNSudoClient->GetTokenInformation(
-    //            UserToken,
-    //            TokenSessionId,
-    //            &dwSessionID,
-    //            sizeof(DWORD),
-    //            &ReturnLength);*/
-
-    //        //::ImpersonateLoggedOnUser(UserToken);
-    //        NSudoCreateProcess(
-    //            LinkedToken.LinkedToken,
-    //            L"E:\\source\\repos\\GUIDemoForLegacyWindows\\Release\\GUIDemoForLegacyWindows.exe",
-    //            nullptr,
-    //            INFINITE);
-
-    //        HRESULT hr2 = ::GetLastError();
-    //        hr2 = hr2;
-
-    //        ::UnloadUserProfile(LinkedToken.LinkedToken, ProfileInfo.hProfile);
-    //    }
-
-    //    ::MileCloseHandle(UserToken);
-    //}
-
-
-    // 0xc0000142
-
-    
-    
-
-
-
-
     bool bArgErr = false;
-
-    M2::CHandle hToken;
 
     // 解析参数列表
 
-    enum class NSudoOptionUserValue
-    {
-        Default,
-        TrustedInstaller,
-        System,
-        CurrentUser,
-        CurrentProcess,
-        CurrentProcessDropRight
-    };
-
-    enum class NSudoOptionPrivilegesValue
-    {
-        Default,
-        EnableAllPrivileges,
-        DisableAllPrivileges
-    };
-
-    enum class NSudoOptionWindowModeValue
-    {
-        Default,
-        Show,
-        Hide,
-        Maximize,
-        Minimize,
-    };
-
-    NSudoOptionUserValue UserMode =
-        NSudoOptionUserValue::Default;
-    NSudoOptionPrivilegesValue PrivilegesMode =
-        NSudoOptionPrivilegesValue::Default;
-    NSudoOptionWindowModeValue WindowMode =
-        NSudoOptionWindowModeValue::Default;
-
     DWORD WaitInterval = 0;
     std::wstring CurrentDirectory = g_ResourceManagement.AppPath;
-    DWORD ShowWindowMode = SW_SHOWDEFAULT;
-    bool CreateNewConsole = true;
+    BOOL CreateNewConsole = TRUE;
+
+	NSUDO_USER_MODE_TYPE UserModeType =
+		NSUDO_USER_MODE_TYPE::DEFAULT;
+
+	NSUDO_PRIVILEGES_MODE_TYPE PrivilegesModeType =
+		NSUDO_PRIVILEGES_MODE_TYPE::DEFAULT;
 
     NSUDO_MANDATORY_LABEL_TYPE MandatoryLabelType =
         NSUDO_MANDATORY_LABEL_TYPE::UNTRUSTED;
@@ -856,29 +591,32 @@ NSUDO_MESSAGE NSudoCommandLineParser(
     NSUDO_PROCESS_PRIORITY_CLASS_TYPE ProcessPriorityClassType =
         NSUDO_PROCESS_PRIORITY_CLASS_TYPE::NORMAL;
 
+	NSUDO_SHOW_WINDOW_MODE_TYPE ShowWindowModeType =
+		NSUDO_SHOW_WINDOW_MODE_TYPE::DEFAULT;	
+
     for (auto& OptionAndParameter : OptionsAndParameters)
     {
         if (0 == _wcsicmp(OptionAndParameter.first.c_str(), L"U"))
         {
             if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"T"))
             {
-                UserMode = NSudoOptionUserValue::TrustedInstaller;
+				UserModeType = NSUDO_USER_MODE_TYPE::TRUSTED_INSTALLER;
             }
             else if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"S"))
             {
-                UserMode = NSudoOptionUserValue::System;
+				UserModeType = NSUDO_USER_MODE_TYPE::SYSTEM;
             }
             else if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"C"))
             {
-                UserMode = NSudoOptionUserValue::CurrentUser;
+				UserModeType = NSUDO_USER_MODE_TYPE::CURRENT_USER;
             }
             else if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"P"))
             {
-                UserMode = NSudoOptionUserValue::CurrentProcess;
+				UserModeType = NSUDO_USER_MODE_TYPE::CURRENT_PROCESS;
             }
             else if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"D"))
             {
-                UserMode = NSudoOptionUserValue::CurrentProcessDropRight;
+				UserModeType = NSUDO_USER_MODE_TYPE::CURRENT_PROCESS_DROP_RIGHT;
             }
             else
             {
@@ -890,11 +628,11 @@ NSUDO_MESSAGE NSudoCommandLineParser(
         {
             if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"E"))
             {
-                PrivilegesMode = NSudoOptionPrivilegesValue::EnableAllPrivileges;
+				PrivilegesModeType = NSUDO_PRIVILEGES_MODE_TYPE::ENABLE_ALL_PRIVILEGES;
             }
             else if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"D"))
             {
-                PrivilegesMode = NSudoOptionPrivilegesValue::DisableAllPrivileges;
+				PrivilegesModeType = NSUDO_PRIVILEGES_MODE_TYPE::DISABLE_ALL_PRIVILEGES;
             }
             else
             {
@@ -970,19 +708,19 @@ NSUDO_MESSAGE NSudoCommandLineParser(
         {
             if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"Show"))
             {
-                WindowMode = NSudoOptionWindowModeValue::Show;
+				ShowWindowModeType = NSUDO_SHOW_WINDOW_MODE_TYPE::SHOW;
             }
             else if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"Hide"))
             {
-                WindowMode = NSudoOptionWindowModeValue::Hide;
+				ShowWindowModeType = NSUDO_SHOW_WINDOW_MODE_TYPE::HIDE;
             }
             else if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"Maximize"))
             {
-                WindowMode = NSudoOptionWindowModeValue::Maximize;
+				ShowWindowModeType = NSUDO_SHOW_WINDOW_MODE_TYPE::MAXIMIZE;
             }
             else if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"Minimize"))
             {
-                WindowMode = NSudoOptionWindowModeValue::Minimize;
+				ShowWindowModeType = NSUDO_SHOW_WINDOW_MODE_TYPE::MINIMIZE;
             }
             else
             {
@@ -992,7 +730,7 @@ NSUDO_MESSAGE NSudoCommandLineParser(
         }
         else if (0 == _wcsicmp(OptionAndParameter.first.c_str(), L"UseCurrentConsole"))
         {
-            CreateNewConsole = false;
+            CreateNewConsole = FALSE;
         }
         else
         {
@@ -1001,250 +739,21 @@ NSUDO_MESSAGE NSudoCommandLineParser(
         }
     }
 
-    if (bArgErr || NSudoOptionUserValue::Default == UserMode)
+    if (bArgErr || UnresolvedCommandLine.empty())
     {
         return NSUDO_MESSAGE::INVALID_COMMAND_PARAMETER;
     }
 
-    M2::CHandle OriginalToken;
-
-    if (NSudoOptionUserValue::TrustedInstaller == UserMode)
-    {
-        if (S_OK != ::MileOpenServiceProcessToken(
-            L"TrustedInstaller", MAXIMUM_ALLOWED, &OriginalToken))
-        {
-            return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
-        }
-    }
-    else if (NSudoOptionUserValue::System == UserMode)
-    {
-        if (S_OK != ::MileOpenLsassProcessToken(
-            MAXIMUM_ALLOWED, &OriginalToken))
-        {
-            return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
-        }
-    }
-    else if (NSudoOptionUserValue::CurrentUser == UserMode)
-    {
-        if (S_OK != ::MileCreateSessionToken(
-            dwSessionID, &OriginalToken))
-        {
-            return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
-        }
-    }
-    else if (NSudoOptionUserValue::CurrentProcess == UserMode)
-    {
-        if (S_OK != ::MileOpenCurrentProcessToken(
-            MAXIMUM_ALLOWED, &OriginalToken))
-        {
-            return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
-        }
-    }
-    else if (NSudoOptionUserValue::CurrentProcessDropRight == UserMode)
-    {
-        HANDLE CurrentProcessToken = nullptr;
-        hr = ::MileOpenCurrentProcessToken(
-            MAXIMUM_ALLOWED, &CurrentProcessToken);
-        if (hr == S_OK)
-        {
-            hr = ::MileCreateLUAToken(
-                CurrentProcessToken, &OriginalToken);
-
-            ::MileCloseHandle(CurrentProcessToken);
-        }
-
-        if (S_OK != hr)
-        {
-            return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
-        }
-    }
-
-    if (S_OK != ::MileDuplicateToken(
-        OriginalToken,
-        MAXIMUM_ALLOWED,
-        nullptr,
-        SecurityIdentification,
-        TokenPrimary,
-        &hToken))
-    {
-        return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
-    }
-
-    if (S_OK != ::MileSetTokenInformation(
-        hToken,
-        TokenSessionId,
-        (PVOID)&dwSessionID,
-        sizeof(DWORD)))
-    {
-        return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
-    }
-
-    if (NSudoOptionPrivilegesValue::EnableAllPrivileges == PrivilegesMode)
-    {
-        if (S_OK != ::MileAdjustTokenAllPrivileges(
-            hToken, SE_PRIVILEGE_ENABLED))
-        {
-            return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
-        }
-    }
-    else if (NSudoOptionPrivilegesValue::DisableAllPrivileges == PrivilegesMode)
-    {
-        if (S_OK != ::MileAdjustTokenAllPrivileges(hToken, 0))
-        {
-            return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
-        }
-    }
-
-    if (MandatoryLabelType != NSUDO_MANDATORY_LABEL_TYPE::UNTRUSTED)
-    {
-        DWORD MandatoryLabelRid;
-        switch (MandatoryLabelType)
-        {
-        case NSUDO_MANDATORY_LABEL_TYPE::UNTRUSTED:
-            MandatoryLabelRid = SECURITY_MANDATORY_UNTRUSTED_RID;
-            break;
-        case NSUDO_MANDATORY_LABEL_TYPE::LOW:
-            MandatoryLabelRid = SECURITY_MANDATORY_LOW_RID;
-            break;
-        case NSUDO_MANDATORY_LABEL_TYPE::MEDIUM:
-            MandatoryLabelRid = SECURITY_MANDATORY_MEDIUM_RID;
-            break;
-        case NSUDO_MANDATORY_LABEL_TYPE::MEDIUM_PLUS:
-            MandatoryLabelRid = SECURITY_MANDATORY_MEDIUM_PLUS_RID;
-            break;
-        case NSUDO_MANDATORY_LABEL_TYPE::HIGH:
-            MandatoryLabelRid = SECURITY_MANDATORY_HIGH_RID;
-            break;
-        case NSUDO_MANDATORY_LABEL_TYPE::SYSTEM:
-            MandatoryLabelRid = SECURITY_MANDATORY_SYSTEM_RID;
-            break;
-        case NSUDO_MANDATORY_LABEL_TYPE::PROTECTED_PROCESS:
-            MandatoryLabelRid = SECURITY_MANDATORY_PROTECTED_PROCESS_RID;
-            break;
-        default:
-            return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
-        }
-
-        if (S_OK != ::MileSetTokenMandatoryLabel(hToken, MandatoryLabelRid))
-        {
-            return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
-        }
-    }
-
-    if (NSudoOptionWindowModeValue::Show == WindowMode)
-    {
-        ShowWindowMode = SW_SHOW;
-    }
-    else if (NSudoOptionWindowModeValue::Hide == WindowMode)
-    {
-        ShowWindowMode = SW_HIDE;
-    }
-    else if (NSudoOptionWindowModeValue::Maximize == WindowMode)
-    {
-        ShowWindowMode = SW_MAXIMIZE;
-    }
-    else if (NSudoOptionWindowModeValue::Minimize == WindowMode)
-    {
-        ShowWindowMode = SW_MINIMIZE;
-    }
-
-    if (UnresolvedCommandLine.empty())
-    {
-        return NSUDO_MESSAGE::INVALID_COMMAND_PARAMETER;
-    }
-
-    DWORD dwCreationFlags = CREATE_SUSPENDED | CREATE_UNICODE_ENVIRONMENT;
-
-    if (CreateNewConsole)
-    {
-        dwCreationFlags |= CREATE_NEW_CONSOLE;
-    }
-
-    STARTUPINFOW StartupInfo = { 0 };
-    PROCESS_INFORMATION ProcessInfo = { 0 };
-
-    StartupInfo.cb = sizeof(STARTUPINFOW);
-
-    StartupInfo.lpDesktop = const_cast<LPWSTR>(L"WinSta0\\Default");
-
-    StartupInfo.dwFlags |= STARTF_USESHOWWINDOW;
-    StartupInfo.wShowWindow = static_cast<WORD>(ShowWindowMode);
-
-    LPVOID lpEnvironment = nullptr;
-
-    BOOL result = FALSE;
-
-    M2::CHandle hCurrentToken;
-    if (::MileOpenCurrentProcessToken(
-        MAXIMUM_ALLOWED, &hCurrentToken) == S_OK)
-    {
-        if (CreateEnvironmentBlock(&lpEnvironment, hToken, TRUE))
-        {
-            std::wstring ExpandedString;
-
-            if (SUCCEEDED(M2ExpandEnvironmentStrings(
-                ExpandedString,
-                UnresolvedCommandLine.c_str())))
-            {
-                result = CreateProcessAsUserW(
-                    hToken,
-                    nullptr,
-                    const_cast<LPWSTR>(ExpandedString.c_str()),
-                    nullptr,
-                    nullptr,
-                    FALSE,
-                    dwCreationFlags,
-                    lpEnvironment,
-                    CurrentDirectory.c_str(),
-                    &StartupInfo,
-                    &ProcessInfo);
-
-                if (result)
-                {
-                    DWORD ProcessPriority;
-                    switch (ProcessPriorityClassType)
-                    {
-                    case NSUDO_PROCESS_PRIORITY_CLASS_TYPE::IDLE:
-                        ProcessPriority = IDLE_PRIORITY_CLASS;
-                        break;
-                    case NSUDO_PROCESS_PRIORITY_CLASS_TYPE::BELOW_NORMAL:
-                        ProcessPriority = BELOW_NORMAL_PRIORITY_CLASS;
-                        break;
-                    case NSUDO_PROCESS_PRIORITY_CLASS_TYPE::NORMAL:
-                        ProcessPriority = NORMAL_PRIORITY_CLASS;
-                        break;
-                    case NSUDO_PROCESS_PRIORITY_CLASS_TYPE::ABOVE_NORMAL:
-                        ProcessPriority = ABOVE_NORMAL_PRIORITY_CLASS;
-                        break;
-                    case NSUDO_PROCESS_PRIORITY_CLASS_TYPE::HIGH:
-                        ProcessPriority = HIGH_PRIORITY_CLASS;
-                        break;
-                    case NSUDO_PROCESS_PRIORITY_CLASS_TYPE::REALTIME:
-                        ProcessPriority = REALTIME_PRIORITY_CLASS;
-                        break;
-                    default:
-                        return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
-                    }
-
-                    ::MileSetPriorityClass(
-                        ProcessInfo.hProcess,
-                        ProcessPriority);
-
-                    ResumeThread(ProcessInfo.hThread);
-
-                    WaitForSingleObjectEx(
-                        ProcessInfo.hProcess, WaitInterval, FALSE);
-
-                    ::MileCloseHandle(ProcessInfo.hProcess);
-                    ::MileCloseHandle(ProcessInfo.hThread);
-                }
-            }
-
-            DestroyEnvironmentBlock(lpEnvironment);
-        }
-    }
-
-    if (!result)
+    if (NSudoCreateProcess(
+		UserModeType,
+		PrivilegesModeType,
+		MandatoryLabelType,
+		ProcessPriorityClassType,
+		ShowWindowModeType,
+		WaitInterval,
+		CreateNewConsole,
+		UnresolvedCommandLine.c_str(),
+		CurrentDirectory.c_str()) != S_OK)
     {
         return NSUDO_MESSAGE::CREATE_PROCESS_FAILED;
     }
