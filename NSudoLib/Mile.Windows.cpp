@@ -8,6 +8,10 @@
  * DEVELOPER: Mouri_Naruto (Mouri_Naruto AT Outlook.com)
  */
 
+#ifndef __cplusplus
+#error "[Mile.Windows] You should use a C++ compiler."
+#endif // !__cplusplus
+
 #include "Mile.Windows.h"
 
 #include <WtsApi32.h>
@@ -287,6 +291,127 @@ EXTERN_C HRESULT WINAPI MileGetPrivilegeValue(
 /**
  * @remark You can read the definition for this function in "Mile.Windows.h".
  */
+EXTERN_C HRESULT WINAPI MileCloseServiceHandle(
+    _In_ SC_HANDLE hSCObject)
+{
+    if (!::CloseServiceHandle(hSCObject))
+    {
+        return ::HRESULT_FROM_WIN32(::GetLastError());
+    }
+
+    return S_OK;
+}
+
+#endif
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C HRESULT WINAPI MileOpenSCManager(
+    _In_opt_ LPCWSTR lpMachineName,
+    _In_opt_ LPCWSTR lpDatabaseName,
+    _In_ DWORD dwDesiredAccess,
+    _Out_ LPSC_HANDLE phSCManager)
+{
+    HRESULT hr = E_INVALIDARG;
+
+    if (phSCManager)
+    {
+        *phSCManager = ::OpenSCManagerW(
+            lpMachineName, lpDatabaseName, dwDesiredAccess);
+        hr = (*phSCManager) ? S_OK : ::HRESULT_FROM_WIN32(::GetLastError());
+    }
+
+    return hr;
+}
+
+#endif
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C HRESULT WINAPI MileOpenService(
+    _In_ SC_HANDLE hSCManager,
+    _In_ LPCWSTR lpServiceName,
+    _In_ DWORD dwDesiredAccess,
+    _Out_ LPSC_HANDLE phService)
+{
+    HRESULT hr = E_INVALIDARG;
+
+    if (phService)
+    {
+        *phService = ::OpenServiceW(
+            hSCManager, lpServiceName, dwDesiredAccess);
+        hr = (*phService) ? S_OK : ::HRESULT_FROM_WIN32(::GetLastError());
+    }
+
+    return hr;
+}
+
+#endif
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C HRESULT WINAPI MileQueryServiceStatus(
+    _In_ SC_HANDLE hService,
+    _In_ SC_STATUS_TYPE InfoLevel,
+    _Out_ LPBYTE lpBuffer,
+    _In_ DWORD cbBufSize,
+    _Out_ LPDWORD pcbBytesNeeded)
+{
+    if (!::QueryServiceStatusEx(
+        hService, InfoLevel, lpBuffer, cbBufSize, pcbBytesNeeded))
+    {
+        return ::HRESULT_FROM_WIN32(::GetLastError());;
+    }
+
+    return S_OK;
+}
+
+#endif
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C HRESULT WINAPI MileStartService(
+    _In_ SC_HANDLE hService,
+    _In_ DWORD dwNumServiceArgs,
+    _In_ LPCWSTR* lpServiceArgVectors)
+{
+    if (!::StartServiceW(hService, dwNumServiceArgs, lpServiceArgVectors))
+    {
+        return ::HRESULT_FROM_WIN32(::GetLastError());;
+    }
+
+    return S_OK;
+}
+
+#endif
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C DWORD WINAPI MileSleep(
+    _In_ DWORD dwMilliseconds,
+    _In_ BOOL bAlertable)
+{
+    return ::SleepEx(dwMilliseconds, bAlertable);
+}
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
 EXTERN_C HRESULT WINAPI MileStartService(
     _In_ LPCWSTR ServiceName,
     _Out_ LPSERVICE_STATUS_PROCESS ServiceStatus)
@@ -299,25 +424,30 @@ EXTERN_C HRESULT WINAPI MileStartService(
 
         ::memset(ServiceStatus, 0, sizeof(LPSERVICE_STATUS_PROCESS));
 
-        SC_HANDLE hSCM = ::OpenSCManagerW(
-            nullptr, nullptr, SC_MANAGER_CONNECT);
-        if (hSCM)
+        SC_HANDLE hSCM = nullptr;
+        hr = ::MileOpenSCManager(
+            nullptr, nullptr, SC_MANAGER_CONNECT, &hSCM);
+        if (hr == S_OK)
         {
-            SC_HANDLE hService = ::OpenServiceW(
-                hSCM, ServiceName, SERVICE_QUERY_STATUS | SERVICE_START);
-            if (hService)
+            SC_HANDLE hService = nullptr;
+            hr = ::MileOpenService(
+                hSCM,
+                ServiceName,
+                SERVICE_QUERY_STATUS | SERVICE_START,
+                &hService);
+            if (hr == S_OK)
             {
                 DWORD nBytesNeeded = 0;
                 DWORD nOldCheckPoint = 0;
                 ULONGLONG nLastTick = 0;
                 bool bStartServiceWCalled = false;
 
-                while (::QueryServiceStatusEx(
+                while (::MileQueryServiceStatus(
                     hService,
                     SC_STATUS_PROCESS_INFO,
                     reinterpret_cast<LPBYTE>(ServiceStatus),
                     sizeof(SERVICE_STATUS_PROCESS),
-                    &nBytesNeeded))
+                    &nBytesNeeded) == S_OK)
                 {
                     if (SERVICE_STOPPED == ServiceStatus->dwCurrentState)
                     {
@@ -328,9 +458,9 @@ EXTERN_C HRESULT WINAPI MileStartService(
                             break;
                         }
 
-                        if (!::StartServiceW(hService, 0, nullptr))
+                        hr = ::MileStartService(hService, 0, nullptr);
+                        if (hr != S_OK)
                         {
-                            hr = ::HRESULT_FROM_WIN32(::GetLastError());
                             break;
                         }
 
@@ -342,7 +472,7 @@ EXTERN_C HRESULT WINAPI MileStartService(
                         SERVICE_START_PENDING
                         == ServiceStatus->dwCurrentState)
                     {
-                        ULONGLONG nCurrentTick = ::GetTickCount64();
+                        ULONGLONG nCurrentTick = ::MileGetTickCount();
 
                         if (!nLastTick)
                         {
@@ -351,7 +481,7 @@ EXTERN_C HRESULT WINAPI MileStartService(
 
                             // Same as the .Net System.ServiceProcess, wait
                             // 250ms.
-                            ::SleepEx(250, FALSE);
+                            ::MileSleep(250, FALSE);
                         }
                         else
                         {
@@ -363,8 +493,7 @@ EXTERN_C HRESULT WINAPI MileStartService(
                                 ULONGLONG nDiff = nCurrentTick - nLastTick;
                                 if (nDiff > ServiceStatus->dwWaitHint)
                                 {
-                                    hr = ::HRESULT_FROM_WIN32(
-                                        ERROR_TIMEOUT);
+                                    hr = ::HRESULT_FROM_WIN32(ERROR_TIMEOUT);
                                     break;
                                 }
                             }
@@ -379,18 +508,10 @@ EXTERN_C HRESULT WINAPI MileStartService(
                     }
                 }
 
-                ::CloseServiceHandle(hService);
-            }
-            else
-            {
-                hr = ::HRESULT_FROM_WIN32(::GetLastError());
+                ::MileCloseServiceHandle(hService);
             }
 
-            ::CloseServiceHandle(hSCM);
-        }
-        else
-        {
-            hr = ::HRESULT_FROM_WIN32(::GetLastError());
+            ::MileCloseServiceHandle(hSCM);
         }
     }
 
@@ -485,6 +606,16 @@ EXTERN_C HRESULT WINAPI MileCreateRestrictedToken(
 
 #endif
 
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C BOOL WINAPI MileIsWellKnownSid(
+    _In_ PSID pSid,
+    _In_ WELL_KNOWN_SID_TYPE WellKnownSidType)
+{
+    return ::IsWellKnownSid(pSid, WellKnownSidType);
+}
+
 #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
 
 /**
@@ -527,7 +658,7 @@ EXTERN_C HRESULT WINAPI MileGetLsassProcessId(
                 if (!pProcess->pUserSid)
                     continue;
 
-                if (!::IsWellKnownSid(
+                if (!::MileIsWellKnownSid(
                     pProcess->pUserSid,
                     WELL_KNOWN_SID_TYPE::WinLocalSystemSid))
                     continue;
@@ -739,4 +870,295 @@ EXTERN_C HRESULT WINAPI MileOpenThreadToken(
     }
 
     return S_OK;
+}
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C HRESULT WINAPI MileSetPriorityClass(
+    _In_ HANDLE hProcess,
+    _In_ DWORD dwPriorityClass)
+{
+    if (!::SetPriorityClass(hProcess, dwPriorityClass))
+    {
+        return ::HRESULT_FROM_WIN32(::GetLastError());
+    }
+
+    return S_OK;
+}
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C HRESULT WINAPI MileCreateMandatoryLabelSid(
+    _In_ DWORD MandatoryLabelRid,
+    _Out_ PSID* MandatoryLabelSid)
+{
+    SID_IDENTIFIER_AUTHORITY SIA = SECURITY_MANDATORY_LABEL_AUTHORITY;
+
+    return ::MileAllocateAndInitializeSid(
+        &SIA, 1, MandatoryLabelRid, 0, 0, 0, 0, 0, 0, 0, MandatoryLabelSid);
+}
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C HRESULT WINAPI MileSetTokenMandatoryLabel(
+    _In_ HANDLE TokenHandle,
+    _In_ DWORD MandatoryLabelRid)
+{
+    TOKEN_MANDATORY_LABEL TML;
+
+    HRESULT hr = ::MileCreateMandatoryLabelSid(
+        MandatoryLabelRid, &TML.Label.Sid);
+    if (hr == S_OK)
+    {
+        TML.Label.Attributes = SE_GROUP_INTEGRITY;
+
+        hr = ::MileSetTokenInformation(
+            TokenHandle, TokenIntegrityLevel, &TML, sizeof(TML));
+
+        ::MileFreeSid(TML.Label.Sid);
+    }
+
+    return hr;
+}
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C DWORD WINAPI MileGetLengthSid(
+    _In_ PSID pSid)
+{
+    return GetLengthSid(pSid);
+}
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C HRESULT WINAPI MileInitializeAcl(
+    _Out_ PACL pAcl,
+    _In_ DWORD nAclLength,
+    _In_ DWORD dwAclRevision)
+{
+    if (!::InitializeAcl(pAcl, nAclLength, dwAclRevision))
+    {
+        return ::HRESULT_FROM_WIN32(::GetLastError());
+    }
+
+    return S_OK;
+}
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C HRESULT WINAPI MileAddAccessAllowedAce(
+    _Inout_ PACL pAcl,
+    _In_ DWORD dwAceRevision,
+    _In_ DWORD AccessMask,
+    _In_ PSID pSid)
+{
+    if (!::AddAccessAllowedAce(pAcl, dwAceRevision, AccessMask, pSid))
+    {
+        return ::HRESULT_FROM_WIN32(::GetLastError());
+    }
+
+    return S_OK;
+}
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C HRESULT WINAPI MileGetAce(
+    _In_ PACL pAcl,
+    _In_ DWORD dwAceIndex,
+    _Out_ LPVOID* pAce)
+{
+    if (!::GetAce(pAcl, dwAceIndex, pAce))
+    {
+        return ::HRESULT_FROM_WIN32(::GetLastError());
+    }
+
+    return S_OK;
+}
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C HRESULT WINAPI MileAddAce(
+    _Inout_ PACL pAcl,
+    _In_ DWORD dwAceRevision,
+    _In_ DWORD dwStartingAceIndex,
+    _In_ LPVOID pAceList,
+    _In_ DWORD nAceListLength)
+{
+    if (!::AddAce(
+        pAcl,
+        dwAceRevision,
+        dwStartingAceIndex,
+        pAceList,
+        nAceListLength))
+    {
+        return ::HRESULT_FROM_WIN32(::GetLastError());
+    }
+
+    return S_OK;
+}
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C HRESULT WINAPI MileCreateLUAToken(
+    _In_ HANDLE ExistingTokenHandle,
+    _Out_ PHANDLE TokenHandle)
+{
+    HRESULT hr = E_INVALIDARG;
+
+    PTOKEN_USER pTokenUser = nullptr;
+    TOKEN_OWNER Owner = { 0 };
+    PTOKEN_DEFAULT_DACL pTokenDacl = nullptr;
+    DWORD Length = 0;
+    PACL NewDefaultDacl = nullptr;
+    TOKEN_DEFAULT_DACL NewTokenDacl = { 0 };
+    PACCESS_ALLOWED_ACE pTempAce = nullptr;
+    BOOL EnableTokenVirtualization = TRUE;
+
+    do
+    {
+        if (!TokenHandle)
+        {
+            break;
+        }
+
+        hr = ::MileCreateRestrictedToken(
+            ExistingTokenHandle, LUA_TOKEN,
+            0, nullptr, 0, nullptr, 0, nullptr, TokenHandle);
+        if (hr != S_OK)
+        {
+            break;
+        }
+
+        hr = ::MileSetTokenMandatoryLabel(
+            *TokenHandle, SECURITY_MANDATORY_MEDIUM_RID);
+        if (hr != S_OK)
+        {
+            break;
+        }
+
+        hr = ::MileGetTokenInformationWithMemory(
+            *TokenHandle,
+            TokenUser,
+            reinterpret_cast<PVOID*>(&pTokenUser));
+        if (hr != S_OK)
+        {
+            break;
+        }
+
+        Owner.Owner = pTokenUser->User.Sid;
+        hr = ::MileSetTokenInformation(
+            *TokenHandle, TokenOwner, &Owner, sizeof(TOKEN_OWNER));
+        if (hr != S_OK)
+        {
+            break;
+        }
+
+        hr = ::MileGetTokenInformationWithMemory(
+            *TokenHandle,
+            TokenDefaultDacl,
+            reinterpret_cast<PVOID*>(&pTokenDacl));
+        if (hr != S_OK)
+        {
+            break;
+        }
+
+        Length = pTokenDacl->DefaultDacl->AclSize;
+        Length += ::MileGetLengthSid(pTokenUser->User.Sid);
+        Length += sizeof(ACCESS_ALLOWED_ACE);
+
+        hr = ::MileAllocMemory(
+            Length, reinterpret_cast<PVOID*>(&NewDefaultDacl));
+        if (hr != S_OK)
+        {
+            break;
+        }
+        NewTokenDacl.DefaultDacl = NewDefaultDacl;
+
+        hr = ::MileInitializeAcl(
+            NewTokenDacl.DefaultDacl,
+            Length,
+            pTokenDacl->DefaultDacl->AclRevision);
+        if (hr != S_OK)
+        {
+            break;
+        }
+
+        hr = ::MileAddAccessAllowedAce(
+            NewTokenDacl.DefaultDacl,
+            pTokenDacl->DefaultDacl->AclRevision,
+            GENERIC_ALL,
+            pTokenUser->User.Sid);
+        if (hr != S_OK)
+        {
+            break;
+        }
+
+        for (ULONG i = 0;
+            ::MileGetAce(pTokenDacl->DefaultDacl, i, (PVOID*)&pTempAce) == S_OK;
+            ++i)
+        {
+            if (::MileIsWellKnownSid(
+                &pTempAce->SidStart,
+                WELL_KNOWN_SID_TYPE::WinBuiltinAdministratorsSid))
+                continue;
+
+            ::MileAddAce(
+                NewTokenDacl.DefaultDacl,
+                pTokenDacl->DefaultDacl->AclRevision,
+                0,
+                pTempAce,
+                pTempAce->Header.AceSize);
+        }
+
+        Length += sizeof(TOKEN_DEFAULT_DACL);
+        hr = ::MileSetTokenInformation(
+            *TokenHandle, TokenDefaultDacl, &NewTokenDacl, Length);
+        if (hr != S_OK)
+        {
+            break;
+        }
+
+        hr = ::MileSetTokenInformation(
+            *TokenHandle,
+            TokenVirtualizationEnabled,
+            &EnableTokenVirtualization,
+            sizeof(BOOL));
+        if (hr != S_OK)
+        {
+            break;
+        }
+
+    } while (false);
+
+    if (NewDefaultDacl)
+    {
+        ::MileFreeMemory(NewDefaultDacl);
+    }
+
+    if (pTokenDacl)
+    {
+        ::MileFreeMemory(pTokenDacl);
+    }
+
+    if (pTokenUser)
+    {
+        ::MileFreeMemory(pTokenUser);
+    }
+
+    if (hr != S_OK)
+    {
+        ::MileCloseHandle(TokenHandle);
+        *TokenHandle = INVALID_HANDLE_VALUE;
+    }
+
+    return hr;
 }

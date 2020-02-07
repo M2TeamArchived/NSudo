@@ -151,10 +151,9 @@ public:
             return E_INVALIDARG;
         }
 
-        SID_IDENTIFIER_AUTHORITY SIA = SECURITY_MANDATORY_LABEL_AUTHORITY;
-
-        return ::MileAllocateAndInitializeSid(
-            &SIA, 1, MandatoryLabelRid, 0, 0, 0, 0, 0, 0, 0, MandatoryLabelSid);
+        return ::MileCreateMandatoryLabelSid(
+            MandatoryLabelRid,
+            MandatoryLabelSid);
     }
 
     /**
@@ -164,21 +163,35 @@ public:
         _In_ HANDLE TokenHandle,
         _In_ NSUDO_MANDATORY_LABEL_TYPE MandatoryLabelType)
     {
-        TOKEN_MANDATORY_LABEL TML;
-
-        HRESULT hr = this->CreateMandatoryLabelSid(
-            MandatoryLabelType, &TML.Label.Sid);
-        if (hr == S_OK)
+        DWORD MandatoryLabelRid;
+        switch (MandatoryLabelType)
         {
-            TML.Label.Attributes = SE_GROUP_INTEGRITY;
-
-            hr = this->SetTokenInformation(
-                TokenHandle, TokenIntegrityLevel, &TML, sizeof(TML));
-
-            ::MileFreeSid(TML.Label.Sid);
+        case NSUDO_MANDATORY_LABEL_TYPE::UNTRUSTED:
+            MandatoryLabelRid = SECURITY_MANDATORY_UNTRUSTED_RID;
+            break;
+        case NSUDO_MANDATORY_LABEL_TYPE::LOW:
+            MandatoryLabelRid = SECURITY_MANDATORY_LOW_RID;
+            break;
+        case NSUDO_MANDATORY_LABEL_TYPE::MEDIUM:
+            MandatoryLabelRid = SECURITY_MANDATORY_MEDIUM_RID;
+            break;
+        case NSUDO_MANDATORY_LABEL_TYPE::MEDIUM_PLUS:
+            MandatoryLabelRid = SECURITY_MANDATORY_MEDIUM_PLUS_RID;
+            break;
+        case NSUDO_MANDATORY_LABEL_TYPE::HIGH:
+            MandatoryLabelRid = SECURITY_MANDATORY_HIGH_RID;
+            break;
+        case NSUDO_MANDATORY_LABEL_TYPE::SYSTEM:
+            MandatoryLabelRid = SECURITY_MANDATORY_SYSTEM_RID;
+            break;
+        case NSUDO_MANDATORY_LABEL_TYPE::PROTECTED_PROCESS:
+            MandatoryLabelRid = SECURITY_MANDATORY_PROTECTED_PROCESS_RID;
+            break;
+        default:
+            return E_INVALIDARG;
         }
 
-        return hr;
+        return ::MileSetTokenMandatoryLabel(TokenHandle, MandatoryLabelRid);
     }
 
     /**
@@ -234,155 +247,7 @@ public:
         _In_ HANDLE ExistingTokenHandle,
         _Out_ PHANDLE TokenHandle)
     {
-        HRESULT hr = E_INVALIDARG;
-
-        PTOKEN_USER pTokenUser = nullptr;
-        TOKEN_OWNER Owner = { 0 };
-        PTOKEN_DEFAULT_DACL pTokenDacl = nullptr;
-        DWORD Length = 0;
-        PACL NewDefaultDacl = nullptr;
-        TOKEN_DEFAULT_DACL NewTokenDacl = { 0 };
-        PACCESS_ALLOWED_ACE pTempAce = nullptr;
-        BOOL EnableTokenVirtualization = TRUE;
-
-        do
-        {
-            if (!TokenHandle)
-            {
-                break;
-            }
-
-            hr = this->CreateRestrictedToken(
-                ExistingTokenHandle, LUA_TOKEN,
-                0, nullptr, 0, nullptr, 0, nullptr, TokenHandle);
-            if (hr != S_OK)
-            {
-                break;
-            }
-
-            hr = this->SetTokenMandatoryLabel(
-                *TokenHandle, NSUDO_MANDATORY_LABEL_TYPE::MEDIUM);
-            if (hr != S_OK)
-            {
-                break;
-            }
-
-            hr = this->GetTokenInformationWithMemory(
-                *TokenHandle,
-                TokenUser,
-                reinterpret_cast<PVOID*>(&pTokenUser));
-            if (hr != S_OK)
-            {
-                break;
-            }
-
-            Owner.Owner = pTokenUser->User.Sid;
-            hr = this->SetTokenInformation(
-                *TokenHandle, TokenOwner, &Owner, sizeof(TOKEN_OWNER));
-            if (hr != S_OK)
-            {
-                break;
-            }
-
-            hr = this->GetTokenInformationWithMemory(
-                *TokenHandle,
-                TokenDefaultDacl,
-                reinterpret_cast<PVOID*>(&pTokenDacl));
-            if (hr != S_OK)
-            {
-                break;
-            }
-
-            Length = pTokenDacl->DefaultDacl->AclSize;
-            Length += ::GetLengthSid(pTokenUser->User.Sid);
-            Length += sizeof(ACCESS_ALLOWED_ACE);
-
-            hr = ::MileAllocMemory(
-                Length, reinterpret_cast<PVOID*>(&NewDefaultDacl));
-            if (hr != S_OK)
-            {
-                break;
-            }
-            NewTokenDacl.DefaultDacl = NewDefaultDacl;
-
-            if (!::InitializeAcl(
-                NewTokenDacl.DefaultDacl,
-                Length,
-                pTokenDacl->DefaultDacl->AclRevision))
-            {
-                hr = ::HRESULT_FROM_WIN32(::GetLastError());
-                break;
-            }
-
-            if (!::AddAccessAllowedAce(
-                NewTokenDacl.DefaultDacl,
-                pTokenDacl->DefaultDacl->AclRevision,
-                GENERIC_ALL,
-                pTokenUser->User.Sid))
-            {
-                hr = ::HRESULT_FROM_WIN32(::GetLastError());
-                break;
-            }
-
-            for (ULONG i = 0;
-                ::GetAce(pTokenDacl->DefaultDacl, i, (PVOID*)&pTempAce);
-                ++i)
-            {
-                if (::IsWellKnownSid(
-                    &pTempAce->SidStart,
-                    WELL_KNOWN_SID_TYPE::WinBuiltinAdministratorsSid))
-                    continue;
-
-                ::AddAce(
-                    NewTokenDacl.DefaultDacl,
-                    pTokenDacl->DefaultDacl->AclRevision,
-                    0,
-                    pTempAce,
-                    pTempAce->Header.AceSize);
-            }
-
-            Length += sizeof(TOKEN_DEFAULT_DACL);
-            hr = this->SetTokenInformation(
-                *TokenHandle, TokenDefaultDacl, &NewTokenDacl, Length);
-            if (hr != S_OK)
-            {
-                break;
-            }
-
-            hr = this->SetTokenInformation(
-                *TokenHandle,
-                TokenVirtualizationEnabled,
-                &EnableTokenVirtualization,
-                sizeof(BOOL));
-            if (hr != S_OK)
-            {
-                break;
-            }
-
-        } while (false);
-
-        if (NewDefaultDacl)
-        {
-            ::MileFreeMemory(NewDefaultDacl);
-        }
-
-        if (pTokenDacl)
-        {
-            ::MileFreeMemory(pTokenDacl);
-        }
-
-        if (pTokenUser)
-        {
-            ::MileFreeMemory(pTokenUser);
-        }
-
-        if (hr != S_OK)
-        {
-            ::MileCloseHandle(TokenHandle);
-            *TokenHandle = INVALID_HANDLE_VALUE;
-        }
-
-        return hr;
+        return ::MileCreateLUAToken(ExistingTokenHandle, TokenHandle);
     }
 
     /**
@@ -675,12 +540,7 @@ public:
             return E_INVALIDARG;
         }
 
-        if (!::SetPriorityClass(ProcessHandle, ProcessPriority))
-        {
-            return ::HRESULT_FROM_WIN32(::GetLastError());
-        }
-
-        return S_OK;
+        return ::MileSetPriorityClass(ProcessHandle, ProcessPriority);
     }
 
     /*virtual HRESULT STDMETHODCALLTYPE ExCreateFile()

@@ -11,10 +11,6 @@
 #ifndef MILE_WINDOWS
 #define MILE_WINDOWS
 
-#ifndef __cplusplus
-#error "[Mile.Windows] You should use a C++ compiler."
-#endif // !__cplusplus
-
 #include <Windows.h>
 
 /**
@@ -322,6 +318,141 @@ EXTERN_C HRESULT WINAPI MileGetPrivilegeValue(
 #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
 
 /**
+ * Closes a handle to a service control manager or service object.
+ *
+ * @param hSCObject A handle to the service control manager object or the
+ *                  service object to close.
+ * @return HRESULT. If the method succeeds, the return value is S_OK.
+ * @remark For more information, see CloseServiceHandle.
+ */
+EXTERN_C HRESULT WINAPI MileCloseServiceHandle(
+    _In_ SC_HANDLE hSCObject);
+
+#endif
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+/**
+ * Establishes a connection to the service control manager on the specified
+ * computer and opens the specified service control manager database.
+ *
+ * @param lpMachineName The name of the target computer. If the pointer is
+ *                      nullptr or points to an empty string, the function
+ *                      connects to the service control manager on the local
+ *                      computer.
+ * @param lpDatabaseName The name of the service control manager database. This
+ *                       parameter should be set to SERVICES_ACTIVE_DATABASE.
+ *                       If it is nullptr, the SERVICES_ACTIVE_DATABASE
+ *                       database is opened by default.
+ * @param dwDesiredAccess The access to the service control manager. For a list
+ *                        of access rights, see Service Security and Access
+ *                        Rights.
+ * @param phSCManager A handle to the specified service control manager
+ *                    database.
+ * @return HRESULT. If the method succeeds, the return value is S_OK.
+ * @remark For more information, see OpenSCManagerW.
+ */
+EXTERN_C HRESULT WINAPI MileOpenSCManager(
+    _In_opt_ LPCWSTR lpMachineName,
+    _In_opt_ LPCWSTR lpDatabaseName,
+    _In_ DWORD dwDesiredAccess,
+    _Out_ LPSC_HANDLE phSCManager);
+
+#endif
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+/**
+ * Opens an existing service.
+ *
+ * @param hSCManager A handle to the service control manager database.
+ * @param lpServiceName The name of the service to be opened.
+ * @param dwDesiredAccess The access to the service. For a list of access
+ *                        rights, see Service Security and Access Rights.
+ * @param phService A handle to the service.
+ * @return HRESULT. If the method succeeds, the return value is S_OK.
+ * @remark For more information, see OpenServiceW.
+ */
+EXTERN_C HRESULT WINAPI MileOpenService(
+    _In_ SC_HANDLE hSCManager,
+    _In_ LPCWSTR lpServiceName,
+    _In_ DWORD dwDesiredAccess,
+    _Out_ LPSC_HANDLE phService);
+
+#endif
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+/**
+ * Retrieves the current status of the specified service based on the specified
+ * information level.
+ *
+ * @param hService A handle to the service.
+ * @param InfoLevel The service attributes to be returned.
+ * @param lpBuffer A pointer to the buffer that receives the status
+ *                 information.
+ * @param cbBufSize The size of the buffer pointed to by the lpBuffer
+ *                  parameter, in bytes.
+ * @param pcbBytesNeeded A pointer to a variable that receives the number of
+ *                       bytes needed to store all status information, if the
+ *                       function fails with ERROR_INSUFFICIENT_BUFFER.
+ * @return HRESULT. If the method succeeds, the return value is S_OK.
+ * @remark For more information, see QueryServiceStatusEx.
+ */
+EXTERN_C HRESULT WINAPI MileQueryServiceStatus(
+    _In_ SC_HANDLE hService,
+    _In_ SC_STATUS_TYPE InfoLevel,
+    _Out_ LPBYTE lpBuffer,
+    _In_ DWORD cbBufSize,
+    _Out_ LPDWORD pcbBytesNeeded);
+
+#endif
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+/**
+ * Starts a service.
+ *
+ * @param hService A handle to the service.
+ * @param dwNumServiceArgs The number of strings in the lpServiceArgVectors
+ *                         array. If lpServiceArgVectors is nullptr, this
+ *                         parameter can be zero.
+ * @param lpServiceArgVectors The null-terminated strings to be passed to the
+ *                            ServiceMain function for the service as
+ *                            arguments. If there are no arguments, this
+ *                            parameter can be nullptr. Otherwise, the first
+ *                            argument (lpServiceArgVectors[0]) is the name of
+ *                            the service, followed by any additional arguments
+ *                            (lpServiceArgVectors[1] through
+ *                            lpServiceArgVectors[dwNumServiceArgs-1]). Driver
+ *                            services do not receive these arguments.
+ * @return HRESULT. If the method succeeds, the return value is S_OK.
+ * @remark For more information, see StartServiceW.
+ */
+EXTERN_C HRESULT WINAPI MileStartService(
+    _In_ SC_HANDLE hService,
+    _In_ DWORD dwNumServiceArgs,
+    _In_ LPCWSTR* lpServiceArgVectors);
+
+#endif
+
+/**
+ * Suspends the current thread until the specified condition is met.
+ *
+ * @param dwMilliseconds The time interval for which execution is to be
+ *                       suspended, in milliseconds.
+ * @param bAlertable If this parameter is FALSE, the function does not return
+ *                   until the time-out period has elapsed.
+ * @return HRESULT. If the method succeeds, the return value is S_OK.
+ * @remark For more information, see SleepEx.
+ */
+EXTERN_C DWORD WINAPI MileSleep(
+    _In_ DWORD dwMilliseconds,
+    _In_ BOOL bAlertable);
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+/**
  * Starts a service if not started and retrieves the current status of the
  * specified service.
  *
@@ -445,6 +576,20 @@ EXTERN_C HRESULT WINAPI MileCreateRestrictedToken(
     _Out_ PHANDLE NewTokenHandle);
 
 #endif
+
+/**
+ * Compares a SID to a well-known SID and returns TRUE if they match.
+ *
+ * @param pSid A pointer to the SID to test.
+ * @param WellKnownSidType Member of the WELL_KNOWN_SID_TYPE enumeration to
+ *                         compare with the SID at pSid.
+ * @return Returns TRUE if the SID at pSid matches the well-known SID indicated
+ *         by WellKnownSidType. Otherwise, returns FALSE.
+ * @remark For more information, see IsWellKnownSid.
+ */
+EXTERN_C BOOL WINAPI MileIsWellKnownSid(
+    _In_ PSID pSid,
+    _In_ WELL_KNOWN_SID_TYPE WellKnownSidType);
 
 #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
 
@@ -660,6 +805,179 @@ EXTERN_C HRESULT WINAPI MileOpenThreadToken(
     _In_ HANDLE ThreadHandle,
     _In_ DWORD DesiredAccess,
     _In_ BOOL OpenAsSelf,
+    _Out_ PHANDLE TokenHandle);
+
+/**
+ * Sets the priority class for the specified process. This value together with
+ * the priority value of each thread of the process determines each thread's
+ * base priority level.
+ *
+ * @param hProcess A handle to the process. The handle must have the
+ *                 PROCESS_SET_INFORMATION access right.
+ * @param dwPriorityClass The priority class for the process. This parameter
+ *                        can be one of the following values.
+ *                        ABOVE_NORMAL_PRIORITY_CLASS
+ *                        BELOW_NORMAL_PRIORITY_CLASS
+ *                        HIGH_PRIORITY_CLASS
+ *                        IDLE_PRIORITY_CLASS
+ *                        NORMAL_PRIORITY_CLASS
+ *                        PROCESS_MODE_BACKGROUND_BEGIN
+ *                        PROCESS_MODE_BACKGROUND_END
+ *                        REALTIME_PRIORITY_CLASS
+ * @return HRESULT. If the method succeeds, the return value is S_OK.
+ * @remark For more information, see SetPriorityClass.
+ */
+EXTERN_C HRESULT WINAPI MileSetPriorityClass(
+    _In_ HANDLE hProcess,
+    _In_ DWORD dwPriorityClass);
+
+/**
+ * Allocates and initializes a mandatory label security identifier (SID).
+ *
+ * @param MandatoryLabelRid The value of the mandatory label for the process.
+ *                          This parameter can be one of the following values.
+ *                          SECURITY_MANDATORY_UNTRUSTED_RID
+ *                          SECURITY_MANDATORY_LOW_RID
+ *                          SECURITY_MANDATORY_MEDIUM_RID
+ *                          SECURITY_MANDATORY_MEDIUM_PLUS_RID
+ *                          SECURITY_MANDATORY_HIGH_RID
+ *                          SECURITY_MANDATORY_SYSTEM_RID
+ *                          SECURITY_MANDATORY_PROTECTED_PROCESS_RID
+ * @param MandatoryLabelSid A pointer to a variable that receives the
+ *                          pointer to the allocated and initialized
+ *                          mandatory label SID structure.
+ * @return HRESULT. If the method succeeds, the return value is S_OK.
+ * @remark A SID allocated with the CreateMandatoryLabelSid method must be
+ *         freed by using the FreeSid function.
+ */
+EXTERN_C HRESULT WINAPI MileCreateMandatoryLabelSid(
+    _In_ DWORD MandatoryLabelRid,
+    _Out_ PSID* MandatoryLabelSid);
+
+/**
+ * Sets mandatory label for a specified access token. The information that
+ * this function sets replaces existing information. The calling process
+ * must have appropriate access rights to set the information.
+ *
+ * @param TokenHandle A handle to the access token for which information is
+ *                    to be set.
+ * @param MandatoryLabelRid The value of the mandatory label for the process.
+ *                          This parameter can be one of the following values.
+ *                          SECURITY_MANDATORY_UNTRUSTED_RID
+ *                          SECURITY_MANDATORY_LOW_RID
+ *                          SECURITY_MANDATORY_MEDIUM_RID
+ *                          SECURITY_MANDATORY_MEDIUM_PLUS_RID
+ *                          SECURITY_MANDATORY_HIGH_RID
+ *                          SECURITY_MANDATORY_SYSTEM_RID
+ *                          SECURITY_MANDATORY_PROTECTED_PROCESS_RID
+ * @return HRESULT. If the method succeeds, the return value is S_OK.
+ */
+EXTERN_C HRESULT WINAPI MileSetTokenMandatoryLabel(
+    _In_ HANDLE TokenHandle,
+    _In_ DWORD MandatoryLabelRid);
+
+/**
+ * Returns the length, in bytes, of a valid security identifier (SID).
+ *
+ * @param pSid A pointer to the SID structure whose length is returned. The
+ *             structure is assumed to be valid.
+ * @return If the SID structure is valid, the return value is the length, in
+ *         bytes, of the SID structure. If the SID structure is not valid, the
+ *         return value is undefined.
+ * @remark For more information, see GetLengthSid.
+ */
+EXTERN_C DWORD WINAPI MileGetLengthSid(
+    _In_ PSID pSid);
+
+/**
+ * Initializes a new ACL structure.
+ *
+ * @param pAcl A pointer to an ACL structure to be initialized by this
+ *             function. Allocate memory for pAcl before calling this function.
+ * @param nAclLength The length, in bytes, of the buffer pointed to by the pAcl
+ *                   parameter.
+ * @param dwAclRevision The revision level of the ACL structure being created.
+ * @return HRESULT. If the method succeeds, the return value is S_OK.
+ * @remark For more information, see InitializeAcl.
+ */
+EXTERN_C HRESULT WINAPI MileInitializeAcl(
+    _Out_ PACL pAcl,
+    _In_ DWORD nAclLength,
+    _In_ DWORD dwAclRevision);
+
+/**
+ * Adds an access-allowed access control entry (ACE) to an access control list
+ * (ACL). The access is granted to a specified security identifier (SID).
+ *
+ * @param pAcl A pointer to an ACL.
+ * @param dwAceRevision Specifies the revision level of the ACL being modified.
+ * @param AccessMask Specifies the mask of access rights to be granted to the
+ *                   specified SID.
+ * @param pSid A pointer to the SID representing a user, group, or logon
+ *             account being granted access.
+ * @return HRESULT. If the method succeeds, the return value is S_OK.
+ * @remark For more information, see AddAccessAllowedAce.
+ */
+EXTERN_C HRESULT WINAPI MileAddAccessAllowedAce(
+    _Inout_ PACL pAcl,
+    _In_ DWORD dwAceRevision,
+    _In_ DWORD AccessMask,
+    _In_ PSID pSid);
+
+/**
+ * Obtains a pointer to an access control entry (ACE) in an access control list
+ * (ACL).
+ *
+ * @param pAcl A pointer to an ACL that contains the ACE to be retrieved.
+ * @param dwAceIndex The index of the ACE to be retrieved. A value of zero
+ *                   corresponds to the first ACE in the ACL, a value of one to
+ *                   the second ACE, and so on.
+ * @param pAce A pointer to a pointer that the function sets to the address of
+ *             the ACE.
+ * @return HRESULT. If the method succeeds, the return value is S_OK.
+ * @remark For more information, see GetAce.
+ */
+EXTERN_C HRESULT WINAPI MileGetAce(
+    _In_ PACL pAcl,
+    _In_ DWORD dwAceIndex,
+    _Out_ LPVOID* pAce);
+
+/**
+ * Adds one or more access control entries (ACEs) to a specified access control
+ * list (ACL).
+ *
+ * @param pAcl A pointer to an ACL. This function adds an ACE to this ACL.
+ * @param dwAceRevision Specifies the revision level of the ACL being modified.
+ * @param dwStartingAceIndex Specifies the position in the ACL's list of ACEs
+ *                           at which to add new ACEs.
+ * @param pAceList A pointer to a list of one or more ACEs to be added to the
+ *                 specified ACL. The ACEs in the list must be stored
+ *                 contiguously.
+ * @paramn AceListLength Specifies the size, in bytes, of the input buffer
+ *                       pointed to by the pAceList parameter.
+ * @return HRESULT. If the method succeeds, the return value is S_OK.
+ * @remark For more information, see AddAce.
+ */
+EXTERN_C HRESULT WINAPI MileAddAce(
+    _Inout_ PACL pAcl,
+    _In_ DWORD dwAceRevision,
+    _In_ DWORD dwStartingAceIndex,
+    _In_ LPVOID pAceList,
+    _In_ DWORD nAceListLength);
+
+/**
+ * Creates a new access token that is a LUA version of an existing access
+ * token.
+ *
+ * @param ExistingTokenHandle A handle to a primary or impersonation token. The
+ *                            token can also be a restricted token. The handle
+ *                            must have TOKEN_DUPLICATE access to the token.
+ * @param TokenHandle A pointer to a variable that receives a handle to the new
+ *                    restricted token.
+ * @return HRESULT. If the method succeeds, the return value is S_OK.
+ */
+EXTERN_C HRESULT WINAPI MileCreateLUAToken(
+    _In_ HANDLE ExistingTokenHandle,
     _Out_ PHANDLE TokenHandle);
 
 #endif // !MILE_WINDOWS
