@@ -1245,18 +1245,6 @@ HRESULT M2LoadLibraryEx(
 #pragma region Environment
 
 /**
- * Expands environment-variable strings and replaces them with the values
- * defined for the current user.
- *
- * @param ExpandedString The expanded string.
- * @param VariableName The environment-variable string you need to expand.
- * @return HRESULT. If the function succeeds, the return value is S_OK.
- */
-HRESULT M2ExpandEnvironmentStrings(
-    std::wstring& ExpandedString,
-    const std::wstring& VariableName);
-
-/**
  * Retrieves the path of the system directory.
  *
  * @param SystemFolderPath The string of the path of the system directory.

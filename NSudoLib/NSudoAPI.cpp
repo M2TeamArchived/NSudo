@@ -215,59 +215,6 @@ public:
 };
 
 /**
- * Expands environment-variable strings and replaces them with the values
- * defined for the current user.
- *
- * @param ExpandedString The expanded string.
- * @param VariableName The environment-variable string you need to expand.
- * @return HRESULT. If the function succeeds, the return value is S_OK.
- */
-HRESULT pM2ExpandEnvironmentStrings(
-    std::wstring& ExpandedString,
-    const std::wstring& VariableName)
-{
-    HRESULT hr = S_OK;
-
-    do
-    {
-        DWORD Length = ExpandEnvironmentStringsW(
-            VariableName.c_str(),
-            nullptr,
-            0);
-        if (0 == Length)
-        {
-            hr = ::HRESULT_FROM_WIN32(::GetLastError());
-            break;
-        }
-
-        ExpandedString.resize(Length - 1);
-
-        Length = ExpandEnvironmentStringsW(
-            VariableName.c_str(),
-            &ExpandedString[0],
-            static_cast<DWORD>(ExpandedString.size() + 1));
-        if (0 == Length)
-        {
-            hr = ::HRESULT_FROM_WIN32(::GetLastError());
-            break;
-        }
-        if (ExpandedString.size() != Length - 1)
-        {
-            hr = E_UNEXPECTED;
-            break;
-        }
-
-    } while (false);
-
-    if (FAILED(hr))
-    {
-        ExpandedString.clear();
-    }
-
-    return hr;
-}
-
-/**
  * @remark You can read the definition for this function in "NSudoAPI.h".
  */
 EXTERN_C HRESULT WINAPI NSudoCreateProcess(
@@ -591,19 +538,19 @@ EXTERN_C HRESULT WINAPI NSudoCreateProcess(
 
     LPVOID lpEnvironment = nullptr;
 
-    std::wstring ExpandedString;
+    LPWSTR ExpandedString = nullptr;
 
     if (::CreateEnvironmentBlock(&lpEnvironment, hToken, TRUE))
     {
-        hr = pM2ExpandEnvironmentStrings(
-            ExpandedString,
-            CommandLine);
+        hr = ::MileExpandEnvironmentStringsWithMemory(
+            CommandLine,
+            &ExpandedString);
         if (SUCCEEDED(hr))
         {
             if (::CreateProcessAsUserW(
                 hToken,
                 nullptr,
-                const_cast<LPWSTR>(ExpandedString.c_str()),
+                ExpandedString,
                 nullptr,
                 nullptr,
                 FALSE,
@@ -628,6 +575,8 @@ EXTERN_C HRESULT WINAPI NSudoCreateProcess(
             {
                 hr = ::HRESULT_FROM_WIN32(::GetLastError());
             }
+
+            ::MileFreeMemory(ExpandedString);
         }
 
         ::DestroyEnvironmentBlock(lpEnvironment);

@@ -1339,3 +1339,80 @@ EXTERN_C HRESULT WINAPI MileOpenThreadTokenByThreadId(
 
     return hr;
 }
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C HRESULT WINAPI MileExpandEnvironmentStrings(
+    _In_ LPCWSTR lpSrc,
+    _Out_opt_ LPWSTR lpDst,
+    _In_ DWORD nSize,
+    _Out_ PDWORD pReturnLength)
+{
+    HRESULT hr = E_INVALIDARG;
+
+    if (pReturnLength)
+    {
+        *pReturnLength = ExpandEnvironmentStringsW(lpSrc, lpDst, nSize);
+        if (*pReturnLength)
+        {
+            hr = S_OK;
+        }
+        else
+        {
+            hr = ::HRESULT_FROM_WIN32(::GetLastError());
+        }
+    }
+
+    return hr;
+}
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C HRESULT WINAPI MileExpandEnvironmentStringsWithMemory(
+    _In_ LPCWSTR Source,
+    _Out_ LPWSTR* Destination)
+{
+    DWORD AllocatedLength = 0;
+    DWORD ActualLength = 0;
+
+    HRESULT hr = E_INVALIDARG;
+
+    if (Destination)
+    {
+        hr = ::MileExpandEnvironmentStrings(
+            Source,
+            nullptr,
+            0,
+            &AllocatedLength);
+        if (hr == S_OK)
+        {
+            hr = ::MileAllocMemory(
+                AllocatedLength * sizeof(wchar_t),
+                reinterpret_cast<PVOID*>(Destination));
+            if (hr == S_OK)
+            {
+                hr = ::MileExpandEnvironmentStrings(
+                    Source,
+                    *Destination,
+                    AllocatedLength,
+                    &ActualLength);
+                if (hr == S_OK)
+                {
+                    if (AllocatedLength != ActualLength)
+                    {
+                        hr = E_UNEXPECTED;
+                    }
+                }
+            }
+        }
+
+        if (hr != S_OK)
+        {
+            ::MileFreeMemory(*Destination);
+        }
+    }
+
+    return hr;
+}
