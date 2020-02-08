@@ -17,6 +17,9 @@
 #include <WtsApi32.h>
 #pragma comment(lib, "WtsApi32.lib")
 
+#include <Userenv.h>
+#pragma comment(lib, "Userenv.lib")
+
 /**
  * @remark You can read the definition for this function in "Mile.Windows.h".
  */
@@ -1415,4 +1418,152 @@ EXTERN_C HRESULT WINAPI MileExpandEnvironmentStringsWithMemory(
     }
 
     return hr;
+}
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C HRESULT WINAPI MileCreateProcessAsUser(
+    _In_opt_ HANDLE hToken,
+    _In_opt_ LPCWSTR lpApplicationName,
+    _Inout_opt_ LPWSTR lpCommandLine,
+    _In_opt_ LPSECURITY_ATTRIBUTES lpProcessAttributes,
+    _In_opt_ LPSECURITY_ATTRIBUTES lpThreadAttributes,
+    _In_ BOOL bInheritHandles,
+    _In_ DWORD dwCreationFlags,
+    _In_opt_ LPVOID lpEnvironment,
+    _In_opt_ LPCWSTR lpCurrentDirectory,
+    _In_ LPSTARTUPINFOW lpStartupInfo,
+    _Out_ LPPROCESS_INFORMATION lpProcessInformation)
+{
+    if (!::CreateProcessAsUserW(
+        hToken,
+        lpApplicationName,
+        lpCommandLine,
+        lpProcessAttributes,
+        lpThreadAttributes,
+        bInheritHandles,
+        dwCreationFlags,
+        lpEnvironment,
+        lpCurrentDirectory,
+        lpStartupInfo,
+        lpProcessInformation))
+    {
+        return ::HRESULT_FROM_WIN32(::GetLastError());
+    }
+
+    return S_OK;
+}
+
+#endif
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C HRESULT WINAPI MileCreateEnvironmentBlock(
+    _Outptr_ LPVOID* lpEnvironment,
+    _In_opt_ HANDLE hToken,
+    _In_ BOOL bInherit)
+{
+    if (!::CreateEnvironmentBlock(lpEnvironment, hToken, bInherit))
+    {
+        return ::HRESULT_FROM_WIN32(::GetLastError());
+    }
+
+    return S_OK;
+}
+
+#endif
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C HRESULT WINAPI MileDestroyEnvironmentBlock(
+    _In_ LPVOID lpEnvironment)
+{
+    if (!::DestroyEnvironmentBlock(lpEnvironment))
+    {
+        return ::HRESULT_FROM_WIN32(::GetLastError());
+    }
+
+    return S_OK;
+}
+
+#endif
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C HRESULT WINAPI MileSuspendThread(
+    _In_ HANDLE ThreadHandle,
+    _Out_opt_ PDWORD PreviousSuspendCount)
+{
+    DWORD PreviousCount = ::SuspendThread(ThreadHandle);
+
+    if (PreviousSuspendCount)
+    {
+        *PreviousSuspendCount = PreviousCount;
+    }
+
+    if (PreviousCount == static_cast<DWORD>(-1))
+    {
+        return ::HRESULT_FROM_WIN32(::GetLastError());
+    }
+
+    return S_OK;
+}
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C HRESULT WINAPI MileResumeThread(
+    _In_ HANDLE ThreadHandle,
+    _Out_opt_ PDWORD PreviousSuspendCount)
+{
+    DWORD PreviousCount = ::ResumeThread(ThreadHandle);
+
+    if (PreviousSuspendCount)
+    {
+        *PreviousSuspendCount = PreviousCount;
+    }
+
+    if (PreviousCount == static_cast<DWORD>(-1))
+    {
+        return ::HRESULT_FROM_WIN32(::GetLastError());
+    }
+
+    return S_OK;
+}
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C HRESULT WINAPI MileWaitForSingleObject(
+    _In_ HANDLE hHandle,
+    _In_ DWORD dwMilliseconds,
+    _In_ BOOL bAlertable,
+    _Out_opt_ PDWORD pdwReturn)
+{
+    DWORD dwReturn = ::WaitForSingleObjectEx(
+        hHandle,
+        dwMilliseconds,
+        bAlertable);
+
+    if (pdwReturn)
+    {
+        *pdwReturn = dwReturn;
+    }
+
+    if (dwReturn == WAIT_FAILED)
+    {
+        return ::HRESULT_FROM_WIN32(::GetLastError());
+    }
+
+    return S_OK;
 }

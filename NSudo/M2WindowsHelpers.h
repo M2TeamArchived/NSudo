@@ -340,20 +340,26 @@ namespace M2
 
         DWORD Resume()
         {
-            return ResumeThread(this->m_Thread);
+            DWORD PreviousSuspendCount = static_cast<DWORD>(-1);
+            ::MileResumeThread(this->m_Thread, &PreviousSuspendCount);
+            return PreviousSuspendCount;
         }
 
         DWORD Suspend()
         {
-            return SuspendThread(this->m_Thread);
+            DWORD PreviousSuspendCount = static_cast<DWORD>(-1);
+            ::MileSuspendThread(this->m_Thread, &PreviousSuspendCount);
+            return PreviousSuspendCount;
         }
 
         DWORD Wait(
             _In_ DWORD dwMilliseconds = INFINITE,
             _In_ BOOL bAlertable = FALSE)
         {
-            return WaitForSingleObjectEx(
-                this->m_Thread, dwMilliseconds, bAlertable);
+            DWORD Result = WAIT_FAILED;
+            ::MileWaitForSingleObject(
+                this->m_Thread, dwMilliseconds, bAlertable, &Result);
+            return Result;
         }
 
     };

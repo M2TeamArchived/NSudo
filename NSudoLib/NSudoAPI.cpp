@@ -21,9 +21,6 @@
 #include <string>
 #include <vector>
 
-#include <Userenv.h>
-#pragma comment(lib, "Userenv.lib")
-
 namespace M2
 {
     /**
@@ -540,14 +537,15 @@ EXTERN_C HRESULT WINAPI NSudoCreateProcess(
 
     LPWSTR ExpandedString = nullptr;
 
-    if (::CreateEnvironmentBlock(&lpEnvironment, hToken, TRUE))
+    hr = ::MileCreateEnvironmentBlock(&lpEnvironment, hToken, TRUE);
+    if (hr == S_OK)
     {
         hr = ::MileExpandEnvironmentStringsWithMemory(
             CommandLine,
             &ExpandedString);
-        if (SUCCEEDED(hr))
+        if (hr == S_OK)
         {
-            if (::CreateProcessAsUserW(
+            hr = ::MileCreateProcessAsUser(
                 hToken,
                 nullptr,
                 ExpandedString,
@@ -558,32 +556,25 @@ EXTERN_C HRESULT WINAPI NSudoCreateProcess(
                 lpEnvironment,
                 CurrentDirectory,
                 &StartupInfo,
-                &ProcessInfo))
+                &ProcessInfo);
+            if (hr == S_OK)
             {
                 ::MileSetPriorityClass(
                     ProcessInfo.hProcess, ProcessPriority);
 
-                ::ResumeThread(ProcessInfo.hThread);
+                ::MileResumeThread(ProcessInfo.hThread, nullptr);
 
-                ::WaitForSingleObjectEx(
-                    ProcessInfo.hProcess, WaitInterval, FALSE);
+                ::MileWaitForSingleObject(
+                    ProcessInfo.hProcess, WaitInterval, FALSE, nullptr);
 
                 ::MileCloseHandle(ProcessInfo.hProcess);
                 ::MileCloseHandle(ProcessInfo.hThread);
-            }
-            else
-            {
-                hr = ::HRESULT_FROM_WIN32(::GetLastError());
             }
 
             ::MileFreeMemory(ExpandedString);
         }
 
-        ::DestroyEnvironmentBlock(lpEnvironment);
-    }
-    else
-    {
-        hr = ::HRESULT_FROM_WIN32(::GetLastError());
+        ::MileDestroyEnvironmentBlock(lpEnvironment);
     }
 
     return S_OK;

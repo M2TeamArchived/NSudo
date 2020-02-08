@@ -1212,4 +1212,139 @@ EXTERN_C HRESULT WINAPI MileExpandEnvironmentStringsWithMemory(
     _In_ LPCWSTR Source,
     _Out_ LPWSTR* Destination);
 
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+/**
+ * Creates a new process and its primary thread. The new process runs in the
+ * security context of the user represented by the specified token.
+ *
+ * @param hToken A handle to the primary token that represents a user.
+ * @param lpApplicationName The name of the module to be executed.
+ * @param lpCommandLine The command line to be executed. The maximum length of
+ *                      this string is 32K characters. If lpApplicationName is
+ *                      nullptr, the module name portion of lpCommandLine is
+ *                      limited to MAX_PATH characters.
+ * @param lpProcessAttributes A pointer to a SECURITY_ATTRIBUTES structure that
+ *                            specifies a security descriptor for the new
+ *                            process object and determines whether child
+ *                            processes can inherit the returned handle to the
+ *                            process.
+ * @param lpThreadAttributes A pointer to a SECURITY_ATTRIBUTES structure that
+ *                           specifies a security descriptor for the new thread
+ *                           object and determines whether child processes can
+ *                           inherit the returned handle to the thread.
+ * @param bInheritHandles If this parameter is TRUE, each inheritable handle in
+ *                        the calling process is inherited by the new process.
+ *                        If the parameter is FALSE, the handles are not
+ *                        inherited.
+ * @param dwCreationFlags The flags that control the priority class and the
+ *                        creation of the process. For a list of values, see
+ *                        Process Creation Flags.
+ * @param lpEnvironment A pointer to an environment block for the new process.
+ * @param lpCurrentDirectory The full path to the current directory for the
+ *                           process. The string can also specify a UNC path.
+ * @param lpStartupInfo A pointer to a STARTUPINFO or STARTUPINFOEX structure.
+ * @param lpProcessInformation A pointer to a PROCESS_INFORMATION structure
+ *                             that receives identification information about
+ *                             the new process.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ * @remark For more information, see CreateProcessAsUserW.
+ */
+EXTERN_C HRESULT WINAPI MileCreateProcessAsUser(
+    _In_opt_ HANDLE hToken,
+    _In_opt_ LPCWSTR lpApplicationName,
+    _Inout_opt_ LPWSTR lpCommandLine,
+    _In_opt_ LPSECURITY_ATTRIBUTES lpProcessAttributes,
+    _In_opt_ LPSECURITY_ATTRIBUTES lpThreadAttributes,
+    _In_ BOOL bInheritHandles,
+    _In_ DWORD dwCreationFlags,
+    _In_opt_ LPVOID lpEnvironment,
+    _In_opt_ LPCWSTR lpCurrentDirectory,
+    _In_ LPSTARTUPINFOW lpStartupInfo,
+    _Out_ LPPROCESS_INFORMATION lpProcessInformation);
+
+#endif
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+/**
+ * Returns the environment variables for the specified user. This block can
+ * then be passed to MileCreateProcessAsUser().
+ *
+ * @param lpEnvironment Receives a pointer to the new environment block.
+ * @param hToken Token for the user. If this parameter is nullptr, the returned
+ *               environment block contains system variables only.
+ * @param bInherit Inherit from the current process's environment block or
+ *                 start from a clean state.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ * @remark For more information, see CreateEnvironmentBlock.
+ */
+EXTERN_C HRESULT WINAPI MileCreateEnvironmentBlock(
+    _Outptr_ LPVOID* lpEnvironment,
+    _In_opt_ HANDLE hToken,
+    _In_ BOOL bInherit);
+
+#endif
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+/**
+ * Frees environment variables created by the MileCreateEnvironmentBlock.
+ *
+ * @param lpEnvironment A pointer to the environment block.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ * @remark For more information, see DestroyEnvironmentBlock.
+ */
+EXTERN_C HRESULT WINAPI MileDestroyEnvironmentBlock(
+    _In_ LPVOID lpEnvironment);
+
+#endif
+
+/**
+ * Suspends the specified thread.
+ *
+ * @param ThreadHandle A handle to the thread that is to be suspended.
+ * @param PreviousSuspendCount The thread's previous suspend count
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ * @remark For more information, see SuspendThread.
+ */
+EXTERN_C HRESULT WINAPI MileSuspendThread(
+    _In_ HANDLE ThreadHandle,
+    _Out_opt_ PDWORD PreviousSuspendCount);
+
+/**
+ * Decrements a thread's suspend count. When the suspend count is decremented
+ * to zero, the execution of the thread is resumed.
+ *
+ * @param ThreadHandle A handle to the thread to be restarted.
+ * @param PreviousSuspendCount The thread's previous suspend count.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ * @remark For more information, see ResumeThread.
+ */
+EXTERN_C HRESULT WINAPI MileResumeThread(
+    _In_ HANDLE ThreadHandle,
+    _Out_opt_ PDWORD PreviousSuspendCount);
+
+/**
+ * Waits until the specified object is in the signaled state, an I/O completion
+ * routine or asynchronous procedure call (APC) is queued to the thread, or the
+ * time-out interval elapses.
+ *
+ * @param hHandle A handle to the object.
+ * @param dwMilliseconds The time-out interval, in milliseconds.
+ * @param bAlertable If this parameter is TRUE and the thread is in the waiting
+ *                   state, the function returns when the system queues an I/O
+ *                   completion routine or APC, and the thread runs the routine
+ *                   or function. Otherwise, the function does not return, and
+ *                   the completion routine or APC function is not executed.
+ * @param pdwReturn Indicates the event that caused the function to return.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ * @remark For more information, see WaitForSingleObjectEx.
+ */
+EXTERN_C HRESULT WINAPI MileWaitForSingleObject(
+    _In_ HANDLE hHandle,
+    _In_ DWORD dwMilliseconds,
+    _In_ BOOL bAlertable,
+    _Out_opt_ PDWORD pdwReturn);
+
 #endif // !MILE_WINDOWS
