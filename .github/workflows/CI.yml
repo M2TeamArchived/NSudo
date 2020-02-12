@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+    paths-ignore:
+      - 'README.md'
+      - 'appveyor.yml'
+  pull_request:
+    paths-ignore:
+      - 'README.md'
+      - 'appveyor.yml'
+
+jobs:
+  build:
+
+    runs-on: windows-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        configuration: [Debug - CUI, Debug - GUI, Release - CUI, Release - GUI]
+        platform: [x86, x64]
+        include:
+          - configuration: Debug - CUI
+            config_prefix: Debug
+          - configuration: Debug - GUI
+            config_prefix: Debug
+          - configuration: Release - CUI
+            config_prefix: Release
+          - configuration: Release - GUI
+            config_prefix: Release
+          - platform: x86
+            platform_prefix: Win32
+          - platform: x64
+            platform_prefix: x64
+    steps:
+    - uses: actions/checkout@v2
+    - uses: warrenbuckley/Setup-MSBuild@v1
+    - name: Build
+      run: msbuild /m /nologo /p:Configuration="${{ matrix.configuration }}" /p:Platform=${{ matrix.platform }} NSudo.sln
+    - name: Prepare artifacts
+      run: Remove-Item Output\* -Recurse -Force -Include *.exp, *.idb, *.ilk, *.iobj, *.ipdb, *.lastbuildstate, *.lib, *.obj, *.res, *.tlog
+    - uses: actions/upload-artifact@v1
+      with:
+        name: NSudo-${{ matrix.configuration }}-${{ matrix.platform }}
+        path: Output\${{ matrix.config_prefix }}\${{ matrix.platform_prefix }}
