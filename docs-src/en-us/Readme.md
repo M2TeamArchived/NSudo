@@ -6,11 +6,11 @@
 
 ### Prototype
 
-NSudo is based on SuperCMD by Raymai97. Visit
+NSudo Launcher is based on SuperCMD by Raymai97. Visit
 [here](http://bbs.pcbeta.com/viewthread-1508863-1-1.html "here") for more
 information about SuperCMD.
 
-### Feature List
+### Features
 
 - Distributed under the MIT License. (More freedom than GNU GPL.)
 - Provide the x86, x86-64, ARM, ARM64 binaries.
@@ -61,6 +61,18 @@ information about SuperCMD.
   - One of elegant solutions for developers who want to bypass the file and 
     registry access checks for the process with the Administrator privilege.
   - Only depend on ntdll.dll.
+  - Hook APIs via Microsoft Detours for the maximum compatibility.
+
+### Third-party projects which uses NSudo
+
+- MSMG ToolKit
+- Sledgehammer (WUMT Wrapper Script)
+- Dism++
+
+### System requirements
+
+- Supported OS Version: Windows NT 6.0 or later
+- Supported CPU Architecture: x86, x86-64(AMD64), ARM, ARM64
 
 ### Third-party introduction
 
@@ -69,15 +81,10 @@ information about SuperCMD.
 - TrishTech.com: [https://www.trishtech.com/2018/11/nsudo-run-programs-with-full-privileges-in-windows/](https://www.trishtech.com/2018/11/nsudo-run-programs-with-full-privileges-in-windows/)
 - Wilders Security Forums: [https://www.wilderssecurity.com/threads/396818](https://www.wilderssecurity.com/threads/396818)
 
-### System requirements
-
-- Supported OS Version: Windows NT 6.0 or later
-- Supported CPU Architecture: x86, x86-64(AMD64), ARM, ARM64
-
 ## Usage
 
-### Quick Start
+### Quick Start for NSudo Launcher
 
-Please go to the [CPU Architecture] folder and click NSudo.exe. Follow the
+Please go to the [CPU Architecture] folder and click NSudoLG.exe. Follow the
 prompts. For example, if you want to use 64-bit NSudo on your Intel or AMD
-device, you need to go to the x64 folder and click NSudoG.exe
+device, you need to go to the x64 folder and click NSudoLG.exe
