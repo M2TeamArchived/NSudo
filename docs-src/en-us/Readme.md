@@ -10,12 +10,16 @@ NSudo Launcher is based on SuperCMD by Raymai97. Visit
 [here](http://bbs.pcbeta.com/viewthread-1508863-1-1.html "here") for more
 information about SuperCMD.
 
+NSudo Devil Mode is based on the Dism++ God Mode, with new features and several
+improvements.
+
 ### Features
 
-- Distributed under the MIT License. (More freedom than GNU GPL.)
+- Distributed under the MIT License. (More freedom than the GNU GPL.)
 - Provide the x86, x86-64, ARM, ARM64 binaries.
-- Support Windows Vista and lator.
-- Compact binary size with VC-LTL and libkcrt from Chuyu Team.
+- Support Windows Vista and later.
+- Using VC-LTL and libkcrt from Chuyu Team for smaller binary size.
+- Using C++17, but only use core language features in the most cases.
 - NSudo Launcher
   - Launch programs with TrustedInstaller access token.
   - Launch programs with System access token.
@@ -57,11 +61,12 @@ information about SuperCMD.
   - High performance.
     - Note: Because it don't need to create the windows service and the windows
       service process.
+  - Provide C APIs and .Net Core bindings for developers.
 - NSudo Devil Mode
-  - One of elegant solutions for developers who want to bypass the file and 
+  - The most elegant solution for developers who want to bypass the file and 
     registry access checks for the process with the Administrator privilege.
-  - Only depend on ntdll.dll.
-  - Hook APIs via Microsoft Detours for the maximum compatibility.
+  - Hook APIs via the Microsoft Detours library for the maximum compatibility.
+  - The binary only depend on the exported named APIs from ntdll.dll.
 
 ### Third-party projects which uses NSudo
 
