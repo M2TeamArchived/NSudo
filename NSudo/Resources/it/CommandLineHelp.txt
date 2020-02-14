@@ -52,18 +52,18 @@ PS: Se si vuol utilizzare la modalita' finestra predefinita, non includere
 il parametro "-ShowWindowMode".
 
 -Wait NSudo attendere il termine del processo creato prima di uscire.
-PS: Se non si vuole che NSUDO attenda la fine del processo, non includere il 
-parametro "-Wait".
+PS: Se non si vuole che NSudo Launcher attenda la fine del processo, non 
+includere il parametro "-Wait".
 
 -CurrentDirectory:[ PercorsoCartella ] Imposta la cartella per il processo.
-PS: Se si desidera utilizzare la directory corrente di NSudo, non includere
-il parametro "-CurrentDirectory".
+PS: Se si desidera utilizzare la directory corrente di NSudo Launcher, non 
+includere il parametro "-CurrentDirectory".
 
 -UseCurrentConsole Crea un processo in questa finestra.
 PS: Se si vuole creare un processo in una nuova finestra, non includere 
 il parametro "-UseCurrentConsole".
 
--Version Visualizza la versione di NSudo.
+-Version Visualizza la versione di NSudo Launcher.
 
 -? Visualizza questo contenuto.
 -H Visualizza questo contenuto.
@@ -72,14 +72,15 @@ il parametro "-UseCurrentConsole".
 Please use https://github.com/Thdub/NSudo_Installer for context menu management.
 
 PS:
-    1. Tutti i comandi di NSudo non fanno distinzione tra maiuscole e minuscole.
+    1. Tutti i comandi di NSudo Launcher non fanno distinzione tra maiuscole e 
+       minuscole.
     2. E' possibile utilizzare "/" oppure "--" al posto di "-" e 
 	   utilizzare "=" al posto di ":" nella linea di comando dei parametri.
 	   Esempio, "/U:T" e "-U=T" sono equivalenti.
-    3. Per garantire la migliore esperienza, NSudoC non supporta il menu 
+    3. Per garantire la migliore esperienza, NSudoLC non supporta il menu 
        contestuale.
 
 Esempio:
     Se si vuol avviare il Prompt dei Comandi come TrustedInstaller, attivare 
     tutti i privilegi e il Livello Integrita' predefinito.
-        NSudo -U:T -P:E cmd
+        NSudoL -U:T -P:E cmd

@@ -50,18 +50,18 @@ PS: Si vous souhaitez créer un processus avec le mode de fenêtre par défaut,
 n'incluez pas le paramètre "-ShowWindowMode".
 
 -Wait NSudo attend que le processus créé se termine avant de quitter.
-PS: Si vous ne voulez pas que Nsudo attende la fin du processus, n'incluez pas
-le paramètre "-Wait".
+PS: Si vous ne voulez pas que NSudo Launcher attende la fin du processus, 
+n'incluez pas le paramètre "-Wait".
 
 -CurrentDirectory: [DirectoryPath] Définit le répertoire actuel du processus.
-PS: Si vous souhaitez utiliser le répertoire actuel de NSudo, n'incluez pas le
-paramètre "-CurrentDirectory".
+PS: Si vous souhaitez utiliser le répertoire actuel de NSudo Launcher, 
+n'incluez pas le paramètre "-CurrentDirectory".
 
 -UseCurrentConsole Crée un processus dans la fenêtre de console actuelle.
 PS: Si vous souhaitez créer un processus dans une nouvelle fenêtre de console, 
 n'incluez pas le paramètre "-UseCurrentConsole".
 
--Version Affiche les informations de version de NSudo.
+-Version Affiche les informations de version de NSudo Launcher.
 
 -? Affiche l'aide.
 -H Affiche l'aide.
@@ -70,15 +70,16 @@ n'incluez pas le paramètre "-UseCurrentConsole".
 Please use https://github.com/Thdub/NSudo_Installer for context menu management.
 
 PS:
-    1. Tous les arguments de commande de NSudo sont insensibles à la casse.
+    1. Tous les arguments de commande de NSudo Launcher sont insensibles à la 
+       casse.
     2. Vous pouvez utiliser "-" ou "/ " , et remplacer ":" par " =" dans
        les paramètres de ligne de commande. Par exemple, "/U:T" et "-U=T" 
        sont équivalents.
-    3. Afin d'assurer la meilleure expérience possible, NSudoC ne prend pas en 
+    3. Afin d'assurer la meilleure expérience possible, NSudoLC ne prend pas en
        charge le menu contextuel.
 
 Exemple:
     Si vous souhaitez exécuter un invité de commande en tant que 
     TrustedInstaller, activez toutes les privilèges et le niveau d'intégrité
     par défaut.
-    NSudo -U: T -P: E cmd
+    NSudoL -U: T -P: E cmd

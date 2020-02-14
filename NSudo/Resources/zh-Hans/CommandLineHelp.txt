@@ -43,16 +43,16 @@ PS：如果想以默认进程优先级选项创建进程的话，请不要包含
     Minimize 最小化
 PS：如果想以默认窗口模式选项创建进程的话，请不要包含“-ShowWindowMode”参数。
 
--Wait 令 NSudo 等待创建的进程结束后再退出。
+-Wait 令 NSudo Launcher 等待创建的进程结束后再退出。
 PS：如果不想等待，请不要包含“-Wait”参数。
 
 -CurrentDirectory:[ 目录路径 ] 设置进程的的当前目录。
-PS：如果你想用 NSudo 的当前目录，请不要包含“-CurrentDirectory”参数。
+PS：如果你想用 NSudo Launcher 的当前目录，请不要包含“-CurrentDirectory”参数。
 
 -UseCurrentConsole 使用当前控制台窗口创建进程。
 PS：如果你想在新控制台窗口创建进程，请不要包含“-UseCurrentConsole”参数。
 
--Version 显示 NSudo 版本信息。
+-Version 显示 NSudo Launcher 版本信息。
 
 -? 显示该内容。
 -H 显示该内容。
@@ -61,11 +61,11 @@ PS：如果你想在新控制台窗口创建进程，请不要包含“-UseCurre
 上下文菜单管理请使用 https://github.com/Thdub/NSudo_Installer。
 
 PS：
-    1. 所有的NSudo命令行参数不区分大小写。
+    1. 所有的 NSudo Launcher 命令行参数不区分大小写。
     1. 可以在命令行参数中使用 "/" 或 "--" 代替 "-" 和使用 "=" 代替 ":"。例如
        "/U:T" 和 "-U=T" 是等价的。
-    1. 为了保证最佳体验，NSudoC不支持上下文菜单。
+    1. 为了保证最佳体验，NSudoLC 不支持上下文菜单。
 
 例子：
     以TrustedInstaller权限，启用所有特权，完整性默认运行命令提示符
-        NSudo -U:T -P:E cmd
+        NSudoL -U:T -P:E cmd
