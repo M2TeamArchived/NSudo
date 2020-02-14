@@ -1,11 +1,19 @@
 ﻿# Changelog
 
+**NSudo 8.0.0-alpha3**
+
+- Add NSudo Devil Mode (NSudoDM).
+- Remove all NSudo Shared Library APIs introduced in alpha2.
+- Add NSudoCreateProcess API to NSudo Shared Library.
+- Add Mouri Internal Library Essentials (Mile).
+- Improve several implementations.
+- Rename NSudo itself to NSudo Launcher.
+
 **NSudo 8.0.0-alpha2**
 
 - Update links information in NSudo binaries.
 - Convert C API to COM interface in NSudo Shared Library.
 - Add .Net interoperability support.
-- Add NSudo User Experience Library.
 - Optimize the icon resource size.
 - Use jsmn instead of JSON for Modern C++.
 - Add NSudoLib for static linking.

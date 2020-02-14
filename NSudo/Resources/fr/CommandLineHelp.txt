@@ -1,4 +1,4 @@
-﻿Format: NSudo [Options et paramètres] Ligne de commande ou Raccourci
+﻿Format: NSudoL [Options et paramètres] Ligne de commande ou Raccourci
 
 Options:
 

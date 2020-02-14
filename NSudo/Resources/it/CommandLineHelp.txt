@@ -1,4 +1,4 @@
-﻿Formato: NSudo [ Opzioni e parametri ] Linea di Comando oppre Collegamento al 
+﻿Formato: NSudoL [ Opzioni e parametri ] Linea di Comando oppre Collegamento al 
 Comando
 
 Opzioni:

@@ -1,4 +1,4 @@
-﻿Format: NSudo [ Options and parameters ] Command line or ShortCut Command
+﻿Format: NSudoL [ Options and parameters ] Command line or ShortCut Command
 
 Options:
 

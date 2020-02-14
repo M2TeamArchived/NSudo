@@ -17,199 +17,78 @@
 #include <cstdio>
 #include <cwchar>
 
-#include <map>
-#include <string>
-#include <vector>
+#include <type_traits>
+#include <utility>
 
-namespace M2
+namespace Mile
 {
     /**
      * Disable C++ Object Copying
      */
-    class CDisableObjectCopying
+    class DisableObjectCopying
     {
     protected:
-        CDisableObjectCopying() = default;
-        ~CDisableObjectCopying() = default;
+        DisableObjectCopying() = default;
+        ~DisableObjectCopying() = default;
 
     private:
-        CDisableObjectCopying(
-            const CDisableObjectCopying&) = delete;
-        CDisableObjectCopying& operator=(
-            const CDisableObjectCopying&) = delete;
+        DisableObjectCopying(
+            const DisableObjectCopying&) = delete;
+        DisableObjectCopying& operator=(
+            const DisableObjectCopying&) = delete;
     };
 
     /**
      * Disable C++ Object Moving
      */
-    class CDisableObjectMoving
+    class DisableObjectMoving
     {
     protected:
-        CDisableObjectMoving() = default;
-        ~CDisableObjectMoving() = default;
+        DisableObjectMoving() = default;
+        ~DisableObjectMoving() = default;
 
     private:
-        CDisableObjectMoving(
-            const CDisableObjectCopying&&) = delete;
-        CDisableObjectMoving& operator=(
-            const CDisableObjectCopying&&) = delete;
+        DisableObjectMoving(
+            const DisableObjectMoving&&) = delete;
+        DisableObjectMoving& operator=(
+            const DisableObjectMoving&&) = delete;
     };
 
     /**
-     * The implementation of smart object.
+     * Scope Exit Event Handler (ScopeGuard)
      */
-    template<typename TObject, typename TObjectDefiner>
-    class CObject : CDisableObjectCopying, CDisableObjectMoving
+    template<typename EventHandlerType>
+    class ScopeExitEventHandler : DisableObjectCopying, DisableObjectMoving
     {
-    protected:
-        TObject m_Object;
+    private:
+        bool m_Canceled;
+        EventHandlerType m_EventHandler;
+
     public:
-        CObject(TObject Object = TObjectDefiner::GetInvalidValue()) :
-            m_Object(Object)
+
+        ScopeExitEventHandler() = delete;
+
+        explicit ScopeExitEventHandler(EventHandlerType&& EventHandler) :
+            m_Canceled(false),
+            m_EventHandler(std::forward<EventHandlerType>(EventHandler))
         {
 
         }
 
-        ~CObject()
+        ~ScopeExitEventHandler()
         {
-            this->Close();
-        }
-
-        TObject* operator&()
-        {
-            return &this->m_Object;
-        }
-
-        TObject operator=(TObject Object)
-        {
-            if (Object != this->m_Object)
+            if (!this->m_Canceled)
             {
-                this->Close();
-                this->m_Object = Object;
-            }
-            return (this->m_Object);
-        }
-
-        operator TObject()
-        {
-            return this->m_Object;
-        }
-
-        bool IsInvalid()
-        {
-            return (this->m_Object == TObjectDefiner::GetInvalidValue());
-        }
-
-        TObject Detach()
-        {
-            TObject Object = this->m_Object;
-            this->m_Object = TObjectDefiner::GetInvalidValue();
-            return Object;
-        }
-
-        void Close()
-        {
-            if (!this->IsInvalid())
-            {
-                TObjectDefiner::Close(this->m_Object);
-                this->m_Object = TObjectDefiner::GetInvalidValue();
+                this->m_EventHandler();
             }
         }
 
-        TObject operator->() const
+        void Cancel()
         {
-            return this->m_Object;
+            this->m_Canceled = true;
         }
     };
-
-    /**
-     * The handle definer for HANDLE object.
-     */
-#pragma region CHandle
-
-    struct CHandleDefiner
-    {
-        static inline HANDLE GetInvalidValue()
-        {
-            return INVALID_HANDLE_VALUE;
-        }
-
-        static inline void Close(HANDLE Object)
-        {
-            ::MileCloseHandle(Object);
-        }
-    };
-
-    typedef CObject<HANDLE, CHandleDefiner> CHandle;
-
-#pragma endregion
 }
-
-/**
- * Enables or disables privileges in the specified access token.
- *
- * @param TokenHandle A handle to the access token that contains the
- *                    privileges to be modified. The handle must have
- *                    TOKEN_ADJUST_PRIVILEGES access to the token.
- * @param Privileges A key value map of privilege name and attributes.
- *                   The attributes of a privilege can be a combination
- *                   of the following values.
- *                   SE_PRIVILEGE_ENABLED
- *                       The function enables the privilege.
- *                   SE_PRIVILEGE_REMOVED
- *                       The privilege is removed from the list of
- *                       privileges in the token.
- *                   None
- *                       The function disables the privilege.
- * @return Standard Win32 Error. If the function succeeds, the return
- *         value is ERROR_SUCCESS.
- * @remark For more information, see AdjustTokenPrivileges.
- */
-HRESULT NSudoAdjustTokenPrivileges(
-    HANDLE TokenHandle,
-    std::map<std::wstring, DWORD> const& Privileges)
-{
-    std::vector<LUID_AND_ATTRIBUTES> RawPrivileges;
-
-    for (auto const& Privilege : Privileges)
-    {
-        LUID_AND_ATTRIBUTES RawPrivilege;
-
-        HRESULT hr = ::MileGetPrivilegeValue(
-            Privilege.first.c_str(), &RawPrivilege.Luid);
-        if (hr != S_OK)
-        {
-            return hr;
-        }
-
-        RawPrivilege.Attributes = Privilege.second;
-
-        RawPrivileges.push_back(RawPrivilege);
-    }
-
-    return ::MileAdjustTokenPrivilegesSimple(
-        TokenHandle,
-        &RawPrivileges[0],
-        static_cast<DWORD>(RawPrivileges.size()));
-}
-
-class ThreadTokenContext
-{
-public:
-
-    HRESULT hr;
-
-    ThreadTokenContext(HANDLE TokenHandle) :
-        hr(::MileSetCurrentThreadToken(TokenHandle))
-    {
-    }
-
-    ~ThreadTokenContext()
-    {
-        ::MileSetCurrentThreadToken(nullptr);
-    }
-
-};
 
 /**
  * @remark You can read the definition for this function in "NSudoAPI.h".
@@ -302,18 +181,51 @@ EXTERN_C HRESULT WINAPI NSudoCreateProcess(
 
     HRESULT hr = S_OK;
 
-    M2::CHandle CurrentProcessToken;
-    M2::CHandle DuplicatedCurrentProcessToken;
     DWORD SessionID = static_cast<DWORD>(-1);
 
-    M2::CHandle OriginalLsassProcessToken;
-    M2::CHandle SystemToken;
+    HANDLE CurrentProcessToken = INVALID_HANDLE_VALUE;
+    HANDLE DuplicatedCurrentProcessToken = INVALID_HANDLE_VALUE;
+    
+    HANDLE OriginalLsassProcessToken = INVALID_HANDLE_VALUE;
+    HANDLE SystemToken = INVALID_HANDLE_VALUE;
 
-    M2::CHandle hToken;
-    M2::CHandle OriginalToken;
+    HANDLE hToken = INVALID_HANDLE_VALUE;
+    HANDLE OriginalToken = INVALID_HANDLE_VALUE;
 
-    std::map<std::wstring, DWORD> Privileges;
-    Privileges.insert(std::pair(SE_DEBUG_NAME, SE_PRIVILEGE_ENABLED));
+    auto Handler = Mile::ScopeExitEventHandler([&]()
+        {
+            if (CurrentProcessToken !=INVALID_HANDLE_VALUE)
+            {
+                ::MileCloseHandle(CurrentProcessToken);
+            }
+
+            if (DuplicatedCurrentProcessToken != INVALID_HANDLE_VALUE)
+            {
+                ::MileCloseHandle(DuplicatedCurrentProcessToken);
+            }
+
+            if (OriginalLsassProcessToken != INVALID_HANDLE_VALUE)
+            {
+                ::MileCloseHandle(OriginalLsassProcessToken);
+            }
+
+            if (SystemToken != INVALID_HANDLE_VALUE)
+            {
+                ::MileCloseHandle(SystemToken);
+            }
+
+            if (hToken != INVALID_HANDLE_VALUE)
+            {
+                ::MileCloseHandle(hToken);
+            }
+
+            if (OriginalToken != INVALID_HANDLE_VALUE)
+            {
+                ::MileCloseHandle(OriginalToken);
+            }
+
+            ::MileSetCurrentThreadToken(nullptr);
+        });
 
     DWORD ReturnLength = 0;
 
@@ -336,17 +248,27 @@ EXTERN_C HRESULT WINAPI NSudoCreateProcess(
         return hr;
     }
 
-    hr = NSudoAdjustTokenPrivileges(
-        DuplicatedCurrentProcessToken,
-        Privileges);
+    LUID_AND_ATTRIBUTES RawPrivilege;
+
+    hr = ::MileGetPrivilegeValue(SE_DEBUG_NAME, &RawPrivilege.Luid);
     if (hr != S_OK)
     {
         return hr;
     }
 
-    ThreadTokenContext CurrentThreadTokenContext(
-        DuplicatedCurrentProcessToken);
-    if (CurrentThreadTokenContext.hr != S_OK)
+    RawPrivilege.Attributes = SE_PRIVILEGE_ENABLED;
+
+    hr = ::MileAdjustTokenPrivilegesSimple(
+        DuplicatedCurrentProcessToken,
+        &RawPrivilege,
+        1);
+    if (hr != S_OK)
+    {
+        return hr;
+    }
+
+    hr = ::MileSetCurrentThreadToken(DuplicatedCurrentProcessToken);
+    if (hr != S_OK)
     {
         return hr;
     }
@@ -397,8 +319,8 @@ EXTERN_C HRESULT WINAPI NSudoCreateProcess(
         return hr;
     }
 
-    ThreadTokenContext SystemTokenContext(SystemToken);
-    if (SystemTokenContext.hr != S_OK)
+    hr = ::MileSetCurrentThreadToken(SystemToken);
+    if (hr != S_OK)
     {
         return hr;
     }
@@ -749,3 +671,4 @@ EXTERN_C HRESULT WINAPI NSudoCreateProcess(
     {
         return E_NOTIMPL;
     }*/
+

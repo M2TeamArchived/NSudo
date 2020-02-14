@@ -17,7 +17,7 @@
 #define NSUDO_VER_MINOR 0
 #define NSUDO_VER_PATCH 0
 
-#define NSUDO_VER_TAG_STRING L"alpha2"
+#define NSUDO_VER_TAG_STRING L"alpha3"
 
 #endif
 
