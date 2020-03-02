@@ -14,165 +14,6 @@
 
 #ifdef _M2_WINDOWS_BASE_EXTENDED_HELPERS_
 
-/**
- * The internal content of the file enumerator handle.
- */
-typedef struct _M2_FILE_ENUMERATOR_OBJECT
-{
-    HANDLE FileHandle;
-    PFILE_ID_BOTH_DIR_INFO CurrentFileInfo;
-    BYTE FileInfoBuffer[32768];
-} M2_FILE_ENUMERATOR_OBJECT, * PM2_FILE_ENUMERATOR_OBJECT;
-
-/**
- * Creates a file enumerator handle for searching a directory for a file or
- * subdirectory with a name.
- *
- * @param FileEnumeratorHandle The file enumerator handle.
- * @param FileHandle The handle of the file to be searched a directory for a
- *                   file or subdirectory with a name. This handle must be
- *                   opened with the appropriate permissions for the requested
- *                   change. This handle should not be a pipe handle.
- * @return HRESULT. If the function succeeds, the return value is S_OK.
- * @remark The way to get a file handle for this operation:
- *         HANDLE hFile = CreateFileW(
- *             lpFileName,
- *             FILE_LIST_DIRECTORY | SYNCHRONIZE,
- *             FILE_SHARE_READ | FILE_SHARE_WRITE,
- *             nullptr,
- *             OPEN_EXISTING,
- *             FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT,
- *             nullptr);
- */
-HRESULT M2CreateFileEnumerator(
-    _Out_ PM2_FILE_ENUMERATOR_HANDLE FileEnumeratorHandle,
-    _In_ HANDLE FileHandle)
-{
-    if ((!FileEnumeratorHandle) || (INVALID_HANDLE_VALUE == FileHandle))
-        return __HRESULT_FROM_WIN32(ERROR_INVALID_PARAMETER);
-
-    *FileEnumeratorHandle = nullptr;
-
-    PM2_FILE_ENUMERATOR_OBJECT Object = nullptr;
-    HRESULT hr = ::MileAllocMemory(
-        sizeof(M2_FILE_ENUMERATOR_OBJECT),
-        reinterpret_cast<PVOID*>(&Object));
-    if (SUCCEEDED(hr))
-    {
-        Object->FileHandle = FileHandle;
-
-        *FileEnumeratorHandle = Object;
-    }
-
-    return hr;
-}
-
-/**
- * Closes a created file enumerator handle.
- *
- * @param FileEnumeratorHandle The created file enumerator handle.
- * @return HRESULT. If the function succeeds, the return value is S_OK.
- */
-HRESULT M2CloseFileEnumerator(
-    _In_ M2_FILE_ENUMERATOR_HANDLE FileEnumeratorHandle)
-{
-    if (!FileEnumeratorHandle)
-        return __HRESULT_FROM_WIN32(ERROR_INVALID_PARAMETER);
-
-    return ::MileFreeMemory(FileEnumeratorHandle);
-}
-
-/**
- * Starts or continues a file search from a created file enumerator handle.
- *
- * @param FileEnumeratorInformation A pointer to the
- *                                  M2_FILE_ENUMERATOR_INFORMATION structure
- *                                  that receives information about a found
- *                                  file or directory.
- * @param FileEnumeratorHandle The created file enumerator handle.
- * @return HRESULT. If the function succeeds, the return value is S_OK.
- */
-HRESULT M2QueryFileEnumerator(
-    _Out_ PM2_FILE_ENUMERATOR_INFORMATION FileEnumeratorInformation,
-    _In_ M2_FILE_ENUMERATOR_HANDLE FileEnumeratorHandle)
-{
-    if ((!FileEnumeratorHandle) || (!FileEnumeratorInformation))
-        return __HRESULT_FROM_WIN32(ERROR_INVALID_PARAMETER);
-
-    HRESULT hr = S_OK;
-
-    PM2_FILE_ENUMERATOR_OBJECT Object =
-        reinterpret_cast<PM2_FILE_ENUMERATOR_OBJECT>(FileEnumeratorHandle);
-
-    if (!Object->CurrentFileInfo)
-    {
-        Object->CurrentFileInfo =
-            reinterpret_cast<PFILE_ID_BOTH_DIR_INFO>(Object->FileInfoBuffer);
-
-        hr = ::MileGetFileInformation(
-            Object->FileHandle,
-            FILE_INFO_BY_HANDLE_CLASS::FileIdBothDirectoryRestartInfo,
-            Object->CurrentFileInfo,
-            sizeof(Object->FileInfoBuffer));
-    }
-    else if (!Object->CurrentFileInfo->NextEntryOffset)
-    {
-        Object->CurrentFileInfo =
-            reinterpret_cast<PFILE_ID_BOTH_DIR_INFO>(Object->FileInfoBuffer);
-        hr = ::MileGetFileInformation(
-            Object->FileHandle,
-            FILE_INFO_BY_HANDLE_CLASS::FileIdBothDirectoryInfo,
-            Object->CurrentFileInfo,
-            sizeof(Object->FileInfoBuffer));
-    }
-    else
-    {
-        Object->CurrentFileInfo = reinterpret_cast<PFILE_ID_BOTH_DIR_INFO>(
-            reinterpret_cast<ULONG_PTR>(Object->CurrentFileInfo)
-            + Object->CurrentFileInfo->NextEntryOffset);
-    }
-
-    if (SUCCEEDED(hr))
-    {
-        FileEnumeratorInformation->CreationTime.dwHighDateTime =
-            Object->CurrentFileInfo->CreationTime.HighPart;
-        FileEnumeratorInformation->CreationTime.dwLowDateTime =
-            Object->CurrentFileInfo->CreationTime.LowPart;
-        FileEnumeratorInformation->LastAccessTime.dwHighDateTime =
-            Object->CurrentFileInfo->LastAccessTime.HighPart;
-        FileEnumeratorInformation->LastAccessTime.dwLowDateTime =
-            Object->CurrentFileInfo->LastAccessTime.LowPart;
-        FileEnumeratorInformation->LastWriteTime.dwHighDateTime =
-            Object->CurrentFileInfo->LastWriteTime.HighPart;
-        FileEnumeratorInformation->LastWriteTime.dwLowDateTime =
-            Object->CurrentFileInfo->LastWriteTime.LowPart;
-        FileEnumeratorInformation->ChangeTime.dwHighDateTime =
-            Object->CurrentFileInfo->ChangeTime.HighPart;
-        FileEnumeratorInformation->ChangeTime.dwLowDateTime =
-            Object->CurrentFileInfo->ChangeTime.LowPart;
-        FileEnumeratorInformation->FileSize =
-            Object->CurrentFileInfo->EndOfFile;
-        FileEnumeratorInformation->AllocationSize =
-            Object->CurrentFileInfo->AllocationSize;
-        FileEnumeratorInformation->FileAttributes =
-            Object->CurrentFileInfo->FileAttributes;
-        FileEnumeratorInformation->EaSize =
-            Object->CurrentFileInfo->EaSize;
-        FileEnumeratorInformation->FileId =
-            Object->CurrentFileInfo->FileId;
-        wcsncpy_s(
-            FileEnumeratorInformation->ShortName,
-            Object->CurrentFileInfo->ShortName,
-            Object->CurrentFileInfo->ShortNameLength / sizeof(wchar_t));
-        wcsncpy_s(
-            FileEnumeratorInformation->FileName,
-            Object->CurrentFileInfo->FileName,
-            Object->CurrentFileInfo->FileNameLength / sizeof(wchar_t));
-    }
-
-    return hr;
-}
-
 #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
 
 /**
@@ -1143,7 +984,7 @@ HRESULT M2LoadLibraryEx(
     _In_ LPCWSTR LibraryFileName,
     _In_ DWORD Flags)
 {
-    HRESULT hr = M2LoadLibrary(ModuleHandle, LibraryFileName, nullptr, Flags);
+    HRESULT hr = ::MileLoadLibrary(LibraryFileName, nullptr, Flags, ModuleHandle);
     if (FAILED(hr))
     {
         if ((Flags & LOAD_LIBRARY_SEARCH_SYSTEM32) &&
@@ -1178,11 +1019,11 @@ HRESULT M2LoadLibraryEx(
                     hr = StringCbCatW(Buffer, BufferLength, LibraryFileName);
                     if (SUCCEEDED(hr))
                     {
-                        hr = M2LoadLibrary(
-                            ModuleHandle,
+                        hr = ::MileLoadLibrary(
                             Buffer,
                             nullptr,
-                            Flags & (-1 ^ LOAD_LIBRARY_SEARCH_SYSTEM32));
+                            Flags & (-1 ^ LOAD_LIBRARY_SEARCH_SYSTEM32),
+                            ModuleHandle);
                     }
                 }
             }
@@ -1318,10 +1159,10 @@ INT M2EnablePerMonitorDialogScaling()
     hModule = GetModuleHandleW(L"user32.dll");
     if (!hModule) return -1;
 
-    if (FAILED(M2GetProcAddress(
-        reinterpret_cast<FARPROC*>(&pFunc),
+    if (FAILED(::MileGetProcAddress(
         hModule,
-        reinterpret_cast<LPCSTR>(2577))))
+        reinterpret_cast<LPCSTR>(2577),
+        reinterpret_cast<FARPROC*>(&pFunc))))
         return -1;
 
     return pFunc();
@@ -1354,10 +1195,10 @@ HRESULT M2GetDpiForMonitor(
     if (SUCCEEDED(hr))
     {
         decltype(GetDpiForMonitor)* pFunc = nullptr;
-        hr = M2GetProcAddress(
-            reinterpret_cast<FARPROC*>(&pFunc),
+        hr = ::MileGetProcAddress(
             hModule,
-            "GetDpiForMonitor");
+            "GetDpiForMonitor",
+            reinterpret_cast<FARPROC*>(&pFunc));
         if (SUCCEEDED(hr))
         {
             hr = pFunc(hmonitor, dpiType, dpiX, dpiY);

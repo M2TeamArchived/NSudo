@@ -236,7 +236,7 @@ namespace M2
 
         static inline void Close(TMemory Object)
         {
-            M2FreeMemory(Object);
+            ::MileFreeMemory(Object);
         }
     };
 
@@ -375,28 +375,28 @@ namespace M2
     public:
         CCriticalSection()
         {
-            InitializeCriticalSection(&this->m_CriticalSection);
+            ::MileInitializeCriticalSection(&this->m_CriticalSection);
         }
 
         ~CCriticalSection()
         {
-            DeleteCriticalSection(&this->m_CriticalSection);
+            ::MileDeleteCriticalSection(&this->m_CriticalSection);
         }
 
         _Acquires_lock_(m_CriticalSection) void Lock()
         {
-            EnterCriticalSection(&this->m_CriticalSection);
+            ::MileEnterCriticalSection(&this->m_CriticalSection);
         }
 
         _Releases_lock_(m_CriticalSection) void Unlock()
         {
-            LeaveCriticalSection(&this->m_CriticalSection);
+            ::MileLeaveCriticalSection(&this->m_CriticalSection);
         }
 
         _When_(return, _Acquires_exclusive_lock_(m_CriticalSection))
             bool TryLock()
         {
-            return TryEnterCriticalSection(&this->m_CriticalSection);
+            return ::MileTryEnterCriticalSection(&this->m_CriticalSection);
         }
     };
 
@@ -411,37 +411,37 @@ namespace M2
     public:
         CSRWLock()
         {
-            InitializeSRWLock(&this->m_SRWLock);
+            ::MileInitializeSRWLock(&this->m_SRWLock);
         }
 
         _Acquires_lock_(m_SRWLock) void ExclusiveLock()
         {
-            AcquireSRWLockExclusive(&this->m_SRWLock);
+            ::MileAcquireSRWLockExclusive(&this->m_SRWLock);
         }
 
         _Acquires_lock_(m_SRWLock) bool TryExclusiveLock()
         {
-            return TryAcquireSRWLockExclusive(&this->m_SRWLock);
+            return ::MileTryAcquireSRWLockExclusive(&this->m_SRWLock);
         }
 
         _Releases_lock_(m_SRWLock) void ExclusiveUnlock()
         {
-            ReleaseSRWLockExclusive(&this->m_SRWLock);
+            ::MileReleaseSRWLockExclusive(&this->m_SRWLock);
         }
 
         _Acquires_lock_(m_SRWLock) void SharedLock()
         {
-            AcquireSRWLockShared(&this->m_SRWLock);
+            ::MileAcquireSRWLockShared(&this->m_SRWLock);
         }
 
         _Acquires_lock_(m_SRWLock) bool TrySharedLock()
         {
-            return TryAcquireSRWLockShared(&this->m_SRWLock);
+            return ::MileTryAcquireSRWLockShared(&this->m_SRWLock);
         }
 
         _Releases_lock_(m_SRWLock) void SharedUnlock()
         {
-            ReleaseSRWLockShared(&this->m_SRWLock);
+            ::MileReleaseSRWLockShared(&this->m_SRWLock);
         }
     };
 
@@ -648,78 +648,6 @@ namespace M2
 #ifndef _M2_WINDOWS_BASE_EXTENDED_HELPERS_
 #define _M2_WINDOWS_BASE_EXTENDED_HELPERS_
 
-/**
- * The definition of the file enumerator handle.
- */
-typedef void* M2_FILE_ENUMERATOR_HANDLE;
-typedef M2_FILE_ENUMERATOR_HANDLE* PM2_FILE_ENUMERATOR_HANDLE;
-
-/**
- * The information about a found file or directory queried from the file
- * enumerator.
- */
-typedef struct _M2_FILE_ENUMERATOR_INFORMATION
-{
-    FILETIME CreationTime;
-    FILETIME LastAccessTime;
-    FILETIME LastWriteTime;
-    FILETIME ChangeTime;
-    LARGE_INTEGER FileSize;
-    LARGE_INTEGER AllocationSize;
-    DWORD FileAttributes;
-    DWORD EaSize;
-    LARGE_INTEGER FileId;
-    WCHAR ShortName[16];
-    WCHAR FileName[256];
-} M2_FILE_ENUMERATOR_INFORMATION, * PM2_FILE_ENUMERATOR_INFORMATION;
-
-/**
- * Creates a file enumerator handle for searching a directory for a file or
- * subdirectory with a name.
- *
- * @param FileEnumeratorHandle The file enumerator handle.
- * @param FileHandle The handle of the file to be searched a directory for a
- *                   file or subdirectory with a name. This handle must be
- *                   opened with the appropriate permissions for the requested
- *                   change. This handle should not be a pipe handle.
- * @return HRESULT. If the function succeeds, the return value is S_OK.
- * @remark The way to get a file handle for this operation:
- *         HANDLE hFile = CreateFileW(
- *             lpFileName,
- *             FILE_LIST_DIRECTORY | SYNCHRONIZE,
- *             FILE_SHARE_READ | FILE_SHARE_WRITE,
- *             nullptr,
- *             OPEN_EXISTING,
- *             FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT,
- *             nullptr);
- */
-HRESULT M2CreateFileEnumerator(
-    _Out_ PM2_FILE_ENUMERATOR_HANDLE FileEnumeratorHandle,
-    _In_ HANDLE FileHandle);
-
-/**
- * Closes a created file enumerator handle.
- *
- * @param FileEnumeratorHandle The created file enumerator handle.
- * @return HRESULT. If the function succeeds, the return value is S_OK.
- */
-HRESULT M2CloseFileEnumerator(
-    _In_ M2_FILE_ENUMERATOR_HANDLE FileEnumeratorHandle);
-
-/**
- * Starts or continues a file search from a created file enumerator handle.
- *
- * @param FileEnumeratorInformation A pointer to the
- *                                  M2_FILE_ENUMERATOR_INFORMATION structure
- *                                  that receives information about a found
- *                                  file or directory.
- * @param FileEnumeratorHandle The created file enumerator handle.
- * @return HRESULT. If the function succeeds, the return value is S_OK.
- */
-HRESULT M2QueryFileEnumerator(
-    _Out_ PM2_FILE_ENUMERATOR_INFORMATION FileEnumeratorInformation,
-    _In_ M2_FILE_ENUMERATOR_HANDLE FileEnumeratorHandle);
-
 #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
 
 /**
@@ -765,7 +693,7 @@ inline HRESULT M2GetProcAddress(
     _In_ LPCSTR lpProcName)
 {
     return M2GetProcAddress(
-        reinterpret_cast<FARPROC*>(&lpProcAddress), hModule, lpProcName);
+        hModule, lpProcName, reinterpret_cast<FARPROC*>(&lpProcAddress));
 }
 
 #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)

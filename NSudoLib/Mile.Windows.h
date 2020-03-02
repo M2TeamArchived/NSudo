@@ -1647,4 +1647,345 @@ EXTERN_C HRESULT WINAPI MileDeleteFile(
 EXTERN_C HRESULT WINAPI MileDeleteFileIgnoreReadonlyAttribute(
     _In_ HANDLE FileHandle);
 
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+/**
+ * Loads the specified module with the optimization of the mitigation of DLL
+ * preloading attacks into the address space of the calling process safely. The
+ * specified module may cause other modules to be loaded.
+ *
+ * @param phLibModule A handle to the loaded module.
+ * @param lpLibFileName A string that specifies the file name of the module to
+ *                      load.
+ * @param hFile This parameter is reserved for future use. It must be NULL.
+ * @param dwFlags The action to be taken when loading the module.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ * @remark For more information, see LoadLibraryEx.
+ */
+EXTERN_C HRESULT WINAPI MileLoadLibrary(
+    _In_ LPCWSTR lpLibFileName,
+    _Reserved_ HANDLE hFile,
+    _In_ DWORD dwFlags,
+    _Out_ HMODULE* phLibModule);
+
+#endif
+
+/**
+ * Frees the loaded dynamic-link library (DLL) module and, if necessary,
+ * decrements its reference count. When the reference count reaches zero, the
+ * module is unloaded from the address space of the calling process and the
+ * handle is no longer valid.
+ *
+ * @param hLibModule A handle to the loaded library module.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ * @remark For more information, see FreeLibrary.
+ */
+EXTERN_C HRESULT WINAPI MileFreeLibrary(
+    _In_ HMODULE hLibModule);
+
+/**
+ * Retrieves the address of an exported function or variable from the specified
+ * dynamic-link library (DLL).
+ *
+ * @param lpProcAddress The address of the exported function or variable.
+ * @param hModule A handle to the DLL module that contains the function or
+ *                variable. The LoadLibrary, LoadLibraryEx, LoadPackagedLibrary
+ *                or GetModuleHandle function returns this handle. This
+ *                function does not retrieve addresses from modules that were
+ *                loaded using the LOAD_LIBRARY_AS_DATAFILE flag. For more
+ *                information, see LoadLibraryEx.
+ * @param lpProcName The function or variable name, or the function's ordinal
+ *                   value. If this parameter is an ordinal value, it must be
+ *                   in the low-order word; the high-order word must be zero.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ */
+EXTERN_C HRESULT WINAPI MileGetProcAddress(
+    _In_ HMODULE hModule,
+    _In_ LPCSTR lpProcName,
+    _Out_ FARPROC* lpProcAddress);
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+/**
+ * Creates or opens a file or I/O device. The most commonly used I/O devices
+ * are as follows: file, file stream, directory, physical disk, volume, console
+ * buffer, tape drive, communications resource, mailslot, and pipe. The
+ * function returns a handle that can be used to access the file or device for
+ * various types of I/O depending on the file or device and the flags and
+ * attributes specified.
+ *
+ * @param lpFileHandle The address of the returned handle to the specified
+ *                     file.
+ * @param lpFileName The name of the file or device to be created or opened.
+ *                   You may use either forward slashes (/) or backslashes ()
+ *                   in this name.
+ * @param dwDesiredAccess The requested access to the file or device, which can
+ *                        be summarized as read, write, both or neither zero).
+ * @param dwShareMode The requested sharing mode of the file or device, which
+ *                    can be read, write, both, delete, all of these, or none
+ *                    (refer to the following table). Access requests to
+ *                    attributes or extended attributes are not affected by
+ *                    this flag.
+ * @param lpSecurityAttributes A pointer to a SECURITY_ATTRIBUTES structure
+ *                             that contains two separate but related data
+ *                             members: an optional security descriptor, and a
+ *                             Boolean value that determines whether the
+ *                             returned handle can be inherited by child
+ *                             processes. This parameter can be NULL.
+ * @param dwCreationDisposition An action to take on a file or device that
+ *                              exists or does not exist.
+ * @param dwFlagsAndAttributes The file or device attributes and flags,
+ *                             FILE_ATTRIBUTE_NORMAL being the most common
+ *                             default value for files.
+ * @param hTemplateFile A valid handle to a template file with the GENERIC_READ
+ *                      access right. The template file supplies file
+ *                      attributes and extended attributes for the file that is
+ *                      being created. This parameter can be NULL.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ * @remark For more information, see CreateFileW.
+ */
+EXTERN_C HRESULT WINAPI MileCreateFile(
+    _Out_ PHANDLE lpFileHandle,
+    _In_ LPCWSTR lpFileName,
+    _In_ DWORD dwDesiredAccess,
+    _In_ DWORD dwShareMode,
+    _In_opt_ LPSECURITY_ATTRIBUTES lpSecurityAttributes,
+    _In_ DWORD dwCreationDisposition,
+    _In_ DWORD dwFlagsAndAttributes,
+    _In_opt_ HANDLE hTemplateFile);
+
+#endif
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+/**
+ * Sends a control code directly to a specified device driver, causing the
+ * corresponding device to perform the corresponding operation.
+ *
+ * @param hDevice A handle to the device on which the operation is to be
+ *                performed.
+ * @param dwIoControlCode The control code for the operation.
+ * @param lpInBuffer A pointer to the input buffer that contains the data
+ *                   required to perform the operation. This parameter can be
+ *                   NULL if dwIoControlCode specifies an operation that does
+ *                   not require input data.
+ * @param nInBufferSize The size of the input buffer, in bytes.
+ * @param lpOutBuffer A pointer to the output buffer that is to receive the
+ *                    data returned by the operation. This parameter can be
+ *                    NULL if dwIoControlCode specifies an operation that does
+ *                    not return data.
+ * @param nOutBufferSize The size of the output buffer, in bytes.
+ * @param lpBytesReturned A pointer to a variable that receives the size of
+ *                        the data stored in the output buffer, in bytes.
+ * @param lpOverlapped A pointer to an OVERLAPPED structure.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ * @remark For more information, see DeviceIoControl.
+ */
+EXTERN_C HRESULT WINAPI MileDeviceIoControl(
+    _In_ HANDLE hDevice,
+    _In_ DWORD dwIoControlCode,
+    _In_opt_ LPVOID lpInBuffer,
+    _In_ DWORD nInBufferSize,
+    _Out_opt_ LPVOID lpOutBuffer,
+    _In_ DWORD nOutBufferSize,
+    _Out_opt_ LPDWORD lpBytesReturned,
+    _Inout_opt_ LPOVERLAPPED lpOverlapped);
+
+#endif
+
+/**
+ * Initializes a critical section object.
+ *
+ * @param lpCriticalSection A pointer to the critical section object.
+ * @remark For more information, see InitializeCriticalSection.
+ */
+EXTERN_C VOID WINAPI MileInitializeCriticalSection(
+    _Out_ LPCRITICAL_SECTION lpCriticalSection);
+
+/**
+ * Releases all resources used by an unowned critical section object.
+ *
+ * @param lpCriticalSection A pointer to the critical section object.
+ * @remark For more information, see DeleteCriticalSection.
+ */
+EXTERN_C VOID WINAPI MileDeleteCriticalSection(
+    _Inout_ LPCRITICAL_SECTION lpCriticalSection);
+
+/**
+ * Waits for ownership of the specified critical section object. The function
+ * returns when the calling thread is granted ownership.
+ *
+ * @param lpCriticalSection A pointer to the critical section object.
+ * @remark For more information, see EnterCriticalSection.
+ */
+EXTERN_C VOID WINAPI MileEnterCriticalSection(
+    _Inout_ LPCRITICAL_SECTION lpCriticalSection);
+
+/**
+ * Releases ownership of the specified critical section object.
+ *
+ * @param lpCriticalSection A pointer to the critical section object.
+ * @remark For more information, see LeaveCriticalSection.
+ */
+EXTERN_C VOID WINAPI MileLeaveCriticalSection(
+    _Inout_ LPCRITICAL_SECTION lpCriticalSection);
+
+/**
+ * Attempts to enter a critical section without blocking. If the call is
+ * successful, the calling thread takes ownership of the critical section.
+ *
+ * @param lpCriticalSection A pointer to the critical section object.
+ * @return If the critical section is successfully entered or the current
+ *         thread already owns the critical section, the return value is
+ *         nonzero. If another thread already owns the critical section, the
+ *         return value is zero.
+ * @remark For more information, see TryEnterCriticalSection.
+ */
+EXTERN_C BOOL WINAPI MileTryEnterCriticalSection(
+    _Inout_ LPCRITICAL_SECTION lpCriticalSection);
+
+/**
+ * Initialize a slim reader/writer (SRW) lock.
+ *
+ * @param SRWLock A pointer to the SRW lock.
+ * @remark For more information, see InitializeSRWLock.
+ */
+EXTERN_C VOID WINAPI MileInitializeSRWLock(
+    _Out_ PSRWLOCK SRWLock);
+
+/**
+ * Acquires a slim reader/writer (SRW) lock in exclusive mode.
+ *
+ * @param SRWLock A pointer to the SRW lock.
+ * @remark For more information, see AcquireSRWLockExclusive.
+ */
+EXTERN_C VOID WINAPI MileAcquireSRWLockExclusive(
+    _Inout_ PSRWLOCK SRWLock);
+
+/**
+ * Attempts to acquire a slim reader/writer (SRW) lock in exclusive mode. If
+ * the call is successful, the calling thread takes ownership of the lock.
+ *
+ * @param SRWLock A pointer to the SRW lock.
+ * @return If the lock is successfully acquired, the return value is nonzero.
+ *         If the current thread could not acquire the lock, the return value
+ *         is zero.
+ * @remark For more information, see TryAcquireSRWLockExclusive.
+ */
+EXTERN_C BOOL WINAPI MileTryAcquireSRWLockExclusive(
+    _Inout_ PSRWLOCK SRWLock);
+
+/**
+ * Releases a slim reader/writer (SRW) lock that was acquired in exclusive
+ * mode.
+ *
+ * @param SRWLock A pointer to the SRW lock.
+ * @remark For more information, see ReleaseSRWLockExclusive.
+ */
+EXTERN_C VOID WINAPI MileReleaseSRWLockExclusive(
+    _Inout_ PSRWLOCK SRWLock);
+
+/**
+ * Acquires a slim reader/writer (SRW) lock in shared mode.
+ *
+ * @param SRWLock A pointer to the SRW lock.
+ * @remark For more information, see AcquireSRWLockShared.
+ */
+EXTERN_C VOID WINAPI MileAcquireSRWLockShared(
+    _Inout_ PSRWLOCK SRWLock);
+
+/**
+ * Attempts to acquire a slim reader/writer (SRW) lock in shared mode. If the
+ * call is successful, the calling thread takes ownership of the lock.
+ *
+ * @param SRWLock A pointer to the SRW lock.
+ * @return If the lock is successfully acquired, the return value is nonzero.
+ *         If the current thread could not acquire the lock, the return value
+ *         is zero.
+ * @remark For more information, see TryAcquireSRWLockShared.
+ */
+EXTERN_C BOOL WINAPI MileTryAcquireSRWLockShared(
+    _Inout_ PSRWLOCK SRWLock);
+
+/**
+ * Releases a slim reader/writer (SRW) lock that was acquired in shared mode.
+ *
+ * @param SRWLock A pointer to the SRW lock.
+ * @remark For more information, see ReleaseSRWLockShared.
+ */
+EXTERN_C VOID WINAPI MileReleaseSRWLockShared(
+    _Inout_ PSRWLOCK SRWLock);
+
+/**
+ * The definition of the file enumerator handle.
+ */
+typedef void* MILE_FILE_ENUMERATOR_HANDLE;
+typedef MILE_FILE_ENUMERATOR_HANDLE* PMILE_FILE_ENUMERATOR_HANDLE;
+
+/**
+ * The information about a found file or directory queried from the file
+ * enumerator.
+ */
+typedef struct _MILE_FILE_ENUMERATOR_INFORMATION
+{
+    FILETIME CreationTime;
+    FILETIME LastAccessTime;
+    FILETIME LastWriteTime;
+    FILETIME ChangeTime;
+    UINT64 FileSize;
+    UINT64 AllocationSize;
+    DWORD FileAttributes;
+    DWORD EaSize;
+    LARGE_INTEGER FileId;
+    WCHAR ShortName[16];
+    WCHAR FileName[256];
+} MILE_FILE_ENUMERATOR_INFORMATION, *PMILE_FILE_ENUMERATOR_INFORMATION;
+
+/**
+ * Creates a file enumerator handle for searching a directory for a file or
+ * subdirectory with a name.
+ *
+ * @param FileHandle The handle of the file to be searched a directory for a
+ *                   file or subdirectory with a name. This handle must be
+ *                   opened with the appropriate permissions for the requested
+ *                   change. This handle should not be a pipe handle.
+ * @param FileEnumeratorHandle The file enumerator handle.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ * @remark The way to get a file handle for this operation:
+ *         HANDLE hFile = CreateFileW(
+ *             lpFileName,
+ *             FILE_LIST_DIRECTORY | SYNCHRONIZE,
+ *             FILE_SHARE_READ | FILE_SHARE_WRITE,
+ *             nullptr,
+ *             OPEN_EXISTING,
+ *             FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT,
+ *             nullptr);
+ */
+EXTERN_C HRESULT WINAPI MileCreateFileEnumerator(
+    _In_ HANDLE FileHandle,
+    _Out_ PMILE_FILE_ENUMERATOR_HANDLE FileEnumeratorHandle);
+
+/**
+ * Closes a created file enumerator handle.
+ *
+ * @param FileEnumeratorHandle The created file enumerator handle.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ */
+EXTERN_C HRESULT WINAPI MileCloseFileEnumerator(
+    _In_ MILE_FILE_ENUMERATOR_HANDLE FileEnumeratorHandle);
+
+/**
+ * Starts or continues a file search from a created file enumerator handle.
+ *
+ * @param FileEnumeratorHandle The created file enumerator handle.
+ * @param FileEnumeratorInformation A pointer to the
+ *                                  MILE_FILE_ENUMERATOR_INFORMATION structure
+ *                                  that receives information about a found
+ *                                  file or directory.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ */
+EXTERN_C HRESULT WINAPI MileQueryFileEnumerator(
+    _In_ MILE_FILE_ENUMERATOR_HANDLE FileEnumeratorHandle,
+    _Out_ PMILE_FILE_ENUMERATOR_INFORMATION FileEnumeratorInformation);
+
 #endif // !MILE_WINDOWS
