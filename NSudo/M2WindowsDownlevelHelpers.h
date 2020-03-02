@@ -49,40 +49,6 @@ HRESULT M2GetLastHResultError(
     _In_ BOOL IsLastFunctionCallSucceeded = FALSE,
     _In_ BOOL UseLastErrorWhenSucceeded = FALSE);
 
-/**
- * Creates a thread to execute within the virtual address space of the calling
- * process.
- *
- * @param lpThreadHandle The address of the returned handle to the new thread.
- * @param lpThreadAttributes A pointer to a SECURITY_ATTRIBUTES structure that
- *                           determines whether the returned handle can be
- *                           inherited by child processes.
- * @param dwStackSize The initial size of the stack, in bytes.
- * @param lpStartAddress A pointer to the application-defined function to be
- *                       executed by the thread.
- * @param lpParameter A pointer to a variable to be passed to the thread.
- * @param dwCreationFlags The flags that control the creation of the thread.
- * @param lpThreadId A pointer to a variable that receives the thread
- *                   identifier.
- * @return HRESULT. If the function succeeds, the return value is S_OK.
- * @remark For more information, see CreateThread.
- */
-HRESULT M2CreateThread(
-    _Out_ PHANDLE lpThreadHandle,
-    _In_opt_ LPSECURITY_ATTRIBUTES lpThreadAttributes,
-    _In_ SIZE_T dwStackSize,
-    _In_ LPTHREAD_START_ROUTINE lpStartAddress,
-    _In_opt_ LPVOID lpParameter,
-    _In_ DWORD dwCreationFlags,
-    _Out_opt_ LPDWORD lpThreadId);
-
-/**
- * Retrieves the number of logical processors in the current group.
- *
- * @return The number of logical processors in the current group.
- */
-DWORD M2GetNumberOfHardwareThreads();
-
 #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
 
 /**
@@ -132,99 +98,6 @@ HRESULT M2CreateFile(
     _In_ DWORD dwCreationDisposition,
     _In_ DWORD dwFlagsAndAttributes,
     _In_opt_ HANDLE hTemplateFile);
-
-#endif
-
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
-
-/**
- * Closes a handle to the specified registry key.
- *
- * @param hKey A handle to the open key to be closed.
- * @return HRESULT. If the function succeeds, the return value is S_OK.
- * @remark For more information, see RegCloseKey.
- */
-HRESULT M2RegCloseKey(
-    _In_ HKEY hKey);
-
-/**
- * Creates the specified registry key. If the key already exists, the function
- * opens it. Note that key names are not case sensitive.
- *
- * @param hKey A handle to an open registry key.
- * @param lpSubKey The name of a subkey that this function opens or creates
- * @param Reserved This parameter is reserved and must be zero.
- * @param lpClass The user-defined class type of this key.
- * @param dwOptions This parameter can be one of the following values:
- *                  REG_OPTION_BACKUP_RESTORE, REG_OPTION_CREATE_LINK,
- *                  REG_OPTION_NON_VOLATILE, REG_OPTION_VOLATILE.
- * @param samDesired A mask that specifies the access rights for the key to be
- *                   created.
- * @param lpSecurityAttributes A pointer to a SECURITY_ATTRIBUTES structure
- *                             that determines whether the returned handle can
- *                             be inherited by child processes.
- * @param phkResult A pointer to a variable that receives a handle to the
- *                  opened or created key.
- * @param lpdwDisposition A pointer to a variable that receives one of the
- *                        following disposition values.
- * @return HRESULT. If the function succeeds, the return value is S_OK.
- * @remark For more information, see RegCreateKeyEx.
- */
-HRESULT M2RegCreateKey(
-    _In_ HKEY hKey,
-    _In_ LPCWSTR lpSubKey,
-    _Reserved_ DWORD Reserved,
-    _In_opt_ LPWSTR lpClass,
-    _In_ DWORD dwOptions,
-    _In_ REGSAM samDesired,
-    _In_opt_ CONST LPSECURITY_ATTRIBUTES lpSecurityAttributes,
-    _Out_ PHKEY phkResult,
-    _Out_opt_ LPDWORD lpdwDisposition);
-
-/**
- * Retrieves the type and data for the specified value name associated with an
- * open registry key.
- *
- * @param hKey A handle to an open registry key.
- * @param lpValueName The name of the registry value.
- * @param lpReserved This parameter is reserved and must be NULL.
- * @param lpType A pointer to a variable that receives a code indicating the
- *              type of data stored in the specified value.
- * @param lpData A pointer to a buffer that receives the value's data.
- * @param lpcbData A pointer to a variable that specifies the size of the
- *                 buffer pointed to by the lpData parameter, in bytes.
- * @return HRESULT. If the function succeeds, the return value is S_OK.
- * @remark For more information, see RegQueryValueEx.
- */
-HRESULT M2RegQueryValue(
-    _In_ HKEY hKey,
-    _In_opt_ LPCWSTR lpValueName,
-    _Reserved_ LPDWORD lpReserved,
-    _Out_opt_ LPDWORD lpType,
-    _Out_opt_ LPBYTE lpData,
-    _Inout_opt_ LPDWORD lpcbData);
-
-/**
- * Retrieves the type and data for the specified value name associated with an
- * open registry key.
- *
- * @param hKey A handle to an open registry key.
- * @param lpValueName The name of the value to be set.
- * @param Reserved This parameter is reserved and must be zero.
- * @param dwType The type of data pointed to by the lpData parameter.
- * @param lpData The data to be stored.
- * @param cbData The size of the information pointed to by the lpData
- *               parameter, in bytes.
- * @return HRESULT. If the function succeeds, the return value is S_OK.
- * @remark For more information, see RegSetValueEx.
- */
-HRESULT M2RegSetValue(
-    _In_ HKEY hKey,
-    _In_opt_ LPCWSTR lpValueName,
-    _Reserved_ DWORD Reserved,
-    _In_ DWORD dwType,
-    _In_opt_ CONST BYTE* lpData,
-    _In_ DWORD cbData);
 
 #endif
 
@@ -321,47 +194,6 @@ HRESULT M2DeviceIoControl(
     _Inout_opt_ LPOVERLAPPED lpOverlapped);
 
 #endif
-
-/**
- * Retrieves file information for the specified file.
- *
- * @param hFile A handle to the file that contains the information to be
- *              retrieved. This handle should not be a pipe handle.
- * @param FileInformationClass A FILE_INFO_BY_HANDLE_CLASS enumeration value
- *                             that specifies the type of information to be
- *                             retrieved.
- * @param lpFileInformation A pointer to the buffer that receives the requested
- *                          file information.
- * @param dwBufferSize The size of the lpFileInformation buffer, in bytes.
- * @return HRESULT. If the function succeeds, the return value is S_OK.
- * @remark For more information, see GetFileInformationByHandleEx.
- */
-HRESULT M2GetFileInformation(
-    _In_  HANDLE hFile,
-    _In_  FILE_INFO_BY_HANDLE_CLASS FileInformationClass,
-    _Out_ LPVOID lpFileInformation,
-    _In_  DWORD dwBufferSize);
-
-/**
- * Sets the file information for the specified file.
- *
- * @param hFile A handle to the file for which to change information. This
- *              handle should not be a pipe handle.
- * @param FileInformationClass A FILE_INFO_BY_HANDLE_CLASS enumeration value
- *                             that specifies the type of information to be
- *                             changed.
- * @param lpFileInformation A pointer to the buffer that contains the
- *                          information to change for the specified file
- *                          information class.
- * @param dwBufferSize The size of the lpFileInformation buffer, in bytes.
- * @return HRESULT. If the function succeeds, the return value is S_OK.
- * @remark For more information, see SetFileInformationByHandle.
- */
-HRESULT M2SetFileInformation(
-    _In_ HANDLE hFile,
-    _In_ FILE_INFO_BY_HANDLE_CLASS FileInformationClass,
-    _In_ LPVOID lpFileInformation,
-    _In_ DWORD dwBufferSize);
 
 /**
  * Creates a single uninitialized object of the class associated with a

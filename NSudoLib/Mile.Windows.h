@@ -1347,4 +1347,304 @@ EXTERN_C HRESULT WINAPI MileWaitForSingleObject(
     _In_ BOOL bAlertable,
     _Out_opt_ PDWORD pdwReturn);
 
+/**
+ * Creates a thread to execute within the virtual address space of the calling
+ * process.
+ *
+ * @param lpThreadAttributes A pointer to a SECURITY_ATTRIBUTES structure that
+ *                           determines whether the returned handle can be
+ *                           inherited by child processes.
+ * @param dwStackSize The initial size of the stack, in bytes.
+ * @param lpStartAddress A pointer to the application-defined function to be
+ *                       executed by the thread.
+ * @param lpParameter A pointer to a variable to be passed to the thread.
+ * @param dwCreationFlags The flags that control the creation of the thread.
+ * @param lpThreadId A pointer to a variable that receives the thread
+ *                   identifier.
+ * @param lpThreadHandle The address of the returned handle to the new thread.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ * @remark For more information, see CreateThread.
+ */
+EXTERN_C HRESULT WINAPI MileCreateThread(
+    _In_opt_ LPSECURITY_ATTRIBUTES lpThreadAttributes,
+    _In_ SIZE_T dwStackSize,
+    _In_ LPTHREAD_START_ROUTINE lpStartAddress,
+    _In_opt_ LPVOID lpParameter,
+    _In_ DWORD dwCreationFlags,
+    _Out_opt_ LPDWORD lpThreadId,
+    _Out_ PHANDLE lpThreadHandle);
+
+/**
+ * Retrieves the number of logical processors in the current group.
+ *
+ * @return The number of logical processors in the current group.
+ */
+EXTERN_C DWORD WINAPI MileGetNumberOfHardwareThreads();
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+/**
+ * Closes a handle to the specified registry key.
+ *
+ * @param hKey A handle to the open key to be closed.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ * @remark For more information, see RegCloseKey.
+ */
+EXTERN_C HRESULT WINAPI MileRegCloseKey(
+    _In_ HKEY hKey);
+
+#endif
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+/**
+ * Creates the specified registry key. If the key already exists, the function
+ * opens it. Note that key names are not case sensitive.
+ *
+ * @param hKey A handle to an open registry key.
+ * @param lpSubKey The name of a subkey that this function opens or creates
+ * @param Reserved This parameter is reserved and must be zero.
+ * @param lpClass The user-defined class type of this key.
+ * @param dwOptions This parameter can be one of the following values:
+ *                  REG_OPTION_BACKUP_RESTORE, REG_OPTION_CREATE_LINK,
+ *                  REG_OPTION_NON_VOLATILE, REG_OPTION_VOLATILE.
+ * @param samDesired A mask that specifies the access rights for the key to be
+ *                   created.
+ * @param lpSecurityAttributes A pointer to a SECURITY_ATTRIBUTES structure
+ *                             that determines whether the returned handle can
+ *                             be inherited by child processes.
+ * @param phkResult A pointer to a variable that receives a handle to the
+ *                  opened or created key.
+ * @param lpdwDisposition A pointer to a variable that receives one of the
+ *                        following disposition values.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ * @remark For more information, see RegCreateKeyEx.
+ */
+EXTERN_C HRESULT WINAPI MileRegCreateKey(
+    _In_ HKEY hKey,
+    _In_ LPCWSTR lpSubKey,
+    _Reserved_ DWORD Reserved,
+    _In_opt_ LPWSTR lpClass,
+    _In_ DWORD dwOptions,
+    _In_ REGSAM samDesired,
+    _In_opt_ CONST LPSECURITY_ATTRIBUTES lpSecurityAttributes,
+    _Out_ PHKEY phkResult,
+    _Out_opt_ LPDWORD lpdwDisposition);
+
+#endif
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+/**
+ * Retrieves the type and data for the specified value name associated with an
+ * open registry key.
+ *
+ * @param hKey A handle to an open registry key.
+ * @param lpValueName The name of the registry value.
+ * @param lpReserved This parameter is reserved and must be NULL.
+ * @param lpType A pointer to a variable that receives a code indicating the
+ *              type of data stored in the specified value.
+ * @param lpData A pointer to a buffer that receives the value's data.
+ * @param lpcbData A pointer to a variable that specifies the size of the
+ *                 buffer pointed to by the lpData parameter, in bytes.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ * @remark For more information, see RegQueryValueEx.
+ */
+EXTERN_C HRESULT WINAPI MileRegQueryValue(
+    _In_ HKEY hKey,
+    _In_opt_ LPCWSTR lpValueName,
+    _Reserved_ LPDWORD lpReserved,
+    _Out_opt_ LPDWORD lpType,
+    _Out_opt_ LPBYTE lpData,
+    _Inout_opt_ LPDWORD lpcbData);
+
+#endif
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+/**
+ * Retrieves the type and data for the specified value name associated with an
+ * open registry key.
+ *
+ * @param hKey A handle to an open registry key.
+ * @param lpValueName The name of the value to be set.
+ * @param Reserved This parameter is reserved and must be zero.
+ * @param dwType The type of data pointed to by the lpData parameter.
+ * @param lpData The data to be stored.
+ * @param cbData The size of the information pointed to by the lpData
+ *               parameter, in bytes.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ * @remark For more information, see RegSetValueEx.
+ */
+EXTERN_C HRESULT WINAPI MileRegSetValue(
+    _In_ HKEY hKey,
+    _In_opt_ LPCWSTR lpValueName,
+    _Reserved_ DWORD Reserved,
+    _In_ DWORD dwType,
+    _In_opt_ CONST BYTE* lpData,
+    _In_ DWORD cbData);
+
+#endif
+
+/**
+ * Retrieves file information for the specified file.
+ *
+ * @param hFile A handle to the file that contains the information to be
+ *              retrieved. This handle should not be a pipe handle.
+ * @param FileInformationClass A FILE_INFO_BY_HANDLE_CLASS enumeration value
+ *                             that specifies the type of information to be
+ *                             retrieved.
+ * @param lpFileInformation A pointer to the buffer that receives the requested
+ *                          file information.
+ * @param dwBufferSize The size of the lpFileInformation buffer, in bytes.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ * @remark For more information, see GetFileInformationByHandleEx.
+ */
+EXTERN_C HRESULT WINAPI MileGetFileInformation(
+    _In_  HANDLE hFile,
+    _In_  FILE_INFO_BY_HANDLE_CLASS FileInformationClass,
+    _Out_ LPVOID lpFileInformation,
+    _In_  DWORD dwBufferSize);
+
+/**
+ * Sets the file information for the specified file.
+ *
+ * @param hFile A handle to the file for which to change information. This
+ *              handle should not be a pipe handle.
+ * @param FileInformationClass A FILE_INFO_BY_HANDLE_CLASS enumeration value
+ *                             that specifies the type of information to be
+ *                             changed.
+ * @param lpFileInformation A pointer to the buffer that contains the
+ *                          information to change for the specified file
+ *                          information class.
+ * @param dwBufferSize The size of the lpFileInformation buffer, in bytes.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ * @remark For more information, see SetFileInformationByHandle.
+ */
+EXTERN_C HRESULT WINAPI MileSetFileInformation(
+    _In_ HANDLE hFile,
+    _In_ FILE_INFO_BY_HANDLE_CLASS FileInformationClass,
+    _In_ LPVOID lpFileInformation,
+    _In_ DWORD dwBufferSize);
+
+/**
+ * Retrieves file system attributes for a specified file or directory.
+ *
+ * @param FileHandle A handle to the file that contains the information to be
+ *                   retrieved. This handle should not be a pipe handle.
+ * @param FileAttributes The attributes of the specified file or directory.
+ *                       For a list of attribute values and their descriptions,
+ *                       see File Attribute Constants. If the function fails,
+ *                       the return value is INVALID_FILE_ATTRIBUTES.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ */
+EXTERN_C HRESULT WINAPI MileGetFileAttributes(
+    _In_ HANDLE FileHandle,
+    _Out_ PDWORD FileAttributes);
+
+/**
+ * Sets the attributes for a file or directory.
+ *
+ * @param FileHandle A handle to the file for which to change information. This
+ *                   handle must be opened with the appropriate permissions for
+ *                   the requested change. This handle should not be a pipe
+ *                   handle.
+ * @param FileAttributes The file attributes to set for the file. This
+ *                       parameter can be one or more values, combined using
+ *                       the bitwise - OR operator. However, all other values
+ *                       override FILE_ATTRIBUTE_NORMAL. For more information,
+ *                       see the SetFileAttributes function.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ */
+EXTERN_C HRESULT WINAPI MileSetFileAttributes(
+    _In_ HANDLE FileHandle,
+    _In_ DWORD FileAttributes);
+
+/**
+ * Retrieves the size of the specified file.
+ *
+ * @param FileHandle A handle to the file that contains the information to be
+ *                   retrieved. This handle should not be a pipe handle.
+ * @param FileSize A pointer to a ULONGLONG value that receives the file size,
+ *                 in bytes.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ * @remark The way to get a file handle for this operation:
+ *         HANDLE hFile = CreateFileW(
+ *             lpFileName,
+ *             GENERIC_READ | SYNCHRONIZE,
+ *             FILE_SHARE_READ,
+ *             nullptr,
+ *             OPEN_EXISTING,
+ *             FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT,
+ *             nullptr);
+ */
+EXTERN_C HRESULT WINAPI MileGetFileSize(
+    _In_ HANDLE FileHandle,
+    _Out_ PULONGLONG FileSize);
+
+/**
+ * Retrieves the amount of space that is allocated for the file.
+ *
+ * @param FileHandle A handle to the file that contains the information to be
+ *                   retrieved. This handle should not be a pipe handle.
+ * @param AllocationSize A pointer to a ULONGLONG value that receives the
+ *                       amount of space that is allocated for the file, in
+ *                       bytes.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ * @remark The way to get a file handle for this operation:
+ *         HANDLE hFile = CreateFileW(
+ *             lpFileName,
+ *             GENERIC_READ | SYNCHRONIZE,
+ *             FILE_SHARE_READ,
+ *             nullptr,
+ *             OPEN_EXISTING,
+ *             FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT,
+ *             nullptr);
+ */
+EXTERN_C HRESULT WINAPI MileGetFileAllocationSize(
+    _In_ HANDLE FileHandle,
+    _Out_ PULONGLONG AllocationSize);
+
+/**
+ * Deletes an existing file.
+ *
+ * @param FileHandle The handle of the file to be deleted. This handle must be
+ *                   opened with the appropriate permissions for the requested
+ *                   change. This handle should not be a pipe handle.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ * @remark The way to get a file handle for this operation:
+ *         HANDLE hFile = CreateFileW(
+ *             lpFileName,
+ *             SYNCHRONIZE | DELETE | FILE_READ_ATTRIBUTES
+ *             | FILE_WRITE_ATTRIBUTES,
+ *             FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+ *             nullptr,
+ *             OPEN_EXISTING,
+ *             FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT,
+ *             nullptr);
+ */
+EXTERN_C HRESULT WINAPI MileDeleteFile(
+    _In_ HANDLE FileHandle);
+
+/**
+ * Deletes an existing file, even the file have the readonly attribute.
+ *
+ * @param FileHandle The handle of the file to be deleted. This handle must be
+ *                   opened with the appropriate permissions for the requested
+ *                   change. This handle should not be a pipe handle.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ * @remark The way to get a file handle for this operation:
+ *         HANDLE hFile = CreateFileW(
+ *             lpFileName,
+ *             SYNCHRONIZE | DELETE | FILE_READ_ATTRIBUTES
+ *             | FILE_WRITE_ATTRIBUTES,
+ *             FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+ *             nullptr,
+ *             OPEN_EXISTING,
+ *             FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT,
+ *             nullptr);
+ */
+EXTERN_C HRESULT WINAPI MileDeleteFileIgnoreReadonlyAttribute(
+    _In_ HANDLE FileHandle);
+
 #endif // !MILE_WINDOWS

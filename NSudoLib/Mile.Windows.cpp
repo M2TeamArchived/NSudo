@@ -20,6 +20,9 @@
 #include <Userenv.h>
 #pragma comment(lib, "Userenv.lib")
 
+#include <assert.h>
+#include <process.h>
+
 /**
  * @remark You can read the definition for this function in "Mile.Windows.h".
  */
@@ -1566,4 +1569,322 @@ EXTERN_C HRESULT WINAPI MileWaitForSingleObject(
     }
 
     return S_OK;
+}
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C HRESULT WINAPI MileCreateThread(
+    _In_opt_ LPSECURITY_ATTRIBUTES lpThreadAttributes,
+    _In_ SIZE_T dwStackSize,
+    _In_ LPTHREAD_START_ROUTINE lpStartAddress,
+    _In_opt_ LPVOID lpParameter,
+    _In_ DWORD dwCreationFlags,
+    _Out_opt_ LPDWORD lpThreadId,
+    _Out_ PHANDLE lpThreadHandle)
+{
+    // sanity check for lpThreadId
+    assert(sizeof(DWORD) == sizeof(unsigned));
+
+    typedef unsigned(__stdcall* routine_type)(void*);
+
+    // _beginthreadex calls CreateThread which will set the last error
+    // value before it returns.
+    *lpThreadHandle = reinterpret_cast<HANDLE>(_beginthreadex(
+        lpThreadAttributes,
+        static_cast<unsigned>(dwStackSize),
+        reinterpret_cast<routine_type>(lpStartAddress),
+        lpParameter,
+        dwCreationFlags,
+        reinterpret_cast<unsigned*>(lpThreadId)));
+
+    return *lpThreadHandle ? S_OK : ::HRESULT_FROM_WIN32(::GetLastError());
+}
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C DWORD WINAPI MileGetNumberOfHardwareThreads()
+{
+    SYSTEM_INFO SystemInfo = { 0 };
+    ::GetNativeSystemInfo(&SystemInfo);
+    return SystemInfo.dwNumberOfProcessors;
+}
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C HRESULT WINAPI MileRegCloseKey(
+    _In_ HKEY hKey)
+{
+    return ::HRESULT_FROM_WIN32(::RegCloseKey(hKey));
+}
+
+#endif
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C HRESULT WINAPI MileRegCreateKey(
+    _In_ HKEY hKey,
+    _In_ LPCWSTR lpSubKey,
+    _Reserved_ DWORD Reserved,
+    _In_opt_ LPWSTR lpClass,
+    _In_ DWORD dwOptions,
+    _In_ REGSAM samDesired,
+    _In_opt_ CONST LPSECURITY_ATTRIBUTES lpSecurityAttributes,
+    _Out_ PHKEY phkResult,
+    _Out_opt_ LPDWORD lpdwDisposition)
+{
+    return ::HRESULT_FROM_WIN32(::RegCreateKeyExW(
+        hKey,
+        lpSubKey,
+        Reserved,
+        lpClass,
+        dwOptions,
+        samDesired,
+        lpSecurityAttributes,
+        phkResult,
+        lpdwDisposition));
+}
+
+#endif
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C HRESULT WINAPI MileRegQueryValue(
+    _In_ HKEY hKey,
+    _In_opt_ LPCWSTR lpValueName,
+    _Reserved_ LPDWORD lpReserved,
+    _Out_opt_ LPDWORD lpType,
+    _Out_opt_ LPBYTE lpData,
+    _Inout_opt_ LPDWORD lpcbData)
+{
+    return ::HRESULT_FROM_WIN32(::RegQueryValueExW(
+        hKey,
+        lpValueName,
+        lpReserved,
+        lpType,
+        lpData,
+        lpcbData));
+}
+
+#endif
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C HRESULT WINAPI MileRegSetValue(
+    _In_ HKEY hKey,
+    _In_opt_ LPCWSTR lpValueName,
+    _Reserved_ DWORD Reserved,
+    _In_ DWORD dwType,
+    _In_opt_ CONST BYTE* lpData,
+    _In_ DWORD cbData)
+{
+    return ::HRESULT_FROM_WIN32(::RegSetValueExW(
+        hKey,
+        lpValueName,
+        Reserved,
+        dwType,
+        lpData,
+        cbData));
+}
+
+#endif
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C HRESULT WINAPI MileGetFileInformation(
+    _In_  HANDLE hFile,
+    _In_  FILE_INFO_BY_HANDLE_CLASS FileInformationClass,
+    _Out_ LPVOID lpFileInformation,
+    _In_  DWORD dwBufferSize)
+{
+    if (!::GetFileInformationByHandleEx(
+        hFile,
+        FileInformationClass,
+        lpFileInformation,
+        dwBufferSize))
+    {
+        return ::HRESULT_FROM_WIN32(::GetLastError());
+    }
+
+    return S_OK;
+}
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C HRESULT WINAPI MileSetFileInformation(
+    _In_ HANDLE hFile,
+    _In_ FILE_INFO_BY_HANDLE_CLASS FileInformationClass,
+    _In_ LPVOID lpFileInformation,
+    _In_ DWORD dwBufferSize)
+{
+    if (!::SetFileInformationByHandle(
+        hFile,
+        FileInformationClass,
+        lpFileInformation,
+        dwBufferSize))
+    {
+        return ::HRESULT_FROM_WIN32(::GetLastError());
+    }
+
+    return S_OK;
+}
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C HRESULT WINAPI MileGetFileAttributes(
+    _In_ HANDLE FileHandle,
+    _Out_ PDWORD FileAttributes)
+{
+    FILE_BASIC_INFO BasicInfo;
+
+    HRESULT hr = ::MileGetFileInformation(
+        FileHandle,
+        FileBasicInfo,
+        &BasicInfo,
+        sizeof(FILE_BASIC_INFO));
+
+    *FileAttributes = (hr == S_OK)
+        ? BasicInfo.FileAttributes
+        : INVALID_FILE_ATTRIBUTES;
+
+    return hr;
+}
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C HRESULT WINAPI MileSetFileAttributes(
+    _In_ HANDLE FileHandle,
+    _In_ DWORD FileAttributes)
+{
+    FILE_BASIC_INFO BasicInfo = { 0 };
+    BasicInfo.FileAttributes =
+        FileAttributes & (
+            FILE_SHARE_READ |
+            FILE_SHARE_WRITE |
+            FILE_SHARE_DELETE |
+            FILE_ATTRIBUTE_ARCHIVE |
+            FILE_ATTRIBUTE_TEMPORARY |
+            FILE_ATTRIBUTE_OFFLINE |
+            FILE_ATTRIBUTE_NOT_CONTENT_INDEXED |
+            FILE_ATTRIBUTE_NO_SCRUB_DATA) |
+        FILE_ATTRIBUTE_NORMAL;
+
+    return ::MileSetFileInformation(
+        FileHandle,
+        FileBasicInfo,
+        &BasicInfo,
+        sizeof(FILE_BASIC_INFO));
+}
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C HRESULT WINAPI MileGetFileSize(
+    _In_ HANDLE FileHandle,
+    _Out_ PULONGLONG FileSize)
+{
+    FILE_STANDARD_INFO StandardInfo;
+
+    HRESULT hr = ::MileGetFileInformation(
+        FileHandle,
+        FileStandardInfo,
+        &StandardInfo,
+        sizeof(FILE_STANDARD_INFO));
+
+    *FileSize = (hr == S_OK)
+        ? static_cast<ULONGLONG>(StandardInfo.EndOfFile.QuadPart)
+        : 0;
+
+    return hr;
+}
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C HRESULT WINAPI MileGetFileAllocationSize(
+    _In_ HANDLE FileHandle,
+    _Out_ PULONGLONG AllocationSize)
+{
+    FILE_STANDARD_INFO StandardInfo;
+
+    HRESULT hr = ::MileGetFileInformation(
+        FileHandle,
+        FileStandardInfo,
+        &StandardInfo,
+        sizeof(FILE_STANDARD_INFO));
+
+    *AllocationSize = (hr == S_OK)
+        ? static_cast<ULONGLONG>(StandardInfo.AllocationSize.QuadPart)
+        : 0;
+
+    return hr;
+}
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C HRESULT WINAPI MileDeleteFile(
+    _In_ HANDLE FileHandle)
+{
+    FILE_DISPOSITION_INFO DispostionInfo;
+    DispostionInfo.DeleteFile = TRUE;
+
+    return ::MileSetFileInformation(
+        FileHandle,
+        FileDispositionInfo,
+        &DispostionInfo,
+        sizeof(FILE_DISPOSITION_INFO));
+}
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C HRESULT WINAPI MileDeleteFileIgnoreReadonlyAttribute(
+    _In_ HANDLE FileHandle)
+{
+    HRESULT hr = S_OK;
+    DWORD OldAttribute = 0;
+
+    // Save old attributes.
+    hr = ::MileGetFileAttributes(
+        FileHandle,
+        &OldAttribute);
+    if (hr == S_OK)
+    {
+        // Remove readonly attribute.
+        hr = ::MileSetFileAttributes(
+            FileHandle,
+            OldAttribute & (-1 ^ FILE_ATTRIBUTE_READONLY));
+        if (hr == S_OK)
+        {
+            // Delete the file.
+            hr = ::MileDeleteFile(FileHandle);
+            if (hr != S_OK)
+            {
+                // Restore attributes if failed.
+                hr = ::MileSetFileAttributes(
+                    FileHandle,
+                    OldAttribute);
+            }
+        }
+    }
+
+    return hr;
 }
