@@ -44,9 +44,6 @@
     <ClInclude Include="M2WindowsHelpers.h">
       <Filter>M2WindowsHelpers</Filter>
     </ClInclude>
-    <ClInclude Include="M2WindowsDownlevelHelpers.h">
-      <Filter>M2WindowsHelpers</Filter>
-    </ClInclude>
     <ClInclude Include="jsmn.h">
       <Filter>jsmn</Filter>
     </ClInclude>
@@ -57,9 +54,6 @@
       <Filter>M2Win32GUIHelpers</Filter>
     </ClCompile>
     <ClCompile Include="M2WindowsHelpers.cpp">
-      <Filter>M2WindowsHelpers</Filter>
-    </ClCompile>
-    <ClCompile Include="M2WindowsDownlevelHelpers.cpp">
       <Filter>M2WindowsHelpers</Filter>
     </ClCompile>
   </ItemGroup>
