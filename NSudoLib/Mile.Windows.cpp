@@ -1757,7 +1757,7 @@ EXTERN_C HRESULT WINAPI MileGetFileAttributes(
 
     HRESULT hr = ::MileGetFileInformation(
         FileHandle,
-        FileBasicInfo,
+        FILE_INFO_BY_HANDLE_CLASS::FileBasicInfo,
         &BasicInfo,
         sizeof(FILE_BASIC_INFO));
 
@@ -1790,7 +1790,7 @@ EXTERN_C HRESULT WINAPI MileSetFileAttributes(
 
     return ::MileSetFileInformation(
         FileHandle,
-        FileBasicInfo,
+        FILE_INFO_BY_HANDLE_CLASS::FileBasicInfo,
         &BasicInfo,
         sizeof(FILE_BASIC_INFO));
 }
@@ -1806,7 +1806,7 @@ EXTERN_C HRESULT WINAPI MileGetFileSize(
 
     HRESULT hr = ::MileGetFileInformation(
         FileHandle,
-        FileStandardInfo,
+        FILE_INFO_BY_HANDLE_CLASS::FileStandardInfo,
         &StandardInfo,
         sizeof(FILE_STANDARD_INFO));
 
@@ -1828,7 +1828,7 @@ EXTERN_C HRESULT WINAPI MileGetFileAllocationSize(
 
     HRESULT hr = ::MileGetFileInformation(
         FileHandle,
-        FileStandardInfo,
+        FILE_INFO_BY_HANDLE_CLASS::FileStandardInfo,
         &StandardInfo,
         sizeof(FILE_STANDARD_INFO));
 
@@ -1850,7 +1850,7 @@ EXTERN_C HRESULT WINAPI MileDeleteFile(
 
     return ::MileSetFileInformation(
         FileHandle,
-        FileDispositionInfo,
+        FILE_INFO_BY_HANDLE_CLASS::FileDispositionInfo,
         &DispostionInfo,
         sizeof(FILE_DISPOSITION_INFO));
 }
@@ -2262,3 +2262,195 @@ EXTERN_C HRESULT WINAPI MileQueryFileEnumerator(
 
     return hr;
 }
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C HRESULT WINAPI MileGetCompressedFileSize(
+    _In_ HANDLE FileHandle,
+    _Out_ PULONGLONG CompressedFileSize)
+{
+    FILE_COMPRESSION_INFO FileCompressionInfo;
+    HRESULT hr = ::MileGetFileInformation(
+        FileHandle,
+        FILE_INFO_BY_HANDLE_CLASS::FileCompressionInfo,
+        &FileCompressionInfo,
+        sizeof(FILE_COMPRESSION_INFO));
+    if (hr == S_OK)
+    {
+        *CompressedFileSize = static_cast<ULONGLONG>(
+            FileCompressionInfo.CompressedFileSize.QuadPart);
+    }
+    else
+    {
+        hr = ::MileGetFileSize(FileHandle, CompressedFileSize);
+    }
+
+    return hr;
+}
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+/**
+ * The information about the Windows Overlay Filter file provider.
+ */
+typedef struct _WOF_FILE_PROVIDER_EXTERNAL_INFO
+{
+    WOF_EXTERNAL_INFO Wof;
+    FILE_PROVIDER_EXTERNAL_INFO FileProvider;
+} WOF_FILE_PROVIDER_EXTERNAL_INFO, * PWOF_FILE_PROVIDER_EXTERNAL_INFO;
+
+#endif
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C HRESULT WINAPI MileRemoveFileWofCompressionAttribute(
+    _In_ HANDLE FileHandle)
+{
+    return ::MileDeviceIoControl(
+        FileHandle,
+        FSCTL_DELETE_EXTERNAL_BACKING,
+        nullptr,
+        0,
+        nullptr,
+        0,
+        nullptr,
+        nullptr);
+}
+
+#endif
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C HRESULT WINAPI MileSetFileWofCompressionAttribute(
+    _In_ HANDLE FileHandle,
+    _In_ DWORD CompressionAlgorithm)
+{
+    switch (CompressionAlgorithm)
+    {
+    case FILE_PROVIDER_COMPRESSION_XPRESS4K:
+    case FILE_PROVIDER_COMPRESSION_LZX:
+    case FILE_PROVIDER_COMPRESSION_XPRESS8K:
+    case FILE_PROVIDER_COMPRESSION_XPRESS16K:
+        break;
+    default:
+        return E_INVALIDARG;
+    }
+
+    WOF_FILE_PROVIDER_EXTERNAL_INFO WofInfo = { 0 };
+
+    WofInfo.Wof.Version = WOF_CURRENT_VERSION;
+    WofInfo.Wof.Provider = WOF_PROVIDER_FILE;
+
+    WofInfo.FileProvider.Version = FILE_PROVIDER_CURRENT_VERSION;
+    WofInfo.FileProvider.Flags = 0;
+    WofInfo.FileProvider.Algorithm = CompressionAlgorithm;
+
+    return ::MileDeviceIoControl(
+        FileHandle,
+        FSCTL_SET_EXTERNAL_BACKING,
+        &WofInfo,
+        sizeof(WofInfo),
+        nullptr,
+        0,
+        nullptr,
+        nullptr);
+}
+
+#endif
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C HRESULT WINAPI MileGetFileWofCompressionAttribute(
+    _In_ HANDLE FileHandle,
+    _Out_ PDWORD CompressionAlgorithm)
+{
+    if (!CompressionAlgorithm)
+        return E_INVALIDARG;
+
+    WOF_FILE_PROVIDER_EXTERNAL_INFO WofInfo = { 0 };
+
+    HRESULT hr = ::MileDeviceIoControl(
+        FileHandle,
+        FSCTL_GET_EXTERNAL_BACKING,
+        nullptr,
+        0,
+        &WofInfo,
+        sizeof(WofInfo),
+        nullptr,
+        nullptr);
+    if (hr == S_OK)
+    {
+        *CompressionAlgorithm = WofInfo.FileProvider.Algorithm;
+    }
+
+    return hr;
+}
+
+#endif
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C HRESULT WINAPI MileSetFileNtfsCompressionAttribute(
+    _In_ HANDLE FileHandle,
+    _In_ USHORT CompressionAlgorithm)
+{
+    switch (CompressionAlgorithm)
+    {
+    case COMPRESSION_FORMAT_NONE:
+    case COMPRESSION_FORMAT_DEFAULT:
+    case COMPRESSION_FORMAT_LZNT1:
+        break;
+    default:
+        return E_INVALIDARG;
+    }
+
+    return ::MileDeviceIoControl(
+        FileHandle,
+        FSCTL_SET_COMPRESSION,
+        &CompressionAlgorithm,
+        sizeof(CompressionAlgorithm),
+        nullptr,
+        0,
+        nullptr,
+        nullptr);
+}
+
+#endif
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C HRESULT WINAPI MileGetFileNtfsCompressionAttribute(
+    _In_ HANDLE FileHandle,
+    _Out_ PUSHORT CompressionAlgorithm)
+{
+    if (!CompressionAlgorithm)
+        return E_INVALIDARG;
+
+    return ::MileDeviceIoControl(
+        FileHandle,
+        FSCTL_GET_COMPRESSION,
+        nullptr,
+        0,
+        CompressionAlgorithm,
+        sizeof(*CompressionAlgorithm),
+        nullptr,
+        nullptr);
+}
+
+#endif
