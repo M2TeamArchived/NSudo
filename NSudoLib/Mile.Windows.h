@@ -1718,8 +1718,6 @@ EXTERN_C HRESULT WINAPI MileGetProcAddress(
  * various types of I/O depending on the file or device and the flags and
  * attributes specified.
  *
- * @param lpFileHandle The address of the returned handle to the specified
- *                     file.
  * @param lpFileName The name of the file or device to be created or opened.
  *                   You may use either forward slashes (/) or backslashes ()
  *                   in this name.
@@ -1745,18 +1743,20 @@ EXTERN_C HRESULT WINAPI MileGetProcAddress(
  *                      access right. The template file supplies file
  *                      attributes and extended attributes for the file that is
  *                      being created. This parameter can be NULL.
+ * @param lpFileHandle The address of the returned handle to the specified
+ *                     file.
  * @return HRESULT. If the function succeeds, the return value is S_OK.
  * @remark For more information, see CreateFileW.
  */
 EXTERN_C HRESULT WINAPI MileCreateFile(
-    _Out_ PHANDLE lpFileHandle,
     _In_ LPCWSTR lpFileName,
     _In_ DWORD dwDesiredAccess,
     _In_ DWORD dwShareMode,
     _In_opt_ LPSECURITY_ATTRIBUTES lpSecurityAttributes,
     _In_ DWORD dwCreationDisposition,
     _In_ DWORD dwFlagsAndAttributes,
-    _In_opt_ HANDLE hTemplateFile);
+    _In_opt_ HANDLE hTemplateFile,
+    _Out_ PHANDLE lpFileHandle);
 
 #endif
 
