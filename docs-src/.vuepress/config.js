@@ -29,6 +29,8 @@
               title: "Documents",
               children: [
                 "/en-us/docs/Changelog",
+                "/en-us/docs/DevilMode",
+                "/en-us/docs/SharedLibrary",
                 ["/en-us/docs/People", "Relevant People"]
               ]
             }

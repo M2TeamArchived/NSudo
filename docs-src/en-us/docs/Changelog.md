@@ -1,38 +1,27 @@
 ﻿# Changelog
 
-**NSudo 8.0.0-alpha3**
+**NSudo 8.0**
 
-- Add NSudo Devil Mode (NSudoDM).
-- Remove all NSudo Shared Library APIs introduced in alpha2.
-- Add NSudoCreateProcess API to NSudo Shared Library.
-- Add Mouri Internal Library Essentials (Mile).
-- Improve several implementations.
-- Rename NSudo itself to NSudo Launcher.
-
-**NSudo 8.0.0-alpha2**
-
-- Update links information in NSudo binaries.
-- Convert C API to COM interface in NSudo Shared Library.
-- Add .Net interoperability support.
-- Optimize the icon resource size.
-- Use jsmn instead of JSON for Modern C++.
-- Add NSudoLib for static linking.
-- Make NSudoG.exe and NSudoC.exe single file style again.
-
-**NSudo 8.0.0-alpha1**
-
-- Update JSON for Modern C++ to 3.7.0.
-- Use FILE instead of std::ifstream to reduce the memory usage and binary size.
-- Merge NSudo.exe to NSudoG.exe.
-- Use new compiler options to reduce the binary size.
-- Update to Visual Studio 2019.
-- Update to the newest Windows 10 SDK.
-- Add Itlian Language. (Contributed by garf02.)
-- Use the Semantic Versioning format.
-- Improve several implementations.
-- Add NSudo Shared Library.
+- Reduce the binary size.
+  - Use FILE instead of std::ifstream.
+  - Use new compiler options.
+  - Merge NSudo to NSudoG.
+  - Optimize the icon resource.
+  - Use jsmn instead of JSON for Modern C++.
+- Rename NSudo itself to NSudo Launcher. (NSudoLG.exe and NSudoLC.exe)
 - Remove context menu support because you can use 
   https://github.com/Thdub/NSudo_Installer for better experience.
+- Add Itlian Language. (Contributed by garf02.)
+- Use the Semantic Versioning format.
+- Improve several implementations and documents.
+- Add implementations for developers.
+  - Add NSudo Shared Library with C/C++ and .Net interoperability support.
+  - Add NSudo Devil Mode (NSudoDM).
+  - Add Mouri Internal Library Essentials (Mile).
+- Noticeable things about compiling this project.
+  - Update to Visual Studio 2019.
+  - Update to the newest Windows 10 SDK.
+  - Improve AppVeyor CI and GitHub Actions CI support. (Thanks to Margen67.)
 
 **NSudo 6.2.1812.31**
 
