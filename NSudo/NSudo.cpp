@@ -923,7 +923,7 @@ private:
 
         HRESULT hr = E_FAIL;
 
-        hr = M2GetDpiForMonitor(
+        hr = ::MileGetDpiForMonitor(
             MonitorFromWindow(this->m_hWnd, MONITOR_DEFAULTTONEAREST),
             MDT_EFFECTIVE_DPI, (UINT*)&this->m_xDPI, (UINT*)&this->m_yDPI);
         if (hr != S_OK)

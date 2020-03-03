@@ -14,11 +14,15 @@
 
 #include "Mile.Windows.h"
 
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
 #include <WtsApi32.h>
 #pragma comment(lib, "WtsApi32.lib")
+#endif
 
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
 #include <Userenv.h>
 #pragma comment(lib, "Userenv.lib")
+#endif
 
 #include <assert.h>
 #include <process.h>
@@ -2451,6 +2455,186 @@ EXTERN_C HRESULT WINAPI MileGetFileNtfsCompressionAttribute(
         sizeof(*CompressionAlgorithm),
         nullptr,
         nullptr);
+}
+
+#endif
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C HRESULT WINAPI MileCoCreateInstance(
+    _In_ REFCLSID rclsid,
+    _In_opt_ LPUNKNOWN pUnkOuter,
+    _In_ DWORD dwClsContext,
+    _In_ REFIID riid,
+    _Out_ LPVOID* ppv)
+{
+    return ::CoCreateInstance(rclsid, pUnkOuter, dwClsContext, riid, ppv);
+}
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C HRESULT WINAPI MileCoCreateInstanceByString(
+    _In_ LPCWSTR lpszCLSID,
+    _In_opt_ LPUNKNOWN pUnkOuter,
+    _In_ DWORD dwClsContext,
+    _In_ LPCWSTR lpszIID,
+    _Out_ LPVOID* ppv)
+{
+    HRESULT hr = S_OK;
+
+    do
+    {
+        CLSID clsid;
+        IID iid;
+
+        hr = ::CLSIDFromString(lpszCLSID, &clsid);
+        if (hr != S_OK)
+        {
+            break;
+        }
+
+        hr = ::IIDFromString(lpszIID, &iid);
+        if (hr != S_OK)
+        {
+            break;
+        }
+
+        hr = ::MileCoCreateInstance(clsid, pUnkOuter, dwClsContext, iid, ppv);
+
+    } while (false);
+
+    return hr;
+}
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C HRESULT WINAPI MileRegQueryStringValue(
+    _In_ HKEY hKey,
+    _In_opt_ LPCWSTR lpValueName,
+    _Out_ LPWSTR* lpData)
+{
+    *lpData = nullptr;
+
+    DWORD cbData = 0;
+    HRESULT hr = ::MileRegQueryValue(
+        hKey,
+        lpValueName,
+        nullptr,
+        nullptr,
+        nullptr,
+        &cbData);
+    if (SUCCEEDED(hr))
+    {
+        hr = ::MileAllocMemory(cbData, reinterpret_cast<PVOID*>(lpData));
+        if (SUCCEEDED(hr))
+        {
+            DWORD Type = 0;
+            hr = ::MileRegQueryValue(
+                hKey,
+                lpValueName,
+                nullptr,
+                &Type,
+                reinterpret_cast<LPBYTE>(*lpData),
+                &cbData);
+            if (SUCCEEDED(hr) && REG_SZ != Type)
+                hr = __HRESULT_FROM_WIN32(ERROR_ILLEGAL_ELEMENT_ADDRESS);
+
+            if (FAILED(hr))
+                hr = ::MileFreeMemory(*lpData);
+        }
+    }
+
+    return hr;
+}
+
+#endif
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C HRESULT WINAPI MileCoCheckInterfaceName(
+    _In_ LPCWSTR InterfaceID,
+    _In_ LPCWSTR InterfaceName)
+{
+    wchar_t RegistryKeyPath[64];
+    if (0 != ::wcscpy_s(RegistryKeyPath, L"Interface\\"))
+        return E_INVALIDARG;
+    if (0 != ::wcscat_s(RegistryKeyPath, InterfaceID))
+        return E_INVALIDARG;
+
+    HKEY hKey = nullptr;
+    HRESULT hr = ::MileRegCreateKey(
+        HKEY_CLASSES_ROOT,
+        RegistryKeyPath,
+        0,
+        nullptr,
+        0,
+        KEY_READ,
+        nullptr,
+        &hKey,
+        nullptr);
+    if (SUCCEEDED(hr))
+    {
+        wchar_t* InterfaceTypeName = nullptr;
+        hr = ::MileRegQueryStringValue(hKey, nullptr, &InterfaceTypeName);
+        if (SUCCEEDED(hr))
+        {
+            if (0 != ::_wcsicmp(InterfaceTypeName, InterfaceName))
+            {
+                hr = E_NOINTERFACE;
+            }
+
+            ::MileFreeMemory(InterfaceTypeName);
+        }
+
+        ::MileRegCloseKey(hKey);
+    }
+
+    return hr;
+}
+
+#endif
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C HRESULT WINAPI MileGetDpiForMonitor(
+    _In_ HMONITOR hmonitor,
+    _In_ MONITOR_DPI_TYPE dpiType,
+    _Out_ UINT* dpiX,
+    _Out_ UINT* dpiY)
+{
+    HMODULE hModule = nullptr;
+    HRESULT hr = ::MileLoadLibrary(
+        L"SHCore.dll",
+        nullptr,
+        LOAD_LIBRARY_SEARCH_SYSTEM32,
+        &hModule);
+    if (SUCCEEDED(hr))
+    {
+        decltype(::GetDpiForMonitor)* pFunc = nullptr;
+        hr = ::MileGetProcAddress(
+            hModule,
+            "GetDpiForMonitor",
+            reinterpret_cast<FARPROC*>(&pFunc));
+        if (SUCCEEDED(hr))
+        {
+            hr = pFunc(hmonitor, dpiType, dpiX, dpiY);
+        }
+
+        ::MileFreeLibrary(hModule);
+    }
+
+    return hr;
 }
 
 #endif

@@ -13,6 +13,10 @@
 
 #include <Windows.h>
 
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+#include <ShellScalingApi.h>
+#endif
+
 /**
  * Retrieves a handle to the default heap of the calling process. This handle
  * can then be used in subsequent calls to the heap functions.
@@ -2205,6 +2209,117 @@ EXTERN_C HRESULT WINAPI MileSetFileNtfsCompressionAttribute(
 EXTERN_C HRESULT WINAPI MileGetFileNtfsCompressionAttribute(
     _In_ HANDLE FileHandle,
     _Out_ PUSHORT CompressionAlgorithm);
+
+#endif
+
+/**
+ * Creates a single uninitialized object of the class associated with a
+ * specified CLSID.
+ *
+ * @param rclsid The CLSID associated with the data and code that will be used
+ *               to create the object.
+ * @param pUnkOuter If NULL, indicates that the object is not being created as
+ *                  part of an aggregate. If non-NULL, pointer to the aggregate
+ *                  object's IUnknown interface (the controlling IUnknown).
+ * @param dwClsContext Context in which the code that manages the newly created
+ *                     object will run. The values are taken from the
+ *                     enumeration CLSCTX.
+ * @param riid A reference to the identifier of the interface to be used to
+ *             communicate with the object.
+ * @param ppv Address of pointer variable that receives the interface pointer
+ *            requested in riid. Upon successful return, *ppv contains the
+ *            requested interface pointer. Upon failure, *ppv contains NULL.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ * @remark For more information, see CoCreateInstance.
+ */
+EXTERN_C HRESULT WINAPI MileCoCreateInstance(
+    _In_ REFCLSID rclsid,
+    _In_opt_ LPUNKNOWN pUnkOuter,
+    _In_ DWORD dwClsContext,
+    _In_ REFIID riid,
+    _Out_ LPVOID* ppv);
+
+/**
+ * Creates a single uninitialized object of the class associated with a
+ * specified CLSID.
+ *
+ * @param lpszCLSID The string representation of the CLSID.
+ * @param pUnkOuter If NULL, indicates that the object is not being created as
+ *                  part of an aggregate. If non-NULL, pointer to the aggregate
+ *                  object's IUnknown interface (the controlling IUnknown).
+ * @param dwClsContext Context in which the code that manages the newly created
+ *                     object will run. The values are taken from the
+ *                     enumeration CLSCTX.
+ * @param lpszIID The string representation of the IID.
+ * @param ppv Address of pointer variable that receives the interface pointer
+ *            requested in riid. Upon successful return, *ppv contains the
+ *            requested interface pointer. Upon failure, *ppv contains NULL.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ * @remark For more information, see CoCreateInstance.
+ */
+EXTERN_C HRESULT WINAPI MileCoCreateInstanceByString(
+    _In_ LPCWSTR lpszCLSID,
+    _In_opt_ LPUNKNOWN pUnkOuter,
+    _In_ DWORD dwClsContext,
+    _In_ LPCWSTR lpszIID,
+    _Out_ LPVOID* ppv);
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+/**
+ * Retrieves the string type data for the specified value name associated with
+ * an open registry key.
+ *
+ * @param hKey A handle to an open registry key.
+ * @param lpValueName The name of the registry value.
+ * @param lpData A pointer to a buffer that receives the value's data. When you
+ *               have finished using the information, free it by calling the
+ *               MileFreeMemory function. You should also set the pointer to
+ *               NULL.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ */
+EXTERN_C HRESULT WINAPI MileRegQueryStringValue(
+    _In_ HKEY hKey,
+    _In_opt_ LPCWSTR lpValueName,
+    _Out_ LPWSTR* lpData);
+
+#endif
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+/**
+ * Determines whether the interface id have the correct interface name.
+ *
+ * @param InterfaceID A pointer to the string representation of the IID.
+ * @param InterfaceName A pointer to the interface name string.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ */
+EXTERN_C HRESULT WINAPI MileCoCheckInterfaceName(
+    _In_ LPCWSTR InterfaceID,
+    _In_ LPCWSTR InterfaceName);
+
+#endif
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+/**
+ * Queries the dots per inch (dpi) of a display.
+ *
+ * @param hmonitor Handle of the monitor being queried.
+ * @param dpiType The type of DPI being queried. Possible values are from the
+ *                MONITOR_DPI_TYPE enumeration.
+ * @param dpiX The value of the DPI along the X axis. This value always refers
+ *             to the horizontal edge, even when the screen is rotated.
+ * @param dpiY The value of the DPI along the Y axis. This value always refers
+ *             to the vertical edge, even when the screen is rotated.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ * @remark For more information, see GetDpiForMonitor.
+ */
+EXTERN_C HRESULT WINAPI MileGetDpiForMonitor(
+    _In_ HMONITOR hmonitor,
+    _In_ MONITOR_DPI_TYPE dpiType,
+    _Out_ UINT* dpiX,
+    _Out_ UINT* dpiY);
 
 #endif
 
