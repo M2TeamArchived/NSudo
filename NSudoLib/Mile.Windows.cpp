@@ -2475,6 +2475,26 @@ EXTERN_C HRESULT WINAPI MileCoCreateInstance(
 /**
  * @remark You can read the definition for this function in "Mile.Windows.h".
  */
+EXTERN_C HRESULT WINAPI MileCLSIDFromString(
+    _In_ LPCOLESTR lpsz,
+    _Out_ LPCLSID pclsid)
+{
+    return ::CLSIDFromString(lpsz, pclsid);
+}
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C HRESULT WINAPI MileIIDFromString(
+    _In_ LPCOLESTR lpsz,
+    _Out_ LPIID lpiid)
+{
+    return ::IIDFromString(lpsz, lpiid);
+}
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
 EXTERN_C HRESULT WINAPI MileCoCreateInstanceByString(
     _In_ LPCWSTR lpszCLSID,
     _In_opt_ LPUNKNOWN pUnkOuter,
@@ -2489,13 +2509,13 @@ EXTERN_C HRESULT WINAPI MileCoCreateInstanceByString(
         CLSID clsid;
         IID iid;
 
-        hr = ::CLSIDFromString(lpszCLSID, &clsid);
+        hr = ::MileCLSIDFromString(lpszCLSID, &clsid);
         if (hr != S_OK)
         {
             break;
         }
 
-        hr = ::IIDFromString(lpszIID, &iid);
+        hr = ::MileIIDFromString(lpszIID, &iid);
         if (hr != S_OK)
         {
             break;
@@ -2638,3 +2658,12 @@ EXTERN_C HRESULT WINAPI MileGetDpiForMonitor(
 }
 
 #endif
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C BOOL WINAPI MileIsDots(
+    _In_ LPCWSTR Name)
+{
+    return Name[0] == L'.' && (!Name[1] || (Name[1] == L'.' && !Name[2]));
+}

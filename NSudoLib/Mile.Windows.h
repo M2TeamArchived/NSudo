@@ -2240,6 +2240,30 @@ EXTERN_C HRESULT WINAPI MileCoCreateInstance(
     _Out_ LPVOID* ppv);
 
 /**
+ * Converts the CLSID string to the CLSID structure.
+ *
+ * @param lpsz The string representation of the CLSID.
+ * @param pclsid A pointer to the CLSID.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ * @remark For more information, see CLSIDFromString.
+ */
+EXTERN_C HRESULT WINAPI MileCLSIDFromString(
+    _In_ LPCOLESTR lpsz,
+    _Out_ LPCLSID pclsid);
+
+/**
+ * Converts the IID string to the IID structure.
+ *
+ * @param lpsz A pointer to the string representation of the IID.
+ * @param lpiid A pointer to the IID.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ * @remark For more information, see IIDFromString.
+ */
+EXTERN_C HRESULT WINAPI MileIIDFromString(
+    _In_ LPCOLESTR lpsz,
+    _Out_ LPIID lpiid);
+
+/**
  * Creates a single uninitialized object of the class associated with a
  * specified CLSID.
  *
@@ -2322,5 +2346,16 @@ EXTERN_C HRESULT WINAPI MileGetDpiForMonitor(
     _Out_ UINT* dpiY);
 
 #endif
+
+/**
+ * Tests for the current directory and parent directory markers while iterating
+ * through files.
+ *
+ * @param Name The name of the file or directory for testing.
+ * @return Nonzero if the found file has the name "." or "..", which indicates
+ *         that the found file is actually a directory. Otherwise 0.
+ */
+EXTERN_C BOOL WINAPI MileIsDots(
+    _In_ LPCWSTR Name);
 
 #endif // !MILE_WINDOWS
