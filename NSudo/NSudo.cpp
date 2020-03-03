@@ -393,7 +393,7 @@ public:
                 char* FileContent = nullptr;
 
                 hr = ::MileAllocMemory(
-                    FileSize,
+                    static_cast<SIZE_T>(FileSize),
                     reinterpret_cast<LPVOID*>(&FileContent));
                 if (hr == S_OK)
                 {
@@ -407,7 +407,7 @@ public:
                     if (hr == S_OK)
                     {
                         const char* JsonString = FileContent + 3;
-                        std::size_t JsonStringLength = FileSize - 3;
+                        std::size_t JsonStringLength = NumberOfBytesRead - 3;
 
                         jsmntok_t* JsonTokens = nullptr;
                         std::int32_t JsonTokensCount = 0;
