@@ -2667,3 +2667,144 @@ EXTERN_C BOOL WINAPI MileIsDots(
 {
     return Name[0] == L'.' && (!Name[1] || (Name[1] == L'.' && !Name[2]));
 }
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C HRESULT WINAPI MileCreateFileMapping(
+    _In_ HANDLE hFile,
+    _In_opt_ LPSECURITY_ATTRIBUTES lpFileMappingAttributes,
+    _In_ DWORD flProtect,
+    _In_ DWORD dwMaximumSizeHigh,
+    _In_ DWORD dwMaximumSizeLow,
+    _In_opt_ LPCWSTR lpName,
+    _Out_ PHANDLE lpFileMappingHandle)
+{
+    *lpFileMappingHandle = ::CreateFileMappingW(
+        hFile,
+        lpFileMappingAttributes,
+        flProtect,
+        dwMaximumSizeHigh,
+        dwMaximumSizeLow,
+        lpName);
+
+    return *lpFileMappingHandle
+        ? S_OK
+        : ::HRESULT_FROM_WIN32(::GetLastError());
+}
+
+#endif
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C HRESULT WINAPI MileMapViewOfFile(
+    _In_ HANDLE hFileMappingObject,
+    _In_ DWORD dwDesiredAccess,
+    _In_ DWORD dwFileOffsetHigh,
+    _In_ DWORD dwFileOffsetLow,
+    _In_ SIZE_T dwNumberOfBytesToMap,
+    _Out_ LPVOID* lpBaseAddress)
+{
+    *lpBaseAddress = ::MapViewOfFile(
+        hFileMappingObject,
+        dwDesiredAccess,
+        dwFileOffsetHigh,
+        dwFileOffsetLow,
+        dwNumberOfBytesToMap);
+
+    return *lpBaseAddress
+        ? S_OK
+        : ::HRESULT_FROM_WIN32(::GetLastError());
+}
+
+#endif
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C HRESULT WINAPI MileUnmapViewOfFile(
+    _In_ LPCVOID lpBaseAddress)
+{
+    if (!::UnmapViewOfFile(lpBaseAddress))
+    {
+        return ::HRESULT_FROM_WIN32(::GetLastError());
+    }
+
+    return S_OK;
+}
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C HRESULT WINAPI MileReadFile(
+    _In_ HANDLE hFile,
+    _Out_opt_ LPVOID lpBuffer,
+    _In_ DWORD nNumberOfBytesToRead,
+    _Out_opt_ LPDWORD lpNumberOfBytesRead,
+    _Inout_opt_ LPOVERLAPPED lpOverlapped)
+{
+    if (!::ReadFile(
+        hFile,
+        lpBuffer,
+        nNumberOfBytesToRead,
+        lpNumberOfBytesRead,
+        lpOverlapped))
+    {
+        return ::HRESULT_FROM_WIN32(::GetLastError());
+    }
+
+    return S_OK;
+}
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C HRESULT WINAPI MileWriteFile(
+    _In_ HANDLE hFile,
+    _In_opt_ LPCVOID lpBuffer,
+    _In_ DWORD nNumberOfBytesToWrite,
+    _Out_opt_ LPDWORD lpNumberOfBytesWritten,
+    _Inout_opt_ LPOVERLAPPED lpOverlapped)
+{
+    if (!::WriteFile(
+        hFile,
+        lpBuffer,
+        nNumberOfBytesToWrite,
+        lpNumberOfBytesWritten,
+        lpOverlapped))
+    {
+        return ::HRESULT_FROM_WIN32(::GetLastError());
+    }
+
+    return S_OK;
+}
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C HRESULT WINAPI MileReOpenFile(
+    _In_ HANDLE hOriginalFile,
+    _In_ DWORD dwDesiredAccess,
+    _In_ DWORD dwShareMode,
+    _In_ DWORD dwFlagsAndAttributes,
+    _Out_ PHANDLE lpFileHandle)
+{
+    *lpFileHandle = ::ReOpenFile(
+        hOriginalFile,
+        dwDesiredAccess,
+        dwShareMode,
+        dwFlagsAndAttributes);
+
+    return (*lpFileHandle != INVALID_HANDLE_VALUE)
+        ? S_OK :
+        ::HRESULT_FROM_WIN32(::GetLastError());
+}
+
+#endif

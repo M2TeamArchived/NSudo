@@ -390,15 +390,23 @@ public:
             hr = ::MileGetFileSize(FileHandle, &FileSize);
             if (hr == S_OK)
             {
-                HANDLE FileMapping = CreateFileMappingW(
-                    FileHandle, nullptr, PAGE_WRITECOPY, 0, 0, nullptr);
-                if (FileMapping)
+                char* FileContent = nullptr;
+
+                hr = ::MileAllocMemory(
+                    FileSize,
+                    reinterpret_cast<LPVOID*>(&FileContent));
+                if (hr == S_OK)
                 {
-                    const char* MapAddress = reinterpret_cast<const char*>(
-                        MapViewOfFile(FileMapping, FILE_MAP_COPY, 0, 0, FileSize));
-                    if (MapAddress)
+                    DWORD NumberOfBytesRead = 0;
+                    hr = ::MileReadFile(
+                        FileHandle,
+                        FileContent,
+                        static_cast<DWORD>(FileSize),
+                        &NumberOfBytesRead,
+                        nullptr);
+                    if (hr == S_OK)
                     {
-                        const char* JsonString = MapAddress + 3;
+                        const char* JsonString = FileContent + 3;
                         std::size_t JsonStringLength = FileSize - 3;
 
                         jsmntok_t* JsonTokens = nullptr;
@@ -446,11 +454,9 @@ public:
 
                             ::free(JsonTokens);
                         }
-
-                        ::UnmapViewOfFile(MapAddress);
                     }
 
-                    ::MileCloseHandle(FileMapping);
+                    ::MileFreeMemory(FileContent);
                 }
             }
 
