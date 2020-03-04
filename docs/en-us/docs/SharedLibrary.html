@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>NSudo Shared Library | NSudo</title>
+    <meta name="description" content="A Powerful System Administration Tool">
+    
+    
+    <link rel="preload" href="/NSudo/assets/css/0.styles.e8da2bd0.css" as="style"><link rel="preload" href="/NSudo/assets/js/app.6bb6d2b0.js" as="script"><link rel="preload" href="/NSudo/assets/js/2.e49ead3c.js" as="script"><link rel="preload" href="/NSudo/assets/js/14.3ec9eb82.js" as="script"><link rel="prefetch" href="/NSudo/assets/js/10.223a4c31.js"><link rel="prefetch" href="/NSudo/assets/js/11.0595f8b6.js"><link rel="prefetch" href="/NSudo/assets/js/12.e8116303.js"><link rel="prefetch" href="/NSudo/assets/js/13.fd070590.js"><link rel="prefetch" href="/NSudo/assets/js/15.8c0d5b07.js"><link rel="prefetch" href="/NSudo/assets/js/16.255cca2f.js"><link rel="prefetch" href="/NSudo/assets/js/17.c1ebd399.js"><link rel="prefetch" href="/NSudo/assets/js/18.f40fd281.js"><link rel="prefetch" href="/NSudo/assets/js/19.b51406c1.js"><link rel="prefetch" href="/NSudo/assets/js/20.dbec217e.js"><link rel="prefetch" href="/NSudo/assets/js/21.98cf872f.js"><link rel="prefetch" href="/NSudo/assets/js/22.20438a25.js"><link rel="prefetch" href="/NSudo/assets/js/23.e87aab82.js"><link rel="prefetch" href="/NSudo/assets/js/3.2f0dd47b.js"><link rel="prefetch" href="/NSudo/assets/js/4.dca9ce29.js"><link rel="prefetch" href="/NSudo/assets/js/5.050a4ee5.js"><link rel="prefetch" href="/NSudo/assets/js/6.49a97b0a.js"><link rel="prefetch" href="/NSudo/assets/js/7.2f2dd70a.js"><link rel="prefetch" href="/NSudo/assets/js/8.c9fb56e5.js"><link rel="prefetch" href="/NSudo/assets/js/9.83ce956d.js">
+    <link rel="stylesheet" href="/NSudo/assets/css/0.styles.e8da2bd0.css">
+  </head>
+  <body>
+    <div id="app" data-server-rendered="true"><div class="theme-container"><header class="navbar"><div class="sidebar-button"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" viewBox="0 0 448 512" class="icon"><path fill="currentColor" d="M436 124H12c-6.627 0-12-5.373-12-12V80c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12z"></path></svg></div> <a href="/NSudo/en-us/" class="home-link router-link-active"><!----> <span class="site-name">NSudo</span></a> <div class="links"><div class="search-box"><input aria-label="Search" autocomplete="off" spellcheck="false" value=""> <!----></div> <nav class="nav-links can-hide"><div class="nav-item"><a href="/NSudo/en-us/" class="nav-link">Home</a></div><div class="nav-item"><a href="/NSudo/en-us/Download.html" class="nav-link">Download</a></div><div class="nav-item"><a href="/NSudo/en-us/Support.html" class="nav-link">Support</a></div><div class="nav-item"><a href="/NSudo/en-us/docs/" class="nav-link router-link-active">Documents</a></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="Select language" class="dropdown-title"><span class="title">Languages</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/NSudo/en-us/docs/SharedLibrary.html" class="nav-link router-link-exact-active router-link-active">English</a></li><li class="dropdown-item"><!----> <a href="/NSudo/zh-hans/" class="nav-link">简体中文</a></li><li class="dropdown-item"><!----> <a href="/NSudo/zh-hant/" class="nav-link">繁體中文</a></li></ul></div></div> <a href="https://github.com/M2Team/NSudo" target="_blank" rel="noopener noreferrer" class="repo-link">
+    GitHub
+    <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></nav></div></header> <div class="sidebar-mask"></div> <aside class="sidebar"><nav class="nav-links"><div class="nav-item"><a href="/NSudo/en-us/" class="nav-link">Home</a></div><div class="nav-item"><a href="/NSudo/en-us/Download.html" class="nav-link">Download</a></div><div class="nav-item"><a href="/NSudo/en-us/Support.html" class="nav-link">Support</a></div><div class="nav-item"><a href="/NSudo/en-us/docs/" class="nav-link router-link-active">Documents</a></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="Select language" class="dropdown-title"><span class="title">Languages</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/NSudo/en-us/docs/SharedLibrary.html" class="nav-link router-link-exact-active router-link-active">English</a></li><li class="dropdown-item"><!----> <a href="/NSudo/zh-hans/" class="nav-link">简体中文</a></li><li class="dropdown-item"><!----> <a href="/NSudo/zh-hant/" class="nav-link">繁體中文</a></li></ul></div></div> <a href="https://github.com/M2Team/NSudo" target="_blank" rel="noopener noreferrer" class="repo-link">
+    GitHub
+    <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></nav>  <ul class="sidebar-links"><li><a href="/NSudo/en-us/docs/" class="sidebar-link">Usage</a></li><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading open"><span>Documents</span> <span class="arrow down"></span></p> <ul class="sidebar-links sidebar-group-items"><li><a href="/NSudo/en-us/docs/Changelog.html" class="sidebar-link">Changelog</a></li><li><a href="/NSudo/en-us/docs/DevilMode.html" class="sidebar-link">NSudo Devil Mode</a></li><li><a href="/NSudo/en-us/docs/SharedLibrary.html" class="active sidebar-link">NSudo Shared Library</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/NSudo/en-us/docs/SharedLibrary.html#nsudocreateprocess-function" class="sidebar-link">NSudoCreateProcess function</a></li><li class="sidebar-sub-header"><a href="/NSudo/en-us/docs/SharedLibrary.html#c-api" class="sidebar-link">C# API</a></li></ul></li><li><a href="/NSudo/en-us/docs/People.html" class="sidebar-link">Relevant People</a></li></ul></section></li></ul> </aside> <main class="page"> <div class="theme-default-content content__default"><h1 id="nsudo-shared-library"><a href="#nsudo-shared-library" class="header-anchor">#</a> NSudo Shared Library</h1> <h2 id="nsudocreateprocess-function"><a href="#nsudocreateprocess-function" class="header-anchor">#</a> NSudoCreateProcess function</h2> <p>Creates a new process and its primary thread.</p> <h3 id="c-c-prototype"><a href="#c-c-prototype" class="header-anchor">#</a> C/C++ prototype</h3> <div class="language- extra-class"><pre class="language-text"><code>EXTERN_C HRESULT WINAPI NSudoCreateProcess(
+    _In_ NSUDO_USER_MODE_TYPE UserModeType,
+    _In_ NSUDO_PRIVILEGES_MODE_TYPE PrivilegesModeType,
+    _In_ NSUDO_MANDATORY_LABEL_TYPE MandatoryLabelType,
+    _In_ NSUDO_PROCESS_PRIORITY_CLASS_TYPE ProcessPriorityClassType,
+    _In_ NSUDO_SHOW_WINDOW_MODE_TYPE ShowWindowModeType,
+    _In_ DWORD WaitInterval,
+    _In_ BOOL CreateNewConsole,
+    _In_ LPCWSTR CommandLine,
+    _In_opt_ LPCWSTR CurrentDirectory);
+</code></pre></div><h3 id="usermodetype-parameter"><a href="#usermodetype-parameter" class="header-anchor">#</a> UserModeType parameter</h3> <p>A value from the NSUDO_USER_MODE_TYPE enumerated type that identifies the user
+mode.</p> <div class="language- extra-class"><pre class="language-text"><code>typedef enum class _NSUDO_USER_MODE_TYPE
+{
+    DEFAULT,
+    TRUSTED_INSTALLER,
+    SYSTEM,
+    CURRENT_USER,
+    CURRENT_PROCESS,
+    CURRENT_PROCESS_DROP_RIGHT
+} NSUDO_USER_MODE_TYPE, *PNSUDO_USER_MODE_TYPE;
+</code></pre></div><h3 id="privilegesmodetype-parameter"><a href="#privilegesmodetype-parameter" class="header-anchor">#</a> PrivilegesModeType parameter</h3> <p>A value from the NSUDO_PRIVILEGES_MODE_TYPE enumerated type that identifies the
+privileges mode.</p> <div class="language- extra-class"><pre class="language-text"><code>typedef enum class _NSUDO_PRIVILEGES_MODE_TYPE
+{
+    DEFAULT,
+    ENABLE_ALL_PRIVILEGES,
+    DISABLE_ALL_PRIVILEGES
+} NSUDO_PRIVILEGES_MODE_TYPE, *PNSUDO_PRIVILEGES_MODE_TYPE;
+</code></pre></div><h3 id="mandatorylabeltype-parameter"><a href="#mandatorylabeltype-parameter" class="header-anchor">#</a> MandatoryLabelType parameter</h3> <p>A value from the NSUDO_MANDATORY_LABEL_TYPE enumerated type that identifies the
+mandatory label.</p> <div class="language- extra-class"><pre class="language-text"><code>typedef enum class _NSUDO_MANDATORY_LABEL_TYPE
+{
+    UNTRUSTED,
+    LOW,
+    MEDIUM,
+    MEDIUM_PLUS,
+    HIGH,
+    SYSTEM,
+    PROTECTED_PROCESS,
+} NSUDO_MANDATORY_LABEL_TYPE, *PNSUDO_MANDATORY_LABEL_TYPE;
+</code></pre></div><h3 id="processpriorityclasstype-parameter"><a href="#processpriorityclasstype-parameter" class="header-anchor">#</a> ProcessPriorityClassType parameter</h3> <p>A value from the NSUDO_PROCESS_PRIORITY_CLASS_TYPE enumerated type that
+identifies the process priority class.</p> <div class="language- extra-class"><pre class="language-text"><code>typedef enum class _NSUDO_PROCESS_PRIORITY_CLASS_TYPE
+{
+    IDLE,
+    BELOW_NORMAL,
+    NORMAL,
+    ABOVE_NORMAL,
+    HIGH,
+    REALTIME,
+} NSUDO_PROCESS_PRIORITY_CLASS_TYPE, *PNSUDO_PROCESS_PRIORITY_CLASS_TYPE;
+</code></pre></div><h3 id="showwindowmodetype-parameter"><a href="#showwindowmodetype-parameter" class="header-anchor">#</a> ShowWindowModeType parameter</h3> <p>A value from the NSUDO_SHOW_WINDOW_MODE_TYPE enumerated type that identifies
+the ShowWindow mode.</p> <div class="language- extra-class"><pre class="language-text"><code>typedef enum class _NSUDO_SHOW_WINDOW_MODE_TYPE
+{
+    DEFAULT,
+    SHOW,
+    HIDE,
+    MAXIMIZE,
+    MINIMIZE,
+} NSUDO_SHOW_WINDOW_MODE_TYPE, *PNSUDO_SHOW_WINDOW_MODE_TYPE;
+</code></pre></div><h3 id="waitinterval-parameter"><a href="#waitinterval-parameter" class="header-anchor">#</a> WaitInterval parameter</h3> <p>The time-out interval for waiting the process, in milliseconds.</p> <h3 id="createnewconsole-parameter"><a href="#createnewconsole-parameter" class="header-anchor">#</a> CreateNewConsole parameter</h3> <p>If this parameter is TRUE, the new process has a new console, instead of
+inheriting its parent's console (the default).</p> <h3 id="commandline-parameter"><a href="#commandline-parameter" class="header-anchor">#</a> CommandLine parameter</h3> <p>The command line to be executed. The maximum length of this string is 32K
+characters, the module name portion of CommandLine is limited to MAX_PATH
+characters.</p> <h3 id="currentdirectory-parameter"><a href="#currentdirectory-parameter" class="header-anchor">#</a> CurrentDirectory parameter</h3> <p>The full path to the current directory for the process. The string can also
+specify a UNC path. If this parameter is nullptr, the new process will the same
+current drive and directory as the calling process. (This feature is provided
+primarily for shells that need to start an application and specify its initial
+drive and working directory.)</p> <h3 id="return-value"><a href="#return-value" class="header-anchor">#</a> Return value</h3> <p>HRESULT. If the function succeeds, the return value is S_OK.</p> <h2 id="c-api"><a href="#c-api" class="header-anchor">#</a> C# API</h2> <p>Load the M2.NSudo assembly to your project, you will know the usage.</p> <h3 id="example"><a href="#example" class="header-anchor">#</a> Example</h3> <div class="language- extra-class"><pre class="language-text"><code>using System;
+
+namespace M2.NSudo.Demo
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            NSudoInstance instance = new NSudoInstance();
+
+            instance.CreateProcess(
+                NSUDO_USER_MODE_TYPE.TRUSTED_INSTALLER,
+                NSUDO_PRIVILEGES_MODE_TYPE.ENABLE_ALL_PRIVILEGES,
+                NSUDO_MANDATORY_LABEL_TYPE.SYSTEM,
+                NSUDO_PROCESS_PRIORITY_CLASS_TYPE.NORMAL,
+                NSUDO_SHOW_WINDOW_MODE_TYPE.DEFAULT,
+                0,
+                true,
+                &quot;cmd&quot;,
+                null);
+
+            Console.ReadKey();
+        }
+    }
+}
+</code></pre></div></div> <footer class="page-edit"><div class="edit-link"><a href="https://github.com/M2Team/NSudo/edit/master/docs-src/en-us/docs/SharedLibrary.md" target="_blank" rel="noopener noreferrer">Edit this page on GitHub</a> <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></div> <!----></footer> <div class="page-nav"><p class="inner"><span class="prev">
+      ←
+      <a href="/NSudo/en-us/docs/DevilMode.html" class="prev">NSudo Devil Mode</a></span> <span class="next"><a href="/NSudo/en-us/docs/People.html">Relevant People</a>
+      →
+    </span></p></div> </main></div><div class="global-ui"></div></div>
+    <script src="/NSudo/assets/js/app.6bb6d2b0.js" defer></script><script src="/NSudo/assets/js/2.e49ead3c.js" defer></script><script src="/NSudo/assets/js/14.3ec9eb82.js" defer></script>
+  </body>
+</html>
