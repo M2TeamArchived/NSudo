@@ -1,0 +1,23 @@
+﻿{
+  "Translations": {
+    "Button.About": "&Informacion",
+    "Button.Browse": "&Buscar",
+    "Button.Run": "&Ejecutar",
+    "CurrentProcess": "Proceso Actual",
+    "CurrentUser": "Usuario Actual",
+    "Default": "Predeterminado",
+    "EnableAllPrivileges": "&Todos los privilegios",
+    "LanguageID": "es",
+    "Message.CreateProcessFailed": "Error: Falló la creación del proceso.",
+    "Message.InvalidCommandParameter": "Error: Los parámetros del comando son inválidos, modifíquelos. (Use el parámetro -? para ver la ayuda)",
+    "Message.InvalidTextBoxParameter": "Error: Por favor ingrese el comando o seleccione un acceso directo en el cuadro desplegable.",
+    "Message.PrivilegeNotHeld": "Error: No se pudo obtener SE_DEBUG_NAME (SeDebugPrivilege). (Por favor use ejecutar como administrador)",
+    "Message.Success": "La operación se completó con éxito.",
+    "SettingsGroupText": "Configuraciones de modo",
+    "Static.Open": "&Abrir:",
+    "Static.User": "&Usuario: ",
+    "System": "System",
+    "TI": "TrustedInstaller",
+    "WarningText": "Advertencia: ¡Por favor use NSudo CUIDADOSAMENTE!"
+  }
+}
