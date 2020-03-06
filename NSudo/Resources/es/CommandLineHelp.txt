@@ -1,0 +1,74 @@
+﻿Formato: NSudoL [ Opciones y parámetros ] comando para terminal o comando para accesos directos
+
+Opciones:
+
+-U:[ Opción ] Crea un proceso con la opción de usuario especificada.
+Opciones disponibles:
+    T TrustedInstaller
+    S System
+    C Usuario actual
+    P Proceso actual
+    D Proceso actual (Con menos privilegios)
+PD: Es un parámetro obligatorio.
+
+-P:[ Opción ] Crea un proceso con la opción de privilegio especificada.
+Opciones disponibles:
+    E Todos los privilegios
+    D Ninguno de los privilegios
+PD: Para utilizar los privilegios predeterminados por favor no incluya el parámetro "-P" en el comando.
+
+-M:[ Opción ] Crea un proceso con la opción de nivel de integridad especificada.
+Opciones disponibles:
+    S System
+    H Alta
+    M Media
+    L Baja
+PD: Para utilizar el nivel de integridad predeterminado por favor no incluya el parámetro "-M" en el comando.
+
+-Priority:[ Opción ] Crea un proceso con la opción de prioridad de proceso especificada.
+Opciones disponibles:
+    Idle        (Sin Actividad)
+    BelowNormal (Menos de lo Normal)
+    Normal      (Normal)
+    AboveNormal (Sobre lo Normal)
+    High        (Alta) 
+    RealTime    (Tiempo Real)
+PD: Para utilizar la prioridad de proceso predeterminada por favor no incluya el parámetro "-Priority" en el comando.
+
+-ShowWindowMode:[ Opción ] Crea un proceso con la opción de modo de ventana especificada.
+Opciones disponibles:
+    Show       Visible
+    Hide       Escondido
+    Maximize   Maximizado
+    Minimize   Minimizado
+PD: Para utilizar el modo de ventana predeterminado por favor no incluya el parámetro "-ShowWindowMode" en su comando.
+
+-Wait Hara que "NSudo Launcher" espere a que finalice el proceso creado antes de cerrarse.
+PD: Para esperar, no incluya el parámetro "-Wait".
+
+-CurrentDirectory:[ DirectoryPath ] Establece la carpeta (CWD) actual para el proceso.
+PD: Para utilizar la carpeta actual de "NSudo Launcher", no incluya el parámetro "-CurrentDirectory".
+
+-UseCurrentConsole Crea un proceso con la ventana de consola actual.
+PD: Para crear un proceso con una nueva ventana de consola, no incluya el parámetro "-UseCurrentConsole".
+
+
+-Version Mostrará la información de versión de NSudo Launcher.
+
+-? Mostrar este contenido.
+-H Mostrar este contenido.
+-Help Mostrar este contenido.
+
+Por favor utilice https://github.com/Thdub/NSudo_Installer para manejar un menu contextual (Interfaz de configuraciones).
+
+PD:
+    1. Todos los argumentos del comando NSudo Launcher no distinguen entre mayúsculas y minúsculas.
+    2. Puede usar "/" o "--" en lugar de "-" y usar "=" en lugar de ":" en
+       los parámetros de la línea de comandos. Por ejemplo, "/U:T" y "-U=T son
+       equivalentes
+    3. Para garantizar la mejor experiencia, NSudoLC no admite el menú contextual (Interfaz de configuraciones).
+
+Ejemplo:
+    Para ejecutar un comando con nivel de usuario TrustedInstaller, todos los privilegios 
+    y nivel de integridad predeterminado.
+        NSudoL -U:T -P:E cmd
