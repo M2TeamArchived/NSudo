@@ -1,4 +1,4 @@
-﻿Format: NSudoL [ Opciones y parámetros ] comando para terminal o comando para accesos directos
+﻿Formato: NSudoL [ Opciones y parámetros ] comando para terminal o comando para accesos directos
 
 Opciones:
 
