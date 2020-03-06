@@ -1,4 +1,4 @@
-﻿### NSudo Devil Mode
+﻿# NSudo Devil Mode
 
 NSudo Devil Mode is a elegant solution for developers who want to bypass the 
 file and registry access checks. It hooks some file and registry Windows NT 

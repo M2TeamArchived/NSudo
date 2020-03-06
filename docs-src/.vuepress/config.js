@@ -60,6 +60,7 @@
               title: "档案",
               children: [
                 ["/zh-hans/docs/Changelog", "更新日志"],
+                ["/zh-hans/docs/DevilMode", "NSudo 恶魔模式"],
                 ["/en-us/docs/People", "相关人士"]
               ]
             }
