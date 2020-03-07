@@ -28,6 +28,9 @@
     <Filter Include="jsmn">
       <UniqueIdentifier>{8a69e9f9-81b2-4ea6-ab2b-a0ff63ebe305}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resources\es">
+      <UniqueIdentifier>{40e4717f-2742-418a-b0cb-42b8f8f037b4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Resources\resource.h">
@@ -94,6 +97,9 @@
       <Filter>Resources\it</Filter>
     </None>
     <None Include="packages.config" />
+    <None Include="Resources\es\Translations.json">
+      <Filter>Resources\es</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="Resources\NSudoConsole.manifest">
@@ -133,6 +139,12 @@
     </Text>
     <Text Include="Resources\it\Links.txt">
       <Filter>Resources\it</Filter>
+    </Text>
+    <Text Include="Resources\es\CommandLineHelp.txt">
+      <Filter>Resources\es</Filter>
+    </Text>
+    <Text Include="Resources\es\Links.txt">
+      <Filter>Resources\es</Filter>
     </Text>
   </ItemGroup>
   <ItemGroup>

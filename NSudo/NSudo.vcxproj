@@ -272,6 +272,7 @@
   <ItemGroup>
     <None Include="packages.config" />
     <None Include="Resources\en\Translations.json" />
+    <None Include="Resources\es\Translations.json" />
     <None Include="Resources\fr\Translations.json" />
     <None Include="Resources\it\Translations.json" />
     <None Include="Resources\NSudo.xcf" />
@@ -288,6 +289,8 @@
   <ItemGroup>
     <Text Include="Resources\en\CommandLineHelp.txt" />
     <Text Include="Resources\en\Links.txt" />
+    <Text Include="Resources\es\CommandLineHelp.txt" />
+    <Text Include="Resources\es\Links.txt" />
     <Text Include="Resources\fr\CommandLineHelp.txt" />
     <Text Include="Resources\fr\Links.txt" />
     <Text Include="Resources\it\CommandLineHelp.txt" />
