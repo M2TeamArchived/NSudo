@@ -12,6 +12,7 @@
 - Remove context menu support because you can use 
   https://github.com/Thdub/NSudo_Installer for better experience.
 - Add Itlian Language. (Contributed by garf02.)
+- Add Spanish Language. (Contributed by Miguel Obando.)
 - Use the Semantic Versioning format.
 - Improve several implementations and documents.
 - Add implementations for developers.

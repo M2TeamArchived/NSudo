@@ -1,4 +1,27 @@
-# 更新日志
+﻿# 更新日志
+
+**NSudo 8.0**
+
+- 精简二进制体积
+  - 使用 FILE 而不是 std::ifstream
+  - 使用新的编译器选项
+  - NSudo 合并入 NSudoG
+  - 优化图标资源
+  - 使用 jsmn 而不是 JSON for Modern C++.
+- NSudo 更名为 NSudo Launcher（NSudoLG.exe 和 NSudoLC.exe）
+- 移除上下文支持，因为 https://github.com/Thdub/NSudo_Installer 体验更好
+- 添加意大利语翻译（由 garf02 贡献）
+- 添加西班牙语翻译（由 Miguel Obando 贡献）
+- 遵循语义化版本规范
+- 改善数个代码和文档方面的实现
+- 添加为开发者设计的相关设施
+  - 添加 NSudo Shared Library 且带有 C/C++ 和 .Net 互操作支持
+  - 添加 NSudo Devil Mode (NSudoDM).
+  - 添加 Mouri Internal Library Essentials (Mile).
+- 编译本项目需要注意的变更事项
+  - Visual Studio 已经升级到 2019
+  - Windows 10 SDK 已经升级到最新
+  - 改善对 AppVeyor CI 和 GitHub Actions CI 的支持（感谢 Margen67）
 
 **NSudo 6.2.1812.31**
 

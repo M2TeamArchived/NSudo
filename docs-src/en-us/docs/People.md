@@ -25,6 +25,7 @@
 - Margen67 (https://github.com/Margen67)
 - May_magic (https://github.com/873578156)
 - Microsoft_Mars
+- Miguel Obando (https://github.com/obando777)
 - mingkuang (https://github.com/mingkuang-Chuyu)
 - myfreeer (https://github.com/myfreeer)
 - Thomas Dubreuil (https://github.com/Thdub)
