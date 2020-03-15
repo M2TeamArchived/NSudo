@@ -1,4 +1,4 @@
-﻿Formato: NSudoL [ Opzioni e parametri ] Linea di Comando oppre Collegamento al 
+﻿Formato: NSudoL [ Opzioni e parametri ] Linea di Comando oppure Collegamento al 
 Comando
 
 Opzioni:
@@ -51,7 +51,7 @@ Opzioni disponibili:
 PS: Se si vuol utilizzare la modalita' finestra predefinita, non includere 
 il parametro "-ShowWindowMode".
 
--Wait NSudo attendere il termine del processo creato prima di uscire.
+-Wait: Attende il termine del processo NSUDO creato prima di uscire.
 PS: Se non si vuole che NSudo Launcher attenda la fine del processo, non 
 includere il parametro "-Wait".
 
@@ -81,6 +81,6 @@ PS:
        contestuale.
 
 Esempio:
-    Se si vuol avviare il Prompt dei Comandi come TrustedInstaller, attivare 
+    Se si vuole avviare il Prompt dei Comandi come TrustedInstaller, attivare 
     tutti i privilegi e il Livello Integrita' predefinito.
         NSudoL -U:T -P:E cmd
