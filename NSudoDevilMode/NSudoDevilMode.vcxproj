@@ -109,6 +109,7 @@
   <ItemGroup>
     <ClInclude Include="detours.h" />
     <ClInclude Include="MINT.h" />
+    <ClInclude Include="NSudoDevilModeVersion.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />
