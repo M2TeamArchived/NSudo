@@ -29,4 +29,7 @@
       <Filter>NSudoSweeperVersion</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
 </Project>
