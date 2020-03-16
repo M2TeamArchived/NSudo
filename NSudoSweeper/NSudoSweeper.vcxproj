@@ -171,6 +171,26 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="NSudoSweeperVersion.h" />
+    <ClInclude Include="WTL\atlapp.h" />
+    <ClInclude Include="WTL\atlcrack.h" />
+    <ClInclude Include="WTL\atlctrls.h" />
+    <ClInclude Include="WTL\atlctrlw.h" />
+    <ClInclude Include="WTL\atlctrlx.h" />
+    <ClInclude Include="WTL\atlddx.h" />
+    <ClInclude Include="WTL\atldlgs.h" />
+    <ClInclude Include="WTL\atldwm.h" />
+    <ClInclude Include="WTL\atlfind.h" />
+    <ClInclude Include="WTL\atlframe.h" />
+    <ClInclude Include="WTL\atlgdi.h" />
+    <ClInclude Include="WTL\atlmisc.h" />
+    <ClInclude Include="WTL\atlprint.h" />
+    <ClInclude Include="WTL\atlres.h" />
+    <ClInclude Include="WTL\atlribbon.h" />
+    <ClInclude Include="WTL\atlscrl.h" />
+    <ClInclude Include="WTL\atlsplit.h" />
+    <ClInclude Include="WTL\atltheme.h" />
+    <ClInclude Include="WTL\atluser.h" />
+    <ClInclude Include="WTL\atlwinx.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -178,7 +198,6 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
     <Import Project="..\packages\YY.NuGet.Import.Helper.1.0.0.2\build\native\YY.NuGet.Import.Helper.targets" Condition="Exists('..\packages\YY.NuGet.Import.Helper.1.0.0.2\build\native\YY.NuGet.Import.Helper.targets')" />
-    <Import Project="..\packages\wtl.10.0.9163\build\native\wtl.targets" Condition="Exists('..\packages\wtl.10.0.9163\build\native\wtl.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
@@ -226,6 +245,5 @@
     <Error Condition="!Exists('..\packages\YY.VCRT.14.24.28314.Header.4.0.3.8\build\native\YY.VCRT.14.24.28314.Header.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\YY.VCRT.14.24.28314.Header.4.0.3.8\build\native\YY.VCRT.14.24.28314.Header.props'))" />
     <Error Condition="!Exists('..\packages\YY.VCRT.14.24.28314.Library.4.0.3.8\build\native\YY.VCRT.14.24.28314.Library.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\YY.VCRT.14.24.28314.Library.4.0.3.8\build\native\YY.VCRT.14.24.28314.Library.props'))" />
     <Error Condition="!Exists('..\packages\VC-LTL.4.0.3.8\build\native\VC-LTL.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\VC-LTL.4.0.3.8\build\native\VC-LTL.props'))" />
-    <Error Condition="!Exists('..\packages\wtl.10.0.9163\build\native\wtl.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\wtl.10.0.9163\build\native\wtl.targets'))" />
   </Target>
 </Project>
