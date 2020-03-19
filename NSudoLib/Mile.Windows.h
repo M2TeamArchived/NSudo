@@ -1192,7 +1192,8 @@ EXTERN_C HRESULT WINAPI MileOpenThreadTokenByThreadId(
  *              this buffer cannot be the same as the lpSrc buffer.
  * @param nSize The maximum number of characters that can be stored in the
  *              buffer pointed to by the lpDst parameter.
- * @param pReturnLength The number of TCHARs stored in the destination buffer.
+ * @param pReturnSize The number of TCHARs stored in the destination buffer,
+ *                    including the terminating null character.
  * @return HRESULT. If the function succeeds, the return value is S_OK.
  * @remark For more information, see ExpandEnvironmentStringsW.
  */
@@ -1200,7 +1201,7 @@ EXTERN_C HRESULT WINAPI MileExpandEnvironmentStrings(
     _In_ LPCWSTR lpSrc,
     _Out_opt_ LPWSTR lpDst,
     _In_ DWORD nSize,
-    _Out_ PDWORD pReturnLength);
+    _Out_opt_ PDWORD pReturnSize);
 
 /**
  * Expands environment-variable strings and replaces them with the values
@@ -1376,7 +1377,7 @@ EXTERN_C HRESULT WINAPI MileCreateThread(
     _In_opt_ LPVOID lpParameter,
     _In_ DWORD dwCreationFlags,
     _Out_opt_ LPDWORD lpThreadId,
-    _Out_ PHANDLE lpThreadHandle);
+    _Out_opt_ PHANDLE lpThreadHandle);
 
 /**
  * Retrieves the number of logical processors in the current group.
@@ -1670,7 +1671,7 @@ EXTERN_C HRESULT WINAPI MileLoadLibrary(
     _In_ LPCWSTR lpLibFileName,
     _Reserved_ HANDLE hFile,
     _In_ DWORD dwFlags,
-    _Out_ HMODULE* phLibModule);
+    _Out_opt_ HMODULE* phLibModule);
 
 #endif
 
@@ -1756,7 +1757,7 @@ EXTERN_C HRESULT WINAPI MileCreateFile(
     _In_ DWORD dwCreationDisposition,
     _In_ DWORD dwFlagsAndAttributes,
     _In_opt_ HANDLE hTemplateFile,
-    _Out_ PHANDLE lpFileHandle);
+    _Out_opt_ PHANDLE lpFileHandle);
 
 #endif
 
@@ -2550,7 +2551,7 @@ EXTERN_C HRESULT WINAPI MileReOpenFile(
     _In_ DWORD dwDesiredAccess,
     _In_ DWORD dwShareMode,
     _In_ DWORD dwFlagsAndAttributes,
-    _Out_ PHANDLE lpFileHandle);
+    _Out_opt_ PHANDLE lpFileHandle);
 
 #endif
 

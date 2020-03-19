@@ -1359,24 +1359,20 @@ EXTERN_C HRESULT WINAPI MileExpandEnvironmentStrings(
     _In_ LPCWSTR lpSrc,
     _Out_opt_ LPWSTR lpDst,
     _In_ DWORD nSize,
-    _Out_ PDWORD pReturnLength)
+    _Out_opt_ PDWORD pReturnSize)
 {
-    HRESULT hr = E_INVALIDARG;
-
-    if (pReturnLength)
+    DWORD ReturnSize = ::ExpandEnvironmentStringsW(lpSrc, lpDst, nSize);
+    if (!ReturnSize)
     {
-        *pReturnLength = ExpandEnvironmentStringsW(lpSrc, lpDst, nSize);
-        if (*pReturnLength)
-        {
-            hr = S_OK;
-        }
-        else
-        {
-            hr = ::HRESULT_FROM_WIN32(::GetLastError());
-        }
+        return ::HRESULT_FROM_WIN32(::GetLastError());
     }
 
-    return hr;
+    if (pReturnSize)
+    {
+        *pReturnSize = ReturnSize;
+    }
+
+    return S_OK;
 }
 
 /**
@@ -1587,7 +1583,7 @@ EXTERN_C HRESULT WINAPI MileCreateThread(
     _In_opt_ LPVOID lpParameter,
     _In_ DWORD dwCreationFlags,
     _Out_opt_ LPDWORD lpThreadId,
-    _Out_ PHANDLE lpThreadHandle)
+    _Out_opt_ PHANDLE lpThreadHandle)
 {
     // sanity check for lpThreadId
     assert(sizeof(DWORD) == sizeof(unsigned));
@@ -1596,15 +1592,24 @@ EXTERN_C HRESULT WINAPI MileCreateThread(
 
     // _beginthreadex calls CreateThread which will set the last error
     // value before it returns.
-    *lpThreadHandle = reinterpret_cast<HANDLE>(_beginthreadex(
+    HANDLE ThreadHandle = reinterpret_cast<HANDLE>(::_beginthreadex(
         lpThreadAttributes,
         static_cast<unsigned>(dwStackSize),
         reinterpret_cast<routine_type>(lpStartAddress),
         lpParameter,
         dwCreationFlags,
         reinterpret_cast<unsigned*>(lpThreadId)));
+    if (!lpThreadHandle)
+    {
+        return ::HRESULT_FROM_WIN32(::GetLastError());
+    }
 
-    return *lpThreadHandle ? S_OK : ::HRESULT_FROM_WIN32(::GetLastError());
+    if (lpThreadHandle)
+    {
+        *lpThreadHandle = ThreadHandle;
+    }
+
+    return S_OK;
 }
 
 /**
@@ -1904,10 +1909,20 @@ EXTERN_C HRESULT WINAPI MileLoadLibrary(
     _In_ LPCWSTR lpLibFileName,
     _Reserved_ HANDLE hFile,
     _In_ DWORD dwFlags,
-    _Out_ HMODULE* phLibModule)
+    _Out_opt_ HMODULE* phLibModule)
 {
-    *phLibModule = ::LoadLibraryExW(lpLibFileName, hFile, dwFlags);
-    return *phLibModule ? S_OK : ::HRESULT_FROM_WIN32(::GetLastError());
+    HMODULE hLibModule = ::LoadLibraryExW(lpLibFileName, hFile, dwFlags);
+    if (!hLibModule)
+    {
+        return ::HRESULT_FROM_WIN32(::GetLastError());
+    }
+
+    if (phLibModule)
+    {
+        *phLibModule = hLibModule;
+    }
+
+    return S_OK;
 }
 
 #endif
@@ -1951,9 +1966,9 @@ EXTERN_C HRESULT WINAPI MileCreateFile(
     _In_ DWORD dwCreationDisposition,
     _In_ DWORD dwFlagsAndAttributes,
     _In_opt_ HANDLE hTemplateFile,
-    _Out_ PHANDLE lpFileHandle)
+    _Out_opt_ PHANDLE lpFileHandle)
 {
-    *lpFileHandle = ::CreateFileW(
+    HANDLE FileHandle = ::CreateFileW(
         lpFileName,
         dwDesiredAccess,
         dwShareMode,
@@ -1961,10 +1976,17 @@ EXTERN_C HRESULT WINAPI MileCreateFile(
         dwCreationDisposition,
         dwFlagsAndAttributes,
         hTemplateFile);
+    if (FileHandle == INVALID_HANDLE_VALUE)
+    {
+        return ::HRESULT_FROM_WIN32(::GetLastError());
+    }
 
-    return (*lpFileHandle != INVALID_HANDLE_VALUE)
-        ? S_OK :
-        ::HRESULT_FROM_WIN32(::GetLastError());
+    if (lpFileHandle)
+    {
+        *lpFileHandle = FileHandle;
+    }
+
+    return S_OK;     
 }
 
 #endif
@@ -2794,17 +2816,25 @@ EXTERN_C HRESULT WINAPI MileReOpenFile(
     _In_ DWORD dwDesiredAccess,
     _In_ DWORD dwShareMode,
     _In_ DWORD dwFlagsAndAttributes,
-    _Out_ PHANDLE lpFileHandle)
+    _Out_opt_ PHANDLE lpFileHandle)
 {
-    *lpFileHandle = ::ReOpenFile(
+    HANDLE FileHandle = ::ReOpenFile(
         hOriginalFile,
         dwDesiredAccess,
         dwShareMode,
         dwFlagsAndAttributes);
 
-    return (*lpFileHandle != INVALID_HANDLE_VALUE)
-        ? S_OK :
-        ::HRESULT_FROM_WIN32(::GetLastError());
+    if (FileHandle == INVALID_HANDLE_VALUE)
+    {
+        return ::HRESULT_FROM_WIN32(::GetLastError());
+    }
+
+    if (lpFileHandle)
+    {
+        *lpFileHandle = FileHandle;
+    }
+
+    return S_OK;
 }
 
 #endif
