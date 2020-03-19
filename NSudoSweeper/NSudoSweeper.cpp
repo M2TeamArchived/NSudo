@@ -8,7 +8,7 @@
  * DEVELOPER: Mouri_Naruto (Mouri_Naruto AT Outlook.com)
  */
 
-#include <Windows.h>
+#include <Mile.Windows.h>
 
 #include "NSudoSweeperVersion.h"
 
@@ -20,26 +20,30 @@
 #include "WTL/atlframe.h"
 #include "WTL/atlmisc.h"
 
+CAppModule _Module;
+
 class CMainWindow :
-    public CFrameWindowImpl<CMainWindow>
+    public CFrameWindowImpl<CMainWindow>,
+    public CUpdateUI<CMainWindow>,
+    public CMessageFilter,
+    public CIdleHandler
 {
 private:
+
     CFont UIFont;
 
     CStatic ContentControl;
 
     CListViewCtrl ItemList;
 
-    CBrush MenuBackgroundBrush;
+    CMenu WindowMenu;
+    CMenu HelpMenu;
 
-public:
+private:
 
-    BEGIN_MSG_MAP(CMainWindow)
-        MSG_WM_CREATE(OnCreate)
-        MSG_WM_DESTROY(OnDestroy)
-    END_MSG_MAP()
 
-public:
+
+private:
 
     int OnCreate(LPCREATESTRUCT lpCreateStruct)
     {
@@ -62,49 +66,86 @@ public:
             CLIP_DEFAULT_PRECIS,      // nClipPrecision
             DEFAULT_QUALITY,          // nQuality
             DEFAULT_PITCH | FF_SWISS, // nPitchAndFamily
-            L"MS Shell Dlg");
+            L"Segoe UI");
 
-        auto x = CRect(50, 50, 300, 150);
+        auto x = CRect(50, 50, 300, 180);
 
         this->ContentControl.Create(
             this->m_hWnd,
             x,
-            L"Welcome to use the brand new NSudo Sweeper!\n(Under Construction)",
+            L"Welcome to use the brand new NSudo Sweeper!\n(Under Construction)\n"
+            L"欢迎使用全新的 NSudo Sweeper！\n（施工中）",
             WS_CHILD | WS_VISIBLE);
 
         this->ContentControl.SetFont(UIFont);
 
-        auto y = CRect(50, 200, 400, 300);
+        auto y = CRect(50, 200, 600, 300);
 
         this->ItemList.Create(
             this->m_hWnd,
             y,
-            L"Test it",
-            WS_CHILD | WS_VISIBLE | LVS_REPORT);
+            nullptr,
+            WS_CHILD | WS_VISIBLE | LVS_REPORT | LVS_SINGLESEL);
+
+        this->ItemList.SetExtendedListViewStyle(
+            LVS_EX_CHECKBOXES | LVS_EX_FULLROWSELECT);
+
+
+
+        this->ItemList.EnableGroupView(TRUE);
+
+        LVGROUP GroupInfo;
+
+        GroupInfo.cbSize = LVGROUP_V5_SIZE;
+        GroupInfo.mask = LVGF_HEADER | LVGF_GROUPID;
+        GroupInfo.pszHeader = const_cast<LPWSTR>(L"Windows Specific");
+        GroupInfo.iGroupId = 0;
+
+
+        this->ItemList.AddGroup(&GroupInfo);
 
         this->ItemList.AddColumn(L"Name", 0);
         this->ItemList.AddColumn(L"Description", 1);
 
-        this->ItemList.AddItem(0, 0, L"God");
-
-        this->ItemList.AddItem(0, 1, L"Sake");
-
-        CMenu HelpMenu;
-        HelpMenu.CreatePopupMenu();
-        HelpMenu.AppendMenuW(MF_STRING | MF_ENABLED, 2000, L"&Content");
-        HelpMenu.AppendMenuW(MF_STRING | MF_ENABLED, 2001, L"&About");
-
-        CMenu WindowMenu;
-        WindowMenu.CreateMenu();
-        WindowMenu.AppendMenuW(MF_STRING | MF_ENABLED, HelpMenu, L"&Help");
         
-        MenuBackgroundBrush.CreateSolidBrush(RGB(255, 255, 255));
-        MENUINFO WindowMenuInfo = { 0 };
-        WindowMenuInfo.cbSize = sizeof(MENUINFO);
-        WindowMenuInfo.fMask = MIM_APPLYTOSUBMENUS | MIM_BACKGROUND;
-        WindowMenuInfo.hbrBack = MenuBackgroundBrush;
 
-        WindowMenu.SetMenuInfo(&WindowMenuInfo);
+        LVITEMW ItemInfo = { 0 };
+
+        ItemInfo.mask = LVIF_TEXT | LVIF_GROUPID;
+        ItemInfo.pszText = const_cast<LPWSTR>(L"Compact OS");
+        ItemInfo.iItem = 0;
+        ItemInfo.iSubItem = 0;
+        ItemInfo.iGroupId = 0;
+
+        this->ItemList.InsertItem(&ItemInfo);
+
+        ItemInfo.mask = LVIF_TEXT;
+        ItemInfo.pszText = const_cast<LPWSTR>(L"Use Wof Compression to compress the system drive");
+        ItemInfo.iItem = 0;
+        ItemInfo.iSubItem = 1;
+        ItemInfo.iGroupId = 0;
+
+        this->ItemList.SetItem(&ItemInfo);
+
+        ItemInfo.mask = LVIF_TEXT | LVIF_GROUPID;
+        ItemInfo.pszText = const_cast<LPWSTR>(L"Temporary Folder");
+        ItemInfo.iItem = 1;
+        ItemInfo.iSubItem = 0;
+        ItemInfo.iGroupId = 0;
+
+        this->ItemList.InsertItem(&ItemInfo);
+
+
+        this->ItemList.SetColumnWidth(0, LVSCW_AUTOSIZE);
+        this->ItemList.SetColumnWidth(1, LVSCW_AUTOSIZE);
+
+        
+        this->HelpMenu.CreatePopupMenu();
+        this->HelpMenu.AppendMenuW(MF_STRING | MF_ENABLED, 2000, L"&Content");
+        this->HelpMenu.AppendMenuW(MF_STRING | MF_ENABLED, 2001, L"&About");
+     
+        this->WindowMenu.CreateMenu();
+        this->WindowMenu.AppendMenuW(MF_STRING | MF_ENABLED, HelpMenu, L"&Help");
 
         this->SetMenu(WindowMenu);
         
@@ -116,12 +157,32 @@ public:
         ::PostQuitMessage(0);
     }
 
+private:
+
+    virtual BOOL PreTranslateMessage(MSG* pMsg)
+    {
+        return CFrameWindowImpl<CMainWindow>::PreTranslateMessage(pMsg);
+    }
+
+    virtual BOOL OnIdle()
+    {
+        this->UIUpdateToolBar();
+        return FALSE;
+    }
+
+    BEGIN_MSG_MAP(CMainWindow)
+        MSG_WM_CREATE(OnCreate)
+        MSG_WM_DESTROY(OnDestroy)
+    END_MSG_MAP()
+
+    BEGIN_UPDATE_UI_MAP(CMainWindow)
+
+    END_UPDATE_UI_MAP()
+
 public:
     CMainWindow() = default;
     ~CMainWindow() = default;
 };
-
-CAppModule _Module;
 
 int WINAPI wWinMain(
     _In_ HINSTANCE hInstance,
@@ -133,24 +194,34 @@ int WINAPI wWinMain(
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
 
-    HRESULT hr = CoInitialize(nullptr);
-    ATLASSERT(SUCCEEDED(hr));
+    HRESULT hr = ::CoInitialize(nullptr);
+    if (FAILED(hr))
+    {
+        return hr;
+    }
 
     hr = _Module.Init(nullptr, hInstance);
-    ATLASSERT(SUCCEEDED(hr));
-
-    CMessageLoop MessageLoop;
-    _Module.AddMessageLoop(&MessageLoop);
+    if (FAILED(hr))
+    {
+        return hr;
+    }
 
     CMainWindow MainWindow;
 
-    if (MainWindow.CreateEx() == NULL)
+    if (!MainWindow.Create())
     {
-        ATLTRACE(_T("Main window creation failed!\n"));
-        return 0;
+        return ::HRESULT_FROM_WIN32(::GetLastError());
     }
 
     MainWindow.ShowWindow(nShowCmd);
+    MainWindow.UpdateWindow();
+
+    CMessageLoop MessageLoop;
+
+    MessageLoop.AddMessageFilter(&MainWindow);
+    MessageLoop.AddIdleHandler(&MainWindow);
+
+    _Module.AddMessageLoop(&MessageLoop);
 
     int nRet = MessageLoop.Run();
 
