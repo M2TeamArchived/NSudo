@@ -137,23 +137,27 @@ std::wstring M2MakeUTF16String(const std::string& UTF8String)
 {
     std::wstring UTF16String;
 
-    int UTF16StringLength = MultiByteToWideChar(
+    int UTF16StringLength = 0;
+
+    HRESULT hr = ::MileMultiByteToWideChar(
         CP_UTF8,
         0,
         UTF8String.data(),
-        (int)UTF8String.size(),
+        static_cast<int>(UTF8String.size()),
         nullptr,
-        0);
-    if (UTF16StringLength > 0)
+        0,
+        &UTF16StringLength);
+    if (SUCCEEDED(hr))
     {
         UTF16String.resize(UTF16StringLength);
-        MultiByteToWideChar(
+        ::MileMultiByteToWideChar(
             CP_UTF8,
             0,
             UTF8String.data(),
-            (int)UTF8String.size(),
+            static_cast<int>(UTF8String.size()),
             &UTF16String[0],
-            UTF16StringLength);
+            UTF16StringLength,
+            nullptr);
     }
 
     return UTF16String;
@@ -169,25 +173,28 @@ std::string M2MakeUTF8String(const std::wstring& UTF16String)
 {
     std::string UTF8String;
 
-    int UTF8StringLength = WideCharToMultiByte(
+    int UTF8StringLength = 0;
+    HRESULT hr = ::MileWideCharToMultiByte(
         CP_UTF8,
         0,
         UTF16String.data(),
-        (int)UTF16String.size(),
+        static_cast<int>(UTF16String.size()),
         nullptr,
         0,
         nullptr,
-        nullptr);
-    if (UTF8StringLength > 0)
+        nullptr,
+        &UTF8StringLength);
+    if (SUCCEEDED(hr))
     {
         UTF8String.resize(UTF8StringLength);
-        WideCharToMultiByte(
+        ::MileWideCharToMultiByte(
             CP_UTF8,
             0,
             UTF16String.data(),
-            (int)UTF16String.size(),
+            static_cast<int>(UTF16String.size()),
             &UTF8String[0],
             UTF8StringLength,
+            nullptr,
             nullptr,
             nullptr);
     }
@@ -600,7 +607,8 @@ std::string M2MakeUTF8String(Platform::String^ PlatformString)
 {
     std::string UTF8String;
 
-    int UTF8StringLength = WideCharToMultiByte(
+    int UTF8StringLength = 0;
+    HRESULT hr = ::MileWideCharToMultiByte(
         CP_UTF8,
         0,
         PlatformString->Data(),
@@ -608,17 +616,19 @@ std::string M2MakeUTF8String(Platform::String^ PlatformString)
         nullptr,
         0,
         nullptr,
-        nullptr);
-    if (UTF8StringLength > 0)
+        nullptr,
+        &UTF8StringLength);
+    if (SUCCEEDED(hr))
     {
         UTF8String.resize(UTF8StringLength);
-        WideCharToMultiByte(
+        ::MileWideCharToMultiByte(
             CP_UTF8,
             0,
             PlatformString->Data(),
             static_cast<int>(PlatformString->Length()),
             &UTF8String[0],
             UTF8StringLength,
+            nullptr,
             nullptr,
             nullptr);
     }
@@ -922,15 +932,13 @@ HRESULT M2LoadLibraryEx(
             // string will bigger than 19.
             const size_t BufferLength = 276;
             wchar_t Buffer[BufferLength];
-            if (!wcschr(LibraryFileName, L'\\'))
+            if (!std::wcschr(LibraryFileName, L'\\'))
             {
-                if (0 == GetSystemDirectoryW(
+                hr = ::MileGetSystemDirectory(
                     Buffer,
-                    static_cast<UINT>(BufferLength)))
-                {
-                    hr = M2GetLastHResultError();
-                }
-                else
+                    static_cast<UINT>(BufferLength),
+                    nullptr);
+                if (SUCCEEDED(hr))
                 {
                     hr = StringCbCatW(Buffer, BufferLength, LibraryFileName);
                     if (SUCCEEDED(hr))
@@ -965,35 +973,28 @@ HRESULT M2GetSystemDirectory(
     std::wstring& SystemFolderPath)
 {
     HRESULT hr = S_OK;
+    UINT Length = 0;
 
-    do
+    hr = ::MileGetSystemDirectory(
+        nullptr,
+        0,
+        &Length);
+    if (SUCCEEDED(hr))
     {
-        UINT Length = GetSystemDirectoryW(
-            nullptr,
-            0);
-        if (0 == Length)
-        {
-            hr = M2GetLastHResultError();
-            break;
-        }
-
         SystemFolderPath.resize(Length - 1);
 
-        Length = GetSystemDirectoryW(
+        hr = ::MileGetSystemDirectory(
             &SystemFolderPath[0],
-            static_cast<UINT>(Length));
-        if (0 == Length)
+            static_cast<UINT>(Length),
+            &Length);
+        if (SUCCEEDED(hr))
         {
-            hr = M2GetLastHResultError();
-            break;
+            if (SystemFolderPath.size() != Length)
+            {
+                hr = E_UNEXPECTED;
+            }
         }
-        if (SystemFolderPath.size() != Length)
-        {
-            hr = E_UNEXPECTED;
-            break;
-        }
-
-    } while (false);
+    }
 
     if (FAILED(hr))
     {
@@ -1016,35 +1017,28 @@ HRESULT M2GetWindowsDirectory(
     std::wstring& WindowsFolderPath)
 {
     HRESULT hr = S_OK;
+    UINT Length = 0;
 
-    do
+    hr = ::MileGetWindowsDirectory(
+        nullptr,
+        0,
+        &Length);
+    if (SUCCEEDED(hr))
     {
-        UINT Length = GetSystemWindowsDirectoryW(
-            nullptr,
-            0);
-        if (0 == Length)
-        {
-            hr = M2GetLastHResultError();
-            break;
-        }
-
         WindowsFolderPath.resize(Length - 1);
 
-        Length = GetSystemWindowsDirectoryW(
+        hr = ::MileGetWindowsDirectory(
             &WindowsFolderPath[0],
-            static_cast<UINT>(Length));
-        if (0 == Length)
+            static_cast<UINT>(Length),
+            &Length);
+        if (SUCCEEDED(hr))
         {
-            hr = M2GetLastHResultError();
-            break;
+            if (WindowsFolderPath.size() != Length)
+            {
+                hr = E_UNEXPECTED;
+            }
         }
-        if (WindowsFolderPath.size() != Length)
-        {
-            hr = E_UNEXPECTED;
-            break;
-        }
-
-    } while (false);
+    }
 
     if (FAILED(hr))
     {

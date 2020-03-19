@@ -2555,4 +2555,138 @@ EXTERN_C HRESULT WINAPI MileReOpenFile(
 
 #endif
 
+/**
+ * Maps a character string to a UTF-16 (wide character) string. The character
+ * string is not necessarily from a multibyte character set.
+ *
+ * @param CodePage Code page to use in performing the conversion. This
+ *                 parameter can be set to the value of any code page that is
+ *                 installed or available in the operating system.
+ * @param dwFlags Flags indicating the conversion type.
+ * @param lpMultiByteStr Pointer to the character string to convert.
+ * @param cbMultiByte Size, in bytes, of the string indicated by the
+ *                    lpMultiByteStr parameter. Alternatively, this parameter
+ *                    can be set to -1 if the string is null-terminated. Note
+ *                    that, if cbMultiByte is 0, the function fails.
+ * @param lpWideCharStr Pointer to a buffer that receives the converted string.
+ * @param cchWideChar Size, in characters, of the buffer indicated by
+ *                    lpWideCharStr. If this value is 0, the function returns
+ *                    the required buffer size, in characters, including any
+ *                    terminating null character, and makes no use of the
+ *                    lpWideCharStr buffer.
+ * @param pcchReturnWideChar The number of characters written to the buffer
+ *                           indicated by lpWideCharStr if successful. If the
+ *                           function succeeds and cchWideChar is 0, the return
+ *                           value is the required size, in characters, for the
+ *                           buffer indicated by lpWideCharStr.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ * @remark For more information, see MultiByteToWideChar.
+ */
+EXTERN_C HRESULT WINAPI MileMultiByteToWideChar(
+    _In_ UINT CodePage,
+    _In_ DWORD dwFlags,
+    _In_ LPCCH lpMultiByteStr,
+    _In_ INT cbMultiByte,
+    _Out_opt_ LPWSTR lpWideCharStr,
+    _In_ INT cchWideChar,
+    _Out_opt_ LPINT pcchReturnWideChar);
+
+/**
+ * Maps a UTF-16 (wide character) string to a new character string. The new
+ * character string is not necessarily from a multibyte character set.
+ *
+ * @param CodePage Code page to use in performing the conversion. This
+ *                 parameter can be set to the value of any code page that is
+ *                 installed or available in the operating system.
+ * @param dwFlags Flags indicating the conversion type.
+ * @param lpWideCharStr Pointer to the Unicode string to convert.
+ * @param cchWideChar Size, in characters, of the string indicated by
+ *                    lpWideCharStr. Alternatively, this parameter can be set
+ *                    to -1 if the string is null-terminated. If cchWideChar is
+ *                    set to 0, the function fails.
+ * @param lpMultiByteStr Pointer to a buffer that receives the converted
+ *                       string.
+ * @param cbMultiByte Size, in bytes, of the buffer indicated by
+ *                    lpMultiByteStr. If this parameter is set to 0, the
+ *                    function returns the required buffer size for
+ *                    lpMultiByteStr and makes no use of the output parameter
+ *                    itself.
+ * @param lpDefaultChar Pointer to the character to use if a character cannot
+ *                      be represented in the specified code page. The
+ *                      application sets this parameter to NULL if the function
+ *                      is to use a system default value.
+ * @param lpUsedDefaultChar Pointer to a flag that indicates if the function
+ *                          has used a default character in the conversion.
+ * @param pcchReturnMultiByte The number of bytes written to the buffer pointed
+ *                            to by lpMultiByteStr. If the function succeeds
+ *                            and cbMultiByte is 0, the return value is the
+ *                            required size, in bytes, for the buffer indicated
+ *                            by lpMultiByteStr.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ * @remark For more information, see WideCharToMultiByte.
+ */
+EXTERN_C HRESULT WINAPI MileWideCharToMultiByte(
+    _In_ UINT CodePage,
+    _In_ DWORD dwFlags,
+    _In_NLS_string_(cchWideChar) LPCWCH lpWideCharStr,
+    _In_ INT cchWideChar,
+    _Out_writes_bytes_to_opt_(cbMultiByte, return) LPSTR lpMultiByteStr,
+    _In_ INT cbMultiByte,
+    _In_opt_ LPCCH lpDefaultChar,
+    _Out_opt_ LPBOOL lpUsedDefaultChar,
+    _Out_opt_ LPINT pcchReturnMultiByte);
+
+/**
+ * Retrieves the path of the system directory. The system directory contains
+ * system files such as dynamic-link libraries and drivers.
+ *
+ * @param lpBuffer A pointer to the buffer to receive the path. This path does
+ *                 not end with a backslash unless the system directory is the
+ *                 root directory. For example, if the system directory is
+ *                 named Windows\System32 on drive C, the path of the system
+ *                 directory retrieved by this function is C:\Windows\System32.
+ * @param uSize The maximum size of the buffer, in TCHARs.
+ * @param pReturnSize The return value is the length, in TCHARs, of the string
+ *                    copied to the buffer, not including the terminating null
+ *                    character. If the length is greater than the size of the
+ *                    buffer, the return value is the size of the buffer
+ *                    required to hold the path, including the terminating null
+ *                    character.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ * @remark For more information, see GetSystemDirectoryW.
+ */
+EXTERN_C HRESULT WINAPI MileGetSystemDirectory(
+    _Out_opt_ LPWSTR lpBuffer,
+    _In_ UINT uSize,
+    _Out_opt_ LPUINT pReturnSize);
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+/**
+ * Retrieves the path of the shared Windows directory on a multi-user system.
+ *
+ * @param lpBuffer A pointer to the buffer to receive the path. This path does
+ *                 not end with a backslash unless the Windows directory is the
+ *                 root directory. For example, if the Windows directory is
+ *                 named Windows on drive C, the path of the Windows directory
+ *                 retrieved by this function is C:\Windows. If the system was
+ *                 installed in the root directory of drive C, the path
+ *                 retrieved is C:.
+ * @param uSize The maximum size of the buffer specified by the lpBuffer
+ *              parameter, in TCHARs.
+ * @param pReturnSize The length of the string copied to the buffer, in TCHARs,
+ *                    not including the terminating null character. If the
+ *                    length is greater than the size of the buffer, the return
+ *                    value is the size of the buffer required to hold the
+ *                    path.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+ * @remark For more information, see GetSystemWindowsDirectoryW.
+ */
+EXTERN_C HRESULT WINAPI MileGetWindowsDirectory(
+    _Out_opt_ LPWSTR lpBuffer,
+    _In_ UINT uSize,
+    _Out_opt_ LPUINT pReturnSize);
+
+#endif
+
 #endif // !MILE_WINDOWS

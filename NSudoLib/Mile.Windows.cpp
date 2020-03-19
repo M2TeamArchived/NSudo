@@ -2838,3 +2838,119 @@ EXTERN_C HRESULT WINAPI MileReOpenFile(
 }
 
 #endif
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C HRESULT WINAPI MileMultiByteToWideChar(
+    _In_ UINT CodePage,
+    _In_ DWORD dwFlags,
+    _In_ LPCCH lpMultiByteStr,
+    _In_ INT cbMultiByte,
+    _Out_opt_ LPWSTR lpWideCharStr,
+    _In_ INT cchWideChar,
+    _Out_opt_ LPINT pcchReturnWideChar)
+{
+    INT cchReturnWideChar = ::MultiByteToWideChar(
+        CodePage,
+        dwFlags,
+        lpMultiByteStr,
+        cbMultiByte,
+        lpWideCharStr,
+        cchWideChar);
+    if (cchReturnWideChar <= 0)
+    {
+        return ::HRESULT_FROM_WIN32(::GetLastError());
+    }
+
+    if (pcchReturnWideChar)
+    {
+        *pcchReturnWideChar = cchReturnWideChar;
+    }
+
+    return S_OK;
+}
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C HRESULT WINAPI MileWideCharToMultiByte(
+    _In_ UINT CodePage,
+    _In_ DWORD dwFlags,
+    _In_NLS_string_(cchWideChar) LPCWCH lpWideCharStr,
+    _In_ INT cchWideChar,
+    _Out_writes_bytes_to_opt_(cbMultiByte, return) LPSTR lpMultiByteStr,
+    _In_ INT cbMultiByte,
+    _In_opt_ LPCCH lpDefaultChar,
+    _Out_opt_ LPBOOL lpUsedDefaultChar,
+    _Out_opt_ LPINT pcchReturnMultiByte)
+{
+    INT cchReturnMultiByte = ::WideCharToMultiByte(
+        CodePage,
+        dwFlags,
+        lpWideCharStr,
+        cchWideChar,
+        lpMultiByteStr,
+        cbMultiByte,
+        lpDefaultChar,
+        lpUsedDefaultChar);
+    if (cchReturnMultiByte <= 0)
+    {
+        return ::HRESULT_FROM_WIN32(::GetLastError());
+    }
+
+    if (pcchReturnMultiByte)
+    {
+        *pcchReturnMultiByte = cchReturnMultiByte;
+    }
+
+    return S_OK;
+}
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C HRESULT WINAPI MileGetSystemDirectory(
+    _Out_opt_ LPWSTR lpBuffer,
+    _In_ UINT uSize,
+    _Out_opt_ LPUINT pReturnSize)
+{
+    UINT ReturnSize = ::GetSystemDirectoryW(lpBuffer, uSize);
+    if (!ReturnSize)
+    {
+        return ::HRESULT_FROM_WIN32(::GetLastError());
+    }
+
+    if (pReturnSize)
+    {
+        *pReturnSize = ReturnSize;
+    }
+
+    return S_OK;
+}
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+/**
+ * @remark You can read the definition for this function in "Mile.Windows.h".
+ */
+EXTERN_C HRESULT WINAPI MileGetWindowsDirectory(
+    _Out_opt_ LPWSTR lpBuffer,
+    _In_ UINT uSize,
+    _Out_opt_ LPUINT pReturnSize)
+{
+    UINT ReturnSize = ::GetSystemWindowsDirectoryW(lpBuffer, uSize);
+    if (!ReturnSize)
+    {
+        return ::HRESULT_FROM_WIN32(::GetLastError());
+    }
+
+    if (pReturnSize)
+    {
+        *pReturnSize = ReturnSize;
+    }
+
+    return S_OK;
+}
+
+#endif
