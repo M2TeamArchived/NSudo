@@ -12,34 +12,6 @@
 
 #include <Mile.Windows.h>
 
-#ifdef _M2_WINDOWS_BASE_EXTENDED_HELPERS_
-
-DWORD M2GetLastWin32Error(
-    _In_ BOOL IsLastFunctionCallSucceeded,
-    _In_ BOOL UseLastErrorWhenSucceeded)
-{
-    if (IsLastFunctionCallSucceeded && !UseLastErrorWhenSucceeded)
-        return ERROR_SUCCESS;
-
-    DWORD LastError = GetLastError();
-
-    if (!IsLastFunctionCallSucceeded && ERROR_SUCCESS == LastError)
-        return ERROR_FUNCTION_FAILED;
-
-    return LastError;
-}
-
-HRESULT M2GetLastHResultError(
-    _In_ BOOL IsLastFunctionCallSucceeded,
-    _In_ BOOL UseLastErrorWhenSucceeded)
-{
-    return HRESULT_FROM_WIN32(M2GetLastWin32Error(
-        IsLastFunctionCallSucceeded,
-        UseLastErrorWhenSucceeded));
-}
-
-#endif // _M2_WINDOWS_BASE_EXTENDED_HELPERS_
-
 #ifdef _M2_WINDOWS_HELPERS_
 
 #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)

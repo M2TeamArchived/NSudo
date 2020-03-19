@@ -835,7 +835,7 @@ HRESULT NSudoShowAboutDialog(
         DialogContent.c_str());
 #endif
 
-    return M2GetLastHResultError();
+    return ::HRESULT_FROM_WIN32(::GetLastError());
 }
 
 #if defined(NSUDO_GUI_WINDOWS)
