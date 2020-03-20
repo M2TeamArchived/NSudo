@@ -40,8 +40,16 @@
 #include <vector>
 
 #if defined(NSUDO_GUI_WINDOWS)
+#define _ATL_NO_AUTOMATIC_NAMESPACE
 #include <atlbase.h>
 #include <atlwin.h>
+
+#define _WTL_NO_AUTOMATIC_NAMESPACE
+#include "WTL/atlapp.h"
+#include "WTL/atlcrack.h"
+#include "WTL/atlctrls.h"
+#include "WTL/atlframe.h"
+#include "WTL/atlmisc.h"
 #endif
 
 #include "NSudoVersion.h"
@@ -847,16 +855,15 @@ public:
 
 public:
     BEGIN_MSG_MAP(CNSudoMainWindow)
-        MESSAGE_HANDLER(WM_CLOSE, OnClose)
-        MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
-        MESSAGE_HANDLER(WM_PAINT, OnPaint)
-        MESSAGE_HANDLER(WM_DPICHANGED, OnDPIChanged)
+        MSG_WM_CLOSE(OnClose)
+        MSG_WM_INITDIALOG(OnInitDialog)
+        MSG_WM_PAINT(OnPaint)
+        MSG_WM_DPICHANGED(OnDpiChanged)
+        MSG_WM_DROPFILES(OnDropFiles)
 
-        COMMAND_ID_HANDLER(IDC_Run, OnRun)
-        COMMAND_ID_HANDLER(IDC_About, OnAbout)
-        COMMAND_ID_HANDLER(IDC_Browse, OnBrowse)
-
-        MESSAGE_HANDLER(WM_DROPFILES, OnDropFiles)
+        COMMAND_ID_HANDLER_EX(IDC_Run, OnRun)
+        COMMAND_ID_HANDLER_EX(IDC_About, OnAbout)
+        COMMAND_ID_HANDLER_EX(IDC_Browse, OnBrowse)
     END_MSG_MAP()
 
 public:
@@ -864,8 +871,8 @@ public:
     {
         M2EnablePerMonitorDialogScaling();
 
-        ChangeWindowMessageFilter(WM_DROPFILES, MSGFLT_ADD);
-        ChangeWindowMessageFilter(0x0049, MSGFLT_ADD); // WM_COPYGLOBALDATA
+        ::ChangeWindowMessageFilter(WM_DROPFILES, MSGFLT_ADD);
+        ::ChangeWindowMessageFilter(0x0049, MSGFLT_ADD); // WM_COPYGLOBALDATA
     }
 
     ~CNSudoMainWindow()
@@ -874,52 +881,38 @@ public:
     }
 
 private:
-    HICON m_hNSudoIcon = nullptr;
-    HICON m_hWarningIcon = nullptr;
+
+    WTL::CIcon NSudoIcon;
+    WTL::CIcon WarningIcon;
 
     int m_xDPI = USER_DEFAULT_SCREEN_DPI;
     int m_yDPI = USER_DEFAULT_SCREEN_DPI;
 
-    ATL::CWindow m_hUserName;
-    ATL::CWindow m_hCheckBox;
-    ATL::CWindow m_hszPath;
+    WTL::CComboBox UserNameComboBox;
+    WTL::CButton EnableAllPrivilegesCheckBox;
+    WTL::CComboBox PathComboBox;
 
-    LRESULT OnClose(
-        UINT uMsg,
-        WPARAM wParam,
-        LPARAM lParam,
-        BOOL& bHandled)
+    void OnClose()
     {
-        UNREFERENCED_PARAMETER(uMsg);
-        UNREFERENCED_PARAMETER(wParam);
-        UNREFERENCED_PARAMETER(lParam);
-        UNREFERENCED_PARAMETER(bHandled);
-
         this->EndDialog(0);
-        return 0;
     }
 
-    LRESULT OnInitDialog(
-        UINT uMsg,
-        WPARAM wParam,
-        LPARAM lParam,
-        BOOL& bHandled)
+    BOOL OnInitDialog(ATL::CWindow wndFocus, LPARAM lInitParam)
     {
-        UNREFERENCED_PARAMETER(uMsg);
-        UNREFERENCED_PARAMETER(wParam);
-        UNREFERENCED_PARAMETER(lParam);
-        UNREFERENCED_PARAMETER(bHandled);
+        UNREFERENCED_PARAMETER(wndFocus);
+        UNREFERENCED_PARAMETER(lInitParam);
 
-        this->m_hUserName = this->GetDlgItem(IDC_UserName);
-        this->m_hCheckBox = this->GetDlgItem(IDC_Check_EnableAllPrivileges);
-        this->m_hszPath = this->GetDlgItem(IDC_szPath);
+        this->UserNameComboBox = this->GetDlgItem(IDC_UserName);
+        this->EnableAllPrivilegesCheckBox = this->GetDlgItem(
+            IDC_Check_EnableAllPrivileges);
+        this->PathComboBox = this->GetDlgItem(IDC_szPath);
 
         this->SetWindowTextW(
             g_ResourceManagement.GetTranslation("NSudo.VersionText").c_str());
 
         struct { const char* ID; ATL::CWindow Control; } x[] =
         {
-            { "EnableAllPrivileges" , this->m_hCheckBox },
+            { "EnableAllPrivileges" , this->EnableAllPrivilegesCheckBox },
             { "WarningText" , this->GetDlgItem(IDC_WARNINGTEXT) },
             { "SettingsGroupText" ,this->GetDlgItem(IDC_SETTINGSGROUPTEXT) },
             { "Static.User",this->GetDlgItem(IDC_STATIC_USER) },
@@ -942,47 +935,36 @@ private:
             MDT_EFFECTIVE_DPI, (UINT*)&this->m_xDPI, (UINT*)&this->m_yDPI);
         if (hr != S_OK)
         {
-            this->m_xDPI = GetDeviceCaps(this->GetDC(), LOGPIXELSX);
-            this->m_yDPI = GetDeviceCaps(this->GetDC(), LOGPIXELSY);
+            this->m_xDPI = WTL::CDC(this->GetDC()).GetDeviceCaps(LOGPIXELSX);
+            this->m_yDPI = WTL::CDC(this->GetDC()).GetDeviceCaps(LOGPIXELSY);
         }
 
-        this->m_hNSudoIcon = (HICON)LoadImageW(
-            g_ResourceManagement.Instance,
+        this->NSudoIcon.LoadIconW(
             MAKEINTRESOURCE(IDI_NSUDO),
-            IMAGE_ICON,
             256,
             256,
             LR_SHARED);
 
-        SendMessageW(this->m_hWnd, WM_SETICON, ICON_SMALL, (LPARAM)this->m_hNSudoIcon);
-        SendMessageW(this->m_hWnd, WM_SETICON, ICON_BIG, (LPARAM)this->m_hNSudoIcon);
+        this->SetIcon(this->NSudoIcon, TRUE);
+        this->SetIcon(this->NSudoIcon, FALSE);
 
-        this->m_hWarningIcon = (HICON)LoadImageW(
-            nullptr,
-            IDI_WARNING,
-            IMAGE_ICON,
-            0,
-            0,
-            LR_SHARED);
+        this->WarningIcon.LoadOEMIcon(IDI_WARNING);
 
         const char* UserNameID[] = { "TI" ,"System" ,"CurrentProcess" ,"CurrentUser" };
         for (size_t i = 0; i < sizeof(UserNameID) / sizeof(*UserNameID); ++i)
         {
             std::wstring Buffer = g_ResourceManagement.GetTranslation(UserNameID[i]);
-            SendMessageW(this->m_hUserName, CB_INSERTSTRING, 0, (LPARAM)Buffer.c_str());
+
+            this->UserNameComboBox.InsertString(0, Buffer.c_str());
         }
 
         //设置默认项"TrustedInstaller"
-        SendMessageW(this->m_hUserName, CB_SETCURSEL, 3, 0);
+        this->UserNameComboBox.SetCurSel(3);
 
         for (std::pair<std::wstring, std::wstring> Item
             : g_ResourceManagement.ShortCutList)
         {
-            SendMessageW(
-                this->m_hszPath,
-                CB_INSERTSTRING,
-                0,
-                (LPARAM)Item.first.c_str());
+            this->PathComboBox.InsertString(0, Item.first.c_str());
         }
 
         return TRUE;
@@ -992,9 +974,9 @@ private:
     {
         POINT PhysicalPoint;
 
-        PhysicalPoint.x = MulDiv(
+        PhysicalPoint.x = ::MulDiv(
             LogicalPoint.x, this->m_xDPI, USER_DEFAULT_SCREEN_DPI);
-        PhysicalPoint.y = MulDiv(
+        PhysicalPoint.y = ::MulDiv(
             LogicalPoint.y, this->m_yDPI, USER_DEFAULT_SCREEN_DPI);
 
         return PhysicalPoint;
@@ -1004,135 +986,105 @@ private:
     {
         SIZE PhysicalSize;
 
-        PhysicalSize.cx = MulDiv(
+        PhysicalSize.cx = ::MulDiv(
             LogicalSize.cx, this->m_xDPI, USER_DEFAULT_SCREEN_DPI);
-        PhysicalSize.cy = MulDiv(
+        PhysicalSize.cy = ::MulDiv(
             LogicalSize.cy, this->m_yDPI, USER_DEFAULT_SCREEN_DPI);
 
         return PhysicalSize;
     }
 
-    BOOL DrawIconWithHighDPISupport(
-        _In_ HDC hdc,
-        _In_ const POINT& LogicalPoint,
-        _In_ HICON hIcon,
-        const SIZE& LogicalSize,
-        _In_ UINT istepIfAniCur,
-        _In_opt_ HBRUSH hbrFlickerFreeDraw,
-        _In_ UINT diFlags)
-    {
-        POINT PhysicalPoint = GetPhysicalPoint(LogicalPoint);
-        SIZE PhysicalSize = GetPhysicalSize(LogicalSize);
-
-        return DrawIconEx(
-            hdc,
-            PhysicalPoint.x,
-            PhysicalPoint.y,
-            hIcon,
-            PhysicalSize.cx,
-            PhysicalSize.cy,
-            istepIfAniCur,
-            hbrFlickerFreeDraw,
-            diFlags);
-    }
-
     BOOL GetLogicalClientRect(
         _Out_ RECT& LogicalRect)
     {
-        BOOL result = GetClientRect(&LogicalRect);
+        BOOL result = this->GetClientRect(&LogicalRect);
 
-        LogicalRect.left = MulDiv(
+        LogicalRect.left = ::MulDiv(
             LogicalRect.left, USER_DEFAULT_SCREEN_DPI, this->m_xDPI);
-        LogicalRect.top = MulDiv(
+        LogicalRect.top = ::MulDiv(
             LogicalRect.top, USER_DEFAULT_SCREEN_DPI, this->m_yDPI);
-        LogicalRect.right = MulDiv(
+        LogicalRect.right = ::MulDiv(
             LogicalRect.right, USER_DEFAULT_SCREEN_DPI, this->m_xDPI);
-        LogicalRect.bottom = MulDiv(
+        LogicalRect.bottom = ::MulDiv(
             LogicalRect.bottom, USER_DEFAULT_SCREEN_DPI, this->m_yDPI);
 
         return result;
     }
 
-    LRESULT OnPaint(
-        UINT uMsg,
-        WPARAM wParam,
-        LPARAM lParam,
-        BOOL& bHandled)
+    void OnPaint(WTL::CDCHandle dc)
     {
-        UNREFERENCED_PARAMETER(uMsg);
-        UNREFERENCED_PARAMETER(wParam);
-        UNREFERENCED_PARAMETER(lParam);
-        UNREFERENCED_PARAMETER(bHandled);
+        UNREFERENCED_PARAMETER(dc);
 
-        PAINTSTRUCT ps;
-        HDC hdc = this->BeginPaint(&ps);
+        WTL::CPaintDC DC(this->m_hWnd);
 
         RECT rect = { 0 };
         this->GetLogicalClientRect(rect);
 
-        DrawIconWithHighDPISupport(
-            hdc,
-            { 16, 16 },
-            this->m_hNSudoIcon,
-            { 64, 64 },
-            0,
-            nullptr,
-            DI_NORMAL | DI_COMPAT);
-        DrawIconWithHighDPISupport(
-            hdc,
-            { 16, (rect.bottom - rect.top) - 40 },
-            this->m_hWarningIcon,
-            { 24, 24 },
+        DC.DrawIconEx(
+            this->GetPhysicalPoint({ 16, 16 }),
+            this->NSudoIcon,
+            this->GetPhysicalSize({ 64, 64 }),
             0,
             nullptr,
             DI_NORMAL | DI_COMPAT);
 
-        this->EndPaint(&ps);
-
-        return 0;
+        DC.DrawIconEx(
+            this->GetPhysicalPoint({ 16, (rect.bottom - rect.top) - 40 }),
+            this->WarningIcon,
+            this->GetPhysicalSize({ 24, 24 }),
+            0,
+            nullptr,
+            DI_NORMAL | DI_COMPAT);
     }
 
-    LRESULT OnDPIChanged(
-        UINT uMsg,
-        WPARAM wParam,
-        LPARAM lParam,
-        BOOL& bHandled)
+    void OnDpiChanged(UINT nDpiX, UINT nDpiY, PRECT pRect)
     {
-        UNREFERENCED_PARAMETER(uMsg);
-        UNREFERENCED_PARAMETER(lParam);
-        UNREFERENCED_PARAMETER(bHandled);
+        UNREFERENCED_PARAMETER(pRect);
 
-        this->m_xDPI = LOWORD(wParam);
-        this->m_yDPI = HIWORD(wParam);
-
-        return 0;
+        this->m_xDPI = nDpiX;
+        this->m_yDPI = nDpiY;
     }
 
-    LRESULT OnRun(
-        WORD wNotifyCode,
-        WORD wID,
-        HWND hWndCtl,
-        BOOL& bHandled)
+    void OnDropFiles(HDROP hDropInfo)
     {
-        UNREFERENCED_PARAMETER(wNotifyCode);
-        UNREFERENCED_PARAMETER(wID);
-        UNREFERENCED_PARAMETER(hWndCtl);
-        UNREFERENCED_PARAMETER(bHandled);
+        std::wstring buffer(MAX_PATH + 2, L'\0');
+
+        buffer[0] = L'\"';
+
+        UINT length = ::DragQueryFileW(
+            hDropInfo, 0, &buffer[1], (int)(buffer.size() - 2));
+        buffer.resize(static_cast<size_t>(length) + 1);
+
+        if (!(::GetFileAttributesW(&buffer[1]) & FILE_ATTRIBUTE_DIRECTORY))
+        {
+            buffer[buffer.size()] = L'\"';
+            this->PathComboBox.SetWindowTextW(buffer.c_str());
+        }
+
+        ::DragFinish(hDropInfo);
+    }
+
+    LRESULT OnRun(UINT uNotifyCode, int nID, CWindow wndCtl)
+    {
+        UNREFERENCED_PARAMETER(uNotifyCode);
+        UNREFERENCED_PARAMETER(nID);
+        UNREFERENCED_PARAMETER(wndCtl);
 
         std::wstring UserName(MAX_PATH, L'\0');
-        auto UserNameLength = this->m_hUserName.GetWindowTextW(
+        auto UserNameLength = this->UserNameComboBox.GetWindowTextW(
             &UserName[0],
             static_cast<int>(UserName.size()));
         UserName.resize(UserNameLength);
 
         bool NeedToEnableAllPrivileges = false;
-        if (BST_CHECKED == SendMessageW(this->m_hCheckBox, BM_GETCHECK, 0, 0))
+
+        if (BST_CHECKED == this->EnableAllPrivilegesCheckBox.GetCheck())
         {
             NeedToEnableAllPrivileges = true;
         }
 
         std::wstring RawCommandLine(MAX_PATH, L'\0');
-        auto RawCommandLineLength = this->m_hszPath.GetWindowTextW(
+        auto RawCommandLineLength = this->PathComboBox.GetWindowTextW(
             &RawCommandLine[0],
             static_cast<int>(RawCommandLine.size()));
         RawCommandLine.resize(RawCommandLineLength);
@@ -1221,32 +1173,22 @@ private:
         return 0;
     }
 
-    LRESULT OnAbout(
-        WORD wNotifyCode,
-        WORD wID,
-        HWND hWndCtl,
-        BOOL& bHandled)
+    LRESULT OnAbout(UINT uNotifyCode, int nID, CWindow wndCtl)
     {
-        UNREFERENCED_PARAMETER(wNotifyCode);
-        UNREFERENCED_PARAMETER(wID);
-        UNREFERENCED_PARAMETER(hWndCtl);
-        UNREFERENCED_PARAMETER(bHandled);
+        UNREFERENCED_PARAMETER(uNotifyCode);
+        UNREFERENCED_PARAMETER(nID);
+        UNREFERENCED_PARAMETER(wndCtl);
 
         NSudoShowAboutDialog(this->m_hWnd);
 
         return 0;
     }
 
-    LRESULT OnBrowse(
-        WORD wNotifyCode,
-        WORD wID,
-        HWND hWndCtl,
-        BOOL& bHandled)
+    LRESULT OnBrowse(UINT uNotifyCode, int nID, CWindow wndCtl)
     {
-        UNREFERENCED_PARAMETER(wNotifyCode);
-        UNREFERENCED_PARAMETER(wID);
-        UNREFERENCED_PARAMETER(hWndCtl);
-        UNREFERENCED_PARAMETER(bHandled);
+        UNREFERENCED_PARAMETER(uNotifyCode);
+        UNREFERENCED_PARAMETER(nID);
+        UNREFERENCED_PARAMETER(wndCtl);
 
         std::wstring buffer(MAX_PATH + 2, L'\0');
 
@@ -1268,36 +1210,7 @@ private:
         buffer[buffer.size()] = L'\"';
 
         if (wcslen(buffer.c_str()) > 2)
-            this->m_hszPath.SetWindowTextW(buffer.c_str());
-
-        return 0;
-    }
-
-    LRESULT OnDropFiles(
-        UINT uMsg,
-        WPARAM wParam,
-        LPARAM lParam,
-        BOOL& bHandled)
-    {
-        UNREFERENCED_PARAMETER(uMsg);
-        UNREFERENCED_PARAMETER(lParam);
-        UNREFERENCED_PARAMETER(bHandled);
-
-        std::wstring buffer(MAX_PATH + 2, L'\0');
-
-        buffer[0] = L'\"';
-
-        UINT length = DragQueryFileW(
-            (HDROP)wParam, 0, &buffer[1], (int)(buffer.size() - 2));
-        buffer.resize(static_cast<size_t>(length) + 1);
-
-        if (!(GetFileAttributesW(&buffer[1]) & FILE_ATTRIBUTE_DIRECTORY))
-        {
-            buffer[buffer.size()] = L'\"';
-            this->m_hszPath.SetWindowTextW(buffer.c_str());
-        }
-
-        DragFinish((HDROP)wParam);
+            this->PathComboBox.SetWindowTextW(buffer.c_str());
 
         return 0;
     }
