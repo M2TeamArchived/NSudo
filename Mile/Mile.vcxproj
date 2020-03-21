@@ -75,16 +75,26 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Mile.Windows.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Mile.Windows.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Mile.props" />
+    <None Include="packages.config" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
-    <ProjectGuid>{43C2BD57-4D61-42EC-B290-62A32B6FB5C7}</ProjectGuid>
+    <ProjectGuid>{A17EB414-7D7A-4455-BEF7-CA8D149D0CB2}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>NSudoAPI</RootNamespace>
+    <RootNamespace>Mile</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
     <UseDebugLibraries Condition="'$(Configuration)'=='Debug'">true</UseDebugLibraries>
@@ -98,8 +108,6 @@
   </ImportGroup>
   <ImportGroup Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\MSBuild\NSudoLib.props" />
-    <Import Project="..\Mile\Mile.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
@@ -119,7 +127,7 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalOptions>/d2FH4- %(AdditionalOptions)</AdditionalOptions>
       <EnableEnhancedInstructionSet Condition="'$(Platform)'=='Win32'">NoExtensions</EnableEnhancedInstructionSet>
-      <PreprocessorDefinitions>NSUDOAPI_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NSUDOAPI_USING_STATIC_LIBRARY;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Platform)'=='Win32'">WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)'=='Debug'">_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary Condition="'$(Configuration)'=='Debug'">MultiThreadedDebug</RuntimeLibrary>
@@ -136,19 +144,8 @@
       <EnableCOMDATFolding Condition="'$(Configuration)'=='Release'">true</EnableCOMDATFolding>
       <OptimizeReferences Condition="'$(Configuration)'=='Release'">true</OptimizeReferences>
       <EnableUAC>false</EnableUAC>
-      <ModuleDefinitionFile>NSudoAPI.def</ModuleDefinitionFile>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="DllMain.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="NSudoAPI.def" />
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="NSudoAPIVersion.rc" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
     <Import Project="..\packages\YY.NuGet.Import.Helper.1.0.0.2\build\native\YY.NuGet.Import.Helper.targets" Condition="Exists('..\packages\YY.NuGet.Import.Helper.1.0.0.2\build\native\YY.NuGet.Import.Helper.targets')" />
