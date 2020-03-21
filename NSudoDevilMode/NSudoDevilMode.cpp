@@ -8,11 +8,10 @@
  * DEVELOPER: Mouri_Naruto (Mouri_Naruto AT Outlook.com)
  */
 
-#include <Windows.h>
+#include <MINT.h>
 
 #include <stdint.h>
 
-#include "MINT.h"
 #include "detours.h"
 
 namespace FunctionType

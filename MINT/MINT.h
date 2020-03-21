@@ -1,4 +1,4 @@
-/*
+﻿/*
  * PROJECT:   Mouri's Internal NT API Collections (MINT)
  * FILE:      MINT.h
  * PURPOSE:   Definition for the Windows Internal API from ntdll.dll, 
@@ -3367,14 +3367,14 @@ ZwSetWnfProcessNotificationEvent(
 
 typedef enum _WORKERFACTORYINFOCLASS
 {
-    WorkerFactoryTimeout,
-    WorkerFactoryRetryTimeout,
-    WorkerFactoryIdleTimeout,
+    WorkerFactoryTimeout, // q; s: LARGE_INTEGER
+    WorkerFactoryRetryTimeout, // q; s: LARGE_INTEGER
+    WorkerFactoryIdleTimeout, // q; s: LARGE_INTEGER
     WorkerFactoryBindingCount,
-    WorkerFactoryThreadMinimum,
-    WorkerFactoryThreadMaximum,
-    WorkerFactoryPaused,
-    WorkerFactoryBasicInformation,
+    WorkerFactoryThreadMinimum, // q; s: ULONG
+    WorkerFactoryThreadMaximum, // q; s: ULONG
+    WorkerFactoryPaused, // ULONG or BOOLEAN
+    WorkerFactoryBasicInformation, // WORKER_FACTORY_BASIC_INFORMATION
     WorkerFactoryAdjustThreadGoal,
     WorkerFactoryCallbackType,
     WorkerFactoryStackInformation, // 10
@@ -4041,7 +4041,7 @@ typedef struct _SYSTEM_THREAD_INFORMATION
     KPRIORITY Priority;
     LONG BasePriority;
     ULONG ContextSwitches;
-    ULONG ThreadState;
+    KTHREAD_STATE ThreadState;
     KWAIT_REASON WaitReason;
 } SYSTEM_THREAD_INFORMATION, *PSYSTEM_THREAD_INFORMATION;
 
@@ -4926,6 +4926,21 @@ typedef struct _SYSTEM_PROCESSOR_PERFORMANCE_DISTRIBUTION
     ULONG Offsets[1];
 } SYSTEM_PROCESSOR_PERFORMANCE_DISTRIBUTION, *PSYSTEM_PROCESSOR_PERFORMANCE_DISTRIBUTION;
 
+#define CODEINTEGRITY_OPTION_ENABLED 0x01
+#define CODEINTEGRITY_OPTION_TESTSIGN 0x02
+#define CODEINTEGRITY_OPTION_UMCI_ENABLED 0x04
+#define CODEINTEGRITY_OPTION_UMCI_AUDITMODE_ENABLED 0x08
+#define CODEINTEGRITY_OPTION_UMCI_EXCLUSIONPATHS_ENABLED 0x10
+#define CODEINTEGRITY_OPTION_TEST_BUILD 0x20
+#define CODEINTEGRITY_OPTION_PREPRODUCTION_BUILD 0x40
+#define CODEINTEGRITY_OPTION_DEBUGMODE_ENABLED 0x80
+#define CODEINTEGRITY_OPTION_FLIGHT_BUILD 0x100
+#define CODEINTEGRITY_OPTION_FLIGHTING_ENABLED 0x200
+#define CODEINTEGRITY_OPTION_HVCI_KMCI_ENABLED 0x400
+#define CODEINTEGRITY_OPTION_HVCI_KMCI_AUDITMODE_ENABLED 0x800
+#define CODEINTEGRITY_OPTION_HVCI_KMCI_STRICTMODE_ENABLED 0x1000
+#define CODEINTEGRITY_OPTION_HVCI_IUM_ENABLED 0x2000
+
 // private
 typedef struct _SYSTEM_CODEINTEGRITY_INFORMATION
 {
@@ -5322,7 +5337,19 @@ typedef struct _SYSTEM_SECUREBOOT_POLICY_INFORMATION
 // private
 typedef struct _SYSTEM_PAGEFILE_INFORMATION_EX
 {
-    SYSTEM_PAGEFILE_INFORMATION Info;
+    union // HACK union declaration for convenience (dmex)
+    {
+        SYSTEM_PAGEFILE_INFORMATION Info;
+        struct
+        {
+            ULONG NextEntryOffset;
+            ULONG TotalSize;
+            ULONG TotalInUse;
+            ULONG PeakUsage;
+            UNICODE_STRING PageFileName;
+        };
+    };
+
     ULONG MinimumSize;
     ULONG MaximumSize;
 } SYSTEM_PAGEFILE_INFORMATION_EX, *PSYSTEM_PAGEFILE_INFORMATION_EX;
@@ -5828,7 +5855,10 @@ typedef struct _SYSTEM_SPECULATION_CONTROL_INFORMATION
             ULONG HvL1tfMigitationNotEnabled_LoadOption : 1;
             ULONG HvL1tfMigitationNotEnabled_CoreScheduler : 1;
             ULONG EnhancedIbrsReported : 1;
-            ULONG Reserved : 8;
+            ULONG MdsHardwareProtected : 1; // since 19H2
+            ULONG MbClearEnabled : 1;
+            ULONG MbClearReported : 1;
+            ULONG Reserved : 5;
         };
     };
 } SYSTEM_SPECULATION_CONTROL_INFORMATION, *PSYSTEM_SPECULATION_CONTROL_INFORMATION;
@@ -7638,6 +7668,9 @@ ZwSetInformationVirtualMemory(
 
 #endif
 
+#define MAP_PROCESS 1
+#define MAP_SYSTEM 2
+
 NTSYSCALLAPI
 NTSTATUS
 NTAPI
@@ -8237,7 +8270,69 @@ NTAPI
 ZwFlushWriteBuffer(
     VOID
     );
- 
+
+// Enclave support
+
+NTSYSAPI
+NTSTATUS
+NTAPI
+NtCreateEnclave(
+    _In_ HANDLE ProcessHandle,
+    _Inout_ PVOID* BaseAddress,
+    _In_ ULONG_PTR ZeroBits,
+    _In_ SIZE_T Size,
+    _In_ SIZE_T InitialCommitment,
+    _In_ ULONG EnclaveType,
+    _In_reads_bytes_(EnclaveInformationLength) PVOID EnclaveInformation,
+    _In_ ULONG EnclaveInformationLength,
+    _Out_opt_ PULONG EnclaveError
+    );
+
+NTSYSAPI
+NTSTATUS
+NTAPI
+NtLoadEnclaveData(
+    _In_ HANDLE ProcessHandle,
+    _In_ PVOID BaseAddress,
+    _In_reads_bytes_(BufferSize) PVOID Buffer,
+    _In_ SIZE_T BufferSize,
+    _In_ ULONG Protect,
+    _In_reads_bytes_(PageInformationLength) PVOID PageInformation,
+    _In_ ULONG PageInformationLength,
+    _Out_opt_ PSIZE_T NumberOfBytesWritten,
+    _Out_opt_ PULONG EnclaveError
+    );
+
+NTSYSAPI
+NTSTATUS
+NTAPI
+NtInitializeEnclave(
+    _In_ HANDLE ProcessHandle,
+    _In_ PVOID BaseAddress,
+    _In_reads_bytes_(EnclaveInformationLength) PVOID EnclaveInformation,
+    _In_ ULONG EnclaveInformationLength,
+    _Out_opt_ PULONG EnclaveError
+    );
+
+// rev
+NTSYSAPI
+NTSTATUS
+NTAPI
+NtTerminateEnclave(
+    _In_ PVOID BaseAddress,
+    _In_ BOOLEAN WaitForThread
+    );
+
+// rev
+NTSYSAPI
+NTSTATUS
+NTAPI
+NtCallEnclave(
+    _In_ PENCLAVE_ROUTINE Routine,
+    _In_ PVOID Parameter,
+    _In_ BOOLEAN WaitForThread,
+    _Out_opt_ PVOID *ReturnValue
+    );
 
 // #include <ntobapi.h>
 #define OBJECT_TYPE_CREATE 0x0001
@@ -9340,7 +9435,7 @@ typedef enum _PROCESSINFOCLASS
     ProcessKeepAliveCount, // q: PROCESS_KEEPALIVE_COUNT_INFORMATION
     ProcessRevokeFileHandles, // s: PROCESS_REVOKE_FILE_HANDLES_INFORMATION
     ProcessWorkingSetControl, // s: PROCESS_WORKING_SET_CONTROL
-    ProcessHandleTable, // since WINBLUE
+    ProcessHandleTable, // q: ULONG[] // since WINBLUE
     ProcessCheckStackExtentsMode,
     ProcessCommandLineInformation, // q: UNICODE_STRING // 60
     ProcessProtectionInformation, // q: PS_PROTECTION
@@ -9353,7 +9448,7 @@ typedef enum _PROCESSINFOCLASS
     ProcessSubsystemProcess,
     ProcessJobMemoryInformation, // PROCESS_JOB_MEMORY_INFO
     ProcessInPrivate, // since THRESHOLD2 // 70
-    ProcessRaiseUMExceptionOnInvalidHandleClose,
+    ProcessRaiseUMExceptionOnInvalidHandleClose, // qs: ULONG; s: 0 disables, otherwise enables
     ProcessIumChallengeResponse,
     ProcessChildProcessInformation, // PROCESS_CHILD_PROCESS_INFORMATION
     ProcessHighGraphicsPriorityInformation,
@@ -9371,7 +9466,7 @@ typedef enum _PROCESSINFOCLASS
     ProcessEnclaveInformation,
     ProcessEnableReadWriteVmLogging, // PROCESS_READWRITEVM_LOGGING_INFORMATION
     ProcessUptimeInformation, // PROCESS_UPTIME_INFORMATION
-    ProcessImageSection,
+    ProcessImageSection, // q: HANDLE
     ProcessDebugAuthInformation, // since REDSTONE4 // 90
     ProcessSystemResourceManagement, // PROCESS_SYSTEM_RESOURCE_MANAGEMENT
     ProcessSequenceNumber, // q: ULONGLONG
@@ -10412,7 +10507,7 @@ NTSYSCALLAPI
 NTSTATUS
 NTAPI
 NtGetNextProcess(
-    _In_ HANDLE ProcessHandle,
+    _In_opt_ HANDLE ProcessHandle,
     _In_ ACCESS_MASK DesiredAccess,
     _In_ ULONG HandleAttributes,
     _In_ ULONG Flags,
@@ -10423,7 +10518,7 @@ NTSYSCALLAPI
 NTSTATUS
 NTAPI
 ZwGetNextProcess(
-    _In_ HANDLE ProcessHandle,
+    _In_opt_ HANDLE ProcessHandle,
     _In_ ACCESS_MASK DesiredAccess,
     _In_ ULONG HandleAttributes,
     _In_ ULONG Flags,
@@ -11918,7 +12013,7 @@ NtWaitForDebugEvent(
     _In_ HANDLE DebugObjectHandle,
     _In_ BOOLEAN Alertable,
     _In_opt_ PLARGE_INTEGER Timeout,
-    _Out_ PVOID WaitStateChange
+    _Out_ PDBGUI_WAIT_STATE_CHANGE WaitStateChange
     );
 
 NTSYSCALLAPI
@@ -11928,7 +12023,7 @@ ZwWaitForDebugEvent(
     _In_ HANDLE DebugObjectHandle,
     _In_ BOOLEAN Alertable,
     _In_opt_ PLARGE_INTEGER Timeout,
-    _Out_ PVOID WaitStateChange
+    _Out_ PDBGUI_WAIT_STATE_CHANGE WaitStateChange
     );
 
 // Debugging UI
@@ -12269,15 +12364,15 @@ typedef enum _FILE_INFORMATION_CLASS
     FileHardLinkFullIdInformation, // FILE_LINK_ENTRY_FULL_ID_INFORMATION
     FileIdExtdBothDirectoryInformation, // FILE_ID_EXTD_BOTH_DIR_INFORMATION // since THRESHOLD
     FileDispositionInformationEx, // FILE_DISPOSITION_INFO_EX // since REDSTONE
-    FileRenameInformationEx, // FILE_RENAME_INFORMATION
-    FileRenameInformationExBypassAccessCheck, // FILE_RENAME_INFORMATION
+    FileRenameInformationEx, // FILE_RENAME_INFORMATION_EX
+    FileRenameInformationExBypassAccessCheck, // (kernel-mode only); FILE_RENAME_INFORMATION_EX
     FileDesiredStorageClassInformation, // FILE_DESIRED_STORAGE_CLASS_INFORMATION // since REDSTONE2
     FileStatInformation, // FILE_STAT_INFORMATION
     FileMemoryPartitionInformation, // FILE_MEMORY_PARTITION_INFORMATION // since REDSTONE3
     FileStatLxInformation, // FILE_STAT_LX_INFORMATION // since REDSTONE4 // 70
     FileCaseSensitiveInformation, // FILE_CASE_SENSITIVE_INFORMATION
-    FileLinkInformationEx, // FILE_LINK_INFORMATION // since REDSTONE5
-    FileLinkInformationExBypassAccessCheck, // FILE_LINK_INFORMATION
+    FileLinkInformationEx, // FILE_LINK_INFORMATION_EX // since REDSTONE5
+    FileLinkInformationExBypassAccessCheck, // (kernel-mode only); FILE_LINK_INFORMATION_EX
     FileStorageReserveIdInformation, // FILE_SET_STORAGE_RESERVE_ID_INFORMATION
     FileCaseSensitiveInformationForceAccessCheck, // FILE_CASE_SENSITIVE_INFORMATION
     FileMaximumInformation
@@ -12418,6 +12513,30 @@ typedef struct _FILE_LINK_INFORMATION
     WCHAR FileName[1];
 } FILE_LINK_INFORMATION, *PFILE_LINK_INFORMATION;
 
+#if (NTDDI_VERSION >= NTDDI_WIN10_RS5)
+#define FILE_LINK_REPLACE_IF_EXISTS 0x00000001
+#define FILE_LINK_POSIX_SEMANTICS 0x00000002
+#define FILE_LINK_SUPPRESS_STORAGE_RESERVE_INHERITANCE 0x00000008
+#define FILE_LINK_NO_INCREASE_AVAILABLE_SPACE 0x00000010
+#define FILE_LINK_NO_DECREASE_AVAILABLE_SPACE 0x00000020
+#define FILE_LINK_PRESERVE_AVAILABLE_SPACE 0x00000030
+#define FILE_LINK_IGNORE_READONLY_ATTRIBUTE 0x00000040
+#endif
+
+#if (NTDDI_VERSION >= NTDDI_WIN10_19H1)
+#define FILE_LINK_FORCE_RESIZE_TARGET_SR 0x00000080
+#define FILE_LINK_FORCE_RESIZE_SOURCE_SR 0x00000100
+#define FILE_LINK_FORCE_RESIZE_SR 0x00000180
+#endif
+
+typedef struct _FILE_LINK_INFORMATION_EX
+{
+    ULONG Flags;
+    HANDLE RootDirectory;
+    ULONG FileNameLength;
+    WCHAR FileName[1];
+} FILE_LINK_INFORMATION_EX, *PFILE_LINK_INFORMATION_EX;
+
 typedef struct _FILE_MOVE_CLUSTER_INFORMATION
 {
     ULONG ClusterCount;
@@ -12433,6 +12552,37 @@ typedef struct _FILE_RENAME_INFORMATION
     ULONG FileNameLength;
     WCHAR FileName[1];
 } FILE_RENAME_INFORMATION, *PFILE_RENAME_INFORMATION;
+
+#if (NTDDI_VERSION >= NTDDI_WIN10_RS1)
+#define FILE_RENAME_REPLACE_IF_EXISTS 0x00000001
+#define FILE_RENAME_POSIX_SEMANTICS 0x00000002
+#endif
+
+#if (NTDDI_VERSION >= NTDDI_WIN10_RS3)
+#define FILE_RENAME_SUPPRESS_PIN_STATE_INHERITANCE 0x00000004
+#endif
+
+#if (NTDDI_VERSION >= NTDDI_WIN10_RS5)
+#define FILE_RENAME_SUPPRESS_STORAGE_RESERVE_INHERITANCE 0x00000008
+#define FILE_RENAME_NO_INCREASE_AVAILABLE_SPACE 0x00000010
+#define FILE_RENAME_NO_DECREASE_AVAILABLE_SPACE 0x00000020
+#define FILE_RENAME_PRESERVE_AVAILABLE_SPACE 0x00000030
+#define FILE_RENAME_IGNORE_READONLY_ATTRIBUTE 0x00000040
+#endif
+
+#if (NTDDI_VERSION >= NTDDI_WIN10_19H1)
+#define FILE_RENAME_FORCE_RESIZE_TARGET_SR 0x00000080
+#define FILE_RENAME_FORCE_RESIZE_SOURCE_SR 0x00000100
+#define FILE_RENAME_FORCE_RESIZE_SR 0x00000180
+#endif
+
+typedef struct _FILE_RENAME_INFORMATION_EX
+{
+    ULONG Flags;
+    HANDLE RootDirectory;
+    ULONG FileNameLength;
+    WCHAR FileName[1];
+} FILE_RENAME_INFORMATION_EX, *PFILE_RENAME_INFORMATION_EX;
 
 typedef struct _FILE_STREAM_INFORMATION
 {
@@ -13394,33 +13544,33 @@ NTSYSCALLAPI
 NTSTATUS
 NTAPI
 NtQueryDirectoryFileEx(
-	_In_ HANDLE FileHandle,
-	_In_opt_ HANDLE Event,
-	_In_opt_ PIO_APC_ROUTINE ApcRoutine,
-	_In_opt_ PVOID ApcContext,
-	_Out_ PIO_STATUS_BLOCK IoStatusBlock,
-	_Out_ PVOID FileInformation,
-	_In_ ULONG Length,
-	_In_ FILE_INFORMATION_CLASS FileInformationClass,
-	_In_ ULONG QueryFlags,
-	_In_opt_ PUNICODE_STRING FileName
-);
+    _In_ HANDLE FileHandle,
+    _In_opt_ HANDLE Event,
+    _In_opt_ PIO_APC_ROUTINE ApcRoutine,
+    _In_opt_ PVOID ApcContext,
+    _Out_ PIO_STATUS_BLOCK IoStatusBlock,
+    _Out_ PVOID FileInformation,
+    _In_ ULONG Length,
+    _In_ FILE_INFORMATION_CLASS FileInformationClass,
+    _In_ ULONG QueryFlags,
+    _In_opt_ PUNICODE_STRING FileName
+    );
 
 NTSYSCALLAPI
 NTSTATUS
 NTAPI
 ZwQueryDirectoryFileEx(
-	_In_ HANDLE FileHandle,
-	_In_opt_ HANDLE Event,
-	_In_opt_ PIO_APC_ROUTINE ApcRoutine,
-	_In_opt_ PVOID ApcContext,
-	_Out_ PIO_STATUS_BLOCK IoStatusBlock,
-	_Out_ PVOID FileInformation,
-	_In_ ULONG Length,
-	_In_ FILE_INFORMATION_CLASS FileInformationClass,
-	_In_ ULONG QueryFlags,
-	_In_opt_ PUNICODE_STRING FileName
-);
+    _In_ HANDLE FileHandle,
+    _In_opt_ HANDLE Event,
+    _In_opt_ PIO_APC_ROUTINE ApcRoutine,
+    _In_opt_ PVOID ApcContext,
+    _Out_ PIO_STATUS_BLOCK IoStatusBlock,
+    _Out_ PVOID FileInformation,
+    _In_ ULONG Length,
+    _In_ FILE_INFORMATION_CLASS FileInformationClass,
+    _In_ ULONG QueryFlags,
+    _In_opt_ PUNICODE_STRING FileName
+    );
 #endif
 
 NTSYSCALLAPI
@@ -14497,7 +14647,180 @@ typedef struct _FILE_MAILSLOT_PEEK_BUFFER
     ULONG NumberOfMessages;
     ULONG MessageLength;
 } FILE_MAILSLOT_PEEK_BUFFER, *PFILE_MAILSLOT_PEEK_BUFFER;
- 
+
+// Mount manager FS control definitions
+
+#define MOUNTMGR_DEVICE_NAME L"\\Device\\MountPointManager"
+#define MOUNTMGRCONTROLTYPE 0x0000006D // 'm'
+#define MOUNTDEVCONTROLTYPE 0x0000004D // 'M'
+
+#define IOCTL_MOUNTMGR_CREATE_POINT                 CTL_CODE(MOUNTMGRCONTROLTYPE, 0, METHOD_BUFFERED, FILE_READ_ACCESS | FILE_WRITE_ACCESS)
+#define IOCTL_MOUNTMGR_DELETE_POINTS                CTL_CODE(MOUNTMGRCONTROLTYPE, 1, METHOD_BUFFERED, FILE_READ_ACCESS | FILE_WRITE_ACCESS)
+#define IOCTL_MOUNTMGR_QUERY_POINTS                 CTL_CODE(MOUNTMGRCONTROLTYPE, 2, METHOD_BUFFERED, FILE_ANY_ACCESS)
+#define IOCTL_MOUNTMGR_DELETE_POINTS_DBONLY         CTL_CODE(MOUNTMGRCONTROLTYPE, 3, METHOD_BUFFERED, FILE_READ_ACCESS | FILE_WRITE_ACCESS)
+#define IOCTL_MOUNTMGR_NEXT_DRIVE_LETTER            CTL_CODE(MOUNTMGRCONTROLTYPE, 4, METHOD_BUFFERED, FILE_READ_ACCESS | FILE_WRITE_ACCESS)
+#define IOCTL_MOUNTMGR_AUTO_DL_ASSIGNMENTS          CTL_CODE(MOUNTMGRCONTROLTYPE, 5, METHOD_BUFFERED, FILE_READ_ACCESS | FILE_WRITE_ACCESS)
+#define IOCTL_MOUNTMGR_VOLUME_MOUNT_POINT_CREATED   CTL_CODE(MOUNTMGRCONTROLTYPE, 6, METHOD_BUFFERED, FILE_READ_ACCESS | FILE_WRITE_ACCESS)
+#define IOCTL_MOUNTMGR_VOLUME_MOUNT_POINT_DELETED   CTL_CODE(MOUNTMGRCONTROLTYPE, 7, METHOD_BUFFERED, FILE_READ_ACCESS | FILE_WRITE_ACCESS)
+#define IOCTL_MOUNTMGR_CHANGE_NOTIFY                CTL_CODE(MOUNTMGRCONTROLTYPE, 8, METHOD_BUFFERED, FILE_READ_ACCESS)
+#define IOCTL_MOUNTMGR_KEEP_LINKS_WHEN_OFFLINE      CTL_CODE(MOUNTMGRCONTROLTYPE, 9, METHOD_BUFFERED, FILE_READ_ACCESS | FILE_WRITE_ACCESS)
+#define IOCTL_MOUNTMGR_CHECK_UNPROCESSED_VOLUMES    CTL_CODE(MOUNTMGRCONTROLTYPE, 10, METHOD_BUFFERED, FILE_READ_ACCESS)
+#define IOCTL_MOUNTMGR_VOLUME_ARRIVAL_NOTIFICATION  CTL_CODE(MOUNTMGRCONTROLTYPE, 11, METHOD_BUFFERED, FILE_READ_ACCESS)
+#define IOCTL_MOUNTMGR_QUERY_DOS_VOLUME_PATH        CTL_CODE(MOUNTMGRCONTROLTYPE, 12, METHOD_BUFFERED, FILE_ANY_ACCESS)
+#define IOCTL_MOUNTMGR_QUERY_DOS_VOLUME_PATHS       CTL_CODE(MOUNTMGRCONTROLTYPE, 13, METHOD_BUFFERED, FILE_ANY_ACCESS)
+
+#define IOCTL_MOUNTDEV_QUERY_DEVICE_NAME            CTL_CODE(MOUNTDEVCONTROLTYPE, 2, METHOD_BUFFERED, FILE_ANY_ACCESS)
+
+// Input structure for IOCTL_MOUNTMGR_CREATE_POINT.
+typedef struct _MOUNTMGR_CREATE_POINT_INPUT
+{
+    USHORT SymbolicLinkNameOffset;
+    USHORT SymbolicLinkNameLength;
+    USHORT DeviceNameOffset;
+    USHORT DeviceNameLength;
+} MOUNTMGR_CREATE_POINT_INPUT, *PMOUNTMGR_CREATE_POINT_INPUT;
+
+// Input structure for IOCTL_MOUNTMGR_DELETE_POINTS, IOCTL_MOUNTMGR_QUERY_POINTS, and IOCTL_MOUNTMGR_DELETE_POINTS_DBONLY.
+typedef struct _MOUNTMGR_MOUNT_POINT
+{
+    ULONG SymbolicLinkNameOffset;
+    USHORT SymbolicLinkNameLength;
+    USHORT Reserved1;
+    ULONG UniqueIdOffset;
+    USHORT UniqueIdLength;
+    USHORT Reserved2;
+    ULONG DeviceNameOffset;
+    USHORT DeviceNameLength;
+    USHORT Reserved3;
+} MOUNTMGR_MOUNT_POINT, * PMOUNTMGR_MOUNT_POINT;
+
+// Output structure for IOCTL_MOUNTMGR_DELETE_POINTS, IOCTL_MOUNTMGR_QUERY_POINTS, and IOCTL_MOUNTMGR_DELETE_POINTS_DBONLY.
+typedef struct _MOUNTMGR_MOUNT_POINTS
+{
+    ULONG Size;
+    ULONG NumberOfMountPoints;
+    MOUNTMGR_MOUNT_POINT MountPoints[1];
+} MOUNTMGR_MOUNT_POINTS, *PMOUNTMGR_MOUNT_POINTS;
+
+// Input structure for IOCTL_MOUNTMGR_NEXT_DRIVE_LETTER.
+typedef struct _MOUNTMGR_DRIVE_LETTER_TARGET
+{
+    USHORT DeviceNameLength;
+    WCHAR DeviceName[1];
+} MOUNTMGR_DRIVE_LETTER_TARGET, *PMOUNTMGR_DRIVE_LETTER_TARGET;
+
+// Output structure for IOCTL_MOUNTMGR_NEXT_DRIVE_LETTER.
+typedef struct _MOUNTMGR_DRIVE_LETTER_INFORMATION
+{
+    BOOLEAN DriveLetterWasAssigned;
+    UCHAR CurrentDriveLetter;
+} MOUNTMGR_DRIVE_LETTER_INFORMATION, *PMOUNTMGR_DRIVE_LETTER_INFORMATION;
+
+// Input structure for IOCTL_MOUNTMGR_VOLUME_MOUNT_POINT_CREATED and
+// IOCTL_MOUNTMGR_VOLUME_MOUNT_POINT_DELETED.
+typedef struct _MOUNTMGR_VOLUME_MOUNT_POINT
+{
+    USHORT SourceVolumeNameOffset;
+    USHORT SourceVolumeNameLength;
+    USHORT TargetVolumeNameOffset;
+    USHORT TargetVolumeNameLength;
+} MOUNTMGR_VOLUME_MOUNT_POINT, *PMOUNTMGR_VOLUME_MOUNT_POINT;
+
+// Input structure for IOCTL_MOUNTMGR_CHANGE_NOTIFY.
+// Output structure for IOCTL_MOUNTMGR_CHANGE_NOTIFY.
+typedef struct _MOUNTMGR_CHANGE_NOTIFY_INFO
+{
+    ULONG EpicNumber;
+} MOUNTMGR_CHANGE_NOTIFY_INFO, *PMOUNTMGR_CHANGE_NOTIFY_INFO;
+
+// Input structure for IOCTL_MOUNTMGR_KEEP_LINKS_WHEN_OFFLINE,
+// IOCTL_MOUNTMGR_VOLUME_ARRIVAL_NOTIFICATION,
+// IOCTL_MOUNTMGR_QUERY_DOS_VOLUME_PATH, and
+// IOCTL_MOUNTMGR_QUERY_DOS_VOLUME_PATHS.
+// IOCTL_MOUNTMGR_PREPARE_VOLUME_DELETE
+// IOCTL_MOUNTMGR_CANCEL_VOLUME_DELETE
+typedef struct _MOUNTMGR_TARGET_NAME
+{
+    USHORT DeviceNameLength;
+    WCHAR DeviceName[1];
+} MOUNTMGR_TARGET_NAME, * PMOUNTMGR_TARGET_NAME;
+
+// Macro that defines what a "drive letter" mount point is.  This macro can
+// be used to scan the result from QUERY_POINTS to discover which mount points
+// are find "drive letter" mount points.
+#define MOUNTMGR_IS_DRIVE_LETTER(s) ( \
+    (s)->Length == 28 && \
+    (s)->Buffer[0] == '\\' && \
+    (s)->Buffer[1] == 'D' && \
+    (s)->Buffer[2] == 'o' && \
+    (s)->Buffer[3] == 's' && \
+    (s)->Buffer[4] == 'D' && \
+    (s)->Buffer[5] == 'e' && \
+    (s)->Buffer[6] == 'v' && \
+    (s)->Buffer[7] == 'i' && \
+    (s)->Buffer[8] == 'c' && \
+    (s)->Buffer[9] == 'e' && \
+    (s)->Buffer[10] == 's' && \
+    (s)->Buffer[11] == '\\' && \
+    (s)->Buffer[12] >= 'A' && \
+    (s)->Buffer[12] <= 'Z' && \
+    (s)->Buffer[13] == ':')
+
+// Macro that defines what a "volume name" mount point is.  This macro can
+// be used to scan the result from QUERY_POINTS to discover which mount points
+// are "volume name" mount points.
+#define MOUNTMGR_IS_VOLUME_NAME(s) ( \
+     ((s)->Length == 96 || ((s)->Length == 98 && (s)->Buffer[48] == '\\')) && \
+     (s)->Buffer[0] == '\\' && \
+     ((s)->Buffer[1] == '?' || (s)->Buffer[1] == '\\') && \
+     (s)->Buffer[2] == '?' && \
+     (s)->Buffer[3] == '\\' && \
+     (s)->Buffer[4] == 'V' && \
+     (s)->Buffer[5] == 'o' && \
+     (s)->Buffer[6] == 'l' && \
+     (s)->Buffer[7] == 'u' && \
+     (s)->Buffer[8] == 'm' && \
+     (s)->Buffer[9] == 'e' && \
+     (s)->Buffer[10] == '{' && \
+     (s)->Buffer[19] == '-' && \
+     (s)->Buffer[24] == '-' && \
+     (s)->Buffer[29] == '-' && \
+     (s)->Buffer[34] == '-' && \
+     (s)->Buffer[47] == '}')
+
+// Output structure for IOCTL_MOUNTDEV_QUERY_DEVICE_NAME.
+typedef struct _MOUNTDEV_NAME
+{
+    USHORT NameLength;
+    WCHAR Name[1];
+} MOUNTDEV_NAME, * PMOUNTDEV_NAME;
+
+// Output structure for IOCTL_MOUNTMGR_QUERY_DOS_VOLUME_PATH and IOCTL_MOUNTMGR_QUERY_DOS_VOLUME_PATHS.
+typedef struct _MOUNTMGR_VOLUME_PATHS
+{
+    ULONG MultiSzLength;
+    WCHAR MultiSz[1];
+} MOUNTMGR_VOLUME_PATHS, *PMOUNTMGR_VOLUME_PATHS;
+
+#define MOUNTMGR_IS_DOS_VOLUME_NAME(s) ( \
+     MOUNTMGR_IS_VOLUME_NAME(s) && \
+     (s)->Length == 96 && \
+     (s)->Buffer[1] == '\\')
+
+#define MOUNTMGR_IS_DOS_VOLUME_NAME_WB(s) ( \
+     MOUNTMGR_IS_VOLUME_NAME(s) && \
+     (s)->Length == 98 && \
+     (s)->Buffer[1] == '\\')
+
+#define MOUNTMGR_IS_NT_VOLUME_NAME(s) ( \
+     MOUNTMGR_IS_VOLUME_NAME(s) && \
+     (s)->Length == 96 && \
+     (s)->Buffer[1] == '?')
+
+#define MOUNTMGR_IS_NT_VOLUME_NAME_WB(s) ( \
+     MOUNTMGR_IS_VOLUME_NAME(s) && \
+     (s)->Length == 98 && \
+     (s)->Buffer[1] == '?')
 
 // #include <ntlpcapi.h>
 // Local Inter-process Communication
@@ -16118,14 +16441,24 @@ typedef struct _PF_PHYSICAL_MEMORY_RANGE
     ULONG_PTR PageCount;
 } PF_PHYSICAL_MEMORY_RANGE, *PPF_PHYSICAL_MEMORY_RANGE;
 
-#define PF_PHYSICAL_MEMORY_RANGE_INFO_VERSION 1
+#define PF_PHYSICAL_MEMORY_RANGE_INFO_V1_VERSION 1
 
-typedef struct _PF_PHYSICAL_MEMORY_RANGE_INFO
+typedef struct _PF_PHYSICAL_MEMORY_RANGE_INFO_V1
 {
     ULONG Version;
     ULONG RangeCount;
     PF_PHYSICAL_MEMORY_RANGE Ranges[1];
-} PF_PHYSICAL_MEMORY_RANGE_INFO, *PPF_PHYSICAL_MEMORY_RANGE_INFO;
+} PF_PHYSICAL_MEMORY_RANGE_INFO_V1, *PPF_PHYSICAL_MEMORY_RANGE_INFO_V1;
+
+#define PF_PHYSICAL_MEMORY_RANGE_INFO_V2_VERSION 2
+
+typedef struct _PF_PHYSICAL_MEMORY_RANGE_INFO_V2
+{
+    ULONG Version;
+    ULONG Flags;
+    ULONG RangeCount;
+    PF_PHYSICAL_MEMORY_RANGE Ranges[ANYSIZE_ARRAY];
+} PF_PHYSICAL_MEMORY_RANGE_INFO_V2, *PPF_PHYSICAL_MEMORY_RANGE_INFO_V2;
 
 // begin_rev
 
@@ -16864,7 +17197,7 @@ typedef struct _REG_NOTIFY_INFORMATION
 
 typedef struct _KEY_PID_ARRAY
 {
-    HANDLE PID;
+    HANDLE ProcessId;
     UNICODE_STRING KeyName;
 } KEY_PID_ARRAY, *PKEY_PID_ARRAY;
 
@@ -17562,7 +17895,7 @@ NTAPI
 NtQueryOpenSubKeysEx(
     _In_ POBJECT_ATTRIBUTES TargetKey,
     _In_ ULONG BufferLength,
-    _Out_writes_bytes_(BufferLength) PVOID Buffer,
+    _Out_writes_bytes_opt_(BufferLength) PVOID Buffer,
     _Out_ PULONG RequiredSize
     );
 
@@ -17572,7 +17905,7 @@ NTAPI
 ZwQueryOpenSubKeysEx(
     _In_ POBJECT_ATTRIBUTES TargetKey,
     _In_ ULONG BufferLength,
-    _Out_writes_bytes_(BufferLength) PVOID Buffer,
+    _Out_writes_bytes_opt_(BufferLength) PVOID Buffer,
     _Out_ PULONG RequiredSize
     );
 
@@ -18885,8 +19218,8 @@ VOID
 NTAPI
 RtlInitString(
     _Out_ PSTRING DestinationString,
-    _In_opt_ PSTR SourceString
-);
+    _In_opt_ PCSTR SourceString
+    );
 
 #if (NTDDI_VERSION >= NTDDI_WIN10)
 NTSYSAPI
@@ -18903,8 +19236,8 @@ VOID
 NTAPI
 RtlInitAnsiString(
     _Out_ PANSI_STRING DestinationString,
-    _In_opt_ PSTR SourceString
-);
+    _In_opt_ PCSTR SourceString
+    );
 
 #if (NTDDI_VERSION >= NTDDI_WS03)
 NTSYSAPI
@@ -18988,7 +19321,7 @@ NTSTATUS
 NTAPI
 RtlAppendAsciizToString(
     _In_ PSTRING Destination,
-    _In_opt_ PSTR Source
+    _In_opt_ PCSTR Source
     );
 
 NTSYSAPI
@@ -19027,15 +19360,15 @@ VOID
 NTAPI
 RtlInitUnicodeString(
     _Out_ PUNICODE_STRING DestinationString,
-    _In_opt_ PWSTR SourceString
-);
+    _In_opt_ PCWSTR SourceString
+    );
 
 NTSYSAPI
 NTSTATUS
 NTAPI
 RtlInitUnicodeStringEx(
     _Out_ PUNICODE_STRING DestinationString,
-    _In_opt_ PWSTR SourceString
+    _In_opt_ PCWSTR SourceString
     );
 
 NTSYSAPI
@@ -19043,7 +19376,7 @@ BOOLEAN
 NTAPI
 RtlCreateUnicodeString(
     _Out_ PUNICODE_STRING DestinationString,
-    _In_ PWSTR SourceString
+    _In_ PCWSTR SourceString
     );
 
 NTSYSAPI
@@ -19051,7 +19384,7 @@ BOOLEAN
 NTAPI
 RtlCreateUnicodeStringFromAsciiz(
     _Out_ PUNICODE_STRING DestinationString,
-    _In_ PSTR SourceString
+    _In_ PCSTR SourceString
     );
 
 NTSYSAPI
@@ -19111,9 +19444,9 @@ NTSYSAPI
 LONG
 NTAPI
 RtlCompareUnicodeStrings(
-    _In_reads_(String1Length) PWCH String1,
+    _In_reads_(String1Length) PCWCH String1,
     _In_ SIZE_T String1Length,
-    _In_reads_(String2Length) PWCH String2,
+    _In_reads_(String2Length) PCWCH String2,
     _In_ SIZE_T String2Length,
     _In_ BOOLEAN CaseInSensitive
     );
@@ -19212,7 +19545,7 @@ NTSTATUS
 NTAPI
 RtlAppendUnicodeToString(
     _In_ PUNICODE_STRING Destination,
-    _In_opt_ PWSTR Source
+    _In_opt_ PCWSTR Source
     );
 
 NTSYSAPI
@@ -19326,7 +19659,7 @@ RtlMultiByteToUnicodeN(
     _Out_writes_bytes_to_(MaxBytesInUnicodeString, *BytesInUnicodeString) PWCH UnicodeString,
     _In_ ULONG MaxBytesInUnicodeString,
     _Out_opt_ PULONG BytesInUnicodeString,
-    _In_reads_bytes_(BytesInMultiByteString) PSTR MultiByteString,
+    _In_reads_bytes_(BytesInMultiByteString) PCSTR MultiByteString,
     _In_ ULONG BytesInMultiByteString
     );
 
@@ -19335,7 +19668,7 @@ NTSTATUS
 NTAPI
 RtlMultiByteToUnicodeSize(
     _Out_ PULONG BytesInUnicodeString,
-    _In_reads_bytes_(BytesInMultiByteString) PSTR MultiByteString,
+    _In_reads_bytes_(BytesInMultiByteString) PCSTR MultiByteString,
     _In_ ULONG BytesInMultiByteString
     );
 
@@ -19346,7 +19679,7 @@ RtlUnicodeToMultiByteN(
     _Out_writes_bytes_to_(MaxBytesInMultiByteString, *BytesInMultiByteString) PCHAR MultiByteString,
     _In_ ULONG MaxBytesInMultiByteString,
     _Out_opt_ PULONG BytesInMultiByteString,
-    _In_reads_bytes_(BytesInUnicodeString) PWCH UnicodeString,
+    _In_reads_bytes_(BytesInUnicodeString) PCWCH UnicodeString,
     _In_ ULONG BytesInUnicodeString
     );
 
@@ -19355,7 +19688,7 @@ NTSTATUS
 NTAPI
 RtlUnicodeToMultiByteSize(
     _Out_ PULONG BytesInMultiByteString,
-    _In_reads_bytes_(BytesInUnicodeString) PWCH UnicodeString,
+    _In_reads_bytes_(BytesInUnicodeString) PCWCH UnicodeString,
     _In_ ULONG BytesInUnicodeString
     );
 
@@ -19366,7 +19699,7 @@ RtlUpcaseUnicodeToMultiByteN(
     _Out_writes_bytes_to_(MaxBytesInMultiByteString, *BytesInMultiByteString) PCHAR MultiByteString,
     _In_ ULONG MaxBytesInMultiByteString,
     _Out_opt_ PULONG BytesInMultiByteString,
-    _In_reads_bytes_(BytesInUnicodeString) PWCH UnicodeString,
+    _In_reads_bytes_(BytesInUnicodeString) PCWCH UnicodeString,
     _In_ ULONG BytesInUnicodeString
     );
 
@@ -19377,7 +19710,7 @@ RtlOemToUnicodeN(
     _Out_writes_bytes_to_(MaxBytesInUnicodeString, *BytesInUnicodeString) PWSTR UnicodeString,
     _In_ ULONG MaxBytesInUnicodeString,
     _Out_opt_ PULONG BytesInUnicodeString,
-    _In_reads_bytes_(BytesInOemString) PCH OemString,
+    _In_reads_bytes_(BytesInOemString) PCCH OemString,
     _In_ ULONG BytesInOemString
     );
 
@@ -19388,7 +19721,7 @@ RtlUnicodeToOemN(
     _Out_writes_bytes_to_(MaxBytesInOemString, *BytesInOemString) PCHAR OemString,
     _In_ ULONG MaxBytesInOemString,
     _Out_opt_ PULONG BytesInOemString,
-    _In_reads_bytes_(BytesInUnicodeString) PWCH UnicodeString,
+    _In_reads_bytes_(BytesInUnicodeString) PCWCH UnicodeString,
     _In_ ULONG BytesInUnicodeString
     );
 
@@ -19399,7 +19732,7 @@ RtlUpcaseUnicodeToOemN(
     _Out_writes_bytes_to_(MaxBytesInOemString, *BytesInOemString) PCHAR OemString,
     _In_ ULONG MaxBytesInOemString,
     _Out_opt_ PULONG BytesInOemString,
-    _In_reads_bytes_(BytesInUnicodeString) PWCH UnicodeString,
+    _In_reads_bytes_(BytesInUnicodeString) PCWCH UnicodeString,
     _In_ ULONG BytesInUnicodeString
     );
 
@@ -19410,7 +19743,7 @@ RtlConsoleMultiByteToUnicodeN(
     _Out_writes_bytes_to_(MaxBytesInUnicodeString, *BytesInUnicodeString) PWCH UnicodeString,
     _In_ ULONG MaxBytesInUnicodeString,
     _Out_opt_ PULONG BytesInUnicodeString,
-    _In_reads_bytes_(BytesInMultiByteString) PCH MultiByteString,
+    _In_reads_bytes_(BytesInMultiByteString) PCCH MultiByteString,
     _In_ ULONG BytesInMultiByteString,
     _Out_ PULONG pdwSpecialChar
     );
@@ -19423,7 +19756,7 @@ RtlUTF8ToUnicodeN(
     _Out_writes_bytes_to_(UnicodeStringMaxByteCount, *UnicodeStringActualByteCount) PWSTR UnicodeStringDestination,
     _In_ ULONG UnicodeStringMaxByteCount,
     _Out_ PULONG UnicodeStringActualByteCount,
-    _In_reads_bytes_(UTF8StringByteCount) PCH UTF8StringSource,
+    _In_reads_bytes_(UTF8StringByteCount) PCCH UTF8StringSource,
     _In_ ULONG UTF8StringByteCount
     );
 #endif
@@ -19436,7 +19769,7 @@ RtlUnicodeToUTF8N(
     _Out_writes_bytes_to_(UTF8StringMaxByteCount, *UTF8StringActualByteCount) PCHAR UTF8StringDestination,
     _In_ ULONG UTF8StringMaxByteCount,
     _Out_ PULONG UTF8StringActualByteCount,
-    _In_reads_bytes_(UnicodeStringByteCount) PWCH UnicodeStringSource,
+    _In_reads_bytes_(UnicodeStringByteCount) PCWCH UnicodeStringSource,
     _In_ ULONG UnicodeStringByteCount
     );
 #endif
@@ -19648,7 +19981,7 @@ NTSTATUS
 NTAPI
 RtlIdnToAscii(
     _In_ ULONG Flags,
-    _In_ PWSTR SourceString,
+    _In_ PCWSTR SourceString,
     _In_ LONG SourceStringLength,
     _Out_writes_to_(*DestinationStringLength, *DestinationStringLength) PWSTR DestinationString,
     _Inout_ PLONG DestinationStringLength
@@ -19659,7 +19992,7 @@ NTSTATUS
 NTAPI
 RtlIdnToUnicode(
     _In_ ULONG Flags,
-    _In_ PWSTR SourceString,
+    _In_ PCWSTR SourceString,
     _In_ LONG SourceStringLength,
     _Out_writes_to_(*DestinationStringLength, *DestinationStringLength) PWSTR DestinationString,
     _Inout_ PLONG DestinationStringLength
@@ -19670,7 +20003,7 @@ NTSTATUS
 NTAPI
 RtlIdnToNameprepUnicode(
     _In_ ULONG Flags,
-    _In_ PWSTR SourceString,
+    _In_ PCWSTR SourceString,
     _In_ LONG SourceStringLength,
     _Out_writes_to_(*DestinationStringLength, *DestinationStringLength) PWSTR DestinationString,
     _Inout_ PLONG DestinationStringLength
@@ -19936,7 +20269,7 @@ NTSYSAPI
 BOOLEAN
 NTAPI
 RtlIsValidLocaleName(
-    _In_ PWSTR LocaleName,
+    _In_ PCWSTR LocaleName,
     _In_ ULONG Flags
     );
 
@@ -19945,7 +20278,7 @@ NTSYSAPI
 NTSTATUS
 NTAPI
 RtlGetParentLocaleName(
-    _In_ PWSTR LocaleName,
+    _In_ PCWSTR LocaleName,
     _Inout_ PUNICODE_STRING ParentLocaleName,
     _In_ ULONG Flags,
     _In_ BOOLEAN AllocateDestinationString
@@ -19967,7 +20300,7 @@ NTSYSAPI
 NTSTATUS
 NTAPI
 RtlLocaleNameToLcid(
-    _In_ PWSTR LocaleName,
+    _In_ PCWSTR LocaleName,
     _Out_ PLCID lcid,
     _In_ ULONG Flags
     );
@@ -20209,8 +20542,8 @@ RtlDeNormalizeProcessParams(
 typedef struct _RTL_USER_PROCESS_INFORMATION
 {
     ULONG Length;
-    HANDLE Process;
-    HANDLE Thread;
+    HANDLE ProcessHandle;
+    HANDLE ThreadHandle;
     CLIENT_ID ClientId;
     SECTION_IMAGE_INFORMATION ImageInformation;
 } RTL_USER_PROCESS_INFORMATION, *PRTL_USER_PROCESS_INFORMATION;
@@ -20772,7 +21105,7 @@ PVOID
 NTAPI
 RtlFindExportedRoutineByName(
     _In_ PVOID BaseOfImage,
-    _In_ PSTR RoutineName
+    _In_ PCSTR RoutineName
     );
 
 #endif
@@ -20869,10 +21202,10 @@ NTSYSAPI
 NTSTATUS
 NTAPI
 RtlSetEnvironmentVar(
-    _In_opt_ PWSTR *Environment,
-    _In_reads_(NameLength) PWSTR Name,
+    _Inout_opt_ PVOID *Environment,
+    _In_reads_(NameLength) PCWSTR Name,
     _In_ SIZE_T NameLength,
-    _In_reads_(ValueLength) PWSTR Value,
+    _In_reads_(ValueLength) PCWSTR Value,
     _In_ SIZE_T ValueLength
     );
 #endif
@@ -20881,7 +21214,7 @@ NTSYSAPI
 NTSTATUS
 NTAPI
 RtlSetEnvironmentVariable(
-    _In_opt_ PVOID *Environment,
+    _Inout_opt_ PVOID *Environment,
     _In_ PUNICODE_STRING Name,
     _In_opt_ PUNICODE_STRING Value
     );
@@ -20893,7 +21226,7 @@ NTSTATUS
 NTAPI
 RtlQueryEnvironmentVariable(
     _In_opt_ PVOID Environment,
-    _In_reads_(NameLength) PWSTR Name,
+    _In_reads_(NameLength) PCWSTR Name,
     _In_ SIZE_T NameLength,
     _Out_writes_(ValueLength) PWSTR Value,
     _In_ SIZE_T ValueLength,
@@ -20907,7 +21240,7 @@ NTAPI
 RtlQueryEnvironmentVariable_U(
     _In_opt_ PVOID Environment,
     _In_ PUNICODE_STRING Name,
-    _Out_ PUNICODE_STRING Value
+    _Inout_ PUNICODE_STRING Value
     );
 
 #if (NTDDI_VERSION >= NTDDI_VISTA)
@@ -20917,7 +21250,7 @@ NTSTATUS
 NTAPI
 RtlExpandEnvironmentStrings(
     _In_opt_ PVOID Environment,
-    _In_reads_(SrcLength) PWSTR Src,
+    _In_reads_(SrcLength) PCWSTR Src,
     _In_ SIZE_T SrcLength,
     _Out_writes_(DstLength) PWSTR Dst,
     _In_ SIZE_T DstLength,
@@ -20931,7 +21264,7 @@ NTAPI
 RtlExpandEnvironmentStrings_U(
     _In_opt_ PVOID Environment,
     _In_ PUNICODE_STRING Source,
-    _Out_ PUNICODE_STRING Destination,
+    _Inout_ PUNICODE_STRING Destination,
     _Out_opt_ PULONG ReturnedLength
     );
 
@@ -20939,7 +21272,7 @@ NTSYSAPI
 NTSTATUS
 NTAPI
 RtlSetEnvironmentStrings(
-    _In_ PWCHAR NewEnvironment,
+    _In_ PCWCHAR NewEnvironment,
     _In_ SIZE_T NewEnvironmentSize
     );
 
@@ -20983,7 +21316,7 @@ NTSYSAPI
 RTL_PATH_TYPE
 NTAPI
 RtlDetermineDosPathNameType_U(
-    _In_ PWSTR DosFileName
+    _In_ PCWSTR DosFileName
     );
 
 NTSYSAPI
@@ -20997,7 +21330,7 @@ NTSYSAPI
 ULONG
 NTAPI
 RtlIsDosDeviceName_U(
-    _In_ PWSTR DosFileName
+    _In_ PCWSTR DosFileName
     );
 
 NTSYSAPI
@@ -21011,7 +21344,7 @@ NTSYSAPI
 ULONG
 NTAPI
 RtlGetFullPathName_U(
-    _In_ PWSTR FileName,
+    _In_ PCWSTR FileName,
     _In_ ULONG BufferLength,
     _Out_writes_bytes_(BufferLength) PWSTR Buffer,
     _Out_opt_ PWSTR *FilePart
@@ -21023,7 +21356,7 @@ NTSYSAPI
 NTSTATUS
 NTAPI
 RtlGetFullPathName_UEx(
-    _In_ PWSTR FileName,
+    _In_ PCWSTR FileName,
     _In_ ULONG BufferLength,
     _Out_writes_bytes_(BufferLength) PWSTR Buffer,
     _Out_opt_ PWSTR *FilePart,
@@ -21073,7 +21406,7 @@ NTSYSAPI
 BOOLEAN
 NTAPI
 RtlDosPathNameToNtPathName_U(
-    _In_ PWSTR DosFileName,
+    _In_ PCWSTR DosFileName,
     _Out_ PUNICODE_STRING NtFileName,
     _Out_opt_ PWSTR *FilePart,
     _Out_opt_ PRTL_RELATIVE_NAME_U RelativeName
@@ -21084,7 +21417,7 @@ NTSYSAPI
 NTSTATUS
 NTAPI
 RtlDosPathNameToNtPathName_U_WithStatus(
-    _In_ PWSTR DosFileName,
+    _In_ PCWSTR DosFileName,
     _Out_ PUNICODE_STRING NtFileName,
     _Out_opt_ PWSTR *FilePart,
     _Out_opt_ PRTL_RELATIVE_NAME_U RelativeName
@@ -21097,7 +21430,7 @@ NTSYSAPI
 NTSTATUS
 NTAPI
 RtlDosLongPathNameToNtPathName_U_WithStatus(
-    _In_ PWSTR DosFileName,
+    _In_ PCWSTR DosFileName,
     _Out_ PUNICODE_STRING NtFileName,
     _Out_opt_ PWSTR *FilePart,
     _Out_opt_ PRTL_RELATIVE_NAME_U RelativeName
@@ -21109,7 +21442,7 @@ NTSYSAPI
 BOOLEAN
 NTAPI
 RtlDosPathNameToRelativeNtPathName_U(
-    _In_ PWSTR DosFileName,
+    _In_ PCWSTR DosFileName,
     _Out_ PUNICODE_STRING NtFileName,
     _Out_opt_ PWSTR *FilePart,
     _Out_opt_ PRTL_RELATIVE_NAME_U RelativeName
@@ -21121,7 +21454,7 @@ NTSYSAPI
 NTSTATUS
 NTAPI
 RtlDosPathNameToRelativeNtPathName_U_WithStatus(
-    _In_ PWSTR DosFileName,
+    _In_ PCWSTR DosFileName,
     _Out_ PUNICODE_STRING NtFileName,
     _Out_opt_ PWSTR *FilePart,
     _Out_opt_ PRTL_RELATIVE_NAME_U RelativeName
@@ -21134,7 +21467,7 @@ NTSYSAPI
 NTSTATUS
 NTAPI
 RtlDosLongPathNameToRelativeNtPathName_U_WithStatus(
-    _In_ PWSTR DosFileName,
+    _In_ PCWSTR DosFileName,
     _Out_ PUNICODE_STRING NtFileName,
     _Out_opt_ PWSTR *FilePart,
     _Out_opt_ PRTL_RELATIVE_NAME_U RelativeName
@@ -21154,9 +21487,9 @@ NTSYSAPI
 ULONG
 NTAPI
 RtlDosSearchPath_U(
-    _In_ PWSTR Path,
-    _In_ PWSTR FileName,
-    _In_opt_ PWSTR Extension,
+    _In_ PCWSTR Path,
+    _In_ PCWSTR FileName,
+    _In_opt_ PCWSTR Extension,
     _In_ ULONG BufferLength,
     _Out_writes_bytes_(BufferLength) PWSTR Buffer,
     _Out_opt_ PWSTR *FilePart
@@ -21185,7 +21518,7 @@ NTSYSAPI
 BOOLEAN
 NTAPI
 RtlDoesFileExists_U(
-    _In_ PWSTR FileName
+    _In_ PCWSTR FileName
     );
 
 NTSYSAPI
@@ -21683,6 +22016,7 @@ RtlWalkHeap(
 #define HeapOptimizeResources 0x3 // q; s: HEAP_OPTIMIZE_RESOURCES_INFORMATION 
 #define HeapTaggingInformation 0x4
 #define HeapStackDatabase 0x5
+#define HeapMemoryLimit 0x6 // 19H2
 #define HeapDetailedFailureInformation 0x80000001
 #define HeapSetDebuggingInformation 0x80000002 // q; s: HEAP_DEBUGGING_INFORMATION
 
@@ -22420,7 +22754,7 @@ NTSYSAPI
 NTSTATUS
 NTAPI
 RtlCharToInteger(
-    _In_ PSTR String,
+    _In_ PCSTR String,
     _In_opt_ ULONG Base,
     _Out_ PULONG Value
     );
@@ -23388,6 +23722,14 @@ RtlReplaceSidInSd(
 NTSYSAPI
 NTSTATUS
 NTAPI
+RtlLengthSidAsUnicodeString(
+    _In_ PSID Sid,
+    _Out_ PULONG StringLength
+    );
+
+NTSYSAPI
+NTSTATUS
+NTAPI
 RtlConvertSidToUnicodeString(
     _Inout_ PUNICODE_STRING UnicodeString,
     _In_ PSID Sid,
@@ -24183,14 +24525,14 @@ NTSYSAPI
 NTSTATUS
 NTAPI
 RtlGetVersion(
-    _Out_ PRTL_OSVERSIONINFOW lpVersionInformation
+    _Out_ PRTL_OSVERSIONINFOEXW VersionInformation // PRTL_OSVERSIONINFOW
     );
 
 NTSYSAPI
 NTSTATUS
 NTAPI
 RtlVerifyVersionInfo(
-    _In_ PRTL_OSVERSIONINFOEXW VersionInfo,
+    _In_ PRTL_OSVERSIONINFOEXW VersionInformation, // PRTL_OSVERSIONINFOW
     _In_ ULONG TypeMask,
     _In_ ULONGLONG ConditionMask
     );
@@ -24354,7 +24696,7 @@ NTAPI
 RtlDeleteTimer(
     _In_ HANDLE TimerQueueHandle,
     _In_ HANDLE TimerToCancel,
-    _In_ HANDLE Event
+    _In_opt_ HANDLE Event
     );
 
 NTSYSAPI
@@ -24448,7 +24790,7 @@ NTSTATUS
 NTAPI
 RtlQueryRegistryValues(
     _In_ ULONG RelativeTo,
-    _In_ PWSTR Path,
+    _In_ PCWSTR Path,
     _In_ PRTL_QUERY_REGISTRY_TABLE QueryTable,
     _In_ PVOID Context,
     _In_opt_ PVOID Environment
@@ -24460,7 +24802,7 @@ NTSTATUS
 NTAPI
 RtlQueryRegistryValuesEx(
     _In_ ULONG RelativeTo,
-    _In_ PWSTR Path,
+    _In_ PCWSTR Path,
     _In_ PRTL_QUERY_REGISTRY_TABLE QueryTable,
     _In_ PVOID Context,
     _In_opt_ PVOID Environment
@@ -24471,8 +24813,8 @@ NTSTATUS
 NTAPI
 RtlWriteRegistryValue(
     _In_ ULONG RelativeTo,
-    _In_ PWSTR Path,
-    _In_ PWSTR ValueName,
+    _In_ PCWSTR Path,
+    _In_ PCWSTR ValueName,
     _In_ ULONG ValueType,
     _In_ PVOID ValueData,
     _In_ ULONG ValueLength
@@ -24483,8 +24825,8 @@ NTSTATUS
 NTAPI
 RtlDeleteRegistryValue(
     _In_ ULONG RelativeTo,
-    _In_ PWSTR Path,
-    _In_ PWSTR ValueName
+    _In_ PCWSTR Path,
+    _In_ PCWSTR ValueName
     );
 
 // Thread profiling
@@ -25191,7 +25533,7 @@ RtlQueryTokenHostIdAsUlong64(
 
 // rev
 NTSYSAPI
-NTSTATUS
+BOOLEAN
 NTAPI
 RtlIsParentOfChildAppContainer(
     _In_ PSID ParentAppContainerSid,
@@ -25956,7 +26298,7 @@ NtAdjustPrivilegesToken(
     _In_opt_ PTOKEN_PRIVILEGES NewState,
     _In_ ULONG BufferLength,
     _Out_writes_bytes_to_opt_(BufferLength, *ReturnLength) PTOKEN_PRIVILEGES PreviousState,
-    _Out_ _When_(PreviousState == NULL, _Out_opt_) PULONG ReturnLength
+    _Out_opt_ PULONG ReturnLength
     );
 
 NTSYSCALLAPI
@@ -25968,7 +26310,7 @@ ZwAdjustPrivilegesToken(
     _In_opt_ PTOKEN_PRIVILEGES NewState,
     _In_ ULONG BufferLength,
     _Out_writes_bytes_to_opt_(BufferLength, *ReturnLength) PTOKEN_PRIVILEGES PreviousState,
-    _Out_ _When_(PreviousState == NULL, _Out_opt_) PULONG ReturnLength
+    _Out_opt_ PULONG ReturnLength
     );
 
 NTSYSCALLAPI
@@ -27527,7 +27869,7 @@ VOID
 NTAPI
 TpSetPoolMaxThreads(
     _Inout_ PTP_POOL Pool,
-    _In_ LONG MaxThreads
+    _In_ ULONG MaxThreads
     );
 
 // private
@@ -27536,7 +27878,7 @@ NTSTATUS
 NTAPI
 TpSetPoolMinThreads(
     _Inout_ PTP_POOL Pool,
-    _In_ LONG MinThreads
+    _In_ ULONG MinThreads
     );
 
 #if (NTDDI_VERSION >= NTDDI_WIN7)
@@ -27604,7 +27946,7 @@ NTAPI
 TpCallbackReleaseSemaphoreOnCompletion(
     _Inout_ PTP_CALLBACK_INSTANCE Instance,
     _In_ HANDLE Semaphore,
-    _In_ LONG ReleaseCount
+    _In_ ULONG ReleaseCount
     );
 
 // winbase:ReleaseMutexWhenCallbackReturns
@@ -27725,9 +28067,22 @@ NTAPI
 TpSetTimer(
     _Inout_ PTP_TIMER Timer,
     _In_opt_ PLARGE_INTEGER DueTime,
-    _In_ LONG Period,
-    _In_opt_ LONG WindowLength
+    _In_ ULONG Period,
+    _In_opt_ ULONG WindowLength
     );
+
+#if (NTDDI_VERSION >= NTDDI_WIN7)
+// winbase:SetThreadpoolTimerEx
+NTSYSAPI
+NTSTATUS
+NTAPI
+TpSetTimerEx(
+    _Inout_ PTP_TIMER Timer,
+    _In_opt_ PLARGE_INTEGER DueTime,
+    _In_ ULONG Period,
+    _In_opt_ ULONG WindowLength
+    );
+#endif
 
 // winbase:IsThreadpoolTimerSet
 NTSYSAPI
@@ -27775,6 +28130,19 @@ TpSetWait(
     _In_opt_ HANDLE Handle,
     _In_opt_ PLARGE_INTEGER Timeout
     );
+
+#if (NTDDI_VERSION >= NTDDI_WIN7)
+// winbase:SetThreadpoolWaitEx
+NTSYSAPI
+NTSTATUS
+NTAPI
+TpSetWaitEx(
+    _Inout_ PTP_WAIT Wait,
+    _In_opt_ HANDLE Handle,
+    _In_opt_ PLARGE_INTEGER Timeout,
+    _In_opt_ PVOID Reserved
+    );
+#endif
 
 // winbase:WaitForThreadpoolWaitCallbacks
 NTSYSAPI
@@ -29528,209 +29896,36 @@ typedef struct _SR_SECURITY_DESCRIPTOR
 
 typedef enum _USER_INFORMATION_CLASS
 {
-    UserGeneralInformation = 1,
-    UserPreferencesInformation,
-    UserLogonInformation,
-    UserLogonHoursInformation,
-    UserAccountInformation,
-    UserNameInformation,
-    UserAccountNameInformation,
-    UserFullNameInformation,
-    UserPrimaryGroupInformation,
-    UserHomeInformation,
-    UserScriptInformation,
-    UserProfileInformation,
-    UserAdminCommentInformation,
-    UserWorkStationsInformation,
-    UserSetPasswordInformation,
-    UserControlInformation,
-    UserExpiresInformation,
+    UserGeneralInformation = 1, // USER_GENERAL_INFORMATION
+    UserPreferencesInformation, // USER_PREFERENCES_INFORMATION
+    UserLogonInformation, // USER_LOGON_INFORMATION
+    UserLogonHoursInformation, // USER_LOGON_HOURS_INFORMATION
+    UserAccountInformation, // USER_ACCOUNT_INFORMATION
+    UserNameInformation, // USER_NAME_INFORMATION
+    UserAccountNameInformation, // USER_ACCOUNT_NAME_INFORMATION
+    UserFullNameInformation, // USER_FULL_NAME_INFORMATION
+    UserPrimaryGroupInformation, // USER_PRIMARY_GROUP_INFORMATION
+    UserHomeInformation, // USER_HOME_INFORMATION
+    UserScriptInformation, // USER_SCRIPT_INFORMATION
+    UserProfileInformation, // USER_PROFILE_INFORMATION
+    UserAdminCommentInformation, // USER_ADMIN_COMMENT_INFORMATION
+    UserWorkStationsInformation, // USER_WORKSTATIONS_INFORMATION
+    UserSetPasswordInformation, // USER_SET_PASSWORD_INFORMATION
+    UserControlInformation, // USER_CONTROL_INFORMATION
+    UserExpiresInformation, // USER_EXPIRES_INFORMATION
     UserInternal1Information,
     UserInternal2Information,
-    UserParametersInformation,
-    UserAllInformation,
+    UserParametersInformation, // USER_PARAMETERS_INFORMATION
+    UserAllInformation, // USER_ALL_INFORMATION
     UserInternal3Information,
     UserInternal4Information,
     UserInternal5Information,
     UserInternal4InformationNew,
     UserInternal5InformationNew,
     UserInternal6Information,
-    UserExtendedInformation,
-    UserLogonUIInformation
+    UserExtendedInformation, // USER_EXTENDED_INFORMATION
+    UserLogonUIInformation // USER_LOGON_UI_INFORMATION
 } USER_INFORMATION_CLASS, *PUSER_INFORMATION_CLASS;
-
-#include <pshpack4.h>
-typedef struct _USER_ALL_INFORMATION
-{
-    LARGE_INTEGER LastLogon;
-    LARGE_INTEGER LastLogoff;
-    LARGE_INTEGER PasswordLastSet;
-    LARGE_INTEGER AccountExpires;
-    LARGE_INTEGER PasswordCanChange;
-    LARGE_INTEGER PasswordMustChange;
-    UNICODE_STRING UserName;
-    UNICODE_STRING FullName;
-    UNICODE_STRING HomeDirectory;
-    UNICODE_STRING HomeDirectoryDrive;
-    UNICODE_STRING ScriptPath;
-    UNICODE_STRING ProfilePath;
-    UNICODE_STRING AdminComment;
-    UNICODE_STRING WorkStations;
-    UNICODE_STRING UserComment;
-    UNICODE_STRING Parameters;
-    UNICODE_STRING LmPassword;
-    UNICODE_STRING NtPassword;
-    UNICODE_STRING PrivateData;
-    SR_SECURITY_DESCRIPTOR SecurityDescriptor;
-    ULONG UserId;
-    ULONG PrimaryGroupId;
-    ULONG UserAccountControl;
-    ULONG WhichFields;
-    LOGON_HOURS LogonHours;
-    USHORT BadPasswordCount;
-    USHORT LogonCount;
-    USHORT CountryCode;
-    USHORT CodePage;
-    BOOLEAN LmPasswordPresent;
-    BOOLEAN NtPasswordPresent;
-    BOOLEAN PasswordExpired;
-    BOOLEAN PrivateDataSensitive;
-} USER_ALL_INFORMATION, *PUSER_ALL_INFORMATION;
-#include <poppack.h>
-
-// Flags for WhichFields in USER_ALL_INFORMATION
-
-#define USER_ALL_USERNAME 0x00000001
-#define USER_ALL_FULLNAME 0x00000002
-#define USER_ALL_USERID 0x00000004
-#define USER_ALL_PRIMARYGROUPID 0x00000008
-#define USER_ALL_ADMINCOMMENT 0x00000010
-#define USER_ALL_USERCOMMENT 0x00000020
-#define USER_ALL_HOMEDIRECTORY 0x00000040
-#define USER_ALL_HOMEDIRECTORYDRIVE 0x00000080
-#define USER_ALL_SCRIPTPATH 0x00000100
-#define USER_ALL_PROFILEPATH 0x00000200
-#define USER_ALL_WORKSTATIONS 0x00000400
-#define USER_ALL_LASTLOGON 0x00000800
-#define USER_ALL_LASTLOGOFF 0x00001000
-#define USER_ALL_LOGONHOURS 0x00002000
-#define USER_ALL_BADPASSWORDCOUNT 0x00004000
-#define USER_ALL_LOGONCOUNT 0x00008000
-#define USER_ALL_PASSWORDCANCHANGE 0x00010000
-#define USER_ALL_PASSWORDMUSTCHANGE 0x00020000
-#define USER_ALL_PASSWORDLASTSET 0x00040000
-#define USER_ALL_ACCOUNTEXPIRES 0x00080000
-#define USER_ALL_USERACCOUNTCONTROL 0x00100000
-#define USER_ALL_PARAMETERS 0x00200000
-#define USER_ALL_COUNTRYCODE 0x00400000
-#define USER_ALL_CODEPAGE 0x00800000
-#define USER_ALL_NTPASSWORDPRESENT 0x01000000 // field AND boolean
-#define USER_ALL_LMPASSWORDPRESENT 0x02000000 // field AND boolean
-#define USER_ALL_PRIVATEDATA 0x04000000 // field AND boolean
-#define USER_ALL_PASSWORDEXPIRED 0x08000000
-#define USER_ALL_SECURITYDESCRIPTOR 0x10000000
-#define USER_ALL_OWFPASSWORD 0x20000000 // boolean
-
-#define USER_ALL_UNDEFINED_MASK 0xc0000000
-
-// Fields that require USER_READ_GENERAL access to read.
-
-#define USER_ALL_READ_GENERAL_MASK (USER_ALL_USERNAME | \
-    USER_ALL_FULLNAME | \
-    USER_ALL_USERID | \
-    USER_ALL_PRIMARYGROUPID | \
-    USER_ALL_ADMINCOMMENT | \
-    USER_ALL_USERCOMMENT)
-
-// Fields that require USER_READ_LOGON access to read.
-
-#define USER_ALL_READ_LOGON_MASK (USER_ALL_HOMEDIRECTORY | \
-    USER_ALL_HOMEDIRECTORYDRIVE | \
-    USER_ALL_SCRIPTPATH | \
-    USER_ALL_PROFILEPATH | \
-    USER_ALL_WORKSTATIONS | \
-    USER_ALL_LASTLOGON | \
-    USER_ALL_LASTLOGOFF | \
-    USER_ALL_LOGONHOURS | \
-    USER_ALL_BADPASSWORDCOUNT | \
-    USER_ALL_LOGONCOUNT | \
-    USER_ALL_PASSWORDCANCHANGE | \
-    USER_ALL_PASSWORDMUSTCHANGE)
-
-// Fields that require USER_READ_ACCOUNT access to read.
-
-#define USER_ALL_READ_ACCOUNT_MASK (USER_ALL_PASSWORDLASTSET | \
-    USER_ALL_ACCOUNTEXPIRES | \
-    USER_ALL_USERACCOUNTCONTROL | \
-    USER_ALL_PARAMETERS)
-
-// Fields that require USER_READ_PREFERENCES access to read.
-
-#define USER_ALL_READ_PREFERENCES_MASK (USER_ALL_COUNTRYCODE | \
-    USER_ALL_CODEPAGE)
-
-// Fields that can only be read by trusted clients.
-
-#define USER_ALL_READ_TRUSTED_MASK (USER_ALL_NTPASSWORDPRESENT | \
-    USER_ALL_LMPASSWORDPRESENT | \
-    USER_ALL_PASSWORDEXPIRED | \
-    USER_ALL_SECURITYDESCRIPTOR | \
-    USER_ALL_PRIVATEDATA)
-
-// Fields that can't be read.
-
-#define USER_ALL_READ_CANT_MASK USER_ALL_UNDEFINED_MASK
-
-// Fields that require USER_WRITE_ACCOUNT access to write.
-
-#define USER_ALL_WRITE_ACCOUNT_MASK (USER_ALL_USERNAME | \
-    USER_ALL_FULLNAME | \
-    USER_ALL_PRIMARYGROUPID | \
-    USER_ALL_HOMEDIRECTORY | \
-    USER_ALL_HOMEDIRECTORYDRIVE | \
-    USER_ALL_SCRIPTPATH | \
-    USER_ALL_PROFILEPATH | \
-    USER_ALL_ADMINCOMMENT | \
-    USER_ALL_WORKSTATIONS | \
-    USER_ALL_LOGONHOURS | \
-    USER_ALL_ACCOUNTEXPIRES | \
-    USER_ALL_USERACCOUNTCONTROL | \
-    USER_ALL_PARAMETERS)
-
-// Fields that require USER_WRITE_PREFERENCES access to write.
-
-#define USER_ALL_WRITE_PREFERENCES_MASK (USER_ALL_USERCOMMENT | \
-    USER_ALL_COUNTRYCODE | \
-    USER_ALL_CODEPAGE)
-
-// Fields that require USER_FORCE_PASSWORD_CHANGE access to write.
-//
-// Note that non-trusted clients only set the NT password as a
-// UNICODE string. The wrapper will convert it to an LM password,
-// OWF and encrypt both versions. Trusted clients can pass in OWF
-// versions of either or both.
-
-#define USER_ALL_WRITE_FORCE_PASSWORD_CHANGE_MASK \
-    (USER_ALL_NTPASSWORDPRESENT | \
-    USER_ALL_LMPASSWORDPRESENT | \
-    USER_ALL_PASSWORDEXPIRED)
-
-// Fields that can only be written by trusted clients.
-
-#define USER_ALL_WRITE_TRUSTED_MASK (USER_ALL_LASTLOGON | \
-    USER_ALL_LASTLOGOFF | \
-    USER_ALL_BADPASSWORDCOUNT | \
-    USER_ALL_LOGONCOUNT | \
-    USER_ALL_PASSWORDLASTSET | \
-    USER_ALL_SECURITYDESCRIPTOR | \
-    USER_ALL_PRIVATEDATA)
-
-// Fields that can't be written.
-
-#define USER_ALL_WRITE_CANT_MASK (USER_ALL_USERID | \
-    USER_ALL_PASSWORDCANCHANGE | \
-    USER_ALL_PASSWORDMUSTCHANGE | \
-    USER_ALL_UNDEFINED_MASK)
 
 typedef struct _USER_GENERAL_INFORMATION
 {
@@ -29748,11 +29943,6 @@ typedef struct _USER_PREFERENCES_INFORMATION
     USHORT CountryCode;
     USHORT CodePage;
 } USER_PREFERENCES_INFORMATION, *PUSER_PREFERENCES_INFORMATION;
-
-typedef struct _USER_PARAMETERS_INFORMATION
-{
-    UNICODE_STRING Parameters;
-} USER_PARAMETERS_INFORMATION, *PUSER_PARAMETERS_INFORMATION;
 
 #include <pshpack4.h>
 typedef struct _USER_LOGON_INFORMATION
@@ -29775,8 +29965,13 @@ typedef struct _USER_LOGON_INFORMATION
     USHORT BadPasswordCount;
     USHORT LogonCount;
     ULONG UserAccountControl;
-} USER_LOGON_INFORMATION, *PUSER_LOGON_INFORMATION;
+} USER_LOGON_INFORMATION, * PUSER_LOGON_INFORMATION;
 #include <poppack.h>
+
+typedef struct _USER_LOGON_HOURS_INFORMATION
+{
+    LOGON_HOURS LogonHours;
+} USER_LOGON_HOURS_INFORMATION, * PUSER_LOGON_HOURS_INFORMATION;
 
 #include <pshpack4.h>
 typedef struct _USER_ACCOUNT_INFORMATION
@@ -29799,8 +29994,14 @@ typedef struct _USER_ACCOUNT_INFORMATION
     LARGE_INTEGER PasswordLastSet;
     LARGE_INTEGER AccountExpires;
     ULONG UserAccountControl;
-} USER_ACCOUNT_INFORMATION, *PUSER_ACCOUNT_INFORMATION;
+} USER_ACCOUNT_INFORMATION, * PUSER_ACCOUNT_INFORMATION;
 #include <poppack.h>
+
+typedef struct _USER_NAME_INFORMATION
+{
+    UNICODE_STRING UserName;
+    UNICODE_STRING FullName;
+} USER_NAME_INFORMATION, *PUSER_NAME_INFORMATION;
 
 typedef struct _USER_ACCOUNT_NAME_INFORMATION
 {
@@ -29811,12 +30012,6 @@ typedef struct _USER_FULL_NAME_INFORMATION
 {
     UNICODE_STRING FullName;
 } USER_FULL_NAME_INFORMATION, *PUSER_FULL_NAME_INFORMATION;
-
-typedef struct _USER_NAME_INFORMATION
-{
-    UNICODE_STRING UserName;
-    UNICODE_STRING FullName;
-} USER_NAME_INFORMATION, *PUSER_NAME_INFORMATION;
 
 typedef struct _USER_PRIMARY_GROUP_INFORMATION
 {
@@ -29865,10 +30060,189 @@ typedef struct _USER_EXPIRES_INFORMATION
     LARGE_INTEGER AccountExpires;
 } USER_EXPIRES_INFORMATION, *PUSER_EXPIRES_INFORMATION;
 
-typedef struct _USER_LOGON_HOURS_INFORMATION
+typedef struct _USER_PARAMETERS_INFORMATION
 {
+    UNICODE_STRING Parameters;
+} USER_PARAMETERS_INFORMATION, *PUSER_PARAMETERS_INFORMATION;
+
+// Flags for WhichFields in USER_ALL_INFORMATION
+
+#define USER_ALL_USERNAME 0x00000001
+#define USER_ALL_FULLNAME 0x00000002
+#define USER_ALL_USERID 0x00000004
+#define USER_ALL_PRIMARYGROUPID 0x00000008
+#define USER_ALL_ADMINCOMMENT 0x00000010
+#define USER_ALL_USERCOMMENT 0x00000020
+#define USER_ALL_HOMEDIRECTORY 0x00000040
+#define USER_ALL_HOMEDIRECTORYDRIVE 0x00000080
+#define USER_ALL_SCRIPTPATH 0x00000100
+#define USER_ALL_PROFILEPATH 0x00000200
+#define USER_ALL_WORKSTATIONS 0x00000400
+#define USER_ALL_LASTLOGON 0x00000800
+#define USER_ALL_LASTLOGOFF 0x00001000
+#define USER_ALL_LOGONHOURS 0x00002000
+#define USER_ALL_BADPASSWORDCOUNT 0x00004000
+#define USER_ALL_LOGONCOUNT 0x00008000
+#define USER_ALL_PASSWORDCANCHANGE 0x00010000
+#define USER_ALL_PASSWORDMUSTCHANGE 0x00020000
+#define USER_ALL_PASSWORDLASTSET 0x00040000
+#define USER_ALL_ACCOUNTEXPIRES 0x00080000
+#define USER_ALL_USERACCOUNTCONTROL 0x00100000
+#define USER_ALL_PARAMETERS 0x00200000
+#define USER_ALL_COUNTRYCODE 0x00400000
+#define USER_ALL_CODEPAGE 0x00800000
+#define USER_ALL_NTPASSWORDPRESENT 0x01000000 // field AND boolean
+#define USER_ALL_LMPASSWORDPRESENT 0x02000000 // field AND boolean
+#define USER_ALL_PRIVATEDATA 0x04000000 // field AND boolean
+#define USER_ALL_PASSWORDEXPIRED 0x08000000
+#define USER_ALL_SECURITYDESCRIPTOR 0x10000000
+#define USER_ALL_OWFPASSWORD 0x20000000 // boolean
+
+#define USER_ALL_UNDEFINED_MASK 0xc0000000
+
+// Fields that require USER_READ_GENERAL access to read.
+
+#define USER_ALL_READ_GENERAL_MASK \
+    (USER_ALL_USERNAME | \
+    USER_ALL_FULLNAME | \
+    USER_ALL_USERID | \
+    USER_ALL_PRIMARYGROUPID | \
+    USER_ALL_ADMINCOMMENT | \
+    USER_ALL_USERCOMMENT)
+
+// Fields that require USER_READ_LOGON access to read.
+
+#define USER_ALL_READ_LOGON_MASK \
+   (USER_ALL_HOMEDIRECTORY | \
+    USER_ALL_HOMEDIRECTORYDRIVE | \
+    USER_ALL_SCRIPTPATH | \
+    USER_ALL_PROFILEPATH | \
+    USER_ALL_WORKSTATIONS | \
+    USER_ALL_LASTLOGON | \
+    USER_ALL_LASTLOGOFF | \
+    USER_ALL_LOGONHOURS | \
+    USER_ALL_BADPASSWORDCOUNT | \
+    USER_ALL_LOGONCOUNT | \
+    USER_ALL_PASSWORDCANCHANGE | \
+    USER_ALL_PASSWORDMUSTCHANGE)
+
+// Fields that require USER_READ_ACCOUNT access to read.
+
+#define USER_ALL_READ_ACCOUNT_MASK \
+    (USER_ALL_PASSWORDLASTSET | \
+    USER_ALL_ACCOUNTEXPIRES | \
+    USER_ALL_USERACCOUNTCONTROL | \
+    USER_ALL_PARAMETERS)
+
+// Fields that require USER_READ_PREFERENCES access to read.
+
+#define USER_ALL_READ_PREFERENCES_MASK \
+    (USER_ALL_COUNTRYCODE | USER_ALL_CODEPAGE)
+
+// Fields that can only be read by trusted clients.
+
+#define USER_ALL_READ_TRUSTED_MASK \
+    (USER_ALL_NTPASSWORDPRESENT | \
+    USER_ALL_LMPASSWORDPRESENT | \
+    USER_ALL_PASSWORDEXPIRED | \
+    USER_ALL_SECURITYDESCRIPTOR | \
+    USER_ALL_PRIVATEDATA)
+
+// Fields that can't be read.
+
+#define USER_ALL_READ_CANT_MASK USER_ALL_UNDEFINED_MASK
+
+// Fields that require USER_WRITE_ACCOUNT access to write.
+
+#define USER_ALL_WRITE_ACCOUNT_MASK \
+    (USER_ALL_USERNAME | \
+    USER_ALL_FULLNAME | \
+    USER_ALL_PRIMARYGROUPID | \
+    USER_ALL_HOMEDIRECTORY | \
+    USER_ALL_HOMEDIRECTORYDRIVE | \
+    USER_ALL_SCRIPTPATH | \
+    USER_ALL_PROFILEPATH | \
+    USER_ALL_ADMINCOMMENT | \
+    USER_ALL_WORKSTATIONS | \
+    USER_ALL_LOGONHOURS | \
+    USER_ALL_ACCOUNTEXPIRES | \
+    USER_ALL_USERACCOUNTCONTROL | \
+    USER_ALL_PARAMETERS)
+
+// Fields that require USER_WRITE_PREFERENCES access to write.
+
+#define USER_ALL_WRITE_PREFERENCES_MASK \
+    (USER_ALL_USERCOMMENT | USER_ALL_COUNTRYCODE | USER_ALL_CODEPAGE)
+
+// Fields that require USER_FORCE_PASSWORD_CHANGE access to write.
+//
+// Note that non-trusted clients only set the NT password as a
+// UNICODE string. The wrapper will convert it to an LM password,
+// OWF and encrypt both versions. Trusted clients can pass in OWF
+// versions of either or both.
+
+#define USER_ALL_WRITE_FORCE_PASSWORD_CHANGE_MASK \
+    (USER_ALL_NTPASSWORDPRESENT | \
+    USER_ALL_LMPASSWORDPRESENT | \
+    USER_ALL_PASSWORDEXPIRED)
+
+// Fields that can only be written by trusted clients.
+
+#define USER_ALL_WRITE_TRUSTED_MASK \
+    (USER_ALL_LASTLOGON | \
+    USER_ALL_LASTLOGOFF | \
+    USER_ALL_BADPASSWORDCOUNT | \
+    USER_ALL_LOGONCOUNT | \
+    USER_ALL_PASSWORDLASTSET | \
+    USER_ALL_SECURITYDESCRIPTOR | \
+    USER_ALL_PRIVATEDATA)
+
+// Fields that can't be written.
+
+#define USER_ALL_WRITE_CANT_MASK \
+    (USER_ALL_USERID | \
+    USER_ALL_PASSWORDCANCHANGE | \
+    USER_ALL_PASSWORDMUSTCHANGE | \
+    USER_ALL_UNDEFINED_MASK)
+
+#include <pshpack4.h>
+typedef struct _USER_ALL_INFORMATION
+{
+    LARGE_INTEGER LastLogon;
+    LARGE_INTEGER LastLogoff;
+    LARGE_INTEGER PasswordLastSet;
+    LARGE_INTEGER AccountExpires;
+    LARGE_INTEGER PasswordCanChange;
+    LARGE_INTEGER PasswordMustChange;
+    UNICODE_STRING UserName;
+    UNICODE_STRING FullName;
+    UNICODE_STRING HomeDirectory;
+    UNICODE_STRING HomeDirectoryDrive;
+    UNICODE_STRING ScriptPath;
+    UNICODE_STRING ProfilePath;
+    UNICODE_STRING AdminComment;
+    UNICODE_STRING WorkStations;
+    UNICODE_STRING UserComment;
+    UNICODE_STRING Parameters;
+    UNICODE_STRING LmPassword;
+    UNICODE_STRING NtPassword;
+    UNICODE_STRING PrivateData;
+    SR_SECURITY_DESCRIPTOR SecurityDescriptor;
+    ULONG UserId;
+    ULONG PrimaryGroupId;
+    ULONG UserAccountControl;
+    ULONG WhichFields;
     LOGON_HOURS LogonHours;
-} USER_LOGON_HOURS_INFORMATION, *PUSER_LOGON_HOURS_INFORMATION;
+    USHORT BadPasswordCount;
+    USHORT LogonCount;
+    USHORT CountryCode;
+    USHORT CodePage;
+    BOOLEAN LmPasswordPresent;
+    BOOLEAN NtPasswordPresent;
+    BOOLEAN PasswordExpired;
+    BOOLEAN PrivateDataSensitive;
+} USER_ALL_INFORMATION, *PUSER_ALL_INFORMATION;
+#include <poppack.h>
 
 typedef SAM_BYTE_ARRAY_32K SAM_USER_TILE, *PSAM_USER_TILE;
 
@@ -30370,17 +30744,59 @@ ZwTraceEvent(
     _In_ PVOID Fields
     );
 
+typedef enum _TRACE_CONTROL_INFORMATION_CLASS
+{
+    TraceControlStartLogger = 1,
+    TraceControlStopLogger = 2,
+    TraceControlQueryLogger = 3,
+    TraceControlUpdateLogger = 4,
+    TraceControlFlushLogger = 5,
+    TraceControlIncrementLoggerFile = 6,
+
+    TraceControlRealtimeConnect = 11,
+    TraceControlWdiDispatchControl = 13,
+    TraceControlRealtimeDisconnectConsumerByHandle = 14,
+
+    TraceControlReceiveNotification = 16,
+    TraceControlEnableGuid = 17,
+    TraceControlSendReplyDataBlock = 18,
+    TraceControlReceiveReplyDataBlock = 19,
+    TraceControlWdiUpdateSem = 20,
+    TraceControlGetTraceGuidList = 21,
+    TraceControlGetTraceGuidInfo = 22,
+    TraceControlEnumerateTraceGuids = 23,
+
+    TraceControlQueryReferenceTime = 25,
+    TraceControlTrackProviderBinary = 26,
+    TraceControlAddNotificationEvent = 27,
+    TraceControlUpdateDisallowList = 28,
+
+    TraceControlUseDescriptorTypeUm = 31,
+    TraceControlGetTraceGroupList = 32,
+    TraceControlGetTraceGroupInfo = 33,
+    TraceControlTraceSetDisallowList= 34,
+    TraceControlSetCompressionSettings = 35,
+    TraceControlGetCompressionSettings= 36,
+    TraceControlUpdatePeriodicCaptureState = 37,
+    TraceControlGetPrivateSessionTraceHandle = 38,
+    TraceControlRegisterPrivateSession = 39,
+    TraceControlQuerySessionDemuxObject = 40,
+    TraceControlSetProviderBinaryTracking = 41,
+    TraceControlMaxLoggers = 42,
+    TraceControlMaxPmcCounter = 43
+} TRACE_CONTROL_INFORMATION_CLASS;
+
 #if (NTDDI_VERSION >= NTDDI_VISTA)
 // private
 NTSYSCALLAPI
 NTSTATUS
 NTAPI
 NtTraceControl(
-    _In_ ULONG FunctionCode,
-    _In_reads_bytes_opt_(InBufferLen) PVOID InBuffer,
-    _In_ ULONG InBufferLen,
-    _Out_writes_bytes_opt_(OutBufferLen) PVOID OutBuffer,
-    _In_ ULONG OutBufferLen,
+    _In_ TRACE_CONTROL_INFORMATION_CLASS TraceInformationClass,
+    _In_reads_bytes_opt_(InputBufferLength) PVOID InputBuffer,
+    _In_ ULONG InputBufferLength,
+    _Out_writes_bytes_opt_(TraceInformationLength) PVOID TraceInformation,
+    _In_ ULONG TraceInformationLength,
     _Out_ PULONG ReturnLength
     );
 
@@ -30388,11 +30804,11 @@ NTSYSCALLAPI
 NTSTATUS
 NTAPI
 ZwTraceControl(
-    _In_ ULONG FunctionCode,
-    _In_reads_bytes_opt_(InBufferLen) PVOID InBuffer,
-    _In_ ULONG InBufferLen,
-    _Out_writes_bytes_opt_(OutBufferLen) PVOID OutBuffer,
-    _In_ ULONG OutBufferLen,
+    _In_ TRACE_CONTROL_INFORMATION_CLASS TraceInformationClass,
+    _In_reads_bytes_opt_(InputBufferLength) PVOID InputBuffer,
+    _In_ ULONG InputBufferLength,
+    _Out_writes_bytes_opt_(TraceInformationLength) PVOID TraceInformation,
+    _In_ ULONG TraceInformationLength,
     _Out_ PULONG ReturnLength
     );
 #endif

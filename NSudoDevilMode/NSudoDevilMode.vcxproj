@@ -59,6 +59,7 @@
   <ImportGroup Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\libkcrt\libkcrt.props" />
+    <Import Project="..\MINT\MINT.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
@@ -108,7 +109,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="detours.h" />
-    <ClInclude Include="MINT.h" />
     <ClInclude Include="NSudoDevilModeVersion.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
