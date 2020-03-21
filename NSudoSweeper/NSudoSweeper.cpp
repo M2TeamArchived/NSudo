@@ -12,32 +12,36 @@
 
 #include "NSudoSweeperVersion.h"
 
+#define _ATL_NO_AUTOMATIC_NAMESPACE
 #include <atlbase.h>
+#include <atlwin.h>
 
+#define _WTL_NO_AUTOMATIC_NAMESPACE
+#define _ATL_NO_OPENGL
 #include "WTL/atlapp.h"
 #include "WTL/atlcrack.h"
 #include "WTL/atlctrls.h"
 #include "WTL/atlframe.h"
 #include "WTL/atlmisc.h"
 
-CAppModule _Module;
+WTL::CAppModule _Module;
 
 class CMainWindow :
-    public CFrameWindowImpl<CMainWindow>,
-    public CUpdateUI<CMainWindow>,
-    public CMessageFilter,
-    public CIdleHandler
+    public WTL::CFrameWindowImpl<CMainWindow>,
+    public WTL::CUpdateUI<CMainWindow>,
+    public WTL::CMessageFilter,
+    public WTL::CIdleHandler
 {
 private:
 
-    CFont UIFont;
+    WTL::CFont UIFont;
 
-    CStatic ContentControl;
+    WTL::CStatic ContentControl;
 
-    CListViewCtrl ItemList;
+    WTL::CListViewCtrl ItemList;
 
-    CMenu WindowMenu;
-    CMenu HelpMenu;
+    WTL::CMenu WindowMenu;
+    WTL::CMenu HelpMenu;
 
 private:
 
@@ -216,7 +220,7 @@ int WINAPI wWinMain(
     MainWindow.ShowWindow(nShowCmd);
     MainWindow.UpdateWindow();
 
-    CMessageLoop MessageLoop;
+    WTL::CMessageLoop MessageLoop;
 
     MessageLoop.AddMessageFilter(&MainWindow);
     MessageLoop.AddIdleHandler(&MainWindow);

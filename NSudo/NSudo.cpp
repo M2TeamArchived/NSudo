@@ -45,6 +45,7 @@
 #include <atlwin.h>
 
 #define _WTL_NO_AUTOMATIC_NAMESPACE
+#define _ATL_NO_OPENGL
 #include "WTL/atlapp.h"
 #include "WTL/atlcrack.h"
 #include "WTL/atlctrls.h"
