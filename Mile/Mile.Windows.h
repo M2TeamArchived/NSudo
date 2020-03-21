@@ -18,6 +18,42 @@
 #endif
 
 /**
+ * Maps a system error code to an HRESULT value.
+ *
+ * @param ErrorCode The system error code.
+ * @return The HRESULT value.
+ * @remark For more information, see HRESULT_FROM_WIN32.
+ */
+EXTERN_C HRESULT WINAPI MileHResultFromWin32(
+    _In_ DWORD ErrorCode);
+
+/**
+ * Retrieves the calling thread's last-error code value.
+ *
+ * @return The return value is the calling thread's last-error code.
+ * @remark For more information, see GetLastError.
+ */
+EXTERN_C DWORD WINAPI MileGetLastError();
+
+/**
+ * Sets the last-error code for the calling thread.
+ *
+ * @param ErrorCode The last-error code for the thread.
+ * @remark For more information, see SetLastError.
+ */
+EXTERN_C VOID WINAPI MileSetLastError(
+    _In_ DWORD ErrorCode);
+
+/**
+ * Retrieves the calling thread's last-error code value and maps it to an
+ * HRESULT value.
+ *
+ * @return The HRESULT value.
+ * @remark For more information, see GetLastError.
+ */
+EXTERN_C HRESULT WINAPI MileGetLastErrorAsHResult();
+
+/**
  * Retrieves a handle to the default heap of the calling process. This handle
  * can then be used in subsequent calls to the heap functions.
  *
