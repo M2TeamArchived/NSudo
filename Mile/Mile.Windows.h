@@ -54,6 +54,28 @@ EXTERN_C VOID WINAPI MileSetLastError(
 EXTERN_C HRESULT WINAPI MileGetLastErrorAsHResult();
 
 /**
+ * Retrieves the calling thread's last-error code value with the evaluation of
+ * the Win32 BOOL value.
+ *
+ * @param Result The Win32 BOOL value.
+ * @return The return value is the calling thread's last-error code.
+ * @remark For more information, see GetLastError.
+ */
+EXTERN_C DWORD WINAPI MileGetLastErrorWithWin32Bool(
+    _In_ BOOL Result);
+
+/**
+ * Retrieves the calling thread's last-error code value with the evaluation of
+ * thw Win32 BOOL value and maps it to an HRESULT value.
+ *
+ * @param Result The Win32 BOOL value.
+ * @return The HRESULT value.
+ * @remark For more information, see GetLastError.
+ */
+EXTERN_C HRESULT WINAPI MileGetLastErrorWithWin32BoolAsHResult(
+    _In_ BOOL Result);
+
+/**
  * Retrieves a handle to the default heap of the calling process. This handle
  * can then be used in subsequent calls to the heap functions.
  *
@@ -396,7 +418,7 @@ EXTERN_C HRESULT WINAPI MileOpenSCManager(
     _In_opt_ LPCWSTR lpMachineName,
     _In_opt_ LPCWSTR lpDatabaseName,
     _In_ DWORD dwDesiredAccess,
-    _Out_ LPSC_HANDLE phSCManager);
+    _Out_opt_ LPSC_HANDLE phSCManager);
 
 #endif
 
@@ -417,7 +439,7 @@ EXTERN_C HRESULT WINAPI MileOpenService(
     _In_ SC_HANDLE hSCManager,
     _In_ LPCWSTR lpServiceName,
     _In_ DWORD dwDesiredAccess,
-    _Out_ LPSC_HANDLE phService);
+    _Out_opt_ LPSC_HANDLE phService);
 
 #endif
 
@@ -764,7 +786,7 @@ EXTERN_C HRESULT WINAPI MileOpenProcess(
     _In_ DWORD DesiredAccess,
     _In_ BOOL InheritHandle,
     _In_ DWORD ProcessId,
-    _Out_ PHANDLE ProcessHandle);
+    _Out_opt_ PHANDLE ProcessHandle);
 
 /**
  * Retrieves a pseudo handle for the current process.
@@ -793,7 +815,7 @@ EXTERN_C HRESULT WINAPI MileOpenThread(
     _In_ DWORD DesiredAccess,
     _In_ BOOL InheritHandle,
     _In_ DWORD ThreadId,
-    _Out_ PHANDLE ThreadHandle);
+    _Out_opt_ PHANDLE ThreadHandle);
 
 /**
  * Retrieves a pseudo handle for the calling thread.
@@ -1743,7 +1765,7 @@ EXTERN_C HRESULT WINAPI MileFreeLibrary(
 EXTERN_C HRESULT WINAPI MileGetProcAddress(
     _In_ HMODULE hModule,
     _In_ LPCSTR lpProcName,
-    _Out_ FARPROC* lpProcAddress);
+    _Out_opt_ FARPROC* lpProcAddress);
 
 #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
 
@@ -2438,7 +2460,7 @@ EXTERN_C HRESULT WINAPI MileCreateFileMapping(
     _In_ DWORD dwMaximumSizeHigh,
     _In_ DWORD dwMaximumSizeLow,
     _In_opt_ LPCWSTR lpName,
-    _Out_ PHANDLE lpFileMappingHandle);
+    _Out_opt_ PHANDLE lpFileMappingHandle);
 
 #endif
 
@@ -2472,7 +2494,7 @@ EXTERN_C HRESULT WINAPI MileMapViewOfFile(
     _In_ DWORD dwFileOffsetHigh,
     _In_ DWORD dwFileOffsetLow,
     _In_ SIZE_T dwNumberOfBytesToMap,
-    _Out_ LPVOID* lpBaseAddress);
+    _Out_opt_ LPVOID* lpBaseAddress);
 
 #endif
 
