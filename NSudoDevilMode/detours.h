@@ -39,7 +39,7 @@
 #pragma warning(pop)
 #endif
 
-#include "MINT.h"
+#include <MINT.h>
 
 #endif // DETOURS_INTERNAL
 

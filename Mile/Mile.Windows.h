@@ -2686,9 +2686,9 @@ EXTERN_C HRESULT WINAPI MileMultiByteToWideChar(
 EXTERN_C HRESULT WINAPI MileWideCharToMultiByte(
     _In_ UINT CodePage,
     _In_ DWORD dwFlags,
-    _In_NLS_string_(cchWideChar) LPCWCH lpWideCharStr,
+    _In_ LPCWCH lpWideCharStr,
     _In_ INT cchWideChar,
-    _Out_writes_bytes_to_opt_(cbMultiByte, return) LPSTR lpMultiByteStr,
+    _Out_opt_ LPSTR lpMultiByteStr,
     _In_ INT cbMultiByte,
     _In_opt_ LPCCH lpDefaultChar,
     _Out_opt_ LPBOOL lpUsedDefaultChar,
