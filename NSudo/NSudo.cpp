@@ -1221,6 +1221,10 @@ private:
 
 int NSudoMain()
 {
+    //::SetDllDirectoryW(L"");
+    //::SetDefaultDllDirectories(LOAD_LIBRARY_SEARCH_SYSTEM32);
+    
+
     //SetThreadUILanguage(MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US));
 
     //SetThreadUILanguage(MAKELANGID(LANG_CHINESE, SUBLANG_CHINESE_TRADITIONAL));
