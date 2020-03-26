@@ -1,9 +1,9 @@
 ﻿module.exports = {
   base: "/NSudo/",
-  dest: "../docs",
+  dest: "../../docs",
   themeConfig: {
     repo: "M2Team/NSudo",
-    docsDir: "docs-src",
+    docsDir: "Documents",
     editLinks: true,
     locales: {
       "/en-us/": {
