@@ -1,0 +1,92 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="en">
+      <UniqueIdentifier>{a60ed48d-ddaf-43be-9991-097884d6cb43}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="es">
+      <UniqueIdentifier>{943c24e7-57b8-4978-8807-0873ec238d67}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="fr">
+      <UniqueIdentifier>{1f3bbb0c-562c-4568-9f60-a260c2e54bbc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="it">
+      <UniqueIdentifier>{5bc68891-325d-47b4-993c-b08eeaf4e846}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="zh-Hant">
+      <UniqueIdentifier>{5b71c04b-c5cb-4dff-a0d0-9083dfa9e8ec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="zh-Hans">
+      <UniqueIdentifier>{883152b8-638c-4a36-941f-da92d86a200d}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="en\CommandLineHelp.txt">
+      <Filter>en</Filter>
+    </Text>
+    <Text Include="en\Links.txt">
+      <Filter>en</Filter>
+    </Text>
+    <Text Include="es\CommandLineHelp.txt">
+      <Filter>es</Filter>
+    </Text>
+    <Text Include="es\Links.txt">
+      <Filter>es</Filter>
+    </Text>
+    <Text Include="fr\CommandLineHelp.txt">
+      <Filter>fr</Filter>
+    </Text>
+    <Text Include="fr\Links.txt">
+      <Filter>fr</Filter>
+    </Text>
+    <Text Include="it\CommandLineHelp.txt">
+      <Filter>it</Filter>
+    </Text>
+    <Text Include="it\Links.txt">
+      <Filter>it</Filter>
+    </Text>
+    <Text Include="zh-Hans\CommandLineHelp.txt">
+      <Filter>zh-Hans</Filter>
+    </Text>
+    <Text Include="zh-Hans\Links.txt">
+      <Filter>zh-Hans</Filter>
+    </Text>
+    <Text Include="zh-Hant\CommandLineHelp.txt">
+      <Filter>zh-Hant</Filter>
+    </Text>
+    <Text Include="zh-Hant\Links.txt">
+      <Filter>zh-Hant</Filter>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="en\Translations.json">
+      <Filter>en</Filter>
+    </None>
+    <None Include="es\Translations.json">
+      <Filter>es</Filter>
+    </None>
+    <None Include="fr\Translations.json">
+      <Filter>fr</Filter>
+    </None>
+    <None Include="it\Translations.json">
+      <Filter>it</Filter>
+    </None>
+    <None Include="zh-Hans\Translations.json">
+      <Filter>zh-Hans</Filter>
+    </None>
+    <None Include="zh-Hant\Translations.json">
+      <Filter>zh-Hant</Filter>
+    </None>
+    <None Include="NSudoLauncherResources.props" />
+    <None Include="NSudoLauncher.xcf" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="NSudoLauncherResources.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="NSudoLauncherResources.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="NSudoLauncher.ico" />
+  </ItemGroup>
+</Project>

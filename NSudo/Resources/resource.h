@@ -2,8 +2,6 @@
 // Microsoft Visual C++ 生成的包含文件。
 // 供 NSudo.rc 使用
 //
-#define IDR_CONFIG_CONTEXT_MENU         101
-#define IDI_NSUDO                       104
 #define IDD_NSudoDlg                    132
 #define IDR_STRING1                     136
 #define IDC_UserName                    1000
@@ -18,9 +16,6 @@
 #define IDC_WARNINGTEXT                 1016
 #define IDC_STATIC_USER                 1017
 #define IDC_STATIC_OPEN                 1018
-#define IDR_String_Translations         2000
-#define IDR_String_CommandLineHelp      2002
-#define IDR_String_Links                2003
 
 // Next default values for new objects
 // 

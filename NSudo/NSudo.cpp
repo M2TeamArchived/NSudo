@@ -56,6 +56,8 @@
 #include "NSudoVersion.h"
 #include "Resources/resource.h"
 
+#include <NSudoLauncherResources.h>
+
 // 为编译通过而禁用的警告
 #if _MSC_VER >= 1200
 #pragma warning(push)
@@ -303,19 +305,19 @@ public:
         StringTranslations.emplace(std::make_pair(
             "NSudo.String.Links",
             CNSudoTranslationAdapter::GetUTF8WithBOMStringResources(
-                IDR_String_Links)));
+                IDR_STRING_LINKS)));
 
         StringTranslations.emplace(std::make_pair(
             "NSudo.String.CommandLineHelp",
             CNSudoTranslationAdapter::GetUTF8WithBOMStringResources(
-                IDR_String_CommandLineHelp)));
+                IDR_STRING_COMMAND_LINE_HELP)));
 
         M2_RESOURCE_INFO ResourceInfo = { 0 };
         if (SUCCEEDED(M2LoadResource(
             &ResourceInfo,
             GetModuleHandleW(nullptr),
             L"String",
-            MAKEINTRESOURCEW(IDR_String_Translations))))
+            MAKEINTRESOURCEW(IDR_STRING_TRANSLATIONS))))
         {
             const char* JsonString =
                 reinterpret_cast<const char*>(ResourceInfo.Pointer) + 3;
@@ -809,8 +811,8 @@ void NSudoPrintMsg(
     M2MessageDialog(
         hInstance,
         hWnd,
-        MAKEINTRESOURCE(IDI_NSUDO),
-        L"NSudo",
+        MAKEINTRESOURCE(IDI_NSUDO_LAUNCHER),
+        g_ResourceManagement.GetTranslation("NSudo.VersionText").c_str(),
         DialogContent.c_str());
 #endif
 }
@@ -839,8 +841,8 @@ HRESULT NSudoShowAboutDialog(
     M2MessageDialog(
         g_ResourceManagement.Instance,
         hwndParent,
-        MAKEINTRESOURCE(IDI_NSUDO),
-        L"NSudo",
+        MAKEINTRESOURCE(IDI_NSUDO_LAUNCHER),
+        g_ResourceManagement.GetTranslation("NSudo.VersionText").c_str(),
         DialogContent.c_str());
 #endif
 
@@ -941,7 +943,7 @@ private:
         }
 
         this->NSudoIcon.LoadIconW(
-            MAKEINTRESOURCE(IDI_NSUDO),
+            MAKEINTRESOURCE(IDI_NSUDO_LAUNCHER),
             256,
             256,
             LR_SHARED);
