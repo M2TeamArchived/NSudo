@@ -9,17 +9,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NSudo", "NSudo\NSudo.vcxpro
 		{074549F9-9197-41FE-A8ED-8BFA2A0E2549} = {074549F9-9197-41FE-A8ED-8BFA2A0E2549}
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documents", "Documents", "{C3C42858-2A8F-492A-9B80-B11907E0C95D}"
-	ProjectSection(SolutionItems) = preProject
-		.editorconfig = .editorconfig
-		.gitignore = .gitignore
-		.gitmodules = .gitmodules
-		appveyor.yml = appveyor.yml
-		License.md = License.md
-		Logo.png = Logo.png
-		Readme.md = Readme.md
-	EndProjectSection
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MSBuild", "MSBuild", "{89E797B1-E412-492F-BD8C-247E53CA85CB}"
 	ProjectSection(SolutionItems) = preProject
 		MSBuild\AllTargets.Common.props = MSBuild\AllTargets.Common.props
