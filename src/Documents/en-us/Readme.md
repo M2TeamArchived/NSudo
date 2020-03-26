@@ -15,7 +15,7 @@ improvements.
 
 ### Features
 
-- Distributed under the MIT License. (More freedom than the GNU GPL.)
+- Distributed under the MIT License.
 - Provide the x86, x86-64, ARM, ARM64 binaries.
 - Support Windows Vista and later.
 - Using VC-LTL and libkcrt from Chuyu Team for smaller binary size.
