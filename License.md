@@ -5,7 +5,6 @@ distributed under the MIT License today because we want to give the **maximum
 respect** to every NSudo users and we also hope every people treat others 
 kindly.
 
-## The MIT License (MIT)
 ```
 The MIT License (MIT)
 
@@ -29,3 +28,31 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
+
+## Mouri_Naruto's libraries which used in the official NSudo repository
+
+| Name                              | Project website                     |
+|-----------------------------------|-------------------------------------|
+| Mouri Internal Library Essentials | https://github.com/MouriNaruto/Mile |
+
+## M2-Team's libraries which used in the official NSudo repository
+
+| Name                   | Project website                               |
+|------------------------|-----------------------------------------------|
+| M2-Team Common Library | https://github.com/M2Team/M2TeamCommonLibrary |
+
+## Chuyu Team's libraries which used in the official NSudo repository
+
+| Name                                | Project website                       |
+|-------------------------------------|---------------------------------------|
+| libkcrt                             | https://github.com/Chuyu-Team/libkcrt |
+| Mouri's Internal NT API Collections | https://github.com/Chuyu-Team/MINT    |
+| VC-LTL                              | https://github.com/Chuyu-Team/VC-LTL  |
+
+## 3rd-party libraries which used in the official NSudo repository
+
+| Name                               | Project website                      |
+|------------------------------------|--------------------------------------|
+| JSMN                               | https://github.com/zserge/jsmn       |
+| Microsoft Research Detours Package | https://github.com/microsoft/Detours |
+| Windows Template Library           | https://sourceforge.net/projects/wtl |

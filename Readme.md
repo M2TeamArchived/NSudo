@@ -15,15 +15,6 @@ https://m2team.github.io/NSudo.
 This readme file will be the developer oriented document because this it is 
 under the source code repository.
 
-## 3rd-party libraries which used
-
-- Jsmn
-  - Copyright: Serge Zaitsev
-  - License: https://github.com/zserge/jsmn/blob/master/LICENSE
-- (Optional) VC-LTL
-  - Copyright: Chuyu Team
-  - License: https://github.com/Chuyu-Team/VC-LTL/blob/master/LICENSE
-
 ## Code of Conduct
 
 Please read [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
@@ -89,10 +80,13 @@ To build new docs, you'll need to have [Node.js](https://nodejs.org) and
 [Yarn](https://yarnpkg.com) installed on your system, and run:
 
 ```sh
+
 # Install dependencies
 yarn
+
 # Run `build` in package.json
 yarn build
+
 ```
 
 in `docs-src/`.
