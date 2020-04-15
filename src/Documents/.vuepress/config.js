@@ -1,12 +1,18 @@
 ﻿module.exports = {
+  head: [
+    ['link', { rel: 'shortcut icon', type: "image/x-icon", href: `/favicon.ico` }]
+ ],
   base: "/NSudo/",
   dest: "../../docs",
   themeConfig: {
     repo: "M2Team/NSudo",
     docsDir: "Documents",
-    editLinks: true,
+    logo: '/assets/img/logo.png', 
+    editLinks: false,
     locales: {
       "/en-us/": {
+        title: 'NSudo',
+        description: 'NSudo - A Powerful System Administration Tool',
         selectText: "Languages",
         label: "English",
         editLinkText: "Edit this page on GitHub",
@@ -16,8 +22,10 @@
             buttonText: "Refresh"
           }
         },
+        lastUpdated: 'Last Updated',
         nav: [
           { text: "Home", link: "/en-us/" },
+          { text: "About", link: "/en-us/About" },
           { text: "Download", link: "/en-us/Download" },
           { text: "Support", link: "/en-us/Support" },
           { text: "Documents", link: "/en-us/docs/" }
@@ -38,6 +46,8 @@
         }
       },
       "/zh-hans/": {
+        title: 'NSudo',
+        description: 'NSudo - 一个强大的系统管理工具',
         selectText: "选择语言",
         label: "简体中文",
         editLinkText: "在 GitHub 上编辑此页",
@@ -47,8 +57,10 @@
             buttonText: "刷新"
           }
         },
+        lastUpdated: '最后更新时间',
         nav: [
           { text: "首页", link: "/zh-hans/" },
+          { text: "关于", link: "/zh-hans/About" },
           { text: "下载", link: "/zh-hans/Download" },
           { text: "支持", link: "/zh-hans/Support" },
           { text: "文档", link: "/zh-hans/docs/" }
@@ -68,6 +80,8 @@
         }
       },
       "/zh-hant/": {
+        title: 'NSudo',
+        description: 'NSudo - 一個強大的系統管理工具',
         selectText: "選擇語言",
         label: "繁體中文",
         editLinkText: "在 GitHub 上編輯此頁",
@@ -77,8 +91,10 @@
             buttonText: "重載"
           }
         },
+        lastUpdated: '最後更新時間',
         nav: [
           { text: "主頁", link: "/zh-hant/" },
+          { text: "關於", link: "/zh-hant/About" },
           { text: "下載", link: "/zh-hant/Download" },
           { text: "支援", link: "/zh-hant/Support" },
           { text: "文獻", link: "/zh-hant/docs/" }

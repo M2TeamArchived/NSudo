@@ -1,4 +1,4 @@
-﻿# ![Logo](Logo.png) NSudo - A Powerful System Administration Tool
+﻿# ![Logo](Logo.png) NSudo - System Administration Toolkit
 
 [![AppVeyor CI](https://ci.appveyor.com/api/projects/status/github/M2Team/NSudo?branch=master&svg=true)](https://ci.appveyor.com/project/MouriNaruto/nsudo)
 [![Latest Version](https://img.shields.io/github/release/M2Team/NSudo.svg)](https://github.com/M2Team/NSudo/releases/latest)
