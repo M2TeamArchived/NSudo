@@ -24,6 +24,25 @@
 #include "WTL/atlframe.h"
 #include "WTL/atlmisc.h"
 
+ // 开启子窗体DPI消息(至少Win10)
+inline BOOL EnableChildWindowDpiMessage(
+    _In_ HWND hWnd,
+    _In_ BOOL bEnable)
+{
+    // Fix for Windows Vista and Server 2008.
+    if (!IsWindowsVersionOrGreater(10, 0, 0)) return -1;
+
+    typedef BOOL(WINAPI* PFN_EnableChildWindowDpiMessage)(HWND, BOOL);
+
+    PFN_EnableChildWindowDpiMessage pEnableChildWindowDpiMessage =
+        (PFN_EnableChildWindowDpiMessage)GetProcAddress(
+            GetModuleHandleW(L"user32.dll"), "EnableChildWindowDpiMessage");
+
+    if (pEnableChildWindowDpiMessage)
+        return pEnableChildWindowDpiMessage(hWnd, bEnable);
+    return -1;
+}
+
 WTL::CAppModule _Module;
 
 class CMainWindow :
@@ -34,18 +53,22 @@ class CMainWindow :
 {
 private:
 
-    WTL::CFont UIFont;
+    UINT m_nDpiX = USER_DEFAULT_SCREEN_DPI;
+    UINT m_nDpiY = USER_DEFAULT_SCREEN_DPI;
 
-    WTL::CStatic ContentControl;
+    WTL::CFont UIFont;
 
     WTL::CListViewCtrl ItemList;
 
+    WTL::CStatic ContentControl;
+
+    WTL::CButton ScanButton;
+    WTL::CButton CleanUpButton;
+
+   
+
     WTL::CMenu WindowMenu;
     WTL::CMenu HelpMenu;
-
-private:
-
-
 
 private:
 
@@ -53,11 +76,23 @@ private:
     {
         UNREFERENCED_PARAMETER(lpCreateStruct);
 
+        EnableChildWindowDpiMessage(this->m_hWnd, TRUE);
+
+        if (S_OK != ::MileGetDpiForMonitor(
+            MonitorFromWindow(this->m_hWnd, MONITOR_DEFAULTTONEAREST),
+            MDT_EFFECTIVE_DPI,
+            reinterpret_cast<UINT*>(&this->m_nDpiX),
+            reinterpret_cast<UINT*>(&this->m_nDpiY)))
+        {
+            this->m_nDpiX = WTL::CDC(this->GetDC()).GetDeviceCaps(LOGPIXELSX);
+            this->m_nDpiY = WTL::CDC(this->GetDC()).GetDeviceCaps(LOGPIXELSY);
+        }
+
         this->SetWindowTextW(
             L"M2-Team NSudo Sweeper " NSUDO_SWEEPER_VERSION_STRING);
 
         this->UIFont.CreateFontW(
-            20,                       // nHeight
+            MulDiv(20, m_nDpiY, USER_DEFAULT_SCREEN_DPI), // nHeight
             0,                        // nWidth
             0,                        // nEscapement
             0,                        // nOrientation
@@ -72,31 +107,83 @@ private:
             DEFAULT_PITCH | FF_SWISS, // nPitchAndFamily
             L"Segoe UI");
 
-        auto x = CRect(50, 50, 300, 180);
+        this->HelpMenu.CreatePopupMenu();
+        this->HelpMenu.AppendMenuW(MF_STRING | MF_ENABLED, 2001, L"&About");
 
-        this->ContentControl.Create(
-            this->m_hWnd,
-            x,
-            L"Welcome to use the brand new NSudo Sweeper!\n(Under Construction)\n"
-            L"欢迎使用全新的 NSudo Sweeper！\n（施工中）",
-            WS_CHILD | WS_VISIBLE);
+        this->WindowMenu.CreateMenu();
+        this->WindowMenu.AppendMenuW(MF_STRING | MF_ENABLED, 1001, L"&File");
+        this->WindowMenu.AppendMenuW(MF_STRING | MF_ENABLED, HelpMenu, L"&Help");
 
-        this->ContentControl.SetFont(UIFont);
+        this->SetMenu(WindowMenu);
 
-        auto y = CRect(50, 200, 600, 300);
+        CRect ClientRectangle;
+
+        this->GetClientRect(ClientRectangle);
+
+        CRect ItemListPosition = CRect(
+            ClientRectangle.left + 4,
+            ClientRectangle.top + 4,
+            ClientRectangle.right - 4,
+            ClientRectangle.bottom - 128);
 
         this->ItemList.Create(
             this->m_hWnd,
-            y,
+            ItemListPosition,
             nullptr,
-            WS_CHILD | WS_VISIBLE | LVS_REPORT | LVS_SINGLESEL);
-
+            WS_CHILD | WS_VISIBLE | LVS_REPORT | LVS_SINGLESEL | WS_TABSTOP);
         this->ItemList.SetExtendedListViewStyle(
             LVS_EX_CHECKBOXES | LVS_EX_FULLROWSELECT);
-
-
-
         this->ItemList.EnableGroupView(TRUE);
+
+        CSize ButtonSize = CSize(96, 32);
+
+        CRect ContentControlPosition = CRect(
+            ClientRectangle.left + 4,
+            ClientRectangle.bottom - 128 + 4,
+            ClientRectangle.right - 4,
+            ClientRectangle.bottom - 4 - ButtonSize.cy - 4);
+        this->ContentControl.Create(
+            this->m_hWnd,
+            ContentControlPosition,
+            L"Welcome to use the brand new NSudo Sweeper!\n(Under Construction)\n"
+            L"欢迎使用全新的 NSudo Sweeper！\n（施工中）",
+            WS_CHILD | WS_VISIBLE | WS_TABSTOP);
+        this->ContentControl.SetFont(UIFont);
+
+        CRect ScanButtonPosition = CRect(
+            ClientRectangle.right - 4 - ButtonSize.cx - 4 - ButtonSize.cx,
+            ClientRectangle.bottom - 4 - ButtonSize.cy,
+            ClientRectangle.right - 4 - ButtonSize.cx - 4,
+            ClientRectangle.bottom - 4);
+        this->ScanButton.Create(
+            this->m_hWnd,
+            ScanButtonPosition,
+            L"Scan",
+            WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_DEFPUSHBUTTON);
+        this->ScanButton.SetFont(UIFont);
+        this->ScanButton.SetFocus();
+
+        CRect CleanUpButtonPosition = CRect(
+            ClientRectangle.right - 4 - ButtonSize.cx,
+            ClientRectangle.bottom - 4 - ButtonSize.cy,
+            ClientRectangle.right - 4,
+            ClientRectangle.bottom - 4);
+        this->CleanUpButton.Create(
+            this->m_hWnd,
+            CleanUpButtonPosition,
+            L"Clean Up",
+            WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_PUSHBUTTON);
+        this->CleanUpButton.SetFont(UIFont);
+
+        
+
+        
+
+
+
+
+
+
 
         LVGROUP GroupInfo;
 
@@ -111,7 +198,7 @@ private:
         this->ItemList.AddColumn(L"Name", 0);
         this->ItemList.AddColumn(L"Description", 1);
 
-        
+
 
         LVITEMW ItemInfo = { 0 };
 
@@ -140,20 +227,114 @@ private:
         this->ItemList.InsertItem(&ItemInfo);
 
 
+        for (int i = 2; i < 100; ++i)
+        {
+            ItemInfo.mask = LVIF_TEXT | LVIF_GROUPID;
+            ItemInfo.pszText = const_cast<LPWSTR>(L"Test");
+            ItemInfo.iItem = i;
+            ItemInfo.iSubItem = 0;
+            ItemInfo.iGroupId = 0;
+
+            this->ItemList.InsertItem(&ItemInfo);
+
+            ItemInfo.mask = LVIF_TEXT;
+            ItemInfo.pszText = const_cast<LPWSTR>(L"Description of Test");
+            ItemInfo.iItem = i;
+            ItemInfo.iSubItem = 1;
+            ItemInfo.iGroupId = 0;
+
+            this->ItemList.SetItem(&ItemInfo);
+        }
+
+
+        this->ItemList.SetColumnWidth(0, LVSCW_AUTOSIZE);
+        this->ItemList.SetColumnWidth(1, LVSCW_AUTOSIZE);
+        
+        return 0;
+    }
+
+    void OnSize(UINT nType, CSize size)
+    {
+        UNREFERENCED_PARAMETER(nType);
+        UNREFERENCED_PARAMETER(size);
+
+        CRect ClientRectangle;
+
+        this->GetClientRect(ClientRectangle);
+
+        CRect ItemListPosition = CRect(
+            ClientRectangle.left + MulDiv(4, m_nDpiX, USER_DEFAULT_SCREEN_DPI),
+            ClientRectangle.top + MulDiv(4, m_nDpiY, USER_DEFAULT_SCREEN_DPI),
+            ClientRectangle.right - MulDiv(4, m_nDpiX, USER_DEFAULT_SCREEN_DPI),
+            ClientRectangle.bottom - MulDiv(128, m_nDpiY, USER_DEFAULT_SCREEN_DPI));
+
+        this->ItemList.MoveWindow(ItemListPosition);
+        this->ItemList.RedrawWindow();
+
+        CSize ButtonSize = CSize(96, 32);
+
+        CRect CleanUpButtonPosition = CRect(
+            ClientRectangle.right - MulDiv(4, m_nDpiX, USER_DEFAULT_SCREEN_DPI) - MulDiv(ButtonSize.cx, m_nDpiX, USER_DEFAULT_SCREEN_DPI),
+            ClientRectangle.bottom - MulDiv(4, m_nDpiY, USER_DEFAULT_SCREEN_DPI) - MulDiv(ButtonSize.cy, m_nDpiY, USER_DEFAULT_SCREEN_DPI),
+            ClientRectangle.right - MulDiv(4, m_nDpiX, USER_DEFAULT_SCREEN_DPI),
+            ClientRectangle.bottom - MulDiv(4, m_nDpiY, USER_DEFAULT_SCREEN_DPI));
+
+        this->CleanUpButton.MoveWindow(CleanUpButtonPosition);
+        this->CleanUpButton.RedrawWindow();
+
+        CRect ScanButtonPosition = CRect(
+            ClientRectangle.right - MulDiv(4, m_nDpiX, USER_DEFAULT_SCREEN_DPI) - MulDiv(ButtonSize.cx, m_nDpiX, USER_DEFAULT_SCREEN_DPI) - MulDiv(4, m_nDpiX, USER_DEFAULT_SCREEN_DPI) - MulDiv(ButtonSize.cx, m_nDpiX, USER_DEFAULT_SCREEN_DPI),
+            ClientRectangle.bottom - MulDiv(4, m_nDpiY, USER_DEFAULT_SCREEN_DPI) - MulDiv(ButtonSize.cy, m_nDpiY, USER_DEFAULT_SCREEN_DPI),
+            ClientRectangle.right - MulDiv(4, m_nDpiX, USER_DEFAULT_SCREEN_DPI) - MulDiv(ButtonSize.cx, m_nDpiX, USER_DEFAULT_SCREEN_DPI) - MulDiv(4, m_nDpiX, USER_DEFAULT_SCREEN_DPI),
+            ClientRectangle.bottom - MulDiv(4, m_nDpiY, USER_DEFAULT_SCREEN_DPI));
+        this->ScanButton.MoveWindow(ScanButtonPosition);
+        this->ScanButton.RedrawWindow();
+
+        CRect ContentControlPosition = CRect(
+            ClientRectangle.left + MulDiv(4, m_nDpiX, USER_DEFAULT_SCREEN_DPI),
+            ClientRectangle.bottom - MulDiv(128, m_nDpiY, USER_DEFAULT_SCREEN_DPI) + MulDiv(4, m_nDpiY, USER_DEFAULT_SCREEN_DPI),
+            ClientRectangle.right - MulDiv(4, m_nDpiX, USER_DEFAULT_SCREEN_DPI),
+            ClientRectangle.bottom - MulDiv(4, m_nDpiY, USER_DEFAULT_SCREEN_DPI) - MulDiv(ButtonSize.cy, m_nDpiY, USER_DEFAULT_SCREEN_DPI) - MulDiv(4, m_nDpiY, USER_DEFAULT_SCREEN_DPI));
+        this->ContentControl.MoveWindow(ContentControlPosition);
+        this->ContentControl.RedrawWindow();
+
+    }
+
+    void OnDpiChanged(UINT nDpiX, UINT nDpiY, PRECT pRect)
+    {
+        UNREFERENCED_PARAMETER(nDpiX);
+        UNREFERENCED_PARAMETER(nDpiY);
+        UNREFERENCED_PARAMETER(pRect);
+
+        this->m_nDpiX = nDpiX;
+        this->m_nDpiY = nDpiY;
+
+        this->UIFont.CreateFontW(
+            MulDiv(20, m_nDpiY, USER_DEFAULT_SCREEN_DPI), // nHeight
+            0,                        // nWidth
+            0,                        // nEscapement
+            0,                        // nOrientation
+            FW_NORMAL,                // nWeight
+            FALSE,                    // bItalic
+            FALSE,                    // bUnderline
+            0,                        // cStrikeOut
+            ANSI_CHARSET,             // nCharSet
+            OUT_DEFAULT_PRECIS,       // nOutPrecision
+            CLIP_DEFAULT_PRECIS,      // nClipPrecision
+            DEFAULT_QUALITY,          // nQuality
+            DEFAULT_PITCH | FF_SWISS, // nPitchAndFamily
+            L"Segoe UI");
+
         this->ItemList.SetColumnWidth(0, LVSCW_AUTOSIZE);
         this->ItemList.SetColumnWidth(1, LVSCW_AUTOSIZE);
 
-        
-        this->HelpMenu.CreatePopupMenu();
-        this->HelpMenu.AppendMenuW(MF_STRING | MF_ENABLED, 2000, L"&Content");
-        this->HelpMenu.AppendMenuW(MF_STRING | MF_ENABLED, 2001, L"&About");
-     
-        this->WindowMenu.CreateMenu();
-        this->WindowMenu.AppendMenuW(MF_STRING | MF_ENABLED, HelpMenu, L"&Help");
+        this->CleanUpButton.SetFont(UIFont);
+        this->ScanButton.SetFont(UIFont);
+        this->ContentControl.SetFont(UIFont);
 
-        this->SetMenu(WindowMenu);
+        this->MoveWindow(pRect);
+
         
-        return 0;
     }
 
     void OnDestroy()
@@ -165,6 +346,11 @@ private:
 
     virtual BOOL PreTranslateMessage(MSG* pMsg)
     {
+        if (this->IsDialogMessageW(pMsg))
+        {
+            return TRUE;
+        }
+
         return CFrameWindowImpl<CMainWindow>::PreTranslateMessage(pMsg);
     }
 
@@ -176,6 +362,8 @@ private:
 
     BEGIN_MSG_MAP(CMainWindow)
         MSG_WM_CREATE(OnCreate)
+        MSG_WM_SIZE(OnSize)
+        MSG_WM_DPICHANGED(OnDpiChanged)
         MSG_WM_DESTROY(OnDestroy)
     END_MSG_MAP()
 
@@ -212,11 +400,14 @@ int WINAPI wWinMain(
 
     CMainWindow MainWindow;
 
-    if (!MainWindow.Create())
+    CRect WindowRectangle = CRect(0, 0, 600, 450);
+
+    if (!MainWindow.Create(nullptr, WindowRectangle))
     {
         return ::HRESULT_FROM_WIN32(::GetLastError());
     }
 
+    MainWindow.CenterWindow();
     MainWindow.ShowWindow(nShowCmd);
     MainWindow.UpdateWindow();
 
