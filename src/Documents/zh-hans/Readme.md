@@ -2,11 +2,11 @@
 home: true
 heroImage: /img/zh-hans/Screenshot.png
 heroText: NSudo
-title: 一个强大的系统管理工具
-tagline: 一个强大的系统管理工具
+title: 系统管理工具包
+tagline: 系统管理工具包
 actionText: 关于 →
 actionLink: /zh-hans/About
-footer: ©️ Copyright 2014 - 2020 NSudo | Powered By VuePress
+footer: ©️ Copyright M2-Team | Powered By VuePress
 ---
 
 ## 注：成为 NSudo 的赞助者
