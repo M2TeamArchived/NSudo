@@ -1,9 +1,13 @@
 ﻿module.exports = {
+  head: [
+    ['link', { rel: 'shortcut icon', type: "image/x-icon", href: `./favicon.ico` }]
+ ],
   base: "/NSudo/",
   dest: "../../docs",
   themeConfig: {
     repo: "M2Team/NSudo",
     docsDir: "Documents",
+    logo: '/assets/img/logo.png', 
     editLinks: true,
     locales: {
       "/en-us/": {
@@ -18,6 +22,7 @@
         },
         nav: [
           { text: "Home", link: "/en-us/" },
+          { text: "About", link: "/en-us/About" },
           { text: "Download", link: "/en-us/Download" },
           { text: "Support", link: "/en-us/Support" },
           { text: "Documents", link: "/en-us/docs/" }
@@ -49,6 +54,7 @@
         },
         nav: [
           { text: "首页", link: "/zh-hans/" },
+          { text: "关于", link: "/zh-hans/About" },
           { text: "下载", link: "/zh-hans/Download" },
           { text: "支持", link: "/zh-hans/Support" },
           { text: "文档", link: "/zh-hans/docs/" }
@@ -79,6 +85,7 @@
         },
         nav: [
           { text: "主頁", link: "/zh-hant/" },
+          { text: "關於", link: "/zh-hant/About" },
           { text: "下載", link: "/zh-hant/Download" },
           { text: "支援", link: "/zh-hant/Support" },
           { text: "文獻", link: "/zh-hant/docs/" }
