@@ -1,7 +1,7 @@
 {
   "name": "nsudo-docs",
-  "version": "8.0",
-  "description": "Series of System Administration Tools",
+  "version": "1.0.0",
+  "description": "System Administration Toolkit",
   "main": "index.js",
   "authors": {
     "name": "qcyblm",
@@ -21,8 +21,6 @@
     "build": "vuepress build"
   },
   "devDependencies": {
-    "@vuepress/plugin-back-to-top": "^1.4.1",
-    "@vuepress/plugin-medium-zoom": "^1.4.1",
     "vuepress": "^1.0.4"
   }
 }

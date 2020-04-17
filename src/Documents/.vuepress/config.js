@@ -1,40 +1,20 @@
-﻿const { description } = require('../package')
-const headConf = require('./config/headConf.js');
-
-module.exports = {
-  dest: "../../docs/",
-  locales: {
-    "/en-us/": {
-      lang: "en-US",
-      title: "NSudo",
-      description: "NSudo - System Administration Toolkit",
-    },
-    "/zh-hans/": {
-      lang: "zh-CN",
-      title: "NSudo",
-      description: "NSudo - 系統管理工具包"
-    },
-    "/zh-hant/": {
-      lang: "zh-TW",
-      title: "NSudo",
-      description: "NSudo - 系統管理工具包"
-    }
-  },
-  head: headConf,
+﻿module.exports = {
+  head: [
+    ['link', { rel: 'shortcut icon', type: "image/x-icon", href: `/favicon.ico` }]
+ ],
+  base: "/NSudo/",
+  dest: "../../docs",
   themeConfig: {
     repo: "M2Team/NSudo",
-    editLinks: true,
     docsDir: "src/Documents",
-    smoothScroll: true,
-    logo: '/assets/img/logo.png',
+    logo: '/assets/img/logo.png', 
+    editLinks: true,
     locales: {
       "/en-us/": {
-        lang: 'en-US',
-        selectText: "Languages",
-        ariaLabel: 'Select language',
-        label: "English",
         title: 'NSudo',
         description: 'NSudo - System Administration Toolkit',
+        selectText: "Languages",
+        label: "English",
         editLinkText: "Edit this page on GitHub",
         serviceWorker: {
           updatePopup: {
@@ -60,11 +40,9 @@ module.exports = {
         }
       },
       "/zh-hans/": {
-        lang: 'zh-Hans',
         title: 'NSudo',
-        description: 'NSudo - 系统管理工具包',
+        description: 'NSudo - 系統管理工具包',
         selectText: "选择语言",
-        ariaLabel: '选择语言',
         label: "简体中文",
         editLinkText: "在 GitHub 上编辑此页",
         serviceWorker: {
@@ -90,11 +68,9 @@ module.exports = {
         }
       },
       "/zh-hant/": {
-        lang: 'zh-Hant',
         title: 'NSudo',
         description: 'NSudo - 系統管理工具包',
         selectText: "選擇語言",
-        ariaLabel: '選擇語言',
         label: "繁體中文",
         editLinkText: "在 GitHub 上編輯此頁",
         serviceWorker: {
@@ -118,6 +94,23 @@ module.exports = {
           ]
         }
       }
-    },
+    }
   },
-}
+  locales: {
+    "/en-us/": {
+      lang: "en-US",
+      title: "NSudo",
+      description: "System Administration Toolkit"
+    },
+    "/zh-hans/": {
+      lang: "zh-CN",
+      title: "NSudo",
+      description: "系统管理工具包"
+    },
+    "/zh-hant/": {
+      lang: "zh-TW",
+      title: "NSudo",
+      description: "系統管理工具包"
+    }
+  }
+};
