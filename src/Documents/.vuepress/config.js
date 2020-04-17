@@ -1,20 +1,40 @@
-﻿module.exports = {
-  head: [
-    ['link', { rel: 'shortcut icon', type: "image/x-icon", href: `/favicon.ico` }]
- ],
-  base: "/NSudo/",
-  dest: "../../docs",
+﻿const { description } = require('../package')
+const headConf = require('./config/headConf.js');
+
+module.exports = {
+  dest: "../../docs/",
+  locales: {
+    "/en-us/": {
+      lang: "en-US",
+      title: "NSudo",
+      description: "NSudo - System Administration Toolkit",
+    },
+    "/zh-hans/": {
+      lang: "zh-CN",
+      title: "NSudo",
+      description: "NSudo - 系統管理工具包"
+    },
+    "/zh-hant/": {
+      lang: "zh-TW",
+      title: "NSudo",
+      description: "NSudo - 系統管理工具包"
+    }
+  },
+  head: headConf,
   themeConfig: {
     repo: "M2Team/NSudo",
-    docsDir: "Documents",
-    logo: '/assets/img/logo.png', 
-    editLinks: false,
+    editLinks: true,
+    docsDir: "src/Documents",
+    smoothScroll: true,
+    logo: '/assets/img/logo.png',
     locales: {
       "/en-us/": {
-        title: 'NSudo',
-        description: 'NSudo - A Powerful System Administration Tool',
+        lang: 'en-US',
         selectText: "Languages",
+        ariaLabel: 'Select language',
         label: "English",
+        title: 'NSudo',
+        description: 'NSudo - System Administration Toolkit',
         editLinkText: "Edit this page on GitHub",
         serviceWorker: {
           updatePopup: {
@@ -23,13 +43,7 @@
           }
         },
         lastUpdated: 'Last Updated',
-        nav: [
-          { text: "Home", link: "/en-us/" },
-          { text: "About", link: "/en-us/About" },
-          { text: "Download", link: "/en-us/Download" },
-          { text: "Support", link: "/en-us/Support" },
-          { text: "Documents", link: "/en-us/docs/" }
-        ],
+        nav: require('./nav/en-us'),
         sidebar: {
           "/en-us/docs/": [
             "/en-us/docs/",
@@ -46,9 +60,11 @@
         }
       },
       "/zh-hans/": {
+        lang: 'zh-Hans',
         title: 'NSudo',
-        description: 'NSudo - 一个强大的系统管理工具',
+        description: 'NSudo - 系统管理工具包',
         selectText: "选择语言",
+        ariaLabel: '选择语言',
         label: "简体中文",
         editLinkText: "在 GitHub 上编辑此页",
         serviceWorker: {
@@ -58,13 +74,7 @@
           }
         },
         lastUpdated: '最后更新时间',
-        nav: [
-          { text: "首页", link: "/zh-hans/" },
-          { text: "关于", link: "/zh-hans/About" },
-          { text: "下载", link: "/zh-hans/Download" },
-          { text: "支持", link: "/zh-hans/Support" },
-          { text: "文档", link: "/zh-hans/docs/" }
-        ],
+        nav: require('./nav/zh-hans'),
         sidebar: {
           "/zh-hans/docs/": [
             "/zh-hans/docs/",
@@ -80,9 +90,11 @@
         }
       },
       "/zh-hant/": {
+        lang: 'zh-Hant',
         title: 'NSudo',
-        description: 'NSudo - 一個強大的系統管理工具',
+        description: 'NSudo - 系統管理工具包',
         selectText: "選擇語言",
+        ariaLabel: '選擇語言',
         label: "繁體中文",
         editLinkText: "在 GitHub 上編輯此頁",
         serviceWorker: {
@@ -92,13 +104,7 @@
           }
         },
         lastUpdated: '最後更新時間',
-        nav: [
-          { text: "主頁", link: "/zh-hant/" },
-          { text: "關於", link: "/zh-hant/About" },
-          { text: "下載", link: "/zh-hant/Download" },
-          { text: "支援", link: "/zh-hant/Support" },
-          { text: "文獻", link: "/zh-hant/docs/" }
-        ],
+        nav: require('./nav/zh-hant'),
         sidebar: {
           "/zh-hant/docs/": [
             "/zh-hant/docs/",
@@ -112,23 +118,6 @@
           ]
         }
       }
-    }
+    },
   },
-  locales: {
-    "/en-us/": {
-      lang: "en-US",
-      title: "NSudo",
-      description: "A Powerful System Administration Tool"
-    },
-    "/zh-hans/": {
-      lang: "zh-CN",
-      title: "NSudo",
-      description: "一个强大的系统管理工具"
-    },
-    "/zh-hant/": {
-      lang: "zh-TW",
-      title: "NSudo",
-      description: "一個強大的系統管理工具"
-    }
-  }
-};
+}

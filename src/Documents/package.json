@@ -1,12 +1,28 @@
 {
   "name": "nsudo-docs",
-  "version": "1.0.0",
+  "version": "8.0",
+  "description": "Series of System Administration Tools",
+  "main": "index.js",
+  "authors": {
+    "name": "qcyblm",
+    "email": "qcyblm@outlook.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/M2Team/NSudo.git"
+  },
   "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/M2Team/NSudo/issues"
+  },
+  "homepage": "https://github.com/M2Team/NSudo#readme",
   "scripts": {
     "dev": "vuepress dev",
     "build": "vuepress build"
   },
   "devDependencies": {
+    "@vuepress/plugin-back-to-top": "^1.4.1",
+    "@vuepress/plugin-medium-zoom": "^1.4.1",
     "vuepress": "^1.0.4"
   }
 }

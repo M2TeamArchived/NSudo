@@ -2,12 +2,11 @@
 home: true
 heroImage: /img/en-us/Screenshot.png
 heroText: NSudo
-tagline: A Powerful System Administration Tool
+tagline: System Administration Toolkit
 actionText: About →
 actionLink: /en-us/About
-footer: ©️ Copyright 2014 - 2020 NSudo | Powered By VuePress
+footer: ©️ Copyright M2-Team | Powered By VuePress
 ---
-# NSudo - A Powerful System Administration Tool
 
 ## Note: Become the sponsor of NSudo
 
