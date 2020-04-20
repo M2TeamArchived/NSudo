@@ -53,6 +53,8 @@ class CMainWindow :
 {
 private:
 
+    bool Initialized = false;
+
     UINT m_nDpiX = USER_DEFAULT_SCREEN_DPI;
     UINT m_nDpiY = USER_DEFAULT_SCREEN_DPI;
 
@@ -249,6 +251,8 @@ private:
 
         this->ItemList.SetColumnWidth(0, LVSCW_AUTOSIZE);
         this->ItemList.SetColumnWidth(1, LVSCW_AUTOSIZE);
+
+        Initialized = true;
         
         return 0;
     }
@@ -257,6 +261,11 @@ private:
     {
         UNREFERENCED_PARAMETER(nType);
         UNREFERENCED_PARAMETER(size);
+
+        if (!Initialized)
+        {
+            return;
+        }
 
         CRect ClientRectangle;
 
@@ -342,6 +351,16 @@ private:
         ::PostQuitMessage(0);
     }
 
+    HBRUSH OnCtlColorStatic(WTL::CDCHandle dc, WTL::CStatic wndStatic)
+    {
+        UNREFERENCED_PARAMETER(wndStatic);
+
+        dc.SetTextColor(RGB(0, 0, 0));
+        dc.SetBkColor(RGB(255, 255, 255));
+
+        return dc.GetCurrentBrush();
+    }
+
 private:
 
     virtual BOOL PreTranslateMessage(MSG* pMsg)
@@ -365,6 +384,7 @@ private:
         MSG_WM_SIZE(OnSize)
         MSG_WM_DPICHANGED(OnDpiChanged)
         MSG_WM_DESTROY(OnDestroy)
+        MSG_WM_CTLCOLORSTATIC(OnCtlColorStatic)
     END_MSG_MAP()
 
     BEGIN_UPDATE_UI_MAP(CMainWindow)
