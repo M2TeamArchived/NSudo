@@ -2,6 +2,9 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="NSudoSweeper.cpp" />
+    <ClCompile Include="NSudoSweeperCore.cpp">
+      <Filter>NSudoSweeperCore</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="NSudoSweeperVersion">
@@ -9,6 +12,9 @@
     </Filter>
     <Filter Include="NSudoSweeperManifest">
       <UniqueIdentifier>{e6d8583e-39d1-4b6e-9f79-953b7b6c37af}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NSudoSweeperCore">
+      <UniqueIdentifier>{bf1c9163-a37b-4e96-83e6-ddd35af6f16b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -27,6 +33,9 @@
   <ItemGroup>
     <ClInclude Include="NSudoSweeperVersion.h">
       <Filter>NSudoSweeperVersion</Filter>
+    </ClInclude>
+    <ClInclude Include="NSudoSweeperCore.h">
+      <Filter>NSudoSweeperCore</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

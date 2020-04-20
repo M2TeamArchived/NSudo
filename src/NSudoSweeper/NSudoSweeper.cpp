@@ -12,6 +12,8 @@
 
 #include "NSudoSweeperVersion.h"
 
+#include "NSudoSweeperCore.h"
+
 #define _ATL_NO_AUTOMATIC_NAMESPACE
 #include <atlbase.h>
 #include <atlwin.h>

@@ -163,6 +163,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="NSudoSweeper.cpp" />
+    <ClCompile Include="NSudoSweeperCore.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="NSudoSweeperManifest.manifest" />
@@ -172,6 +173,7 @@
     <ResourceCompile Include="NSudoSweeperVersion.rc" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="NSudoSweeperCore.h" />
     <ClInclude Include="NSudoSweeperVersion.h" />
   </ItemGroup>
   <ItemGroup>
