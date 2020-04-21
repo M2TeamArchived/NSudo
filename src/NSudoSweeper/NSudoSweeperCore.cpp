@@ -82,3 +82,6 @@ EXTERN_C HRESULT WINAPI NSudoSweeperSystemRestorePointCleanupHandler(
 
     return S_OK;
 }
+
+
+// NSudoSweeperStandardCleanupHandler

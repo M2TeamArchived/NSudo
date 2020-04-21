@@ -1,0 +1,38 @@
+﻿# Simple NSudo Sweeper standard cleanup handler configuration file.
+# "Detect", "Include" and "Exclude" are supported regex with C++ std::regex style.
+# You can free to add anything for helping you implement your custom handler.
+
+# 简易标准清理项配置文件。
+# "Detect", "Include" 和 "Exclude" 皆支持 C++ std::regex 风格的正则表达式。
+# 您可以随意添加任何内容，以帮助实现你的自定义处理程序。
+
+[Metadata]
+
+    [en]
+    Name = "Simple standard cleanup item"
+    Description = "This is a simple standard cleanup item, for tutorial use."
+
+    [zh-Hans]
+    Name = "简易标准清理项"
+    Description = "这是一个用作教学的简易标准清理项。"
+
+[Configuration]
+
+Handler = "NSudoSweeperStandardCleanupHandler"
+
+DetectOS = { Minimum = "6.0", Maximum = "6.0" }
+
+OfflineImageSupport = false
+
+Detect = [
+    "Registry|HKCU\\Software\\NSudo", 
+    "File|C:\\NSudo" 
+]
+
+Include = [
+    "File|C:\\NSudo\\Cleanup\\*.dll"
+]
+
+Exclude = [
+    "File|C:\\NSudo\\Cleanup\\Important.dll"
+]

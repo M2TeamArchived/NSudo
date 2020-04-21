@@ -40,5 +40,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="NSudoSweeperStandardCleanupHandler.toml" />
   </ItemGroup>
 </Project>

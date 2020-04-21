@@ -177,6 +177,7 @@
     <ClInclude Include="NSudoSweeperVersion.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="NSudoSweeperStandardCleanupHandler.toml" />
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
