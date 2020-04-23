@@ -2,7 +2,7 @@
 
 ## Contact
 
-- [E-mail](mailto:Mouri_Naruto@Outlook.com)
+- E-mail: [Mouri_Naruto@Outlook.com](mailto:Mouri_Naruto@Outlook.com)
 
 ## Community
 

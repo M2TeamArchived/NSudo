@@ -10,7 +10,7 @@
   - Use jsmn instead of JSON for Modern C++.
 - Rename NSudo itself to NSudo Launcher. (NSudoLG.exe and NSudoLC.exe)
 - Remove context menu support because you can use 
-  https://github.com/Thdub/NSudo_Installer for better experience.
+  [https://github.com/Thdub/NSudo_Installer](https://github.com/Thdub/NSudo_Installer) for better experience.
 - Add Itlian Language. (Contributed by garf02.)
 - Add Spanish Language. (Contributed by Miguel Obando.)
 - Use the Semantic Versioning format.
@@ -62,7 +62,7 @@
 - Fix a bug which can cause crash on Windows Vista and Server 2008.
   (Thanks to hydra79545.)
 - Share source code with M2-Team UWP projects. (For more information, please
-  read "https://github.com/Project-Nagisa/Nagisa/blob/master/Changelog.md")
+  read "[https://github.com/Project-Nagisa/Nagisa/blob/master/Changelog.md](https://github.com/Project-Nagisa/Nagisa/blob/master/Changelog.md)")
 - Remove useless implementations.
 - Improve the implementation for NSudoStartService function.
 - Use RapidJSON instead of JSON for Modern C++ to reduce the binary size.
@@ -99,7 +99,7 @@
     - The font size is larger than the TaskDialog.
     - You can press Enter to close the message dialog.
   - If you want to use the M2MessageDialog in your project, please download
-    these files in https://github.com/M2Team/NSudo/tree/master/NSudoSDK
+    these files in [https://github.com/M2Team/NSudo/tree/master/NSudoSDK](https://github.com/M2Team/NSudo/tree/master/NSudoSDK)
     - M2DPIScaling.cpp
     - M2DPIScaling.h
     - M2MessageDialog.cpp

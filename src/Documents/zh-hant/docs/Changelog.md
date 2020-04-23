@@ -36,7 +36,7 @@
 
 - 修復在 Windows Vista 和 Server 2008 下崩潰的問題（感謝 hydra79545）
 - 與 M2-Team UWP 項目共享實現（詳情請閱讀
-  「https://github.com/Project-Nagisa/Nagisa/blob/master/Changelog.md」）
+  「[https://github.com/Project-Nagisa/Nagisa/blob/master/Changelog.md](https://github.com/Project-Nagisa/Nagisa/blob/master/Changelog.md)」）
 - 移除無用實現
 - 改進 NSudoStartService 函數的實現
 - 使用 RapidJSON 替代 JSON for Modern C++ 以減小二進位檔案大小
@@ -69,7 +69,7 @@
     - 比 TaskDialog 的字型更大
     - 你可以按 Enter 鍵關閉對話方塊
   - 如果你想在你的項目使用 M2MessageDialog，請從此處下載以下檔案：
-    https://github.com/M2Team/NSudo/tree/master/NSudoSDK
+    [https://github.com/M2Team/NSudo/tree/master/NSudoSDK](https://github.com/M2Team/NSudo/tree/master/NSudoSDK)
     - M2DPIScaling.cpp
     - M2DPIScaling.h
     - M2MessageDialog.cpp
