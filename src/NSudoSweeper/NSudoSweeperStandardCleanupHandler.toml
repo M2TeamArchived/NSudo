@@ -18,6 +18,8 @@
 
 [Configuration]
 
+Plugin = "NSudoSweeperCore.dll"
+
 Handler = "NSudoSweeperStandardCleanupHandler"
 
 DetectOS = { Minimum = "6.0", Maximum = "6.0" }
