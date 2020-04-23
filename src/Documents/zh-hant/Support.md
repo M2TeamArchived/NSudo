@@ -2,7 +2,7 @@
 
 ## 聯繫方式
 
-- [電郵](mailto:Mouri_Naruto@Outlook.com)
+- 電郵: [Mouri_Naruto@Outlook.com](mailto:Mouri_Naruto@Outlook.com)
 
 ## 社區
 

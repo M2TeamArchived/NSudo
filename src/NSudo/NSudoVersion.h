@@ -15,9 +15,9 @@
 
 #define NSUDO_VER_MAJOR 8
 #define NSUDO_VER_MINOR 0
-#define NSUDO_VER_PATCH 0
+#define NSUDO_VER_PATCH 1
 
-#define NSUDO_VER_TAG_STRING // L"-" L"alpha3"
+#define NSUDO_VER_TAG_STRING L" " L"Update 1"
 
 #endif
 

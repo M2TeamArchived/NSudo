@@ -9,7 +9,7 @@
   - 优化图标资源
   - 使用 jsmn 而不是 JSON for Modern C++.
 - NSudo 更名为 NSudo Launcher（NSudoLG.exe 和 NSudoLC.exe）
-- 移除上下文支持，因为 https://github.com/Thdub/NSudo_Installer 体验更好
+- 移除上下文支持，因为 [https://github.com/Thdub/NSudo_Installer](https://github.com/Thdub/NSudo_Installer) 体验更好
 - 添加意大利语翻译（由 garf02 贡献）
 - 添加西班牙语翻译（由 Miguel Obando 贡献）
 - 遵循语义化版本规范
@@ -59,7 +59,7 @@
 
 - 修复在 Windows Vista 和 Server 2008 下崩溃的问题（感谢 hydra79545）
 - 与 M2-Team UWP 项目共享实现（详情请阅读
-  “https://github.com/Project-Nagisa/Nagisa/blob/master/Changelog.md”）
+  “[https://github.com/Project-Nagisa/Nagisa/blob/master/Changelog.md](https://github.com/Project-Nagisa/Nagisa/blob/master/Changelog.md)”）
 - 移除无用实现
 - 改进 NSudoStartService 函数的实现
 - 使用 RapidJSON 替代 JSON for Modern C++ 以减小二进制大小
@@ -92,7 +92,7 @@
     - 比 TaskDialog 的字体更大
     - 你可以按 Enter 键关闭对话框
   - 如果你想在你的项目使用 M2MessageDialog，请从此处下载以下文件：
-    https://github.com/M2Team/NSudo/tree/master/NSudoSDK
+    [https://github.com/M2Team/NSudo/tree/master/NSudoSDK](https://github.com/M2Team/NSudo/tree/master/NSudoSDK)
     - M2DPIScaling.cpp
     - M2DPIScaling.h
     - M2MessageDialog.cpp
