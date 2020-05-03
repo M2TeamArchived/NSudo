@@ -1,7 +1,7 @@
 {
     "name": "NSudo",
     "short_name": "NSudo",
-    "start_url": "/index.html",
+    "start_url": "https://m2team.github.io/NSudo/",
     "display": "standalone",
     "background_color": "#fff",
     "description": "System Administration Toolkit",
