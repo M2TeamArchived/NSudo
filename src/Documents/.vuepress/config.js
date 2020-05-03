@@ -12,7 +12,7 @@ module.exports = {
     '/zh-hans/': {
       lang: 'zh-CN',
       title: 'NSudo',
-      description: '系统管理工具包'
+      description: '系统管理工具包',
     },
     '/zh-hant/': {
       lang: 'zh-TW',
@@ -21,10 +21,20 @@ module.exports = {
     }
   },
   head: [
-    ['link', { rel: 'shortcut icon', type: 'image/x-icon', href: '/favicon.ico' }],
-    ['meta', { name: 'theme-color', content: '#3eaf7c' }],
+    ['meta', { 'http-equiv': 'X-UA-Compatible', content: "IE=edge" }],
+    ['meta', { name: 'viewport', content: 'user-scalable=no' }],
+    ['meta', { name: 'author', content: "M2-Team" }],
+    ['meta', { name: 'keywords', content: 'trustedinstaller,system,session,windows,token,integritylevel,privileges,nsudo,administration,process,devilmode,bypass,accesscheck,ntapi,launcher' }],
+    ['meta', { name: 'theme-color', content: '#2582D3' }],
     ['meta', { name: 'apple-mobile-web-app-capable', content: 'yes' }],
-    ['meta', { name: 'apple-mobile-web-app-status-bar-style', content: 'black' }]
+    ['meta', { name: 'apple-mobile-web-app-status-bar-style', content: 'black' }],
+    ['meta', { name: 'msapplication-TileImage', content: '/icons/msapplication-icon-144x144.png' }],
+    ['meta', { name: 'msapplication-TileColor', content: '#000000' }],
+    ['meta', { name: 'Copyright', content: "Copyright M2-Team All Rights Reserved." }],
+    ['link', { rel: 'icon', href: '/favicon.ico' }],
+    ['link', { rel: 'manifest', href: '/manifest.json' }],
+    ['link', { rel: 'apple-touch-icon', href: '/icons/apple-touch-icon-152x152.png' }],
+    ['link', { rel: 'mask-icon', href: '/icons/safari-pinned-tab.svg', color: '#2582D3' }],
   ],
   themeConfig: {
     repo: 'm2team/NSudo',
@@ -52,6 +62,7 @@ module.exports = {
             "/en-us/docs/",
             {
               title: "Documents",
+              collapsable: false,
               children: [
                 "/en-us/docs/Changelog",
                 "/en-us/docs/DevilMode",
@@ -60,7 +71,7 @@ module.exports = {
               ]
             }
           ]
-        }
+        },
       },
       "/zh-hans/": {
         selectText: "选择语言",
@@ -84,6 +95,7 @@ module.exports = {
             "/zh-hans/docs/",
             {
               title: "档案",
+              collapsable: false,
               children: [
                 ["/zh-hans/docs/Changelog", "更新日志"],
                 ["/zh-hans/docs/DevilMode", "NSudo 恶魔模式"],
@@ -115,6 +127,7 @@ module.exports = {
             "/zh-hant/docs/",
             {
               title: "檔案",
+              collapsable: false,
               children: [
                 ["/zh-hant/docs/Changelog", "變更紀錄"],
                 ["/en-us/docs/People", "相關人士"]
@@ -128,5 +141,9 @@ module.exports = {
   plugins: [
     '@vuepress/back-to-top',
     '@vuepress/medium-zoom',
+    '@vuepress/pwa', {
+      serviceWorker: true,
+      updatePopup: true
+    }
   ]
 }
