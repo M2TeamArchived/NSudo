@@ -22,7 +22,6 @@ module.exports = {
   },
   head: [
     ['meta', { 'http-equiv': 'X-UA-Compatible', content: "IE=edge" }],
-    ['meta', { name: 'viewport', content: 'user-scalable=no' }],
     ['meta', { name: 'author', content: "M2-Team" }],
     ['meta', { name: 'keywords', content: 'trustedinstaller,system,session,windows,token,integritylevel,privileges,nsudo,administration,process,devilmode,bypass,accesscheck,ntapi,launcher' }],
     ['meta', { name: 'theme-color', content: '#2582D3' }],
