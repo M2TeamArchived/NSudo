@@ -1,0 +1,17 @@
+{
+    "name": "NSudo",
+    "short_name": "NSudo",
+    "start_url": "https://m2team.github.io/NSudo/",
+    "display": "standalone",
+    "background_color": "#fff",
+    "description": "System Administration Toolkit",
+    "icons": [{
+      "src": "icons/apple-touch-icon-152x152.png",
+      "sizes": "152x152",
+      "type": "image/png"
+    }, {
+      "src": "icons/msapplication-icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png"
+    }]
+  }
