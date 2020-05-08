@@ -1,0 +1,12 @@
+﻿<Window x:Class="M2.NSudo.Prototype.IntegratedUserExperience.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:M2.NSudo.Prototype.IntegratedUserExperience"
+        mc:Ignorable="d"
+        Title="NSudo Integrated User Experience (Prototype)" Height="450" Width="800">
+  <Grid>
+    <TextBlock FontSize="20" TextWrapping="NoWrap" Text="NSudo 集成用户体验 (原型)" />
+  </Grid>
+</Window>
