@@ -32,22 +32,19 @@ namespace FunctionType
     };
 }
 
-typedef struct _NSUDO_DEVIL_MODE_SHARED_DATA
+namespace
 {
-    HANDLE PrivilegedToken;
+    HANDLE g_PrivilegedToken;
 
-    PVOID OriginalAddress[FunctionType::MaxFunctionType];
-    PVOID DetouredAddress[FunctionType::MaxFunctionType];
-
-} NSUDO_DEVIL_MODE_SHARED_DATA, *PNSUDO_DEVIL_MODE_SHARED_DATA;
-
-static NSUDO_DEVIL_MODE_SHARED_DATA g_SharedData;
+    PVOID g_OriginalAddress[FunctionType::MaxFunctionType];
+    PVOID g_DetouredAddress[FunctionType::MaxFunctionType];
+}
 
 
 NTSTATUS NSudoDevilModeEnterPrivilegedContext(
     _Out_ PHANDLE OriginalTokenHandle)
 {
-    if (g_SharedData.PrivilegedToken == INVALID_HANDLE_VALUE)
+    if (g_PrivilegedToken == INVALID_HANDLE_VALUE)
     {
         return STATUS_NOT_SUPPORTED;
     }
@@ -64,7 +61,7 @@ NTSTATUS NSudoDevilModeEnterPrivilegedContext(
     return ::NtSetInformationThread(
         NtCurrentThread(),
         ThreadImpersonationToken,
-        &g_SharedData.PrivilegedToken,
+        &g_PrivilegedToken,
         sizeof(HANDLE));
 }
 
@@ -97,7 +94,7 @@ NTSTATUS NTAPI OriginalNtCreateKey(
     _Out_opt_ PULONG Disposition)
 {
     return reinterpret_cast<decltype(NtCreateKey)*>(
-        g_SharedData.OriginalAddress[FunctionType::NtCreateKey])(
+        g_OriginalAddress[FunctionType::NtCreateKey])(
             KeyHandle,
             DesiredAccess,
             ObjectAttributes,
@@ -153,7 +150,7 @@ NTSTATUS NTAPI OriginalNtCreateKeyTransacted(
     _Out_opt_ PULONG Disposition)
 {
     return reinterpret_cast<decltype(NtCreateKeyTransacted)*>(
-        g_SharedData.OriginalAddress[FunctionType::NtCreateKeyTransacted])(
+        g_OriginalAddress[FunctionType::NtCreateKeyTransacted])(
             KeyHandle,
             DesiredAccess,
             ObjectAttributes,
@@ -207,7 +204,7 @@ NTSTATUS NTAPI OriginalNtOpenKey(
     _In_ POBJECT_ATTRIBUTES ObjectAttributes)
 {
     return reinterpret_cast<decltype(NtOpenKey)*>(
-        g_SharedData.OriginalAddress[FunctionType::NtOpenKey])(
+        g_OriginalAddress[FunctionType::NtOpenKey])(
             KeyHandle,
             DesiredAccess,
             ObjectAttributes);
@@ -250,7 +247,7 @@ NTSTATUS NTAPI OriginalNtOpenKeyTransacted(
     _In_ HANDLE TransactionHandle)
 {
     return reinterpret_cast<decltype(NtOpenKeyTransacted)*>(
-        g_SharedData.OriginalAddress[FunctionType::NtOpenKeyTransacted])(
+        g_OriginalAddress[FunctionType::NtOpenKeyTransacted])(
             KeyHandle,
             DesiredAccess,
             ObjectAttributes,
@@ -296,7 +293,7 @@ NTSTATUS NTAPI OriginalNtOpenKeyEx(
     _In_ ULONG OpenOptions)
 {
     return reinterpret_cast<decltype(NtOpenKeyEx)*>(
-        g_SharedData.OriginalAddress[FunctionType::NtOpenKeyEx])(
+        g_OriginalAddress[FunctionType::NtOpenKeyEx])(
             KeyHandle,
             DesiredAccess,
             ObjectAttributes,
@@ -340,7 +337,7 @@ NTSTATUS NTAPI OriginalNtOpenKeyTransactedEx(
     _In_ HANDLE TransactionHandle)
 {
     return reinterpret_cast<decltype(NtOpenKeyTransactedEx)*>(
-        g_SharedData.OriginalAddress[FunctionType::NtOpenKeyTransactedEx])(
+        g_OriginalAddress[FunctionType::NtOpenKeyTransactedEx])(
             KeyHandle,
             DesiredAccess,
             ObjectAttributes,
@@ -393,7 +390,7 @@ NTSTATUS NTAPI OriginalNtCreateFile(
     _In_ ULONG EaLength)
 {
     return reinterpret_cast<decltype(NtCreateFile)*>(
-        g_SharedData.OriginalAddress[FunctionType::NtCreateFile])(
+        g_OriginalAddress[FunctionType::NtCreateFile])(
             FileHandle,
             DesiredAccess,
             ObjectAttributes,
@@ -460,7 +457,7 @@ NTSTATUS NTAPI OriginalNtOpenFile(
     _In_ ULONG OpenOptions)
 {
     return reinterpret_cast<decltype(NtOpenFile)*>(
-        g_SharedData.OriginalAddress[FunctionType::NtOpenFile])(
+        g_OriginalAddress[FunctionType::NtOpenFile])(
             FileHandle,
             DesiredAccess,
             ObjectAttributes,
@@ -535,7 +532,7 @@ void NSudoDevilModeInitialize()
             &OA,
             FALSE,
             TokenImpersonation,
-            &g_SharedData.PrivilegedToken);
+            &g_PrivilegedToken);
 
         ::NtClose(CurrentProcessToken);
     }
@@ -556,7 +553,7 @@ void NSudoDevilModeInitialize()
         pTP->Privileges[1].Attributes = SE_PRIVILEGE_ENABLED;
 
         Status = ::NtAdjustPrivilegesToken(
-            g_SharedData.PrivilegedToken,
+            g_PrivilegedToken,
             FALSE,
             pTP,
             sizeof(TPBlock),
@@ -564,44 +561,44 @@ void NSudoDevilModeInitialize()
             nullptr);
         if (ERROR_SUCCESS != Status)
         {
-            ::NtClose(g_SharedData.PrivilegedToken);
+            ::NtClose(g_PrivilegedToken);
             Status = STATUS_NOT_SUPPORTED;
         }
     }
 
     if (!NT_SUCCESS(Status))
     {
-        g_SharedData.PrivilegedToken = INVALID_HANDLE_VALUE;
+        g_PrivilegedToken = INVALID_HANDLE_VALUE;
     }
 
-    g_SharedData.OriginalAddress[FunctionType::NtCreateKey] =
+    g_OriginalAddress[FunctionType::NtCreateKey] =
         ::NtCreateKey;
-    g_SharedData.DetouredAddress[FunctionType::NtCreateKey] =
+    g_DetouredAddress[FunctionType::NtCreateKey] =
         ::DetouredNtCreateKey;
 
-    g_SharedData.OriginalAddress[FunctionType::NtCreateKeyTransacted] =
+    g_OriginalAddress[FunctionType::NtCreateKeyTransacted] =
         ::NtCreateKeyTransacted;
-    g_SharedData.DetouredAddress[FunctionType::NtCreateKeyTransacted] =
+    g_DetouredAddress[FunctionType::NtCreateKeyTransacted] =
         ::DetouredNtCreateKeyTransacted;
 
-    g_SharedData.OriginalAddress[FunctionType::NtOpenKey] =
+    g_OriginalAddress[FunctionType::NtOpenKey] =
         ::NtOpenKey;
-    g_SharedData.DetouredAddress[FunctionType::NtOpenKey] =
+    g_DetouredAddress[FunctionType::NtOpenKey] =
         ::DetouredNtOpenKey;
 
-    g_SharedData.OriginalAddress[FunctionType::NtOpenKeyTransacted] =
+    g_OriginalAddress[FunctionType::NtOpenKeyTransacted] =
         ::NtOpenKeyTransacted;
-    g_SharedData.DetouredAddress[FunctionType::NtOpenKeyTransacted] =
+    g_DetouredAddress[FunctionType::NtOpenKeyTransacted] =
         ::DetouredNtOpenKeyTransacted;
 
-    g_SharedData.OriginalAddress[FunctionType::NtCreateFile] =
+    g_OriginalAddress[FunctionType::NtCreateFile] =
         ::NtCreateFile;
-    g_SharedData.DetouredAddress[FunctionType::NtCreateFile] =
+    g_DetouredAddress[FunctionType::NtCreateFile] =
         ::DetouredNtCreateFile;
 
-    g_SharedData.OriginalAddress[FunctionType::NtOpenFile] =
+    g_OriginalAddress[FunctionType::NtOpenFile] =
         ::NtOpenFile;
-    g_SharedData.DetouredAddress[FunctionType::NtOpenFile] =
+    g_DetouredAddress[FunctionType::NtOpenFile] =
         ::DetouredNtOpenFile;
 
     UNICODE_STRING NtdllName;
@@ -626,8 +623,8 @@ void NSudoDevilModeInitialize()
             NtdllModuleHandle,
             &FunctionName,
             0,
-            &g_SharedData.OriginalAddress[FunctionType::NtOpenKeyEx]);
-        g_SharedData.DetouredAddress[FunctionType::NtOpenKeyEx] =
+            &g_OriginalAddress[FunctionType::NtOpenKeyEx]);
+        g_DetouredAddress[FunctionType::NtOpenKeyEx] =
             ::DetouredNtOpenKeyEx;
 
         ::RtlInitAnsiString(
@@ -637,8 +634,8 @@ void NSudoDevilModeInitialize()
             NtdllModuleHandle,
             &FunctionName,
             0,
-            &g_SharedData.OriginalAddress[FunctionType::NtOpenKeyTransactedEx]);
-        g_SharedData.DetouredAddress[FunctionType::NtOpenKeyTransactedEx] =
+            &g_OriginalAddress[FunctionType::NtOpenKeyTransactedEx]);
+        g_DetouredAddress[FunctionType::NtOpenKeyTransactedEx] =
             ::DetouredNtOpenKeyTransactedEx;
 
     }
@@ -649,9 +646,9 @@ void NSudoDevilModeInitialize()
  */
 void NSudoDevilModeUninitialize()
 {
-    if (g_SharedData.PrivilegedToken != INVALID_HANDLE_VALUE)
+    if (g_PrivilegedToken != INVALID_HANDLE_VALUE)
     {
-        ::NtClose(g_SharedData.PrivilegedToken);
+        ::NtClose(g_PrivilegedToken);
     }
 }
 
@@ -675,19 +672,19 @@ BOOL APIENTRY DllMain(
 
         for (size_t i = 0; i < FunctionType::MaxFunctionType; ++i)
         {
-            if (g_SharedData.OriginalAddress[i])
+            if (g_OriginalAddress[i])
             {
                 if (DLL_PROCESS_ATTACH == Reason)
                 {
                     DetourAttach(
-                        &g_SharedData.OriginalAddress[i],
-                        g_SharedData.DetouredAddress[i]);
+                        &g_OriginalAddress[i],
+                        g_DetouredAddress[i]);
                 }
                 else if (DLL_PROCESS_DETACH == Reason)
                 {
                     DetourDetach(
-                        &g_SharedData.OriginalAddress[i],
-                        g_SharedData.DetouredAddress[i]);
+                        &g_OriginalAddress[i],
+                        g_DetouredAddress[i]);
                 }
             }
         }
