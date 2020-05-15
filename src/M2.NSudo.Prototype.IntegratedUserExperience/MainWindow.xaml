@@ -1,12 +1,112 @@
-﻿<Window x:Class="M2.NSudo.Prototype.IntegratedUserExperience.MainWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:M2.NSudo.Prototype.IntegratedUserExperience"
-        mc:Ignorable="d"
-        Title="NSudo Integrated User Experience (Prototype)" Height="450" Width="800">
+﻿<Window
+    x:Class="M2.NSudo.Prototype.IntegratedUserExperience.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:avalonDock="https://github.com/Dirkster99/AvalonDock"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:M2.NSudo.Prototype.IntegratedUserExperience"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Title="NSudo Integrated User Experience (Prototype)"
+    Width="800"
+    Height="450"
+    mc:Ignorable="d">
   <Grid>
-    <TextBlock FontSize="20" TextWrapping="NoWrap" Text="NSudo 集成用户体验 (原型)" />
-  </Grid>
+    <avalonDock:DockingManager
+			x:Name="dockManager"
+			Grid.Row="1"
+			AllowMixedOrientation="True"
+			IsVirtualizingAnchorable="True"
+			IsVirtualizingDocument="True">
+      <!-- avalonDock:DockingManager.Theme>
+                <avalonDock:Vs2013DarkTheme/>
+            </avalonDock:DockingManager.Theme-->
+      <avalonDock:DockingManager.DocumentHeaderTemplate>
+        <DataTemplate>
+          <StackPanel Orientation="Horizontal">
+            <Image Margin="0,0,4,0" Source="{Binding IconSource}" />
+            <TextBlock Text="{Binding Title}" TextTrimming="CharacterEllipsis" />
+          </StackPanel>
+        </DataTemplate>
+      </avalonDock:DockingManager.DocumentHeaderTemplate>
+      <avalonDock:LayoutRoot>
+        <avalonDock:LayoutPanel Orientation="Horizontal">
+          <avalonDock:LayoutAnchorablePane DockWidth="50">
+            <avalonDock:LayoutAnchorable
+							x:Name="WinFormsWindow"
+							Title="WinForms Window"
+							CanClose="False"
+							CanHide="False"
+							ContentId="WinFormsWindow"
+							ToolTip="My WinForms Tool">
+            </avalonDock:LayoutAnchorable>
+          </avalonDock:LayoutAnchorablePane>
+          <avalonDock:LayoutDocumentPaneGroup>
+            <avalonDock:LayoutDocumentPane x:Name="LayoutDocumentPane">
+              <avalonDock:LayoutDocument
+								Title="Document 1"
+								ContentId="document1">
+                <StackPanel>
+                  <TextBox Text="Document 1 Content" />
+                  <Button Content="Click to add 2 documents" />
+                </StackPanel>
+              </avalonDock:LayoutDocument>
+              <avalonDock:LayoutDocument Title="Document 2" ContentId="document2">
+                <TextBox Text="{Binding TestTimer, Mode=OneWay, StringFormat='Document 2 Attached to Timer ->\{0\}'}" />
+              </avalonDock:LayoutDocument>
+            </avalonDock:LayoutDocumentPane>
+          </avalonDock:LayoutDocumentPaneGroup>
+          <avalonDock:LayoutAnchorablePaneGroup DockWidth="50">
+            <avalonDock:LayoutAnchorablePane>
+              <avalonDock:LayoutAnchorable
+								Title="Tool Window 1"
+								ContentId="toolWindow1">
+                <StackPanel MinHeight="450">
+                  <TextBox Text="{Binding TestTimer, Mode=OneWay, StringFormat='Tool Window 1 Attached to Timer ->\{0\}'}" />
+                </StackPanel>
+              </avalonDock:LayoutAnchorable>
+              <avalonDock:LayoutAnchorable Title="Tool Window 2" ContentId="toolWindow2">
+                <TextBlock Text="{Binding FocusedElement}" />
+              </avalonDock:LayoutAnchorable>
+            </avalonDock:LayoutAnchorablePane>
+          </avalonDock:LayoutAnchorablePaneGroup>
+        </avalonDock:LayoutPanel>
+
+        <avalonDock:LayoutRoot.LeftSide>
+          <avalonDock:LayoutAnchorSide>
+            <avalonDock:LayoutAnchorGroup>
+              <avalonDock:LayoutAnchorable
+								Title="AutoHide1 Content"
+								ContentId="AutoHide1Content">
+                <TextBox Text="{Binding TestTimer, Mode=OneWay, StringFormat='AutoHide Attached to Timer ->\{0\}'}" />
+              </avalonDock:LayoutAnchorable>
+              <avalonDock:LayoutAnchorable Title="AutoHide2 Content" ContentId="AutoHide2Content">
+                <StackPanel Orientation="Vertical">
+                  <TextBox />
+                  <TextBox />
+                </StackPanel>
+              </avalonDock:LayoutAnchorable>
+            </avalonDock:LayoutAnchorGroup>
+          </avalonDock:LayoutAnchorSide>
+        </avalonDock:LayoutRoot.LeftSide>
+      </avalonDock:LayoutRoot>
+    </avalonDock:DockingManager>
+
+
+    <!--<TextBlock FontSize="20" Text="NSudo 集成用户体验 (原型)" />
+        <StackPanel
+            Width="400"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            Orientation="Vertical">
+            <TextBlock FontSize="24" Text="Please choose a feature:" />
+            <Button Content="Launch a program" FontSize="16" />
+            <Button Content="Cleanup and free the storage space" FontSize="16" />
+            <Button Content="Manage Windows Apps" FontSize="16" />
+            <Button Content="Manage Windows Drivers" FontSize="16" />
+            <Button Content="Manage Windows System Restore" FontSize="16" />
+            <Button Content="Documentation for users" FontSize="16" />
+            <Button Content="Documentation for developers" FontSize="16" />
+            <Button Content="About" FontSize="16" />
+        </StackPanel>-->
+    </Grid>
 </Window>

@@ -6,4 +6,8 @@
     <UseWPF>true</UseWPF>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Dirkster.AvalonDock" Version="4.10.0" />
+  </ItemGroup>
+
 </Project>
