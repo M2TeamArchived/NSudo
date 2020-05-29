@@ -14,7 +14,6 @@
     <None Include="NSudoAPI.def">
       <Filter>NSudoAPI.dll</Filter>
     </None>
-    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="NSudoAPIVersion.rc">

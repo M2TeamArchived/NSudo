@@ -8,6 +8,5 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Mile.props" />
-    <None Include="packages.config" />
   </ItemGroup>
 </Project>

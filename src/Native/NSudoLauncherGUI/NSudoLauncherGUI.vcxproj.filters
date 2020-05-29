@@ -10,7 +10,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
     <None Include="Resources\NSudo.json">
       <Filter>Resources</Filter>
     </None>
