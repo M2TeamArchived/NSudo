@@ -139,12 +139,33 @@
       <EnableCOMDATFolding Condition="'$(Configuration)'=='Release'">true</EnableCOMDATFolding>
       <OptimizeReferences Condition="'$(Configuration)'=='Release'">true</OptimizeReferences>
     </Link>
+    <PostBuildEvent>
+      <Message>复制配置文件</Message>
+      <Command>xcopy /r /s /y $(ProjectDir)Resources\NSudo.json $(TargetDir)</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="M2WindowsHelpers.cpp" />
     <ClCompile Include="NSudoLauncherCUI.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="Resources\NSudo.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="CIBuild.h" />
+    <ClInclude Include="jsmn.h" />
+    <ClInclude Include="M2WindowsHelpers.h" />
+    <ClInclude Include="NSudoVersion.h" />
+    <ClInclude Include="Resources\resource.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Resources\Manifest.rc" />
+    <ResourceCompile Include="Resources\NSudo.rc" />
+    <ResourceCompile Include="Resources\Version.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="Resources\NSudoConsole.manifest" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -2,8 +2,69 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="NSudoLauncherGUI.cpp" />
+    <ClCompile Include="M2Win32GUIHelpers.cpp">
+      <Filter>M2Win32GUIHelpers</Filter>
+    </ClCompile>
+    <ClCompile Include="M2WindowsHelpers.cpp">
+      <Filter>M2WindowsHelpers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="Resources\NSudo.json">
+      <Filter>Resources</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="jsmn">
+      <UniqueIdentifier>{ea0f1c36-890f-4f1c-9ade-9173c6b242d7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="M2Win32GUIHelpers">
+      <UniqueIdentifier>{69bb0b6f-1d7d-4a77-9b42-483f97fdde74}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="M2WindowsHelpers">
+      <UniqueIdentifier>{51697a15-4407-44a4-a2a3-cdbb6c6357c9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{c4416227-cc2c-4764-84c2-2c2ef3e3ca3b}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="jsmn.h">
+      <Filter>jsmn</Filter>
+    </ClInclude>
+    <ClInclude Include="M2MessageDialogResource.h">
+      <Filter>M2Win32GUIHelpers</Filter>
+    </ClInclude>
+    <ClInclude Include="M2Win32GUIHelpers.h">
+      <Filter>M2Win32GUIHelpers</Filter>
+    </ClInclude>
+    <ClInclude Include="M2WindowsHelpers.h">
+      <Filter>M2WindowsHelpers</Filter>
+    </ClInclude>
+    <ClInclude Include="Resources\resource.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="CIBuild.h" />
+    <ClInclude Include="NSudoVersion.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="M2MessageDialogResource.rc">
+      <Filter>M2Win32GUIHelpers</Filter>
+    </ResourceCompile>
+    <ResourceCompile Include="Resources\Manifest.rc">
+      <Filter>Resources</Filter>
+    </ResourceCompile>
+    <ResourceCompile Include="Resources\NSudo.rc">
+      <Filter>Resources</Filter>
+    </ResourceCompile>
+    <ResourceCompile Include="Resources\Version.rc">
+      <Filter>Resources</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="Resources\NSudoWindows.manifest">
+      <Filter>Resources</Filter>
+    </Manifest>
   </ItemGroup>
 </Project>
