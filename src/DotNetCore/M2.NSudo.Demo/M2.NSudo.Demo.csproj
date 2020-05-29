@@ -11,8 +11,4 @@
     <Product>NSudo</Product>
     <Description>NSudo Shared Library .Net Wrapper Demo</Description>
   </PropertyGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\M2.NSudo\M2.NSudo.csproj" />
-  </ItemGroup>
 </Project>

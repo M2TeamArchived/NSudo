@@ -5,12 +5,7 @@ VisualStudioVersion = 16.0.28729.10
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MSBuild", "MSBuild", "{89E797B1-E412-492F-BD8C-247E53CA85CB}"
 	ProjectSection(SolutionItems) = preProject
-		MSBuild\AllTargets.Common.props = MSBuild\AllTargets.Common.props
-		MSBuild\AllTargets.Debug.props = MSBuild\AllTargets.Debug.props
-		MSBuild\AllTargets.Release.props = MSBuild\AllTargets.Release.props
 		MSBuild\NSudoAPI.props = MSBuild\NSudoAPI.props
-		MSBuild\NSudoC.props = MSBuild\NSudoC.props
-		MSBuild\NSudoG.props = MSBuild\NSudoG.props
 		MSBuild\NSudoLib.props = MSBuild\NSudoLib.props
 	EndProjectSection
 EndProject
@@ -23,13 +18,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NSudoAPI", "NSudoAPI\NSudoA
 	ProjectSection(ProjectDependencies) = postProject
 		{074549F9-9197-41FE-A8ED-8BFA2A0E2549} = {074549F9-9197-41FE-A8ED-8BFA2A0E2549}
 	EndProjectSection
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "M2.NSudo", "M2.NSudo\M2.NSudo.csproj", "{407917F6-F314-445F-9EB9-64837E6C75F1}"
-	ProjectSection(ProjectDependencies) = postProject
-		{43C2BD57-4D61-42EC-B290-62A32B6FB5C7} = {43C2BD57-4D61-42EC-B290-62A32B6FB5C7}
-	EndProjectSection
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "M2.NSudo.Demo", "M2.NSudo.Demo\M2.NSudo.Demo.csproj", "{6F7796AB-E90E-4C7F-A6F8-855FA9A185D7}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NSudoLib", "NSudoLib\NSudoLib.vcxproj", "{074549F9-9197-41FE-A8ED-8BFA2A0E2549}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -46,8 +34,6 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Mile", "Mile\Mile.vcxproj", "{A17EB414-7D7A-4455-BEF7-CA8D149D0CB2}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NSudoLauncherResources", "NSudoLauncherResources\NSudoLauncherResources.vcxproj", "{B2176F44-F97A-4403-948C-F21D56999C70}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "M2.NSudo.Prototype.IntegratedUserExperience", "M2.NSudo.Prototype.IntegratedUserExperience\M2.NSudo.Prototype.IntegratedUserExperience.csproj", "{94DB30DF-0AB4-4AAF-AA13-61CC85181482}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NSudoLauncherCUI", "NSudoLauncherCUI\NSudoLauncherCUI.vcxproj", "{2B3E4F28-D499-4529-BEC1-E0ED2003A385}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -93,30 +79,6 @@ Global
 		{43C2BD57-4D61-42EC-B290-62A32B6FB5C7}.Release|x64.Build.0 = Release|x64
 		{43C2BD57-4D61-42EC-B290-62A32B6FB5C7}.Release|x86.ActiveCfg = Release|Win32
 		{43C2BD57-4D61-42EC-B290-62A32B6FB5C7}.Release|x86.Build.0 = Release|Win32
-		{407917F6-F314-445F-9EB9-64837E6C75F1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{407917F6-F314-445F-9EB9-64837E6C75F1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{407917F6-F314-445F-9EB9-64837E6C75F1}.Debug|ARM.ActiveCfg = Debug|Any CPU
-		{407917F6-F314-445F-9EB9-64837E6C75F1}.Debug|ARM64.ActiveCfg = Debug|Any CPU
-		{407917F6-F314-445F-9EB9-64837E6C75F1}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{407917F6-F314-445F-9EB9-64837E6C75F1}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{407917F6-F314-445F-9EB9-64837E6C75F1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{407917F6-F314-445F-9EB9-64837E6C75F1}.Release|Any CPU.Build.0 = Release|Any CPU
-		{407917F6-F314-445F-9EB9-64837E6C75F1}.Release|ARM.ActiveCfg = Release|Any CPU
-		{407917F6-F314-445F-9EB9-64837E6C75F1}.Release|ARM64.ActiveCfg = Release|Any CPU
-		{407917F6-F314-445F-9EB9-64837E6C75F1}.Release|x64.ActiveCfg = Release|Any CPU
-		{407917F6-F314-445F-9EB9-64837E6C75F1}.Release|x86.ActiveCfg = Release|Any CPU
-		{6F7796AB-E90E-4C7F-A6F8-855FA9A185D7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6F7796AB-E90E-4C7F-A6F8-855FA9A185D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6F7796AB-E90E-4C7F-A6F8-855FA9A185D7}.Debug|ARM.ActiveCfg = Debug|Any CPU
-		{6F7796AB-E90E-4C7F-A6F8-855FA9A185D7}.Debug|ARM64.ActiveCfg = Debug|Any CPU
-		{6F7796AB-E90E-4C7F-A6F8-855FA9A185D7}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{6F7796AB-E90E-4C7F-A6F8-855FA9A185D7}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{6F7796AB-E90E-4C7F-A6F8-855FA9A185D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6F7796AB-E90E-4C7F-A6F8-855FA9A185D7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6F7796AB-E90E-4C7F-A6F8-855FA9A185D7}.Release|ARM.ActiveCfg = Release|Any CPU
-		{6F7796AB-E90E-4C7F-A6F8-855FA9A185D7}.Release|ARM64.ActiveCfg = Release|Any CPU
-		{6F7796AB-E90E-4C7F-A6F8-855FA9A185D7}.Release|x64.ActiveCfg = Release|Any CPU
-		{6F7796AB-E90E-4C7F-A6F8-855FA9A185D7}.Release|x86.ActiveCfg = Release|Any CPU
 		{074549F9-9197-41FE-A8ED-8BFA2A0E2549}.Debug|Any CPU.ActiveCfg = Debug|Win32
 		{074549F9-9197-41FE-A8ED-8BFA2A0E2549}.Debug|ARM.ActiveCfg = Debug|ARM
 		{074549F9-9197-41FE-A8ED-8BFA2A0E2549}.Debug|ARM.Build.0 = Debug|ARM
@@ -207,18 +169,6 @@ Global
 		{B2176F44-F97A-4403-948C-F21D56999C70}.Release|x64.Build.0 = Release|x64
 		{B2176F44-F97A-4403-948C-F21D56999C70}.Release|x86.ActiveCfg = Release|Win32
 		{B2176F44-F97A-4403-948C-F21D56999C70}.Release|x86.Build.0 = Release|Win32
-		{94DB30DF-0AB4-4AAF-AA13-61CC85181482}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{94DB30DF-0AB4-4AAF-AA13-61CC85181482}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{94DB30DF-0AB4-4AAF-AA13-61CC85181482}.Debug|ARM.ActiveCfg = Debug|Any CPU
-		{94DB30DF-0AB4-4AAF-AA13-61CC85181482}.Debug|ARM64.ActiveCfg = Debug|Any CPU
-		{94DB30DF-0AB4-4AAF-AA13-61CC85181482}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{94DB30DF-0AB4-4AAF-AA13-61CC85181482}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{94DB30DF-0AB4-4AAF-AA13-61CC85181482}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{94DB30DF-0AB4-4AAF-AA13-61CC85181482}.Release|Any CPU.Build.0 = Release|Any CPU
-		{94DB30DF-0AB4-4AAF-AA13-61CC85181482}.Release|ARM.ActiveCfg = Release|Any CPU
-		{94DB30DF-0AB4-4AAF-AA13-61CC85181482}.Release|ARM64.ActiveCfg = Release|Any CPU
-		{94DB30DF-0AB4-4AAF-AA13-61CC85181482}.Release|x64.ActiveCfg = Release|Any CPU
-		{94DB30DF-0AB4-4AAF-AA13-61CC85181482}.Release|x86.ActiveCfg = Release|Any CPU
 		{2B3E4F28-D499-4529-BEC1-E0ED2003A385}.Debug|Any CPU.ActiveCfg = Debug|Win32
 		{2B3E4F28-D499-4529-BEC1-E0ED2003A385}.Debug|ARM.ActiveCfg = Debug|ARM
 		{2B3E4F28-D499-4529-BEC1-E0ED2003A385}.Debug|ARM.Build.0 = Debug|ARM
