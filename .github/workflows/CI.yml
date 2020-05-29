@@ -35,7 +35,7 @@ jobs:
     - name: Build
       run: msbuild /m /nologo /p:Configuration="${{ matrix.configuration }}" /p:Platform=${{ matrix.platform }} src\Native\NSudo.sln
     - name: Prepare artifacts
-      run: Remove-Item Output\* -Recurse -Force -Include *.exp, *.idb, *.ilk, *.iobj, *.ipdb, *.lastbuildstate, *.lib, *.obj, *.res, *.tlog
+      run: Remove-Item src\Native\Output\* -Recurse -Force -Include *.exp, *.idb, *.ilk, *.iobj, *.ipdb, *.lastbuildstate, *.lib, *.obj, *.res, *.tlog
     - uses: actions/upload-artifact@v1
       with:
         name: NSudo-${{ matrix.configuration }}-${{ matrix.platform }}
