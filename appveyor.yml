@@ -25,7 +25,7 @@ platform:
 - x86
 - x64
 build:
-  project: NSudo.sln
+  project: src/Native/NSudo.sln
   verbosity: normal
 after_build:
 - >-
