@@ -1,4 +1,4 @@
-version: CI Build {Build}
+﻿version: CI Build {Build}
 skip_commits:
   files:
   - .github/*
@@ -6,9 +6,9 @@ skip_commits:
   - docs/*
   - docs/*/*
   - docs/*/*/*
-  - docs-src/*
-  - docs-src/*/*
-  - docs-src/*/*/*
+  - src/Documents/*
+  - src/Documents/*/*
+  - src/Documents/*/*/*
   - Scripts/*
   - .github/CONTRIBUTING.md
   - .github/FUNDING.md
@@ -19,26 +19,22 @@ skip_commits:
   - Readme.md
 image: Visual Studio 2019
 configuration:
-- Debug - CUI
-- Debug - GUI
-- Release - CUI
-- Release - GUI
+- Debug
+- Release
 platform:
 - x86
 - x64
-before_build:
-- 'echo #define NSUDO_CI_BUILD L"(CI Build %APPVEYOR_BUILD_NUMBER%)" >> %APPVEYOR_BUILD_FOLDER%\NSudo\CIBuild.h'
 build:
   project: NSudo.sln
   verbosity: normal
 after_build:
 - >-
-    7z a -r NSudo_CI_Build_%APPVEYOR_BUILD_NUMBER%.zip %APPVEYOR_BUILD_FOLDER%\Output\*.exe
+    7z a -r NSudo_CI_Build_%APPVEYOR_BUILD_NUMBER%.zip %APPVEYOR_BUILD_FOLDER%\src\Native\Output\*.exe
 
-    7z a -r NSudo_CI_Build_%APPVEYOR_BUILD_NUMBER%.zip %APPVEYOR_BUILD_FOLDER%\Output\*.dll
+    7z a -r NSudo_CI_Build_%APPVEYOR_BUILD_NUMBER%.zip %APPVEYOR_BUILD_FOLDER%\src\Native\Output\*.dll
 
-    7z a -r NSudo_CI_Build_%APPVEYOR_BUILD_NUMBER%.zip %APPVEYOR_BUILD_FOLDER%\Output\*.pdb
+    7z a -r NSudo_CI_Build_%APPVEYOR_BUILD_NUMBER%.zip %APPVEYOR_BUILD_FOLDER%\src\Native\Output\*.pdb
 
-    7z a -r NSudo_CI_Build_%APPVEYOR_BUILD_NUMBER%.zip %APPVEYOR_BUILD_FOLDER%\Output\*.json
+    7z a -r NSudo_CI_Build_%APPVEYOR_BUILD_NUMBER%.zip %APPVEYOR_BUILD_FOLDER%\src\Native\Output\*.json
 artifacts:
 - path: NSudo_CI_Build_%APPVEYOR_BUILD_NUMBER%.zip
