@@ -40,6 +40,8 @@
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>NSudoAPI</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <NuGetTargetMoniker>native,Version=v0.0</NuGetTargetMoniker>
+    <RuntimeIdentifiers>win;win-x86;win-x64;win-arm;win-arm64</RuntimeIdentifiers>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Label="Configuration">
@@ -98,6 +100,11 @@
       <ModuleDefinitionFile>NSudoAPI.def</ModuleDefinitionFile>
     </Link>
   </ItemDefinitionGroup>
+  <ItemGroup>
+    <PackageReference Include="VC-LTL">
+      <Version>4.0.3.8</Version>
+    </PackageReference>
+  </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DllMain.cpp" />
   </ItemGroup>

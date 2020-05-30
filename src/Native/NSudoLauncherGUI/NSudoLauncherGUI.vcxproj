@@ -40,6 +40,8 @@
     <ProjectGuid>{8f89c743-14c8-4442-812f-1f1816ffb88d}</ProjectGuid>
     <RootNamespace>NSudoLauncherGUI</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <NuGetTargetMoniker>native,Version=v0.0</NuGetTargetMoniker>
+    <RuntimeIdentifiers>win;win-x86;win-x64;win-arm;win-arm64</RuntimeIdentifiers>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Label="Configuration">
@@ -103,6 +105,11 @@
       <Command>xcopy /r /s /y $(ProjectDir)Resources\NSudo.json $(TargetDir)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
+  <ItemGroup>
+    <PackageReference Include="VC-LTL">
+      <Version>4.0.3.8</Version>
+    </PackageReference>
+  </ItemGroup>
   <ItemGroup>
     <ClCompile Include="M2Win32GUIHelpers.cpp" />
     <ClCompile Include="M2WindowsHelpers.cpp" />

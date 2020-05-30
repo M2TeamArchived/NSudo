@@ -34,21 +34,14 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="Mile.Windows.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Mile.Windows.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Mile.props" />
-  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <ProjectGuid>{A17EB414-7D7A-4455-BEF7-CA8D149D0CB2}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>Mile</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <NuGetTargetMoniker>native,Version=v0.0</NuGetTargetMoniker>
+    <RuntimeIdentifiers>win;win-x86;win-x64;win-arm;win-arm64</RuntimeIdentifiers>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Label="Configuration">
@@ -104,6 +97,20 @@
       <EnableUAC>false</EnableUAC>
     </Link>
   </ItemDefinitionGroup>
+  <ItemGroup>
+    <PackageReference Include="VC-LTL">
+      <Version>4.0.3.8</Version>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Mile.Windows.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Mile.Windows.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Mile.props" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />
 </Project>
