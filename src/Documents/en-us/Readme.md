@@ -102,6 +102,7 @@ improvements.
 
 ### Third-party introduction
 
+- HowToDoNinja: [https://howtodoninja.com/how-to/nsudo-run-programs-with-full-admin-privileges-windows/](https://howtodoninja.com/how-to/nsudo-run-programs-with-full-admin-privileges-windows/)
 - MajorGeeks: [https://www.majorgeeks.com/files/details/nsudo.html](https://www.majorgeeks.com/files/details/nsudo.html)
 - softpedia.com: [https://www.softpedia.com/get/Tweak/System-Tweak/NSudo.shtml](https://www.softpedia.com/get/Tweak/System-Tweak/NSudo.shtml)
 - TrishTech.com: [https://www.trishtech.com/2018/11/nsudo-run-programs-with-full-privileges-in-windows/](https://www.trishtech.com/2018/11/nsudo-run-programs-with-full-privileges-in-windows/)
