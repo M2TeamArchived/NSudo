@@ -102,6 +102,8 @@ namespace MINT {
 #undef STATUS_INTERRUPTED
 #undef STATUS_THREAD_NOT_RUNNING
 
+#undef STATUS_CONTROL_STACK_VIOLATION
+
 #include <ntstatus.h>
 
 typedef double DOUBLE;
