@@ -3,40 +3,44 @@
 on:
   push:
     paths-ignore:
-      - 'README.md'
+      - '.github/*'
+      - 'docs/**'
+      - 'src/Documents/**'
+      - 'Scripts/**'
+      - '*.md'
       - 'appveyor.yml'
   pull_request:
     paths-ignore:
-      - 'README.md'
+      - '.github/*'
+      - 'docs/**'
+      - 'src/Documents/**'
+      - 'Scripts/**'
+      - '*.md'
       - 'appveyor.yml'
 
 jobs:
   build:
-
     runs-on: windows-latest
-
+    env:
+      POWERSHELL_TELEMETRY_OPTOUT: 1
     strategy:
       fail-fast: false
       matrix:
         configuration: [Debug, Release]
         platform: [x86, x64]
         include:
-          - configuration: Debug
-            config_prefix: Debug
-          - configuration: Release
-            config_prefix: Release
           - platform: x86
             platform_prefix: Win32
           - platform: x64
             platform_prefix: x64
     steps:
     - uses: actions/checkout@v2
-    - uses: warrenbuckley/Setup-MSBuild@v1
+    - uses: microsoft/setup-msbuild@v1
     - name: Build
-      run: msbuild /m /nologo /p:Configuration="${{ matrix.configuration }}" /p:Platform=${{ matrix.platform }} src\Native\NSudo.sln
+      run: msbuild /m /nologo /p:"Configuration=${{ matrix.configuration }};Platform=${{ matrix.platform }}" src\Native\NSudo.sln
     - name: Prepare artifacts
-      run: Remove-Item src\Native\Output\* -Recurse -Force -Include *.exp, *.idb, *.ilk, *.iobj, *.ipdb, *.lastbuildstate, *.lib, *.obj, *.res, *.tlog
-    - uses: actions/upload-artifact@v1
+      run: rm src\Native\Output\* -vb -Recurse -Force -Include *.exp, *.idb, *.ilk, *.iobj, *.ipdb, *.lastbuildstate, *.lib, *.obj, *.res, *.tlog
+    - uses: actions/upload-artifact@v2
       with:
         name: NSudo-${{ matrix.configuration }}-${{ matrix.platform }}
-        path: src\Native\Output\${{ matrix.config_prefix }}\${{ matrix.platform_prefix }}
+        path: src\Native\Output\${{ matrix.configuration }}\${{ matrix.platform_prefix }}
