@@ -2,11 +2,22 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="Mile.Windows.cpp" />
+    <ClCompile Include="Mile.Windows.TrustedLibraryLoader.cpp">
+      <Filter>Mile.Windows.TrustedLibraryLoader</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Mile.Windows.h" />
+    <ClInclude Include="Mile.Windows.TrustedLibraryLoader.h">
+      <Filter>Mile.Windows.TrustedLibraryLoader</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Mile.props" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Mile.Windows.TrustedLibraryLoader">
+      <UniqueIdentifier>{18842d57-9f75-4cf4-8562-2fe1c4b5337c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
 </Project>

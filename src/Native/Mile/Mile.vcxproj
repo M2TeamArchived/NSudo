@@ -59,6 +59,7 @@
   </ImportGroup>
   <ImportGroup Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\MINT\MINT.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
@@ -104,9 +105,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Mile.Windows.cpp" />
+    <ClCompile Include="Mile.Windows.TrustedLibraryLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Mile.Windows.h" />
+    <ClInclude Include="Mile.Windows.TrustedLibraryLoader.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Mile.props" />
