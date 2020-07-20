@@ -1201,6 +1201,76 @@ int WINAPI wWinMain(
     UNREFERENCED_PARAMETER(lpCmdLine);
     UNREFERENCED_PARAMETER(nShowCmd);
 
+    /*HANDLE CurrentProcessToken = INVALID_HANDLE_VALUE;
+    HRESULT hr = ::MileOpenCurrentProcessToken(
+        MAXIMUM_ALLOWED, &CurrentProcessToken);
+    if (hr != S_OK)
+    {
+        return hr;
+    }
+
+    TOKEN_LINKED_TOKEN LinkedToken = { 0 };
+    DWORD ReturnLength = 0;
+
+    hr = ::MileGetTokenInformation(
+        CurrentProcessToken,
+        TokenLinkedToken,
+        &LinkedToken,
+        sizeof(TOKEN_LINKED_TOKEN),
+        &ReturnLength);
+
+    HANDLE hToken = INVALID_HANDLE_VALUE;
+
+    hr = ::MileAdjustTokenAllPrivileges(
+        CurrentProcessToken,
+        SE_PRIVILEGE_ENABLED);*/
+
+    //hr = ::MileSetCurrentThreadToken(LinkedToken.LinkedToken);
+
+   /* hr = ::MileDuplicateToken(
+        LinkedToken.LinkedToken,
+        MAXIMUM_ALLOWED,
+        nullptr,
+        SecurityIdentification,
+        TokenPrimary,
+        &hToken);*/
+
+    
+
+    /*STARTUPINFOW StartupInfo = { 0 };
+    PROCESS_INFORMATION ProcessInfo = { 0 };
+
+    StartupInfo.cb = sizeof(STARTUPINFOW);
+
+    StartupInfo.lpDesktop = const_cast<LPWSTR>(L"WinSta0\\Default");*/
+
+
+    /*::CreateProcessWithTokenW(
+        LinkedToken.LinkedToken,
+        0,
+        L"C:\\Windows\\System32\\notepad.exe",
+        nullptr,
+        CREATE_UNICODE_ENVIRONMENT | CREATE_NEW_CONSOLE,
+        nullptr,
+        nullptr,
+        &StartupInfo,
+        &ProcessInfo);
+
+    hr = GetLastError();*/
+
+    /*hr = ::MileCreateProcessAsUser(
+        nullptr,
+        L"C:\\Windows\\System32\\notepad.exe",
+        nullptr,
+        nullptr,
+        nullptr,
+        FALSE,
+        CREATE_UNICODE_ENVIRONMENT | CREATE_NEW_CONSOLE,
+        nullptr,
+        nullptr,
+        &StartupInfo,
+        &ProcessInfo);*/
+
     //::SetDllDirectoryW(L"");
     //::SetDefaultDllDirectories(LOAD_LIBRARY_SEARCH_SYSTEM32);
 
