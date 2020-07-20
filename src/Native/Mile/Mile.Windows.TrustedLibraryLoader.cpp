@@ -16,15 +16,11 @@
 
 #include <MINT.h>
 
-/**
- * @remark You can read the definition for this function in
- *         "Mile.Windows.TrustedLibraryLoader.h".
- */
-EXTERN_C HMODULE WINAPI MileLoadLibraryFromSystem32(
-    _In_ LPCWSTR lpLibFileName)
+namespace
 {
-    // Define the helper class internally for exposing the library symbols as
-    // less as possible.
+    /**
+     * @brief Trusted Library Loader Helper
+    */
     class TrustedLibraryLoaderHelper
     {
     private:
@@ -148,7 +144,15 @@ EXTERN_C HMODULE WINAPI MileLoadLibraryFromSystem32(
             }
         }
     };
+}
 
+/**
+ * @remark You can read the definition for this function in
+ *         "Mile.Windows.TrustedLibraryLoader.h".
+ */
+EXTERN_C HMODULE WINAPI MileLoadLibraryFromSystem32(
+    _In_ LPCWSTR lpLibFileName)
+{
     TrustedLibraryLoaderHelper Helper;
 
     // The secure library loader is available when you using Windows 8 and
