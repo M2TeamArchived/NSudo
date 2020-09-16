@@ -5,12 +5,14 @@
     <ClCompile Include="Mile.Windows.TrustedLibraryLoader.cpp">
       <Filter>Mile.Windows.TrustedLibraryLoader</Filter>
     </ClCompile>
+    <ClCompile Include="Mile.Windows.System.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Mile.Windows.h" />
     <ClInclude Include="Mile.Windows.TrustedLibraryLoader.h">
       <Filter>Mile.Windows.TrustedLibraryLoader</Filter>
     </ClInclude>
+    <ClInclude Include="Mile.Windows.System.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Mile.props" />

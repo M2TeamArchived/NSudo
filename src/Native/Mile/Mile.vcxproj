@@ -105,10 +105,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Mile.Windows.cpp" />
+    <ClCompile Include="Mile.Windows.System.cpp" />
     <ClCompile Include="Mile.Windows.TrustedLibraryLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Mile.Windows.h" />
+    <ClInclude Include="Mile.Windows.System.h" />
     <ClInclude Include="Mile.Windows.TrustedLibraryLoader.h" />
   </ItemGroup>
   <ItemGroup>
