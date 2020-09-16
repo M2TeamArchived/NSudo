@@ -26,5 +26,5 @@ LPVOID Mile::Windows::System::ReallocateMemory(
 BOOL Mile::Windows::System::FreeMemory(
     _In_ LPVOID Block)
 {
-    ::HeapFree(::GetProcessHeap(), 0, Block);
+    return ::HeapFree(::GetProcessHeap(), 0, Block);
 }
