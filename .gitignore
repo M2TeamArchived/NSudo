@@ -334,3 +334,12 @@ ASALocalRun/
 # NSudo specific
 Output/
 
+# Runtime data
+*.lock
+
+# Dependency directories
+node_modules/
+
+# parcel-bundler cache
+.cache
+.temp

@@ -1,5 +1,3 @@
-const { description } = require('../package')
-
 module.exports = {
   base: "/NSudo/",
   dest: "../../docs",
@@ -35,107 +33,19 @@ module.exports = {
     ['link', { rel: 'apple-touch-icon', href: '/icons/apple-touch-icon-152x152.png' }],
     ['link', { rel: 'mask-icon', href: '/icons/safari-pinned-tab.svg', color: '#2582D3' }],
   ],
+  theme: '@qcyblm/vpx',
   themeConfig: {
     repo: 'm2team/NSudo',
+    repoicon: 'fab fa-github',
     editLinks: true,
     docsDir: 'src/Documents',
     logo: '/assets/img/logo.png',
     lastUpdated: true,
     locales: {
-      "/en-us/": {
-        selectText: "Languages",
-        label: "English",
-        editLinkText: "Edit this page on GitHub",
-        serviceWorker: {
-          updatePopup: { message: "New content is available.", buttonText: "Refresh" }
-        },
-        lastUpdated: 'Last Updated',
-        nav: [
-          { text: "Home", link: "/en-us/" },
-          { text: "Download", link: "/en-us/Download" },
-          { text: "Support", link: "/en-us/Support" },
-          { text: "Documents", link: "/en-us/docs/" }
-        ],
-        sidebar: {
-          "/en-us/docs/": [
-            "/en-us/docs/",
-            {
-              title: "Documents",
-              collapsable: false,
-              children: [
-                "/en-us/docs/Changelog",
-                "/en-us/docs/DevilMode",
-                "/en-us/docs/SharedLibrary",
-                ["/en-us/docs/People", "Relevant People"]
-              ]
-            }
-          ]
-        },
-      },
-      "/zh-hans/": {
-        selectText: "选择语言",
-        label: "简体中文",
-        editLinkText: "在 GitHub 上编辑此页",
-        serviceWorker: {
-          updatePopup: {
-            message: "发现新内容可用。",
-            buttonText: "刷新"
-          }
-        },
-        lastUpdated: '最后更新时间',
-        nav: [
-          { text: "首页", link: "/zh-hans/" },
-          { text: "下载", link: "/zh-hans/Download" },
-          { text: "支持", link: "/zh-hans/Support" },
-          { text: "文档", link: "/zh-hans/docs/" }
-        ],
-        sidebar: {
-          "/zh-hans/docs/": [
-            "/zh-hans/docs/",
-            {
-              title: "档案",
-              collapsable: false,
-              children: [
-                ["/zh-hans/docs/Changelog", "更新日志"],
-                ["/zh-hans/docs/DevilMode", "NSudo 恶魔模式"],
-                ["/en-us/docs/People", "相关人士"]
-              ]
-            }
-          ]
-        }
-      },
-      "/zh-hant/": {
-        selectText: "選擇語言",
-        label: "繁體中文",
-        editLinkText: "在 GitHub 上編輯此頁",
-        serviceWorker: {
-          updatePopup: {
-            message: "發現新內容可用。",
-            buttonText: "重載"
-          }
-        },
-        lastUpdated: '最後更新時間',
-        nav: [
-          { text: "主頁", link: "/zh-hant/" },
-          { text: "下載", link: "/zh-hant/Download" },
-          { text: "支援", link: "/zh-hant/Support" },
-          { text: "文獻", link: "/zh-hant/docs/" }
-        ],
-        sidebar: {
-          "/zh-hant/docs/": [
-            "/zh-hant/docs/",
-            {
-              title: "檔案",
-              collapsable: false,
-              children: [
-                ["/zh-hant/docs/Changelog", "變更紀錄"],
-                ["/en-us/docs/People", "相關人士"]
-              ]
-            }
-          ]
-        }
-      }
-    }
+      "/en-us/": require('./locales/en-us'),
+      "/zh-hans/": require('./locales/zh-Hans'),
+      "/zh-hant/": require('./locales/zh-Hant')
+    },
   },
   plugins: [
     '@vuepress/back-to-top',
@@ -143,6 +53,11 @@ module.exports = {
     '@vuepress/pwa', {
       serviceWorker: true,
       updatePopup: true
-    }
+    },
+    ['vuepress-plugin-code-copy',
+      {
+        color: 'rgba(255,255,255,0.4)',
+      }
+    ],
   ]
 }
