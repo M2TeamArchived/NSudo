@@ -1,0 +1,8 @@
+﻿{
+  "ShortCutList_V2": {
+    "命令提示符": "cmd",
+    "PowerShell": "powershell",
+    "PowerShell ISE": "powershell_ise",
+    "Hosts编辑": "notepad %windir%\\System32\\Drivers\\etc\\hosts"
+  }
+}

@@ -33,8 +33,10 @@
 
 ## 赞助者 Sponsors
 
+- 安磊磊
 - boyangpangzi
 - cjy\_\_05
+- dfdc5
 - mhxkx
 - NotePad
 - tangmigoId

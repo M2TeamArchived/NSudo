@@ -1,44 +1,27 @@
-version: CI Build {Build}
+﻿version: CI Build {Build}
 skip_commits:
   files:
-  - .github/*
-  - .github/*/*
-  - docs/*
-  - docs/*/*
-  - docs/*/*/*
-  - docs-src/*
-  - docs-src/*/*
-  - docs-src/*/*/*
-  - Scripts/*
-  - .github/CONTRIBUTING.md
-  - .github/FUNDING.md
-  - .github/ISSUE_TEMPLATE.md
-  - CODE_OF_CONDUCT.md
-  - License.md
-  - Logo.png
-  - Readme.md
+  - '.github/**/*'
+  - 'docs/**/*'
+  - 'src/Documents/**/*'
+  - 'Scripts/**/*'
+  - '*.md'
 image: Visual Studio 2019
 configuration:
-- Debug - CUI
-- Debug - GUI
-- Release - CUI
-- Release - GUI
+  - Debug
+  - Release
 platform:
-- x86
-- x64
-before_build:
-- 'echo #define NSUDO_CI_BUILD L"(CI Build %APPVEYOR_BUILD_NUMBER%)" >> %APPVEYOR_BUILD_FOLDER%\NSudo\CIBuild.h'
+  - x86
+  - x64
 build:
-  project: NSudo.sln
-  verbosity: normal
+  project: src/Native/NSudo.sln
+  parallel: true
 after_build:
-- >-
-    7z a -r NSudo_CI_Build_%APPVEYOR_BUILD_NUMBER%.zip %APPVEYOR_BUILD_FOLDER%\Output\*.exe
-
-    7z a -r NSudo_CI_Build_%APPVEYOR_BUILD_NUMBER%.zip %APPVEYOR_BUILD_FOLDER%\Output\*.dll
-
-    7z a -r NSudo_CI_Build_%APPVEYOR_BUILD_NUMBER%.zip %APPVEYOR_BUILD_FOLDER%\Output\*.pdb
-
-    7z a -r NSudo_CI_Build_%APPVEYOR_BUILD_NUMBER%.zip %APPVEYOR_BUILD_FOLDER%\Output\*.json
+  - >-
+    7z a -r NSudo_CI_Build_%APPVEYOR_BUILD_NUMBER%.zip ^
+    .\src\Native\Output\*.exe ^
+    .\src\Native\Output\*.dll ^
+    .\src\Native\Output\*.pdb ^
+    .\src\Native\Output\*.json
 artifacts:
-- path: NSudo_CI_Build_%APPVEYOR_BUILD_NUMBER%.zip
+  - path: NSudo_CI_Build_%APPVEYOR_BUILD_NUMBER%.zip

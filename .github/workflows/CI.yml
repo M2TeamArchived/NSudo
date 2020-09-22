@@ -1,46 +1,46 @@
-name: CI
+﻿name: CI
 
 on:
   push:
     paths-ignore:
-      - 'README.md'
+      - '.github/*'
+      - 'docs/**'
+      - 'src/Documents/**'
+      - 'Scripts/**'
+      - '*.md'
       - 'appveyor.yml'
   pull_request:
     paths-ignore:
-      - 'README.md'
+      - '.github/*'
+      - 'docs/**'
+      - 'src/Documents/**'
+      - 'Scripts/**'
+      - '*.md'
       - 'appveyor.yml'
 
 jobs:
   build:
-
     runs-on: windows-latest
-
+    env:
+      POWERSHELL_TELEMETRY_OPTOUT: 1
     strategy:
       fail-fast: false
       matrix:
-        configuration: [Debug - CUI, Debug - GUI, Release - CUI, Release - GUI]
+        configuration: [Debug, Release]
         platform: [x86, x64]
         include:
-          - configuration: Debug - CUI
-            config_prefix: Debug
-          - configuration: Debug - GUI
-            config_prefix: Debug
-          - configuration: Release - CUI
-            config_prefix: Release
-          - configuration: Release - GUI
-            config_prefix: Release
           - platform: x86
             platform_prefix: Win32
           - platform: x64
             platform_prefix: x64
     steps:
     - uses: actions/checkout@v2
-    - uses: warrenbuckley/Setup-MSBuild@v1
+    - uses: microsoft/setup-msbuild@v1
     - name: Build
-      run: msbuild /m /nologo /p:Configuration="${{ matrix.configuration }}" /p:Platform=${{ matrix.platform }} NSudo.sln
+      run: msbuild /m /nologo /p:"Configuration=${{ matrix.configuration }};Platform=${{ matrix.platform }}" src\Native\NSudo.sln
     - name: Prepare artifacts
-      run: Remove-Item Output\* -Recurse -Force -Include *.exp, *.idb, *.ilk, *.iobj, *.ipdb, *.lastbuildstate, *.lib, *.obj, *.res, *.tlog
-    - uses: actions/upload-artifact@v1
+      run: rm src\Native\Output\* -vb -Recurse -Force -Include *.exp, *.idb, *.ilk, *.iobj, *.ipdb, *.lastbuildstate, *.lib, *.obj, *.res, *.tlog
+    - uses: actions/upload-artifact@v2
       with:
         name: NSudo-${{ matrix.configuration }}-${{ matrix.platform }}
-        path: Output\${{ matrix.config_prefix }}\${{ matrix.platform_prefix }}
+        path: src\Native\Output\${{ matrix.configuration }}\${{ matrix.platform_prefix }}

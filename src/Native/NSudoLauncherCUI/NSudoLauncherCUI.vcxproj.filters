@@ -1,0 +1,54 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="NSudoLauncherCUI.cpp" />
+    <ClCompile Include="M2WindowsHelpers.cpp">
+      <Filter>M2WindowsHelpers</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\NSudo.json">
+      <Filter>Resources</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="jsmn">
+      <UniqueIdentifier>{08c029f6-f8ae-4d16-bdf1-4baa97245c02}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="M2WindowsHelpers">
+      <UniqueIdentifier>{d14392b1-daa9-44e8-adb7-c016bdc87e43}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{6dcc3e16-84d8-47d3-a6ac-e738a047a9aa}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="jsmn.h">
+      <Filter>jsmn</Filter>
+    </ClInclude>
+    <ClInclude Include="M2WindowsHelpers.h">
+      <Filter>M2WindowsHelpers</Filter>
+    </ClInclude>
+    <ClInclude Include="Resources\resource.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="CIBuild.h" />
+    <ClInclude Include="NSudoVersion.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Resources\Manifest.rc">
+      <Filter>Resources</Filter>
+    </ResourceCompile>
+    <ResourceCompile Include="Resources\NSudo.rc">
+      <Filter>Resources</Filter>
+    </ResourceCompile>
+    <ResourceCompile Include="Resources\Version.rc">
+      <Filter>Resources</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="Resources\NSudoConsole.manifest">
+      <Filter>Resources</Filter>
+    </Manifest>
+  </ItemGroup>
+</Project>
