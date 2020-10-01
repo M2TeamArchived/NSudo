@@ -14,7 +14,7 @@
 
 #include "Mile.Windows.h"
 
-#include "Mile.Windows.System.h"
+#include "Mile.Platform.Windows.h"
 
 #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
 #include <WtsApi32.h>
@@ -101,7 +101,7 @@ EXTERN_C HRESULT WINAPI MileAllocMemory(
     _In_ SIZE_T Size,
     _Out_ LPVOID* Block)
 {
-    *Block = Mile::Windows::System::AllocateMemory(Size);
+    *Block = Mile::HeapMemory::Allocate(Size);
     return *Block ? S_OK : ::MileHResultFromWin32(ERROR_NOT_ENOUGH_MEMORY);
 }
 
@@ -113,7 +113,7 @@ EXTERN_C HRESULT WINAPI MileReAllocMemory(
     _In_ SIZE_T NewSize,
     _Out_ LPVOID* NewBlock)
 {
-    *NewBlock = Mile::Windows::System::ReallocateMemory(OldBlock, NewSize);
+    *NewBlock = Mile::HeapMemory::Reallocate(OldBlock, NewSize);
     return *NewBlock ? S_OK : ::MileHResultFromWin32(ERROR_NOT_ENOUGH_MEMORY);
 }
 
@@ -124,7 +124,7 @@ EXTERN_C HRESULT WINAPI MileFreeMemory(
     _In_ LPVOID Block)
 {
     return ::MileGetLastErrorWithWin32BoolAsHResult(
-        Mile::Windows::System::FreeMemory(Block));
+        Mile::HeapMemory::Free(Block));
 }
 
 /**
