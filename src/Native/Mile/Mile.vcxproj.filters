@@ -6,6 +6,7 @@
       <Filter>Mile.Windows.TrustedLibraryLoader</Filter>
     </ClCompile>
     <ClCompile Include="Mile.Windows.System.cpp" />
+    <ClCompile Include="Mile.Portable.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Mile.Windows.h" />
@@ -13,6 +14,7 @@
       <Filter>Mile.Windows.TrustedLibraryLoader</Filter>
     </ClInclude>
     <ClInclude Include="Mile.Windows.System.h" />
+    <ClInclude Include="Mile.Portable.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Mile.props" />
