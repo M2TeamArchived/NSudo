@@ -104,13 +104,13 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Mile.Portable.cpp" />
+    <ClCompile Include="Mile.Platform.cpp" />
     <ClCompile Include="Mile.Windows.cpp" />
     <ClCompile Include="Mile.Windows.System.cpp" />
     <ClCompile Include="Mile.Windows.TrustedLibraryLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Mile.Portable.h" />
+    <ClInclude Include="Mile.Platform.h" />
     <ClInclude Include="Mile.Windows.h" />
     <ClInclude Include="Mile.Windows.System.h" />
     <ClInclude Include="Mile.Windows.TrustedLibraryLoader.h" />

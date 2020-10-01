@@ -1,15 +1,15 @@
 ﻿/*
  * PROJECT:   Mouri Internal Library Essentials
- * FILE:      Mile.Portable.h
- * PURPOSE:   Portable Definition
+ * FILE:      Mile.Platform.h
+ * PURPOSE:   Platform Portable Definition
  *
  * LICENSE:   Apache-2.0 License
  *
  * DEVELOPER: Mouri_Naruto (Mouri_Naruto AT Outlook.com)
  */
 
-#ifndef MILE_PORTABLE
-#define MILE_PORTABLE
+#ifndef MILE_PLATFORM
+#define MILE_PLATFORM
 
 #if (defined(__cplusplus) && __cplusplus >= 201703L)
 #elif (defined(_MSVC_LANG) && _MSVC_LANG >= 201703L)
@@ -52,4 +52,4 @@ namespace Mile
     };
 }
 
-#endif // !MILE_PORTABLE
+#endif // !MILE_PLATFORM
