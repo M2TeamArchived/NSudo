@@ -13,6 +13,7 @@
 #ifndef _M2_WINDOWS_EXTENDED_HELPERS_
 #define _M2_WINDOWS_EXTENDED_HELPERS_
 
+#include <Mile.Portable.h>
 #include <Mile.Windows.h>
 
 #include <utility>
@@ -31,42 +32,12 @@ template<class T> struct M2RemoveReference<T^> { typedef T Type; };
 namespace M2
 {
     /**
-     * Disable C++ Object Copying
-     */
-    class CDisableObjectCopying
-    {
-    protected:
-        CDisableObjectCopying() = default;
-        ~CDisableObjectCopying() = default;
-
-    private:
-        CDisableObjectCopying(
-            const CDisableObjectCopying&) = delete;
-        CDisableObjectCopying& operator=(
-            const CDisableObjectCopying&) = delete;
-    };
-
-    /**
-     * Disable C++ Object Moving
-     */
-    class CDisableObjectMoving
-    {
-    protected:
-        CDisableObjectMoving() = default;
-        ~CDisableObjectMoving() = default;
-
-    private:
-        CDisableObjectMoving(
-            const CDisableObjectCopying&&) = delete;
-        CDisableObjectMoving& operator=(
-            const CDisableObjectCopying&&) = delete;
-    };
-
-    /**
      * The implementation of smart object.
      */
     template<typename TObject, typename TObjectDefiner>
-    class CObject : CDisableObjectCopying, CDisableObjectMoving
+    class CObject :
+        Mile::DisableCopyConstruction,
+        Mile::DisableMoveConstruction
     {
     protected:
         TObject m_Object;
@@ -620,7 +591,9 @@ namespace M2
      * terminated.
      */
     template<class ClassType>
-    class CSingleton : CDisableObjectCopying, CDisableObjectMoving
+    class CSingleton :
+        Mile::DisableCopyConstruction,
+        Mile::DisableMoveConstruction
     {
     private:
         static CCriticalSection m_SingletonCS;
