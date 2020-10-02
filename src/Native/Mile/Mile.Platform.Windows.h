@@ -40,7 +40,7 @@ namespace Mile
          *         return value is nullptr.
         */
         static LPVOID Allocate(
-            _In_ SIZE_T Size);
+            _In_ SIZE_T Size) noexcept;
 
         /**
          * @brief Reallocates a block of memory from the default heap of the
@@ -61,7 +61,7 @@ namespace Mile
         */
         static LPVOID Reallocate(
             _In_ PVOID Block,
-            _In_ SIZE_T Size);
+            _In_ SIZE_T Size) noexcept;
 
         /**
          * @brief Frees a memory block allocated from a heap by the Allocate or
@@ -74,7 +74,109 @@ namespace Mile
          *         can call GetLastError for extended error information.
         */
         static BOOL Free(
-            _In_ LPVOID Block);
+            _In_ LPVOID Block) noexcept;
+    };
+
+    /**
+     * @brief Wraps a critical section object.
+    */
+    class CriticalSection : DisableCopyConstruction, DisableMoveConstruction
+    {
+    private:
+
+        /**
+         * @brief The raw critical section object.
+        */
+        CRITICAL_SECTION m_RawObject;
+
+    public:
+
+
+        /**
+         * @brief Initializes a critical section object.
+         *
+         * @param lpCriticalSection A pointer to the critical section object.
+         * @remark For more information, see InitializeCriticalSection.
+         */
+        static void Initialize(
+            _Out_ LPCRITICAL_SECTION lpCriticalSection) noexcept;
+
+        /**
+         * @brief Releases all resources used by an unowned critical section
+         *        object.
+         *
+         * @param lpCriticalSection A pointer to the critical section object.
+         * @remark For more information, see DeleteCriticalSection.
+         */
+        static void Delete(
+            _Inout_ LPCRITICAL_SECTION lpCriticalSection) noexcept;
+
+        /**
+         * @brief Waits for ownership of the specified critical section object.
+         *        The function returns when the calling thread is granted
+         *        ownership.
+         *
+         * @param lpCriticalSection A pointer to the critical section object.
+         * @remark For more information, see EnterCriticalSection.
+         */
+        static void Enter(
+            _Inout_ LPCRITICAL_SECTION lpCriticalSection) noexcept;
+
+        /**
+         * @brief Attempts to enter a critical section without blocking. If the
+         *        call is successful, the calling thread takes ownership of the
+         *        critical section.
+         *
+         * @param lpCriticalSection A pointer to the critical section object.
+         * @return If the critical section is successfully entered or the
+         *         current thread already owns the critical section, the return
+         *         value is true. If another thread already owns the critical
+         *         section, the return value is false.
+         * @remark For more information, see TryEnterCriticalSection.
+         */
+        static bool TryEnter(
+            _Inout_ LPCRITICAL_SECTION lpCriticalSection) noexcept;
+
+        /**
+         * @brief Releases ownership of the specified critical section object.
+         *
+         * @param lpCriticalSection A pointer to the critical section object.
+         * @remark For more information, see LeaveCriticalSection.
+         */
+        static void Leave(
+            _Inout_ LPCRITICAL_SECTION lpCriticalSection) noexcept;
+
+        /**
+         * @brief Initializes the critical section object. 
+        */
+        CriticalSection() noexcept;
+
+        /**
+         * @brief Releases all resources used by the critical section object.
+        */
+        ~CriticalSection() noexcept;
+
+        /**
+         * @brief Waits for ownership of the critical section object. The
+         *        function returns when the calling thread is granted ownership.
+        */
+        void Lock() noexcept;
+
+        /**
+         * @brief Attempts to enter the critical section without blocking. If
+         *        the call is successful, the calling thread takes ownership of
+         *        the critical section.
+         * @return If the critical section is successfully entered or the
+         *         current thread already owns the critical section, the return
+         *         value is true. If another thread already owns the critical
+         *         section, the return value is false.
+        */
+        bool TryLock() noexcept;
+
+        /**
+         * @brief Releases ownership of the critical section object.
+        */
+        void Unlock() noexcept;
     };
 }
 
