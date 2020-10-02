@@ -1753,57 +1753,6 @@ EXTERN_C HRESULT WINAPI MileCreateFile(
 #endif
 
 /**
- * Initializes a critical section object.
- *
- * @param lpCriticalSection A pointer to the critical section object.
- * @remark For more information, see InitializeCriticalSection.
- */
-EXTERN_C VOID WINAPI MileInitializeCriticalSection(
-    _Out_ LPCRITICAL_SECTION lpCriticalSection);
-
-/**
- * Releases all resources used by an unowned critical section object.
- *
- * @param lpCriticalSection A pointer to the critical section object.
- * @remark For more information, see DeleteCriticalSection.
- */
-EXTERN_C VOID WINAPI MileDeleteCriticalSection(
-    _Inout_ LPCRITICAL_SECTION lpCriticalSection);
-
-/**
- * Waits for ownership of the specified critical section object. The function
- * returns when the calling thread is granted ownership.
- *
- * @param lpCriticalSection A pointer to the critical section object.
- * @remark For more information, see EnterCriticalSection.
- */
-EXTERN_C VOID WINAPI MileEnterCriticalSection(
-    _Inout_ LPCRITICAL_SECTION lpCriticalSection);
-
-/**
- * Releases ownership of the specified critical section object.
- *
- * @param lpCriticalSection A pointer to the critical section object.
- * @remark For more information, see LeaveCriticalSection.
- */
-EXTERN_C VOID WINAPI MileLeaveCriticalSection(
-    _Inout_ LPCRITICAL_SECTION lpCriticalSection);
-
-/**
- * Attempts to enter a critical section without blocking. If the call is
- * successful, the calling thread takes ownership of the critical section.
- *
- * @param lpCriticalSection A pointer to the critical section object.
- * @return If the critical section is successfully entered or the current
- *         thread already owns the critical section, the return value is
- *         nonzero. If another thread already owns the critical section, the
- *         return value is zero.
- * @remark For more information, see TryEnterCriticalSection.
- */
-EXTERN_C BOOL WINAPI MileTryEnterCriticalSection(
-    _Inout_ LPCRITICAL_SECTION lpCriticalSection);
-
-/**
  * Initialize a slim reader/writer (SRW) lock.
  *
  * @param SRWLock A pointer to the SRW lock.

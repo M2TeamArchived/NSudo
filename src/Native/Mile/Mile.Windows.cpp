@@ -1876,51 +1876,6 @@ EXTERN_C HRESULT WINAPI MileCreateFile(
 /**
  * @remark You can read the definition for this function in "Mile.Windows.h".
  */
-EXTERN_C VOID WINAPI MileInitializeCriticalSection(
-    _Out_ LPCRITICAL_SECTION lpCriticalSection)
-{
-    ::InitializeCriticalSection(lpCriticalSection);
-}
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
-EXTERN_C VOID WINAPI MileDeleteCriticalSection(
-    _Inout_ LPCRITICAL_SECTION lpCriticalSection)
-{
-    ::DeleteCriticalSection(lpCriticalSection);
-}
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
-EXTERN_C VOID WINAPI MileEnterCriticalSection(
-    _Inout_ LPCRITICAL_SECTION lpCriticalSection)
-{
-    ::EnterCriticalSection(lpCriticalSection);
-}
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
-EXTERN_C VOID WINAPI MileLeaveCriticalSection(
-    _Inout_ LPCRITICAL_SECTION lpCriticalSection)
-{
-    ::LeaveCriticalSection(lpCriticalSection);
-}
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
-EXTERN_C BOOL WINAPI MileTryEnterCriticalSection(
-    _Inout_ LPCRITICAL_SECTION lpCriticalSection)
-{
-    return ::TryEnterCriticalSection(lpCriticalSection);
-}
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
 EXTERN_C VOID WINAPI MileInitializeSRWLock(
     _Out_ PSRWLOCK SRWLock)
 {

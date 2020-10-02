@@ -13,7 +13,7 @@
 #ifndef _M2_WINDOWS_EXTENDED_HELPERS_
 #define _M2_WINDOWS_EXTENDED_HELPERS_
 
-#include <Mile.Platform.h>
+#include <Mile.Platform.Windows.h>
 #include <Mile.Windows.h>
 
 #include <utility>
@@ -343,33 +343,22 @@ namespace M2
     class CCriticalSection
     {
     private:
-        CRITICAL_SECTION m_CriticalSection;
+        Mile::CriticalSection m_RawObject;
 
     public:
-        CCriticalSection()
+        void Lock()
         {
-            ::MileInitializeCriticalSection(&this->m_CriticalSection);
+            this->m_RawObject.Lock();
         }
 
-        ~CCriticalSection()
+        void Unlock()
         {
-            ::MileDeleteCriticalSection(&this->m_CriticalSection);
+            this->m_RawObject.Unlock();
         }
 
-        _Acquires_lock_(m_CriticalSection) void Lock()
+        bool TryLock()
         {
-            ::MileEnterCriticalSection(&this->m_CriticalSection);
-        }
-
-        _Releases_lock_(m_CriticalSection) void Unlock()
-        {
-            ::MileLeaveCriticalSection(&this->m_CriticalSection);
-        }
-
-        _When_(return, _Acquires_exclusive_lock_(m_CriticalSection))
-            bool TryLock()
-        {
-            return ::MileTryEnterCriticalSection(&this->m_CriticalSection);
+            return this->m_RawObject.TryLock();
         }
     };
 
