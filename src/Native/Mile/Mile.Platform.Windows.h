@@ -82,18 +82,10 @@ namespace Mile
     */
     class CriticalSection : DisableCopyConstruction, DisableMoveConstruction
     {
-    private:
-
-        /**
-         * @brief The raw critical section object.
-        */
-        CRITICAL_SECTION m_RawObject;
-
     public:
 
         /**
          * @brief Initializes a critical section object.
-         *
          * @param lpCriticalSection A pointer to the critical section object.
          * @remark For more information, see InitializeCriticalSection.
          */
@@ -103,7 +95,6 @@ namespace Mile
         /**
          * @brief Releases all resources used by an unowned critical section
          *        object.
-         *
          * @param lpCriticalSection A pointer to the critical section object.
          * @remark For more information, see DeleteCriticalSection.
          */
@@ -114,7 +105,6 @@ namespace Mile
          * @brief Waits for ownership of the specified critical section object.
          *        The function returns when the calling thread is granted
          *        ownership.
-         *
          * @param lpCriticalSection A pointer to the critical section object.
          * @remark For more information, see EnterCriticalSection.
          */
@@ -125,7 +115,6 @@ namespace Mile
          * @brief Attempts to enter a critical section without blocking. If the
          *        call is successful, the calling thread takes ownership of the
          *        critical section.
-         *
          * @param lpCriticalSection A pointer to the critical section object.
          * @return If the critical section is successfully entered or the
          *         current thread already owns the critical section, the return
@@ -138,12 +127,20 @@ namespace Mile
 
         /**
          * @brief Releases ownership of the specified critical section object.
-         *
          * @param lpCriticalSection A pointer to the critical section object.
          * @remark For more information, see LeaveCriticalSection.
          */
         static void Leave(
             _Inout_ LPCRITICAL_SECTION lpCriticalSection) noexcept;
+
+    private:
+
+        /**
+         * @brief The raw critical section object.
+        */
+        CRITICAL_SECTION m_RawObject;
+
+    public:
 
         /**
          * @brief Initializes the critical section object. 
@@ -242,6 +239,139 @@ namespace Mile
          * @return The lock status.
         */
         bool IsLocked() const;
+    };
+
+    /**
+     * @brief Wraps a slim reader/writer (SRW) lock.
+    */
+    class SRWLock : DisableCopyConstruction, DisableMoveConstruction
+    {
+    public:
+
+        /**
+         * @brief Initialize a slim reader/writer (SRW) lock.
+         * @param SRWLock A pointer to the SRW lock.
+         * @remark For more information, see InitializeSRWLock.
+         */
+        static void Initialize(
+            _Out_ PSRWLOCK SRWLock) noexcept;
+
+        /**
+         * @brief Acquires a slim reader/writer (SRW) lock in exclusive mode.
+         * @param SRWLock A pointer to the SRW lock.
+         * @remark For more information, see AcquireSRWLockExclusive.
+         */
+        static void AcquireExclusive(
+            _Inout_ PSRWLOCK SRWLock) noexcept;
+
+        /**
+         * @brief Attempts to acquire a slim reader/writer (SRW) lock in
+         *        exclusive mode. If the call is successful, the calling thread
+         *        takes ownership of the lock.
+         * @param SRWLock A pointer to the SRW lock.
+         * @return If the lock is successfully acquired, the return value is
+         *         true. If the current thread could not acquire the lock, the
+         *         return value is false.
+         * @remark For more information, see TryAcquireSRWLockExclusive.
+         */
+        static bool TryAcquireExclusive(
+            _Inout_ PSRWLOCK SRWLock) noexcept;
+
+        /**
+         * @brief Releases a slim reader/writer (SRW) lock that was acquired in
+         *        exclusive mode.
+         *
+         * @param SRWLock A pointer to the SRW lock.
+         * @remark For more information, see ReleaseSRWLockExclusive.
+         */
+        static void ReleaseExclusive(
+            _Inout_ PSRWLOCK SRWLock) noexcept;
+
+        /**
+         * @brief Acquires a slim reader/writer (SRW) lock in shared mode.
+         * @param SRWLock A pointer to the SRW lock.
+         * @remark For more information, see AcquireSRWLockShared.
+         */
+        static void AcquireShared(
+            _Inout_ PSRWLOCK SRWLock) noexcept;
+
+        /**
+         * @brief Attempts to acquire a slim reader/writer (SRW) lock in shared
+         *        mode. If the call is successful, the calling thread takes
+         *        ownership of the lock.
+         * @param SRWLock A pointer to the SRW lock.
+         * @return If the lock is successfully acquired, the return value is
+         *         true. If the current thread could not acquire the lock, the
+         *         return value is false.
+         * @remark For more information, see TryAcquireSRWLockShared.
+         */
+        static bool TryAcquireShared(
+            _Inout_ PSRWLOCK SRWLock) noexcept;
+
+        /**
+         * @brief Releases a slim reader/writer (SRW) lock that was acquired in
+         *        shared mode.
+         * @param SRWLock A pointer to the SRW lock.
+         * @remark For more information, see ReleaseSRWLockShared.
+         */
+        static void ReleaseShared(
+            _Inout_ PSRWLOCK SRWLock) noexcept;
+
+    private:
+
+        /**
+         * @brief The raw slim reader/writer (SRW) lock object.
+        */
+        SRWLOCK m_RawObject;
+
+    public:
+
+        /**
+         * @brief Initialize the slim reader/writer (SRW) lock.
+        */
+        SRWLock() noexcept;
+
+        /**
+         * @brief Acquires the slim reader/writer (SRW) lock in exclusive mode.
+        */
+        void LockExclusive() noexcept;
+
+        /**
+         * @brief Attempts to acquire the slim reader/writer (SRW) lock in
+         *        exclusive mode. If the call is successful, the calling thread
+         *        takes ownership of the lock.
+         * @return If the lock is successfully acquired, the return value is
+         *         true. If the current thread could not acquire the lock, the
+         *         return value is false.
+        */
+        bool TryLockExclusive() noexcept;
+
+        /**
+         * @brief Releases the slim reader/writer (SRW) lock that was acquired
+         *        in exclusive mode.
+        */
+        void UnlockExclusive() noexcept;
+
+        /**
+         * @brief Acquires the slim reader/writer (SRW) lock in shared mode.
+        */
+        void LockShared() noexcept;
+
+        /**
+         * @brief Attempts to acquire the slim reader/writer (SRW) lock in
+         *        shared mode. If the call is successful, the calling thread
+         *        takes ownership of the lock.
+         * @return If the lock is successfully acquired, the return value is
+         *         true. If the current thread could not acquire the lock, the
+         *         return value is false.
+        */
+        bool TryLockShared() noexcept;
+
+        /**
+         * @brief Releases the slim reader/writer (SRW) lock that was acquired
+         *        in shared mode.
+        */
+        void UnlockShared() noexcept;
     };
 }
 

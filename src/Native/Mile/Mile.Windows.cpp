@@ -1876,69 +1876,6 @@ EXTERN_C HRESULT WINAPI MileCreateFile(
 /**
  * @remark You can read the definition for this function in "Mile.Windows.h".
  */
-EXTERN_C VOID WINAPI MileInitializeSRWLock(
-    _Out_ PSRWLOCK SRWLock)
-{
-    ::InitializeSRWLock(SRWLock);
-}
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
-EXTERN_C VOID WINAPI MileAcquireSRWLockExclusive(
-    _Inout_ PSRWLOCK SRWLock)
-{
-    ::AcquireSRWLockExclusive(SRWLock);
-}
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
-EXTERN_C BOOL WINAPI MileTryAcquireSRWLockExclusive(
-    _Inout_ PSRWLOCK SRWLock)
-{
-    return ::TryAcquireSRWLockExclusive(SRWLock);
-}
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
-EXTERN_C VOID WINAPI MileReleaseSRWLockExclusive(
-    _Inout_ PSRWLOCK SRWLock)
-{
-    ::ReleaseSRWLockExclusive(SRWLock);
-}
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
-EXTERN_C VOID WINAPI MileAcquireSRWLockShared(
-    _Inout_ PSRWLOCK SRWLock)
-{
-    ::AcquireSRWLockShared(SRWLock);
-}
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
-EXTERN_C BOOL WINAPI MileTryAcquireSRWLockShared(
-    _Inout_ PSRWLOCK SRWLock)
-{
-    return ::TryAcquireSRWLockShared(SRWLock);
-}
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
-EXTERN_C VOID WINAPI MileReleaseSRWLockShared(
-    _Inout_ PSRWLOCK SRWLock)
-{
-    ::ReleaseSRWLockShared(SRWLock);
-}
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
 EXTERN_C HRESULT WINAPI MileGetCompressedFileSize(
     _In_ HANDLE FileHandle,
     _Out_ PULONGLONG CompressedFileSize)

@@ -115,3 +115,80 @@ bool Mile::AutoCriticalSectionTryLock::IsLocked() const
 {
     return this->m_IsLocked;
 }
+
+void Mile::SRWLock::Initialize(
+    _Out_ PSRWLOCK SRWLock) noexcept
+{
+    ::InitializeSRWLock(SRWLock);
+}
+
+void Mile::SRWLock::AcquireExclusive(
+    _Inout_ PSRWLOCK SRWLock) noexcept
+{
+    ::AcquireSRWLockExclusive(SRWLock);
+}
+
+bool Mile::SRWLock::TryAcquireExclusive(
+    _Inout_ PSRWLOCK SRWLock) noexcept
+{
+    return FALSE != ::TryAcquireSRWLockExclusive(SRWLock);
+}
+
+void Mile::SRWLock::ReleaseExclusive(
+    _Inout_ PSRWLOCK SRWLock) noexcept
+{
+    ::ReleaseSRWLockExclusive(SRWLock);
+}
+
+void Mile::SRWLock::AcquireShared(
+    _Inout_ PSRWLOCK SRWLock) noexcept
+{
+    ::AcquireSRWLockShared(SRWLock);
+}
+
+bool Mile::SRWLock::TryAcquireShared(
+    _Inout_ PSRWLOCK SRWLock) noexcept
+{
+    return FALSE != ::TryAcquireSRWLockShared(SRWLock);
+}
+
+void Mile::SRWLock::ReleaseShared(
+    _Inout_ PSRWLOCK SRWLock) noexcept
+{
+    ::ReleaseSRWLockShared(SRWLock);
+}
+
+Mile::SRWLock::SRWLock() noexcept
+{
+    Initialize(&this->m_RawObject);
+}
+
+void Mile::SRWLock::LockExclusive() noexcept
+{
+    AcquireExclusive(&this->m_RawObject);
+}
+
+bool Mile::SRWLock::TryLockExclusive() noexcept
+{
+    return TryAcquireExclusive(&this->m_RawObject);
+}
+
+void Mile::SRWLock::UnlockExclusive() noexcept
+{
+    ReleaseExclusive(&this->m_RawObject);
+}
+
+void Mile::SRWLock::LockShared() noexcept
+{
+    AcquireShared(&this->m_RawObject);
+}
+
+bool Mile::SRWLock::TryLockShared() noexcept
+{
+    return TryAcquireShared(&this->m_RawObject);
+}
+
+void Mile::SRWLock::UnlockShared() noexcept
+{
+    ReleaseShared(&this->m_RawObject);
+}

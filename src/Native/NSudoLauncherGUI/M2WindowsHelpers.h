@@ -343,42 +343,37 @@ namespace M2
     class CSRWLock
     {
     private:
-        SRWLOCK m_SRWLock;
+        Mile::SRWLock m_Object;
 
     public:
-        CSRWLock()
+        void ExclusiveLock()
         {
-            ::MileInitializeSRWLock(&this->m_SRWLock);
+            this->m_Object.LockExclusive();
         }
 
-        _Acquires_lock_(m_SRWLock) void ExclusiveLock()
+        bool TryExclusiveLock()
         {
-            ::MileAcquireSRWLockExclusive(&this->m_SRWLock);
+            return this->m_Object.TryLockExclusive();
         }
 
-        _Acquires_lock_(m_SRWLock) bool TryExclusiveLock()
+        void ExclusiveUnlock()
         {
-            return ::MileTryAcquireSRWLockExclusive(&this->m_SRWLock);
+            this->m_Object.UnlockExclusive();
         }
 
-        _Releases_lock_(m_SRWLock) void ExclusiveUnlock()
+        void SharedLock()
         {
-            ::MileReleaseSRWLockExclusive(&this->m_SRWLock);
+            this->m_Object.LockShared();
         }
 
-        _Acquires_lock_(m_SRWLock) void SharedLock()
+        bool TrySharedLock()
         {
-            ::MileAcquireSRWLockShared(&this->m_SRWLock);
+            return this->m_Object.TryLockShared();
         }
 
-        _Acquires_lock_(m_SRWLock) bool TrySharedLock()
+        void SharedUnlock()
         {
-            return ::MileTryAcquireSRWLockShared(&this->m_SRWLock);
-        }
-
-        _Releases_lock_(m_SRWLock) void SharedUnlock()
-        {
-            ::MileReleaseSRWLockShared(&this->m_SRWLock);
+            this->m_Object.UnlockShared();
         }
     };
 
