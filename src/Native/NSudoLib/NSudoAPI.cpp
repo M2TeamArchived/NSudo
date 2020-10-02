@@ -10,6 +10,8 @@
 
 #include "NSudoAPI.h"
 
+#include <Mile.Platform.Windows.h>
+
 #include "Mile.Windows.h"
 
 #include "M2.Base.h"
@@ -23,42 +25,12 @@
 namespace Mile
 {
     /**
-     * Disable C++ Object Copying
-     */
-    class DisableObjectCopying
-    {
-    protected:
-        DisableObjectCopying() = default;
-        ~DisableObjectCopying() = default;
-
-    private:
-        DisableObjectCopying(
-            const DisableObjectCopying&) = delete;
-        DisableObjectCopying& operator=(
-            const DisableObjectCopying&) = delete;
-    };
-
-    /**
-     * Disable C++ Object Moving
-     */
-    class DisableObjectMoving
-    {
-    protected:
-        DisableObjectMoving() = default;
-        ~DisableObjectMoving() = default;
-
-    private:
-        DisableObjectMoving(
-            const DisableObjectMoving&&) = delete;
-        DisableObjectMoving& operator=(
-            const DisableObjectMoving&&) = delete;
-    };
-
-    /**
      * Scope Exit Event Handler (ScopeGuard)
      */
     template<typename EventHandlerType>
-    class ScopeExitEventHandler : DisableObjectCopying, DisableObjectMoving
+    class ScopeExitEventHandler :
+        DisableCopyConstruction,
+        DisableMoveConstruction
     {
     private:
         bool m_Canceled;
