@@ -83,3 +83,35 @@ void Mile::CriticalSection::Unlock() noexcept
 {
     Leave(&this->m_RawObject);
 }
+
+Mile::AutoCriticalSectionLock::AutoCriticalSectionLock(
+    CriticalSection& Object) noexcept :
+    m_Object(Object)
+{
+    this->m_Object.Lock();
+}
+
+Mile::AutoCriticalSectionLock::~AutoCriticalSectionLock() noexcept
+{
+    this->m_Object.Unlock();
+}
+
+Mile::AutoCriticalSectionTryLock::AutoCriticalSectionTryLock(
+    CriticalSection& Object) noexcept :
+    m_Object(Object)
+{
+    this->m_IsLocked = this->m_Object.TryLock();
+}
+
+Mile::AutoCriticalSectionTryLock::~AutoCriticalSectionTryLock() noexcept
+{
+    if (this->m_IsLocked)
+    {
+        this->m_Object.Unlock();
+    }
+}
+
+bool Mile::AutoCriticalSectionTryLock::IsLocked() const
+{
+    return this->m_IsLocked;
+}

@@ -91,7 +91,6 @@ namespace Mile
 
     public:
 
-
         /**
          * @brief Initializes a critical section object.
          *
@@ -177,6 +176,72 @@ namespace Mile
          * @brief Releases ownership of the critical section object.
         */
         void Unlock() noexcept;
+    };
+
+    /**
+     * @brief Provides automatic locking and unlocking of a critical section.
+    */
+    class AutoCriticalSectionLock
+    {
+    private:
+
+        /**
+         * @brief The critical section object.
+        */
+        CriticalSection& m_Object;
+
+    public:
+
+        /**
+         * @brief Lock the critical section object.
+         * @param Object The critical section object.
+        */
+        explicit AutoCriticalSectionLock(
+            CriticalSection& Object) noexcept;
+
+        /**
+         * @brief Unlock the critical section object.
+        */
+        ~AutoCriticalSectionLock() noexcept;
+    };
+
+    /**
+     * @brief Provides automatic trying to lock and unlocking of a critical
+     *        section.
+    */
+    class AutoCriticalSectionTryLock
+    {
+    private:
+
+        /**
+         * @brief The critical section object.
+        */
+        CriticalSection& m_Object;
+
+        /**
+         * @brief The lock status.
+        */
+        bool m_IsLocked;
+
+    public:
+
+        /**
+         * @brief Try to lock the critical section object.
+         * @param Object The critical section object.
+        */
+        explicit AutoCriticalSectionTryLock(
+            CriticalSection& Object) noexcept;
+
+        /**
+         * @brief Try to unlock the critical section object.
+        */
+        ~AutoCriticalSectionTryLock() noexcept;
+
+        /**
+         * @brief Check the lock status.
+         * @return The lock status.
+        */
+        bool IsLocked() const;
     };
 }
 
