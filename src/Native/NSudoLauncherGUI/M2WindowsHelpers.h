@@ -338,31 +338,6 @@ namespace M2
     };
 
     /**
-     * Wraps a critical section.
-     */
-    class CCriticalSection
-    {
-    private:
-        Mile::CriticalSection m_RawObject;
-
-    public:
-        void Lock()
-        {
-            this->m_RawObject.Lock();
-        }
-
-        void Unlock()
-        {
-            this->m_RawObject.Unlock();
-        }
-
-        bool TryLock()
-        {
-            return this->m_RawObject.TryLock();
-        }
-    };
-
-    /**
      * Wraps a slim reader/writer (SRW) lock.
      */
     class CSRWLock
@@ -404,60 +379,6 @@ namespace M2
         _Releases_lock_(m_SRWLock) void SharedUnlock()
         {
             ::MileReleaseSRWLockShared(&this->m_SRWLock);
-        }
-    };
-
-    /**
-     * Provides automatic locking and unlocking of a critical section.
-     *
-     * @remarks The AutoLock object must go out of scope before the CritSec.
-     */
-    class AutoCriticalSectionLock
-    {
-    private:
-        CCriticalSection* m_pCriticalSection;
-
-    public:
-        _Acquires_lock_(m_pCriticalSection) AutoCriticalSectionLock(
-            CCriticalSection& CriticalSection) :
-            m_pCriticalSection(&CriticalSection)
-        {
-            m_pCriticalSection->Lock();
-        }
-
-        _Releases_lock_(m_pCriticalSection) ~AutoCriticalSectionLock()
-        {
-            m_pCriticalSection->Unlock();
-        }
-    };
-
-    /**
-     * Provides automatic trying to lock and unlocking of a critical section.
-     *
-     * @remarks The AutoLock object must go out of scope before the CritSec.
-     */
-    class AutoTryCriticalSectionLock
-    {
-    private:
-        CCriticalSection* m_pCriticalSection;
-        bool m_IsLocked = false;
-
-    public:
-        _Acquires_lock_(m_pCriticalSection) AutoTryCriticalSectionLock(
-            CCriticalSection& CriticalSection) :
-            m_pCriticalSection(&CriticalSection)
-        {
-            this->m_IsLocked = m_pCriticalSection->TryLock();
-        }
-
-        _Releases_lock_(m_pCriticalSection) ~AutoTryCriticalSectionLock()
-        {
-            m_pCriticalSection->Unlock();
-        }
-
-        bool IsLocked() const
-        {
-            return this->m_IsLocked;
         }
     };
 
@@ -585,7 +506,7 @@ namespace M2
         Mile::DisableMoveConstruction
     {
     private:
-        static CCriticalSection m_SingletonCS;
+        static Mile::CriticalSection m_SingletonCS;
         static ClassType* volatile m_Instance = nullptr;
 
     protected:
@@ -595,7 +516,7 @@ namespace M2
     public:
         static ClassType* Get()
         {
-            M2::AutoCriticalSectionLock Lock(this->m_SingletonCS);
+            Mile::AutoCriticalSectionLock Lock(this->m_SingletonCS);
 
             if (!this->m_Instance)
             {
