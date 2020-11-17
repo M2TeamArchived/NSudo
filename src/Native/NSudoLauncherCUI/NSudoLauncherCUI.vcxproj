@@ -4,8 +4,6 @@
     <ProjectGuid>{2b3e4f28-d499-4529-bec1-e0ed2003a385}</ProjectGuid>
     <RootNamespace>NSudoLauncherCUI</RootNamespace>
     <TargetName>NSudoLC</TargetName>
-    <NuGetTargetMoniker>native,Version=v0.0</NuGetTargetMoniker>
-    <RuntimeIdentifiers>win;win-x86;win-x64;win-arm;win-arm64</RuntimeIdentifiers>
     <ConfigurationType>Application</ConfigurationType>
   </PropertyGroup>
   <Import Project="..\Mile.Project\Mile.Project.props" />
