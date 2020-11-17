@@ -6,7 +6,7 @@
     <TargetName>NSudoDM</TargetName>
     <ConfigurationType>DynamicLibrary</ConfigurationType>
   </PropertyGroup>
-  <Import Project="..\MSBuild\ProjectConfigurations.props" />
+  <Import Project="..\Mile.Project\Mile.Project.props" />
   <ImportGroup Label="PropertySheets">
     <Import Project="..\libkcrt\libkcrt.props" />
     <Import Project="..\MINT\MINT.props" />

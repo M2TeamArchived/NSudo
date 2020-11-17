@@ -8,7 +8,7 @@
     <RuntimeIdentifiers>win;win-x86;win-x64;win-arm;win-arm64</RuntimeIdentifiers>
     <ConfigurationType>Application</ConfigurationType>
   </PropertyGroup>
-  <Import Project="..\MSBuild\ProjectConfigurations.props" />
+  <Import Project="..\Mile.Project\Mile.Project.props" />
   <ImportGroup Label="PropertySheets">
     <Import Project="..\MSBuild\NSudoLib.props" />
     <Import Project="..\WTL\WTL.props" />

@@ -5,7 +5,7 @@
     <RootNamespace>NSudoLauncherResources</RootNamespace>
     <ConfigurationType>StaticLibrary</ConfigurationType>
   </PropertyGroup>
-  <Import Project="..\MSBuild\ProjectConfigurations.props" />
+  <Import Project="..\Mile.Project\Mile.Project.props" />
   <ItemDefinitionGroup>
     <ResourceCompile>
       <ResourceOutputFileName>$(OutDir)%(Filename).res</ResourceOutputFileName>
