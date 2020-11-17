@@ -15,7 +15,6 @@
     <ClCompile>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NSUDOAPI_USING_STATIC_LIBRARY;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalOptions>/d2FH4- %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
