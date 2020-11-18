@@ -6,7 +6,7 @@
     <TargetName>NSudoS</TargetName>
     <ConfigurationType>Application</ConfigurationType>
   </PropertyGroup>
-  <Import Project="..\Mile.Project\Mile.Project.props" />
+  <Import Project="..\Mile.Project\Mile.Project.Cpp.props" />
   <ImportGroup Label="PropertySheets">
     <Import Project="..\WTL\WTL.props" />
     <Import Project="..\Mile\Mile.props" />
@@ -43,4 +43,5 @@
   <ItemGroup>
     <None Include="NSudoSweeperStandardCleanupHandler.toml" />
   </ItemGroup>
+  <Import Project="..\Mile.Project\Mile.Project.Cpp.targets" />
 </Project>

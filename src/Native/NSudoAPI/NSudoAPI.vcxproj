@@ -5,7 +5,7 @@
     <RootNamespace>NSudoAPI</RootNamespace>
     <ConfigurationType>DynamicLibrary</ConfigurationType>
   </PropertyGroup>
-  <Import Project="..\Mile.Project\Mile.Project.props" />
+  <Import Project="..\Mile.Project\Mile.Project.Cpp.props" />
   <ImportGroup Label="PropertySheets">
     <Import Project="..\MSBuild\NSudoLib.props" />
     <Import Project="..\Mile\Mile.props" />
@@ -34,4 +34,5 @@
   <ItemGroup>
     <ResourceCompile Include="NSudoAPIVersion.rc" />
   </ItemGroup>
+  <Import Project="..\Mile.Project\Mile.Project.Cpp.targets" />
 </Project>

@@ -5,7 +5,7 @@
     <RootNamespace>NSudoLauncherResources</RootNamespace>
     <ConfigurationType>StaticLibrary</ConfigurationType>
   </PropertyGroup>
-  <Import Project="..\Mile.Project\Mile.Project.props" />
+  <Import Project="..\Mile.Project\Mile.Project.Cpp.props" />
   <ItemDefinitionGroup>
     <ResourceCompile>
       <ResourceOutputFileName>$(OutDir)%(Filename).res</ResourceOutputFileName>
@@ -44,4 +44,5 @@
   <ItemGroup>
     <Image Include="NSudoLauncher.ico" />
   </ItemGroup>
+  <Import Project="..\Mile.Project\Mile.Project.Cpp.targets" />
 </Project>
