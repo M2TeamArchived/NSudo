@@ -3,22 +3,16 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{074549F9-9197-41FE-A8ED-8BFA2A0E2549}</ProjectGuid>
     <RootNamespace>NSudoLib</RootNamespace>
-    <ConfigurationType>StaticLibrary</ConfigurationType>
   </PropertyGroup>
-  <Import Project="..\Mile.Project\Mile.Project.Cpp.props" />
+  <Import Project="..\Mile.Project\Mile.Project.Cpp.Library.Static.props" />
   <ImportGroup Label="PropertySheets">
     <Import Project="..\Mile\Mile.props" />
   </ImportGroup>
   <ItemDefinitionGroup>
     <ClCompile> 
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NSUDOAPI_USING_STATIC_LIBRARY;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NSUDOAPI_USING_STATIC_LIBRARY;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
-    <Link>
-      <SubSystem>Console</SubSystem>
-      <EnableUAC>false</EnableUAC>
-      <ModuleDefinitionFile>NSudoAPI.def</ModuleDefinitionFile>
-    </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <PackageReference Include="VC-LTL">

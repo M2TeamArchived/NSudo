@@ -3,9 +3,8 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{B2176F44-F97A-4403-948C-F21D56999C70}</ProjectGuid>
     <RootNamespace>NSudoLauncherResources</RootNamespace>
-    <ConfigurationType>StaticLibrary</ConfigurationType>
   </PropertyGroup>
-  <Import Project="..\Mile.Project\Mile.Project.Cpp.props" />
+  <Import Project="..\Mile.Project\Mile.Project.Cpp.Library.Static.props" />
   <ItemDefinitionGroup>
     <ResourceCompile>
       <ResourceOutputFileName>$(OutDir)%(Filename).res</ResourceOutputFileName>

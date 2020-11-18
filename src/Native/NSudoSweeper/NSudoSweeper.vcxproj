@@ -4,9 +4,8 @@
     <ProjectGuid>{7B115CBE-B478-4721-B38F-C3BE5563D581}</ProjectGuid>
     <RootNamespace>NSudoSweeper</RootNamespace>
     <TargetName>NSudoS</TargetName>
-    <ConfigurationType>Application</ConfigurationType>
   </PropertyGroup>
-  <Import Project="..\Mile.Project\Mile.Project.Cpp.props" />
+  <Import Project="..\Mile.Project\Mile.Project.Cpp.Application.Windows.props" />
   <ImportGroup Label="PropertySheets">
     <Import Project="..\WTL\WTL.props" />
     <Import Project="..\Mile\Mile.props" />
@@ -14,11 +13,7 @@
   <ItemDefinitionGroup>
     <ClCompile>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
-    <Link>
-      <SubSystem>Windows</SubSystem>
-    </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <PackageReference Include="VC-LTL">

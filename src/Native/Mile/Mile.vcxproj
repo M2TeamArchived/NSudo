@@ -3,20 +3,16 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{A17EB414-7D7A-4455-BEF7-CA8D149D0CB2}</ProjectGuid>
     <RootNamespace>Mile</RootNamespace>
-    <ConfigurationType>StaticLibrary</ConfigurationType>
   </PropertyGroup>
-  <Import Project="..\Mile.Project\Mile.Project.Cpp.props" />
+  <Import Project="..\Mile.Project\Mile.Project.Cpp.Library.Static.props" />
   <ImportGroup Label="PropertySheets">
     <Import Project="..\MINT\MINT.props" />
   </ImportGroup>
   <ItemDefinitionGroup>
     <ClCompile>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NSUDOAPI_USING_STATIC_LIBRARY;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NSUDOAPI_USING_STATIC_LIBRARY;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
-    <Link>
-      <SubSystem>Console</SubSystem>
-    </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <PackageReference Include="VC-LTL">

@@ -4,19 +4,17 @@
     <ProjectGuid>{9FC5B22F-D2AE-4021-8883-5D6B74C5ED71}</ProjectGuid>
     <RootNamespace>NSudoDevilMode</RootNamespace>
     <TargetName>NSudoDM</TargetName>
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
   </PropertyGroup>
-  <Import Project="..\Mile.Project\Mile.Project.Cpp.props" />
+  <Import Project="..\Mile.Project\Mile.Project.Cpp.Library.Dynamic.props" />
   <ImportGroup Label="PropertySheets">
     <Import Project="..\libkcrt\libkcrt.props" />
     <Import Project="..\MINT\MINT.props" />
   </ImportGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-      <PreprocessorDefinitions>NSudoDevilMode_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NSudoDevilMode_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
       <AdditionalDependencies>ntdll.lib;libkcrt.lib</AdditionalDependencies>
     </Link>

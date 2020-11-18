@@ -4,9 +4,8 @@
     <ProjectGuid>{2b3e4f28-d499-4529-bec1-e0ed2003a385}</ProjectGuid>
     <RootNamespace>NSudoLauncherCUI</RootNamespace>
     <TargetName>NSudoLC</TargetName>
-    <ConfigurationType>Application</ConfigurationType>
   </PropertyGroup>
-  <Import Project="..\Mile.Project\Mile.Project.Cpp.props" />
+  <Import Project="..\Mile.Project\Mile.Project.Cpp.Application.Console.props" />
   <ImportGroup Label="PropertySheets">
     <Import Project="..\MSBuild\NSudoLib.props" />
     <Import Project="..\WTL\WTL.props" />
@@ -16,11 +15,7 @@
   <ItemDefinitionGroup>
     <ClCompile>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
-    <Link>
-      <SubSystem>Console</SubSystem>
-    </Link>
     <PostBuildEvent>
       <Message>复制配置文件</Message>
       <Command>xcopy /r /s /y $(ProjectDir)Resources\NSudo.json $(TargetDir)</Command>
