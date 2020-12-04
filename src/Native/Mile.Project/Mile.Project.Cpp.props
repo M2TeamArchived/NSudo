@@ -1,12 +1,25 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <!--
-   PROJECT:   Mouri Internal Library Essentials
-   FILE:      Mile.Project.Cpp.props
-   PURPOSE:   Definition for Visual Studio C++ Project
+  PROJECT:   Mouri Internal Library Essentials
+  FILE:      Mile.Project.Cpp.props
+  PURPOSE:   Definition for Visual Studio C++ Project
 
-   LICENSE:   The MIT License
+  LICENSE:   The MIT License
 
-   DEVELOPER: Mouri_Naruto (Mouri_Naruto AT Outlook.com)
+  DEVELOPER: Mouri_Naruto (Mouri_Naruto AT Outlook.com)
+-->
+<!--
+  The documents of specific options in Mile.Project.
+
+  How to define the project type in the "Globals" label property group.
+  If the project is a console application project.
+    <MileProjectType>ConsoleApplication</MileProjectType>
+  If the project is a windows application project.
+    <MileProjectType>WindowsApplication</MileProjectType>
+  If the project is a dynamic library project.
+    <MileProjectType>DynamicLibrary</MileProjectType>
+  If the project is a static library project.
+    <MileProjectType>StaticLibrary</MileProjectType>
 -->
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
@@ -49,6 +62,10 @@
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
     <NuGetTargetMoniker>native,Version=v0.0</NuGetTargetMoniker>
     <RuntimeIdentifiers>win;win-x86;win-x64;win-arm;win-arm64</RuntimeIdentifiers>
+    <ConfigurationType Condition="'$(MileProjectType)'=='ConsoleApplication'">Application</ConfigurationType>
+    <ConfigurationType Condition="'$(MileProjectType)'=='WindowsApplication'">Application</ConfigurationType>
+    <ConfigurationType Condition="'$(MileProjectType)'=='DynamicLibrary'">DynamicLibrary</ConfigurationType>
+    <ConfigurationType Condition="'$(MileProjectType)'=='StaticLibrary'">StaticLibrary</ConfigurationType>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Label="Configuration">
@@ -84,11 +101,19 @@
       <Optimization Condition="'$(Configuration)'=='Release'">MaxSpeed</Optimization>
       <FunctionLevelLinking Condition="'$(Configuration)'=='Release'">true</FunctionLevelLinking>
       <IntrinsicFunctions Condition="'$(Configuration)'=='Release'">true</IntrinsicFunctions>
+      <PreprocessorDefinitions Condition="'$(MileProjectType)'=='ConsoleApplication'">_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(MileProjectType)'=='WindowsApplication'">_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(MileProjectType)'=='DynamicLibrary'">_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(MileProjectType)'=='StaticLibrary'">_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding Condition="'$(Configuration)'=='Release'">true</EnableCOMDATFolding>
       <OptimizeReferences Condition="'$(Configuration)'=='Release'">true</OptimizeReferences>
+      <SubSystem Condition="'$(MileProjectType)'=='ConsoleApplication'">Console</SubSystem>
+      <SubSystem Condition="'$(MileProjectType)'=='WindowsApplication'">Windows</SubSystem>
+      <SubSystem Condition="'$(MileProjectType)'=='DynamicLibrary'">Windows</SubSystem>
+      <SubSystem Condition="'$(MileProjectType)'=='StaticLibrary'"></SubSystem>
     </Link>
   </ItemDefinitionGroup>
 </Project>

@@ -4,8 +4,9 @@
     <ProjectGuid>{8f89c743-14c8-4442-812f-1f1816ffb88d}</ProjectGuid>
     <RootNamespace>NSudoLauncherGUI</RootNamespace>
     <TargetName>NSudoLG</TargetName>
+    <MileProjectType>WindowsApplication</MileProjectType>
   </PropertyGroup>
-  <Import Project="..\Mile.Project\Mile.Project.Cpp.Application.Windows.props" />
+  <Import Project="..\Mile.Project\Mile.Project.Cpp.props" />
   <ImportGroup Label="PropertySheets">
     <Import Project="..\MSBuild\NSudoLib.props" />
     <Import Project="..\WTL\WTL.props" />

@@ -3,8 +3,9 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{43C2BD57-4D61-42EC-B290-62A32B6FB5C7}</ProjectGuid>
     <RootNamespace>NSudoAPI</RootNamespace>
+    <MileProjectType>DynamicLibrary</MileProjectType>
   </PropertyGroup>
-  <Import Project="..\Mile.Project\Mile.Project.Cpp.Library.Dynamic.props" />
+  <Import Project="..\Mile.Project\Mile.Project.Cpp.props" />
   <ImportGroup Label="PropertySheets">
     <Import Project="..\MSBuild\NSudoLib.props" />
     <Import Project="..\Mile\Mile.props" />

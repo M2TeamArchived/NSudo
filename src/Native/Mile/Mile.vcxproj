@@ -3,8 +3,9 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{A17EB414-7D7A-4455-BEF7-CA8D149D0CB2}</ProjectGuid>
     <RootNamespace>Mile</RootNamespace>
+    <MileProjectType>StaticLibrary</MileProjectType>
   </PropertyGroup>
-  <Import Project="..\Mile.Project\Mile.Project.Cpp.Library.Static.props" />
+  <Import Project="..\Mile.Project\Mile.Project.Cpp.props" />
   <ImportGroup Label="PropertySheets">
     <Import Project="..\MINT\MINT.props" />
   </ImportGroup>

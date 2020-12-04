@@ -3,8 +3,9 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{074549F9-9197-41FE-A8ED-8BFA2A0E2549}</ProjectGuid>
     <RootNamespace>NSudoLib</RootNamespace>
+    <MileProjectType>StaticLibrary</MileProjectType>
   </PropertyGroup>
-  <Import Project="..\Mile.Project\Mile.Project.Cpp.Library.Static.props" />
+  <Import Project="..\Mile.Project\Mile.Project.Cpp.props" />
   <ImportGroup Label="PropertySheets">
     <Import Project="..\Mile\Mile.props" />
   </ImportGroup>
