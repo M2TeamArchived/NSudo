@@ -7,14 +7,8 @@ skip_commits:
   - 'Scripts/**/*'
   - '*.md'
 image: Visual Studio 2019
-configuration:
-  - Debug
-  - Release
-platform:
-  - x86
-  - x64
 build:
-  project: src/Native/NSudo.sln
+  project: src/Native/BuildAllTargets.proj
   parallel: true
 after_build:
   - >-

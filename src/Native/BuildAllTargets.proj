@@ -1,0 +1,45 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Target Name="Build">
+    <MSBuild
+      Projects="NSudo.sln"
+      Targets="Restore;Build"
+      BuildInParallel="True"
+      Properties="PreferredToolArchitecture=x64;Configuration=Debug;Platform=x86" />
+    <MSBuild
+      Projects="NSudo.sln"
+      Targets="Restore;Build"
+      BuildInParallel="True"
+      Properties="PreferredToolArchitecture=x64;Configuration=Release;Platform=x86" />
+    <MSBuild
+      Projects="NSudo.sln"
+      Targets="Restore;Build"
+      BuildInParallel="True"
+      Properties="PreferredToolArchitecture=x64;Configuration=Debug;Platform=x64" />
+    <MSBuild
+      Projects="NSudo.sln"
+      Targets="Restore;Build"
+      BuildInParallel="True"
+      Properties="PreferredToolArchitecture=x64;Configuration=Release;Platform=x64" />
+    <MSBuild
+      Projects="NSudo.sln"
+      Targets="Restore;Build"
+      BuildInParallel="True"
+      Properties="PreferredToolArchitecture=x64;Configuration=Debug;Platform=ARM" />
+    <MSBuild
+      Projects="NSudo.sln"
+      Targets="Restore;Build"
+      BuildInParallel="True"
+      Properties="PreferredToolArchitecture=x64;Configuration=Release;Platform=ARM" />
+    <MSBuild
+      Projects="NSudo.sln"
+      Targets="Restore;Build"
+      BuildInParallel="True"
+      Properties="PreferredToolArchitecture=x64;Configuration=Debug;Platform=ARM64" />
+    <MSBuild
+      Projects="NSudo.sln"
+      Targets="Restore;Build"
+      BuildInParallel="True"
+      Properties="PreferredToolArchitecture=x64;Configuration=Release;Platform=ARM64" />
+  </Target>
+</Project>
