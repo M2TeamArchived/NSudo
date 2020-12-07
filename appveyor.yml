@@ -7,6 +7,7 @@ skip_commits:
   - 'Scripts/**/*'
   - '*.md'
 image: Visual Studio 2019
+cache: C:\Users\appveyor\.nuget\packages
 build:
   project: src/Native/BuildAllTargets.proj
   parallel: true
