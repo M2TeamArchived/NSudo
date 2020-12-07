@@ -18,10 +18,7 @@ popd
 
 call "%VisualStudioInstallDir%\VC\Auxiliary\Build\vcvarsall.bat" x86
 
-rem Restore the VC-LTL NuGet packages.
-MSBuild -r -t:Restore -p:Configuration=Release;Platform=x86 NSudo.sln
-
 rem Build all targets
-MSBuild BuildAllTargets.proj
+MSBuild -m BuildAllTargets.proj
 
 @endlocal
