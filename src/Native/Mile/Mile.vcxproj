@@ -11,7 +11,6 @@
   </ImportGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-      <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NSUDOAPI_USING_STATIC_LIBRARY;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>

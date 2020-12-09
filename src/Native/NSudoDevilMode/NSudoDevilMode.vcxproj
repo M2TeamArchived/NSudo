@@ -13,6 +13,7 @@
   </ImportGroup>
   <ItemDefinitionGroup>
     <ClCompile>
+      <SDLCheck>false</SDLCheck>
       <PreprocessorDefinitions>NSudoDevilMode_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>

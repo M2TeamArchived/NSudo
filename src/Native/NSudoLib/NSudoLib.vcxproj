@@ -10,8 +10,7 @@
     <Import Project="..\Mile\Mile.props" />
   </ImportGroup>
   <ItemDefinitionGroup>
-    <ClCompile> 
-      <SDLCheck>true</SDLCheck>
+    <ClCompile>
       <PreprocessorDefinitions>NSUDOAPI_USING_STATIC_LIBRARY;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>

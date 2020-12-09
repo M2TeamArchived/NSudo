@@ -14,9 +14,6 @@
     <Import Project="..\NSudoLauncherResources\NSudoLauncherResources.props" />
   </ImportGroup>
   <ItemDefinitionGroup>
-    <ClCompile>
-      <SDLCheck>true</SDLCheck>
-    </ClCompile>
     <PostBuildEvent>
       <Message>复制配置文件</Message>
       <Command>xcopy /r /s /y $(ProjectDir)Resources\NSudo.json $(TargetDir)</Command>

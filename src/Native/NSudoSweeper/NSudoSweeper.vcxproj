@@ -11,11 +11,6 @@
     <Import Project="..\WTL\WTL.props" />
     <Import Project="..\Mile\Mile.props" />
   </ImportGroup>
-  <ItemDefinitionGroup>
-    <ClCompile>
-      <SDLCheck>true</SDLCheck>
-    </ClCompile>
-  </ItemDefinitionGroup>
   <ItemGroup>
     <PackageReference Include="VC-LTL">
       <Version>4.0.3.8</Version>

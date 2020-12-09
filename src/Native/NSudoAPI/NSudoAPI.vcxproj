@@ -12,7 +12,6 @@
   </ImportGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-      <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NSUDOAPI_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
