@@ -9,5 +9,11 @@
    DEVELOPER: Mouri_Naruto (Mouri_Naruto AT Outlook.com)
 -->
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Target Name="MileProjectBuildManifestResources" BeforeTargets="BeforeResourceCompile">
+    <ItemGroup>
+      <ResourceCompile Condition="'$(MileProjectType)'=='ConsoleApplication'" Include="$(MSBuildThisFileDirectory)Mile.Project.Manifest.Console.rc" />
+      <ResourceCompile Condition="'$(MileProjectType)'=='WindowsApplication'" Include="$(MSBuildThisFileDirectory)Mile.Project.Manifest.Windows.rc" />
+    </ItemGroup>
+  </Target>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>

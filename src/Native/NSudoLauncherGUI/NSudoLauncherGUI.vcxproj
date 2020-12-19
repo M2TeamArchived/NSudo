@@ -43,12 +43,8 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="M2MessageDialogResource.rc" />
-    <ResourceCompile Include="Resources\Manifest.rc" />
     <ResourceCompile Include="Resources\NSudo.rc" />
     <ResourceCompile Include="Resources\Version.rc" />
-  </ItemGroup>
-  <ItemGroup>
-    <Manifest Include="Resources\NSudoWindows.manifest" />
   </ItemGroup>
   <Import Project="..\Mile.Project\Mile.Project.Cpp.targets" />
 </Project>

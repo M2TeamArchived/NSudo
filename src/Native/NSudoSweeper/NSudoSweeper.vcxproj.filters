@@ -10,25 +10,14 @@
     <Filter Include="NSudoSweeperVersion">
       <UniqueIdentifier>{8a555299-2c92-4e4f-add5-10618b14c441}</UniqueIdentifier>
     </Filter>
-    <Filter Include="NSudoSweeperManifest">
-      <UniqueIdentifier>{e6d8583e-39d1-4b6e-9f79-953b7b6c37af}</UniqueIdentifier>
-    </Filter>
     <Filter Include="NSudoSweeperCore">
       <UniqueIdentifier>{bf1c9163-a37b-4e96-83e6-ddd35af6f16b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="NSudoSweeperManifest.rc">
-      <Filter>NSudoSweeperManifest</Filter>
-    </ResourceCompile>
     <ResourceCompile Include="NSudoSweeperVersion.rc">
       <Filter>NSudoSweeperVersion</Filter>
     </ResourceCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <Manifest Include="NSudoSweeperManifest.manifest">
-      <Filter>NSudoSweeperManifest</Filter>
-    </Manifest>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="NSudoSweeperVersion.h">

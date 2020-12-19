@@ -51,19 +51,11 @@
     <ResourceCompile Include="M2MessageDialogResource.rc">
       <Filter>M2Win32GUIHelpers</Filter>
     </ResourceCompile>
-    <ResourceCompile Include="Resources\Manifest.rc">
-      <Filter>Resources</Filter>
-    </ResourceCompile>
     <ResourceCompile Include="Resources\NSudo.rc">
       <Filter>Resources</Filter>
     </ResourceCompile>
     <ResourceCompile Include="Resources\Version.rc">
       <Filter>Resources</Filter>
     </ResourceCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <Manifest Include="Resources\NSudoWindows.manifest">
-      <Filter>Resources</Filter>
-    </Manifest>
   </ItemGroup>
 </Project>

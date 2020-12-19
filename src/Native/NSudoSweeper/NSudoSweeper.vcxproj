@@ -21,10 +21,6 @@
     <ClCompile Include="NSudoSweeperCore.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <Manifest Include="NSudoSweeperManifest.manifest" />
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="NSudoSweeperManifest.rc" />
     <ResourceCompile Include="NSudoSweeperVersion.rc" />
   </ItemGroup>
   <ItemGroup>
