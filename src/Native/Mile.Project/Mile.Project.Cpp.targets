@@ -9,10 +9,14 @@
    DEVELOPER: Mouri_Naruto (Mouri_Naruto AT Outlook.com)
 -->
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Target Name="MileProjectBuildManifestResources" BeforeTargets="BeforeResourceCompile">
+  <ItemDefinitionGroup>
+      <ResourceCompile>
+        <PreprocessorDefinitions Condition="'$(MileProjectManifestFile)'!=''">_MILE_PROJECT_MANIFEST_FILE=$([System.String]::Copy('$(MileProjectManifestFile)').Replace('\','\\'));%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      </ResourceCompile>
+    </ItemDefinitionGroup>
+    <Target Name="MileProjectBuildManifestResources" BeforeTargets="BeforeResourceCompile">
     <ItemGroup>
-      <ResourceCompile Condition="'$(MileProjectType)'=='ConsoleApplication'" Include="$(MSBuildThisFileDirectory)Mile.Project.Manifest.Console.rc" />
-      <ResourceCompile Condition="'$(MileProjectType)'=='WindowsApplication'" Include="$(MSBuildThisFileDirectory)Mile.Project.Manifest.Windows.rc" />
+      <ResourceCompile Condition="'$(MileProjectManifestFile)'!=''" Include="$(MSBuildThisFileDirectory)Mile.Project.Manifest.rc" />
     </ItemGroup>
   </Target>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

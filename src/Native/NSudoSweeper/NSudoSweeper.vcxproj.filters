@@ -30,4 +30,7 @@
   <ItemGroup>
     <None Include="NSudoSweeperStandardCleanupHandler.toml" />
   </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="NSudoSweeper.manifest" />
+  </ItemGroup>
 </Project>

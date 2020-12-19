@@ -5,6 +5,7 @@
     <RootNamespace>NSudoLauncherGUI</RootNamespace>
     <TargetName>NSudoLG</TargetName>
     <MileProjectType>WindowsApplication</MileProjectType>
+    <MileProjectManifestFile>NSudoLauncherGUI.manifest</MileProjectManifestFile>
   </PropertyGroup>
   <Import Project="..\Mile.Project\Mile.Project.Cpp.props" />
   <ImportGroup Label="PropertySheets">
@@ -45,6 +46,9 @@
     <ResourceCompile Include="M2MessageDialogResource.rc" />
     <ResourceCompile Include="Resources\NSudo.rc" />
     <ResourceCompile Include="Resources\Version.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="NSudoLauncherGUI.manifest" />
   </ItemGroup>
   <Import Project="..\Mile.Project\Mile.Project.Cpp.targets" />
 </Project>

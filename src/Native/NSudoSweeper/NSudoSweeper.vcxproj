@@ -5,6 +5,7 @@
     <RootNamespace>NSudoSweeper</RootNamespace>
     <TargetName>NSudoS</TargetName>
     <MileProjectType>WindowsApplication</MileProjectType>
+    <MileProjectManifestFile>NSudoSweeper.manifest</MileProjectManifestFile>
   </PropertyGroup>
   <Import Project="..\Mile.Project\Mile.Project.Cpp.props" />
   <ImportGroup Label="PropertySheets">
@@ -29,6 +30,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="NSudoSweeperStandardCleanupHandler.toml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="NSudoSweeper.manifest" />
   </ItemGroup>
   <Import Project="..\Mile.Project\Mile.Project.Cpp.targets" />
 </Project>

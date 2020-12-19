@@ -43,4 +43,7 @@
       <Filter>Resources</Filter>
     </ResourceCompile>
   </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="NSudoLauncherCUI.manifest" />
+  </ItemGroup>
 </Project>

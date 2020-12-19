@@ -58,4 +58,7 @@
       <Filter>Resources</Filter>
     </ResourceCompile>
   </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="NSudoLauncherGUI.manifest" />
+  </ItemGroup>
 </Project>

@@ -5,6 +5,7 @@
     <RootNamespace>NSudoLauncherCUI</RootNamespace>
     <TargetName>NSudoLC</TargetName>
     <MileProjectType>ConsoleApplication</MileProjectType>
+    <MileProjectManifestFile>NSudoLauncherCUI.manifest</MileProjectManifestFile>
   </PropertyGroup>
   <Import Project="..\Mile.Project\Mile.Project.Cpp.props" />
   <ImportGroup Label="PropertySheets">
@@ -41,6 +42,9 @@
   <ItemGroup>
     <ResourceCompile Include="Resources\NSudo.rc" />
     <ResourceCompile Include="Resources\Version.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="NSudoLauncherCUI.manifest" />
   </ItemGroup>
   <Import Project="..\Mile.Project\Mile.Project.Cpp.targets" />
 </Project>

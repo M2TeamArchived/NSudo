@@ -20,6 +20,9 @@
     <MileProjectType>DynamicLibrary</MileProjectType>
   If the project is a static library project.
     <MileProjectType>StaticLibrary</MileProjectType>
+
+  How to define the manifest file in the "Globals" label property group.
+    <MileProjectManifestFile>C:\Folder\Manifest.manifest</MileProjectManifestFile>
 -->
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
