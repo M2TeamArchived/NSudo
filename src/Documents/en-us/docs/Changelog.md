@@ -1,5 +1,19 @@
 ﻿# Changelog
 
+**NSudo 8.0 Current**
+
+- Update Italian translation. (Contributed by garf02.)
+- Use VC-LTL NuGet package edition instead of standalone edition. (Thanks to mingkuang.)
+- Create NSudo Sweeper for experiment.
+- Use Windows Template Library (WTL) to build the UI.
+- Improve the website. (Contributed by 青春永不落幕.)
+- Reorganize the whole project.
+- Add Mile, Mile.Project, MINT to the project for making NSudo more modularize.
+- Improve the AppVeyor and GitHub Action CI support. (Thanks to mingkuang.)
+- Add build all targets script.
+- Update VC-LTL to 4.1.1-Beta7.
+- (I am not sure.) Fix the crash bug under the Windows 10 Build 21277. (Thanks to jgtoy.)
+
 **NSudo 8.0**
 
 - Reduce the binary size.

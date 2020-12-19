@@ -53,13 +53,13 @@
 - Domagoj Smolčić
 - hydra79545
 - imadlatch
+- jgtoy
 - kCaRhC 卡壳
 - Lenny
 - NotePad
 - sebus
 - testtest322
 - th1r5bvn23
-- Thomas Dubreuil ([https://github.com/Thdub](https://github.com/Thdub))
 - 老九
 - 龍魂
 - 芈员外
