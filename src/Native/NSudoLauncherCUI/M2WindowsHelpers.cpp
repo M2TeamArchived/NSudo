@@ -1033,7 +1033,16 @@ INT M2EnablePerMonitorDialogScaling()
     // Fix for Windows Vista and Server 2008.
     if (!IsWindowsVersionOrGreater(10, 0, 0)) return -1;
 
-    typedef INT(WINAPI * PFN_EnablePerMonitorDialogScaling)();
+    // We don't need this hack if the Per Monitor Aware V2 is existed.
+    OSVERSIONINFOEXW OSVersionInfoEx = { 0 };
+    OSVersionInfoEx.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEXW);
+    OSVersionInfoEx.dwBuildNumber = 14393;
+    if (VerifyVersionInfoW(
+        &OSVersionInfoEx,
+        VER_BUILDNUMBER,
+        VerSetConditionMask(0, VER_BUILDNUMBER, VER_GREATER_EQUAL))) return -1;
+
+    typedef INT(WINAPI* PFN_EnablePerMonitorDialogScaling)();
 
     HMODULE hModule = nullptr;
     PFN_EnablePerMonitorDialogScaling pFunc = nullptr;
