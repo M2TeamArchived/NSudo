@@ -30,7 +30,7 @@
     <None Include="NSudoAPI.def" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="NSudoAPIVersion.rc" />
+    <ClInclude Include="Mile.Project.Properties.h" />
   </ItemGroup>
   <Import Project="..\Mile.Project\Mile.Project.Cpp.targets" />
 </Project>

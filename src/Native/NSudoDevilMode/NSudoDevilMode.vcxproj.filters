@@ -13,21 +13,11 @@
     <Filter Include="Detours">
       <UniqueIdentifier>{802124d1-ad20-47fe-a90a-a9b24fd36071}</UniqueIdentifier>
     </Filter>
-    <Filter Include="NSudoDevilModeVersion">
-      <UniqueIdentifier>{09b39123-f1df-4c9a-825f-3f26848c4e2c}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="detours.h">
       <Filter>Detours</Filter>
     </ClInclude>
-    <ClInclude Include="NSudoDevilModeVersion.h">
-      <Filter>NSudoDevilModeVersion</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="NSudoDevilModeVersion.rc">
-      <Filter>NSudoDevilModeVersion</Filter>
-    </ResourceCompile>
+    <ClInclude Include="Mile.Project.Properties.h" />
   </ItemGroup>
 </Project>

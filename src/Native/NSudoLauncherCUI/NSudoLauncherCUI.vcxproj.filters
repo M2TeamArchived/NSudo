@@ -32,14 +32,10 @@
     <ClInclude Include="Resources\resource.h">
       <Filter>Resources</Filter>
     </ClInclude>
-    <ClInclude Include="CIBuild.h" />
-    <ClInclude Include="NSudoVersion.h" />
+    <ClInclude Include="Mile.Project.Properties.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\NSudo.rc">
-      <Filter>Resources</Filter>
-    </ResourceCompile>
-    <ResourceCompile Include="Resources\Version.rc">
       <Filter>Resources</Filter>
     </ResourceCompile>
   </ItemGroup>

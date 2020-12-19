@@ -34,18 +34,16 @@
     <None Include="Resources\NSudo.json" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CIBuild.h" />
     <ClInclude Include="jsmn.h" />
     <ClInclude Include="M2MessageDialogResource.h" />
     <ClInclude Include="M2Win32GUIHelpers.h" />
     <ClInclude Include="M2WindowsHelpers.h" />
-    <ClInclude Include="NSudoVersion.h" />
+    <ClInclude Include="Mile.Project.Properties.h" />
     <ClInclude Include="Resources\resource.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="M2MessageDialogResource.rc" />
     <ResourceCompile Include="Resources\NSudo.rc" />
-    <ResourceCompile Include="Resources\Version.rc" />
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="NSudoLauncherGUI.manifest" />

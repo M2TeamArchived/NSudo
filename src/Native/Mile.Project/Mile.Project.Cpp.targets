@@ -9,14 +9,10 @@
    DEVELOPER: Mouri_Naruto (Mouri_Naruto AT Outlook.com)
 -->
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <ItemDefinitionGroup>
-      <ResourceCompile>
-        <PreprocessorDefinitions Condition="'$(MileProjectManifestFile)'!=''">_MILE_PROJECT_MANIFEST_FILE=$([System.String]::Copy('$(MileProjectManifestFile)').Replace('\','\\'));%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      </ResourceCompile>
-    </ItemDefinitionGroup>
-    <Target Name="MileProjectBuildManifestResources" BeforeTargets="BeforeResourceCompile">
-    <ItemGroup>
+  <Target Name="MileProjectBuildManifestResources" BeforeTargets="BeforeResourceCompile">
+    <ItemGroup Condition="'$(MileProjectType)'!='StaticLibrary'">
       <ResourceCompile Condition="'$(MileProjectManifestFile)'!=''" Include="$(MSBuildThisFileDirectory)Mile.Project.Manifest.rc" />
+      <ResourceCompile Condition="Exists('$(ProjectDir)Mile.Project.Properties.h')" Include="$(MSBuildThisFileDirectory)Mile.Project.Version.rc" />
     </ItemGroup>
   </Target>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

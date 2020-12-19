@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003"> 
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Label="Globals">
     <ProjectGuid>{9FC5B22F-D2AE-4021-8883-5D6B74C5ED71}</ProjectGuid>
     <RootNamespace>NSudoDevilMode</RootNamespace>
@@ -27,11 +27,8 @@
     <ClCompile Include="NSudoDevilMode.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="NSudoDevilModeVersion.rc" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="detours.h" />
-    <ClInclude Include="NSudoDevilModeVersion.h" />
+    <ClInclude Include="Mile.Project.Properties.h" />
   </ItemGroup>
   <Import Project="..\Mile.Project\Mile.Project.Cpp.targets" />
 </Project>

@@ -10,7 +10,7 @@
 
 #include <Mile.Windows.h>
 
-#include "NSudoSweeperVersion.h"
+#include "Mile.Project.Properties.h"
 
 #include "NSudoSweeperCore.h"
 
@@ -93,7 +93,7 @@ private:
         }
 
         this->SetWindowTextW(
-            L"M2-Team NSudo Sweeper " NSUDO_SWEEPER_VERSION_STRING);
+            L"M2-Team NSudo Sweeper " MILE_PROJECT_VERSION_STRING);
 
         this->UIFont.CreateFontW(
             MulDiv(20, m_nDpiY, USER_DEFAULT_SCREEN_DPI), // nHeight

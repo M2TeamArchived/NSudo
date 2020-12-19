@@ -22,11 +22,8 @@
     <ClCompile Include="NSudoSweeperCore.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="NSudoSweeperVersion.rc" />
-  </ItemGroup>
-  <ItemGroup>
+    <ClInclude Include="Mile.Project.Properties.h" />
     <ClInclude Include="NSudoSweeperCore.h" />
-    <ClInclude Include="NSudoSweeperVersion.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NSudoSweeperStandardCleanupHandler.toml" />
