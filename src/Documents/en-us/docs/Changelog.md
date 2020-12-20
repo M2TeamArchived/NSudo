@@ -12,7 +12,7 @@
 - Improve the AppVeyor and GitHub Action CI support. (Thanks to mingkuang.)
 - Add build all targets script.
 - Update VC-LTL to 4.1.1-Beta7.
-- (I am not sure.) Fix the crash bug under the Windows 10 Build 21277. (Thanks to jgtoy.)
+- Fix the crash bug under the Windows 10 Build 21277. (Thanks to jgtoy.)
 
 **NSudo 8.0**
 
