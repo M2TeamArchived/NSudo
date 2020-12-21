@@ -1,6 +1,6 @@
 ﻿# Changelog
 
-**NSudo 8.0 Current**
+**NSudo 8.0 Update 1 (aka 8.0.1)**
 
 - Update Italian translation. (Contributed by garf02.)
 - Use VC-LTL NuGet package edition instead of standalone edition. (Thanks to mingkuang.)
@@ -13,6 +13,7 @@
 - Add build all targets script.
 - Update VC-LTL to 4.1.1-Beta7.
 - Fix the crash bug under the Windows 10 Build 21277. (Thanks to jgtoy.)
+- Update to .NET 5.0 for NSudo .NET Wrapper.
 
 **NSudo 8.0**
 
