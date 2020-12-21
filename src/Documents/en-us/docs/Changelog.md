@@ -1,10 +1,10 @@
 ﻿# Changelog
 
-**NSudo 8.0 Update 1 (aka 8.0.1)**
+**NSudo 8.0 Update 1 (8.0.1)**
 
 - Update Italian translation. (Contributed by garf02.)
 - Use VC-LTL NuGet package edition instead of standalone edition. (Thanks to mingkuang.)
-- Create NSudo Sweeper for experiment.
+- Create NSudo Sweeper (experiment).
 - Use Windows Template Library (WTL) to build the UI.
 - Improve the website. (Contributed by 青春永不落幕.)
 - Reorganize the whole project.

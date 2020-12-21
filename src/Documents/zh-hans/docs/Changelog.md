@@ -1,5 +1,20 @@
 ﻿# 更新日志
 
+**NSudo 8.0 Update 1 (8.0.1)**
+
+- 更新意大利语翻译（由 garf02 贡献）
+- 使用 NuGet 包版本 VC-LTL 替代独立版 VC-LTL（感谢 mingkuang）
+- 创建 NSudo Sweeper 项目（实验性）
+- 使用 Windows Template Library (WTL) 构建界面
+- 改善项目网站实现（由  青春永不落幕 贡献）
+- 整理整个项目
+- 添加 Mile、Mile.Project、MINT 子项目使 NSudo 实现更加模块化
+- 改善 AppVeyor 和 GitHub Action 连续集成的支持（感谢 mingkuang）
+- 添加一键编译脚本
+- 升级 VC-LTL 到 4.1.1-Beta7
+- 修复在 Windows 10 Build 21277 下崩溃的问题（感谢 jgtoy）
+- NSudo .NET 互操作库采用 .NET 5.0 编译
+
 **NSudo 8.0**
 
 - 精简二进制体积
