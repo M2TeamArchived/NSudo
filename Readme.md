@@ -44,14 +44,14 @@ Please read [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
     version of Windows 10 SDK I used isn't installed on your PC.
   - You also need install ARM and ARM64 components when you installing the 
     Windows 10 Version 1703 SDK or later.
-- (Optional but recommend) If you want to reduce the release mode binaries size
-  for x86, x64 and ARM64 port of NSudo, you can use VC-LTL.
-  - VC-LTL GitHub Repository: https://github.com/Chuyu-Team/VC-LTL
-  - How to use VC-LTL to optimize NSudo binaries size:
-    - Download VC-LTL binary pack from 
-	  https://github.com/Chuyu-Team/VC-LTL/releases/latest.
-    - Unpack the VC-LTL binary pack and double-click install.cmd in the unpack
-	  folder.
+
+#### How to build all targets of NSudo
+
+Run `BuildAllTargets.bat` in `src/Native`.
+
+#### How to modify or debugging NSudo
+
+Open `NSudo.sln` in `src/Native`.
 
 #### Code style and conventions
 
@@ -77,19 +77,8 @@ file in the repository, as needed.
 Refer to https://github.com/M2Team/NSudo/pull/29.
 
 To build new docs, you'll need to have [Node.js](https://nodejs.org) and 
-[Yarn](https://yarnpkg.com) installed on your system, and run:
-
-```sh
-
-# Install dependencies
-yarn
-
-# Run `build` in package.json
-yarn build
-
-```
-
-in `docs-src/`.
+[Yarn](https://yarnpkg.com) installed on your system, and run `build.bat` in
+`src/Documents`.
 
 Docs will be built into `docs`, where GitHub Pages treated as site root. So be
 sure to commit `docs` changes.
@@ -97,8 +86,5 @@ sure to commit `docs` changes.
 CI/CD is not included in this PR, so manual build is required after every docs
 update. `yarn dev` runs a local hot-reload-enabled docs server for easier 
 debugging.
-
-In the long run, using some 3rd-party static hosting like 
-[Netlify](https://netlify.com) would be easier to release docs.
 
 Docs engine is based on [VuePress](https://v1.vuepress.vuejs.org).
