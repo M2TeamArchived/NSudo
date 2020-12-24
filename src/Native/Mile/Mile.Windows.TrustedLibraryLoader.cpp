@@ -153,7 +153,17 @@ namespace
 EXTERN_C HMODULE WINAPI MileLoadLibraryFromSystem32(
     _In_ LPCWSTR lpLibFileName)
 {
-    TrustedLibraryLoaderHelper Helper;
+    // Use static variable to reduce the initialization times.
+    // We need a compiler which supports C++11.
+    // Reference: https://en.cppreference.com/w/cpp/language/storage_duration
+    // If multiple threads attempt to initialize the same static local variable
+    // concurrently, the initialization occurs exactly once (similar behavior
+    // can be obtained for arbitrary functions with std::call_once).
+    // Note: usual implementations of this feature use variants of the
+    // double-checked locking pattern, which reduces runtime overhead for
+    // already-initialized local statics to a single non-atomic boolean
+    // comparison.
+    static TrustedLibraryLoaderHelper Helper;
 
     // The secure library loader is available when you using Windows 8 and
     // later, or you have installed the KB2533623 when you using Windows Vista
