@@ -4,10 +4,6 @@
 
 ## 注：成爲 NSudo 的贊助者
 
-我是一個非計算機科班出身的軟件開發者，今年畢業後會在一家自動駕駛初創公司工作。
-由於未來的工作中涉及到的主要是 linux 平臺開發，而我現在的個人項目主要是爲 
-Windows 平臺而設計，所以我希望能通過他人的捐贈繼續維持自己維護個人工具的熱情。
-
 Patreon: [https://www.patreon.com/MouriNaruto](https://www.patreon.com/MouriNaruto)
 
 愛發電: [https://afdian.net/@MouriNaruto](https://afdian.net/@MouriNaruto)

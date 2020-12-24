@@ -4,11 +4,6 @@
 
 ## Note: Become the sponsor of NSudo
 
-I am a software developer who will work for a autonomous driving startup after 
-my graduate this year, which majorly developing under the Linux platform. But 
-my personal projects are the Windows specific, I am afraid I will lost my 
-passion for my personal projects without the donations.
-
 Patreon: [https://www.patreon.com/MouriNaruto](https://www.patreon.com/MouriNaruto)
 
 爱发电: [https://afdian.net/@MouriNaruto](https://afdian.net/@MouriNaruto)
