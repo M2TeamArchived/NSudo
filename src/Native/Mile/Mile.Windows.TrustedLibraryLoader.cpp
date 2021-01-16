@@ -16,24 +16,18 @@
 
 #include <MINT.h>
 
-namespace
+namespace Helper
 {
-    /**
-     * @brief Trusted Library Loader Helper
-    */
-    class TrustedLibraryLoaderHelper
+    static bool volatile g_IsTrustedLibraryLoaderInitialized = false;
+    static bool volatile g_IsSecureLibraryLoaderAvailable = false;
+    static FARPROC volatile g_LdrLoadDll = nullptr;
+    static FARPROC volatile g_RtlNtStatusToDosError = nullptr;
+    static FARPROC volatile g_RtlWow64EnableFsRedirectionEx = nullptr;
+    static FARPROC volatile g_RtlInitUnicodeString = nullptr;
+
+    static void InitializeTrustedLibraryLoader()
     {
-    private:
-
-        bool m_IsSecureLibraryLoaderAvailable = false;
-        FARPROC m_LdrLoadDll = nullptr;
-        FARPROC m_RtlNtStatusToDosError = nullptr;
-        FARPROC m_RtlWow64EnableFsRedirectionEx = nullptr;
-        FARPROC m_RtlInitUnicodeString = nullptr;
-
-    public:
-
-        TrustedLibraryLoaderHelper()
+        if (!g_IsTrustedLibraryLoaderInitialized)
         {
             // We should check the secure library loader by get the address of
             // some APIs existed when the secure library loader is available.
@@ -44,7 +38,7 @@ namespace
                 HMODULE hModule = ::GetModuleHandleW(L"kernel32.dll");
                 if (hModule)
                 {
-                    this->m_IsSecureLibraryLoaderAvailable = ::GetProcAddress(
+                    g_IsSecureLibraryLoaderAvailable = ::GetProcAddress(
                         hModule, "AddDllDirectory");
                 }
             }
@@ -53,97 +47,100 @@ namespace
                 HMODULE hModule = ::GetModuleHandleW(L"ntdll.dll");
                 if (hModule)
                 {
-                    this->m_LdrLoadDll = ::GetProcAddress(
+                    g_LdrLoadDll = ::GetProcAddress(
                         hModule, "LdrLoadDll");
-                    this->m_RtlNtStatusToDosError = ::GetProcAddress(
+                    g_RtlNtStatusToDosError = ::GetProcAddress(
                         hModule, "RtlNtStatusToDosError");
-                    this->m_RtlWow64EnableFsRedirectionEx = ::GetProcAddress(
+                    g_RtlWow64EnableFsRedirectionEx = ::GetProcAddress(
                         hModule, "RtlWow64EnableFsRedirectionEx");
-                    this->m_RtlInitUnicodeString = ::GetProcAddress(
+                    g_RtlInitUnicodeString = ::GetProcAddress(
                         hModule, "RtlInitUnicodeString");
                 }
             }
 
+            g_IsTrustedLibraryLoaderInitialized = true;
         }
+    }
 
-        ~TrustedLibraryLoaderHelper() = default;
+    static bool IsSecureLibraryLoaderAvailable()
+    {
+        return g_IsSecureLibraryLoaderAvailable;
+    }
 
-        bool IsSecureLibraryLoaderAvailable()
+    static NTSTATUS NTAPI LdrLoadDll(
+        _In_opt_ PWSTR DllPath,
+        _In_opt_ PULONG DllCharacteristics,
+        _In_ PUNICODE_STRING DllName,
+        _Out_ PVOID* DllHandle)
+    {
+        using ProcType = decltype(::LdrLoadDll)*;
+
+        ProcType ProcAddress = reinterpret_cast<ProcType>(
+            g_LdrLoadDll);
+
+        if (ProcAddress)
         {
-            return this->m_IsSecureLibraryLoaderAvailable;
+            return ProcAddress(
+                DllPath,
+                DllCharacteristics,
+                DllName,
+                DllHandle);
         }
 
-        NTSTATUS LdrLoadDll(
-            _In_opt_ PWSTR DllPath,
-            _In_opt_ PULONG DllCharacteristics,
-            _In_ PUNICODE_STRING DllName,
-            _Out_ PVOID* DllHandle)
+        return STATUS_NOT_IMPLEMENTED;
+    }
+
+    static ULONG NTAPI RtlNtStatusToDosError(
+        _In_ NTSTATUS Status)
+    {
+        using ProcType = decltype(::RtlNtStatusToDosError)*;
+
+        ProcType ProcAddress = reinterpret_cast<ProcType>(
+            g_RtlNtStatusToDosError);
+
+        if (ProcAddress)
         {
-            decltype(::LdrLoadDll)* ProcAddress =
-                reinterpret_cast<decltype(::LdrLoadDll)*>(
-                    this->m_LdrLoadDll);
-
-            if (ProcAddress)
-            {
-                return ProcAddress(
-                    DllPath,
-                    DllCharacteristics,
-                    DllName,
-                    DllHandle);
-            }
-
-            return STATUS_NOT_IMPLEMENTED;
+            return ProcAddress(Status);
         }
 
-        ULONG RtlNtStatusToDosError(
-            _In_ NTSTATUS Status)
+        return ERROR_PROC_NOT_FOUND;
+    }
+
+    static NTSTATUS NTAPI RtlWow64EnableFsRedirectionEx(
+        _In_ PVOID Wow64FsEnableRedirection,
+        _Out_ PVOID* OldFsRedirectionLevel)
+    {
+        using ProcType = decltype(::RtlWow64EnableFsRedirectionEx)*;
+
+        ProcType ProcAddress = reinterpret_cast<ProcType>(
+            g_RtlWow64EnableFsRedirectionEx);
+
+        if (ProcAddress)
         {
-            decltype(::RtlNtStatusToDosError)* ProcAddress =
-                reinterpret_cast<decltype(::RtlNtStatusToDosError)*>(
-                    this->m_RtlNtStatusToDosError);
-
-            if (ProcAddress)
-            {
-                return ProcAddress(Status);
-            }
-
-            return ERROR_PROC_NOT_FOUND;
+            return ProcAddress(
+                Wow64FsEnableRedirection,
+                OldFsRedirectionLevel);
         }
 
-        NTSTATUS RtlWow64EnableFsRedirectionEx(
-            _In_ PVOID Wow64FsEnableRedirection,
-            _Out_ PVOID* OldFsRedirectionLevel)
+        return STATUS_NOT_IMPLEMENTED;
+    }
+
+    static void NTAPI RtlInitUnicodeString(
+        _Out_ PUNICODE_STRING DestinationString,
+        _In_opt_ PCWSTR SourceString)
+    {
+        using ProcType = decltype(::RtlInitUnicodeString)*;
+
+        ProcType ProcAddress = reinterpret_cast<ProcType>(
+            g_RtlInitUnicodeString);
+
+        if (ProcAddress)
         {
-            decltype(::RtlWow64EnableFsRedirectionEx)* ProcAddress =
-                reinterpret_cast<decltype(::RtlWow64EnableFsRedirectionEx)*>(
-                    this->m_RtlWow64EnableFsRedirectionEx);
-
-            if (ProcAddress)
-            {
-                return ProcAddress(
-                    Wow64FsEnableRedirection,
-                    OldFsRedirectionLevel);
-            }
-
-            return STATUS_NOT_IMPLEMENTED;
+            ProcAddress(
+                DestinationString,
+                SourceString);
         }
-
-        void RtlInitUnicodeString(
-            _Out_ PUNICODE_STRING DestinationString,
-            _In_opt_ PCWSTR SourceString)
-        {
-            decltype(::RtlInitUnicodeString)* ProcAddress =
-                reinterpret_cast<decltype(::RtlInitUnicodeString)*>(
-                    this->m_RtlInitUnicodeString);
-
-            if (ProcAddress)
-            {
-                ProcAddress(
-                    DestinationString,
-                    SourceString);
-            }
-        }
-    };
+    }
 }
 
 /**
@@ -153,22 +150,12 @@ namespace
 EXTERN_C HMODULE WINAPI MileLoadLibraryFromSystem32(
     _In_ LPCWSTR lpLibFileName)
 {
-    // Use static variable to reduce the initialization times.
-    // We need a compiler which supports C++11.
-    // Reference: https://en.cppreference.com/w/cpp/language/storage_duration
-    // If multiple threads attempt to initialize the same static local variable
-    // concurrently, the initialization occurs exactly once (similar behavior
-    // can be obtained for arbitrary functions with std::call_once).
-    // Note: usual implementations of this feature use variants of the
-    // double-checked locking pattern, which reduces runtime overhead for
-    // already-initialized local statics to a single non-atomic boolean
-    // comparison.
-    static TrustedLibraryLoaderHelper Helper;
+    Helper::InitializeTrustedLibraryLoader();
 
     // The secure library loader is available when you using Windows 8 and
     // later, or you have installed the KB2533623 when you using Windows Vista
     // and 7.
-    if (Helper.IsSecureLibraryLoaderAvailable())
+    if (Helper::IsSecureLibraryLoaderAvailable())
     {
         return ::LoadLibraryExW(
             lpLibFileName,
@@ -181,7 +168,7 @@ EXTERN_C HMODULE WINAPI MileLoadLibraryFromSystem32(
     // It's vulnerable if someone put the malicious library under the native
     // system directory.
     PVOID OldRedirectionLevel = nullptr;
-    NTSTATUS RedirectionStatus = Helper.RtlWow64EnableFsRedirectionEx(
+    NTSTATUS RedirectionStatus = Helper::RtlWow64EnableFsRedirectionEx(
         nullptr,
         &OldRedirectionLevel);
 
@@ -196,23 +183,23 @@ EXTERN_C HMODULE WINAPI MileLoadLibraryFromSystem32(
     }
 
     UNICODE_STRING ModuleFileName;
-    Helper.RtlInitUnicodeString(&ModuleFileName, lpLibFileName);
+    Helper::RtlInitUnicodeString(&ModuleFileName, lpLibFileName);
 
     HMODULE ModuleHandle = nullptr;
-    NTSTATUS Status = Helper.LdrLoadDll(
+    NTSTATUS Status = Helper::LdrLoadDll(
         System32Directory,
         nullptr,
         &ModuleFileName,
         reinterpret_cast<PVOID*>(&ModuleHandle));
     if (!NT_SUCCESS(Status))
     {
-        ::SetLastError(Helper.RtlNtStatusToDosError(Status));
+        ::SetLastError(Helper::RtlNtStatusToDosError(Status));
     }
 
     // Restore the old status of the WoW64 redirection.
     if (NT_SUCCESS(RedirectionStatus))
     {
-        Helper.RtlWow64EnableFsRedirectionEx(
+        Helper::RtlWow64EnableFsRedirectionEx(
             OldRedirectionLevel,
             &OldRedirectionLevel);
     }
