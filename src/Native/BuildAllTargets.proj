@@ -3,29 +3,32 @@
   DefaultTargets="Build" 
   ToolsVersion="4.0" 
   xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <SolutionPath>$(MSBuildThisFileDirectory)NSudo.sln</SolutionPath>
+  </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="$(MSBuildThisFileDirectory)NSudo.sln">
+    <ProjectReference Include="$(SolutionPath)">
       <AdditionalProperties>Configuration=Debug;Platform=x86</AdditionalProperties>   
     </ProjectReference>
-    <ProjectReference Include="$(MSBuildThisFileDirectory)NSudo.sln">
+    <ProjectReference Include="$(SolutionPath)">
       <AdditionalProperties>Configuration=Release;Platform=x86</AdditionalProperties>   
     </ProjectReference>
-    <ProjectReference Include="$(MSBuildThisFileDirectory)NSudo.sln">
+    <ProjectReference Include="$(SolutionPath)">
       <AdditionalProperties>Configuration=Debug;Platform=x64</AdditionalProperties>   
     </ProjectReference>
-    <ProjectReference Include="$(MSBuildThisFileDirectory)NSudo.sln">
+    <ProjectReference Include="$(SolutionPath)">
       <AdditionalProperties>Configuration=Release;Platform=x64</AdditionalProperties>   
     </ProjectReference>
-    <ProjectReference Include="$(MSBuildThisFileDirectory)NSudo.sln">
+    <ProjectReference Include="$(SolutionPath)">
       <AdditionalProperties>Configuration=Debug;Platform=ARM</AdditionalProperties>   
     </ProjectReference>
-    <ProjectReference Include="$(MSBuildThisFileDirectory)NSudo.sln">
+    <ProjectReference Include="$(SolutionPath)">
       <AdditionalProperties>Configuration=Release;Platform=ARM</AdditionalProperties>   
     </ProjectReference>
-    <ProjectReference Include="$(MSBuildThisFileDirectory)NSudo.sln">
+    <ProjectReference Include="$(SolutionPath)">
       <AdditionalProperties>Configuration=Debug;Platform=ARM64</AdditionalProperties>   
     </ProjectReference>
-    <ProjectReference Include="$(MSBuildThisFileDirectory)NSudo.sln">
+    <ProjectReference Include="$(SolutionPath)">
       <AdditionalProperties>Configuration=Release;Platform=ARM64</AdditionalProperties>   
     </ProjectReference>
   </ItemGroup>
