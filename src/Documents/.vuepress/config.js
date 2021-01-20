@@ -1,8 +1,8 @@
-const { description } = require('../package')
-
 module.exports = {
   base: "/NSudo/",
   dest: "../../docs",
+  temp: ".temp",
+  cache: ".cache",
   locales: {
     '/en-us/': {
       lang: 'en-US',
