@@ -382,6 +382,37 @@ EXTERN_C HRESULT WINAPI NSudoCreateProcess(
             return hr;
         }
     }
+    else if (NSUDO_USER_MODE_TYPE::CURRENT_USER_ELEVATED == UserModeType)
+    {
+        HANDLE hCurrentProcessToken = nullptr;
+        hr = ::MileCreateSessionToken(SessionID, &hCurrentProcessToken);
+        if (hr == S_OK)
+        {
+            TOKEN_LINKED_TOKEN LinkedToken = { 0 };
+            DWORD ReturnLength = 0;
+
+            hr = ::MileGetTokenInformation(
+                hCurrentProcessToken,
+                TokenLinkedToken,
+                &LinkedToken,
+                sizeof(TOKEN_LINKED_TOKEN),
+                &ReturnLength);
+            if (hr == S_OK)
+            {
+                hr = ::MileDuplicateToken(
+                    LinkedToken.LinkedToken,
+                    MAXIMUM_ALLOWED,
+                    nullptr,
+                    SecurityIdentification,
+                    TokenPrimary,
+                    &OriginalToken);
+
+                ::MileCloseHandle(LinkedToken.LinkedToken);
+            }
+
+            ::MileCloseHandle(hCurrentProcessToken);
+        }
+    }
     else
     {
         return E_INVALIDARG;
