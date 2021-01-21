@@ -1,4 +1,4 @@
-## 
+﻿## 
 ## PROJECT:   Mouri Internal Library Essentials
 ## FILE:      .gitignore
 ## PURPOSE:   The root .gitignore file for Mile.Project Project
@@ -299,8 +299,6 @@ FakesAssemblies/
 # Node.js Tools for Visual Studio
 .ntvs_analysis.dat
 node_modules/
-.temp
-.cache
 
 # Visual Studio 6 build log
 *.plg
