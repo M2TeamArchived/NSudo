@@ -1,5 +1,14 @@
 ﻿# Changelog
 
+**NSudo 8.1 (8.1.0)**
+
+- Add get the Current User (Elevated) support in NSudo Shared Library. (Advised
+  by xspeed1989.)
+- Fix the blocking bug when using NSudo under Windows Service context. (Thanks 
+  to xspeed1989.)
+- Improve the website. (Contributed by 青春永不落幕.) 
+- Improve several implementations.
+
 **NSudo 8.0 Update 1 (8.0.1)**
 
 - Update Italian translation. (Contributed by garf02.)

@@ -63,6 +63,7 @@
 - 老九
 - 龍魂
 - 芈员外
+- xspeed1989 ([https://github.com/xspeed1989](https://github.com/xspeed1989))
 - 鸢一雨音 ([https://github.com/TobiichiAmane](https://github.com/TobiichiAmane))
 - さくら
 
