@@ -10,6 +10,8 @@
 
 #include "NSudoAPI.h"
 
+#include <Mile.Windows.Core.h>
+
 #include <Mile.Platform.Windows.h>
 
 #include "Mile.Windows.h"
@@ -292,7 +294,7 @@ EXTERN_C HRESULT WINAPI NSudoCreateProcess(
     SessionID = TemporarilyGetActiveSessionID();
     if (SessionID == static_cast<DWORD>(-1))
     {
-        return ::MileHResultFromWin32(ERROR_NO_TOKEN);
+        return Mile::HResult::FromWin32(ERROR_NO_TOKEN);
     }
 
     hr = ::MileOpenLsassProcessToken(
