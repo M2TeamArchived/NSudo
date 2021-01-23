@@ -7,6 +7,9 @@
     </ClCompile>
     <ClCompile Include="Mile.Platform.cpp" />
     <ClCompile Include="Mile.Platform.Windows.cpp" />
+    <ClCompile Include="Mile.Windows.Core.cpp">
+      <Filter>Mile.Windows.Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Mile.Windows.h" />
@@ -15,6 +18,9 @@
     </ClInclude>
     <ClInclude Include="Mile.Platform.h" />
     <ClInclude Include="Mile.Platform.Windows.h" />
+    <ClInclude Include="Mile.Windows.Core.h">
+      <Filter>Mile.Windows.Core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Mile.props" />
@@ -22,6 +28,9 @@
   <ItemGroup>
     <Filter Include="Mile.Windows.TrustedLibraryLoader">
       <UniqueIdentifier>{18842d57-9f75-4cf4-8562-2fe1c4b5337c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Mile.Windows.Core">
+      <UniqueIdentifier>{4778386b-d269-4131-a6cf-e1d32f708e94}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

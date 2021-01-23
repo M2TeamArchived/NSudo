@@ -22,12 +22,14 @@
   <ItemGroup>
     <ClCompile Include="Mile.Platform.cpp" />
     <ClCompile Include="Mile.Platform.Windows.cpp" />
+    <ClCompile Include="Mile.Windows.Core.cpp" />
     <ClCompile Include="Mile.Windows.cpp" />
     <ClCompile Include="Mile.Windows.TrustedLibraryLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Mile.Platform.h" />
     <ClInclude Include="Mile.Platform.Windows.h" />
+    <ClInclude Include="Mile.Windows.Core.h" />
     <ClInclude Include="Mile.Windows.h" />
     <ClInclude Include="Mile.Windows.TrustedLibraryLoader.h" />
   </ItemGroup>
