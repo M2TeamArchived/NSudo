@@ -1,7 +1,7 @@
 ﻿/*
  * PROJECT:   Mouri Internal Library Essentials
  * FILE:      Mile.Windows.Core.cpp
- * PURPOSE:   Core Implementation for Windows
+ * PURPOSE:   Windows Core Implementation for Windows
  *
  * LICENSE:   The MIT License
  *

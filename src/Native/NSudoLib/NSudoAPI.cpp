@@ -12,8 +12,6 @@
 
 #include <Mile.Windows.Core.h>
 
-#include <Mile.Platform.Windows.h>
-
 #include "Mile.Windows.h"
 
 #include "M2.Base.h"

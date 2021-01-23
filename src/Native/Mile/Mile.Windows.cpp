@@ -16,8 +16,6 @@
 
 #include "Mile.Windows.Core.h"
 
-#include "Mile.Platform.Windows.h"
-
 #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
 #include <WtsApi32.h>
 #pragma comment(lib, "WtsApi32.lib")

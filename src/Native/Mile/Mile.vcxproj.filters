@@ -5,8 +5,6 @@
     <ClCompile Include="Mile.Windows.TrustedLibraryLoader.cpp">
       <Filter>Mile.Windows.TrustedLibraryLoader</Filter>
     </ClCompile>
-    <ClCompile Include="Mile.Platform.cpp" />
-    <ClCompile Include="Mile.Platform.Windows.cpp" />
     <ClCompile Include="Mile.Windows.Core.cpp">
       <Filter>Mile.Windows.Core</Filter>
     </ClCompile>
@@ -16,8 +14,6 @@
     <ClInclude Include="Mile.Windows.TrustedLibraryLoader.h">
       <Filter>Mile.Windows.TrustedLibraryLoader</Filter>
     </ClInclude>
-    <ClInclude Include="Mile.Platform.h" />
-    <ClInclude Include="Mile.Platform.Windows.h" />
     <ClInclude Include="Mile.Windows.Core.h">
       <Filter>Mile.Windows.Core</Filter>
     </ClInclude>
