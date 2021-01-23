@@ -263,6 +263,29 @@ namespace Mile
             return FromWin32(::GetLastError());
         }
 
+        /**
+         * @brief Initializes a new instance of the HResult object by the
+         *        calling thread's last-error code. 
+         * @param Result The Win32 BOOL value.
+         * @return A new instance of the HResult object.
+        */
+        static HResult FromLastError(
+            _In_ BOOL Result) noexcept
+        {
+            HResult hr = S_OK;
+
+            if (!Result)
+            {
+                hr = FromLastError();
+                if (hr == S_OK)
+                {
+                    hr = FromWin32(ERROR_FUNCTION_FAILED);
+                }
+            }
+
+            return hr;
+        }
+
     public:
 
         /**
@@ -303,6 +326,58 @@ namespace Mile
             }
 
             return Message;
+        }
+
+        /**
+         * @brief Test for success on HRESULT error code represented by the
+         *        HResult object.
+         * @return The test result.
+        */
+        bool IsSucceeded() const noexcept
+        {
+            return SUCCEEDED(this->Value);
+        }
+
+        /**
+         * @brief Test for failed on HRESULT error code represented by the
+         *        HResult object.
+         * @return The test result.
+        */
+        bool IsFailed() const noexcept
+        {
+            return FAILED(this->Value);
+        }
+
+        /**
+         * @brief Test for errors on HRESULT error code represented by the
+         *        HResult object.
+         * @return The test result.
+        */
+        bool IsError() const noexcept
+        {
+            return IS_ERROR(this->Value);
+        }
+
+        /**
+         * @brief Extracts the facility portion of HRESULT error code
+         *        represented by the HResult object.
+         * @return The facility portion value of HRESULT error code represented
+         *         by the HResult object.
+        */
+        DWORD GetFacility() const noexcept
+        {
+            return HRESULT_FACILITY(this->Value);
+        }
+
+        /**
+         * @brief Extracts the code portion of HRESULT error code represented
+         *        by the HResult object.
+         * @return The code portion value of HRESULT error code represented by
+         *         the HResult object.
+        */
+        DWORD GetCode() const noexcept
+        {
+            return HRESULT_CODE(this->Value);
         }
     };
 

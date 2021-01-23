@@ -34,32 +34,14 @@
 /**
  * @remark You can read the definition for this function in "Mile.Windows.h".
  */
-EXTERN_C HRESULT WINAPI MileGetLastErrorWithWin32BoolAsHResult(
-    _In_ BOOL Result)
-{
-    HRESULT hr = S_OK;
-
-    if (!Result)
-    {
-        hr = Mile::HResult::FromLastError();
-        if (hr == S_OK)
-        {
-            hr = Mile::HResult::FromWin32(ERROR_FUNCTION_FAILED);
-        }
-    }
-
-    return hr;
-}
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
 EXTERN_C HRESULT WINAPI MileAllocMemory(
     _In_ SIZE_T Size,
     _Out_ LPVOID* Block)
 {
     *Block = Mile::HeapMemory::Allocate(Size);
-    return *Block ? Mile::HResult(S_OK) : Mile::HResult::FromWin32(ERROR_NOT_ENOUGH_MEMORY);
+    return *Block
+        ? Mile::HResult(S_OK)
+        : Mile::HResult::FromWin32(ERROR_NOT_ENOUGH_MEMORY);
 }
 
 /**
@@ -71,7 +53,9 @@ EXTERN_C HRESULT WINAPI MileReAllocMemory(
     _Out_ LPVOID* NewBlock)
 {
     *NewBlock = Mile::HeapMemory::Reallocate(OldBlock, NewSize);
-    return *NewBlock ? Mile::HResult(S_OK) : Mile::HResult::FromWin32(ERROR_NOT_ENOUGH_MEMORY);
+    return *NewBlock
+        ? Mile::HResult(S_OK)
+        : Mile::HResult::FromWin32(ERROR_NOT_ENOUGH_MEMORY);
 }
 
 /**
@@ -80,7 +64,7 @@ EXTERN_C HRESULT WINAPI MileReAllocMemory(
 EXTERN_C HRESULT WINAPI MileFreeMemory(
     _In_ LPVOID Block)
 {
-    return ::MileGetLastErrorWithWin32BoolAsHResult(
+    return Mile::HResult::FromLastError(
         Mile::HeapMemory::Free(Block));
 }
 
@@ -116,7 +100,7 @@ EXTERN_C HRESULT WINAPI MileGetTokenInformation(
     _In_ DWORD TokenInformationLength,
     _Out_ PDWORD ReturnLength)
 {
-    return ::MileGetLastErrorWithWin32BoolAsHResult(
+    return Mile::HResult::FromLastError(
         ::GetTokenInformation(
             TokenHandle,
             TokenInformationClass,
@@ -134,7 +118,7 @@ EXTERN_C HRESULT WINAPI MileSetTokenInformation(
     _In_ LPVOID TokenInformation,
     _In_ DWORD TokenInformationLength)
 {
-    return ::MileGetLastErrorWithWin32BoolAsHResult(
+    return Mile::HResult::FromLastError(
         ::SetTokenInformation(
             TokenHandle,
             TokenInformationClass,
@@ -253,7 +237,7 @@ EXTERN_C HRESULT WINAPI MileGetPrivilegeValue(
     _In_ LPCWSTR Name,
     _Out_ PLUID Value)
 {
-    return ::MileGetLastErrorWithWin32BoolAsHResult(
+    return Mile::HResult::FromLastError(
         ::LookupPrivilegeValueW(nullptr, Name, Value));
 }
 
@@ -265,7 +249,7 @@ EXTERN_C HRESULT WINAPI MileGetPrivilegeValue(
 EXTERN_C HRESULT WINAPI MileCloseServiceHandle(
     _In_ SC_HANDLE hSCObject)
 {
-    return ::MileGetLastErrorWithWin32BoolAsHResult(
+    return Mile::HResult::FromLastError(
         ::CloseServiceHandle(hSCObject));
 }
 
@@ -290,7 +274,7 @@ EXTERN_C HRESULT WINAPI MileOpenSCManager(
         *phSCManager = hSCManager;
     }
 
-    return ::MileGetLastErrorWithWin32BoolAsHResult(
+    return Mile::HResult::FromLastError(
         hSCManager != nullptr);
 }
 
@@ -315,7 +299,7 @@ EXTERN_C HRESULT WINAPI MileOpenService(
         *phService = hService;    
     }
 
-    return ::MileGetLastErrorWithWin32BoolAsHResult(
+    return Mile::HResult::FromLastError(
         hService != nullptr);
 }
 
@@ -333,7 +317,7 @@ EXTERN_C HRESULT WINAPI MileQueryServiceStatus(
     _In_ DWORD cbBufSize,
     _Out_ LPDWORD pcbBytesNeeded)
 {
-    return ::MileGetLastErrorWithWin32BoolAsHResult(
+    return Mile::HResult::FromLastError(
         ::QueryServiceStatusEx(
             hService, InfoLevel, lpBuffer, cbBufSize, pcbBytesNeeded));
 }
@@ -350,7 +334,7 @@ EXTERN_C HRESULT WINAPI MileStartService(
     _In_ DWORD dwNumServiceArgs,
     _In_ LPCWSTR* lpServiceArgVectors)
 {
-    return ::MileGetLastErrorWithWin32BoolAsHResult(
+    return Mile::HResult::FromLastError(
         ::StartServiceW(hService, dwNumServiceArgs, lpServiceArgVectors));
 }
 
@@ -503,7 +487,7 @@ EXTERN_C ULONGLONG WINAPI MileGetTickCount()
 EXTERN_C HRESULT WINAPI MileCloseHandle(
     _In_ HANDLE hObject)
 {
-    return ::MileGetLastErrorWithWin32BoolAsHResult(
+    return Mile::HResult::FromLastError(
         ::CloseHandle(hObject));
 }
 
@@ -516,7 +500,7 @@ EXTERN_C HRESULT WINAPI MileCreateSessionToken(
     _In_ DWORD SessionId,
     _Out_ PHANDLE TokenHandle)
 {
-    return ::MileGetLastErrorWithWin32BoolAsHResult(
+    return Mile::HResult::FromLastError(
         ::WTSQueryUserToken(SessionId, TokenHandle));
 }
 
@@ -538,7 +522,7 @@ EXTERN_C HRESULT WINAPI MileCreateRestrictedToken(
     _In_opt_ PSID_AND_ATTRIBUTES SidsToRestrict,
     _Out_ PHANDLE NewTokenHandle)
 {
-    return ::MileGetLastErrorWithWin32BoolAsHResult(
+    return Mile::HResult::FromLastError(
         ::CreateRestrictedToken(
             ExistingTokenHandle,
             Flags,
@@ -582,7 +566,7 @@ EXTERN_C HRESULT WINAPI MileGetLsassProcessId(
         PWTS_PROCESS_INFOW pProcesses = nullptr;
         DWORD dwProcessCount = 0;
 
-        hr = ::MileGetLastErrorWithWin32BoolAsHResult(
+        hr = Mile::HResult::FromLastError(
             ::WTSEnumerateProcessesW(
                 WTS_CURRENT_SERVER_HANDLE,
                 0,
@@ -643,7 +627,7 @@ EXTERN_C HRESULT WINAPI MileAllocateAndInitializeSid(
     _In_ DWORD nSubAuthority7,
     _Outptr_ PSID* pSid)
 {
-    return ::MileGetLastErrorWithWin32BoolAsHResult(
+    return Mile::HResult::FromLastError(
         ::AllocateAndInitializeSid(
             pIdentifierAuthority,
             nSubAuthorityCount,
@@ -673,7 +657,7 @@ EXTERN_C PVOID WINAPI MileFreeSid(
 EXTERN_C HRESULT WINAPI MileSetCurrentThreadToken(
     _In_opt_ HANDLE TokenHandle)
 {
-    return ::MileGetLastErrorWithWin32BoolAsHResult(
+    return Mile::HResult::FromLastError(
         ::SetThreadToken(nullptr, TokenHandle));
 }
 
@@ -688,7 +672,7 @@ EXTERN_C HRESULT WINAPI MileDuplicateToken(
     _In_ TOKEN_TYPE TokenType,
     _Out_ PHANDLE NewTokenHandle)
 {
-    return ::MileGetLastErrorWithWin32BoolAsHResult(
+    return Mile::HResult::FromLastError(
         ::DuplicateTokenEx(
             ExistingTokenHandle,
             DesiredAccess,
@@ -715,7 +699,7 @@ EXTERN_C HRESULT WINAPI MileOpenProcess(
         *ProcessHandle = RawProcessHandle;
     }
 
-    return ::MileGetLastErrorWithWin32BoolAsHResult(
+    return Mile::HResult::FromLastError(
         RawProcessHandle != nullptr);
 }
 
@@ -744,7 +728,7 @@ EXTERN_C HRESULT WINAPI MileOpenThread(
         *ThreadHandle = RawThreadHandle;    
     }
 
-    return ::MileGetLastErrorWithWin32BoolAsHResult(
+    return Mile::HResult::FromLastError(
         RawThreadHandle != nullptr);
 }
 
@@ -764,7 +748,7 @@ EXTERN_C HRESULT WINAPI MileOpenProcessToken(
     _In_ DWORD DesiredAccess,
     _Out_ PHANDLE TokenHandle)
 {
-    return ::MileGetLastErrorWithWin32BoolAsHResult(
+    return Mile::HResult::FromLastError(
         ::OpenProcessToken(ProcessHandle, DesiredAccess, TokenHandle));
 }
 
@@ -777,7 +761,7 @@ EXTERN_C HRESULT WINAPI MileOpenThreadToken(
     _In_ BOOL OpenAsSelf,
     _Out_ PHANDLE TokenHandle)
 {
-    return ::MileGetLastErrorWithWin32BoolAsHResult(
+    return Mile::HResult::FromLastError(
         ::OpenThreadToken(
             ThreadHandle,
             DesiredAccess,
@@ -792,7 +776,7 @@ EXTERN_C HRESULT WINAPI MileSetPriorityClass(
     _In_ HANDLE hProcess,
     _In_ DWORD dwPriorityClass)
 {
-    return ::MileGetLastErrorWithWin32BoolAsHResult(
+    return Mile::HResult::FromLastError(
         ::SetPriorityClass(hProcess, dwPriorityClass));
 }
 
@@ -850,7 +834,7 @@ EXTERN_C HRESULT WINAPI MileInitializeAcl(
     _In_ DWORD nAclLength,
     _In_ DWORD dwAclRevision)
 {
-    return ::MileGetLastErrorWithWin32BoolAsHResult(
+    return Mile::HResult::FromLastError(
         ::InitializeAcl(pAcl, nAclLength, dwAclRevision));
 }
 
@@ -863,7 +847,7 @@ EXTERN_C HRESULT WINAPI MileAddAccessAllowedAce(
     _In_ DWORD AccessMask,
     _In_ PSID pSid)
 {
-    return ::MileGetLastErrorWithWin32BoolAsHResult(
+    return Mile::HResult::FromLastError(
         ::AddAccessAllowedAce(pAcl, dwAceRevision, AccessMask, pSid));
 }
 
@@ -875,7 +859,7 @@ EXTERN_C HRESULT WINAPI MileGetAce(
     _In_ DWORD dwAceIndex,
     _Out_ LPVOID* pAce)
 {
-    return ::MileGetLastErrorWithWin32BoolAsHResult(
+    return Mile::HResult::FromLastError(
         ::GetAce(pAcl, dwAceIndex, pAce));
 }
 
@@ -889,7 +873,7 @@ EXTERN_C HRESULT WINAPI MileAddAce(
     _In_ LPVOID pAceList,
     _In_ DWORD nAceListLength)
 {
-    return ::MileGetLastErrorWithWin32BoolAsHResult(
+    return Mile::HResult::FromLastError(
         ::AddAce(
             pAcl,
             dwAceRevision,
@@ -1249,7 +1233,7 @@ EXTERN_C HRESULT WINAPI MileExpandEnvironmentStrings(
         *pReturnSize = ReturnSize;
     }
 
-    return ::MileGetLastErrorWithWin32BoolAsHResult(ReturnSize);
+    return Mile::HResult::FromLastError(ReturnSize);
 }
 
 /**
@@ -1320,7 +1304,7 @@ EXTERN_C HRESULT WINAPI MileCreateProcessAsUser(
     _In_ LPSTARTUPINFOW lpStartupInfo,
     _Out_ LPPROCESS_INFORMATION lpProcessInformation)
 {
-    return ::MileGetLastErrorWithWin32BoolAsHResult(
+    return Mile::HResult::FromLastError(
         ::CreateProcessAsUserW(
             hToken,
             lpApplicationName,
@@ -1347,7 +1331,7 @@ EXTERN_C HRESULT WINAPI MileCreateEnvironmentBlock(
     _In_opt_ HANDLE hToken,
     _In_ BOOL bInherit)
 {
-    return ::MileGetLastErrorWithWin32BoolAsHResult(
+    return Mile::HResult::FromLastError(
         ::CreateEnvironmentBlock(lpEnvironment, hToken, bInherit));
 }
 
@@ -1361,7 +1345,7 @@ EXTERN_C HRESULT WINAPI MileCreateEnvironmentBlock(
 EXTERN_C HRESULT WINAPI MileDestroyEnvironmentBlock(
     _In_ LPVOID lpEnvironment)
 {
-    return ::MileGetLastErrorWithWin32BoolAsHResult(
+    return Mile::HResult::FromLastError(
         ::DestroyEnvironmentBlock(lpEnvironment));
 }
 
@@ -1381,7 +1365,7 @@ EXTERN_C HRESULT WINAPI MileSuspendThread(
         *PreviousSuspendCount = PreviousCount;
     }
 
-    return ::MileGetLastErrorWithWin32BoolAsHResult(
+    return Mile::HResult::FromLastError(
         PreviousCount != static_cast<DWORD>(-1));
 }
 
@@ -1399,7 +1383,7 @@ EXTERN_C HRESULT WINAPI MileResumeThread(
         *PreviousSuspendCount = PreviousCount;
     }
 
-    return ::MileGetLastErrorWithWin32BoolAsHResult(
+    return Mile::HResult::FromLastError(
         PreviousCount != static_cast<DWORD>(-1));
 }
 
@@ -1422,7 +1406,7 @@ EXTERN_C HRESULT WINAPI MileWaitForSingleObject(
         *pdwReturn = dwReturn;
     }
 
-    return ::MileGetLastErrorWithWin32BoolAsHResult(
+    return Mile::HResult::FromLastError(
         dwReturn != WAIT_FAILED);
 }
 
@@ -1458,7 +1442,7 @@ EXTERN_C HRESULT WINAPI MileCreateThread(
         *lpThreadHandle = ThreadHandle;
     }
 
-    return ::MileGetLastErrorWithWin32BoolAsHResult(
+    return Mile::HResult::FromLastError(
         ThreadHandle != nullptr);
 }
 
@@ -1572,7 +1556,7 @@ EXTERN_C HRESULT WINAPI MileGetFileInformation(
     _Out_ LPVOID lpFileInformation,
     _In_  DWORD dwBufferSize)
 {
-    return ::MileGetLastErrorWithWin32BoolAsHResult(
+    return Mile::HResult::FromLastError(
         ::GetFileInformationByHandleEx(
             hFile,
             FileInformationClass,
@@ -1589,7 +1573,7 @@ EXTERN_C HRESULT WINAPI MileSetFileInformation(
     _In_ LPVOID lpFileInformation,
     _In_ DWORD dwBufferSize)
 {
-    return ::MileGetLastErrorWithWin32BoolAsHResult(
+    return Mile::HResult::FromLastError(
         ::SetFileInformationByHandle(
             hFile,
             FileInformationClass,
@@ -1760,7 +1744,7 @@ EXTERN_C HRESULT WINAPI MileLoadLibrary(
         *phLibModule = hLibModule;
     }
 
-    return ::MileGetLastErrorWithWin32BoolAsHResult(
+    return Mile::HResult::FromLastError(
         hLibModule != nullptr);
 }
 
@@ -1772,7 +1756,7 @@ EXTERN_C HRESULT WINAPI MileLoadLibrary(
 EXTERN_C HRESULT WINAPI MileFreeLibrary(
     _In_ HMODULE hLibModule)
 {
-    return ::MileGetLastErrorWithWin32BoolAsHResult(
+    return Mile::HResult::FromLastError(
         ::FreeLibrary(hLibModule));
 }
 
@@ -1791,7 +1775,7 @@ EXTERN_C HRESULT WINAPI MileGetProcAddress(
         *lpProcAddress = ProcAddress;
     }
 
-    return ::MileGetLastErrorWithWin32BoolAsHResult(
+    return Mile::HResult::FromLastError(
         ProcAddress != nullptr);
 }
 
@@ -1824,7 +1808,7 @@ EXTERN_C HRESULT WINAPI MileCreateFile(
         *lpFileHandle = FileHandle;
     }
 
-    return ::MileGetLastErrorWithWin32BoolAsHResult(
+    return Mile::HResult::FromLastError(
         FileHandle != INVALID_HANDLE_VALUE);  
 }
 
@@ -2092,7 +2076,7 @@ EXTERN_C HRESULT WINAPI MileCreateFileMapping(
         *lpFileMappingHandle = FileMappingHandle;
     }
 
-    return ::MileGetLastErrorWithWin32BoolAsHResult(
+    return Mile::HResult::FromLastError(
         FileMappingHandle != nullptr);
 }
 
@@ -2123,7 +2107,7 @@ EXTERN_C HRESULT WINAPI MileMapViewOfFile(
         *lpBaseAddress = BaseAddress;
     }
 
-    return ::MileGetLastErrorWithWin32BoolAsHResult(
+    return Mile::HResult::FromLastError(
         BaseAddress != nullptr);
 }
 
@@ -2135,7 +2119,7 @@ EXTERN_C HRESULT WINAPI MileMapViewOfFile(
 EXTERN_C HRESULT WINAPI MileUnmapViewOfFile(
     _In_ LPCVOID lpBaseAddress)
 {
-    return ::MileGetLastErrorWithWin32BoolAsHResult(
+    return Mile::HResult::FromLastError(
         ::UnmapViewOfFile(lpBaseAddress));
 }
 
@@ -2149,7 +2133,7 @@ EXTERN_C HRESULT WINAPI MileReadFile(
     _Out_opt_ LPDWORD lpNumberOfBytesRead,
     _Inout_opt_ LPOVERLAPPED lpOverlapped)
 {
-    return ::MileGetLastErrorWithWin32BoolAsHResult(
+    return Mile::HResult::FromLastError(
         ::ReadFile(
             hFile,
             lpBuffer,
@@ -2168,7 +2152,7 @@ EXTERN_C HRESULT WINAPI MileWriteFile(
     _Out_opt_ LPDWORD lpNumberOfBytesWritten,
     _Inout_opt_ LPOVERLAPPED lpOverlapped)
 {
-    return ::MileGetLastErrorWithWin32BoolAsHResult(
+    return Mile::HResult::FromLastError(
         ::WriteFile(
             hFile,
             lpBuffer,
@@ -2200,7 +2184,7 @@ EXTERN_C HRESULT WINAPI MileReOpenFile(
         *lpFileHandle = FileHandle;
     }
 
-    return ::MileGetLastErrorWithWin32BoolAsHResult(
+    return Mile::HResult::FromLastError(
         FileHandle != INVALID_HANDLE_VALUE);
 }
 
@@ -2231,7 +2215,7 @@ EXTERN_C HRESULT WINAPI MileMultiByteToWideChar(
         *pcchReturnWideChar = cchReturnWideChar;
     }
 
-    return ::MileGetLastErrorWithWin32BoolAsHResult(
+    return Mile::HResult::FromLastError(
         cchReturnWideChar > 0);
 }
 
@@ -2264,7 +2248,7 @@ EXTERN_C HRESULT WINAPI MileWideCharToMultiByte(
         *pcchReturnMultiByte = cchReturnMultiByte;
     }
 
-    return ::MileGetLastErrorWithWin32BoolAsHResult(
+    return Mile::HResult::FromLastError(
         cchReturnMultiByte > 0);
 }
 
@@ -2283,7 +2267,7 @@ EXTERN_C HRESULT WINAPI MileGetSystemDirectory(
         *pReturnSize = ReturnSize;
     }
 
-    return ::MileGetLastErrorWithWin32BoolAsHResult(ReturnSize);
+    return Mile::HResult::FromLastError(ReturnSize);
 }
 
 #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
@@ -2303,7 +2287,7 @@ EXTERN_C HRESULT WINAPI MileGetWindowsDirectory(
         *pReturnSize = ReturnSize;
     }
 
-    return ::MileGetLastErrorWithWin32BoolAsHResult(ReturnSize);
+    return Mile::HResult::FromLastError(ReturnSize);
 }
 
 #endif

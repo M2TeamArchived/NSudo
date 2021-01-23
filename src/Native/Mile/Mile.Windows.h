@@ -18,17 +18,6 @@
 #endif
 
 /**
- * Retrieves the calling thread's last-error code value with the evaluation of
- * thw Win32 BOOL value and maps it to an HRESULT value.
- *
- * @param Result The Win32 BOOL value.
- * @return The HRESULT value.
- * @remark For more information, see GetLastError.
- */
-EXTERN_C HRESULT WINAPI MileGetLastErrorWithWin32BoolAsHResult(
-    _In_ BOOL Result);
-
-/**
  * Allocates a block of memory from the default heap of the calling process.
  * The allocated memory will be initialized to zero. The allocated memory is
  * not movable.
