@@ -377,7 +377,7 @@ namespace Mile
     };
 
     /**
-     * @brief Provides automatic trying to lock and unlocking of a critical
+     * @brief Provides automatic trying to locking and unlocking of a critical
      *        section.
     */
     class AutoCriticalSectionTryLock
@@ -602,7 +602,183 @@ namespace Mile
             ReleaseShared(&this->m_RawObject);
         }
     };
-}
 
+    /**
+     * @brief Provides automatic exclusive locking and unlocking of a slim
+     *        reader/writer (SRW) lock.
+    */
+    class AutoSRWExclusiveLock
+    {
+    private:
+
+        /**
+         * @brief The slim reader/writer (SRW) lock object.
+        */
+        SRWLock& m_Object;
+
+    public:
+
+        /**
+         * @brief Exclusive lock the slim reader/writer (SRW) lock object.
+         * @param Object The slim reader/writer (SRW) lock object.
+        */
+        explicit AutoSRWExclusiveLock(
+            SRWLock& Object) noexcept :
+            m_Object(Object)
+        {
+            this->m_Object.LockExclusive();
+        }
+
+        /**
+         * @brief Exclusive unlock the slim reader/writer (SRW) lock object.
+        */
+        ~AutoSRWExclusiveLock() noexcept
+        {
+            this->m_Object.UnlockExclusive();
+        }
+    };
+
+    /**
+     * @brief Provides automatic trying to exclusive locking and unlocking of a
+     *        slim reader/writer (SRW) lock.
+    */
+    class AutoSRWExclusiveTryLock
+    {
+    private:
+
+        /**
+         * @brief The slim reader/writer (SRW) lock object.
+        */
+        SRWLock& m_Object;
+
+        /**
+         * @brief The lock status.
+        */
+        bool m_IsLocked;
+
+    public:
+
+        /**
+         * @brief Try to exclusive lock the slim reader/writer (SRW) lock
+         *        object.
+         * @param Object The slim reader/writer (SRW) lock object.
+        */
+        explicit AutoSRWExclusiveTryLock(
+            SRWLock& Object) noexcept :
+            m_Object(Object)
+        {
+            this->m_IsLocked = this->m_Object.TryLockExclusive();
+        }
+
+        /**
+         * @brief Try to exclusive unlock the slim reader/writer (SRW) lock
+         *        object.
+        */
+        ~AutoSRWExclusiveTryLock() noexcept
+        {
+            if (this->m_IsLocked)
+            {
+                this->m_Object.UnlockExclusive();
+            }
+        }
+
+        /**
+         * @brief Check the lock status.
+         * @return The lock status.
+        */
+        bool IsLocked() const
+        {
+            return this->m_IsLocked;
+        }
+    };
+
+    /**
+     * @brief Provides automatic shared locking and unlocking of a slim
+     *        reader/writer (SRW) lock.
+    */
+    class AutoSRWSharedLock
+    {
+    private:
+
+        /**
+         * @brief The slim reader/writer (SRW) lock object.
+        */
+        SRWLock& m_Object;
+
+    public:
+
+        /**
+         * @brief Shared lock the slim reader/writer (SRW) lock object.
+         * @param Object The slim reader/writer (SRW) lock object.
+        */
+        explicit AutoSRWSharedLock(
+            SRWLock& Object) noexcept :
+            m_Object(Object)
+        {
+            this->m_Object.LockShared();
+        }
+
+        /**
+         * @brief Shared unlock the slim reader/writer (SRW) lock object.
+        */
+        ~AutoSRWSharedLock() noexcept
+        {
+            this->m_Object.UnlockShared();
+        }
+    };
+
+    /**
+     * @brief Provides automatic trying to shared locking and unlocking of a
+     *        slim reader/writer (SRW) lock.
+    */
+    class AutoSRWSharedTryLock
+    {
+    private:
+
+        /**
+         * @brief The slim reader/writer (SRW) lock object.
+        */
+        SRWLock& m_Object;
+
+        /**
+         * @brief The lock status.
+        */
+        bool m_IsLocked;
+
+    public:
+
+        /**
+         * @brief Try to shared lock the slim reader/writer (SRW) lock object.
+         * @param Object The slim reader/writer (SRW) lock object.
+        */
+        explicit AutoSRWSharedTryLock(
+            SRWLock& Object) noexcept :
+            m_Object(Object)
+        {
+            this->m_IsLocked = this->m_Object.TryLockShared();
+        }
+
+        /**
+         * @brief Try to shared unlock the slim reader/writer (SRW) lock
+         *        object.
+        */
+        ~AutoSRWSharedTryLock() noexcept
+        {
+            if (this->m_IsLocked)
+            {
+                this->m_Object.UnlockShared();
+            }
+        }
+
+        /**
+         * @brief Check the lock status.
+         * @return The lock status.
+        */
+        bool IsLocked() const
+        {
+            return this->m_IsLocked;
+        }
+    };
+}
 
 #endif // !MILE_WINDOWS_CORE
