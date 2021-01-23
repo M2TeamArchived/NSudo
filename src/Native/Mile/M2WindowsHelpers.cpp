@@ -10,7 +10,7 @@
 
 #include "M2WindowsHelpers.h"
 
-#include <Mile.Windows.h>
+#include "Mile.Windows.h"
 
 #ifdef _M2_WINDOWS_HELPERS_
 

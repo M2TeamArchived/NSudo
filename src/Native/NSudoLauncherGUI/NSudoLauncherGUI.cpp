@@ -22,7 +22,7 @@
 #include "NSudoAPI.h"
 #include <Mile.Windows.h>
 
-#include "M2WindowsHelpers.h"
+#include <M2WindowsHelpers.h>
 #include "M2Win32GUIHelpers.h"
 
 #include <commctrl.h>

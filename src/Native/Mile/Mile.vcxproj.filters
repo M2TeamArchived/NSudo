@@ -8,6 +8,9 @@
     <ClCompile Include="Mile.Windows.Core.cpp">
       <Filter>Mile.Windows.Core</Filter>
     </ClCompile>
+    <ClCompile Include="M2WindowsHelpers.cpp">
+      <Filter>M2WindowsHelpers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Mile.Windows.h" />
@@ -16,6 +19,9 @@
     </ClInclude>
     <ClInclude Include="Mile.Windows.Core.h">
       <Filter>Mile.Windows.Core</Filter>
+    </ClInclude>
+    <ClInclude Include="M2WindowsHelpers.h">
+      <Filter>M2WindowsHelpers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -27,6 +33,9 @@
     </Filter>
     <Filter Include="Mile.Windows.Core">
       <UniqueIdentifier>{4778386b-d269-4131-a6cf-e1d32f708e94}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="M2WindowsHelpers">
+      <UniqueIdentifier>{06cf3d69-d95a-419c-b0e4-65ce555dd131}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

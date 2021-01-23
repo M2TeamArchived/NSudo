@@ -13,8 +13,8 @@
 #ifndef _M2_WINDOWS_EXTENDED_HELPERS_
 #define _M2_WINDOWS_EXTENDED_HELPERS_
 
-#include <Mile.Windows.Core.h>
-#include <Mile.Windows.h>
+#include "Mile.Windows.Core.h"
+#include "Mile.Windows.h"
 
 #include <utility>
 

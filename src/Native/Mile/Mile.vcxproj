@@ -20,11 +20,13 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="M2WindowsHelpers.cpp" />
     <ClCompile Include="Mile.Windows.Core.cpp" />
     <ClCompile Include="Mile.Windows.cpp" />
     <ClCompile Include="Mile.Windows.TrustedLibraryLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="M2WindowsHelpers.h" />
     <ClInclude Include="Mile.Windows.Core.h" />
     <ClInclude Include="Mile.Windows.h" />
     <ClInclude Include="Mile.Windows.TrustedLibraryLoader.h" />

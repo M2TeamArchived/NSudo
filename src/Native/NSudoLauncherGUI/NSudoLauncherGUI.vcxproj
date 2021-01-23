@@ -27,7 +27,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="M2Win32GUIHelpers.cpp" />
-    <ClCompile Include="M2WindowsHelpers.cpp" />
     <ClCompile Include="NSudoLauncherGUI.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -37,7 +36,6 @@
     <ClInclude Include="jsmn.h" />
     <ClInclude Include="M2MessageDialogResource.h" />
     <ClInclude Include="M2Win32GUIHelpers.h" />
-    <ClInclude Include="M2WindowsHelpers.h" />
     <ClInclude Include="Mile.Project.Properties.h" />
     <ClInclude Include="Resources\resource.h" />
   </ItemGroup>
