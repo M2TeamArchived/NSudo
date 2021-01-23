@@ -56,6 +56,161 @@ namespace Mile
     };
 
     /**
+     * @brief The template for defining the unique objects.
+     * @tparam TraitsType A traits type that specifies the kind of unique
+     *                    object being represented.
+    */
+    template <typename TraitsType>
+    class UniqueObject : DisableCopyConstruction
+    {
+    public:
+
+        /**
+         * @brief The object type alias of the unique object.
+        */
+        using ObjectType = typename TraitsType::Type;
+
+    private:
+
+        /**
+         * @brief The raw value of the unique object.
+        */
+        ObjectType m_Value = TraitsType::Invalid();
+
+    public:
+
+        /**
+         * @brief Closes the underlying unique object.
+        */
+        void Close() noexcept
+        {
+            if (*this)
+            {
+                TraitsType::Close(this->m_Value);
+                this->m_Value = TraitsType::Invalid();
+            }
+        }
+
+        /**
+         * @brief Returns the underlying unique object value, should you need
+         *        to pass it to a function.
+         * @return The underlying unique object value represented by the unique
+         *         object.
+        */
+        ObjectType Get() const noexcept
+        {
+            return this->m_Value;
+        }
+
+        /**
+         * @brief Returns the address of the unique object value; this function
+         *        helps you call methods that return references as out
+         *        parameters via a pointer to a unique object.
+         * @return The address of the underlying unique object value
+         *         represented by the unique object.
+        */
+        ObjectType* Put() noexcept
+        {
+            return &this->m_Value;
+        }
+
+        /**
+         * @brief Attaches to a unique object value, and takes ownership of it.
+         * @param Value A unique object value to attach to.
+        */
+        void Attach(ObjectType Value) noexcept
+        {
+            this->Close();
+            *this->Put() = Value;
+        }
+
+        /**
+         * @brief Detaches from the underlying unique object value.
+         * @return The underlying unique object value formerly represented by
+         *         the unique object.
+        */
+        ObjectType Detach() noexcept
+        {
+            ObjectType Value = this->m_Value;
+            this->m_Value = TraitsType::Invalid();
+            return Value;
+        }
+
+    public:
+
+        /**
+         * @brief Initializes a new instance of the unique object.
+        */
+        UniqueObject() noexcept = default;
+
+        /**
+         * @brief Initializes a new instance of the unique object.
+         * @param Value A value that initializes the unique object.
+        */
+        explicit UniqueObject(ObjectType Value) noexcept :
+            m_Value(Value)
+        {
+        }
+
+        /**
+         * @brief Initializes a new instance of the unique object.
+         * @param Other Another unique object that initializes the unique
+         *        object.
+        */
+        UniqueObject(UniqueObject&& Other) noexcept :
+            m_Value(Other.Detach())
+        {
+        }
+
+        /**
+         * @brief Assigns a value to the unique object.
+         * @param Other A unique object value to assign to the unique object.
+         * @return A reference to the unique object.
+        */
+        UniqueObject& operator=(UniqueObject&& Other) noexcept
+        {
+            if (this != &Other)
+            {
+                this->Attach(Other.Detach());
+            }
+
+            return *this;
+        }
+
+        /**
+         * @brief Uninitializes the instance of the unique object.
+        */
+        ~UniqueObject() noexcept
+        {
+            this->Close();
+        }
+
+        /**
+         * @brief Checks whether or not the unique object currently represents
+         *        a valid unique object value.
+         * @return true if the unique object currently represents a valid
+         *         unique object value, otherwise false.
+        */
+        explicit operator bool() const noexcept
+        {
+            return TraitsType::Invalid() != this->m_Value;
+        }
+
+        /**
+         * @brief Swaps the contents of the two unique object parameters so
+         *        that they contain one another's unique object.
+         * @param Left A unique object value whose handle to mutually swap with
+         *             that of the other parameter.
+         * @param Right A unique object value whose handle to mutually swap
+         *              with that of the other parameter.
+        */
+        friend void swap(UniqueObject& Left, UniqueObject& Right) noexcept
+        {
+            std::swap(Left.m_Value, Right.m_Value);
+        }
+    };
+
+    /**
      * @brief A type representing an HRESULT error code.
     */
     class HResult

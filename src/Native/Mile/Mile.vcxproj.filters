@@ -11,6 +11,9 @@
     <ClCompile Include="M2WindowsHelpers.cpp">
       <Filter>M2WindowsHelpers</Filter>
     </ClCompile>
+    <ClCompile Include="Mile.Windows.Storage.cpp">
+      <Filter>Mile.Windows.Storage</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Mile.Windows.h" />
@@ -23,9 +26,13 @@
     <ClInclude Include="M2WindowsHelpers.h">
       <Filter>M2WindowsHelpers</Filter>
     </ClInclude>
+    <ClInclude Include="Mile.Windows.Storage.h">
+      <Filter>Mile.Windows.Storage</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Mile.props" />
+    <None Include="MCC.cppold" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Mile.Windows.TrustedLibraryLoader">
@@ -36,6 +43,9 @@
     </Filter>
     <Filter Include="M2WindowsHelpers">
       <UniqueIdentifier>{06cf3d69-d95a-419c-b0e4-65ce555dd131}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Mile.Windows.Storage">
+      <UniqueIdentifier>{605a6a57-7c3e-4d9a-b18c-8cff565f4756}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
