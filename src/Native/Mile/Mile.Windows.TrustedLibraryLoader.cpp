@@ -16,7 +16,7 @@
 
 #include <MINT.h>
 
-namespace Helper
+namespace
 {
     static bool volatile g_IsTrustedLibraryLoaderInitialized = false;
     static bool volatile g_IsSecureLibraryLoaderAvailable = false;
@@ -67,7 +67,7 @@ namespace Helper
         return g_IsSecureLibraryLoaderAvailable;
     }
 
-    static NTSTATUS NTAPI LdrLoadDll(
+    static NTSTATUS NTAPI LdrLoadDllWrapper(
         _In_opt_ PWSTR DllPath,
         _In_opt_ PULONG DllCharacteristics,
         _In_ PUNICODE_STRING DllName,
@@ -90,7 +90,7 @@ namespace Helper
         return STATUS_NOT_IMPLEMENTED;
     }
 
-    static ULONG NTAPI RtlNtStatusToDosError(
+    static ULONG NTAPI RtlNtStatusToDosErrorWrapper(
         _In_ NTSTATUS Status)
     {
         using ProcType = decltype(::RtlNtStatusToDosError)*;
@@ -106,7 +106,7 @@ namespace Helper
         return ERROR_PROC_NOT_FOUND;
     }
 
-    static NTSTATUS NTAPI RtlWow64EnableFsRedirectionEx(
+    static NTSTATUS NTAPI RtlWow64EnableFsRedirectionExWrapper(
         _In_ PVOID Wow64FsEnableRedirection,
         _Out_ PVOID* OldFsRedirectionLevel)
     {
@@ -125,7 +125,7 @@ namespace Helper
         return STATUS_NOT_IMPLEMENTED;
     }
 
-    static void NTAPI RtlInitUnicodeString(
+    static void NTAPI RtlInitUnicodeStringWrapper(
         _Out_ PUNICODE_STRING DestinationString,
         _In_opt_ PCWSTR SourceString)
     {
@@ -150,12 +150,12 @@ namespace Helper
 EXTERN_C HMODULE WINAPI MileLoadLibraryFromSystem32(
     _In_ LPCWSTR lpLibFileName)
 {
-    Helper::InitializeTrustedLibraryLoader();
+    ::InitializeTrustedLibraryLoader();
 
     // The secure library loader is available when you using Windows 8 and
     // later, or you have installed the KB2533623 when you using Windows Vista
     // and 7.
-    if (Helper::IsSecureLibraryLoaderAvailable())
+    if (::IsSecureLibraryLoaderAvailable())
     {
         return ::LoadLibraryExW(
             lpLibFileName,
@@ -168,7 +168,7 @@ EXTERN_C HMODULE WINAPI MileLoadLibraryFromSystem32(
     // It's vulnerable if someone put the malicious library under the native
     // system directory.
     PVOID OldRedirectionLevel = nullptr;
-    NTSTATUS RedirectionStatus = Helper::RtlWow64EnableFsRedirectionEx(
+    NTSTATUS RedirectionStatus = ::RtlWow64EnableFsRedirectionExWrapper(
         nullptr,
         &OldRedirectionLevel);
 
@@ -183,23 +183,23 @@ EXTERN_C HMODULE WINAPI MileLoadLibraryFromSystem32(
     }
 
     UNICODE_STRING ModuleFileName;
-    Helper::RtlInitUnicodeString(&ModuleFileName, lpLibFileName);
+    ::RtlInitUnicodeStringWrapper(&ModuleFileName, lpLibFileName);
 
     HMODULE ModuleHandle = nullptr;
-    NTSTATUS Status = Helper::LdrLoadDll(
+    NTSTATUS Status = ::LdrLoadDllWrapper(
         System32Directory,
         nullptr,
         &ModuleFileName,
         reinterpret_cast<PVOID*>(&ModuleHandle));
     if (!NT_SUCCESS(Status))
     {
-        ::SetLastError(Helper::RtlNtStatusToDosError(Status));
+        ::SetLastError(::RtlNtStatusToDosErrorWrapper(Status));
     }
 
     // Restore the old status of the WoW64 redirection.
     if (NT_SUCCESS(RedirectionStatus))
     {
-        Helper::RtlWow64EnableFsRedirectionEx(
+        ::RtlWow64EnableFsRedirectionExWrapper(
             OldRedirectionLevel,
             &OldRedirectionLevel);
     }
