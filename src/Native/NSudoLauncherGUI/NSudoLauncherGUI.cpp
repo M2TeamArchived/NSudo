@@ -1203,6 +1203,23 @@ int WINAPI wWinMain(
     UNREFERENCED_PARAMETER(lpCmdLine);
     UNREFERENCED_PARAMETER(nShowCmd);
 
+    /*HRESULT hr = NSudoCreateProcess(
+        NSUDO_USER_MODE_TYPE::CURRENT_USER_ELEVATED,
+        NSUDO_PRIVILEGES_MODE_TYPE::DEFAULT,
+        NSUDO_MANDATORY_LABEL_TYPE::MEDIUM,
+        NSUDO_PROCESS_PRIORITY_CLASS_TYPE::NORMAL,
+        NSUDO_SHOW_WINDOW_MODE_TYPE::SHOW,
+        INFINITE,
+        TRUE,
+        LR"(C:\Windows\System32\cmd.exe)", nullptr);
+
+    hr;*/
+
+
+    /*int x = GetSystemMetrics(SM_CXPADDEDBORDER);
+    int y = GetSystemMetricsForDpi(SM_CXPADDEDBORDER, 96);
+    x; y;*/
+
     //::MileLoadLibraryFromSystem32(L"srclient.dll");
 
     /*HANDLE CurrentProcessToken = INVALID_HANDLE_VALUE;
