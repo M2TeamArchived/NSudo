@@ -13,6 +13,19 @@
 
 #include "Mile.Windows.Core.h"
 
+#include <string>
+
+namespace Mile
+{
+    /**
+     * @brief Retrieves the message for the error represented by the HResult object.
+     * @param Value The HResult object which need to retrieve the message.
+     * @return A std::wstring containing the error messsage.
+    */
+    std::wstring GetHResultMessage(
+        HResult const& Value);
+}
+
 #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
 #include <ShellScalingApi.h>
 #endif

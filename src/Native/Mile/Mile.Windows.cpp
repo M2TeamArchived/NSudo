@@ -8,11 +8,35 @@
  * DEVELOPER: Mouri_Naruto (Mouri_Naruto AT Outlook.com)
  */
 
-#ifndef __cplusplus
-#error "[Mile.Windows] You should use a C++ compiler."
-#endif // !__cplusplus
-
 #include "Mile.Windows.h"
+
+std::wstring Mile::GetHResultMessage(
+    HResult const& Value)
+{
+    std::wstring Message{ L"Failed to get formatted message." };
+
+    LPWSTR RawMessage = nullptr;
+    DWORD RawMessageSize = ::FormatMessageW(
+        FORMAT_MESSAGE_ALLOCATE_BUFFER |
+        FORMAT_MESSAGE_FROM_SYSTEM |
+        FORMAT_MESSAGE_IGNORE_INSERTS,
+        nullptr,
+        Value,
+        MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+        reinterpret_cast<LPTSTR>(&RawMessage),
+        0,
+        nullptr);
+    if (RawMessageSize)
+    {
+        Message = std::wstring(RawMessage, RawMessageSize);
+
+        ::LocalFree(RawMessage);
+    }
+
+    return Message;
+}
+
+
 
 #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
 #include <WtsApi32.h>

@@ -19,7 +19,7 @@
 
 #include <Windows.h>
 
-#include <string>
+#include <utility>
 
 namespace Mile
 {
@@ -297,36 +297,6 @@ namespace Mile
         constexpr operator HRESULT() const noexcept
         {
             return this->Value;
-        }
-
-        /**
-         * @brief Retrieves the message for the error represented by the
-         *        HResult object.
-         * @return A std::wstring containing the error messsage.
-        */
-        std::wstring ToMessage() const noexcept
-        {
-            std::wstring Message{ L"Failed to get formatted message." };
-
-            LPWSTR RawMessage = nullptr;
-            DWORD RawMessageSize = ::FormatMessageW(
-                FORMAT_MESSAGE_ALLOCATE_BUFFER |
-                FORMAT_MESSAGE_FROM_SYSTEM |
-                FORMAT_MESSAGE_IGNORE_INSERTS,
-                nullptr,
-                this->Value,
-                MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-                reinterpret_cast<LPTSTR>(&RawMessage),
-                0,
-                nullptr);
-            if (RawMessageSize)
-            {
-                Message = std::wstring(RawMessage, RawMessageSize);
-
-                ::LocalFree(RawMessage);
-            }
-
-            return Message;
         }
 
         /**

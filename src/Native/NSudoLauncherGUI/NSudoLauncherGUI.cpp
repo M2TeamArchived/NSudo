@@ -1302,6 +1302,9 @@ int WINAPI wWinMain(
 
     //SetThreadUILanguage(1033);
 
+    //std::wstring fuck = Mile::GetHResultMessage(E_FAIL);
+    //MessageBoxW(nullptr, fuck.c_str(), L"NSudo", 0);
+
     CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
 
     g_ResourceManagement.Initialize();
