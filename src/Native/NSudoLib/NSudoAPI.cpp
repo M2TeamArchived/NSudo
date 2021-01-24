@@ -10,9 +10,7 @@
 
 #include "NSudoAPI.h"
 
-#include <Mile.Windows.Core.h>
-
-#include "Mile.Windows.h"
+#include <Mile.Windows.h>
 
 #include "M2.Base.h"
 

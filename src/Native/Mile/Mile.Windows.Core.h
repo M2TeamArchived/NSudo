@@ -1,7 +1,7 @@
 ﻿/*
  * PROJECT:   Mouri Internal Library Essentials
  * FILE:      Mile.Windows.Core.h
- * PURPOSE:   Windows Core Definition for Windows
+ * PURPOSE:   Core Implementation for Windows (Header Only)
  *
  * LICENSE:   The MIT License
  *
@@ -265,7 +265,8 @@ namespace Mile
 
         /**
          * @brief Initializes a new instance of the HResult object by the
-         *        calling thread's last-error code. 
+         *        calling thread's last-error code with the evaluation of the
+         *        Win32 BOOL value. 
          * @param Result The Win32 BOOL value.
          * @return A new instance of the HResult object.
         */

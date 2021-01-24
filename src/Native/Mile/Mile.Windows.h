@@ -1,7 +1,7 @@
 ﻿/*
  * PROJECT:   Mouri Internal Library Essentials
  * FILE:      Mile.Windows.h
- * PURPOSE:   Mouri Internal Library Essentials Definition for Windows
+ * PURPOSE:   Definition for Windows
  *
  * LICENSE:   The MIT License
  *
@@ -11,7 +11,7 @@
 #ifndef MILE_WINDOWS
 #define MILE_WINDOWS
 
-#include <Windows.h>
+#include "Mile.Windows.Core.h"
 
 #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
 #include <ShellScalingApi.h>

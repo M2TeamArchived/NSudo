@@ -21,7 +21,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="M2WindowsHelpers.cpp" />
-    <ClCompile Include="Mile.Windows.Core.cpp" />
     <ClCompile Include="Mile.Windows.cpp" />
     <ClCompile Include="Mile.Windows.Storage.cpp" />
     <ClCompile Include="Mile.Windows.TrustedLibraryLoader.cpp" />

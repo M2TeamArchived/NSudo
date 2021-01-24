@@ -1,7 +1,7 @@
 ﻿/*
  * PROJECT:   Mouri Internal Library Essentials
  * FILE:      Mile.Windows.cpp
- * PURPOSE:   Mouri Internal Library Essentials Implementation for Windows
+ * PURPOSE:   Implementation for Windows
  *
  * LICENSE:   The MIT License
  *
@@ -13,8 +13,6 @@
 #endif // !__cplusplus
 
 #include "Mile.Windows.h"
-
-#include "Mile.Windows.Core.h"
 
 #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
 #include <WtsApi32.h>
