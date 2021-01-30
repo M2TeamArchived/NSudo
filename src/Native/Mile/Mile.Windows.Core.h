@@ -213,6 +213,54 @@ namespace Mile
             std::swap(Left.m_Value, Right.m_Value);
         }
     };
+
+    /**
+     * @brief The template for defining the task when exit the scope.
+     * @tparam TaskHandlerType The type of the task handler.
+     * @remark For more information, see ScopeGuard.
+    */
+    template<typename TaskHandlerType>
+    class ScopeExitTaskHandler :
+        DisableCopyConstruction,
+        DisableMoveConstruction
+    {
+    private:
+        bool m_Canceled;
+        TaskHandlerType m_TaskHandler;
+
+    public:
+
+        /**
+         * @brief Creates the instance for the task when exit the scope.
+         * @param TaskHandler The instance of the task handler.
+        */
+        explicit ScopeExitTaskHandler(TaskHandlerType&& EventHandler) :
+            m_Canceled(false),
+            m_TaskHandler(std::forward<TaskHandlerType>(EventHandler))
+        {
+
+        }
+
+        /**
+         * @brief Executes and uninitializes the instance for the task when
+         *        exit the scope.
+        */
+        ~ScopeExitTaskHandler()
+        {
+            if (!this->m_Canceled)
+            {
+                this->m_TaskHandler();
+            }
+        }
+
+        /**
+         * @brief Cancels the task when exit the scope.
+        */
+        void Cancel()
+        {
+            this->m_Canceled = true;
+        }
+    };
 }
 
 /**

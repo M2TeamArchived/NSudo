@@ -19,47 +19,6 @@
 
 #include <type_traits>
 #include <utility>
-
-namespace Mile
-{
-    /**
-     * Scope Exit Event Handler (ScopeGuard)
-     */
-    template<typename EventHandlerType>
-    class ScopeExitEventHandler :
-        DisableCopyConstruction,
-        DisableMoveConstruction
-    {
-    private:
-        bool m_Canceled;
-        EventHandlerType m_EventHandler;
-
-    public:
-
-        ScopeExitEventHandler() = delete;
-
-        explicit ScopeExitEventHandler(EventHandlerType&& EventHandler) :
-            m_Canceled(false),
-            m_EventHandler(std::forward<EventHandlerType>(EventHandler))
-        {
-
-        }
-
-        ~ScopeExitEventHandler()
-        {
-            if (!this->m_Canceled)
-            {
-                this->m_EventHandler();
-            }
-        }
-
-        void Cancel()
-        {
-            this->m_Canceled = true;
-        }
-    };
-}
-
 #include <WtsApi32.h>
 
 DWORD WINAPI TemporarilyGetActiveSessionID()
@@ -189,7 +148,7 @@ EXTERN_C HRESULT WINAPI NSudoCreateProcess(
     HANDLE hToken = INVALID_HANDLE_VALUE;
     HANDLE OriginalToken = INVALID_HANDLE_VALUE;
 
-    auto Handler = Mile::ScopeExitEventHandler([&]()
+    auto Handler = Mile::ScopeExitTaskHandler([&]()
         {
             if (CurrentProcessToken !=INVALID_HANDLE_VALUE)
             {
