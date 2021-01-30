@@ -13,6 +13,9 @@
     <ClCompile Include="Mile.Windows.cpp">
       <Filter>Mile.Windows</Filter>
     </ClCompile>
+    <ClCompile Include="Mile.Windows.Core.cpp">
+      <Filter>Mile.Windows</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Mile.Windows.TrustedLibraryLoader.h">

@@ -1,7 +1,7 @@
 ﻿/*
  * PROJECT:   Mouri Internal Library Essentials
  * FILE:      Mile.Windows.Core.h
- * PURPOSE:   Core Implementation for Windows (Header Only)
+ * PURPOSE:   Core Definition for Windows
  *
  * LICENSE:   The MIT License
  *
@@ -19,8 +19,12 @@
 
 #include <Windows.h>
 
+#include <string>
 #include <utility>
 
+/**
+ * @brief Definitions and Implementations for All Platforms.
+*/
 namespace Mile
 {
     /**
@@ -209,7 +213,13 @@ namespace Mile
             std::swap(Left.m_Value, Right.m_Value);
         }
     };
+}
 
+/**
+ * @brief Definitions and Implementations for Windows.
+*/
+namespace Mile
+{
     /**
      * @brief A type representing an HRESULT error code.
     */
@@ -266,7 +276,7 @@ namespace Mile
         /**
          * @brief Initializes a new instance of the HResult object by the
          *        calling thread's last-error code with the evaluation of the
-         *        Win32 BOOL value. 
+         *        Win32 BOOL value.
          * @param Result The Win32 BOOL value.
          * @return A new instance of the HResult object.
         */
@@ -980,6 +990,36 @@ namespace Mile
             return this->m_IsLocked;
         }
     };
+}
+
+/**
+ * @brief Definitions for Windows.
+*/
+namespace Mile
+{
+    /**
+     * @brief Retrieves the message for the error represented by the HResult object.
+     * @param Value The HResult object which need to retrieve the message.
+     * @return A std::wstring containing the error messsage.
+    */
+    std::wstring GetHResultMessage(
+        HResult const& Value);
+
+    /**
+     * @brief Converts from the UTF-8 string to the UTF-16 string.
+     * @param Utf8String The UTF-8 string you want to convert.
+     * @return A converted UTF-16 string.
+    */
+    std::wstring ToUtf16String(
+        std::string const& Utf8String);
+
+    /**
+     * @brief Converts from the UTF-16 string to the UTF-8 string.
+     * @param Utf16String The UTF-16 string you want to convert.
+     * @return A converted UTF-8 string.
+    */
+    std::string ToUtf8String(
+        std::wstring const& Utf16String);
 }
 
 #endif // !MILE_WINDOWS_CORE

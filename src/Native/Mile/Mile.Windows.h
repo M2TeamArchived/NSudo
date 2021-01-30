@@ -13,35 +13,6 @@
 
 #include "Mile.Windows.Core.h"
 
-#include <string>
-
-namespace Mile
-{
-    /**
-     * @brief Retrieves the message for the error represented by the HResult object.
-     * @param Value The HResult object which need to retrieve the message.
-     * @return A std::wstring containing the error messsage.
-    */
-    std::wstring GetHResultMessage(
-        HResult const& Value);
-
-    /**
-     * @brief Converts from the UTF-8 string to the UTF-16 string.
-     * @param Utf8String The UTF-8 string you want to convert.
-     * @return A converted UTF-16 string.
-    */
-    std::wstring ToUtf16String(
-        std::string const& Utf8String);
-
-    /**
-     * @brief Converts from the UTF-16 string to the UTF-8 string.
-     * @param Utf16String The UTF-16 string you want to convert.
-     * @return A converted UTF-8 string.
-    */
-    std::string ToUtf8String(
-        std::wstring const& Utf16String);
-}
-
 #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
 #include <ShellScalingApi.h>
 #endif
