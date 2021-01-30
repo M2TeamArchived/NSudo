@@ -21,12 +21,10 @@
 
 #include <string>
 #include <utility>
-
-/**
- * @brief Definitions and Implementations for All Platforms.
-*/
 namespace Mile
 {
+#pragma region Definitions and Implementations for All Platforms
+
     /**
      * @brief Disables C++ class copy construction.
     */
@@ -261,13 +259,11 @@ namespace Mile
             this->m_Canceled = true;
         }
     };
-}
 
-/**
- * @brief Definitions and Implementations for Windows.
-*/
-namespace Mile
-{
+#pragma endregion
+
+#pragma region Definitions and Implementations for Windows
+
     /**
      * @brief A type representing an HRESULT error code.
     */
@@ -1038,13 +1034,17 @@ namespace Mile
             return this->m_IsLocked;
         }
     };
-}
 
-/**
- * @brief Definitions for Windows.
-*/
-namespace Mile
-{
+#pragma endregion
+
+#pragma region Definitions for Windows (Win32 Style)
+
+
+
+#pragma endregion
+
+#pragma region Definitions for Windows (C++ Style)
+
     /**
      * @brief Retrieves the message for the error represented by the HResult object.
      * @param Value The HResult object which need to retrieve the message.
@@ -1068,6 +1068,8 @@ namespace Mile
     */
     std::string ToUtf8String(
         std::wstring const& Utf16String);
+
+#pragma endregion
 }
 
 #endif // !MILE_WINDOWS_CORE

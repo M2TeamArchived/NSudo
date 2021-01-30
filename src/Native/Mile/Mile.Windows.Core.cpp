@@ -10,6 +10,14 @@
 
 #include "Mile.Windows.Core.h"
 
+#pragma region Implementations for Windows (Win32 Style)
+
+
+
+#pragma endregion
+
+#pragma region Implementations for Windows (C++ Style)
+
 std::wstring Mile::GetHResultMessage(
     HResult const& Value)
 {
@@ -95,3 +103,5 @@ std::string Mile::ToUtf8String(
 
     return Utf8String;
 }
+
+#pragma endregion
