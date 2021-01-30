@@ -526,7 +526,7 @@ EXTERN_C HRESULT WINAPI NSudoCreateProcess(
                 ::MileCloseHandle(ProcessInfo.hThread);
             }
 
-            ::MileFreeMemory(ExpandedString);
+            Mile::HeapMemory::Free(ExpandedString);
         }
 
         ::MileDestroyEnvironmentBlock(lpEnvironment);

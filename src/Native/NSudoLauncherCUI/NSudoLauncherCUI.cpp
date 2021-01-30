@@ -386,12 +386,9 @@ public:
             hr = ::MileGetFileSize(FileHandle, &FileSize);
             if (hr == S_OK)
             {
-                char* FileContent = nullptr;
-
-                hr = ::MileAllocMemory(
-                    static_cast<SIZE_T>(FileSize),
-                    reinterpret_cast<LPVOID*>(&FileContent));
-                if (hr == S_OK)
+                char* FileContent = reinterpret_cast<char*>(
+                    Mile::HeapMemory::Allocate(static_cast<SIZE_T>(FileSize)));
+                if (FileContent)
                 {
                     DWORD NumberOfBytesRead = 0;
                     hr = ::MileReadFile(
@@ -452,7 +449,7 @@ public:
                         }
                     }
 
-                    ::MileFreeMemory(FileContent);
+                    Mile::HeapMemory::Free(FileContent);
                 }
             }
 

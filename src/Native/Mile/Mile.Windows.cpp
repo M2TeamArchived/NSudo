@@ -131,30 +131,6 @@ EXTERN_C HRESULT WINAPI MileAllocMemory(
 /**
  * @remark You can read the definition for this function in "Mile.Windows.h".
  */
-EXTERN_C HRESULT WINAPI MileReAllocMemory(
-    _In_ PVOID OldBlock,
-    _In_ SIZE_T NewSize,
-    _Out_ LPVOID* NewBlock)
-{
-    *NewBlock = Mile::HeapMemory::Reallocate(OldBlock, NewSize);
-    return *NewBlock
-        ? Mile::HResult(S_OK)
-        : Mile::HResult::FromWin32(ERROR_NOT_ENOUGH_MEMORY);
-}
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
-EXTERN_C HRESULT WINAPI MileFreeMemory(
-    _In_ LPVOID Block)
-{
-    return Mile::HResult::FromLastError(
-        Mile::HeapMemory::Free(Block));
-}
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
 EXTERN_C HRESULT WINAPI MileAdjustTokenPrivileges(
     _In_ HANDLE TokenHandle,
     _In_ BOOL DisableAllPrivileges,
@@ -241,7 +217,7 @@ EXTERN_C HRESULT WINAPI MileGetTokenInformationWithMemory(
                 &Length);
             if (hr != S_OK)
             {
-                ::MileFreeMemory(*OutputInformation);
+                Mile::HeapMemory::Free(*OutputInformation);
                 *OutputInformation = nullptr;
             }
         }
@@ -276,7 +252,7 @@ EXTERN_C HRESULT WINAPI MileAdjustTokenPrivilegesSimple(
             hr = ::MileAdjustTokenPrivileges(
                 TokenHandle, FALSE, pTP, TPSize, nullptr, nullptr);
 
-            ::MileFreeMemory(pTP);
+            Mile::HeapMemory::Free(pTP);
         }
     }
 
@@ -308,7 +284,7 @@ EXTERN_C HRESULT WINAPI MileAdjustTokenAllPrivileges(
             pTokenPrivileges->Privileges,
             pTokenPrivileges->PrivilegeCount);
 
-        ::MileFreeMemory(pTokenPrivileges);
+        Mile::HeapMemory::Free(pTokenPrivileges);
     }
 
     return hr;
@@ -1102,17 +1078,17 @@ EXTERN_C HRESULT WINAPI MileCreateLUAToken(
 
     if (NewDefaultDacl)
     {
-        ::MileFreeMemory(NewDefaultDacl);
+        Mile::HeapMemory::Free(NewDefaultDacl);
     }
 
     if (pTokenDacl)
     {
-        ::MileFreeMemory(pTokenDacl);
+        Mile::HeapMemory::Free(pTokenDacl);
     }
 
     if (pTokenUser)
     {
-        ::MileFreeMemory(pTokenUser);
+        Mile::HeapMemory::Free(pTokenUser);
     }
 
     if (hr != S_OK)
@@ -1363,7 +1339,7 @@ EXTERN_C HRESULT WINAPI MileExpandEnvironmentStringsWithMemory(
 
         if (hr != S_OK)
         {
-            ::MileFreeMemory(*Destination);
+            Mile::HeapMemory::Free(*Destination);
         }
     }
 
@@ -2030,7 +2006,8 @@ EXTERN_C HRESULT WINAPI MileRegQueryStringValue(
                 hr = __HRESULT_FROM_WIN32(ERROR_ILLEGAL_ELEMENT_ADDRESS);
 
             if (FAILED(hr))
-                hr = ::MileFreeMemory(*lpData);
+                hr = Mile::HResult::FromLastError(
+                    Mile::HeapMemory::Free(*lpData));
         }
     }
 
@@ -2076,7 +2053,7 @@ EXTERN_C HRESULT WINAPI MileCoCheckInterfaceName(
                 hr = E_NOINTERFACE;
             }
 
-            ::MileFreeMemory(InterfaceTypeName);
+            Mile::HeapMemory::Free(InterfaceTypeName);
         }
 
         ::MileRegCloseKey(hKey);

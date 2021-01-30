@@ -192,35 +192,6 @@ namespace M2
 
 #pragma endregion
 
-    /**
-     * The handle definer for memory block allocated by the M2AllocMemory and
-     * M2ReAllocMemory function..
-     */
-#pragma region CM2Memory
-
-    template<typename TMemory>
-    struct CM2MemoryDefiner
-    {
-        static inline TMemory GetInvalidValue()
-        {
-            return nullptr;
-        }
-
-        static inline void Close(TMemory Object)
-        {
-            ::MileFreeMemory(Object);
-        }
-    };
-
-    template<typename TMemoryBlock>
-    class CM2Memory :
-        public CObject<TMemoryBlock, CM2MemoryDefiner<TMemoryBlock>>
-    {
-
-    };
-
-#pragma endregion
-
 #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
 
     /**
