@@ -263,7 +263,7 @@ private:
             MAKEINTRESOURCEW(uID))))
         {
             // Raw string without the UTF-8 BOM. (0xEF,0xBB,0xBF)	
-            return M2MakeUTF16String(std::string(
+            return Mile::ToUtf16String(std::string(
                 reinterpret_cast<const char*>(ResourceInfo.Pointer) + 3,
                 ResourceInfo.Size - 3));
         }
@@ -344,7 +344,7 @@ public:
                                 std::string(
                                     JsonString + Key.start,
                                     Key.end - Key.start),
-                                M2MakeUTF16String(std::string(
+                                Mile::ToUtf16String(std::string(
                                     JsonString + Value.start,
                                     Value.end - Value.start))));
                         }
@@ -437,10 +437,10 @@ public:
                                         }
 
                                         ShortCutList.emplace(std::make_pair(
-                                            M2MakeUTF16String(std::string(
+                                            Mile::ToUtf16String(std::string(
                                                 JsonString + Key.start,
                                                 Key.end - Key.start)),
-                                            M2MakeUTF16String(std::string(
+                                            Mile::ToUtf16String(std::string(
                                                 JsonString + Value.start,
                                                 Value.end - Value.start))));
                                     }

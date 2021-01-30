@@ -36,6 +36,68 @@ std::wstring Mile::GetHResultMessage(
     return Message;
 }
 
+std::wstring Mile::ToUtf16String(
+    std::string const& Utf8String)
+{
+    std::wstring Utf16String;
+
+    int Utf16StringLength = ::MultiByteToWideChar(
+        CP_UTF8,
+        0,
+        Utf8String.c_str(),
+        static_cast<int>(Utf8String.size()),
+        nullptr,
+        0);
+    if (Utf16StringLength > 0)
+    {
+        Utf16String.resize(Utf16StringLength);
+        Utf16StringLength = ::MultiByteToWideChar(
+            CP_UTF8,
+            0,
+            Utf8String.c_str(),
+            static_cast<int>(Utf8String.size()),
+            &Utf16String[0],
+            Utf16StringLength);
+        Utf16String.resize(Utf16StringLength);
+    }
+
+    return Utf16String;
+}
+
+std::string Mile::ToUtf8String(
+    std::wstring const& Utf16String)
+{
+    std::string Utf8String;
+
+    int Utf8StringLength = ::WideCharToMultiByte(
+        CP_UTF8,
+        0,
+        Utf16String.data(),
+        static_cast<int>(Utf16String.size()),
+        nullptr,
+        0,
+        nullptr,
+        nullptr);
+    if (Utf8StringLength > 0)
+    {
+        Utf8String.resize(Utf8StringLength);
+        Utf8StringLength = ::WideCharToMultiByte(
+            CP_UTF8,
+            0,
+            Utf16String.data(),
+            static_cast<int>(Utf16String.size()),
+            &Utf8String[0],
+            Utf8StringLength,
+            nullptr,
+            nullptr);
+        Utf8String.resize(Utf8StringLength);
+    }
+
+
+    return Utf8String;
+}
+
+
 
 
 #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
@@ -2211,68 +2273,6 @@ EXTERN_C HRESULT WINAPI MileReOpenFile(
 }
 
 #endif
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
-EXTERN_C HRESULT WINAPI MileMultiByteToWideChar(
-    _In_ UINT CodePage,
-    _In_ DWORD dwFlags,
-    _In_ LPCCH lpMultiByteStr,
-    _In_ INT cbMultiByte,
-    _Out_opt_ LPWSTR lpWideCharStr,
-    _In_ INT cchWideChar,
-    _Out_opt_ LPINT pcchReturnWideChar)
-{
-    INT cchReturnWideChar = ::MultiByteToWideChar(
-        CodePage,
-        dwFlags,
-        lpMultiByteStr,
-        cbMultiByte,
-        lpWideCharStr,
-        cchWideChar);
-
-    if (pcchReturnWideChar)
-    {
-        *pcchReturnWideChar = cchReturnWideChar;
-    }
-
-    return Mile::HResult::FromLastError(
-        cchReturnWideChar > 0);
-}
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
-EXTERN_C HRESULT WINAPI MileWideCharToMultiByte(
-    _In_ UINT CodePage,
-    _In_ DWORD dwFlags,
-    _In_ LPCWCH lpWideCharStr,
-    _In_ INT cchWideChar,
-    _Out_opt_ LPSTR lpMultiByteStr,
-    _In_ INT cbMultiByte,
-    _In_opt_ LPCCH lpDefaultChar,
-    _Out_opt_ LPBOOL lpUsedDefaultChar,
-    _Out_opt_ LPINT pcchReturnMultiByte)
-{
-    INT cchReturnMultiByte = ::WideCharToMultiByte(
-        CodePage,
-        dwFlags,
-        lpWideCharStr,
-        cchWideChar,
-        lpMultiByteStr,
-        cbMultiByte,
-        lpDefaultChar,
-        lpUsedDefaultChar);
-
-    if (pcchReturnMultiByte)
-    {
-        *pcchReturnMultiByte = cchReturnMultiByte;
-    }
-
-    return Mile::HResult::FromLastError(
-        cchReturnMultiByte > 0);
-}
 
 /**
  * @remark You can read the definition for this function in "Mile.Windows.h".

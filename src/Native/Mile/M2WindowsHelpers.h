@@ -464,22 +464,6 @@ HRESULT M2ThrownPlatformExceptionToHResult();
 #pragma region String
 
 /**
- * Converts from the UTF-8 string to the UTF-16 string.
- *
- * @param UTF8String The UTF-8 string you want to convert.
- * @return A converted UTF-16 string.
- */
-std::wstring M2MakeUTF16String(const std::string& UTF8String);
-
-/**
- * Converts from the UTF-16 string to the UTF-8 string.
- *
- * @param UTF16String The UTF-16 string you want to convert.
- * @return A converted UTF-8 string.
- */
-std::string M2MakeUTF8String(const std::wstring& UTF16String);
-
-/**
  * Write formatted data to a string.
  *
  * @param Format Format-control string.

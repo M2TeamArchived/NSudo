@@ -24,6 +24,22 @@ namespace Mile
     */
     std::wstring GetHResultMessage(
         HResult const& Value);
+
+    /**
+     * @brief Converts from the UTF-8 string to the UTF-16 string.
+     * @param Utf8String The UTF-8 string you want to convert.
+     * @return A converted UTF-16 string.
+    */
+    std::wstring ToUtf16String(
+        std::string const& Utf8String);
+
+    /**
+     * @brief Converts from the UTF-16 string to the UTF-8 string.
+     * @param Utf16String The UTF-16 string you want to convert.
+     * @return A converted UTF-8 string.
+    */
+    std::string ToUtf8String(
+        std::wstring const& Utf16String);
 }
 
 #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
@@ -2076,87 +2092,6 @@ EXTERN_C HRESULT WINAPI MileReOpenFile(
     _Out_opt_ PHANDLE lpFileHandle);
 
 #endif
-
-/**
- * Maps a character string to a UTF-16 (wide character) string. The character
- * string is not necessarily from a multibyte character set.
- *
- * @param CodePage Code page to use in performing the conversion. This
- *                 parameter can be set to the value of any code page that is
- *                 installed or available in the operating system.
- * @param dwFlags Flags indicating the conversion type.
- * @param lpMultiByteStr Pointer to the character string to convert.
- * @param cbMultiByte Size, in bytes, of the string indicated by the
- *                    lpMultiByteStr parameter. Alternatively, this parameter
- *                    can be set to -1 if the string is null-terminated. Note
- *                    that, if cbMultiByte is 0, the function fails.
- * @param lpWideCharStr Pointer to a buffer that receives the converted string.
- * @param cchWideChar Size, in characters, of the buffer indicated by
- *                    lpWideCharStr. If this value is 0, the function returns
- *                    the required buffer size, in characters, including any
- *                    terminating null character, and makes no use of the
- *                    lpWideCharStr buffer.
- * @param pcchReturnWideChar The number of characters written to the buffer
- *                           indicated by lpWideCharStr if successful. If the
- *                           function succeeds and cchWideChar is 0, the return
- *                           value is the required size, in characters, for the
- *                           buffer indicated by lpWideCharStr.
- * @return HRESULT. If the function succeeds, the return value is S_OK.
- * @remark For more information, see MultiByteToWideChar.
- */
-EXTERN_C HRESULT WINAPI MileMultiByteToWideChar(
-    _In_ UINT CodePage,
-    _In_ DWORD dwFlags,
-    _In_ LPCCH lpMultiByteStr,
-    _In_ INT cbMultiByte,
-    _Out_opt_ LPWSTR lpWideCharStr,
-    _In_ INT cchWideChar,
-    _Out_opt_ LPINT pcchReturnWideChar);
-
-/**
- * Maps a UTF-16 (wide character) string to a new character string. The new
- * character string is not necessarily from a multibyte character set.
- *
- * @param CodePage Code page to use in performing the conversion. This
- *                 parameter can be set to the value of any code page that is
- *                 installed or available in the operating system.
- * @param dwFlags Flags indicating the conversion type.
- * @param lpWideCharStr Pointer to the Unicode string to convert.
- * @param cchWideChar Size, in characters, of the string indicated by
- *                    lpWideCharStr. Alternatively, this parameter can be set
- *                    to -1 if the string is null-terminated. If cchWideChar is
- *                    set to 0, the function fails.
- * @param lpMultiByteStr Pointer to a buffer that receives the converted
- *                       string.
- * @param cbMultiByte Size, in bytes, of the buffer indicated by
- *                    lpMultiByteStr. If this parameter is set to 0, the
- *                    function returns the required buffer size for
- *                    lpMultiByteStr and makes no use of the output parameter
- *                    itself.
- * @param lpDefaultChar Pointer to the character to use if a character cannot
- *                      be represented in the specified code page. The
- *                      application sets this parameter to NULL if the function
- *                      is to use a system default value.
- * @param lpUsedDefaultChar Pointer to a flag that indicates if the function
- *                          has used a default character in the conversion.
- * @param pcchReturnMultiByte The number of bytes written to the buffer pointed
- *                            to by lpMultiByteStr. If the function succeeds
- *                            and cbMultiByte is 0, the return value is the
- *                            required size, in bytes, for the buffer indicated
- *                            by lpMultiByteStr.
- * @return HRESULT. If the function succeeds, the return value is S_OK.
- * @remark For more information, see WideCharToMultiByte.
- */
-EXTERN_C HRESULT WINAPI MileWideCharToMultiByte(
-    _In_ UINT CodePage,
-    _In_ DWORD dwFlags,
-    _In_ LPCWCH lpWideCharStr,
-    _In_ INT cchWideChar,
-    _Out_opt_ LPSTR lpMultiByteStr,
-    _In_ INT cbMultiByte,
-    _In_opt_ LPCCH lpDefaultChar,
-    _Out_opt_ LPBOOL lpUsedDefaultChar,
-    _Out_opt_ LPINT pcchReturnMultiByte);
 
 /**
  * Retrieves the path of the system directory. The system directory contains
