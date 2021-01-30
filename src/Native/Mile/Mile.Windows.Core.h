@@ -307,40 +307,6 @@ namespace Mile
             return HResult(::HRESULT_FROM_WIN32(Code));
         }
 
-        /**
-         * @brief Initializes a new instance of the HResult object by the
-         *        calling thread's last-error code.
-         * @return A new instance of the HResult object.
-        */
-        static HResult FromLastError() noexcept
-        {
-            return FromWin32(::GetLastError());
-        }
-
-        /**
-         * @brief Initializes a new instance of the HResult object by the
-         *        calling thread's last-error code with the evaluation of the
-         *        Win32 BOOL value.
-         * @param Result The Win32 BOOL value.
-         * @return A new instance of the HResult object.
-        */
-        static HResult FromLastError(
-            _In_ BOOL Result) noexcept
-        {
-            HResult hr = S_OK;
-
-            if (!Result)
-            {
-                hr = FromLastError();
-                if (hr == S_OK)
-                {
-                    hr = FromWin32(ERROR_FUNCTION_FAILED);
-                }
-            }
-
-            return hr;
-        }
-
     public:
 
         /**
@@ -403,6 +369,85 @@ namespace Mile
         DWORD GetCode() const noexcept
         {
             return HRESULT_CODE(this->Value);
+        }
+    };
+
+    /**
+     * @brief A type representing a converter which converts the calling
+     *        thread's last-error code to the HResult object.
+    */
+    class HResultFromLastError
+    {
+    private:
+
+        /**
+         * @brief Indicates needed the evaluation of the Win32 BOOL value.
+        */
+        bool m_EvaluateWithWin32Bool;
+
+        /**
+         * @brief The Win32 BOOL value.
+        */
+        BOOL m_Value;
+
+    public:
+
+        /**
+         * @brief Initializes a new instance of the HResultFromLastError object
+         *        by the calling thread's last-error code.
+        */
+        HResultFromLastError() :
+            m_EvaluateWithWin32Bool(false),
+            m_Value(FALSE)
+        {
+        }
+
+        /**
+         * @brief Initializes a new instance of the HResultFromLastError object
+         *        by the calling thread's last-error code with the evaluation
+         *        of the Win32 BOOL value.
+         * @param Result The Win32 BOOL value.
+        */
+        HResultFromLastError(
+            _In_ BOOL Result) :
+            m_EvaluateWithWin32Bool(true),
+            m_Value(Result)
+        {
+        }
+
+        /**
+         * @brief Converts the calling thread's last-error code to the HResult
+         *        object.
+        */
+        operator HResult()
+        {
+            // Return if Win32 BOOL value is TRUE.
+            // By design, If the this->m_Value is euqal to true,
+            // the this->m_EvaluateWithWin32Bool is also euqal to true.
+            if (this->m_Value)
+            {
+                return S_OK;
+            }
+
+            HResult hr = HResult::FromWin32(::GetLastError());
+
+            // Set hr failed when hr succeed if it needs the evaluation of the
+            // Win32 BOOL value and the Win32 BOOL value is FALSE.
+            if (this->m_EvaluateWithWin32Bool && hr == S_OK)
+            {
+                hr = HResult::FromWin32(ERROR_FUNCTION_FAILED);
+            }
+
+            return hr;
+        }
+
+        /**
+         * @brief Converts the calling thread's last-error code to the HRESULT
+         *        value.
+        */
+        operator HRESULT()
+        {
+            return this->operator Mile::HResult();
         }
     };
 
