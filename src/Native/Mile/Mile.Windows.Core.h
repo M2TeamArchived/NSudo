@@ -1084,7 +1084,15 @@ namespace Mile
 
 #pragma region Definitions for Windows (Win32 Style)
 
-
+    /**
+     * @brief Closes an open object handle.
+     * @param hObject A valid handle to an open object.
+     * @return An HResultFromLastError object An containing the HResult object
+     *         containing the error code.
+     * @remark For more information, see CloseHandle.
+    */
+    HResultFromLastError CloseHandle(
+        _In_ HANDLE hObject);
 
 #pragma endregion
 

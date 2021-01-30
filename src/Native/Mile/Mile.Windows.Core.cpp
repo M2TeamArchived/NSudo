@@ -12,7 +12,11 @@
 
 #pragma region Implementations for Windows (Win32 Style)
 
-
+Mile::HResultFromLastError Mile::CloseHandle(
+    _In_ HANDLE hObject)
+{
+    return ::CloseHandle(hObject);
+}
 
 #pragma endregion
 

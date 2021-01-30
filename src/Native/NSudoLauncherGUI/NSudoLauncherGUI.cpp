@@ -466,7 +466,7 @@ public:
                 }
             }
 
-            ::MileCloseHandle(FileHandle);
+            Mile::CloseHandle(FileHandle);
         }
     }
 

@@ -374,16 +374,6 @@ EXTERN_C HRESULT WINAPI MileStartServiceSimple(
  */
 EXTERN_C ULONGLONG WINAPI MileGetTickCount();
 
-/**
- * Closes an open object handle.
- *
- * @param hObject A valid handle to an open object.
- * @return HRESULT. If the function succeeds, the return value is S_OK.
- * @remark For more information, see CloseHandle.
- */
-EXTERN_C HRESULT WINAPI MileCloseHandle(
-    _In_ HANDLE hObject);
-
 #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
 
 /**
@@ -395,7 +385,7 @@ EXTERN_C HRESULT WINAPI MileCloseHandle(
  * @param SessionId A Remote Desktop Services session identifier.
  * @param TokenHandle If the function succeeds, receives a pointer to the token
  *                    handle for the logged-on user. Note that you must call
- *                    the MileCloseHandle function to close this handle.
+ *                    the Mile::CloseHandle method to close this handle.
  * @return HRESULT. If the method succeeds, the return value is S_OK.
  * @remark For more information, see WTSQueryUserToken.
  */

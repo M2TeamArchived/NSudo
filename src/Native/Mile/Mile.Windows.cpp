@@ -451,16 +451,6 @@ EXTERN_C ULONGLONG WINAPI MileGetTickCount()
     return ::GetTickCount64();
 }
 
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
-EXTERN_C HRESULT WINAPI MileCloseHandle(
-    _In_ HANDLE hObject)
-{
-    return Mile::HResultFromLastError(
-        ::CloseHandle(hObject));
-}
-
 #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
 
 /**
@@ -1003,7 +993,7 @@ EXTERN_C HRESULT WINAPI MileCreateLUAToken(
 
     if (hr != S_OK)
     {
-        ::MileCloseHandle(TokenHandle);
+        Mile::CloseHandle(TokenHandle);
         *TokenHandle = INVALID_HANDLE_VALUE;
     }
 
@@ -1092,7 +1082,7 @@ EXTERN_C HRESULT WINAPI MileOpenProcessTokenByProcessId(
     {
         hr = ::MileOpenProcessToken(ProcessHandle, DesiredAccess, TokenHandle);
 
-        ::MileCloseHandle(ProcessHandle);
+        Mile::CloseHandle(ProcessHandle);
     }
 
     return hr;
@@ -1117,7 +1107,7 @@ EXTERN_C HRESULT WINAPI MileOpenServiceProcessToken(
         hr = ::MileOpenProcessToken(
             ProcessHandle, DesiredAccess, TokenHandle);
 
-        ::MileCloseHandle(ProcessHandle);
+        Mile::CloseHandle(ProcessHandle);
     }
 
     return hr;
@@ -1143,7 +1133,7 @@ EXTERN_C HRESULT WINAPI MileOpenLsassProcessToken(
         hr = ::MileOpenProcessToken(
             ProcessHandle, DesiredAccess, TokenHandle);
 
-        ::MileCloseHandle(ProcessHandle);
+        Mile::CloseHandle(ProcessHandle);
     }
 
     return hr;
@@ -1181,7 +1171,7 @@ EXTERN_C HRESULT WINAPI MileOpenThreadTokenByThreadId(
         hr = ::MileOpenThreadToken(
             ThreadHandle, DesiredAccess, OpenAsSelf, TokenHandle);
 
-        ::MileCloseHandle(ThreadHandle);
+        Mile::CloseHandle(ThreadHandle);
     }
 
     return hr;
