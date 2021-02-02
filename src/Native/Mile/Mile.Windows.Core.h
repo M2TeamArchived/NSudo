@@ -26,6 +26,18 @@ namespace Mile
 #pragma region Definitions and Implementations for All Platforms
 
     /**
+     * @brief Suppresses the "unreferenced parameter" compiler warning by
+     *        referencing a variable which is not used.
+     * @tparam VariableType The type of the variable which is not used.
+     * @param The variable which is not used.
+     * @remark For more information, see UNREFERENCED_PARAMETER.
+    */
+    template<typename VariableType>
+    void UnreferencedParameter(VariableType const&)
+    {
+    }
+
+    /**
      * @brief Disables C++ class copy construction.
     */
     class DisableCopyConstruction
