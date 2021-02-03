@@ -1188,6 +1188,110 @@ private:
 };
 
 //#include <Mile.Windows.TrustedLibraryLoader.h>
+//
+//void comment()
+//{
+//    HRESULT hr = NSudoCreateProcess(
+//        NSUDO_USER_MODE_TYPE::CURRENT_USER_ELEVATED,
+//        NSUDO_PRIVILEGES_MODE_TYPE::DEFAULT,
+//        NSUDO_MANDATORY_LABEL_TYPE::MEDIUM,
+//        NSUDO_PROCESS_PRIORITY_CLASS_TYPE::NORMAL,
+//        NSUDO_SHOW_WINDOW_MODE_TYPE::SHOW,
+//        INFINITE,
+//        TRUE,
+//        LR"(C:\Windows\System32\cmd.exe)", nullptr);
+//
+//    hr;
+//
+//
+//    int x = GetSystemMetrics(SM_CXPADDEDBORDER);
+//    int y = GetSystemMetricsForDpi(SM_CXPADDEDBORDER, 96);
+//    x; y;
+//
+//    ::MileLoadLibraryFromSystem32(L"srclient.dll");
+//
+//    HANDLE CurrentProcessToken = INVALID_HANDLE_VALUE;
+//    HRESULT hr = ::MileOpenCurrentProcessToken(
+//        MAXIMUM_ALLOWED, &CurrentProcessToken);
+//    if (hr != S_OK)
+//    {
+//        return hr;
+//    }
+//
+//    TOKEN_LINKED_TOKEN LinkedToken = { 0 };
+//    DWORD ReturnLength = 0;
+//
+//    hr = ::MileGetTokenInformation(
+//        CurrentProcessToken,
+//        TokenLinkedToken,
+//        &LinkedToken,
+//        sizeof(TOKEN_LINKED_TOKEN),
+//        &ReturnLength);
+//
+//    HANDLE hToken = INVALID_HANDLE_VALUE;
+//
+//    hr = ::MileAdjustTokenAllPrivileges(
+//        CurrentProcessToken,
+//        SE_PRIVILEGE_ENABLED);
+//
+//    hr = ::MileSetCurrentThreadToken(LinkedToken.LinkedToken);
+//
+//    hr = ::MileDuplicateToken(
+//        LinkedToken.LinkedToken,
+//        MAXIMUM_ALLOWED,
+//        nullptr,
+//        SecurityIdentification,
+//        TokenPrimary,
+//        &hToken);
+//
+//
+//
+//    STARTUPINFOW StartupInfo = { 0 };
+//    PROCESS_INFORMATION ProcessInfo = { 0 };
+//
+//    StartupInfo.cb = sizeof(STARTUPINFOW);
+//
+//    StartupInfo.lpDesktop = const_cast<LPWSTR>(L"WinSta0\\Default");
+//
+//
+//    ::CreateProcessWithTokenW(
+//        LinkedToken.LinkedToken,
+//        0,
+//        L"C:\\Windows\\System32\\notepad.exe",
+//        nullptr,
+//        CREATE_UNICODE_ENVIRONMENT | CREATE_NEW_CONSOLE,
+//        nullptr,
+//        nullptr,
+//        &StartupInfo,
+//        &ProcessInfo);
+//
+//    hr = GetLastError();
+//
+//    hr = ::MileCreateProcessAsUser(
+//        nullptr,
+//        L"C:\\Windows\\System32\\notepad.exe",
+//        nullptr,
+//        nullptr,
+//        nullptr,
+//        FALSE,
+//        CREATE_UNICODE_ENVIRONMENT | CREATE_NEW_CONSOLE,
+//        nullptr,
+//        nullptr,
+//        &StartupInfo,
+//        &ProcessInfo);
+//
+//    ::SetDllDirectoryW(L"");
+//    ::SetDefaultDllDirectories(LOAD_LIBRARY_SEARCH_SYSTEM32);
+//
+//    SetThreadUILanguage(MAKELANGID(LANG_JAPANESE, SUBLANG_JAPANESE_JAPAN));
+//
+//    SetThreadUILanguage(MAKELANGID(LANG_CHINESE, SUBLANG_CHINESE_TRADITIONAL));
+//
+//    SetThreadUILanguage(1033);
+//
+//    std::wstring fuck = Mile::GetHResultMessage(E_FAIL);
+//    MessageBoxW(nullptr, fuck.c_str(), L"NSudo", 0);
+//}
 
 int WINAPI wWinMain(
     _In_ HINSTANCE hInstance,
@@ -1200,107 +1304,20 @@ int WINAPI wWinMain(
     UNREFERENCED_PARAMETER(lpCmdLine);
     UNREFERENCED_PARAMETER(nShowCmd);
 
-    /*HRESULT hr = NSudoCreateProcess(
-        NSUDO_USER_MODE_TYPE::CURRENT_USER_ELEVATED,
-        NSUDO_PRIVILEGES_MODE_TYPE::DEFAULT,
-        NSUDO_MANDATORY_LABEL_TYPE::MEDIUM,
-        NSUDO_PROCESS_PRIORITY_CLASS_TYPE::NORMAL,
-        NSUDO_SHOW_WINDOW_MODE_TYPE::SHOW,
-        INFINITE,
-        TRUE,
-        LR"(C:\Windows\System32\cmd.exe)", nullptr);
-
-    hr;*/
-
-
-    /*int x = GetSystemMetrics(SM_CXPADDEDBORDER);
-    int y = GetSystemMetricsForDpi(SM_CXPADDEDBORDER, 96);
-    x; y;*/
-
-    //::MileLoadLibraryFromSystem32(L"srclient.dll");
-
-    /*HANDLE CurrentProcessToken = INVALID_HANDLE_VALUE;
-    HRESULT hr = ::MileOpenCurrentProcessToken(
-        MAXIMUM_ALLOWED, &CurrentProcessToken);
-    if (hr != S_OK)
+    // Fall back to English in unsupported environment. (Temporary Hack)
+    // Reference: https://github.com/M2Team/NSudo/issues/56
+    switch (PRIMARYLANGID(::GetThreadUILanguage()))
     {
-        return hr;
+    case LANG_ENGLISH:
+    case LANG_SPANISH:
+    case LANG_FRENCH:
+    case LANG_ITALIAN:
+    case LANG_CHINESE:
+        break;
+    default:
+        ::SetThreadUILanguage(MAKELANGID(LANG_ENGLISH, SUBLANG_NEUTRAL));
+        break;
     }
-
-    TOKEN_LINKED_TOKEN LinkedToken = { 0 };
-    DWORD ReturnLength = 0;
-
-    hr = ::MileGetTokenInformation(
-        CurrentProcessToken,
-        TokenLinkedToken,
-        &LinkedToken,
-        sizeof(TOKEN_LINKED_TOKEN),
-        &ReturnLength);
-
-    HANDLE hToken = INVALID_HANDLE_VALUE;
-
-    hr = ::MileAdjustTokenAllPrivileges(
-        CurrentProcessToken,
-        SE_PRIVILEGE_ENABLED);*/
-
-    //hr = ::MileSetCurrentThreadToken(LinkedToken.LinkedToken);
-
-   /* hr = ::MileDuplicateToken(
-        LinkedToken.LinkedToken,
-        MAXIMUM_ALLOWED,
-        nullptr,
-        SecurityIdentification,
-        TokenPrimary,
-        &hToken);*/
-
-    
-
-    /*STARTUPINFOW StartupInfo = { 0 };
-    PROCESS_INFORMATION ProcessInfo = { 0 };
-
-    StartupInfo.cb = sizeof(STARTUPINFOW);
-
-    StartupInfo.lpDesktop = const_cast<LPWSTR>(L"WinSta0\\Default");*/
-
-
-    /*::CreateProcessWithTokenW(
-        LinkedToken.LinkedToken,
-        0,
-        L"C:\\Windows\\System32\\notepad.exe",
-        nullptr,
-        CREATE_UNICODE_ENVIRONMENT | CREATE_NEW_CONSOLE,
-        nullptr,
-        nullptr,
-        &StartupInfo,
-        &ProcessInfo);
-
-    hr = GetLastError();*/
-
-    /*hr = ::MileCreateProcessAsUser(
-        nullptr,
-        L"C:\\Windows\\System32\\notepad.exe",
-        nullptr,
-        nullptr,
-        nullptr,
-        FALSE,
-        CREATE_UNICODE_ENVIRONMENT | CREATE_NEW_CONSOLE,
-        nullptr,
-        nullptr,
-        &StartupInfo,
-        &ProcessInfo);*/
-
-    //::SetDllDirectoryW(L"");
-    //::SetDefaultDllDirectories(LOAD_LIBRARY_SEARCH_SYSTEM32);
-
-
-    //SetThreadUILanguage(MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US));
-
-    //SetThreadUILanguage(MAKELANGID(LANG_CHINESE, SUBLANG_CHINESE_TRADITIONAL));
-
-    //SetThreadUILanguage(1033);
-
-    //std::wstring fuck = Mile::GetHResultMessage(E_FAIL);
-    //MessageBoxW(nullptr, fuck.c_str(), L"NSudo", 0);
 
     CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
 

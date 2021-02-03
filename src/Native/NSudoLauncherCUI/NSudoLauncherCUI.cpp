@@ -815,15 +815,20 @@ HRESULT NSudoShowAboutDialog(
 
 int main()
 {
-    //::SetDllDirectoryW(L"");
-    //::SetDefaultDllDirectories(LOAD_LIBRARY_SEARCH_SYSTEM32);
-
-
-    //SetThreadUILanguage(MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US));
-
-    //SetThreadUILanguage(MAKELANGID(LANG_CHINESE, SUBLANG_CHINESE_TRADITIONAL));
-
-    //SetThreadUILanguage(1033);
+    // Fall back to English in unsupported environment. (Temporary Hack)
+    // Reference: https://github.com/M2Team/NSudo/issues/56
+    switch (PRIMARYLANGID(::GetThreadUILanguage()))
+    {
+    case LANG_ENGLISH:
+    case LANG_SPANISH:
+    case LANG_FRENCH:
+    case LANG_ITALIAN:
+    case LANG_CHINESE:
+        break;
+    default:
+        ::SetThreadUILanguage(MAKELANGID(LANG_ENGLISH, SUBLANG_NEUTRAL));
+        break;
+    }
 
     CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
 
