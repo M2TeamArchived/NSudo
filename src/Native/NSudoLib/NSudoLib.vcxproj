@@ -6,6 +6,7 @@
     <MileProjectType>StaticLibrary</MileProjectType>
   </PropertyGroup>
   <Import Project="..\Mile.Project\Mile.Project.Cpp.props" />
+  <Import Project="..\Mile.Project\Mile.Project.Cpp.VC-LTL.props" />
   <ImportGroup Label="PropertySheets">
     <Import Project="..\Mile\Mile.props" />
   </ImportGroup>
@@ -14,11 +15,6 @@
       <PreprocessorDefinitions>NSUDOAPI_USING_STATIC_LIBRARY;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <PackageReference Include="VC-LTL">
-      <Version>4.1.1</Version>
-    </PackageReference>
-  </ItemGroup>
   <ItemGroup>
     <ClCompile Include="M2.Base.cpp" />
     <ClCompile Include="NSudoAPI.cpp" />

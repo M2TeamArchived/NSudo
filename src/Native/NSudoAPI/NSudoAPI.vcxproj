@@ -6,6 +6,7 @@
     <MileProjectType>DynamicLibrary</MileProjectType>
   </PropertyGroup>
   <Import Project="..\Mile.Project\Mile.Project.Cpp.props" />
+  <Import Project="..\Mile.Project\Mile.Project.Cpp.VC-LTL.props" />
   <ImportGroup Label="PropertySheets">
     <Import Project="..\MSBuild\NSudoLib.props" />
     <Import Project="..\Mile\Mile.props" />
@@ -18,11 +19,6 @@
       <ModuleDefinitionFile>NSudoAPI.def</ModuleDefinitionFile>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <PackageReference Include="VC-LTL">
-      <Version>4.1.1</Version>
-    </PackageReference>
-  </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DllMain.cpp" />
   </ItemGroup>

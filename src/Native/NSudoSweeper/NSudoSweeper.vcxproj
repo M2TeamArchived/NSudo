@@ -8,15 +8,11 @@
     <MileProjectManifestFile>NSudoSweeper.manifest</MileProjectManifestFile>
   </PropertyGroup>
   <Import Project="..\Mile.Project\Mile.Project.Cpp.props" />
+  <Import Project="..\Mile.Project\Mile.Project.Cpp.VC-LTL.props" />
   <ImportGroup Label="PropertySheets">
     <Import Project="..\WTL\WTL.props" />
     <Import Project="..\Mile\Mile.props" />
   </ImportGroup>
-  <ItemGroup>
-    <PackageReference Include="VC-LTL">
-      <Version>4.1.1</Version>
-    </PackageReference>
-  </ItemGroup>
   <ItemGroup>
     <ClCompile Include="NSudoSweeper.cpp" />
     <ClCompile Include="NSudoSweeperCore.cpp" />
