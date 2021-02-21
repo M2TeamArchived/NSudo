@@ -10,7 +10,7 @@
     <div class="page-footer">
       <ul class="inner">
         <li><a href="https://github.com/M2Team/NSudo/blob/master/License.md" target="_blank" rel="noopener noreferrer">MIT</a> Licensed &nbsp;</li>
-        <li> Copyright&nbsp;&copy;&nbsp;2014&nbsp;<a href="https://m2team.github.io/" target="_blank" rel="noopener noreferrer">M2-Team</a></li>
+        <li> Copyright&nbsp;&copy;&nbsp;<a href="https://m2team.github.io/" target="_blank" rel="noopener noreferrer">M2-Team</a>&nbsp;and&nbsp;Contributors.&nbsp;All&nbsp;rights&nbsp;reserved.</li>
       </ul>
     </div>
 
