@@ -24,11 +24,11 @@
 #endif
 
 #ifdef _ATL_NO_COMMODULE
-	#error WTL requires that _ATL_NO_COMMODULE is not defined
+	#error WTL doesn't support _ATL_NO_COMMODULE
 #endif
 
 #ifdef _ATL_NO_WIN_SUPPORT
-	#error WTL requires that _ATL_NO_WIN_SUPPORT is not defined
+	#error WTL doesn't support _ATL_NO_WIN_SUPPORT
 #endif
 
 #if (_MSC_VER < 1400)
@@ -149,13 +149,6 @@
 // Used for stack allocations with ATL::CTempBuffer
 #ifndef _WTL_STACK_ALLOC_THRESHOLD
   #define _WTL_STACK_ALLOC_THRESHOLD   512
-#endif
-
-// Used to declare overriden virtual functions
-#if (__cplusplus >= 201103L) || (defined(_MSC_VER) && _MSC_VER >= 1900)
-  #define _WTL_OVERRIDE override
-#else
-  #define _WTL_OVERRIDE
 #endif
 
 
@@ -286,7 +279,7 @@ namespace RunTimeHelper
 #else // !_versionhelpers_H_INCLUDED_
 		OSVERSIONINFO ovi = { sizeof(OSVERSIONINFO) };
 		BOOL bRet = ::GetVersionEx(&ovi);
-		return ((bRet != FALSE) && (ovi.dwMajorVersion == 6) && (ovi.dwMinorVersion >= 1));
+		return ((bRet != FALSE) && ((ovi.dwMajorVersion > 6) || ((ovi.dwMajorVersion == 6) && (ovi.dwMinorVersion >= 1))));
 #endif // _versionhelpers_H_INCLUDED_
 	}
 
@@ -579,7 +572,7 @@ namespace GenericWndClass
 ///////////////////////////////////////////////////////////////////////////////
 // CMessageFilter - Interface for message filter support
 
-class CMessageFilter
+class ATL_NO_VTABLE CMessageFilter
 {
 public:
 	virtual BOOL PreTranslateMessage(MSG* pMsg) = 0;
@@ -589,7 +582,7 @@ public:
 ///////////////////////////////////////////////////////////////////////////////
 // CIdleHandler - Interface for idle processing
 
-class CIdleHandler
+class ATL_NO_VTABLE CIdleHandler
 {
 public:
 	virtual BOOL OnIdle() = 0;
@@ -607,7 +600,9 @@ public:
 	MSG m_msg;
 
 	CMessageLoop()
-	{ }
+	{
+		memset(&m_msg, 0, sizeof(m_msg));
+	}
 
 	virtual ~CMessageLoop()
 	{ }
@@ -639,7 +634,7 @@ public:
 	{
 		BOOL bDoIdle = TRUE;
 		int nIdleCount = 0;
-		BOOL bRet;
+		BOOL bRet = FALSE;
 
 		for(;;)
 		{
@@ -678,21 +673,6 @@ public:
 		return (int)m_msg.wParam;
 	}
 
-	static BOOL IsIdleMessage(MSG* pMsg)
-	{
-		// These messages should NOT cause idle processing
-		switch(pMsg->message)
-		{
-		case WM_MOUSEMOVE:
-		case WM_NCMOUSEMOVE:
-		case WM_PAINT:
-		case 0x0118:	// WM_SYSTIMER (caret blink)
-			return FALSE;
-		}
-
-		return TRUE;
-	}
-
 // Overrideables
 	// Override to change message filtering
 	virtual BOOL PreTranslateMessage(MSG* pMsg)
@@ -717,6 +697,22 @@ public:
 				pIdleHandler->OnIdle();
 		}
 		return FALSE;   // don't continue
+	}
+
+	// override to change non-idle messages
+	virtual BOOL IsIdleMessage(MSG* pMsg) const
+	{
+		// These messages should NOT cause idle processing
+		switch(pMsg->message)
+		{
+		case WM_MOUSEMOVE:
+		case WM_NCMOUSEMOVE:
+		case WM_PAINT:
+		case 0x0118:	// WM_SYSTIMER (caret blink)
+			return FALSE;
+		}
+
+		return TRUE;
 	}
 };
 
@@ -780,6 +776,9 @@ public:
 	DWORD m_dwMainThreadID;
 	ATL::CSimpleMap<DWORD, CMessageLoop*>* m_pMsgLoopMap;
 	ATL::CSimpleArray<HWND>* m_pSettingChangeNotify;
+
+	CAppModule() : m_dwMainThreadID(0), m_pMsgLoopMap(NULL), m_pSettingChangeNotify(NULL)
+	{ }
 
 // Overrides of CComModule::Init and Term
 	HRESULT Init(ATL::_ATL_OBJMAP_ENTRY* pObjMap, HINSTANCE hInstance, const GUID* pLibID = NULL)
@@ -1004,6 +1003,9 @@ public:
 	bool m_bActivity;
 	DWORD m_dwTimeOut;
 	DWORD m_dwPause;
+
+	CServerAppModule() : m_hEventShutdown(NULL), m_bActivity(false), m_dwTimeOut(5000), m_dwPause(1000)
+	{ }
 
 // Override of CAppModule::Init
 	HRESULT Init(ATL::_ATL_OBJMAP_ENTRY* pObjMap, HINSTANCE hInstance, const GUID* pLibID = NULL)

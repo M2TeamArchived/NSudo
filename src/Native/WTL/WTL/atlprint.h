@@ -247,10 +247,10 @@ public:
 			if(pv != NULL)
 			{
 				memset(pv, 0, nLen);
-				pdev->wDeviceOffset = sizeof(DEVNAMES);
+				pdev->wDeviceOffset = sizeof(DEVNAMES) / sizeof(TCHAR);
 				pv = pv + sizeof(DEVNAMES); // now points to end
 				ATL::Checked::tcscpy_s((LPTSTR)pv, lstrlen(lpszPrinterName) + 1, lpszPrinterName);
-				pdev->wOutputOffset = (WORD)(sizeof(DEVNAMES) + (lstrlen(lpszPrinterName) + 1) * sizeof(TCHAR));
+				pdev->wOutputOffset = (WORD)(sizeof(DEVNAMES) / sizeof(TCHAR) + lstrlen(lpszPrinterName) + 1);
 				pv = pv + (lstrlen(lpszPrinterName) + 1) * sizeof(TCHAR);
 				ATL::Checked::tcscpy_s((LPTSTR)pv, lstrlen(lpszPortName) + 1, lpszPortName);
 				::GlobalUnlock(hDevNames);
@@ -531,6 +531,9 @@ public:
 class ATL_NO_VTABLE CPrintJobInfo : public IPrintJobInfo
 {
 public:
+	CPrintJobInfo() : m_nPJState(0)
+	{ }
+
 	virtual void BeginPrintJob(HDC /*hDC*/)   // allocate handles needed, etc
 	{
 	}
@@ -581,8 +584,10 @@ public:
 	unsigned long m_nEndPage;
 
 // Constructor/destructor
-	CPrintJob() : m_nJobID(0), m_bCancel(false), m_bComplete(true)
-	{ }
+	CPrintJob() : m_pInfo(NULL), m_pDefDevMode(NULL), m_nJobID(0), m_bCancel(false), m_bComplete(true), m_nStartPage(0), m_nEndPage(0)
+	{
+		memset(&m_docinfo, 0, sizeof(m_docinfo));
+	}
 
 	~CPrintJob()
 	{
@@ -711,8 +716,11 @@ public:
 	DEVMODE* m_pCurDevMode;
 	SIZE m_sizeCurPhysOffset;
 
+// Implementation - data
+	int m_nCurPage;
+
 // Constructor
-	CPrintPreview() : m_pInfo(NULL), m_pDefDevMode(NULL), m_pCurDevMode(NULL)
+	CPrintPreview() : m_pInfo(NULL), m_pDefDevMode(NULL), m_pCurDevMode(NULL), m_nCurPage(0)
 	{
 		m_sizeCurPhysOffset.cx = 0;
 		m_sizeCurPhysOffset.cy = 0;
@@ -769,6 +777,11 @@ public:
 
 		CEnhMetaFileInfo emfinfo(m_meta);
 		ENHMETAHEADER* pmh = emfinfo.GetEnhMetaFileHeader();
+		if(pmh == NULL)
+		{
+			ATLASSERT(FALSE);
+			return;
+		}
 
 		// Compute whether we are OK vertically or horizontally
 		int x2 = pmh->szlDevice.cx;
@@ -802,15 +815,18 @@ public:
 	{
 		CEnhMetaFileInfo emfinfo(m_meta);
 		ENHMETAHEADER* pmh = emfinfo.GetEnhMetaFileHeader();
+		if(pmh == NULL)
+		{
+			ATLASSERT(FALSE);
+			return;
+		}
+
 		int nOffsetX = MulDiv(m_sizeCurPhysOffset.cx, rc.right-rc.left, pmh->szlDevice.cx);
 		int nOffsetY = MulDiv(m_sizeCurPhysOffset.cy, rc.bottom-rc.top, pmh->szlDevice.cy);
 
 		dc.OffsetWindowOrg(-nOffsetX, -nOffsetY);
 		dc.PlayMetaFile(m_meta, &rc);
 	}
-
-// Implementation - data
-	int m_nCurPage;
 };
 
 
@@ -1082,6 +1098,12 @@ public:
 	{
 		CEnhMetaFileInfo emfinfo(this->m_meta);
 		ENHMETAHEADER* pmh = emfinfo.GetEnhMetaFileHeader();
+		if(pmh == NULL)
+		{
+			ATLASSERT(FALSE);
+			return;
+		}
+
 		int nOffsetX = MulDiv(this->m_sizeCurPhysOffset.cx, rc.right-rc.left, pmh->szlDevice.cx);
 		int nOffsetY = MulDiv(this->m_sizeCurPhysOffset.cy, rc.bottom-rc.top, pmh->szlDevice.cy);
 

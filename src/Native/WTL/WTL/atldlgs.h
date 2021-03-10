@@ -2331,7 +2331,9 @@ public:
 
 	// The following handle the case of print setup... from the print dialog
 	CPrintDialogImpl(PRINTDLG& pdInit) : m_pd(pdInit)
-	{ }
+	{
+		memset(&m_pdActual, 0, sizeof(m_pdActual));
+	}
 
 	BEGIN_MSG_MAP(CPrintDialogImpl)
 #ifdef psh1

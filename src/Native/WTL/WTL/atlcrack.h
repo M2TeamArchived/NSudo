@@ -35,7 +35,7 @@ public: \
 	{ \
 		m_bMsgHandled = bHandled; \
 	} \
-	BOOL ProcessWindowMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT& lResult, DWORD dwMsgMapID = 0) _WTL_OVERRIDE \
+	BOOL ProcessWindowMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT& lResult, DWORD dwMsgMapID = 0) \
 	{ \
 		BOOL bOldMsgHandled = m_bMsgHandled; \
 		BOOL bRet = _ProcessWindowMessage(hWnd, uMsg, wParam, lParam, lResult, dwMsgMapID); \
@@ -1045,7 +1045,7 @@ public: \
 			return TRUE; \
 	}
 
-// void OnMDIActivate(CWindow wndActivate, CWindow wndDeactivate)
+// void OnMDIActivate(CWindow wndDeactivate, CWindow wndActivate)
 #define MSG_WM_MDIACTIVATE(func) \
 	if (uMsg == WM_MDIACTIVATE) \
 	{ \
@@ -1632,6 +1632,28 @@ public: \
 			return TRUE; \
 	}
 
+// void OnNcMouseHover(UINT nHitTest, CPoint ptPos)
+#define MSG_WM_NCMOUSEHOVER(func) \
+	if (uMsg == WM_NCMOUSEHOVER) \
+	{ \
+		this->SetMsgHandled(TRUE); \
+		func((UINT)wParam, ::CPoint(MAKEPOINTS(lParam).x, MAKEPOINTS(lParam).y)); \
+		lResult = 0; \
+		if(this->IsMsgHandled()) \
+			return TRUE; \
+	}
+
+// void OnNcMouseLeave()
+#define MSG_WM_NCMOUSELEAVE(func) \
+	if (uMsg == WM_NCMOUSELEAVE) \
+	{ \
+		this->SetMsgHandled(TRUE); \
+		func(); \
+		lResult = 0; \
+		if(this->IsMsgHandled()) \
+			return TRUE; \
+	}
+
 // void OnMenuRButtonUp(WPARAM wParam, CMenuHandle menu)
 #define MSG_WM_MENURBUTTONUP(func) \
 	if (uMsg == WM_MENURBUTTONUP) \
@@ -1885,6 +1907,42 @@ public: \
 	}
 
 #endif // (WINVER >= 0x0601)
+
+#if (WINVER >= 0x0605)
+
+// void OnDpiChangedBeforeParent()
+#define MSG_WM_DPICHANGED_BEFOREPARENT(func) \
+	if (uMsg == WM_DPICHANGED_BEFOREPARENT) \
+	{ \
+		this->SetMsgHandled(TRUE); \
+		func(); \
+		lResult = 0; \
+		if(this->IsMsgHandled()) \
+			return TRUE; \
+	}
+
+// void OnDpiChangedAfterParent()
+#define MSG_WM_DPICHANGED_AFTERPARENT(func) \
+	if (uMsg == WM_DPICHANGED_AFTERPARENT) \
+	{ \
+		this->SetMsgHandled(TRUE); \
+		func(); \
+		lResult = 0; \
+		if(this->IsMsgHandled()) \
+			return TRUE; \
+	}
+
+// BOOL OnGetDpiScaledSize(UINT uDpi, PSIZE pSize)
+#define MSG_WM_GETDPISCALEDSIZE(func) \
+if (uMsg == WM_GETDPISCALEDSIZE) \
+{ \
+	this->SetMsgHandled(TRUE); \
+	lResult = (LRESULT)func((UINT)wParam, (PSIZE)lParam); \
+	if(this->IsMsgHandled()) \
+		return TRUE; \
+}
+
+#endif // (WINVER >= 0x0605)
 
 ///////////////////////////////////////////////////////////////////////////////
 // ATL defined messages

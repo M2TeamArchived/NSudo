@@ -1690,11 +1690,11 @@ public:
 	void DrawTrackRect()
 	{
 		T* pT = static_cast<T*>(this);
-		const SIZE sizeLines = { 2, 2 };
 		RECT rc = m_rcTrack;
 		pT->NormalizeRect(rc);
 		if(!::IsRectEmpty(&rc))
 		{
+			const SIZE sizeLines = { 2, 2 };
 			CClientDC dc(pT->m_hWnd);
 			dc.DrawDragRect(&rc, sizeLines, NULL, sizeLines);
 		}

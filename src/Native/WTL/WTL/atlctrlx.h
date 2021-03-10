@@ -3535,8 +3535,11 @@ public:
 // CTabView - implements tab view window
 
 // TabView Notifications
-#define TBVN_PAGEACTIVATED   (0U-741)
-#define TBVN_CONTEXTMENU     (0U-742)
+#define TBVN_PAGEACTIVATED        (0U-741)
+#define TBVN_CONTEXTMENU          (0U-742)
+#define TBVN_TABCLOSEBTN          (0U-743)   // return 0 to close page, 1 to keep open
+// internal
+#define TBVN_CLOSEBTNMOUSELEAVE   (0U-744)
 
 // Notification data for TBVN_CONTEXTMENU
 struct TBVCONTEXTMENUINFO
@@ -3546,6 +3549,186 @@ struct TBVCONTEXTMENUINFO
 };
 
 typedef TBVCONTEXTMENUINFO* LPTBVCONTEXTMENUINFO;
+
+
+// Helper class for tab item hover close button
+class CTabViewCloseBtn : public ATL::CWindowImpl<CTabViewCloseBtn>
+{
+public:
+	DECLARE_WND_CLASS_EX(_T("WTL_TabView_CloseBtn"), 0, -1)
+
+	enum { _xyBtnImageLeftTop = 3, _xyBtnImageRightBottom = 9 };
+
+	bool m_bHover;
+	bool m_bPressed;
+	CToolTipCtrl m_tip;
+
+	CTabViewCloseBtn() : m_bHover(false), m_bPressed(false)
+	{ }
+
+// Message map and handlers
+	BEGIN_MSG_MAP(CTabViewCloseBtn)
+		MESSAGE_RANGE_HANDLER(WM_MOUSEFIRST, WM_MOUSELAST, OnMouseMessage)
+		MESSAGE_HANDLER(WM_LBUTTONDOWN, OnLButtonDown)
+		MESSAGE_HANDLER(WM_MOUSEMOVE, OnMouseMove)
+		MESSAGE_HANDLER(WM_MOUSELEAVE, OnMouseLeave)
+		MESSAGE_HANDLER(WM_LBUTTONUP, OnLButtonUp)
+		MESSAGE_HANDLER(WM_CAPTURECHANGED, OnCaptureChanged)
+		MESSAGE_HANDLER(WM_PAINT, OnPaint)
+		MESSAGE_HANDLER(WM_PRINTCLIENT, OnPaint)
+		FORWARD_NOTIFICATIONS()
+	END_MSG_MAP()
+
+	LRESULT OnMouseMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+	{
+		MSG msg = { m_hWnd, uMsg, wParam, lParam };
+		if(m_tip.IsWindow() != FALSE)
+			m_tip.RelayEvent(&msg);
+
+		bHandled = FALSE;
+		return 1;
+	}
+
+	LRESULT OnLButtonDown(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+	{
+		SetCapture();
+		m_bHover = false;
+		m_bPressed = true;
+		Invalidate(FALSE);
+		UpdateWindow();
+
+		return 0;
+	}
+
+	LRESULT OnMouseMove(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/)
+	{
+		if(::GetCapture() == m_hWnd)
+		{
+			POINT pt = { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
+			ClientToScreen(&pt);
+			RECT rect = {};
+			GetWindowRect(&rect);
+			bool bPressed = (::PtInRect(&rect, pt) != FALSE);
+			if(m_bPressed != bPressed)
+			{
+				m_bPressed = bPressed;
+				Invalidate(FALSE);
+				UpdateWindow();
+			}
+		}
+		else
+		{
+			if(!m_bHover)
+			{
+				m_bHover = true;
+				Invalidate(FALSE);
+				UpdateWindow();
+			}
+
+			TRACKMOUSEEVENT tme = { sizeof(TRACKMOUSEEVENT), TME_LEAVE, m_hWnd };
+			::TrackMouseEvent(&tme);
+		}
+
+		return 0;
+	}
+
+	LRESULT OnMouseLeave(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+	{
+		if(m_bHover)
+		{
+			m_bHover = false;
+			Invalidate(FALSE);
+			UpdateWindow();
+		}
+
+		NMHDR nmhdr = { m_hWnd, (UINT_PTR)GetDlgCtrlID(), TBVN_CLOSEBTNMOUSELEAVE };
+		GetParent().SendMessage(WM_NOTIFY, GetDlgCtrlID(), (LPARAM)&nmhdr);
+
+		return 0;
+	}
+
+	LRESULT OnLButtonUp(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+	{
+		if(::GetCapture() == m_hWnd)
+		{
+			bool bAction = m_bPressed;
+			ReleaseCapture();
+
+			if(bAction)
+				GetParent().SendMessage(WM_COMMAND, MAKEWPARAM(GetDlgCtrlID(), BN_CLICKED), (LPARAM)m_hWnd);
+		}
+
+		return 0;
+	}
+
+	LRESULT OnCaptureChanged(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+	{
+		if(m_bPressed)
+		{
+			m_bPressed = false;
+			Invalidate(FALSE);
+			UpdateWindow();
+		}
+
+		return 0;
+	}
+
+	LRESULT OnPaint(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+	{
+		if(wParam != NULL)
+		{
+			DoPaint((HDC)wParam);
+		}
+		else
+		{
+			CPaintDC dc(this->m_hWnd);
+			DoPaint(dc.m_hDC);
+		}
+
+		return 0;
+	}
+
+	// painting helper
+	void DoPaint(CDCHandle dc)
+	{
+		RECT rect = {};
+		GetClientRect(&rect);
+
+		RECT rcImage = { _xyBtnImageLeftTop, _xyBtnImageLeftTop, _xyBtnImageRightBottom + 1, _xyBtnImageRightBottom + 1 };
+		::OffsetRect(&rcImage, rect.left, rect.top);
+		if(m_bPressed)
+			::OffsetRect(&rcImage, 1, 0);
+
+		// draw button frame and background
+		CPen penFrame;
+		penFrame.CreatePen(PS_SOLID, 0, ::GetSysColor((m_bHover || m_bPressed) ? COLOR_BTNTEXT : COLOR_BTNSHADOW));
+		HPEN hPenOld = dc.SelectPen(penFrame);
+
+		CBrush brush;
+		brush.CreateSysColorBrush(m_bPressed ? COLOR_BTNSHADOW : COLOR_WINDOW);
+		HBRUSH hBrushOld = dc.SelectBrush(brush);
+
+		dc.Rectangle(&rect);
+
+		// draw button "X"
+		CPen penX;
+		penX.CreatePen(PS_SOLID, 0, ::GetSysColor(COLOR_BTNTEXT));
+		dc.SelectPen(penX);
+
+		dc.MoveTo(rcImage.left, rcImage.top);
+		dc.LineTo(rcImage.right, rcImage.bottom);
+		dc.MoveTo(rcImage.left + 1, rcImage.top);
+		dc.LineTo(rcImage.right + 1, rcImage.bottom);
+
+		dc.MoveTo(rcImage.left, rcImage.bottom - 1);
+		dc.LineTo(rcImage.right, rcImage.top - 1);
+		dc.MoveTo(rcImage.left + 1, rcImage.bottom - 1);
+		dc.LineTo(rcImage.right + 1, rcImage.top - 1);
+
+		dc.SelectPen(hPenOld);
+		dc.SelectBrush(hBrushOld);
+	}
+};
 
 
 template <class T, class TBase = ATL::CWindow, class TWinTraits = ATL::CControlWinTraits>
@@ -3587,6 +3770,16 @@ public:
 		_AUTOSCROLL_RIGHT = 1
 	};
 
+	enum CloseBtn
+	{
+		_cxCloseBtn = 14,
+		_cyCloseBtn = 13,
+		_cxCloseBtnMargin = 4, 
+		_cxCloseBtnMarginSel = 1, 
+
+		_nCloseBtnID = ID_PANE_CLOSE
+	};
+
 // Data members
 	ATL::CContainedWindowT<CTabCtrl> m_tab;
 	int m_cyTabHeight;
@@ -3611,6 +3804,9 @@ public:
 	AutoScroll m_AutoScroll;
 	CUpDownCtrl m_ud;
 
+	CTabViewCloseBtn m_btnClose;
+	int m_nCloseItem;
+
 	bool m_bDestroyPageOnRemove:1;
 	bool m_bDestroyImageList:1;
 	bool m_bActivePageMenuItem:1;
@@ -3619,6 +3815,7 @@ public:
 	bool m_bWindowsMenuItem:1;
 	bool m_bNoTabDrag:1;
 	bool m_bNoTabDragAutoScroll:1;
+	bool m_bTabCloseButton:1;
 	// internal
 	bool m_bTabCapture:1;
 	bool m_bTabDrag:1;
@@ -3635,6 +3832,7 @@ public:
 			m_lpstrTitleBarBase(NULL), 
 			m_cchTitleBarLength(100), 
 	                m_AutoScroll(_AUTOSCROLL_NONE), 
+	                m_nCloseItem(-1), 
 			m_bDestroyPageOnRemove(true), 
 			m_bDestroyImageList(true), 
 			m_bActivePageMenuItem(true), 
@@ -3643,6 +3841,7 @@ public:
 			m_bWindowsMenuItem(false), 
 			m_bNoTabDrag(false), 
 	                m_bNoTabDragAutoScroll(false), 
+	                m_bTabCloseButton(true), 
 			m_bTabCapture(false), 
 			m_bTabDrag(false), 
 			m_bInternalFont(false)
@@ -3741,7 +3940,9 @@ public:
 		this->SetRedraw(TRUE);
 		this->RedrawWindow(NULL, NULL, RDW_FRAME | RDW_INVALIDATE | RDW_UPDATENOW | RDW_ALLCHILDREN);
 
-		if(::GetFocus() != m_tab.m_hWnd)
+		HWND hWndFocus = ::GetFocus();
+		ATL::CWindow wndTop = this->GetTopLevelWindow();
+		if((hWndFocus == wndTop.m_hWnd) || ((wndTop.IsChild(hWndFocus) != FALSE) && (hWndFocus != m_tab.m_hWnd)))
 			::SetFocus(GetPageHWND(m_nActivePage));
 
 		pT->UpdateTitleBar();
@@ -4108,7 +4309,7 @@ public:
 			CMenuItemInfo mii;
 			mii.fMask = MIIM_TYPE;
 			menu.GetMenuItemInfo(nFirstPos - 1, TRUE, &mii);
-			if((nFirstPos <= 0) || ((mii.fType & MFT_SEPARATOR) == 0))
+			if((mii.fType & MFT_SEPARATOR) == 0)
 			{
 				menu.AppendMenu(MF_SEPARATOR);
 				nFirstPos++;
@@ -4210,6 +4411,9 @@ public:
 		MESSAGE_HANDLER(WM_LBUTTONUP, OnTabLButtonUp)
 		MESSAGE_HANDLER(WM_CAPTURECHANGED, OnTabCaptureChanged)
 		MESSAGE_HANDLER(WM_MOUSEMOVE, OnTabMouseMove)
+		MESSAGE_HANDLER(WM_MOUSELEAVE, OnTabMouseLeave)
+		NOTIFY_HANDLER(T::_nCloseBtnID, TBVN_CLOSEBTNMOUSELEAVE, OnTabCloseBtnMouseLeave)
+		COMMAND_HANDLER(T::_nCloseBtnID, BN_CLICKED, OnTabCloseBtnClicked)
 	END_MSG_MAP()
 
 	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
@@ -4341,6 +4545,14 @@ public:
 
 	LRESULT OnTabChanged(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/)
 	{
+		if(m_bTabCloseButton && (m_btnClose.m_hWnd != NULL))
+		{
+			T* pT = static_cast<T*>(this);
+			RECT rcClose = {};
+			pT->CalcCloseButtonRect(m_nCloseItem, rcClose);
+			m_btnClose.SetWindowPos(NULL, &rcClose, SWP_NOZORDER | SWP_NOACTIVATE);
+		}
+
 		SetActivePage(m_tab.GetCurSel());
 		T* pT = static_cast<T*>(this);
 		pT->OnPageActivated(m_nActivePage);
@@ -4482,6 +4694,80 @@ public:
 				bHandled = TRUE;
 			}
 		}
+		else if(m_bTabCloseButton)
+		{
+			TCHITTESTINFO thti = {};
+			thti.pt.x = GET_X_LPARAM(lParam);
+			thti.pt.y = GET_Y_LPARAM(lParam);
+
+			int nItem = m_tab.HitTest(&thti);
+			if(nItem >= 0)
+			{
+				ATLTRACE(_T("+++++ item = %i\n"), nItem);
+
+				T* pT = static_cast<T*>(this);
+				if(m_btnClose.m_hWnd == NULL)
+				{
+					pT->CreateCloseButton(nItem);
+					m_nCloseItem = nItem;
+				}
+				else if(m_nCloseItem != nItem)
+				{
+					RECT rcClose = {};
+					pT->CalcCloseButtonRect(nItem, rcClose);
+					m_btnClose.SetWindowPos(NULL, &rcClose, SWP_NOZORDER | SWP_NOACTIVATE);
+					m_nCloseItem = nItem;
+				}
+
+				TRACKMOUSEEVENT tme = { sizeof(TRACKMOUSEEVENT), TME_LEAVE, m_tab.m_hWnd };
+				::TrackMouseEvent(&tme);
+			}
+		}
+
+		return 0;
+	}
+
+	LRESULT OnTabMouseLeave(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+	{
+		bHandled = FALSE;
+
+		if(m_btnClose.m_hWnd != NULL)
+		{
+			POINT pt = {};
+			::GetCursorPos(&pt);
+			RECT rect = {};
+			m_btnClose.GetWindowRect(&rect);
+			if(::PtInRect(&rect, pt) == FALSE)
+			{
+				m_nCloseItem = -1;
+				T* pT = static_cast<T*>(this);
+				pT->DestroyCloseButton();
+			}
+			else
+			{
+				bHandled = TRUE;
+			}
+		}
+
+		return 0;
+	}
+
+	LRESULT OnTabCloseBtnMouseLeave(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/)
+	{
+		TCHITTESTINFO thti = {};
+		::GetCursorPos(&thti.pt);
+		m_tab.ScreenToClient(&thti.pt);
+		int nItem = m_tab.HitTest(&thti);
+		if(nItem == -1)
+			m_tab.SendMessage(WM_MOUSELEAVE);
+
+		return 0;
+	}
+
+	LRESULT OnTabCloseBtnClicked(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+	{
+		T* pT = static_cast<T*>(this);
+		pT->OnTabCloseBtn(m_nCloseItem);
 
 		return 0;
 	}
@@ -4880,6 +5166,84 @@ public:
 		cmi.hdr.code = TBVN_CONTEXTMENU;
 		cmi.pt = pt;
 		this->GetParent().SendMessage(WM_NOTIFY, this->GetDlgCtrlID(), (LPARAM)&cmi);
+	}
+
+	void OnTabCloseBtn(int nPage)
+	{
+		NMHDR nmhdr = {};
+		nmhdr.hwndFrom = this->m_hWnd;
+		nmhdr.idFrom = nPage;
+		nmhdr.code = TBVN_TABCLOSEBTN;
+		LRESULT lRet = this->GetParent().SendMessage(WM_NOTIFY, this->GetDlgCtrlID(), (LPARAM)&nmhdr);
+		if(lRet == 0)   // default - close page
+		{
+			T* pT = static_cast<T*>(this);
+			pT->RemovePage(m_nCloseItem);
+			m_nCloseItem = -1;
+			pT->DestroyCloseButton();
+		}
+		else
+		{
+			m_tab.SendMessage(WM_MOUSELEAVE);
+		}
+	}
+
+// Close button overrideables
+	void CreateCloseButton(int nItem)
+	{
+		ATLASSERT(m_btnClose.m_hWnd == NULL);
+
+		m_btnClose.m_bPressed = false;
+
+		T* pT = static_cast<T*>(this);
+		RECT rcClose = {};
+		pT->CalcCloseButtonRect(nItem, rcClose);
+		m_btnClose.Create(m_tab.m_hWnd, rcClose, NULL, WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS, 0, T::_nCloseBtnID);
+		ATLASSERT(m_btnClose.IsWindow());
+
+		if(m_btnClose.m_hWnd != NULL)
+		{
+			// create a tool tip
+			ATLASSERT(m_btnClose.m_tip.m_hWnd == NULL);
+			m_btnClose.m_tip.Create(m_btnClose.m_hWnd);
+			ATLASSERT(m_btnClose.m_tip.IsWindow());
+
+			if(m_btnClose.m_tip.IsWindow())
+			{
+				m_btnClose.m_tip.Activate(TRUE);
+
+				RECT rect = {};
+				m_btnClose.GetClientRect(&rect);
+				m_btnClose.m_tip.AddTool(m_btnClose.m_hWnd, LPSTR_TEXTCALLBACK, &rect, T::_nCloseBtnID);
+			}
+		}
+	}
+
+	void DestroyCloseButton()
+	{
+		ATLASSERT(m_btnClose.m_hWnd != NULL);
+
+		if(m_btnClose.m_hWnd != NULL)
+		{
+			if(m_btnClose.m_tip.IsWindow())
+			{
+				m_btnClose.m_tip.DestroyWindow();
+				m_btnClose.m_tip.m_hWnd = NULL;
+			}
+
+			m_btnClose.DestroyWindow();
+		}
+	}
+
+	void CalcCloseButtonRect(int nItem, RECT& rcClose)
+	{
+		RECT rcItem = {};
+		m_tab.GetItemRect(nItem, &rcItem);
+
+		int cy = (rcItem.bottom - rcItem.top - _cyCloseBtn) / 2;
+		int cx = (nItem == m_tab.GetCurSel()) ? _cxCloseBtnMarginSel : _cxCloseBtnMargin;
+		::SetRect(&rcClose, rcItem.right - cx - _cxCloseBtn, rcItem.top + cy, 
+			            rcItem.right - cx, rcItem.top + cy + _cyCloseBtn);
 	}
 };
 
