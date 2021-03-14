@@ -831,11 +831,9 @@ HRESULT M2LoadLibraryEx(
             wchar_t Buffer[BufferLength];
             if (!std::wcschr(LibraryFileName, L'\\'))
             {
-                hr = ::MileGetSystemDirectory(
+                if (::GetSystemDirectoryW(
                     Buffer,
-                    static_cast<UINT>(BufferLength),
-                    nullptr);
-                if (SUCCEEDED(hr))
+                    static_cast<UINT>(BufferLength)))
                 {
                     hr = StringCbCatW(Buffer, BufferLength, LibraryFileName);
                     if (SUCCEEDED(hr))
@@ -860,90 +858,7 @@ HRESULT M2LoadLibraryEx(
 
 #pragma region Environment
 
-/**
- * Retrieves the path of the system directory.
- *
- * @param SystemFolderPath The string of the path of the system directory.
- * @return HRESULT. If the function succeeds, the return value is S_OK.
- */
-HRESULT M2GetSystemDirectory(
-    std::wstring& SystemFolderPath)
-{
-    HRESULT hr = S_OK;
-    UINT Length = 0;
-
-    hr = ::MileGetSystemDirectory(
-        nullptr,
-        0,
-        &Length);
-    if (SUCCEEDED(hr))
-    {
-        SystemFolderPath.resize(Length - 1);
-
-        hr = ::MileGetSystemDirectory(
-            &SystemFolderPath[0],
-            static_cast<UINT>(Length),
-            &Length);
-        if (SUCCEEDED(hr))
-        {
-            if (SystemFolderPath.size() != Length)
-            {
-                hr = E_UNEXPECTED;
-            }
-        }
-    }
-
-    if (FAILED(hr))
-    {
-        SystemFolderPath.clear();
-    }
-
-    return hr;
-}
-
 #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
-
-/**
- * Retrieves the path of the shared Windows directory on a multi-user system.
- *
- * @param WindowsFolderPath The string of the path of the shared Windows
- *                          directory on a multi-user system.
- * @return HRESULT. If the function succeeds, the return value is S_OK.
- */
-HRESULT M2GetWindowsDirectory(
-    std::wstring& WindowsFolderPath)
-{
-    HRESULT hr = S_OK;
-    UINT Length = 0;
-
-    hr = ::MileGetWindowsDirectory(
-        nullptr,
-        0,
-        &Length);
-    if (SUCCEEDED(hr))
-    {
-        WindowsFolderPath.resize(Length - 1);
-
-        hr = ::MileGetWindowsDirectory(
-            &WindowsFolderPath[0],
-            static_cast<UINT>(Length),
-            &Length);
-        if (SUCCEEDED(hr))
-        {
-            if (WindowsFolderPath.size() != Length)
-            {
-                hr = E_UNEXPECTED;
-            }
-        }
-    }
-
-    if (FAILED(hr))
-    {
-        WindowsFolderPath.clear();
-    }
-
-    return hr;
-}
 
 /**
  * Enables the Per-Monitor DPI Aware for the specified dialog using the

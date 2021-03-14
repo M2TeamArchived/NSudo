@@ -1134,6 +1134,24 @@ namespace Mile
     std::string ToUtf8String(
         std::wstring const& Utf16String);
 
+    /**
+     * @brief Retrieves the path of the system directory. The system directory
+     *        contains system files such as dynamic-link libraries and drivers.
+     * @return The path of the system directory.
+    */
+    std::wstring GetSystemDirectoryW();
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+    /**
+     * @brief Retrieves the path of the shared Windows directory on a
+     *        multi-user system.
+     * @return The path of the shared Windowsmdirectory on a multi-user system.
+    */
+    std::wstring GetWindowsDirectoryW();
+
+#endif
+
 #pragma endregion
 }
 

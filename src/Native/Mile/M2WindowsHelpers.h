@@ -701,26 +701,7 @@ HRESULT M2LoadLibraryEx(
 
 #pragma region Environment
 
-/**
- * Retrieves the path of the system directory.
- *
- * @param SystemFolderPath The string of the path of the system directory.
- * @return HRESULT. If the function succeeds, the return value is S_OK.
- */
-HRESULT M2GetSystemDirectory(
-    std::wstring& SystemFolderPath);
-
 #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
-
-/**
- * Retrieves the path of the shared Windows directory on a multi-user system.
- *
- * @param WindowsFolderPath The string of the path of the shared Windows
- *                          directory on a multi-user system.
- * @return HRESULT. If the function succeeds, the return value is S_OK.
- */
-HRESULT M2GetWindowsDirectory(
-    std::wstring& WindowsFolderPath);
 
 /**
  * Enables the Per-Monitor DPI Aware for the specified dialog using the

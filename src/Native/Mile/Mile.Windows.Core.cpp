@@ -108,4 +108,38 @@ std::string Mile::ToUtf8String(
     return Utf8String;
 }
 
+std::wstring Mile::GetSystemDirectoryW()
+{
+    std::wstring Path;
+
+    UINT Length = ::GetSystemDirectoryW(nullptr, 0);
+    if (Length)
+    {
+        Path.resize(Length);
+        Length = ::GetSystemDirectoryW(&Path[0], Length);
+        Path.resize(Length);
+    }
+
+    return Path;
+}
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+std::wstring Mile::GetWindowsDirectoryW()
+{
+    std::wstring Path;
+
+    UINT Length = ::GetSystemWindowsDirectoryW(nullptr, 0);
+    if (Length)
+    {
+        Path.resize(Length);
+        Length = ::GetSystemWindowsDirectoryW(&Path[0], Length);
+        Path.resize(Length);
+    }
+
+    return Path;
+}
+
+#endif
+
 #pragma endregion
