@@ -142,4 +142,26 @@ std::wstring Mile::GetWindowsDirectoryW()
 
 #endif
 
+std::wstring Mile::ExpandEnvironmentStringsW(
+    std::wstring const& SourceString)
+{
+    std::wstring DestinationString;
+
+    UINT Length = ::ExpandEnvironmentStringsW(
+        SourceString.c_str(),
+        nullptr,
+        0);
+    if (Length)
+    {
+        DestinationString.resize(Length);
+        Length = ::ExpandEnvironmentStringsW(
+            SourceString.c_str(),
+            &DestinationString[0],
+            Length);
+        DestinationString.resize(Length);
+    }
+
+    return DestinationString;
+}
+
 #pragma endregion

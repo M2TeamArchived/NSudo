@@ -1057,42 +1057,6 @@ EXTERN_C HRESULT WINAPI MileOpenThreadTokenByThreadId(
     _In_ BOOL OpenAsSelf,
     _Out_ PHANDLE TokenHandle);
 
-/**
- * Expands environment-variable strings and replaces them with the values
- * defined for the current user.
- *
- * @param lpSrc A buffer that contains one or more environment-variable strings
- *              in the form: %variableName%.
- * @param lpDst A pointer to a buffer that receives the result of expanding the
- *              environment variable strings in the lpSrc buffer. Note that
- *              this buffer cannot be the same as the lpSrc buffer.
- * @param nSize The maximum number of characters that can be stored in the
- *              buffer pointed to by the lpDst parameter.
- * @param pReturnSize The number of TCHARs stored in the destination buffer,
- *                    including the terminating null character.
- * @return HRESULT. If the function succeeds, the return value is S_OK.
- * @remark For more information, see ExpandEnvironmentStringsW.
- */
-EXTERN_C HRESULT WINAPI MileExpandEnvironmentStrings(
-    _In_ LPCWSTR lpSrc,
-    _Out_opt_ LPWSTR lpDst,
-    _In_ DWORD nSize,
-    _Out_opt_ PDWORD pReturnSize);
-
-/**
- * Expands environment-variable strings and replaces them with the values
- * defined for the current user.
- *
- * @param Source The environment-variable string you need to expand.
- * @param Destination The expanded string. When you have finished using the
- *                    information, free it by calling the MileFreeMemory
- *                    function. You should also set the pointer to nullptr.
- * @return HRESULT. If the function succeeds, the return value is S_OK.
- */
-EXTERN_C HRESULT WINAPI MileExpandEnvironmentStringsWithMemory(
-    _In_ LPCWSTR Source,
-    _Out_ LPWSTR* Destination);
-
 #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
 
 /**

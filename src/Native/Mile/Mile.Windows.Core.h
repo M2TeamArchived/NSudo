@@ -1146,11 +1146,22 @@ namespace Mile
     /**
      * @brief Retrieves the path of the shared Windows directory on a
      *        multi-user system.
-     * @return The path of the shared Windowsmdirectory on a multi-user system.
+     * @return The path of the shared Windows directory on a multi-user system.
     */
     std::wstring GetWindowsDirectoryW();
 
 #endif
+
+    /**
+     * @brief Expands environment variable strings and replaces them with the
+     *        values defined for the current user.
+     * @param SourceString The string that contains one or more environment
+                           variable strings (in the %variableName% form) you
+                           need to expand.
+     * @return The result string of expanding the environment variable strings.
+    */
+    std::wstring ExpandEnvironmentStringsW(
+        std::wstring const& SourceString);
 
 #pragma endregion
 }

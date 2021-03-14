@@ -449,20 +449,17 @@ EXTERN_C HRESULT WINAPI NSudoCreateProcess(
 
     LPVOID lpEnvironment = nullptr;
 
-    LPWSTR ExpandedString = nullptr;
-
     hr = ::MileCreateEnvironmentBlock(&lpEnvironment, hToken, TRUE);
     if (hr == S_OK)
     {
-        hr = ::MileExpandEnvironmentStringsWithMemory(
-            CommandLine,
-            &ExpandedString);
+        std::wstring ExpandedString = Mile::ExpandEnvironmentStringsW(
+            std::wstring(CommandLine));
         if (hr == S_OK)
         {
             hr = ::MileCreateProcessAsUser(
                 hToken,
                 nullptr,
-                ExpandedString,
+                const_cast<LPWSTR>(ExpandedString.c_str()),
                 nullptr,
                 nullptr,
                 FALSE,
@@ -484,8 +481,6 @@ EXTERN_C HRESULT WINAPI NSudoCreateProcess(
                 Mile::CloseHandle(ProcessInfo.hProcess);
                 Mile::CloseHandle(ProcessInfo.hThread);
             }
-
-            Mile::HeapMemory::Free(ExpandedString);
         }
 
         ::MileDestroyEnvironmentBlock(lpEnvironment);
