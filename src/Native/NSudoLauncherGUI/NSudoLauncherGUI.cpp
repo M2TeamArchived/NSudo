@@ -52,7 +52,7 @@
 #include "WTL/atlmisc.h"
 
 #include "Mile.Project.Properties.h"
-#include "Resources/resource.h"
+#include "NSudoLauncherGUIResource.h"
 
 #include <NSudoLauncherResources.h>
 

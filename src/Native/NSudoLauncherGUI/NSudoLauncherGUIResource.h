@@ -1,6 +1,6 @@
 ﻿//{{NO_DEPENDENCIES}}
 // Microsoft Visual C++ 生成的包含文件。
-// 供 NSudo.rc 使用
+// 供 NSudoLauncherGUI.rc 使用
 //
 #define IDD_NSudoDlg                    132
 #define IDR_STRING1                     136

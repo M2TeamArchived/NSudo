@@ -30,10 +30,10 @@
   <ItemGroup>
     <ClInclude Include="jsmn.h" />
     <ClInclude Include="Mile.Project.Properties.h" />
-    <ClInclude Include="Resources\resource.h" />
+    <ClInclude Include="NSudoLauncherCUIResource.h" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="Resources\NSudo.rc" />
+    <ResourceCompile Include="NSudoLauncherCUI.rc" />
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="NSudoLauncherCUI.manifest" />

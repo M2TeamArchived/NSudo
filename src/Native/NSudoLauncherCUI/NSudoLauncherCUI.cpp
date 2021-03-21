@@ -39,7 +39,7 @@
 #include <vector>
 
 #include "Mile.Project.Properties.h"
-#include "Resources/resource.h"
+#include "NSudoLauncherCUIResource.h"
 
 #include <NSudoLauncherResources.h>
 

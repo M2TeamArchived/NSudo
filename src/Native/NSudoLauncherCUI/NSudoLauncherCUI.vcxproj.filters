@@ -20,17 +20,13 @@
     <ClInclude Include="jsmn.h">
       <Filter>jsmn</Filter>
     </ClInclude>
-    <ClInclude Include="Resources\resource.h">
-      <Filter>Resources</Filter>
-    </ClInclude>
     <ClInclude Include="Mile.Project.Properties.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="Resources\NSudo.rc">
-      <Filter>Resources</Filter>
-    </ResourceCompile>
+    <ClInclude Include="NSudoLauncherCUIResource.h" />
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="NSudoLauncherCUI.manifest" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="NSudoLauncherCUI.rc" />
   </ItemGroup>
 </Project>

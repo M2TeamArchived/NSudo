@@ -32,18 +32,14 @@
     <ClInclude Include="M2Win32GUIHelpers.h">
       <Filter>M2Win32GUIHelpers</Filter>
     </ClInclude>
-    <ClInclude Include="Resources\resource.h">
-      <Filter>Resources</Filter>
-    </ClInclude>
     <ClInclude Include="Mile.Project.Properties.h" />
+    <ClInclude Include="NSudoLauncherGUIResource.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="M2MessageDialogResource.rc">
       <Filter>M2Win32GUIHelpers</Filter>
     </ResourceCompile>
-    <ResourceCompile Include="Resources\NSudo.rc">
-      <Filter>Resources</Filter>
-    </ResourceCompile>
+    <ResourceCompile Include="NSudoLauncherGUI.rc" />
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="NSudoLauncherGUI.manifest" />
