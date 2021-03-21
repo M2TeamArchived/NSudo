@@ -1347,97 +1347,6 @@ EXTERN_C DWORD WINAPI MileGetNumberOfHardwareThreads()
     return SystemInfo.dwNumberOfProcessors;
 }
 
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
-EXTERN_C HRESULT WINAPI MileRegCloseKey(
-    _In_ HKEY hKey)
-{
-    return Mile::HResult::FromWin32(::RegCloseKey(hKey));
-}
-
-#endif
-
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
-EXTERN_C HRESULT WINAPI MileRegCreateKey(
-    _In_ HKEY hKey,
-    _In_ LPCWSTR lpSubKey,
-    _Reserved_ DWORD Reserved,
-    _In_opt_ LPWSTR lpClass,
-    _In_ DWORD dwOptions,
-    _In_ REGSAM samDesired,
-    _In_opt_ CONST LPSECURITY_ATTRIBUTES lpSecurityAttributes,
-    _Out_ PHKEY phkResult,
-    _Out_opt_ LPDWORD lpdwDisposition)
-{
-    return Mile::HResult::FromWin32(::RegCreateKeyExW(
-        hKey,
-        lpSubKey,
-        Reserved,
-        lpClass,
-        dwOptions,
-        samDesired,
-        lpSecurityAttributes,
-        phkResult,
-        lpdwDisposition));
-}
-
-#endif
-
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
-EXTERN_C HRESULT WINAPI MileRegQueryValue(
-    _In_ HKEY hKey,
-    _In_opt_ LPCWSTR lpValueName,
-    _Reserved_ LPDWORD lpReserved,
-    _Out_opt_ LPDWORD lpType,
-    _Out_opt_ LPBYTE lpData,
-    _Inout_opt_ LPDWORD lpcbData)
-{
-    return Mile::HResult::FromWin32(::RegQueryValueExW(
-        hKey,
-        lpValueName,
-        lpReserved,
-        lpType,
-        lpData,
-        lpcbData));
-}
-
-#endif
-
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
-EXTERN_C HRESULT WINAPI MileRegSetValue(
-    _In_ HKEY hKey,
-    _In_opt_ LPCWSTR lpValueName,
-    _Reserved_ DWORD Reserved,
-    _In_ DWORD dwType,
-    _In_opt_ CONST BYTE* lpData,
-    _In_ DWORD cbData)
-{
-    return Mile::HResult::FromWin32(::RegSetValueExW(
-        hKey,
-        lpValueName,
-        Reserved,
-        dwType,
-        lpData,
-        cbData));
-}
-
-#endif
-
 /**
  * @remark You can read the definition for this function in "Mile.Windows.h".
  */
@@ -1813,26 +1722,26 @@ EXTERN_C HRESULT WINAPI MileRegQueryStringValue(
     *lpData = nullptr;
 
     DWORD cbData = 0;
-    HRESULT hr = ::MileRegQueryValue(
+    HRESULT hr = Mile::HResult::FromWin32(::RegQueryValueExW(
         hKey,
         lpValueName,
         nullptr,
         nullptr,
         nullptr,
-        &cbData);
+        &cbData));
     if (SUCCEEDED(hr))
     {
         hr = ::MileAllocMemory(cbData, reinterpret_cast<PVOID*>(lpData));
         if (SUCCEEDED(hr))
         {
             DWORD Type = 0;
-            hr = ::MileRegQueryValue(
+            hr = Mile::HResult::FromWin32(::RegQueryValueExW(
                 hKey,
                 lpValueName,
                 nullptr,
                 &Type,
                 reinterpret_cast<LPBYTE>(*lpData),
-                &cbData);
+                &cbData));
             if (SUCCEEDED(hr) && REG_SZ != Type)
                 hr = __HRESULT_FROM_WIN32(ERROR_ILLEGAL_ELEMENT_ADDRESS);
 
@@ -1863,7 +1772,7 @@ EXTERN_C HRESULT WINAPI MileCoCheckInterfaceName(
         return E_INVALIDARG;
 
     HKEY hKey = nullptr;
-    HRESULT hr = ::MileRegCreateKey(
+    HRESULT hr = Mile::HResult::FromWin32(::RegCreateKeyExW(
         HKEY_CLASSES_ROOT,
         RegistryKeyPath,
         0,
@@ -1872,7 +1781,7 @@ EXTERN_C HRESULT WINAPI MileCoCheckInterfaceName(
         KEY_READ,
         nullptr,
         &hKey,
-        nullptr);
+        nullptr));
     if (SUCCEEDED(hr))
     {
         wchar_t* InterfaceTypeName = nullptr;
@@ -1887,7 +1796,7 @@ EXTERN_C HRESULT WINAPI MileCoCheckInterfaceName(
             Mile::HeapMemory::Free(InterfaceTypeName);
         }
 
-        ::MileRegCloseKey(hKey);
+        ::RegCloseKey(hKey);
     }
 
     return hr;

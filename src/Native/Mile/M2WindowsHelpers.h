@@ -208,7 +208,7 @@ namespace M2
 
         static inline void Close(HKEY Object)
         {
-            ::MileRegCloseKey(Object);
+            ::RegCloseKey(Object);
         }
     };
 
