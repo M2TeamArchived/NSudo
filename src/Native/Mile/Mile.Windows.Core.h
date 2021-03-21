@@ -1097,6 +1097,31 @@ namespace Mile
 #pragma region Definitions for Windows (Win32 Style)
 
     /**
+     * @brief The definition of the file enumerator handle.
+    */
+    typedef void* FILE_ENUMERATOR_HANDLE;
+    typedef FILE_ENUMERATOR_HANDLE* PFILE_ENUMERATOR_HANDLE;
+
+    /**
+     * @brief The information about a found file or directory queried from the
+     *        file enumerator.
+    */
+    typedef struct _FILE_ENUMERATOR_INFORMATION
+    {
+        FILETIME CreationTime;
+        FILETIME LastAccessTime;
+        FILETIME LastWriteTime;
+        FILETIME ChangeTime;
+        UINT64 FileSize;
+        UINT64 AllocationSize;
+        DWORD FileAttributes;
+        DWORD EaSize;
+        LARGE_INTEGER FileId;
+        WCHAR ShortName[16];
+        WCHAR FileName[256];
+    } FILE_ENUMERATOR_INFORMATION, *PFILE_ENUMERATOR_INFORMATION;
+
+    /**
      * @brief Closes an open object handle.
      * @param hObject A valid handle to an open object.
      * @return An HResultFromLastError object An containing the HResult object
@@ -1309,6 +1334,49 @@ namespace Mile
     */
     HResult SetCompactOsDeploymentState(
         _In_ DWORD DeploymentState);
+
+    /**
+     * @brief Creates a file enumerator handle for searching a directory for a
+     *        file or subdirectory with a name.
+     * @param FileEnumeratorHandle The file enumerator handle.
+     * @param FileHandle The handle of the file to be searched a directory for
+     *                   a file or subdirectory with a name. This handle must
+     *                   be opened with the appropriate permissions for the
+     *                   requested change. This handle should not be a pipe
+     *                   handle.
+     * @return An HResult object containing the error code.
+    */
+    HResult CreateFileEnumerator(
+        _Out_ PFILE_ENUMERATOR_HANDLE FileEnumeratorHandle,
+        _In_ HANDLE FileHandle);
+
+    /**
+     * @brief Closes a file enumerator handle opened by CreateFileEnumerator.
+     * @param FileEnumeratorHandle The file enumerator handle.
+     * @return An HResultFromLastError object An containing the HResult object
+     *         containing the error code.
+    */
+    HResultFromLastError CloseFileEnumerator(
+        _In_ FILE_ENUMERATOR_HANDLE FileEnumeratorHandle);
+
+    /**
+     * @brief Starts or continues a file search from a file enumerator handle.
+     * @param FileEnumeratorHandle The file enumerator handle.
+     * @param FileEnumeratorInformation A pointer to the
+     *                                  FILE_ENUMERATOR_INFORMATION structure
+     *                                  that receives information about a found
+     *                                  file or directory.
+     * @return An HResultFromLastError object An containing the HResult object
+     *         containing the error code. If the function succeeds, the
+     *         FileEnumeratorInformation parameter contains information about
+     *         the next file or directory found. If the function fails, the
+     *         contents of FileEnumeratorInformation are indeterminate. If the
+     *         function fails because no more matching files can be found,
+     *         the error code is HRESULT_FROM_WIN32(ERROR_NO_MORE_FILES).
+    */
+    HResultFromLastError QueryFileEnumerator(
+        _In_ FILE_ENUMERATOR_HANDLE FileEnumeratorHandle,
+        _Out_ PFILE_ENUMERATOR_INFORMATION FileEnumeratorInformation);
 
 #pragma endregion
 

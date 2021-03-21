@@ -10,6 +10,8 @@
 
 #include "Mile.Windows.Core.h"
 
+#include <strsafe.h>
+
 #pragma region Implementations for Windows (Win32 Style)
 
 namespace
@@ -22,6 +24,17 @@ namespace
         WOF_EXTERNAL_INFO Wof;
         FILE_PROVIDER_EXTERNAL_INFO FileProvider;
     } WOF_FILE_PROVIDER_EXTERNAL_INFO, * PWOF_FILE_PROVIDER_EXTERNAL_INFO;
+
+    /**
+     * @brief The internal content of the file enumerator handle.
+    */
+    typedef struct _FILE_ENUMERATOR_OBJECT
+    {
+        HANDLE FileHandle;
+        CRITICAL_SECTION CriticalSection;
+        PFILE_ID_BOTH_DIR_INFO CurrentFileInfo;
+        BYTE FileInfoBuffer[32768];
+    } FILE_ENUMERATOR_OBJECT, * PFILE_ENUMERATOR_OBJECT;
 }
 
 Mile::HResultFromLastError Mile::CloseHandle(
@@ -265,6 +278,154 @@ Mile::HResult Mile::SetCompactOsDeploymentState(
     }
 
     return hr;
+}
+
+Mile::HResult Mile::CreateFileEnumerator(
+    _Out_ Mile::PFILE_ENUMERATOR_HANDLE FileEnumeratorHandle,
+    _In_ HANDLE FileHandle)
+{
+    if (FileEnumeratorHandle)
+    {
+        return E_INVALIDARG;
+    }
+
+    if (!FileHandle || FileHandle == INVALID_HANDLE_VALUE)
+    {
+        return E_INVALIDARG;
+    }
+
+    PFILE_ENUMERATOR_OBJECT Object = reinterpret_cast<PFILE_ENUMERATOR_OBJECT>(
+        Mile::HeapMemory::Allocate(sizeof(FILE_ENUMERATOR_OBJECT)));
+    if (!Object)
+    {
+        return E_OUTOFMEMORY;
+    }
+
+    Object->FileHandle = FileHandle;
+    Mile::CriticalSection::Initialize(&Object->CriticalSection);
+    *FileEnumeratorHandle = Object;
+
+    return S_OK;
+}
+
+Mile::HResultFromLastError Mile::CloseFileEnumerator(
+    _In_ Mile::FILE_ENUMERATOR_HANDLE FileEnumeratorHandle)
+{
+    if (!FileEnumeratorHandle)
+    {
+        ::SetLastError(ERROR_INVALID_PARAMETER);
+        return FALSE;
+    }
+
+    PFILE_ENUMERATOR_OBJECT Object =
+        reinterpret_cast<PFILE_ENUMERATOR_OBJECT>(FileEnumeratorHandle);
+
+    Mile::CriticalSection::Delete(&Object->CriticalSection);
+
+    return Mile::HeapMemory::Free(Object);
+}
+
+Mile::HResultFromLastError Mile::QueryFileEnumerator(
+    _In_ Mile::FILE_ENUMERATOR_HANDLE FileEnumeratorHandle,
+    _Out_ Mile::PFILE_ENUMERATOR_INFORMATION FileEnumeratorInformation)
+{
+    if ((!FileEnumeratorHandle) || (!FileEnumeratorInformation))
+    {
+        ::SetLastError(ERROR_INVALID_PARAMETER);
+        return FALSE;
+    }
+
+    BOOL Result = FALSE;
+
+    PFILE_ENUMERATOR_OBJECT Object =
+        reinterpret_cast<PFILE_ENUMERATOR_OBJECT>(FileEnumeratorHandle);
+
+    Mile::CriticalSection::Enter(&Object->CriticalSection);
+
+    if (!Object->CurrentFileInfo)
+    {
+        Object->CurrentFileInfo =
+            reinterpret_cast<PFILE_ID_BOTH_DIR_INFO>(Object->FileInfoBuffer);
+
+        Result = ::GetFileInformationByHandleEx(
+            Object->FileHandle,
+            FILE_INFO_BY_HANDLE_CLASS::FileIdBothDirectoryRestartInfo,
+            Object->CurrentFileInfo,
+            sizeof(Object->FileInfoBuffer));
+    }
+    else if (!Object->CurrentFileInfo->NextEntryOffset)
+    {
+        Object->CurrentFileInfo =
+            reinterpret_cast<PFILE_ID_BOTH_DIR_INFO>(Object->FileInfoBuffer);
+
+        Result = ::GetFileInformationByHandleEx(
+            Object->FileHandle,
+            FILE_INFO_BY_HANDLE_CLASS::FileIdBothDirectoryInfo,
+            Object->CurrentFileInfo,
+            sizeof(Object->FileInfoBuffer));
+    }
+    else
+    {
+        Object->CurrentFileInfo = reinterpret_cast<PFILE_ID_BOTH_DIR_INFO>(
+            reinterpret_cast<ULONG_PTR>(Object->CurrentFileInfo)
+            + Object->CurrentFileInfo->NextEntryOffset);
+    }
+
+    if (Result)
+    {
+        PFILE_ID_BOTH_DIR_INFO CurrentFileInfo = Object->CurrentFileInfo;
+
+        FileEnumeratorInformation->CreationTime.dwLowDateTime =
+            CurrentFileInfo->CreationTime.LowPart;
+        FileEnumeratorInformation->CreationTime.dwHighDateTime =
+            CurrentFileInfo->CreationTime.HighPart;
+
+        FileEnumeratorInformation->LastAccessTime.dwLowDateTime =
+            CurrentFileInfo->LastAccessTime.LowPart;
+        FileEnumeratorInformation->LastAccessTime.dwHighDateTime =
+            CurrentFileInfo->LastAccessTime.HighPart;
+
+        FileEnumeratorInformation->LastWriteTime.dwLowDateTime =
+            CurrentFileInfo->LastWriteTime.LowPart;
+        FileEnumeratorInformation->LastWriteTime.dwHighDateTime =
+            CurrentFileInfo->LastWriteTime.HighPart;
+
+        FileEnumeratorInformation->ChangeTime.dwLowDateTime =
+            CurrentFileInfo->ChangeTime.LowPart;
+        FileEnumeratorInformation->ChangeTime.dwHighDateTime =
+            CurrentFileInfo->ChangeTime.HighPart;
+
+        FileEnumeratorInformation->FileSize =
+            CurrentFileInfo->EndOfFile.QuadPart;
+
+        FileEnumeratorInformation->AllocationSize =
+            CurrentFileInfo->AllocationSize.QuadPart;
+
+        FileEnumeratorInformation->FileAttributes =
+            CurrentFileInfo->FileAttributes;
+
+        FileEnumeratorInformation->EaSize =
+            CurrentFileInfo->EaSize;
+
+        FileEnumeratorInformation->FileId =
+            CurrentFileInfo->FileId;
+
+        ::StringCbCopyNW(
+            FileEnumeratorInformation->ShortName,
+            sizeof(FileEnumeratorInformation->ShortName),
+            CurrentFileInfo->ShortName,
+            CurrentFileInfo->ShortNameLength);
+
+        ::StringCbCopyNW(
+            FileEnumeratorInformation->FileName,
+            sizeof(FileEnumeratorInformation->FileName),
+            CurrentFileInfo->FileName,
+            CurrentFileInfo->FileNameLength);
+    }
+
+    Mile::CriticalSection::Leave(&Object->CriticalSection);
+
+    return Result;
 }
 
 #pragma endregion
