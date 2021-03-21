@@ -33,19 +33,21 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NSudoSweeper", "NSudoSweepe
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Mile", "Mile\Mile.vcxproj", "{A17EB414-7D7A-4455-BEF7-CA8D149D0CB2}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NSudoLauncherResources", "NSudoLauncherResources\NSudoLauncherResources.vcxproj", "{B2176F44-F97A-4403-948C-F21D56999C70}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NSudoLauncherResources", "NSudoLauncher\NSudoLauncherResources.vcxproj", "{B2176F44-F97A-4403-948C-F21D56999C70}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NSudoLauncherCUI", "NSudoLauncherCUI\NSudoLauncherCUI.vcxproj", "{2B3E4F28-D499-4529-BEC1-E0ED2003A385}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NSudoLauncherCUI", "NSudoLauncher\NSudoLauncherCUI.vcxproj", "{2B3E4F28-D499-4529-BEC1-E0ED2003A385}"
 	ProjectSection(ProjectDependencies) = postProject
 		{B2176F44-F97A-4403-948C-F21D56999C70} = {B2176F44-F97A-4403-948C-F21D56999C70}
 		{074549F9-9197-41FE-A8ED-8BFA2A0E2549} = {074549F9-9197-41FE-A8ED-8BFA2A0E2549}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NSudoLauncherGUI", "NSudoLauncherGUI\NSudoLauncherGUI.vcxproj", "{8F89C743-14C8-4442-812F-1F1816FFB88D}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NSudoLauncherGUI", "NSudoLauncher\NSudoLauncherGUI.vcxproj", "{8F89C743-14C8-4442-812F-1F1816FFB88D}"
 	ProjectSection(ProjectDependencies) = postProject
 		{B2176F44-F97A-4403-948C-F21D56999C70} = {B2176F44-F97A-4403-948C-F21D56999C70}
 		{074549F9-9197-41FE-A8ED-8BFA2A0E2549} = {074549F9-9197-41FE-A8ED-8BFA2A0E2549}
 	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NSudoLauncher", "NSudoLauncher", "{17B664B3-C93E-4723-AB24-4EBB84073B7D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -190,6 +192,11 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{B2176F44-F97A-4403-948C-F21D56999C70} = {17B664B3-C93E-4723-AB24-4EBB84073B7D}
+		{2B3E4F28-D499-4529-BEC1-E0ED2003A385} = {17B664B3-C93E-4723-AB24-4EBB84073B7D}
+		{8F89C743-14C8-4442-812F-1F1816FFB88D} = {17B664B3-C93E-4723-AB24-4EBB84073B7D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {07B0657A-5FA8-44A3-9E5B-2FB4FC7A26CD}
