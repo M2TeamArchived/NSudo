@@ -1528,57 +1528,6 @@ EXTERN_C HRESULT WINAPI MileGetCompressedFileSize(
  * Creates a single uninitialized object of the class associated with a
  * specified CLSID.
  *
- * @param rclsid The CLSID associated with the data and code that will be used
- *               to create the object.
- * @param pUnkOuter If NULL, indicates that the object is not being created as
- *                  part of an aggregate. If non-NULL, pointer to the aggregate
- *                  object's IUnknown interface (the controlling IUnknown).
- * @param dwClsContext Context in which the code that manages the newly created
- *                     object will run. The values are taken from the
- *                     enumeration CLSCTX.
- * @param riid A reference to the identifier of the interface to be used to
- *             communicate with the object.
- * @param ppv Address of pointer variable that receives the interface pointer
- *            requested in riid. Upon successful return, *ppv contains the
- *            requested interface pointer. Upon failure, *ppv contains NULL.
- * @return HRESULT. If the function succeeds, the return value is S_OK.
- * @remark For more information, see CoCreateInstance.
- */
-EXTERN_C HRESULT WINAPI MileCoCreateInstance(
-    _In_ REFCLSID rclsid,
-    _In_opt_ LPUNKNOWN pUnkOuter,
-    _In_ DWORD dwClsContext,
-    _In_ REFIID riid,
-    _Out_ LPVOID* ppv);
-
-/**
- * Converts the CLSID string to the CLSID structure.
- *
- * @param lpsz The string representation of the CLSID.
- * @param pclsid A pointer to the CLSID.
- * @return HRESULT. If the function succeeds, the return value is S_OK.
- * @remark For more information, see CLSIDFromString.
- */
-EXTERN_C HRESULT WINAPI MileCLSIDFromString(
-    _In_ LPCOLESTR lpsz,
-    _Out_ LPCLSID pclsid);
-
-/**
- * Converts the IID string to the IID structure.
- *
- * @param lpsz A pointer to the string representation of the IID.
- * @param lpiid A pointer to the IID.
- * @return HRESULT. If the function succeeds, the return value is S_OK.
- * @remark For more information, see IIDFromString.
- */
-EXTERN_C HRESULT WINAPI MileIIDFromString(
-    _In_ LPCOLESTR lpsz,
-    _Out_ LPIID lpiid);
-
-/**
- * Creates a single uninitialized object of the class associated with a
- * specified CLSID.
- *
  * @param lpszCLSID The string representation of the CLSID.
  * @param pUnkOuter If NULL, indicates that the object is not being created as
  *                  part of an aggregate. If non-NULL, pointer to the aggregate

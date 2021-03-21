@@ -1643,39 +1643,6 @@ EXTERN_C HRESULT WINAPI MileGetCompressedFileSize(
 /**
  * @remark You can read the definition for this function in "Mile.Windows.h".
  */
-EXTERN_C HRESULT WINAPI MileCoCreateInstance(
-    _In_ REFCLSID rclsid,
-    _In_opt_ LPUNKNOWN pUnkOuter,
-    _In_ DWORD dwClsContext,
-    _In_ REFIID riid,
-    _Out_ LPVOID* ppv)
-{
-    return ::CoCreateInstance(rclsid, pUnkOuter, dwClsContext, riid, ppv);
-}
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
-EXTERN_C HRESULT WINAPI MileCLSIDFromString(
-    _In_ LPCOLESTR lpsz,
-    _Out_ LPCLSID pclsid)
-{
-    return ::CLSIDFromString(lpsz, pclsid);
-}
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
-EXTERN_C HRESULT WINAPI MileIIDFromString(
-    _In_ LPCOLESTR lpsz,
-    _Out_ LPIID lpiid)
-{
-    return ::IIDFromString(lpsz, lpiid);
-}
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
 EXTERN_C HRESULT WINAPI MileCoCreateInstanceByString(
     _In_ LPCWSTR lpszCLSID,
     _In_opt_ LPUNKNOWN pUnkOuter,
@@ -1690,19 +1657,19 @@ EXTERN_C HRESULT WINAPI MileCoCreateInstanceByString(
         CLSID clsid;
         IID iid;
 
-        hr = ::MileCLSIDFromString(lpszCLSID, &clsid);
+        hr = ::CLSIDFromString(lpszCLSID, &clsid);
         if (hr != S_OK)
         {
             break;
         }
 
-        hr = ::MileIIDFromString(lpszIID, &iid);
+        hr = ::IIDFromString(lpszIID, &iid);
         if (hr != S_OK)
         {
             break;
         }
 
-        hr = ::MileCoCreateInstance(clsid, pUnkOuter, dwClsContext, iid, ppv);
+        hr = ::CoCreateInstance(clsid, pUnkOuter, dwClsContext, iid, ppv);
 
     } while (false);
 
