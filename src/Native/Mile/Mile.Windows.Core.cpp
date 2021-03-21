@@ -196,6 +196,77 @@ Mile::HResultFromLastError Mile::RemoveWofCompressionAttribute(
         &BytesReturned);
 }
 
+Mile::HResult Mile::GetCompactOsDeploymentState(
+    _Out_ PDWORD DeploymentState)
+{
+    if (DeploymentState)
+    {
+        return E_INVALIDARG;
+    }
+
+    HKEY hKey = nullptr;
+
+    Mile::HResult hr = Mile::HResult::FromWin32(::RegOpenKeyExW(
+        HKEY_LOCAL_MACHINE,
+        L"System\\Setup",
+        0,
+        KEY_READ | KEY_WOW64_64KEY,
+        &hKey));
+    if (hr.IsSucceeded())
+    {
+        DWORD Type = 0;
+        DWORD Data = FALSE;
+        DWORD Length = sizeof(DWORD);
+
+        hr = Mile::HResult::FromWin32(::RegQueryValueExW(
+            hKey,
+            L"Compact",
+            nullptr,
+            &Type,
+            reinterpret_cast<LPBYTE>(&Data),
+            &Length));
+        if (hr.IsSucceeded() && Type == REG_DWORD)
+        {
+            *DeploymentState = Data;
+        }
+
+        ::RegCloseKey(hKey);
+    }
+
+    return hr;
+}
+
+Mile::HResult Mile::SetCompactOsDeploymentState(
+    _In_ DWORD DeploymentState)
+{
+    HKEY hKey = nullptr;
+
+    Mile::HResult hr = Mile::HResult::FromWin32(::RegCreateKeyExW(
+        HKEY_LOCAL_MACHINE,
+        L"System\\Setup",
+        0,
+        nullptr,
+        0,
+        KEY_WRITE | KEY_WOW64_64KEY,
+        nullptr,
+        &hKey,
+        nullptr));
+    if (hr.IsSucceeded())
+    {
+        hr = Mile::HResult::FromWin32(::RegSetValueExW(
+            hKey,
+            L"Compact",
+            0,
+            REG_DWORD,
+            reinterpret_cast<CONST BYTE*>(&DeploymentState),
+            sizeof(DWORD)));
+
+        ::RegCloseKey(hKey);
+    }
+
+    return hr;
+}
+
 #pragma endregion
 
 #pragma region Implementations for Windows (C++ Style)

@@ -1288,6 +1288,28 @@ namespace Mile
     HResultFromLastError RemoveWofCompressionAttribute(
         _In_ HANDLE FileHandle);
 
+    /**
+     * @brief Sets the system's compression (Compact OS) state.
+     * @param DeploymentState The system's compression (Compact OS) state. If
+     *                        this value is TRUE, the system state means
+     *                        Compact. If it is FALSE, the system state means
+     *                        non Compact.
+     * @return An HResult object containing the error code.
+    */
+    HResult GetCompactOsDeploymentState(
+        _Out_ PDWORD DeploymentState);
+
+    /**
+     * @brief Gets the system's compression (Compact OS) state.
+     * @param DeploymentState The system's compression (Compact OS) state. If
+     *                        this value is TRUE, the function sets the system
+     *                        state to Compact. If it is FALSE, the function
+     *                        sets the system state to non Compact.
+     * @return An HResult object containing the error code.
+    */
+    HResult SetCompactOsDeploymentState(
+        _In_ DWORD DeploymentState);
+
 #pragma endregion
 
 #pragma region Definitions for Windows (C++ Style)
