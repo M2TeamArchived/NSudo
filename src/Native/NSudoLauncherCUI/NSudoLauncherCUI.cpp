@@ -453,7 +453,7 @@ public:
                 }
             }
 
-            Mile::CloseHandle(FileHandle);
+            ::CloseHandle(FileHandle);
         }
     }
 

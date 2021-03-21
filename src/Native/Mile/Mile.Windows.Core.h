@@ -1122,16 +1122,6 @@ namespace Mile
     } FILE_ENUMERATOR_INFORMATION, *PFILE_ENUMERATOR_INFORMATION;
 
     /**
-     * @brief Closes an open object handle.
-     * @param hObject A valid handle to an open object.
-     * @return An HResultFromLastError object An containing the HResult object
-     *         containing the error code.
-     * @remark For more information, see CloseHandle.
-    */
-    HResultFromLastError CloseHandle(
-        _In_ HANDLE hObject);
-
-    /**
      * @brief Sends a control code directly to a specified device driver,
      *        causing the corresponding device to perform the corresponding
      *        operation.

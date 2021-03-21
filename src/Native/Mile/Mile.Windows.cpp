@@ -993,7 +993,7 @@ EXTERN_C HRESULT WINAPI MileCreateLUAToken(
 
     if (hr != S_OK)
     {
-        Mile::CloseHandle(TokenHandle);
+        ::CloseHandle(TokenHandle);
         *TokenHandle = INVALID_HANDLE_VALUE;
     }
 
@@ -1082,7 +1082,7 @@ EXTERN_C HRESULT WINAPI MileOpenProcessTokenByProcessId(
     {
         hr = ::MileOpenProcessToken(ProcessHandle, DesiredAccess, TokenHandle);
 
-        Mile::CloseHandle(ProcessHandle);
+        ::CloseHandle(ProcessHandle);
     }
 
     return hr;
@@ -1107,7 +1107,7 @@ EXTERN_C HRESULT WINAPI MileOpenServiceProcessToken(
         hr = ::MileOpenProcessToken(
             ProcessHandle, DesiredAccess, TokenHandle);
 
-        Mile::CloseHandle(ProcessHandle);
+        ::CloseHandle(ProcessHandle);
     }
 
     return hr;
@@ -1133,7 +1133,7 @@ EXTERN_C HRESULT WINAPI MileOpenLsassProcessToken(
         hr = ::MileOpenProcessToken(
             ProcessHandle, DesiredAccess, TokenHandle);
 
-        Mile::CloseHandle(ProcessHandle);
+        ::CloseHandle(ProcessHandle);
     }
 
     return hr;
@@ -1171,7 +1171,7 @@ EXTERN_C HRESULT WINAPI MileOpenThreadTokenByThreadId(
         hr = ::MileOpenThreadToken(
             ThreadHandle, DesiredAccess, OpenAsSelf, TokenHandle);
 
-        Mile::CloseHandle(ThreadHandle);
+        ::CloseHandle(ThreadHandle);
     }
 
     return hr;

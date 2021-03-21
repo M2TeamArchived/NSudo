@@ -385,7 +385,7 @@ EXTERN_C ULONGLONG WINAPI MileGetTickCount();
  * @param SessionId A Remote Desktop Services session identifier.
  * @param TokenHandle If the function succeeds, receives a pointer to the token
  *                    handle for the logged-on user. Note that you must call
- *                    the Mile::CloseHandle method to close this handle.
+ *                    the CloseHandle function to close this handle.
  * @return HRESULT. If the method succeeds, the return value is S_OK.
  * @remark For more information, see WTSQueryUserToken.
  */

@@ -37,12 +37,6 @@ namespace
     } FILE_ENUMERATOR_OBJECT, * PFILE_ENUMERATOR_OBJECT;
 }
 
-Mile::HResultFromLastError Mile::CloseHandle(
-    _In_ HANDLE hObject)
-{
-    return ::CloseHandle(hObject);
-}
-
 Mile::HResultFromLastError Mile::DeviceIoControl(
     _In_ HANDLE hDevice,
     _In_ DWORD dwIoControlCode,
