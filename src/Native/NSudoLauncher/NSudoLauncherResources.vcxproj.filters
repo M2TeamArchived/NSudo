@@ -21,64 +21,64 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="en\CommandLineHelp.txt">
+    <Text Include="Resources\en\CommandLineHelp.txt">
       <Filter>en</Filter>
     </Text>
-    <Text Include="en\Links.txt">
+    <Text Include="Resources\en\Links.txt">
       <Filter>en</Filter>
     </Text>
-    <Text Include="es\CommandLineHelp.txt">
+    <Text Include="Resources\es\CommandLineHelp.txt">
       <Filter>es</Filter>
     </Text>
-    <Text Include="es\Links.txt">
+    <Text Include="Resources\es\Links.txt">
       <Filter>es</Filter>
     </Text>
-    <Text Include="fr\CommandLineHelp.txt">
+    <Text Include="Resources\fr\CommandLineHelp.txt">
       <Filter>fr</Filter>
     </Text>
-    <Text Include="fr\Links.txt">
+    <Text Include="Resources\fr\Links.txt">
       <Filter>fr</Filter>
     </Text>
-    <Text Include="it\CommandLineHelp.txt">
+    <Text Include="Resources\it\CommandLineHelp.txt">
       <Filter>it</Filter>
     </Text>
-    <Text Include="it\Links.txt">
+    <Text Include="Resources\it\Links.txt">
       <Filter>it</Filter>
     </Text>
-    <Text Include="zh-Hans\CommandLineHelp.txt">
+    <Text Include="Resources\zh-Hans\CommandLineHelp.txt">
       <Filter>zh-Hans</Filter>
     </Text>
-    <Text Include="zh-Hans\Links.txt">
+    <Text Include="Resources\zh-Hans\Links.txt">
       <Filter>zh-Hans</Filter>
     </Text>
-    <Text Include="zh-Hant\CommandLineHelp.txt">
+    <Text Include="Resources\zh-Hant\CommandLineHelp.txt">
       <Filter>zh-Hant</Filter>
     </Text>
-    <Text Include="zh-Hant\Links.txt">
+    <Text Include="Resources\zh-Hant\Links.txt">
       <Filter>zh-Hant</Filter>
     </Text>
   </ItemGroup>
   <ItemGroup>
-    <None Include="en\Translations.json">
+    <None Include="Resources\en\Translations.json">
       <Filter>en</Filter>
     </None>
-    <None Include="es\Translations.json">
+    <None Include="Resources\es\Translations.json">
       <Filter>es</Filter>
     </None>
-    <None Include="fr\Translations.json">
+    <None Include="Resources\fr\Translations.json">
       <Filter>fr</Filter>
     </None>
-    <None Include="it\Translations.json">
+    <None Include="Resources\it\Translations.json">
       <Filter>it</Filter>
     </None>
-    <None Include="zh-Hans\Translations.json">
+    <None Include="Resources\zh-Hans\Translations.json">
       <Filter>zh-Hans</Filter>
     </None>
-    <None Include="zh-Hant\Translations.json">
+    <None Include="Resources\zh-Hant\Translations.json">
       <Filter>zh-Hant</Filter>
     </None>
     <None Include="NSudoLauncherResources.props" />
-    <None Include="NSudoLauncher.xcf" />
+    <None Include="Resources\NSudoLauncher.xcf" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="NSudoLauncherResources.rc" />
@@ -87,6 +87,6 @@
     <ClInclude Include="NSudoLauncherResources.h" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="NSudoLauncher.ico" />
+    <Image Include="Resources\NSudoLauncher.ico" />
   </ItemGroup>
 </Project>
