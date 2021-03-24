@@ -1413,9 +1413,138 @@ namespace Mile
      * @return An HResultFromLastError object An containing the HResult object
      *         containing the error code.
     */
-    HResultFromLastError GetFileCompressedSize(
+    HResultFromLastError GetCompressedFileSizeByHandle(
         _In_ HANDLE FileHandle,
         _Out_ PULONGLONG CompressedFileSize);
+
+    /**
+     * @brief Retrieves file system attributes for a specified file or
+     *        directory.
+     * @param FileHandle A handle to the file that contains the information to
+     *                   be retrieved. This handle should not be a pipe handle.
+     * @param FileAttributes The attributes of the specified file or directory.
+     *                       For a list of attribute values and their
+     *                       descriptions, see File Attribute Constants. If the
+     *                       function fails, the return value is
+     *                       INVALID_FILE_ATTRIBUTES.
+     * @return An HResultFromLastError object An containing the HResult object
+     *         containing the error code.
+    */
+    HResultFromLastError GetFileAttributesByHandle(
+        _In_ HANDLE FileHandle,
+        _Out_ PDWORD FileAttributes);
+
+    /**
+     * @brief Sets the attributes for a file or directory.
+     * @param FileHandle A handle to the file for which to change information.
+     *                   This handle must be opened with the appropriate
+     *                   permissions for the requested change. This handle
+     *                   should not be a pipe handle.
+     * @param FileAttributes The file attributes to set for the file. This
+     *                       parameter can be one or more values, combined
+     *                       using the bitwise - OR operator. However, all
+     *                       other values override FILE_ATTRIBUTE_NORMAL. For
+     *                       more information, see the SetFileAttributes
+     *                       function.
+     * @return An HResultFromLastError object An containing the HResult object
+     *         containing the error code.
+    */
+    HResultFromLastError SetFileAttributesByHandle(
+        _In_ HANDLE FileHandle,
+        _In_ DWORD FileAttributes);
+
+    /**
+     * @brief Deletes an existing file.
+     * @param FileHandle The handle of the file to be deleted. This handle must
+     *                   be opened with the appropriate permissions for the
+     *                   requested change. This handle should not be a pipe
+     *                   handle.
+     * @return An HResultFromLastError object An containing the HResult object
+     *         containing the error code.
+    */
+    HResultFromLastError DeleteFileByHandle(
+        _In_ HANDLE FileHandle);
+
+    /**
+     * @brief Deletes an existing file, even the file have the readonly
+     *        attribute.
+     * @param FileHandle The handle of the file to be deleted. This handle must
+     *                   be opened with the appropriate permissions for the
+     *                   requested change. This handle should not be a pipe
+     *                   handle.
+     * @return An HResult object containing the error code.
+    */
+    HResult DeleteFileByHandleIgnoreReadonlyAttribute(
+        _In_ HANDLE FileHandle);
+
+    /**
+     * @brief Tests for the current directory and parent directory markers *
+              while iterating through files.
+     * @param Name The name of the file or directory for testing.
+     * @return Nonzero if the found file has the name "." or "..", which
+     *         indicates that the found file is actually a directory. Otherwise
+     *         zero.
+    */
+    BOOL IsDotsName(
+        _In_ LPCWSTR Name);
+
+    /**
+     * @brief Reads data from the specified file or input/output (I/O) device.
+     *        Reads occur at the position specified by the file pointer if
+     *        supported by the device.
+     * @param hFile A handle to the device (for example, a file, file stream,
+     *              physical disk, volume, console buffer, tape drive, socket,
+     *              communications resource, mailslot, or pipe).
+     * @param lpBuffer A pointer to the buffer that receives the data read from
+     *                 a file or device. This buffer must remain valid for the
+     *                 duration of the read operation. The caller must not use
+     *                 this buffer until the read operation is completed.
+     * @param nNumberOfBytesToRead The maximum number of bytes to be read.
+     * @param lpNumberOfBytesRead A pointer to the variable that receives the
+     *                            number of bytes read when using a synchronous
+     *                            hFile parameter. Mile::ReadFile sets this
+     *                            value to zero before doing any work or error
+     *                            checking.
+     * @return An HResultFromLastError object An containing the HResult object
+     *         containing the error code.
+     * @remark For more information, see ReadFile.
+    */
+    HResultFromLastError ReadFile(
+        _In_ HANDLE hFile,
+        _Out_opt_ LPVOID lpBuffer,
+        _In_ DWORD nNumberOfBytesToRead,
+        _Out_ LPDWORD lpNumberOfBytesRead);
+
+    /**
+     * @brief Writes data to the specified file or input/output (I/O) device.
+     * @param hFile A handle to the device (for example, a file, file stream,
+     *              physical disk, volume, console buffer, tape drive, socket,
+     *              communications resource, mailslot, or pipe).
+     * @param lpBuffer A pointer to the buffer containing the data to be
+     *                 written to the file or device. This buffer must remain
+     *                 valid for the duration of the write operation. The
+     *                 caller must not use this buffer until the write
+     *                 operation is completed.
+     * @param nNumberOfBytesToWrite The number of bytes to be written to the
+     *                              file or device. A value of zero specifies a
+     *                              null write operation. The behavior of a
+     *                              null write operation depends on the
+     *                              underlying file system or communications
+     *                              technology.
+     * @param lpNumberOfBytesWritten A pointer to the variable that receives
+     *                               the number of bytes written when using a
+     *                               synchronous hFile parameter.
+     *                               Mile::WriteFile sets this value to zero
+     *                               before doing any work or error checking.
+     * @return An HResultFromLastError object An containing the HResult object
+     *         containing the error code.
+     * @remark For more information, see WriteFile.
+    */
+    HResultFromLastError WriteFile(
+        _In_ HANDLE hFile,
+        _In_opt_ LPCVOID lpBuffer,
+        _In_ DWORD nNumberOfBytesToWrite,
+        _Out_ LPDWORD lpNumberOfBytesWritten);
 
 #pragma endregion
 

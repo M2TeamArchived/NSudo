@@ -404,12 +404,11 @@ public:
                 if (FileContent)
                 {
                     DWORD NumberOfBytesRead = 0;
-                    hr = ::MileReadFile(
+                    hr = Mile::ReadFile(
                         FileHandle,
                         FileContent,
                         static_cast<DWORD>(FileSize),
-                        &NumberOfBytesRead,
-                        nullptr);
+                        &NumberOfBytesRead);
                     if (hr == S_OK)
                     {
                         const char* JsonString = FileContent + 3;

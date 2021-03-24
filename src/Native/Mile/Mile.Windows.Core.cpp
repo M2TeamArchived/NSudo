@@ -460,7 +460,7 @@ Mile::HResultFromLastError Mile::GetFileAllocationSize(
     return Result;
 }
 
-Mile::HResultFromLastError Mile::GetFileCompressedSize(
+Mile::HResultFromLastError Mile::GetCompressedFileSizeByHandle(
     _In_ HANDLE FileHandle,
     _Out_ PULONGLONG CompressedFileSize)
 {
@@ -479,6 +479,186 @@ Mile::HResultFromLastError Mile::GetFileCompressedSize(
     }
 
     return Mile::GetFileSize(FileHandle, CompressedFileSize);
+}
+
+Mile::HResultFromLastError Mile::GetFileAttributesByHandle(
+    _In_ HANDLE FileHandle,
+    _Out_ PDWORD FileAttributes)
+{
+    FILE_BASIC_INFO BasicInfo;
+
+    BOOL Result = ::GetFileInformationByHandleEx(
+        FileHandle,
+        FILE_INFO_BY_HANDLE_CLASS::FileBasicInfo,
+        &BasicInfo,
+        sizeof(FILE_BASIC_INFO));
+
+    *FileAttributes = Result
+        ? BasicInfo.FileAttributes
+        : INVALID_FILE_ATTRIBUTES;
+
+    return Result;
+}
+
+Mile::HResultFromLastError Mile::SetFileAttributesByHandle(
+    _In_ HANDLE FileHandle,
+    _In_ DWORD FileAttributes)
+{
+    FILE_BASIC_INFO BasicInfo = { 0 };
+    BasicInfo.FileAttributes =
+        FileAttributes & (
+            FILE_SHARE_READ |
+            FILE_SHARE_WRITE |
+            FILE_SHARE_DELETE |
+            FILE_ATTRIBUTE_ARCHIVE |
+            FILE_ATTRIBUTE_TEMPORARY |
+            FILE_ATTRIBUTE_OFFLINE |
+            FILE_ATTRIBUTE_NOT_CONTENT_INDEXED |
+            FILE_ATTRIBUTE_NO_SCRUB_DATA) |
+        FILE_ATTRIBUTE_NORMAL;
+
+    return ::SetFileInformationByHandle(
+        FileHandle,
+        FILE_INFO_BY_HANDLE_CLASS::FileBasicInfo,
+        &BasicInfo,
+        sizeof(FILE_BASIC_INFO));
+}
+
+Mile::HResultFromLastError Mile::DeleteFileByHandle(
+    _In_ HANDLE FileHandle)
+{
+    FILE_DISPOSITION_INFO DispostionInfo;
+    DispostionInfo.DeleteFile = TRUE;
+
+    return ::SetFileInformationByHandle(
+        FileHandle,
+        FILE_INFO_BY_HANDLE_CLASS::FileDispositionInfo,
+        &DispostionInfo,
+        sizeof(FILE_DISPOSITION_INFO));
+}
+
+Mile::HResult Mile::DeleteFileByHandleIgnoreReadonlyAttribute(
+    _In_ HANDLE FileHandle)
+{
+    DWORD OldAttribute = 0;
+
+    // Save old attributes.
+    Mile::HResult hr = Mile::GetFileAttributesByHandle(
+        FileHandle,
+        &OldAttribute);
+    if (hr.IsSucceeded())
+    {
+        // Remove readonly attribute.
+        hr = Mile::SetFileAttributesByHandle(
+            FileHandle,
+            OldAttribute & (-1 ^ FILE_ATTRIBUTE_READONLY));
+        if (hr.IsSucceeded())
+        {
+            // Delete the file.
+            hr = Mile::DeleteFileByHandle(FileHandle);
+            if (hr.IsFailed())
+            {
+                // Restore attributes if failed.
+                hr = Mile::SetFileAttributesByHandle(
+                    FileHandle,
+                    OldAttribute);
+            }
+        }
+    }
+
+    return hr;
+}
+
+BOOL Mile::IsDotsName(
+    _In_ LPCWSTR Name)
+{
+    return Name[0] == L'.' && (!Name[1] || (Name[1] == L'.' && !Name[2]));
+}
+
+Mile::HResultFromLastError Mile::ReadFile(
+    _In_ HANDLE hFile,
+    _Out_opt_ LPVOID lpBuffer,
+    _In_ DWORD nNumberOfBytesToRead,
+    _Out_ LPDWORD lpNumberOfBytesRead)
+{
+    BOOL Result = FALSE;
+    OVERLAPPED Overlapped = { 0 };
+    Overlapped.hEvent = ::CreateEventW(
+        nullptr,
+        TRUE,
+        FALSE,
+        nullptr);
+    if (Overlapped.hEvent)
+    {
+        Result = ::ReadFile(
+            hFile,
+            lpBuffer,
+            nNumberOfBytesToRead,
+            lpNumberOfBytesRead,
+            &Overlapped);
+        if (!Result)
+        {
+            if (::GetLastError() == ERROR_IO_PENDING)
+            {
+                Result = ::GetOverlappedResult(
+                    hFile,
+                    &Overlapped,
+                    lpNumberOfBytesRead,
+                    TRUE);
+            }
+        }
+
+        ::CloseHandle(Overlapped.hEvent);
+    }
+    else
+    {
+        ::SetLastError(ERROR_NO_SYSTEM_RESOURCES);
+    }
+
+    return Result;
+}
+
+Mile::HResultFromLastError Mile::WriteFile(
+    _In_ HANDLE hFile,
+    _In_opt_ LPCVOID lpBuffer,
+    _In_ DWORD nNumberOfBytesToWrite,
+    _Out_ LPDWORD lpNumberOfBytesWritten)
+{
+    BOOL Result = FALSE;
+    OVERLAPPED Overlapped = { 0 };
+    Overlapped.hEvent = ::CreateEventW(
+        nullptr,
+        TRUE,
+        FALSE,
+        nullptr);
+    if (Overlapped.hEvent)
+    {
+        Result = ::WriteFile(
+            hFile,
+            lpBuffer,
+            nNumberOfBytesToWrite,
+            lpNumberOfBytesWritten,
+            &Overlapped);
+        if (!Result)
+        {
+            if (::GetLastError() == ERROR_IO_PENDING)
+            {
+                Result = ::GetOverlappedResult(
+                    hFile,
+                    &Overlapped,
+                    lpNumberOfBytesWritten,
+                    TRUE);
+            }
+        }
+
+        ::CloseHandle(Overlapped.hEvent);
+    }
+    else
+    {
+        ::SetLastError(ERROR_NO_SYSTEM_RESOURCES);
+    }
+
+    return Result;
 }
 
 #pragma endregion

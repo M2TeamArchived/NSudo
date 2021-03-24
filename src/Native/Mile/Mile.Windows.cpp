@@ -1347,141 +1347,6 @@ EXTERN_C DWORD WINAPI MileGetNumberOfHardwareThreads()
     return SystemInfo.dwNumberOfProcessors;
 }
 
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
-EXTERN_C HRESULT WINAPI MileGetFileInformation(
-    _In_  HANDLE hFile,
-    _In_  FILE_INFO_BY_HANDLE_CLASS FileInformationClass,
-    _Out_ LPVOID lpFileInformation,
-    _In_  DWORD dwBufferSize)
-{
-    return Mile::HResultFromLastError(
-        ::GetFileInformationByHandleEx(
-            hFile,
-            FileInformationClass,
-            lpFileInformation,
-            dwBufferSize));
-}
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
-EXTERN_C HRESULT WINAPI MileSetFileInformation(
-    _In_ HANDLE hFile,
-    _In_ FILE_INFO_BY_HANDLE_CLASS FileInformationClass,
-    _In_ LPVOID lpFileInformation,
-    _In_ DWORD dwBufferSize)
-{
-    return Mile::HResultFromLastError(
-        ::SetFileInformationByHandle(
-            hFile,
-            FileInformationClass,
-            lpFileInformation,
-            dwBufferSize));
-}
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
-EXTERN_C HRESULT WINAPI MileGetFileAttributes(
-    _In_ HANDLE FileHandle,
-    _Out_ PDWORD FileAttributes)
-{
-    FILE_BASIC_INFO BasicInfo;
-
-    HRESULT hr = ::MileGetFileInformation(
-        FileHandle,
-        FILE_INFO_BY_HANDLE_CLASS::FileBasicInfo,
-        &BasicInfo,
-        sizeof(FILE_BASIC_INFO));
-
-    *FileAttributes = (hr == S_OK)
-        ? BasicInfo.FileAttributes
-        : INVALID_FILE_ATTRIBUTES;
-
-    return hr;
-}
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
-EXTERN_C HRESULT WINAPI MileSetFileAttributes(
-    _In_ HANDLE FileHandle,
-    _In_ DWORD FileAttributes)
-{
-    FILE_BASIC_INFO BasicInfo = { 0 };
-    BasicInfo.FileAttributes =
-        FileAttributes & (
-            FILE_SHARE_READ |
-            FILE_SHARE_WRITE |
-            FILE_SHARE_DELETE |
-            FILE_ATTRIBUTE_ARCHIVE |
-            FILE_ATTRIBUTE_TEMPORARY |
-            FILE_ATTRIBUTE_OFFLINE |
-            FILE_ATTRIBUTE_NOT_CONTENT_INDEXED |
-            FILE_ATTRIBUTE_NO_SCRUB_DATA) |
-        FILE_ATTRIBUTE_NORMAL;
-
-    return ::MileSetFileInformation(
-        FileHandle,
-        FILE_INFO_BY_HANDLE_CLASS::FileBasicInfo,
-        &BasicInfo,
-        sizeof(FILE_BASIC_INFO));
-}
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
-EXTERN_C HRESULT WINAPI MileDeleteFile(
-    _In_ HANDLE FileHandle)
-{
-    FILE_DISPOSITION_INFO DispostionInfo;
-    DispostionInfo.DeleteFile = TRUE;
-
-    return ::MileSetFileInformation(
-        FileHandle,
-        FILE_INFO_BY_HANDLE_CLASS::FileDispositionInfo,
-        &DispostionInfo,
-        sizeof(FILE_DISPOSITION_INFO));
-}
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
-EXTERN_C HRESULT WINAPI MileDeleteFileIgnoreReadonlyAttribute(
-    _In_ HANDLE FileHandle)
-{
-    HRESULT hr = S_OK;
-    DWORD OldAttribute = 0;
-
-    // Save old attributes.
-    hr = ::MileGetFileAttributes(
-        FileHandle,
-        &OldAttribute);
-    if (hr == S_OK)
-    {
-        // Remove readonly attribute.
-        hr = ::MileSetFileAttributes(
-            FileHandle,
-            OldAttribute & (-1 ^ FILE_ATTRIBUTE_READONLY));
-        if (hr == S_OK)
-        {
-            // Delete the file.
-            hr = ::MileDeleteFile(FileHandle);
-            if (hr != S_OK)
-            {
-                // Restore attributes if failed.
-                hr = ::MileSetFileAttributes(
-                    FileHandle,
-                    OldAttribute);
-            }
-        }
-    }
-
-    return hr;
-}
-
 #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
 
 /**
@@ -1738,15 +1603,6 @@ EXTERN_C HRESULT WINAPI MileGetDpiForMonitor(
 
 #endif
 
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
-EXTERN_C BOOL WINAPI MileIsDots(
-    _In_ LPCWSTR Name)
-{
-    return Name[0] == L'.' && (!Name[1] || (Name[1] == L'.' && !Name[2]));
-}
-
 #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
 
 /**
@@ -1819,44 +1675,6 @@ EXTERN_C HRESULT WINAPI MileUnmapViewOfFile(
 {
     return Mile::HResultFromLastError(
         ::UnmapViewOfFile(lpBaseAddress));
-}
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
-EXTERN_C HRESULT WINAPI MileReadFile(
-    _In_ HANDLE hFile,
-    _Out_opt_ LPVOID lpBuffer,
-    _In_ DWORD nNumberOfBytesToRead,
-    _Out_opt_ LPDWORD lpNumberOfBytesRead,
-    _Inout_opt_ LPOVERLAPPED lpOverlapped)
-{
-    return Mile::HResultFromLastError(
-        ::ReadFile(
-            hFile,
-            lpBuffer,
-            nNumberOfBytesToRead,
-            lpNumberOfBytesRead,
-            lpOverlapped));
-}
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
-EXTERN_C HRESULT WINAPI MileWriteFile(
-    _In_ HANDLE hFile,
-    _In_opt_ LPCVOID lpBuffer,
-    _In_ DWORD nNumberOfBytesToWrite,
-    _Out_opt_ LPDWORD lpNumberOfBytesWritten,
-    _Inout_opt_ LPOVERLAPPED lpOverlapped)
-{
-    return Mile::HResultFromLastError(
-        ::WriteFile(
-            hFile,
-            lpBuffer,
-            nNumberOfBytesToWrite,
-            lpNumberOfBytesWritten,
-            lpOverlapped));
 }
 
 #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
