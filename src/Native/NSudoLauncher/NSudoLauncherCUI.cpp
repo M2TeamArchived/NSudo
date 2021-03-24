@@ -513,7 +513,7 @@ public:
         {
             this->m_Instance = GetModuleHandleW(nullptr);
 
-            this->m_ExePath = M2GetCurrentProcessModulePath();
+            this->m_ExePath = Mile::GetCurrentProcessModulePath();
 
             this->m_AppPath = this->m_ExePath;
             wcsrchr(&this->m_AppPath[0], L'\\')[0] = L'\0';

@@ -1430,6 +1430,13 @@ namespace Mile
     std::wstring ExpandEnvironmentStringsW(
         std::wstring const& SourceString);
 
+    /**
+     * @brief Retrieves the path of the executable file of the current process.
+     * @return The path of the executable file of the current process if
+     *         successful, an empty string otherwise.
+    */
+    std::wstring GetCurrentProcessModulePath();
+
 #pragma endregion
 }
 

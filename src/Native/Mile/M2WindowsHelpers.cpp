@@ -768,21 +768,6 @@ Platform::Guid M2CreateGuid()
 
 #pragma region Module
 
-/**
- * Retrieves the path of the executable file of the current process.
- *
- * @return If the function succeeds, the return value is the path of the
- *         executable file of the current process. If the function fails, the
- *         return value is an empty string.
- */
-std::wstring M2GetCurrentProcessModulePath()
-{
-    std::wstring result(MAX_PATH, L'\0');
-    GetModuleFileNameW(nullptr, &result[0], (DWORD)(result.capacity()));
-    result.resize(wcslen(result.c_str()));
-    return result;
-}
-
 #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
 
 /**

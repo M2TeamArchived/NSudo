@@ -568,4 +568,13 @@ std::wstring Mile::ExpandEnvironmentStringsW(
     return DestinationString;
 }
 
+std::wstring Mile::GetCurrentProcessModulePath()
+{
+    // 32767 is the maximum path length without the terminating null character.
+    std::wstring Path(32767, L'\0');
+    Path.resize(::GetModuleFileNameW(
+        nullptr, &Path[0], static_cast<DWORD>(Path.size())));
+    return Path;
+}
+
 #pragma endregion
