@@ -19,8 +19,11 @@
 
 #include <Windows.h>
 
+#include <map>
 #include <string>
 #include <utility>
+#include <vector>
+
 namespace Mile
 {
 #pragma region Definitions and Implementations for All Platforms
@@ -1436,6 +1439,40 @@ namespace Mile
      *         successful, an empty string otherwise.
     */
     std::wstring GetCurrentProcessModulePath();
+
+    /**
+     * @brief Parses a command line string and returns an array of the command
+     *        line arguments, along with a count of such arguments, in a way
+     *        that is similar to the standard C run-time.
+     * @param CommandLine A string that contains the full command line. If this
+     *                    parameter is an empty string the function returns an
+     *                    array with only one empty string.
+     * @return An array of the command line arguments, along with a count of such
+     *         arguments. 
+    */
+    std::vector<std::wstring> SpiltCommandLine(
+        std::wstring const& CommandLine);
+
+    /**
+     * @brief Parses a command line string and get more friendly result.
+     * @param CommandLine A string that contains the full command line. If this
+     *                    parameter is an empty string the function returns an
+     *                    array with only one empty string.
+     * @param OptionPrefixes One or more of the prefixes of option we want to
+     *                       use.
+     * @param OptionParameterSeparators One or more of the separators of option
+     *                                  we want to use.
+     * @param ApplicationName The application name.
+     * @param OptionsAndParameters The options and parameters.
+     * @param UnresolvedCommandLine The unresolved command line.
+    */
+    void SpiltCommandLineEx(
+        std::wstring const& CommandLine,
+        std::vector<std::wstring> const& OptionPrefixes,
+        std::vector<std::wstring> const& OptionParameterSeparators,
+        std::wstring& ApplicationName,
+        std::map<std::wstring, std::wstring>& OptionsAndParameters,
+        std::wstring& UnresolvedCommandLine);
 
 #pragma endregion
 }

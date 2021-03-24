@@ -1112,7 +1112,7 @@ private:
             std::map<std::wstring, std::wstring> OptionsAndParameters;
             std::wstring UnresolvedCommandLine;
 
-            M2SpiltCommandLineEx(
+            Mile::SpiltCommandLineEx(
                 CommandLine,
                 std::vector<std::wstring>{ L"-", L"/", L"--" },
                 std::vector<std::wstring>{ L"=", L":" },
@@ -1327,7 +1327,7 @@ int WINAPI wWinMain(
     std::map<std::wstring, std::wstring> OptionsAndParameters;
     std::wstring UnresolvedCommandLine;
 
-    M2SpiltCommandLineEx(
+    Mile::SpiltCommandLineEx(
         std::wstring(GetCommandLineW()),
         std::vector<std::wstring>{ L"-", L"/", L"--" },
         std::vector<std::wstring>{ L"=", L":" },
