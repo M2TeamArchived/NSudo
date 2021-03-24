@@ -1383,7 +1383,8 @@ namespace Mile
     /**
      * @brief Converts from the UTF-8 string to the UTF-16 string.
      * @param Utf8String The UTF-8 string you want to convert.
-     * @return A converted UTF-16 string.
+     * @return A converted UTF-16 string if successful, an empty string
+     *         otherwise.
     */
     std::wstring ToUtf16String(
         std::string const& Utf8String);
@@ -1391,7 +1392,8 @@ namespace Mile
     /**
      * @brief Converts from the UTF-16 string to the UTF-8 string.
      * @param Utf16String The UTF-16 string you want to convert.
-     * @return A converted UTF-8 string.
+     * @return A converted UTF-8 string if successful, an empty string
+     *         otherwise.
     */
     std::string ToUtf8String(
         std::wstring const& Utf16String);
@@ -1399,7 +1401,8 @@ namespace Mile
     /**
      * @brief Retrieves the path of the system directory. The system directory
      *        contains system files such as dynamic-link libraries and drivers.
-     * @return The path of the system directory.
+     * @return The path of the system directory if successful, an empty string
+     *         otherwise.
     */
     std::wstring GetSystemDirectoryW();
 
@@ -1408,7 +1411,8 @@ namespace Mile
     /**
      * @brief Retrieves the path of the shared Windows directory on a
      *        multi-user system.
-     * @return The path of the shared Windows directory on a multi-user system.
+     * @return The path of the shared Windows directory on a multi-user system
+     *         if successful, an empty string otherwise.
     */
     std::wstring GetWindowsDirectoryW();
 
@@ -1420,7 +1424,8 @@ namespace Mile
      * @param SourceString The string that contains one or more environment
                            variable strings (in the %variableName% form) you
                            need to expand.
-     * @return The result string of expanding the environment variable strings.
+     * @return The result string of expanding the environment variable strings
+     *         if successful, an empty string otherwise.
     */
     std::wstring ExpandEnvironmentStringsW(
         std::wstring const& SourceString);
