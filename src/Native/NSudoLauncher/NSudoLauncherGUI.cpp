@@ -396,7 +396,7 @@ public:
         {
             UINT64 FileSize = 0;
 
-            hr = ::MileGetFileSize(FileHandle, &FileSize);
+            hr = Mile::GetFileSize(FileHandle, &FileSize);
             if (hr == S_OK)
             {
                 char* FileContent = reinterpret_cast<char*>(

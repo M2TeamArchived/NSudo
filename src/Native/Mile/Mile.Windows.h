@@ -1301,51 +1301,6 @@ EXTERN_C HRESULT WINAPI MileSetFileAttributes(
     _In_ DWORD FileAttributes);
 
 /**
- * Retrieves the size of the specified file.
- *
- * @param FileHandle A handle to the file that contains the information to be
- *                   retrieved. This handle should not be a pipe handle.
- * @param FileSize A pointer to a ULONGLONG value that receives the file size,
- *                 in bytes.
- * @return HRESULT. If the function succeeds, the return value is S_OK.
- * @remark The way to get a file handle for this operation:
- *         HANDLE hFile = CreateFileW(
- *             lpFileName,
- *             GENERIC_READ | SYNCHRONIZE,
- *             FILE_SHARE_READ,
- *             nullptr,
- *             OPEN_EXISTING,
- *             FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT,
- *             nullptr);
- */
-EXTERN_C HRESULT WINAPI MileGetFileSize(
-    _In_ HANDLE FileHandle,
-    _Out_ PULONGLONG FileSize);
-
-/**
- * Retrieves the amount of space that is allocated for the file.
- *
- * @param FileHandle A handle to the file that contains the information to be
- *                   retrieved. This handle should not be a pipe handle.
- * @param AllocationSize A pointer to a ULONGLONG value that receives the
- *                       amount of space that is allocated for the file, in
- *                       bytes.
- * @return HRESULT. If the function succeeds, the return value is S_OK.
- * @remark The way to get a file handle for this operation:
- *         HANDLE hFile = CreateFileW(
- *             lpFileName,
- *             GENERIC_READ | SYNCHRONIZE,
- *             FILE_SHARE_READ,
- *             nullptr,
- *             OPEN_EXISTING,
- *             FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT,
- *             nullptr);
- */
-EXTERN_C HRESULT WINAPI MileGetFileAllocationSize(
-    _In_ HANDLE FileHandle,
-    _Out_ PULONGLONG AllocationSize);
-
-/**
  * Deletes an existing file.
  *
  * @param FileHandle The handle of the file to be deleted. This handle must be
@@ -1495,34 +1450,6 @@ EXTERN_C HRESULT WINAPI MileCreateFile(
     _Out_opt_ PHANDLE lpFileHandle);
 
 #endif
-
-/**
- * Retrieves the actual number of bytes of disk storage used to store a
- * specified file. If the file is located on a volume that supports
- * compression and the file is compressed, the value obtained is the
- * compressed size of the specified file. If the file is located on a volume
- * that supports sparse files and the file is a sparse file, the value obtained
- * is the sparse size of the specified file.
- *
- * @param FileHandle A handle to the file that contains the information to be
- *                   retrieved. This handle should not be a pipe handle.
- * @param CompressedFileSize A pointer to a ULONGLONG value that receives the
- *                           compressed file size,
- *                 in bytes.
- * @return HRESULT. If the function succeeds, the return value is S_OK.
- * @remark The way to get a file handle for this operation:
- *         HANDLE hFile = CreateFileW(
- *             lpFileName,
- *             GENERIC_READ | SYNCHRONIZE,
- *             FILE_SHARE_READ,
- *             nullptr,
- *             OPEN_EXISTING,
- *             FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT,
- *             nullptr);
- */
-EXTERN_C HRESULT WINAPI MileGetCompressedFileSize(
-    _In_ HANDLE FileHandle,
-    _Out_ PULONGLONG CompressedFileSize);
 
 /**
  * Creates a single uninitialized object of the class associated with a

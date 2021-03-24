@@ -1371,6 +1371,52 @@ namespace Mile
         _In_ FILE_ENUMERATOR_HANDLE FileEnumeratorHandle,
         _Out_ PFILE_ENUMERATOR_INFORMATION FileEnumeratorInformation);
 
+    /**
+     * @brief Retrieves the size of the specified file.
+     * @param FileHandle A handle to the file that contains the information to
+     *                   be retrieved. This handle should not be a pipe handle.
+     * @param FileSize A pointer to a ULONGLONG value that receives the file
+     *                 size, in bytes.
+     * @return An HResultFromLastError object An containing the HResult object
+     *         containing the error code.
+    */
+    HResultFromLastError GetFileSize(
+        _In_ HANDLE FileHandle,
+        _Out_ PULONGLONG FileSize);
+
+    /**
+     * @brief Retrieves the amount of space that is allocated for the file.
+     * @param FileHandle A handle to the file that contains the information to
+     *                   be retrieved. This handle should not be a pipe handle.
+     * @param AllocationSize A pointer to a ULONGLONG value that receives the
+     *                       amount of space that is allocated for the file, in
+     *                       bytes.
+     * @return An HResultFromLastError object An containing the HResult object
+     *         containing the error code.
+    */
+    HResultFromLastError GetFileAllocationSize(
+        _In_ HANDLE FileHandle,
+        _Out_ PULONGLONG AllocationSize);
+
+    /**
+     * @brief Retrieves the actual number of bytes of disk storage used to
+     *        store a specified file. If the file is located on a volume that
+     *        supports compression and the file is compressed, the value
+     *        obtained is the compressed size of the specified file. If the
+     *        file is located on a volume that supports sparse files and the
+     *        file is a sparse file, the value obtained is the sparse size of
+     *        the specified file.
+     * @param FileHandle A handle to the file that contains the information to
+     *                   be retrieved. This handle should not be a pipe handle.
+     * @param CompressedFileSize A pointer to a ULONGLONG value that receives
+     *                           the compressed file size, in bytes.
+     * @return An HResultFromLastError object An containing the HResult object
+     *         containing the error code.
+    */
+    HResultFromLastError GetFileCompressedSize(
+        _In_ HANDLE FileHandle,
+        _Out_ PULONGLONG CompressedFileSize);
+
 #pragma endregion
 
 #pragma region Definitions for Windows (C++ Style)

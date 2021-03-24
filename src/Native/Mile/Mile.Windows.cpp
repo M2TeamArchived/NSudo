@@ -1433,50 +1433,6 @@ EXTERN_C HRESULT WINAPI MileSetFileAttributes(
 /**
  * @remark You can read the definition for this function in "Mile.Windows.h".
  */
-EXTERN_C HRESULT WINAPI MileGetFileSize(
-    _In_ HANDLE FileHandle,
-    _Out_ PULONGLONG FileSize)
-{
-    FILE_STANDARD_INFO StandardInfo;
-
-    HRESULT hr = ::MileGetFileInformation(
-        FileHandle,
-        FILE_INFO_BY_HANDLE_CLASS::FileStandardInfo,
-        &StandardInfo,
-        sizeof(FILE_STANDARD_INFO));
-
-    *FileSize = (hr == S_OK)
-        ? static_cast<ULONGLONG>(StandardInfo.EndOfFile.QuadPart)
-        : 0;
-
-    return hr;
-}
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
-EXTERN_C HRESULT WINAPI MileGetFileAllocationSize(
-    _In_ HANDLE FileHandle,
-    _Out_ PULONGLONG AllocationSize)
-{
-    FILE_STANDARD_INFO StandardInfo;
-
-    HRESULT hr = ::MileGetFileInformation(
-        FileHandle,
-        FILE_INFO_BY_HANDLE_CLASS::FileStandardInfo,
-        &StandardInfo,
-        sizeof(FILE_STANDARD_INFO));
-
-    *AllocationSize = (hr == S_OK)
-        ? static_cast<ULONGLONG>(StandardInfo.AllocationSize.QuadPart)
-        : 0;
-
-    return hr;
-}
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
 EXTERN_C HRESULT WINAPI MileDeleteFile(
     _In_ HANDLE FileHandle)
 {
@@ -1613,32 +1569,6 @@ EXTERN_C HRESULT WINAPI MileCreateFile(
 }
 
 #endif
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
-EXTERN_C HRESULT WINAPI MileGetCompressedFileSize(
-    _In_ HANDLE FileHandle,
-    _Out_ PULONGLONG CompressedFileSize)
-{
-    FILE_COMPRESSION_INFO FileCompressionInfo;
-    HRESULT hr = ::MileGetFileInformation(
-        FileHandle,
-        FILE_INFO_BY_HANDLE_CLASS::FileCompressionInfo,
-        &FileCompressionInfo,
-        sizeof(FILE_COMPRESSION_INFO));
-    if (hr == S_OK)
-    {
-        *CompressedFileSize = static_cast<ULONGLONG>(
-            FileCompressionInfo.CompressedFileSize.QuadPart);
-    }
-    else
-    {
-        hr = ::MileGetFileSize(FileHandle, CompressedFileSize);
-    }
-
-    return hr;
-}
 
 /**
  * @remark You can read the definition for this function in "Mile.Windows.h".

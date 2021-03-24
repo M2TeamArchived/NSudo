@@ -422,6 +422,65 @@ Mile::HResultFromLastError Mile::QueryFileEnumerator(
     return Result;
 }
 
+Mile::HResultFromLastError Mile::GetFileSize(
+    _In_ HANDLE FileHandle,
+    _Out_ PULONGLONG FileSize)
+{
+    FILE_STANDARD_INFO StandardInfo;
+
+    BOOL Result = ::GetFileInformationByHandleEx(
+        FileHandle,
+        FILE_INFO_BY_HANDLE_CLASS::FileStandardInfo,
+        &StandardInfo,
+        sizeof(FILE_STANDARD_INFO));
+
+    *FileSize = Result
+        ? static_cast<ULONGLONG>(StandardInfo.EndOfFile.QuadPart)
+        : 0;
+
+    return Result;
+}
+
+Mile::HResultFromLastError Mile::GetFileAllocationSize(
+    _In_ HANDLE FileHandle,
+    _Out_ PULONGLONG AllocationSize)
+{
+    FILE_STANDARD_INFO StandardInfo;
+
+    BOOL Result = ::GetFileInformationByHandleEx(
+        FileHandle,
+        FILE_INFO_BY_HANDLE_CLASS::FileStandardInfo,
+        &StandardInfo,
+        sizeof(FILE_STANDARD_INFO));
+
+    *AllocationSize = Result
+        ? static_cast<ULONGLONG>(StandardInfo.AllocationSize.QuadPart)
+        : 0;
+
+    return Result;
+}
+
+Mile::HResultFromLastError Mile::GetFileCompressedSize(
+    _In_ HANDLE FileHandle,
+    _Out_ PULONGLONG CompressedFileSize)
+{
+    FILE_COMPRESSION_INFO FileCompressionInfo;
+
+    if (::GetFileInformationByHandleEx(
+        FileHandle,
+        FILE_INFO_BY_HANDLE_CLASS::FileCompressionInfo,
+        &FileCompressionInfo,
+        sizeof(FILE_COMPRESSION_INFO)))
+    {
+        *CompressedFileSize = static_cast<ULONGLONG>(
+            FileCompressionInfo.CompressedFileSize.QuadPart);
+
+        return TRUE;
+    }
+
+    return Mile::GetFileSize(FileHandle, CompressedFileSize);
+}
+
 #pragma endregion
 
 #pragma region Implementations for Windows (C++ Style)
