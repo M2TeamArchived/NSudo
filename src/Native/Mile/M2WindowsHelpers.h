@@ -594,24 +594,6 @@ Platform::Guid M2CreateGuid();
 
 #pragma endregion
 
-#pragma region Environment
-
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
-
-/**
- * Enables the Per-Monitor DPI Aware for the specified dialog using the
- * internal API from Windows.
- *
- * @return INT. If failed. returns -1.
- * @remarks You need to use this function in Windows 10 Threshold 1 or Windows
- *          10 Threshold 2.
- */
-INT M2EnablePerMonitorDialogScaling();
-
-#endif
-
-#pragma endregion
-
 #pragma region WinRT
 
 #ifdef CPPWINRT_VERSION

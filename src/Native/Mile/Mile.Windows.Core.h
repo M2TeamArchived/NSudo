@@ -19,6 +19,10 @@
 
 #include <Windows.h>
 
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+#include <ShellScalingApi.h>
+#endif
+
 #include <map>
 #include <string>
 #include <utility>
@@ -1580,6 +1584,59 @@ namespace Mile
     */
     HMODULE LoadLibraryFromSystem32(
         _In_ LPCWSTR lpLibFileName);
+
+#endif
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+    /**
+     * @brief Enables the Per-Monitor DPI Aware for the specified dialog.
+     * @return If the function fails, the return value is -1.
+     * @remarks You need to use this function in Windows 10 Threshold 1 or
+     *          Windows 10 Threshold 2.
+    */
+    INT EnablePerMonitorDialogScaling();
+
+#endif
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+    /**
+     * @brief Enables WM_DPICHANGED message for child window for the associated
+     *        window.
+     * @param WindowHandle The window you want to enable WM_DPICHANGED message
+     *                     for child window.
+     * @return If the function succeeds, the return value is non-zero. If the
+     *         function fails, the return value is zero.
+     * @remarks You need to use this function in Windows 10 Threshold 1 or
+     *          Windows 10 Threshold 2.
+    */
+    BOOL EnableChildWindowDpiMessage(
+        _In_ HWND WindowHandle);
+
+#endif
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+    /**
+     * @brief Queries the dots per inch (dpi) of a display.
+     * @param hMonitor Handle of the monitor being queried.
+     * @param dpiType The type of DPI being queried. Possible values are from
+     *                the MONITOR_DPI_TYPE enumeration.
+     * @param dpiX The value of the DPI along the X axis. This value always
+     *             refers to the horizontal edge, even when the screen is
+     *             rotated.
+     * @param dpiY The value of the DPI along the Y axis. This value always
+     *             refers to the vertical edge, even when the screen is
+     *             rotated.
+     * @return An HResult object containing the error code.
+     * @remark For more information, see GetDpiForMonitor.
+    */
+    HResult GetDpiForMonitor(
+        _In_ HMONITOR hMonitor,
+        _In_ MONITOR_DPI_TYPE dpiType,
+        _Out_ UINT* dpiX,
+        _Out_ UINT* dpiY);
 
 #endif
 

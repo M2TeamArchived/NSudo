@@ -82,7 +82,7 @@ private:
 
         EnableChildWindowDpiMessage(this->m_hWnd, TRUE);
 
-        if (S_OK != ::MileGetDpiForMonitor(
+        if (S_OK != Mile::GetDpiForMonitor(
             MonitorFromWindow(this->m_hWnd, MONITOR_DEFAULTTONEAREST),
             MDT_EFFECTIVE_DPI,
             reinterpret_cast<UINT*>(&this->m_nDpiX),

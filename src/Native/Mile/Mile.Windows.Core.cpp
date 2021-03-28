@@ -12,6 +12,10 @@
 
 #include <strsafe.h>
 
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+#include <VersionHelpers.h>
+#endif
+
 #pragma region Implementations for Windows (Win32 Style)
 
 namespace
@@ -863,6 +867,132 @@ HMODULE Mile::LoadLibraryFromSystem32(
     }
 
     return ModuleHandle;
+}
+
+#endif
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+INT Mile::EnablePerMonitorDialogScaling()
+{
+    // This hack is only for Windows 10 only.
+    if (!::IsWindowsVersionOrGreater(10, 0, 0))
+    {
+        return -1;
+    }
+
+    // We don't need this hack if the Per Monitor Aware V2 is existed.
+    OSVERSIONINFOEXW OSVersionInfoEx = { 0 };
+    OSVersionInfoEx.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEXW);
+    OSVersionInfoEx.dwBuildNumber = 14393;
+    if (::VerifyVersionInfoW(
+        &OSVersionInfoEx,
+        VER_BUILDNUMBER,
+        ::VerSetConditionMask(0, VER_BUILDNUMBER, VER_GREATER_EQUAL)))
+    {
+        return -1;
+    }
+
+    HMODULE ModuleHandle = ::GetModuleHandleW(L"user32.dll");
+    if (!ModuleHandle)
+    {
+        return -1;
+    }
+
+    typedef INT(WINAPI* ProcType)();
+
+    ProcType ProcAddress = reinterpret_cast<ProcType>(
+        ::GetProcAddress(ModuleHandle, reinterpret_cast<LPCSTR>(2577)));
+    if (!ProcAddress)
+    {
+        return -1;
+    }
+
+    return ProcAddress();
+}
+
+#endif
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+BOOL Mile::EnableChildWindowDpiMessage(
+    _In_ HWND WindowHandle)
+{
+    // This hack is only for Windows 10 only.
+    if (!::IsWindowsVersionOrGreater(10, 0, 0))
+    {
+        return FALSE;
+    }
+
+    // We don't need this hack if the Per Monitor Aware V2 is existed.
+    OSVERSIONINFOEXW OSVersionInfoEx = { 0 };
+    OSVersionInfoEx.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEXW);
+    OSVersionInfoEx.dwBuildNumber = 14393;
+    if (::VerifyVersionInfoW(
+        &OSVersionInfoEx,
+        VER_BUILDNUMBER,
+        ::VerSetConditionMask(0, VER_BUILDNUMBER, VER_GREATER_EQUAL)))
+    {
+        return FALSE;
+    }
+
+    HMODULE ModuleHandle = ::GetModuleHandleW(L"user32.dll");
+    if (!ModuleHandle)
+    {
+        return FALSE;
+    }
+
+    typedef BOOL(WINAPI* ProcType)(HWND, BOOL);
+
+    ProcType ProcAddress = reinterpret_cast<ProcType>(
+        ::GetProcAddress(ModuleHandle, "EnableChildWindowDpiMessage"));
+    if (!ProcAddress)
+    {
+        return FALSE;
+    }
+
+    return ProcAddress(WindowHandle, TRUE);
+}
+
+#endif
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+Mile::HResult Mile::GetDpiForMonitor(
+    _In_ HMONITOR hMonitor,
+    _In_ MONITOR_DPI_TYPE dpiType,
+    _Out_ UINT* dpiX,
+    _Out_ UINT* dpiY)
+{
+    Mile::HResult hr = S_OK;
+
+    HMODULE ModuleHandle = ::LoadLibraryExW(
+        L"SHCore.dll",
+        nullptr,
+        LOAD_LIBRARY_SEARCH_SYSTEM32);
+    if (ModuleHandle)
+    {
+        using ProcType = decltype(::GetDpiForMonitor)*;
+
+        ProcType ProcAddress = reinterpret_cast<ProcType>(
+            ::GetProcAddress(ModuleHandle, "GetDpiForMonitor"));
+        if (ProcAddress)
+        {
+            hr = ProcAddress(hMonitor, dpiType, dpiX, dpiY);
+        }
+        else
+        {
+            hr = Mile::HResultFromLastError(FALSE);
+        }
+
+        ::FreeLibrary(ModuleHandle);
+    }
+    else
+    {
+        hr = Mile::HResultFromLastError(FALSE);
+    }
+
+    return hr;
 }
 
 #endif

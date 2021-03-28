@@ -839,7 +839,7 @@ public:
 public:
     CNSudoMainWindow()
     {
-        M2EnablePerMonitorDialogScaling();
+        Mile::EnablePerMonitorDialogScaling();
 
         ::ChangeWindowMessageFilter(WM_DROPFILES, MSGFLT_ADD);
         ::ChangeWindowMessageFilter(0x0049, MSGFLT_ADD); // WM_COPYGLOBALDATA
@@ -900,7 +900,7 @@ private:
 
         HRESULT hr = E_FAIL;
 
-        hr = ::MileGetDpiForMonitor(
+        hr = Mile::GetDpiForMonitor(
             MonitorFromWindow(this->m_hWnd, MONITOR_DEFAULTTONEAREST),
             MDT_EFFECTIVE_DPI, (UINT*)&this->m_xDPI, (UINT*)&this->m_yDPI);
         if (hr != S_OK)

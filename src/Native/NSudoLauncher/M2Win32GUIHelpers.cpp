@@ -121,7 +121,7 @@ INT_PTR WINAPI M2MessageDialog(
 {
     DIALOG_BOX_PARAM Param = { hInstance, lpIconName,lpTitle,lpContent };
 
-    M2EnablePerMonitorDialogScaling();
+    Mile::EnablePerMonitorDialogScaling();
 
     return DialogBoxParamW(
         hInstance,

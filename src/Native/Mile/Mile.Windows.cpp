@@ -1518,50 +1518,6 @@ EXTERN_C HRESULT WINAPI MileCoCheckInterfaceName(
 /**
  * @remark You can read the definition for this function in "Mile.Windows.h".
  */
-EXTERN_C HRESULT WINAPI MileGetDpiForMonitor(
-    _In_ HMONITOR hmonitor,
-    _In_ MONITOR_DPI_TYPE dpiType,
-    _Out_ UINT* dpiX,
-    _Out_ UINT* dpiY)
-{
-    HRESULT hr = S_OK;
-
-    HMODULE ModuleHandle = ::LoadLibraryExW(
-        L"SHCore.dll",
-        nullptr,
-        LOAD_LIBRARY_SEARCH_SYSTEM32);
-    if (ModuleHandle)
-    {
-        using ProcType = decltype(::GetDpiForMonitor)*;
-
-        ProcType ProcAddress = reinterpret_cast<ProcType>(
-            ::GetProcAddress(ModuleHandle, "GetDpiForMonitor"));
-        if (ProcAddress)
-        {
-            hr = ProcAddress(hmonitor, dpiType, dpiX, dpiY);
-        }
-        else
-        {
-            hr = Mile::HResultFromLastError(FALSE);
-        }
-
-        ::FreeLibrary(ModuleHandle);
-    }
-    else
-    {
-        hr = Mile::HResultFromLastError(FALSE);
-    }
-
-    return hr;
-}
-
-#endif
-
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
 EXTERN_C HRESULT WINAPI MileCreateFileMapping(
     _In_ HANDLE hFile,
     _In_opt_ LPSECURITY_ATTRIBUTES lpFileMappingAttributes,

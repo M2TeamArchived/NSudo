@@ -1342,29 +1342,6 @@ EXTERN_C HRESULT WINAPI MileCoCheckInterfaceName(
 #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
 
 /**
- * Queries the dots per inch (dpi) of a display.
- *
- * @param hmonitor Handle of the monitor being queried.
- * @param dpiType The type of DPI being queried. Possible values are from the
- *                MONITOR_DPI_TYPE enumeration.
- * @param dpiX The value of the DPI along the X axis. This value always refers
- *             to the horizontal edge, even when the screen is rotated.
- * @param dpiY The value of the DPI along the Y axis. This value always refers
- *             to the vertical edge, even when the screen is rotated.
- * @return HRESULT. If the function succeeds, the return value is S_OK.
- * @remark For more information, see GetDpiForMonitor.
- */
-EXTERN_C HRESULT WINAPI MileGetDpiForMonitor(
-    _In_ HMONITOR hmonitor,
-    _In_ MONITOR_DPI_TYPE dpiType,
-    _Out_ UINT* dpiX,
-    _Out_ UINT* dpiY);
-
-#endif
-
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
-
-/**
  * Creates or opens a named or unnamed file mapping object for a specified
  * file.
  *
