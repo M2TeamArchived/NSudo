@@ -216,115 +216,6 @@ EXTERN_C HRESULT WINAPI MileGetPrivilegeValue(
 /**
  * @remark You can read the definition for this function in "Mile.Windows.h".
  */
-EXTERN_C HRESULT WINAPI MileCloseServiceHandle(
-    _In_ SC_HANDLE hSCObject)
-{
-    return Mile::HResultFromLastError(
-        ::CloseServiceHandle(hSCObject));
-}
-
-#endif
-
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
-EXTERN_C HRESULT WINAPI MileOpenSCManager(
-    _In_opt_ LPCWSTR lpMachineName,
-    _In_opt_ LPCWSTR lpDatabaseName,
-    _In_ DWORD dwDesiredAccess,
-    _Out_opt_ LPSC_HANDLE phSCManager)
-{
-    SC_HANDLE hSCManager = ::OpenSCManagerW(
-        lpMachineName, lpDatabaseName, dwDesiredAccess);
-
-    if (phSCManager)
-    {
-        *phSCManager = hSCManager;
-    }
-
-    return Mile::HResultFromLastError(
-        hSCManager != nullptr);
-}
-
-#endif
-
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
-EXTERN_C HRESULT WINAPI MileOpenService(
-    _In_ SC_HANDLE hSCManager,
-    _In_ LPCWSTR lpServiceName,
-    _In_ DWORD dwDesiredAccess,
-    _Out_opt_ LPSC_HANDLE phService)
-{
-    SC_HANDLE hService = ::OpenServiceW(
-        hSCManager, lpServiceName, dwDesiredAccess);
-
-    if (phService)
-    {
-        *phService = hService;    
-    }
-
-    return Mile::HResultFromLastError(
-        hService != nullptr);
-}
-
-#endif
-
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
-EXTERN_C HRESULT WINAPI MileQueryServiceStatus(
-    _In_ SC_HANDLE hService,
-    _In_ SC_STATUS_TYPE InfoLevel,
-    _Out_ LPBYTE lpBuffer,
-    _In_ DWORD cbBufSize,
-    _Out_ LPDWORD pcbBytesNeeded)
-{
-    return Mile::HResultFromLastError(
-        ::QueryServiceStatusEx(
-            hService, InfoLevel, lpBuffer, cbBufSize, pcbBytesNeeded));
-}
-
-#endif
-
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
-EXTERN_C HRESULT WINAPI MileStartService(
-    _In_ SC_HANDLE hService,
-    _In_ DWORD dwNumServiceArgs,
-    _In_ LPCWSTR* lpServiceArgVectors)
-{
-    return Mile::HResultFromLastError(
-        ::StartServiceW(hService, dwNumServiceArgs, lpServiceArgVectors));
-}
-
-#endif
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
-EXTERN_C DWORD WINAPI MileSleep(
-    _In_ DWORD dwMilliseconds,
-    _In_ BOOL bAlertable)
-{
-    return ::SleepEx(dwMilliseconds, bAlertable);
-}
-
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
 EXTERN_C HRESULT WINAPI MileStartServiceSimple(
     _In_ LPCWSTR ServiceName,
     _Out_ LPSERVICE_STATUS_PROCESS ServiceStatus)
@@ -337,30 +228,25 @@ EXTERN_C HRESULT WINAPI MileStartServiceSimple(
 
         ::memset(ServiceStatus, 0, sizeof(LPSERVICE_STATUS_PROCESS));
 
-        SC_HANDLE hSCM = nullptr;
-        hr = ::MileOpenSCManager(
-            nullptr, nullptr, SC_MANAGER_CONNECT, &hSCM);
-        if (hr == S_OK)
+        SC_HANDLE hSCM = ::OpenSCManagerW(
+            nullptr, nullptr, SC_MANAGER_CONNECT);
+        if (hSCM)
         {
-            SC_HANDLE hService = nullptr;
-            hr = ::MileOpenService(
-                hSCM,
-                ServiceName,
-                SERVICE_QUERY_STATUS | SERVICE_START,
-                &hService);
-            if (hr == S_OK)
+            SC_HANDLE hService = ::OpenServiceW(
+                hSCM, ServiceName, SERVICE_QUERY_STATUS | SERVICE_START);
+            if (hService)
             {
                 DWORD nBytesNeeded = 0;
                 DWORD nOldCheckPoint = 0;
                 ULONGLONG nLastTick = 0;
                 bool bStartServiceWCalled = false;
 
-                while (::MileQueryServiceStatus(
+                while (::QueryServiceStatusEx(
                     hService,
                     SC_STATUS_PROCESS_INFO,
                     reinterpret_cast<LPBYTE>(ServiceStatus),
                     sizeof(SERVICE_STATUS_PROCESS),
-                    &nBytesNeeded) == S_OK)
+                    &nBytesNeeded))
                 {
                     if (SERVICE_STOPPED == ServiceStatus->dwCurrentState)
                     {
@@ -371,7 +257,8 @@ EXTERN_C HRESULT WINAPI MileStartServiceSimple(
                             break;
                         }
 
-                        hr = ::MileStartService(hService, 0, nullptr);
+                        hr = Mile::HResultFromLastError(::StartServiceW(
+                            hService, 0, nullptr));
                         if (hr != S_OK)
                         {
                             break;
@@ -394,7 +281,7 @@ EXTERN_C HRESULT WINAPI MileStartServiceSimple(
 
                             // Same as the .Net System.ServiceProcess, wait
                             // 250ms.
-                            ::MileSleep(250, FALSE);
+                            ::SleepEx(250, FALSE);
                         }
                         else
                         {
@@ -421,10 +308,18 @@ EXTERN_C HRESULT WINAPI MileStartServiceSimple(
                     }
                 }
 
-                ::MileCloseServiceHandle(hService);
+                ::CloseServiceHandle(hService);
+            }
+            else
+            {
+                hr = Mile::HResultFromLastError(FALSE);
             }
 
-            ::MileCloseServiceHandle(hSCM);
+            ::CloseServiceHandle(hSCM);
+        }
+        else
+        {
+            hr = Mile::HResultFromLastError(FALSE);
         }
     }
 
