@@ -14,10 +14,22 @@
 
 #include "Mile.Windows.TrustedLibraryLoader.h"
 
-#include <MINT.h>
-
 namespace
 {
+    const NTSTATUS NtStatusNotImplemented = static_cast<NTSTATUS>(0xC0000002L);
+
+    static bool IsNtStatusSuccess(NTSTATUS Status)
+    {
+        return (Status >= 0);
+    }
+
+    typedef struct _NtUnicodeString
+    {
+        USHORT Length;
+        USHORT MaximumLength;
+        _Field_size_bytes_part_(MaximumLength, Length) PWCH Buffer;
+    } NtUnicodeString, *NtUnicodeStringPointer;
+
     static bool volatile g_IsTrustedLibraryLoaderInitialized = false;
     static bool volatile g_IsSecureLibraryLoaderAvailable = false;
     static FARPROC volatile g_LdrLoadDll = nullptr;
@@ -70,10 +82,10 @@ namespace
     static NTSTATUS NTAPI LdrLoadDllWrapper(
         _In_opt_ PWSTR DllPath,
         _In_opt_ PULONG DllCharacteristics,
-        _In_ PUNICODE_STRING DllName,
+        _In_ NtUnicodeStringPointer DllName,
         _Out_ PVOID* DllHandle)
     {
-        using ProcType = decltype(::LdrLoadDll)*;
+        using ProcType = decltype(::LdrLoadDllWrapper)*;
 
         ProcType ProcAddress = reinterpret_cast<ProcType>(
             g_LdrLoadDll);
@@ -87,13 +99,13 @@ namespace
                 DllHandle);
         }
 
-        return STATUS_NOT_IMPLEMENTED;
+        return ::NtStatusNotImplemented;
     }
 
     static ULONG NTAPI RtlNtStatusToDosErrorWrapper(
         _In_ NTSTATUS Status)
     {
-        using ProcType = decltype(::RtlNtStatusToDosError)*;
+        using ProcType = decltype(::RtlNtStatusToDosErrorWrapper)*;
 
         ProcType ProcAddress = reinterpret_cast<ProcType>(
             g_RtlNtStatusToDosError);
@@ -110,7 +122,7 @@ namespace
         _In_ PVOID Wow64FsEnableRedirection,
         _Out_ PVOID* OldFsRedirectionLevel)
     {
-        using ProcType = decltype(::RtlWow64EnableFsRedirectionEx)*;
+        using ProcType = decltype(::RtlWow64EnableFsRedirectionExWrapper)*;
 
         ProcType ProcAddress = reinterpret_cast<ProcType>(
             g_RtlWow64EnableFsRedirectionEx);
@@ -122,14 +134,14 @@ namespace
                 OldFsRedirectionLevel);
         }
 
-        return STATUS_NOT_IMPLEMENTED;
+        return ::NtStatusNotImplemented;
     }
 
     static void NTAPI RtlInitUnicodeStringWrapper(
-        _Out_ PUNICODE_STRING DestinationString,
+        _Out_ NtUnicodeStringPointer DestinationString,
         _In_opt_ PCWSTR SourceString)
     {
-        using ProcType = decltype(::RtlInitUnicodeString)*;
+        using ProcType = decltype(::RtlInitUnicodeStringWrapper)*;
 
         ProcType ProcAddress = reinterpret_cast<ProcType>(
             g_RtlInitUnicodeString);
@@ -182,7 +194,7 @@ EXTERN_C HMODULE WINAPI MileLoadLibraryFromSystem32(
         return nullptr;
     }
 
-    UNICODE_STRING ModuleFileName;
+    NtUnicodeString ModuleFileName;
     ::RtlInitUnicodeStringWrapper(&ModuleFileName, lpLibFileName);
 
     HMODULE ModuleHandle = nullptr;
@@ -191,13 +203,13 @@ EXTERN_C HMODULE WINAPI MileLoadLibraryFromSystem32(
         nullptr,
         &ModuleFileName,
         reinterpret_cast<PVOID*>(&ModuleHandle));
-    if (!NT_SUCCESS(Status))
+    if (!IsNtStatusSuccess(Status))
     {
         ::SetLastError(::RtlNtStatusToDosErrorWrapper(Status));
     }
 
     // Restore the old status of the WoW64 redirection.
-    if (NT_SUCCESS(RedirectionStatus))
+    if (IsNtStatusSuccess(RedirectionStatus))
     {
         ::RtlWow64EnableFsRedirectionExWrapper(
             OldRedirectionLevel,
