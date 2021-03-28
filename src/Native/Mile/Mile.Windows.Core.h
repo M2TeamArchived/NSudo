@@ -1640,6 +1640,21 @@ namespace Mile
 
 #endif
 
+    /**
+     * @brief Retrieves the number of milliseconds that have elapsed since the
+     *        system was started.
+     * @return The number of milliseconds.
+    */
+    ULONGLONG GetTickCount();
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+    HResult StartServiceW(
+        _In_ LPCWSTR ServiceName,
+        _Out_ LPSERVICE_STATUS_PROCESS ServiceStatus);
+
+#endif
+
 #pragma endregion
 
 #pragma region Definitions for Windows (C++ Style)

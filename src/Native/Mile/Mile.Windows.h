@@ -208,40 +208,6 @@ EXTERN_C HRESULT WINAPI MileGetPrivilegeValue(
 #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
 
 /**
- * Starts a service if not started and retrieves the current status of the
- * specified service.
- *
- * @param ServiceName The name of the service to be started. This is the name
- *                    specified by the ServiceName parameter of the
- *                    CreateService function when the service object was
- *                    created, not the service display name that is shown by
- *                    user interface applications to identify the service. The
- *                    maximum string length is 256 characters. The service
- *                    control manager database preserves the case of the
- *                    characters, but service name comparisons are always case
- *                    insensitive. Forward-slash (/) and backslash (\) are
- *                    invalid service name characters.
- * @param ServiceStatus A pointer to the process status information for a
- *                      service.
- * @return HRESULT. If the method succeeds, the return value is S_OK.
- */
-EXTERN_C HRESULT WINAPI MileStartServiceSimple(
-    _In_ LPCWSTR ServiceName,
-    _Out_ LPSERVICE_STATUS_PROCESS ServiceStatus);
-
-#endif
-
-/**
- * Retrieves the number of milliseconds that have elapsed since the system was
- * started.
- *
- * @return The number of milliseconds.
- */
-EXTERN_C ULONGLONG WINAPI MileGetTickCount();
-
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
-
-/**
  * Obtains the primary access token of the logged-on user specified by the
  * session ID. To call this function successfully, the calling application must
  * be running within the context of the LocalSystem account and have the

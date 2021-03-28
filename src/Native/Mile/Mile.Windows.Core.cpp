@@ -997,6 +997,135 @@ Mile::HResult Mile::GetDpiForMonitor(
 
 #endif
 
+ULONGLONG Mile::GetTickCount()
+{
+    LARGE_INTEGER Frequency, PerformanceCount;
+
+    if (::QueryPerformanceFrequency(&Frequency))
+    {
+        if (::QueryPerformanceCounter(&PerformanceCount))
+        {
+            return (PerformanceCount.QuadPart * 1000 / Frequency.QuadPart);
+        }
+    }
+
+    return ::GetTickCount64();
+}
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+Mile::HResult Mile::StartServiceW(
+    _In_ LPCWSTR ServiceName,
+    _Out_ LPSERVICE_STATUS_PROCESS ServiceStatus)
+{
+    Mile::HResult hr = E_INVALIDARG;
+
+    if (ServiceStatus && ServiceName)
+    {
+        hr = S_OK;
+
+        ::memset(ServiceStatus, 0, sizeof(LPSERVICE_STATUS_PROCESS));
+
+        SC_HANDLE hSCM = ::OpenSCManagerW(
+            nullptr, nullptr, SC_MANAGER_CONNECT);
+        if (hSCM)
+        {
+            SC_HANDLE hService = ::OpenServiceW(
+                hSCM, ServiceName, SERVICE_QUERY_STATUS | SERVICE_START);
+            if (hService)
+            {
+                DWORD nBytesNeeded = 0;
+                DWORD nOldCheckPoint = 0;
+                ULONGLONG nLastTick = 0;
+                bool bStartServiceWCalled = false;
+
+                while (::QueryServiceStatusEx(
+                    hService,
+                    SC_STATUS_PROCESS_INFO,
+                    reinterpret_cast<LPBYTE>(ServiceStatus),
+                    sizeof(SERVICE_STATUS_PROCESS),
+                    &nBytesNeeded))
+                {
+                    if (SERVICE_STOPPED == ServiceStatus->dwCurrentState)
+                    {
+                        // Failed if the service had stopped again.
+                        if (bStartServiceWCalled)
+                        {
+                            hr = S_FALSE;
+                            break;
+                        }
+
+                        hr = Mile::HResultFromLastError(::StartServiceW(
+                            hService, 0, nullptr));
+                        if (hr != S_OK)
+                        {
+                            break;
+                        }
+
+                        bStartServiceWCalled = true;
+                    }
+                    else if (
+                        SERVICE_STOP_PENDING
+                        == ServiceStatus->dwCurrentState ||
+                        SERVICE_START_PENDING
+                        == ServiceStatus->dwCurrentState)
+                    {
+                        ULONGLONG nCurrentTick = Mile::GetTickCount();
+
+                        if (!nLastTick)
+                        {
+                            nLastTick = nCurrentTick;
+                            nOldCheckPoint = ServiceStatus->dwCheckPoint;
+
+                            // Same as the .Net System.ServiceProcess, wait
+                            // 250ms.
+                            ::SleepEx(250, FALSE);
+                        }
+                        else
+                        {
+                            // Check the timeout if the checkpoint is not
+                            // increased.
+                            if (ServiceStatus->dwCheckPoint
+                                <= nOldCheckPoint)
+                            {
+                                ULONGLONG nDiff = nCurrentTick - nLastTick;
+                                if (nDiff > ServiceStatus->dwWaitHint)
+                                {
+                                    hr = Mile::HResult::FromWin32(ERROR_TIMEOUT);
+                                    break;
+                                }
+                            }
+
+                            // Continue looping.
+                            nLastTick = 0;
+                        }
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+
+                ::CloseServiceHandle(hService);
+            }
+            else
+            {
+                hr = Mile::HResultFromLastError(FALSE);
+            }
+
+            ::CloseServiceHandle(hSCM);
+        }
+        else
+        {
+            hr = Mile::HResultFromLastError(FALSE);
+        }
+    }
+
+    return hr;
+}
+
+#endif
+
 #pragma endregion
 
 #pragma region Implementations for Windows (C++ Style)
