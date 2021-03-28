@@ -343,37 +343,6 @@ namespace M2
 
 #endif // !_M2_WINDOWS_EXTENDED_HELPERS_
 
-#ifndef _M2_WINDOWS_BASE_EXTENDED_HELPERS_
-#define _M2_WINDOWS_BASE_EXTENDED_HELPERS_
-
-/**
- * Retrieves the address of an exported function or variable from the specified
- * dynamic-link library (DLL).
- *
- * @param lpProcAddress The address of the exported function or variable.
- * @param hModule A handle to the DLL module that contains the function or
- *                variable. The LoadLibrary, LoadLibraryEx, LoadPackagedLibrary
- *                or GetModuleHandle function returns this handle. This
- *                function does not retrieve addresses from modules that were
- *                loaded using the LOAD_LIBRARY_AS_DATAFILE flag. For more
- *                information, see LoadLibraryEx.
- * @param lpProcName The function or variable name, or the function's ordinal
- *                   value. If this parameter is an ordinal value, it must be
- *                   in the low-order word; the high-order word must be zero.
- * @return HRESULT. If the function succeeds, the return value is S_OK.
- */
-template<typename ProcedureType>
-inline HRESULT M2GetProcAddress(
-    _Out_ ProcedureType& lpProcAddress,
-    _In_ HMODULE hModule,
-    _In_ LPCSTR lpProcName)
-{
-    return ::MileGetProcAddress(
-        hModule, lpProcName, reinterpret_cast<FARPROC*>(&lpProcAddress));
-}
-
-#endif // !_M2_WINDOWS_BASE_EXTENDED_HELPERS_
-
 #ifndef _M2_WINDOWS_HELPERS_
 #define _M2_WINDOWS_HELPERS_
 
@@ -620,36 +589,6 @@ Windows::Storage::Streams::IBuffer^ M2MakeIBuffer(
  * @return The function will return Platform::Guid object.
  */
 Platform::Guid M2CreateGuid();
-
-#endif
-
-#pragma endregion
-
-#pragma region Module
-
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
-
-/**
- * Loads the specified module with the optimization of the mitigation of DLL
- * preloading attacks into the address space of the calling process safely. The
- * specified module may cause other modules to be loaded.
- *
- * @param ModuleHandle If the function succeeds, this parameter's value is a
- *                     handle to the loaded module. You should read the
- *                     documentation about LoadLibraryEx API for further
- *                     information.
- * @param LibraryFileName A string that specifies the file name of the module
- *                        to load. You should read the documentation about
- *                        LoadLibraryEx API for further information.
- * @param Flags The action to be taken when loading the module. You should read
- *              the documentation about LoadLibraryEx API for further
- *              information.
- * @return HRESULT. If the function succeeds, the return value is S_OK.
- */
-HRESULT M2LoadLibraryEx(
-    _Out_ HMODULE* ModuleHandle,
-    _In_ LPCWSTR LibraryFileName,
-    _In_ DWORD Flags);
 
 #endif
 

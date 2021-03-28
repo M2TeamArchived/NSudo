@@ -1229,63 +1229,6 @@ EXTERN_C DWORD WINAPI MileGetNumberOfHardwareThreads();
 #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
 
 /**
- * Loads the specified module with the optimization of the mitigation of DLL
- * preloading attacks into the address space of the calling process safely. The
- * specified module may cause other modules to be loaded.
- *
- * @param phLibModule A handle to the loaded module.
- * @param lpLibFileName A string that specifies the file name of the module to
- *                      load.
- * @param hFile This parameter is reserved for future use. It must be NULL.
- * @param dwFlags The action to be taken when loading the module.
- * @return HRESULT. If the function succeeds, the return value is S_OK.
- * @remark For more information, see LoadLibraryEx.
- */
-EXTERN_C HRESULT WINAPI MileLoadLibrary(
-    _In_ LPCWSTR lpLibFileName,
-    _Reserved_ HANDLE hFile,
-    _In_ DWORD dwFlags,
-    _Out_opt_ HMODULE* phLibModule);
-
-#endif
-
-/**
- * Frees the loaded dynamic-link library (DLL) module and, if necessary,
- * decrements its reference count. When the reference count reaches zero, the
- * module is unloaded from the address space of the calling process and the
- * handle is no longer valid.
- *
- * @param hLibModule A handle to the loaded library module.
- * @return HRESULT. If the function succeeds, the return value is S_OK.
- * @remark For more information, see FreeLibrary.
- */
-EXTERN_C HRESULT WINAPI MileFreeLibrary(
-    _In_ HMODULE hLibModule);
-
-/**
- * Retrieves the address of an exported function or variable from the specified
- * dynamic-link library (DLL).
- *
- * @param lpProcAddress The address of the exported function or variable.
- * @param hModule A handle to the DLL module that contains the function or
- *                variable. The LoadLibrary, LoadLibraryEx, LoadPackagedLibrary
- *                or GetModuleHandle function returns this handle. This
- *                function does not retrieve addresses from modules that were
- *                loaded using the LOAD_LIBRARY_AS_DATAFILE flag. For more
- *                information, see LoadLibraryEx.
- * @param lpProcName The function or variable name, or the function's ordinal
- *                   value. If this parameter is an ordinal value, it must be
- *                   in the low-order word; the high-order word must be zero.
- * @return HRESULT. If the function succeeds, the return value is S_OK.
- */
-EXTERN_C HRESULT WINAPI MileGetProcAddress(
-    _In_ HMODULE hModule,
-    _In_ LPCSTR lpProcName,
-    _Out_opt_ FARPROC* lpProcAddress);
-
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
-
-/**
  * Creates or opens a file or I/O device. The most commonly used I/O devices
  * are as follows: file, file stream, directory, physical disk, volume, console
  * buffer, tape drive, communications resource, mailslot, and pipe. The

@@ -1352,59 +1352,6 @@ EXTERN_C DWORD WINAPI MileGetNumberOfHardwareThreads()
 /**
  * @remark You can read the definition for this function in "Mile.Windows.h".
  */
-EXTERN_C HRESULT WINAPI MileLoadLibrary(
-    _In_ LPCWSTR lpLibFileName,
-    _Reserved_ HANDLE hFile,
-    _In_ DWORD dwFlags,
-    _Out_opt_ HMODULE* phLibModule)
-{
-    HMODULE hLibModule = ::LoadLibraryExW(lpLibFileName, hFile, dwFlags);
-
-    if (phLibModule)
-    {
-        *phLibModule = hLibModule;
-    }
-
-    return Mile::HResultFromLastError(
-        hLibModule != nullptr);
-}
-
-#endif
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
-EXTERN_C HRESULT WINAPI MileFreeLibrary(
-    _In_ HMODULE hLibModule)
-{
-    return Mile::HResultFromLastError(
-        ::FreeLibrary(hLibModule));
-}
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
-EXTERN_C HRESULT WINAPI MileGetProcAddress(
-    _In_ HMODULE hModule,
-    _In_ LPCSTR lpProcName,
-    _Out_opt_ FARPROC* lpProcAddress)
-{
-    FARPROC ProcAddress = ::GetProcAddress(hModule, lpProcName);
-
-    if (lpProcAddress)
-    {
-        *lpProcAddress = ProcAddress;
-    }
-
-    return Mile::HResultFromLastError(
-        ProcAddress != nullptr);
-}
-
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
 EXTERN_C HRESULT WINAPI MileCreateFile(
     _In_ LPCWSTR lpFileName,
     _In_ DWORD dwDesiredAccess,
@@ -1577,25 +1524,32 @@ EXTERN_C HRESULT WINAPI MileGetDpiForMonitor(
     _Out_ UINT* dpiX,
     _Out_ UINT* dpiY)
 {
-    HMODULE hModule = nullptr;
-    HRESULT hr = ::MileLoadLibrary(
+    HRESULT hr = S_OK;
+
+    HMODULE ModuleHandle = ::LoadLibraryExW(
         L"SHCore.dll",
         nullptr,
-        LOAD_LIBRARY_SEARCH_SYSTEM32,
-        &hModule);
-    if (SUCCEEDED(hr))
+        LOAD_LIBRARY_SEARCH_SYSTEM32);
+    if (ModuleHandle)
     {
-        decltype(::GetDpiForMonitor)* pFunc = nullptr;
-        hr = ::MileGetProcAddress(
-            hModule,
-            "GetDpiForMonitor",
-            reinterpret_cast<FARPROC*>(&pFunc));
-        if (SUCCEEDED(hr))
+        using ProcType = decltype(::GetDpiForMonitor)*;
+
+        ProcType ProcAddress = reinterpret_cast<ProcType>(
+            ::GetProcAddress(ModuleHandle, "GetDpiForMonitor"));
+        if (ProcAddress)
         {
-            hr = pFunc(hmonitor, dpiType, dpiX, dpiY);
+            hr = ProcAddress(hmonitor, dpiType, dpiX, dpiY);
+        }
+        else
+        {
+            hr = Mile::HResultFromLastError(FALSE);
         }
 
-        ::MileFreeLibrary(hModule);
+        ::FreeLibrary(ModuleHandle);
+    }
+    else
+    {
+        hr = Mile::HResultFromLastError(FALSE);
     }
 
     return hr;

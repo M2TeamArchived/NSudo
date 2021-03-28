@@ -505,81 +505,6 @@ Platform::Guid M2CreateGuid()
 
 #pragma endregion
 
-#pragma region Module
-
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
-
-/**
- * Loads the specified module with the optimization of the mitigation of DLL
- * preloading attacks into the address space of the calling process safely. The
- * specified module may cause other modules to be loaded.
- *
- * @param ModuleHandle If the function succeeds, this parameter's value is a
- *                     handle to the loaded module. You should read the
- *                     documentation about LoadLibraryEx API for further
- *                     information.
- * @param LibraryFileName A string that specifies the file name of the module
- *                        to load. You should read the documentation about
- *                        LoadLibraryEx API for further information.
- * @param Flags The action to be taken when loading the module. You should read
- *              the documentation about LoadLibraryEx API for further
- *              information.
- * @return HRESULT. If the function succeeds, the return value is S_OK.
- */
-HRESULT M2LoadLibraryEx(
-    _Out_ HMODULE* ModuleHandle,
-    _In_ LPCWSTR LibraryFileName,
-    _In_ DWORD Flags)
-{
-    HRESULT hr = ::MileLoadLibrary(LibraryFileName, nullptr, Flags, ModuleHandle);
-    if (FAILED(hr))
-    {
-        if ((Flags & LOAD_LIBRARY_SEARCH_SYSTEM32) &&
-            (hr == __HRESULT_FROM_WIN32(ERROR_INVALID_PARAMETER)))
-        {
-            // In the Windows API (with some exceptions discussed in the
-            // following paragraphs), the maximum length for a path is
-            // MAX_PATH, which is defined as 260 characters. A local path is
-            // structured in the following order: drive letter, colon,
-            // backslash, name components separated by backslashes, and a
-            // terminating null character. For example, the maximum path on
-            // drive D is "D:\some 256-character path string" where ""
-            // represents the invisible terminating null character for the
-            // current system codepage.
-            // MAX_PATH = 260 = wcslen(L"D:\some 256-character path string")
-            // wcslen(L"C:\\Windows\\System32") = 19
-            // BufferSize = 19 + 256 + 1 = 276
-            // P.S. In the most cases, I don't think the length "System32" path
-            // string will bigger than 19.
-            const size_t BufferLength = 276;
-            wchar_t Buffer[BufferLength];
-            if (!std::wcschr(LibraryFileName, L'\\'))
-            {
-                if (::GetSystemDirectoryW(
-                    Buffer,
-                    static_cast<UINT>(BufferLength)))
-                {
-                    hr = StringCbCatW(Buffer, BufferLength, LibraryFileName);
-                    if (SUCCEEDED(hr))
-                    {
-                        hr = ::MileLoadLibrary(
-                            Buffer,
-                            nullptr,
-                            Flags & (-1 ^ LOAD_LIBRARY_SEARCH_SYSTEM32),
-                            ModuleHandle);
-                    }
-                }
-            }
-        }
-    }
-
-    return hr;
-}
-
-#endif
-
-#pragma endregion
-
 #pragma region Environment
 
 #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
@@ -594,33 +519,40 @@ HRESULT M2LoadLibraryEx(
  */
 INT M2EnablePerMonitorDialogScaling()
 {
-    // Fix for Windows Vista and Server 2008.
-    if (!IsWindowsVersionOrGreater(10, 0, 0)) return -1;
+    // This hack is only for Windows 10 only.
+    if (!::IsWindowsVersionOrGreater(10, 0, 0))
+    {
+        return -1;
+    }
 
     // We don't need this hack if the Per Monitor Aware V2 is existed.
     OSVERSIONINFOEXW OSVersionInfoEx = { 0 };
     OSVersionInfoEx.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEXW);
     OSVersionInfoEx.dwBuildNumber = 14393;
-    if (VerifyVersionInfoW(
+    if (::VerifyVersionInfoW(
         &OSVersionInfoEx,
         VER_BUILDNUMBER,
-        VerSetConditionMask(0, VER_BUILDNUMBER, VER_GREATER_EQUAL))) return -1;
-
-    typedef INT(WINAPI * PFN_EnablePerMonitorDialogScaling)();
-
-    HMODULE hModule = nullptr;
-    PFN_EnablePerMonitorDialogScaling pFunc = nullptr;
-
-    hModule = GetModuleHandleW(L"user32.dll");
-    if (!hModule) return -1;
-
-    if (FAILED(::MileGetProcAddress(
-        hModule,
-        reinterpret_cast<LPCSTR>(2577),
-        reinterpret_cast<FARPROC*>(&pFunc))))
+        ::VerSetConditionMask(0, VER_BUILDNUMBER, VER_GREATER_EQUAL)))
+    {
         return -1;
+    }
 
-    return pFunc();
+    HMODULE ModuleHandle = ::GetModuleHandleW(L"user32.dll");
+    if (!ModuleHandle)
+    {
+        return -1;
+    }
+
+    typedef INT(WINAPI* ProcType)();
+
+    ProcType ProcAddress = reinterpret_cast<ProcType>(
+        ::GetProcAddress(ModuleHandle, reinterpret_cast<LPCSTR>(2577)));
+    if (!ProcAddress)
+    {
+        return -1;
+    }
+    
+    return ProcAddress();
 }
 
 #endif
