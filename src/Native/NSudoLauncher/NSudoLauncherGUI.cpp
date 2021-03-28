@@ -381,18 +381,15 @@ public:
         ShortCutList.clear();
 
         HRESULT hr = S_OK;
-        HANDLE FileHandle = INVALID_HANDLE_VALUE;
-
-        hr = ::MileCreateFile(
+        HANDLE FileHandle = ::CreateFileW(
             ShortCutListPath.c_str(),
             GENERIC_READ,
             FILE_SHARE_READ,
             nullptr,
             OPEN_EXISTING,
             FILE_FLAG_SEQUENTIAL_SCAN,
-            nullptr,
-            &FileHandle);
-        if (hr == S_OK)
+            nullptr);
+        if (FileHandle != INVALID_HANDLE_VALUE)
         {
             UINT64 FileSize = 0;
 
