@@ -230,7 +230,7 @@ namespace M2
 
         static inline void Close(PSID Object)
         {
-            ::MileFreeSid(Object);
+            ::FreeSid(Object);
         }
     };
 

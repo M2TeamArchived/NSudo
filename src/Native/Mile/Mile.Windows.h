@@ -263,82 +263,6 @@ EXTERN_C HRESULT WINAPI MileCreateSessionToken(
 #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
 
 /**
- * Creates a new access token that is a restricted version of an existing
- * access token. The restricted token can have disabled security identifiers
- * (SIDs), deleted privileges, and a list of restricting SIDs. For more
- * information, see Restricted Tokens.
- *
- * @param ExistingTokenHandle A handle to a primary or impersonation token. The
- *                            token can also be a restricted token. The handle
- *                            must have TOKEN_DUPLICATE access to the token.
- * @param Flags Specifies additional privilege options. This parameter can be
- *              zero or a combination of the following values.
- *              DISABLE_MAX_PRIVILEGE
- *                  Disables all privileges in the new token except the
- *                  SeChangeNotifyPrivilege privilege. If this value is
- *                  specified, the DeletePrivilegeCount and PrivilegesToDelete
- *                  parameters are ignored.
- *              SANDBOX_INERT
- *                  If this value is used, the system does not check AppLocker
- *                  rules or apply Software Restriction Policies. For
- *                  AppLocker, this flag disables checks for all four rule
- *                  collections: Executable, Windows Installer, Script, and
- *                  DLL.
- *              LUA_TOKEN
- *                  The new token is a LUA token.
- *              WRITE_RESTRICTED
- *                  The new token contains restricting SIDs that are considered
- *                  only when evaluating write access.
- * @param DisableSidCount Specifies the number of entries in the SidsToDisable
- *                        array.
- * @param SidsToDisable A pointer to an array of SID_AND_ATTRIBUTES structures
- *                      that specify the deny-only SIDs in the restricted
- *                      token.
- * @param DeletePrivilegeCount Specifies the number of entries in the
- *                             PrivilegesToDelete array.
- * @param PrivilegesToDelete A pointer to an array of LUID_AND_ATTRIBUTES
- *                           structures that specify the privileges to delete
- *                           in the restricted token.
- * @param RestrictedSidCount Specifies the number of entries in the
- *                           SidsToRestrict array.
- * @param SidsToRestrict A pointer to an array of SID_AND_ATTRIBUTES structures
- *                       that specify a list of restricting SIDs for the new
- *                       token.
- * @param NewTokenHandle A pointer to a variable that receives a handle to the
- *                       new restricted token.
- * @return HRESULT. If the method succeeds, the return value is S_OK.
- * @remark For more information, see CreateRestrictedToken.
- */
-EXTERN_C HRESULT WINAPI MileCreateRestrictedToken(
-    _In_ HANDLE ExistingTokenHandle,
-    _In_ DWORD Flags,
-    _In_ DWORD DisableSidCount,
-    _In_opt_ PSID_AND_ATTRIBUTES SidsToDisable,
-    _In_ DWORD DeletePrivilegeCount,
-    _In_opt_ PLUID_AND_ATTRIBUTES PrivilegesToDelete,
-    _In_ DWORD RestrictedSidCount,
-    _In_opt_ PSID_AND_ATTRIBUTES SidsToRestrict,
-    _Out_ PHANDLE NewTokenHandle);
-
-#endif
-
-/**
- * Compares a SID to a well-known SID and returns TRUE if they match.
- *
- * @param pSid A pointer to the SID to test.
- * @param WellKnownSidType Member of the WELL_KNOWN_SID_TYPE enumeration to
- *                         compare with the SID at pSid.
- * @return Returns TRUE if the SID at pSid matches the well-known SID indicated
- *         by WellKnownSidType. Otherwise, returns FALSE.
- * @remark For more information, see IsWellKnownSid.
- */
-EXTERN_C BOOL WINAPI MileIsWellKnownSid(
-    _In_ PSID pSid,
-    _In_ WELL_KNOWN_SID_TYPE WellKnownSidType);
-
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
-
-/**
  * Gets the identifier of the Local Security Authority process.
  *
  * @param ProcessId The identifier of the Local Security Authority process.
@@ -348,57 +272,6 @@ EXTERN_C HRESULT WINAPI MileGetLsassProcessId(
     _Out_ PDWORD ProcessId);
 
 #endif
-
-/**
- * Allocates and initializes a security identifier (SID) with up to eight
- * subauthorities.
- *
- * @param pIdentifierAuthority A pointer to a SID_IDENTIFIER_AUTHORITY
- *                             structure. This structure provides the top-level
- *                             identifier authority value to set in the SID.
- * @param nSubAuthorityCount Specifies the number of subauthorities to place in
- *                           the SID. This parameter also identifies how many
- *                           of the subauthority parameters have meaningful
- *                           values. This parameter must contain a value from 1
- *                           to 8.
- * @param nSubAuthority0 Subauthority value to place in the SID.
- * @param nSubAuthority1 Subauthority value to place in the SID.
- * @param nSubAuthority2 Subauthority value to place in the SID.
- * @param nSubAuthority3 Subauthority value to place in the SID.
- * @param nSubAuthority4 Subauthority value to place in the SID.
- * @param nSubAuthority5 Subauthority value to place in the SID.
- * @param nSubAuthority6 Subauthority value to place in the SID.
- * @param nSubAuthority7 Subauthority value to place in the SID.
- * @param pSid A pointer to a variable that receives the pointer to the
- *             allocated and initialized SID structure.
- * @return HRESULT. If the function succeeds, the return value is S_OK.
- * @remark For more information, see AllocateAndInitializeSid.
- */
-EXTERN_C HRESULT WINAPI MileAllocateAndInitializeSid(
-    _In_ PSID_IDENTIFIER_AUTHORITY pIdentifierAuthority,
-    _In_ BYTE nSubAuthorityCount,
-    _In_ DWORD nSubAuthority0,
-    _In_ DWORD nSubAuthority1,
-    _In_ DWORD nSubAuthority2,
-    _In_ DWORD nSubAuthority3,
-    _In_ DWORD nSubAuthority4,
-    _In_ DWORD nSubAuthority5,
-    _In_ DWORD nSubAuthority6,
-    _In_ DWORD nSubAuthority7,
-    _Outptr_ PSID* pSid);
-
-/**
- * Frees a security identifier (SID) previously allocated by using the
- * MileAllocateAndInitializeSid function.
- *
- * @param pSid A pointer to the SID structure to free.
- * @return If the function succeeds, the function returns nullptr. If the
- *         function fails, it returns a pointer to the SID structure
- *         represented by the pSid parameter.
- * @remark For more information, see FreeSid.
- */
-EXTERN_C PVOID WINAPI MileFreeSid(
-    _In_ PSID pSid);
 
 /**
  * Assigns an impersonation token to a thread. The function can also cause a
@@ -577,29 +450,6 @@ EXTERN_C HRESULT WINAPI MileSetPriorityClass(
     _In_ DWORD dwPriorityClass);
 
 /**
- * Allocates and initializes a mandatory label security identifier (SID).
- *
- * @param MandatoryLabelRid The value of the mandatory label for the process.
- *                          This parameter can be one of the following values.
- *                          SECURITY_MANDATORY_UNTRUSTED_RID
- *                          SECURITY_MANDATORY_LOW_RID
- *                          SECURITY_MANDATORY_MEDIUM_RID
- *                          SECURITY_MANDATORY_MEDIUM_PLUS_RID
- *                          SECURITY_MANDATORY_HIGH_RID
- *                          SECURITY_MANDATORY_SYSTEM_RID
- *                          SECURITY_MANDATORY_PROTECTED_PROCESS_RID
- * @param MandatoryLabelSid A pointer to a variable that receives the
- *                          pointer to the allocated and initialized
- *                          mandatory label SID structure.
- * @return HRESULT. If the method succeeds, the return value is S_OK.
- * @remark A SID allocated with the CreateMandatoryLabelSid method must be
- *         freed by using the FreeSid function.
- */
-EXTERN_C HRESULT WINAPI MileCreateMandatoryLabelSid(
-    _In_ DWORD MandatoryLabelRid,
-    _Out_ PSID* MandatoryLabelSid);
-
-/**
  * Sets mandatory label for a specified access token. The information that
  * this function sets replaces existing information. The calling process
  * must have appropriate access rights to set the information.
@@ -620,95 +470,6 @@ EXTERN_C HRESULT WINAPI MileCreateMandatoryLabelSid(
 EXTERN_C HRESULT WINAPI MileSetTokenMandatoryLabel(
     _In_ HANDLE TokenHandle,
     _In_ DWORD MandatoryLabelRid);
-
-/**
- * Returns the length, in bytes, of a valid security identifier (SID).
- *
- * @param pSid A pointer to the SID structure whose length is returned. The
- *             structure is assumed to be valid.
- * @return If the SID structure is valid, the return value is the length, in
- *         bytes, of the SID structure. If the SID structure is not valid, the
- *         return value is undefined.
- * @remark For more information, see GetLengthSid.
- */
-EXTERN_C DWORD WINAPI MileGetLengthSid(
-    _In_ PSID pSid);
-
-/**
- * Initializes a new ACL structure.
- *
- * @param pAcl A pointer to an ACL structure to be initialized by this
- *             function. Allocate memory for pAcl before calling this function.
- * @param nAclLength The length, in bytes, of the buffer pointed to by the pAcl
- *                   parameter.
- * @param dwAclRevision The revision level of the ACL structure being created.
- * @return HRESULT. If the method succeeds, the return value is S_OK.
- * @remark For more information, see InitializeAcl.
- */
-EXTERN_C HRESULT WINAPI MileInitializeAcl(
-    _Out_ PACL pAcl,
-    _In_ DWORD nAclLength,
-    _In_ DWORD dwAclRevision);
-
-/**
- * Adds an access-allowed access control entry (ACE) to an access control list
- * (ACL). The access is granted to a specified security identifier (SID).
- *
- * @param pAcl A pointer to an ACL.
- * @param dwAceRevision Specifies the revision level of the ACL being modified.
- * @param AccessMask Specifies the mask of access rights to be granted to the
- *                   specified SID.
- * @param pSid A pointer to the SID representing a user, group, or logon
- *             account being granted access.
- * @return HRESULT. If the method succeeds, the return value is S_OK.
- * @remark For more information, see AddAccessAllowedAce.
- */
-EXTERN_C HRESULT WINAPI MileAddAccessAllowedAce(
-    _Inout_ PACL pAcl,
-    _In_ DWORD dwAceRevision,
-    _In_ DWORD AccessMask,
-    _In_ PSID pSid);
-
-/**
- * Obtains a pointer to an access control entry (ACE) in an access control list
- * (ACL).
- *
- * @param pAcl A pointer to an ACL that contains the ACE to be retrieved.
- * @param dwAceIndex The index of the ACE to be retrieved. A value of zero
- *                   corresponds to the first ACE in the ACL, a value of one to
- *                   the second ACE, and so on.
- * @param pAce A pointer to a pointer that the function sets to the address of
- *             the ACE.
- * @return HRESULT. If the method succeeds, the return value is S_OK.
- * @remark For more information, see GetAce.
- */
-EXTERN_C HRESULT WINAPI MileGetAce(
-    _In_ PACL pAcl,
-    _In_ DWORD dwAceIndex,
-    _Out_ LPVOID* pAce);
-
-/**
- * Adds one or more access control entries (ACEs) to a specified access control
- * list (ACL).
- *
- * @param pAcl A pointer to an ACL. This function adds an ACE to this ACL.
- * @param dwAceRevision Specifies the revision level of the ACL being modified.
- * @param dwStartingAceIndex Specifies the position in the ACL's list of ACEs
- *                           at which to add new ACEs.
- * @param pAceList A pointer to a list of one or more ACEs to be added to the
- *                 specified ACL. The ACEs in the list must be stored
- *                 contiguously.
- * @paramn AceListLength Specifies the size, in bytes, of the input buffer
- *                       pointed to by the pAceList parameter.
- * @return HRESULT. If the method succeeds, the return value is S_OK.
- * @remark For more information, see AddAce.
- */
-EXTERN_C HRESULT WINAPI MileAddAce(
-    _Inout_ PACL pAcl,
-    _In_ DWORD dwAceRevision,
-    _In_ DWORD dwStartingAceIndex,
-    _In_ LPVOID pAceList,
-    _In_ DWORD nAceListLength);
 
 /**
  * Creates a new access token that is a LUA version of an existing access

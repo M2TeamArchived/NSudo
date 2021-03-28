@@ -366,47 +366,6 @@ EXTERN_C HRESULT WINAPI MileCreateSessionToken(
 /**
  * @remark You can read the definition for this function in "Mile.Windows.h".
  */
-EXTERN_C HRESULT WINAPI MileCreateRestrictedToken(
-    _In_ HANDLE ExistingTokenHandle,
-    _In_ DWORD Flags,
-    _In_ DWORD DisableSidCount,
-    _In_opt_ PSID_AND_ATTRIBUTES SidsToDisable,
-    _In_ DWORD DeletePrivilegeCount,
-    _In_opt_ PLUID_AND_ATTRIBUTES PrivilegesToDelete,
-    _In_ DWORD RestrictedSidCount,
-    _In_opt_ PSID_AND_ATTRIBUTES SidsToRestrict,
-    _Out_ PHANDLE NewTokenHandle)
-{
-    return Mile::HResultFromLastError(
-        ::CreateRestrictedToken(
-            ExistingTokenHandle,
-            Flags,
-            DisableSidCount,
-            SidsToDisable,
-            DeletePrivilegeCount,
-            PrivilegesToDelete,
-            RestrictedSidCount,
-            SidsToRestrict,
-            NewTokenHandle));
-}
-
-#endif
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
-EXTERN_C BOOL WINAPI MileIsWellKnownSid(
-    _In_ PSID pSid,
-    _In_ WELL_KNOWN_SID_TYPE WellKnownSidType)
-{
-    return ::IsWellKnownSid(pSid, WellKnownSidType);
-}
-
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
 EXTERN_C HRESULT WINAPI MileGetLsassProcessId(
     _Out_ PDWORD ProcessId)
 {
@@ -446,7 +405,7 @@ EXTERN_C HRESULT WINAPI MileGetLsassProcessId(
                 if (!pProcess->pUserSid)
                     continue;
 
-                if (!::MileIsWellKnownSid(
+                if (!::IsWellKnownSid(
                     pProcess->pUserSid,
                     WELL_KNOWN_SID_TYPE::WinLocalSystemSid))
                     continue;
@@ -465,46 +424,6 @@ EXTERN_C HRESULT WINAPI MileGetLsassProcessId(
 }
 
 #endif
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
-EXTERN_C HRESULT WINAPI MileAllocateAndInitializeSid(
-    _In_ PSID_IDENTIFIER_AUTHORITY pIdentifierAuthority,
-    _In_ BYTE nSubAuthorityCount,
-    _In_ DWORD nSubAuthority0,
-    _In_ DWORD nSubAuthority1,
-    _In_ DWORD nSubAuthority2,
-    _In_ DWORD nSubAuthority3,
-    _In_ DWORD nSubAuthority4,
-    _In_ DWORD nSubAuthority5,
-    _In_ DWORD nSubAuthority6,
-    _In_ DWORD nSubAuthority7,
-    _Outptr_ PSID* pSid)
-{
-    return Mile::HResultFromLastError(
-        ::AllocateAndInitializeSid(
-            pIdentifierAuthority,
-            nSubAuthorityCount,
-            nSubAuthority0,
-            nSubAuthority1,
-            nSubAuthority2,
-            nSubAuthority3,
-            nSubAuthority4,
-            nSubAuthority5,
-            nSubAuthority6,
-            nSubAuthority7,
-            pSid));
-}
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
-EXTERN_C PVOID WINAPI MileFreeSid(
-    _In_ PSID pSid)
-{
-    return ::FreeSid(pSid);
-}
 
 /**
  * @remark You can read the definition for this function in "Mile.Windows.h".
@@ -638,27 +557,16 @@ EXTERN_C HRESULT WINAPI MileSetPriorityClass(
 /**
  * @remark You can read the definition for this function in "Mile.Windows.h".
  */
-EXTERN_C HRESULT WINAPI MileCreateMandatoryLabelSid(
-    _In_ DWORD MandatoryLabelRid,
-    _Out_ PSID* MandatoryLabelSid)
-{
-    SID_IDENTIFIER_AUTHORITY SIA = SECURITY_MANDATORY_LABEL_AUTHORITY;
-
-    return ::MileAllocateAndInitializeSid(
-        &SIA, 1, MandatoryLabelRid, 0, 0, 0, 0, 0, 0, 0, MandatoryLabelSid);
-}
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
 EXTERN_C HRESULT WINAPI MileSetTokenMandatoryLabel(
     _In_ HANDLE TokenHandle,
     _In_ DWORD MandatoryLabelRid)
 {
+    SID_IDENTIFIER_AUTHORITY SIA = SECURITY_MANDATORY_LABEL_AUTHORITY;
+
     TOKEN_MANDATORY_LABEL TML;
 
-    HRESULT hr = ::MileCreateMandatoryLabelSid(
-        MandatoryLabelRid, &TML.Label.Sid);
+    HRESULT hr = Mile::HResultFromLastError(::AllocateAndInitializeSid(
+        &SIA, 1, MandatoryLabelRid, 0, 0, 0, 0, 0, 0, 0, &TML.Label.Sid));
     if (hr == S_OK)
     {
         TML.Label.Attributes = SE_GROUP_INTEGRITY;
@@ -666,75 +574,10 @@ EXTERN_C HRESULT WINAPI MileSetTokenMandatoryLabel(
         hr = ::MileSetTokenInformation(
             TokenHandle, TokenIntegrityLevel, &TML, sizeof(TML));
 
-        ::MileFreeSid(TML.Label.Sid);
+        ::FreeSid(TML.Label.Sid);
     }
 
     return hr;
-}
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
-EXTERN_C DWORD WINAPI MileGetLengthSid(
-    _In_ PSID pSid)
-{
-    return GetLengthSid(pSid);
-}
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
-EXTERN_C HRESULT WINAPI MileInitializeAcl(
-    _Out_ PACL pAcl,
-    _In_ DWORD nAclLength,
-    _In_ DWORD dwAclRevision)
-{
-    return Mile::HResultFromLastError(
-        ::InitializeAcl(pAcl, nAclLength, dwAclRevision));
-}
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
-EXTERN_C HRESULT WINAPI MileAddAccessAllowedAce(
-    _Inout_ PACL pAcl,
-    _In_ DWORD dwAceRevision,
-    _In_ DWORD AccessMask,
-    _In_ PSID pSid)
-{
-    return Mile::HResultFromLastError(
-        ::AddAccessAllowedAce(pAcl, dwAceRevision, AccessMask, pSid));
-}
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
-EXTERN_C HRESULT WINAPI MileGetAce(
-    _In_ PACL pAcl,
-    _In_ DWORD dwAceIndex,
-    _Out_ LPVOID* pAce)
-{
-    return Mile::HResultFromLastError(
-        ::GetAce(pAcl, dwAceIndex, pAce));
-}
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
-EXTERN_C HRESULT WINAPI MileAddAce(
-    _Inout_ PACL pAcl,
-    _In_ DWORD dwAceRevision,
-    _In_ DWORD dwStartingAceIndex,
-    _In_ LPVOID pAceList,
-    _In_ DWORD nAceListLength)
-{
-    return Mile::HResultFromLastError(
-        ::AddAce(
-            pAcl,
-            dwAceRevision,
-            dwStartingAceIndex,
-            pAceList,
-            nAceListLength));
 }
 
 /**
@@ -762,9 +605,16 @@ EXTERN_C HRESULT WINAPI MileCreateLUAToken(
             break;
         }
 
-        hr = ::MileCreateRestrictedToken(
-            ExistingTokenHandle, LUA_TOKEN,
-            0, nullptr, 0, nullptr, 0, nullptr, TokenHandle);
+        hr = Mile::HResultFromLastError(::CreateRestrictedToken(
+            ExistingTokenHandle,
+            LUA_TOKEN,
+            0,
+            nullptr,
+            0,
+            nullptr,
+            0,
+            nullptr,
+            TokenHandle));
         if (hr != S_OK)
         {
             break;
@@ -804,7 +654,7 @@ EXTERN_C HRESULT WINAPI MileCreateLUAToken(
         }
 
         Length = pTokenDacl->DefaultDacl->AclSize;
-        Length += ::MileGetLengthSid(pTokenUser->User.Sid);
+        Length += ::GetLengthSid(pTokenUser->User.Sid);
         Length += sizeof(ACCESS_ALLOWED_ACE);
 
         hr = ::MileAllocMemory(
@@ -815,35 +665,38 @@ EXTERN_C HRESULT WINAPI MileCreateLUAToken(
         }
         NewTokenDacl.DefaultDacl = NewDefaultDacl;
 
-        hr = ::MileInitializeAcl(
+        hr = Mile::HResultFromLastError(::InitializeAcl(
             NewTokenDacl.DefaultDacl,
             Length,
-            pTokenDacl->DefaultDacl->AclRevision);
+            pTokenDacl->DefaultDacl->AclRevision));
         if (hr != S_OK)
         {
             break;
         }
 
-        hr = ::MileAddAccessAllowedAce(
+        hr = Mile::HResultFromLastError(::AddAccessAllowedAce(
             NewTokenDacl.DefaultDacl,
             pTokenDacl->DefaultDacl->AclRevision,
             GENERIC_ALL,
-            pTokenUser->User.Sid);
+            pTokenUser->User.Sid));
         if (hr != S_OK)
         {
             break;
         }
 
         for (ULONG i = 0;
-            ::MileGetAce(pTokenDacl->DefaultDacl, i, (PVOID*)&pTempAce) == S_OK;
+            ::GetAce(
+                pTokenDacl->DefaultDacl,
+                i,
+                reinterpret_cast<PVOID*>(&pTempAce));
             ++i)
         {
-            if (::MileIsWellKnownSid(
+            if (::IsWellKnownSid(
                 &pTempAce->SidStart,
                 WELL_KNOWN_SID_TYPE::WinBuiltinAdministratorsSid))
                 continue;
 
-            ::MileAddAce(
+            ::AddAce(
                 NewTokenDacl.DefaultDacl,
                 pTokenDacl->DefaultDacl->AclRevision,
                 0,
