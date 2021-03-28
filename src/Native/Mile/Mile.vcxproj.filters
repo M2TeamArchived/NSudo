@@ -1,9 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="Mile.Windows.TrustedLibraryLoader.cpp">
-      <Filter>Mile.Windows.TrustedLibraryLoader</Filter>
-    </ClCompile>
     <ClCompile Include="M2WindowsHelpers.cpp">
       <Filter>M2WindowsHelpers</Filter>
     </ClCompile>
@@ -15,9 +12,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Mile.Windows.TrustedLibraryLoader.h">
-      <Filter>Mile.Windows.TrustedLibraryLoader</Filter>
-    </ClInclude>
     <ClInclude Include="Mile.Windows.Core.h">
       <Filter>Mile.Windows</Filter>
     </ClInclude>
@@ -33,9 +27,6 @@
     <None Include="MCC.cppold" />
   </ItemGroup>
   <ItemGroup>
-    <Filter Include="Mile.Windows.TrustedLibraryLoader">
-      <UniqueIdentifier>{18842d57-9f75-4cf4-8562-2fe1c4b5337c}</UniqueIdentifier>
-    </Filter>
     <Filter Include="M2WindowsHelpers">
       <UniqueIdentifier>{06cf3d69-d95a-419c-b0e4-65ce555dd131}</UniqueIdentifier>
     </Filter>
