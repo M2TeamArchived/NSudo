@@ -55,42 +55,6 @@ EXTERN_C HRESULT WINAPI MileAdjustTokenPrivileges(
 /**
  * @remark You can read the definition for this function in "Mile.Windows.h".
  */
-EXTERN_C HRESULT WINAPI MileGetTokenInformation(
-    _In_ HANDLE TokenHandle,
-    _In_ TOKEN_INFORMATION_CLASS TokenInformationClass,
-    _Out_opt_ LPVOID TokenInformation,
-    _In_ DWORD TokenInformationLength,
-    _Out_ PDWORD ReturnLength)
-{
-    return Mile::HResultFromLastError(
-        ::GetTokenInformation(
-            TokenHandle,
-            TokenInformationClass,
-            TokenInformation,
-            TokenInformationLength,
-            ReturnLength));
-}
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
-EXTERN_C HRESULT WINAPI MileSetTokenInformation(
-    _In_ HANDLE TokenHandle,
-    _In_ TOKEN_INFORMATION_CLASS TokenInformationClass,
-    _In_ LPVOID TokenInformation,
-    _In_ DWORD TokenInformationLength)
-{
-    return Mile::HResultFromLastError(
-        ::SetTokenInformation(
-            TokenHandle,
-            TokenInformationClass,
-            TokenInformation,
-            TokenInformationLength));
-}
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
 EXTERN_C HRESULT WINAPI MileGetTokenInformationWithMemory(
     _In_ HANDLE TokenHandle,
     _In_ TOKEN_INFORMATION_CLASS TokenInformationClass,
@@ -100,23 +64,23 @@ EXTERN_C HRESULT WINAPI MileGetTokenInformationWithMemory(
 
     DWORD Length = 0;
 
-    HRESULT hr = ::MileGetTokenInformation(
+    HRESULT hr = Mile::HResultFromLastError(::GetTokenInformation(
         TokenHandle,
         TokenInformationClass,
         nullptr,
         0,
-        &Length);
+        &Length));
     if (hr == Mile::HResult::FromWin32(ERROR_INSUFFICIENT_BUFFER))
     {
         hr = ::MileAllocMemory(Length, OutputInformation);
         if (hr == S_OK)
         {
-            hr = ::MileGetTokenInformation(
+            hr = Mile::HResultFromLastError(::GetTokenInformation(
                 TokenHandle,
                 TokenInformationClass,
                 *OutputInformation,
                 Length,
-                &Length);
+                &Length));
             if (hr != S_OK)
             {
                 Mile::HeapMemory::Free(*OutputInformation);
@@ -295,27 +259,6 @@ EXTERN_C HRESULT WINAPI MileSetCurrentThreadToken(
 /**
  * @remark You can read the definition for this function in "Mile.Windows.h".
  */
-EXTERN_C HRESULT WINAPI MileDuplicateToken(
-    _In_ HANDLE ExistingTokenHandle,
-    _In_ DWORD DesiredAccess,
-    _In_opt_ LPSECURITY_ATTRIBUTES TokenAttributes,
-    _In_ SECURITY_IMPERSONATION_LEVEL ImpersonationLevel,
-    _In_ TOKEN_TYPE TokenType,
-    _Out_ PHANDLE NewTokenHandle)
-{
-    return Mile::HResultFromLastError(
-        ::DuplicateTokenEx(
-            ExistingTokenHandle,
-            DesiredAccess,
-            TokenAttributes,
-            ImpersonationLevel,
-            TokenType,
-            NewTokenHandle));
-}
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
 EXTERN_C HRESULT WINAPI MileOpenProcess(
     _In_ DWORD DesiredAccess,
     _In_ BOOL InheritHandle,
@@ -401,8 +344,8 @@ EXTERN_C HRESULT WINAPI MileSetTokenMandatoryLabel(
     {
         TML.Label.Attributes = SE_GROUP_INTEGRITY;
 
-        hr = ::MileSetTokenInformation(
-            TokenHandle, TokenIntegrityLevel, &TML, sizeof(TML));
+        hr = Mile::HResultFromLastError(::SetTokenInformation(
+            TokenHandle, TokenIntegrityLevel, &TML, sizeof(TML)));
 
         ::FreeSid(TML.Label.Sid);
     }
@@ -467,8 +410,8 @@ EXTERN_C HRESULT WINAPI MileCreateLUAToken(
         }
 
         Owner.Owner = pTokenUser->User.Sid;
-        hr = ::MileSetTokenInformation(
-            *TokenHandle, TokenOwner, &Owner, sizeof(TOKEN_OWNER));
+        hr = Mile::HResultFromLastError(::SetTokenInformation(
+            *TokenHandle, TokenOwner, &Owner, sizeof(TOKEN_OWNER)));
         if (hr != S_OK)
         {
             break;
@@ -535,18 +478,18 @@ EXTERN_C HRESULT WINAPI MileCreateLUAToken(
         }
 
         Length += sizeof(TOKEN_DEFAULT_DACL);
-        hr = ::MileSetTokenInformation(
-            *TokenHandle, TokenDefaultDacl, &NewTokenDacl, Length);
+        hr = Mile::HResultFromLastError(::SetTokenInformation(
+            *TokenHandle, TokenDefaultDacl, &NewTokenDacl, Length));
         if (hr != S_OK)
         {
             break;
         }
 
-        hr = ::MileSetTokenInformation(
+        hr = Mile::HResultFromLastError(::SetTokenInformation(
             *TokenHandle,
             TokenVirtualizationEnabled,
             &EnableTokenVirtualization,
-            sizeof(BOOL));
+            sizeof(BOOL)));
         if (hr != S_OK)
         {
             break;

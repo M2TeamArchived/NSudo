@@ -68,58 +68,6 @@ EXTERN_C HRESULT WINAPI MileAdjustTokenPrivileges(
  *                    retrieved.
  * @param TokenInformationClass Specifies a value from the
  *                              TOKEN_INFORMATION_CLASS enumerated type to
- *                              identify the type of information the
- *                              function retrieves.
- * @param TokenInformation A pointer to a buffer the function fills with the
- *                         requested information.
- * @param TokenInformationLength Specifies the size, in bytes, of the buffer
- *                               pointed to by the TokenInformation parameter.
- * @param ReturnLength A pointer to a variable that receives the number of
- *                     bytes needed for the buffer pointed to by the
- *                     TokenInformation parameter.
- * @return HRESULT. If the method succeeds, the return value is S_OK.
- * @remark For more information, see GetTokenInformation.
- */
-EXTERN_C HRESULT WINAPI MileGetTokenInformation(
-    _In_ HANDLE TokenHandle,
-    _In_ TOKEN_INFORMATION_CLASS TokenInformationClass,
-    _Out_opt_ LPVOID TokenInformation,
-    _In_ DWORD TokenInformationLength,
-    _Out_ PDWORD ReturnLength);
-
-/**
- * Sets various types of information for a specified access token. The
- * information that this function sets replaces existing information. The
- * calling process must have appropriate access rights to set the information.
- *
- * @param TokenHandle A handle to the access token for which information is to
- *                    be set.
- * @param TokenInformationClass A value from the TOKEN_INFORMATION_CLASS
- *                              enumerated type that identifies the type of
- *                              information the function sets. The valid values
- *                              from TOKEN_INFORMATION_CLASS are described in
- *                              the TokenInformation parameter.
- * @param TokenInformation A pointer to a buffer that contains the information
- *                         set in the access token.
- * @param TokenInformationLength Specifies the length, in bytes, of the buffer
- *                               pointed to by TokenInformation.
- * @return HRESULT. If the method succeeds, the return value is S_OK.
- * @remark For more information, see SetTokenInformation.
- */
-EXTERN_C HRESULT WINAPI MileSetTokenInformation(
-    _In_ HANDLE TokenHandle,
-    _In_ TOKEN_INFORMATION_CLASS TokenInformationClass,
-    _In_ LPVOID TokenInformation,
-    _In_ DWORD TokenInformationLength);
-
-/**
- * Retrieves a specified type of information about an access token. The calling
- * process must have appropriate access rights to obtain the information.
- *
- * @param TokenHandle A handle to an access token from which information is
- *                    retrieved.
- * @param TokenInformationClass Specifies a value from the
- *                              TOKEN_INFORMATION_CLASS enumerated type to
  *                              identify the type of information the function
  *                              retrieves.
  * @param OutputInformation A pointer to a buffer the function fills with the
@@ -251,43 +199,6 @@ EXTERN_C HRESULT WINAPI MileGetLsassProcessId(
  */
 EXTERN_C HRESULT WINAPI MileSetCurrentThreadToken(
     _In_opt_ HANDLE TokenHandle);
-
-/**
- * Creates a new access token that duplicates an existing token. This function
- * can create either a primary token or an impersonation token.
- *
- * @param ExistingTokenHandle A handle to an access token opened with
- *                            TOKEN_DUPLICATE access.
- * @param DesiredAccess Specifies the requested access rights for the new
- *                      token. To request all access rights that are valid for
- *                      the caller, specify MAXIMUM_ALLOWED.
- * @param TokenAttributes A pointer to a SECURITY_ATTRIBUTES structure that
- *                        specifies a security descriptor for the new token and
- *                        determines whether child processes can inherit the
- *                        token.
- * @param ImpersonationLevel Specifies a value from the
- *                           SECURITY_IMPERSONATION_LEVEL enumeration that
- *                           indicates the impersonation level of the new
- *                           token.
- * @param TokenType Specifies one of the following values from the TOKEN_TYPE
- *                  enumeration.
- *                  TokenPrimary
- *                      The new token is a primary token that you can use in
- *                      the CreateProcessAsUser function.
- *                  TokenImpersonation
- *                      The new token is an impersonation token.
- * @param NewTokenHandle A pointer to a handle variable that receives the new
- *                       token.
- * @return HRESULT. If the method succeeds, the return value is S_OK.
- * @remark For more information, see DuplicateTokenEx.
- */
-EXTERN_C HRESULT WINAPI MileDuplicateToken(
-    _In_ HANDLE ExistingTokenHandle,
-    _In_ DWORD DesiredAccess,
-    _In_opt_ LPSECURITY_ATTRIBUTES TokenAttributes,
-    _In_ SECURITY_IMPERSONATION_LEVEL ImpersonationLevel,
-    _In_ TOKEN_TYPE TokenType,
-    _Out_ PHANDLE NewTokenHandle);
 
 /**
  * Opens an existing local process object.

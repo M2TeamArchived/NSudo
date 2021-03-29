@@ -197,13 +197,13 @@ EXTERN_C HRESULT WINAPI NSudoCreateProcess(
         return hr;
     }
 
-    hr = ::MileDuplicateToken(
+    hr = Mile::HResultFromLastError(::DuplicateTokenEx(
         CurrentProcessToken,
         MAXIMUM_ALLOWED,
         nullptr,
         SecurityImpersonation,
         TokenImpersonation,
-        &DuplicatedCurrentProcessToken);
+        &DuplicatedCurrentProcessToken));
     if (hr != S_OK)
     {
         return hr;
@@ -265,13 +265,13 @@ EXTERN_C HRESULT WINAPI NSudoCreateProcess(
         return hr;
     }
 
-    hr = ::MileDuplicateToken(
+    hr = Mile::HResultFromLastError(::DuplicateTokenEx(
         OriginalLsassProcessToken,
         MAXIMUM_ALLOWED,
         nullptr,
         SecurityImpersonation,
         TokenImpersonation,
-        &SystemToken);
+        &SystemToken));
     if (hr != S_OK)
     {
         return hr;
@@ -353,21 +353,21 @@ EXTERN_C HRESULT WINAPI NSudoCreateProcess(
             TOKEN_LINKED_TOKEN LinkedToken = { 0 };
             DWORD ReturnLength = 0;
 
-            hr = ::MileGetTokenInformation(
+            hr = Mile::HResultFromLastError(::GetTokenInformation(
                 hCurrentProcessToken,
                 TokenLinkedToken,
                 &LinkedToken,
                 sizeof(TOKEN_LINKED_TOKEN),
-                &ReturnLength);
+                &ReturnLength));
             if (hr == S_OK)
             {
-                hr = ::MileDuplicateToken(
+                hr = Mile::HResultFromLastError(::DuplicateTokenEx(
                     LinkedToken.LinkedToken,
                     MAXIMUM_ALLOWED,
                     nullptr,
                     SecurityIdentification,
                     TokenPrimary,
-                    &OriginalToken);
+                    &OriginalToken));
 
                 ::CloseHandle(LinkedToken.LinkedToken);
             }
@@ -380,23 +380,23 @@ EXTERN_C HRESULT WINAPI NSudoCreateProcess(
         return E_INVALIDARG;
     }
 
-    hr = ::MileDuplicateToken(
+    hr = Mile::HResultFromLastError(::DuplicateTokenEx(
         OriginalToken,
         MAXIMUM_ALLOWED,
         nullptr,
         SecurityIdentification,
         TokenPrimary,
-        &hToken);
+        &hToken));
     if (hr != S_OK)
     {
         return hr;
     }
 
-    hr = ::MileSetTokenInformation(
+    hr = Mile::HResultFromLastError(::SetTokenInformation(
         hToken,
         TokenSessionId,
         (PVOID)&SessionID,
-        sizeof(DWORD));
+        sizeof(DWORD)));
     if (hr != S_OK)
     {
         return hr;
