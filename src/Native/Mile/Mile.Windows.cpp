@@ -15,14 +15,6 @@
 #pragma comment(lib, "WtsApi32.lib")
 #endif
 
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
-#include <Userenv.h>
-#pragma comment(lib, "Userenv.lib")
-#endif
-
-#include <assert.h>
-#include <process.h>
-
 #include <strsafe.h>
 
 /**
@@ -345,14 +337,6 @@ EXTERN_C HRESULT WINAPI MileOpenProcess(
 /**
  * @remark You can read the definition for this function in "Mile.Windows.h".
  */
-EXTERN_C HANDLE WINAPI MileGetCurrentProcess()
-{
-    return ::GetCurrentProcess();
-}
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
 EXTERN_C HRESULT WINAPI MileOpenThread(
     _In_ DWORD DesiredAccess,
     _In_ BOOL InheritHandle,
@@ -369,14 +353,6 @@ EXTERN_C HRESULT WINAPI MileOpenThread(
 
     return Mile::HResultFromLastError(
         RawThreadHandle != nullptr);
-}
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
-EXTERN_C HANDLE WINAPI MileGetCurrentThread()
-{
-    return ::GetCurrentThread();
 }
 
 /**
@@ -406,17 +382,6 @@ EXTERN_C HRESULT WINAPI MileOpenThreadToken(
             DesiredAccess,
             OpenAsSelf,
             TokenHandle));
-}
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
-EXTERN_C HRESULT WINAPI MileSetPriorityClass(
-    _In_ HANDLE hProcess,
-    _In_ DWORD dwPriorityClass)
-{
-    return Mile::HResultFromLastError(
-        ::SetPriorityClass(hProcess, dwPriorityClass));
 }
 
 /**
@@ -676,7 +641,7 @@ EXTERN_C HRESULT WINAPI MileOpenCurrentProcessToken(
     _Out_ PHANDLE TokenHandle)
 {
     return ::MileOpenProcessToken(
-        ::MileGetCurrentProcess(), DesiredAccess, TokenHandle);
+        ::GetCurrentProcess(), DesiredAccess, TokenHandle);
 }
 
 /**
@@ -763,7 +728,7 @@ EXTERN_C HRESULT WINAPI MileOpenCurrentThreadToken(
     _Out_ PHANDLE TokenHandle)
 {
     return ::MileOpenThreadToken(
-        ::MileGetCurrentThread(), DesiredAccess, OpenAsSelf, TokenHandle);
+        ::GetCurrentThread(), DesiredAccess, OpenAsSelf, TokenHandle);
 }
 
 /**
@@ -788,176 +753,6 @@ EXTERN_C HRESULT WINAPI MileOpenThreadTokenByThreadId(
     }
 
     return hr;
-}
-
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
-EXTERN_C HRESULT WINAPI MileCreateProcessAsUser(
-    _In_opt_ HANDLE hToken,
-    _In_opt_ LPCWSTR lpApplicationName,
-    _Inout_opt_ LPWSTR lpCommandLine,
-    _In_opt_ LPSECURITY_ATTRIBUTES lpProcessAttributes,
-    _In_opt_ LPSECURITY_ATTRIBUTES lpThreadAttributes,
-    _In_ BOOL bInheritHandles,
-    _In_ DWORD dwCreationFlags,
-    _In_opt_ LPVOID lpEnvironment,
-    _In_opt_ LPCWSTR lpCurrentDirectory,
-    _In_ LPSTARTUPINFOW lpStartupInfo,
-    _Out_ LPPROCESS_INFORMATION lpProcessInformation)
-{
-    return Mile::HResultFromLastError(
-        ::CreateProcessAsUserW(
-            hToken,
-            lpApplicationName,
-            lpCommandLine,
-            lpProcessAttributes,
-            lpThreadAttributes,
-            bInheritHandles,
-            dwCreationFlags,
-            lpEnvironment,
-            lpCurrentDirectory,
-            lpStartupInfo,
-            lpProcessInformation));
-}
-
-#endif
-
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
-EXTERN_C HRESULT WINAPI MileCreateEnvironmentBlock(
-    _Outptr_ LPVOID* lpEnvironment,
-    _In_opt_ HANDLE hToken,
-    _In_ BOOL bInherit)
-{
-    return Mile::HResultFromLastError(
-        ::CreateEnvironmentBlock(lpEnvironment, hToken, bInherit));
-}
-
-#endif
-
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
-EXTERN_C HRESULT WINAPI MileDestroyEnvironmentBlock(
-    _In_ LPVOID lpEnvironment)
-{
-    return Mile::HResultFromLastError(
-        ::DestroyEnvironmentBlock(lpEnvironment));
-}
-
-#endif
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
-EXTERN_C HRESULT WINAPI MileSuspendThread(
-    _In_ HANDLE ThreadHandle,
-    _Out_opt_ PDWORD PreviousSuspendCount)
-{
-    DWORD PreviousCount = ::SuspendThread(ThreadHandle);
-
-    if (PreviousSuspendCount)
-    {
-        *PreviousSuspendCount = PreviousCount;
-    }
-
-    return Mile::HResultFromLastError(
-        PreviousCount != static_cast<DWORD>(-1));
-}
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
-EXTERN_C HRESULT WINAPI MileResumeThread(
-    _In_ HANDLE ThreadHandle,
-    _Out_opt_ PDWORD PreviousSuspendCount)
-{
-    DWORD PreviousCount = ::ResumeThread(ThreadHandle);
-
-    if (PreviousSuspendCount)
-    {
-        *PreviousSuspendCount = PreviousCount;
-    }
-
-    return Mile::HResultFromLastError(
-        PreviousCount != static_cast<DWORD>(-1));
-}
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
-EXTERN_C HRESULT WINAPI MileWaitForSingleObject(
-    _In_ HANDLE hHandle,
-    _In_ DWORD dwMilliseconds,
-    _In_ BOOL bAlertable,
-    _Out_opt_ PDWORD pdwReturn)
-{
-    DWORD dwReturn = ::WaitForSingleObjectEx(
-        hHandle,
-        dwMilliseconds,
-        bAlertable);
-
-    if (pdwReturn)
-    {
-        *pdwReturn = dwReturn;
-    }
-
-    return Mile::HResultFromLastError(
-        dwReturn != WAIT_FAILED);
-}
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
-EXTERN_C HRESULT WINAPI MileCreateThread(
-    _In_opt_ LPSECURITY_ATTRIBUTES lpThreadAttributes,
-    _In_ SIZE_T dwStackSize,
-    _In_ LPTHREAD_START_ROUTINE lpStartAddress,
-    _In_opt_ LPVOID lpParameter,
-    _In_ DWORD dwCreationFlags,
-    _Out_opt_ LPDWORD lpThreadId,
-    _Out_opt_ PHANDLE lpThreadHandle)
-{
-    // sanity check for lpThreadId
-    assert(sizeof(DWORD) == sizeof(unsigned));
-
-    typedef unsigned(__stdcall* routine_type)(void*);
-
-    // _beginthreadex calls CreateThread which will set the last error
-    // value before it returns.
-    HANDLE ThreadHandle = reinterpret_cast<HANDLE>(::_beginthreadex(
-        lpThreadAttributes,
-        static_cast<unsigned>(dwStackSize),
-        reinterpret_cast<routine_type>(lpStartAddress),
-        lpParameter,
-        dwCreationFlags,
-        reinterpret_cast<unsigned*>(lpThreadId)));
-
-    if (lpThreadHandle)
-    {
-        *lpThreadHandle = ThreadHandle;
-    }
-
-    return Mile::HResultFromLastError(
-        ThreadHandle != nullptr);
-}
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
-EXTERN_C DWORD WINAPI MileGetNumberOfHardwareThreads()
-{
-    SYSTEM_INFO SystemInfo = { 0 };
-    ::GetNativeSystemInfo(&SystemInfo);
-    return SystemInfo.dwNumberOfProcessors;
 }
 
 /**

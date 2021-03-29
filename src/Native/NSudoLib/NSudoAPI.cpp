@@ -21,6 +21,11 @@
 #include <utility>
 #include <WtsApi32.h>
 
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+#include <Userenv.h>
+#pragma comment(lib, "Userenv.lib")
+#endif
+
 DWORD WINAPI TemporarilyGetActiveSessionID()
 {
     DWORD Count = 0;
@@ -449,14 +454,15 @@ EXTERN_C HRESULT WINAPI NSudoCreateProcess(
 
     LPVOID lpEnvironment = nullptr;
 
-    hr = ::MileCreateEnvironmentBlock(&lpEnvironment, hToken, TRUE);
+    hr = Mile::HResultFromLastError(::CreateEnvironmentBlock(
+        &lpEnvironment, hToken, TRUE));
     if (hr == S_OK)
     {
         std::wstring ExpandedString = Mile::ExpandEnvironmentStringsW(
             std::wstring(CommandLine));
         if (hr == S_OK)
         {
-            hr = ::MileCreateProcessAsUser(
+            hr = Mile::HResultFromLastError(::CreateProcessAsUserW(
                 hToken,
                 nullptr,
                 const_cast<LPWSTR>(ExpandedString.c_str()),
@@ -467,23 +473,22 @@ EXTERN_C HRESULT WINAPI NSudoCreateProcess(
                 lpEnvironment,
                 CurrentDirectory,
                 &StartupInfo,
-                &ProcessInfo);
+                &ProcessInfo));
             if (hr == S_OK)
             {
-                ::MileSetPriorityClass(
-                    ProcessInfo.hProcess, ProcessPriority);
+                ::SetPriorityClass(ProcessInfo.hProcess, ProcessPriority);
 
-                ::MileResumeThread(ProcessInfo.hThread, nullptr);
+                ::ResumeThread(ProcessInfo.hThread);
 
-                ::MileWaitForSingleObject(
-                    ProcessInfo.hProcess, WaitInterval, FALSE, nullptr);
+                ::WaitForSingleObjectEx(
+                    ProcessInfo.hProcess, WaitInterval, FALSE);
 
                 ::CloseHandle(ProcessInfo.hProcess);
                 ::CloseHandle(ProcessInfo.hThread);
             }
         }
 
-        ::MileDestroyEnvironmentBlock(lpEnvironment);
+        ::DestroyEnvironmentBlock(lpEnvironment);
     }
 
     return S_OK;

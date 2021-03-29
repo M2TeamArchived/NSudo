@@ -1649,11 +1649,61 @@ namespace Mile
 
 #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
 
+    /**
+     * @brief Starts a service if not started and retrieves the current status
+     *        of the specified service.
+     * @param ServiceName The name of the service to be started. This is the
+     *                    name specified by the ServiceName parameter of the
+     *                    CreateService function when the service object was
+     *                    created, not the service display name that is shown
+     *                    by user interface applications to identify the
+     *                    service. The maximum string length is 256 characters.
+     *                    The service control manager database preserves the
+     *                    case of the characters, but service name comparisons
+     *                    are always case insensitive. Forward-slash (/) and
+     *                    backslash (\) are invalid service name characters.
+     * @param ServiceStatus A pointer to the process status information for a
+     *                      service.
+     * @return An HResult object containing the error code.
+    */
     HResult StartServiceW(
         _In_ LPCWSTR ServiceName,
         _Out_ LPSERVICE_STATUS_PROCESS ServiceStatus);
 
 #endif
+
+    /**
+     * @brief Creates a thread to execute within the virtual address space of
+     *        the calling process.
+     * @param lpThreadAttributes A pointer to a SECURITY_ATTRIBUTES structure
+     *                           that determines whether the returned handle
+     *                           can be inherited by child processes.
+     * @param dwStackSize The initial size of the stack, in bytes.
+     * @param lpStartAddress A pointer to the application-defined function to
+     *                       be executed by the thread.
+     * @param lpParameter A pointer to a variable to be passed to the thread.
+     * @param dwCreationFlags The flags that control the creation of the
+     *                        thread.
+     * @param lpThreadId A pointer to a variable that receives the thread
+     *                   identifier.
+     * @return If the function succeeds, the return value is a handle to the
+     *         new thread. If the function fails, the return value is nullptr.
+     *         To get extended error information, call GetLastError.
+     * @remark For more information, see CreateThread.
+    */
+    HANDLE CreateThread(
+        _In_opt_ LPSECURITY_ATTRIBUTES lpThreadAttributes,
+        _In_ SIZE_T dwStackSize,
+        _In_ LPTHREAD_START_ROUTINE lpStartAddress,
+        _In_opt_ LPVOID lpParameter,
+        _In_ DWORD dwCreationFlags,
+        _Out_opt_ LPDWORD lpThreadId);
+
+    /**
+     * @brief Retrieves the number of logical processors in the current group.
+     * @return The number of logical processors in the current group.
+    */
+    DWORD GetNumberOfHardwareThreads();
 
 #pragma endregion
 
@@ -1757,6 +1807,50 @@ namespace Mile
         std::wstring& ApplicationName,
         std::map<std::wstring, std::wstring>& OptionsAndParameters,
         std::wstring& UnresolvedCommandLine);
+
+    /**
+     * @brief Creates a thread to execute within the virtual address space of
+     *        the calling process.
+     * @tparam FuncType The function type.
+     * @param StartFunction The start function.
+     * @param lpThreadAttributes A pointer to a SECURITY_ATTRIBUTES structure
+     *                           that determines whether the returned handle
+     *                           can be inherited by child processes.
+     * @param dwStackSize The initial size of the stack, in bytes.
+     * @param dwCreationFlags The flags that control the creation of the
+     *                        thread.
+     * @param lpThreadId A pointer to a variable that receives the thread
+     *                   identifier.
+     * @return If the function succeeds, the return value is a handle to the
+     *         new thread. If the function fails, the return value is nullptr.
+     *         To get extended error information, call GetLastError.
+     * @remark For more information, see CreateThread.
+    */
+    template<class FuncType>
+    HANDLE CreateThread(
+        _In_ FuncType&& StartFunction,
+        _In_opt_ LPSECURITY_ATTRIBUTES lpThreadAttributes = nullptr,
+        _In_ SIZE_T dwStackSize = 0,
+        _In_ DWORD dwCreationFlags = 0,
+        _Out_opt_ LPDWORD lpThreadId = nullptr)
+    {
+        auto ThreadFunctionInternal = [](LPVOID lpThreadParameter) -> DWORD
+        {
+            auto function = reinterpret_cast<FuncType*>(
+                lpThreadParameter);
+            (*function)();
+            delete function;
+            return 0;
+        };
+
+        return Mile::CreateThread(
+            lpThreadAttributes,
+            dwStackSize,
+            ThreadFunctionInternal,
+            reinterpret_cast<LPVOID>(new FuncType(std::move(StartFunction))),
+            dwCreationFlags,
+            lpThreadId);
+    }
 
 #pragma endregion
 }
