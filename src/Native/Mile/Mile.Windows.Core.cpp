@@ -1653,6 +1653,107 @@ Mile::HResult Mile::CoCheckInterfaceName(
 
 #endif
 
+Mile::HResultFromLastError Mile::OpenProcessTokenByProcessId(
+    _In_ DWORD ProcessId,
+    _In_ DWORD DesiredAccess,
+    _Out_ PHANDLE TokenHandle)
+{
+    BOOL Result = FALSE;
+
+    HANDLE ProcessHandle = ::OpenProcess(MAXIMUM_ALLOWED, FALSE, ProcessId);
+    if (ProcessHandle)
+    {
+        Result = ::OpenProcessToken(ProcessHandle, DesiredAccess, TokenHandle);
+
+        ::CloseHandle(ProcessHandle);
+    }
+
+    return Result;
+}
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+Mile::HResult Mile::OpenServiceProcessToken(
+    _In_ LPCWSTR ServiceName,
+    _In_ DWORD DesiredAccess,
+    _Out_ PHANDLE TokenHandle)
+{
+    SERVICE_STATUS_PROCESS ServiceStatus;
+
+    Mile::HResult hr = Mile::StartServiceW(ServiceName, &ServiceStatus);
+    if (hr == S_OK)
+    {
+        hr = Mile::OpenProcessTokenByProcessId(
+            ServiceStatus.dwProcessId, DesiredAccess, TokenHandle);
+    }
+
+    return hr;
+}
+
+#endif
+
+Mile::HResult Mile::AdjustTokenPrivilegesSimple(
+    _In_ HANDLE TokenHandle,
+    _In_ PLUID_AND_ATTRIBUTES Privileges,
+    _In_ DWORD PrivilegeCount)
+{
+    Mile::HResult hr = E_INVALIDARG;
+
+    if (Privileges && PrivilegeCount)
+    {
+        DWORD PSize = sizeof(LUID_AND_ATTRIBUTES) * PrivilegeCount;
+        DWORD TPSize = PSize + sizeof(DWORD);
+
+        PTOKEN_PRIVILEGES pTP = reinterpret_cast<PTOKEN_PRIVILEGES>(
+            Mile::HeapMemory::Allocate(TPSize));
+        if (pTP)
+        {
+            pTP->PrivilegeCount = PrivilegeCount;
+            ::memcpy(pTP->Privileges, Privileges, PSize);
+
+            ::AdjustTokenPrivileges(
+                TokenHandle, FALSE, pTP, TPSize, nullptr, nullptr);
+            hr = Mile::HResultFromLastError();
+
+            Mile::HeapMemory::Free(pTP);
+        }
+        else
+        {
+            hr = Mile::HResult::FromWin32(ERROR_NOT_ENOUGH_MEMORY);
+        }
+    }
+
+    return hr;
+}
+
+Mile::HResult Mile::AdjustTokenAllPrivileges(
+    _In_ HANDLE TokenHandle,
+    _In_ DWORD Attributes)
+{
+    PTOKEN_PRIVILEGES pTokenPrivileges = nullptr;
+
+    Mile::HResult hr = Mile::GetTokenInformationWithMemory(
+        TokenHandle,
+        TokenPrivileges,
+        reinterpret_cast<PVOID*>(&pTokenPrivileges));
+    if (hr == S_OK)
+    {
+        for (DWORD i = 0; i < pTokenPrivileges->PrivilegeCount; ++i)
+        {
+            pTokenPrivileges->Privileges[i].Attributes = Attributes;
+        }
+
+        hr = Mile::AdjustTokenPrivilegesSimple(
+            TokenHandle,
+            pTokenPrivileges->Privileges,
+            pTokenPrivileges->PrivilegeCount);
+
+        Mile::HeapMemory::Free(pTokenPrivileges);
+    }
+
+    return hr;
+}
+
 #pragma endregion
 
 #pragma region Implementations for Windows (C++ Style)

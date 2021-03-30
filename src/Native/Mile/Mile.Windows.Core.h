@@ -1885,6 +1885,104 @@ namespace Mile
 
 #endif
 
+    /**
+     * @brief Opens the access token associated with a process.
+     * @param ProcessId The identifier of the local process to be opened.
+     * @param DesiredAccess The access to the process object. This access right
+     *                      is checked against the security descriptor for the
+     *                      process. This parameter can be one or more of the
+     *                      process access rights.
+     * @param TokenHandle A pointer to a handle that identifies the newly
+     *                    opened access token when the function returns.
+     * @return An HResultFromLastError object An containing the HResult object
+     *         containing the error code.
+    */
+    HResultFromLastError OpenProcessTokenByProcessId(
+        _In_ DWORD ProcessId,
+        _In_ DWORD DesiredAccess,
+        _Out_ PHANDLE TokenHandle);
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+    /**
+     * @brief Opens the access token associated with a service process, the
+     *        calling application must be running within the context of the
+     *        Administrator account and have the SE_DEBUG_NAME privilege
+     *        enabled.
+     * @param ServiceName The name of the service to be started. This is the
+     *                    name specified by the ServiceName parameter of the
+     *                    CreateService function when the service object was
+     *                    created, not the service display name that is shown
+     *                    by user interface applications to identify the
+     *                    service. The maximum string length is 256 characters.
+     *                    The service control manager database preserves the
+     *                    case of the characters, but service name comparisons
+     *                    are always case insensitive. Forward-slash (/) and
+     *                    backslash (\) are invalid service name characters.
+     * @param DesiredAccess The access to the process object. This access right
+     *                      is checked against the security descriptor for the
+     *                      process. This parameter can be one or more of the
+     *                      process access rights.
+     * @param TokenHandle A pointer to a handle that identifies the newly
+     *                    opened access token when the function returns.
+     * @return An HResult object containing the error code.
+    */
+    HResult OpenServiceProcessToken(
+        _In_ LPCWSTR ServiceName,
+        _In_ DWORD DesiredAccess,
+        _Out_ PHANDLE TokenHandle);
+
+    /**
+     * @brief Enables or disables privileges in the specified access token.
+     * @param TokenHandle A handle to the access token that contains the
+     *                    privileges to be modified. The handle must have
+     *                    TOKEN_ADJUST_PRIVILEGES access to the token.
+     * @param Privileges A pointer to an array of LUID_AND_ATTRIBUTES
+     *                   structures that specifies an array of privileges and
+     *                   their attributes. Each structure contains the LUID and
+     *                   attributes of a privilege. To get the name of the
+     *                   privilege associated with a LUID, call the
+     *                   LookupPrivilegeValue function, passing the address of
+     *                   the LUID as the value of the lpLuid parameter. The
+     *                   attributes of a privilege can be a combination of the
+     *                   following values.
+     *                   SE_PRIVILEGE_ENABLED
+     *                       The function enables the privilege.
+     *                   SE_PRIVILEGE_REMOVED
+     *                       The privilege is removed from the list of
+     *                       privileges in the token.
+     *                   None
+     *                       The function disables the privilege.
+     * @param PrivilegeCount The number of entries in the Privileges array.
+     * @return An HResult object containing the error code.
+    */
+    HResult AdjustTokenPrivilegesSimple(
+        _In_ HANDLE TokenHandle,
+        _In_ PLUID_AND_ATTRIBUTES Privileges,
+        _In_ DWORD PrivilegeCount);
+
+    /**
+     * @brief Enables or disables all privileges in the specified access token.
+     * @param TokenHandle A handle to the access token that contains the
+     *                    privileges to be modified. The handle must have
+     *                    TOKEN_ADJUST_PRIVILEGES access to the token.
+     * @param Attributes The attributes of all privileges can be a combination
+     *                   of the following values.
+     *                   SE_PRIVILEGE_ENABLED
+     *                       The function enables the privilege.
+     *                   SE_PRIVILEGE_REMOVED
+     *                       The privilege is removed from the list of
+     *                       privileges in the token.
+     *                   None
+     *                       The function disables the privilege.
+     * @return An HResult object containing the error code.
+    */
+    HResult AdjustTokenAllPrivileges(
+        _In_ HANDLE TokenHandle,
+        _In_ DWORD Attributes);
+
+#endif
+
 #pragma endregion
 
 #pragma region Definitions for Windows (C++ Style)
