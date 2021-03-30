@@ -16,12 +16,10 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="M2WindowsHelpers.cpp" />
     <ClCompile Include="Mile.Windows.Core.cpp" />
     <ClCompile Include="Mile.Windows.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="M2WindowsHelpers.h" />
     <ClInclude Include="Mile.Windows.Core.h" />
     <ClInclude Include="Mile.Windows.h" />
   </ItemGroup>

@@ -22,8 +22,6 @@
 #include "NSudoAPI.h"
 #include <Mile.Windows.h>
 
-#include <M2WindowsHelpers.h>
-
 #include <commctrl.h>
 #include <Userenv.h>
 

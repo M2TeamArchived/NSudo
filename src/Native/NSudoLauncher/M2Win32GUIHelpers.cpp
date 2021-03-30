@@ -10,7 +10,7 @@
 
 #include <Windows.h>
 
-#include "M2Win32GUIHelpers.h"
+#include <Mile.Windows.Core.h>
 #include "M2MessageDialogResource.h"
 
 /**

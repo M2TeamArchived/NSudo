@@ -13,7 +13,7 @@
 #ifndef _M2_WIN32_GUI_HELPERS_
 #define _M2_WIN32_GUI_HELPERS_
 
-#include <M2WindowsHelpers.h>
+#include <Mile.Windows.Core.h>
 
 /**
  * Creates and shows the message dialog.
