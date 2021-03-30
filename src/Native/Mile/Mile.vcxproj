@@ -16,11 +16,9 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Mile.Windows.Core.cpp" />
     <ClCompile Include="Mile.Windows.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Mile.Windows.Core.h" />
     <ClInclude Include="Mile.Windows.h" />
   </ItemGroup>
   <ItemGroup>

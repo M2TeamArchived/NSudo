@@ -4,14 +4,8 @@
     <ClCompile Include="Mile.Windows.cpp">
       <Filter>Mile.Windows</Filter>
     </ClCompile>
-    <ClCompile Include="Mile.Windows.Core.cpp">
-      <Filter>Mile.Windows</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Mile.Windows.Core.h">
-      <Filter>Mile.Windows</Filter>
-    </ClInclude>
     <ClInclude Include="Mile.Windows.h">
       <Filter>Mile.Windows</Filter>
     </ClInclude>
