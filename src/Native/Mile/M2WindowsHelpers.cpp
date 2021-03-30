@@ -99,51 +99,6 @@ HRESULT M2ThrownPlatformExceptionToHResult()
 
 #pragma region String
 
-/**
- * Write formatted data to a string.
- *
- * @param Format Format-control string.
- * @param ... Optional arguments to be formatted.
- * @return A formatted string if successful, "N/A" otherwise.
- */
-std::wstring M2FormatString(
-    _In_z_ _Printf_format_string_ wchar_t const* const Format,
-    ...)
-{
-    // Check the argument list.
-    if (nullptr != Format)
-    {
-        va_list ArgList = nullptr;
-        va_start(ArgList, Format);
-
-        // Get the length of the format result.
-        size_t nLength = static_cast<size_t>(_vscwprintf(Format, ArgList)) + 1;
-
-        // Allocate for the format result.
-        std::wstring Buffer(nLength + 1, L'\0');
-
-        // Format the string.
-        int nWritten = _vsnwprintf_s(
-            &Buffer[0],
-            Buffer.size(),
-            nLength,
-            Format,
-            ArgList);
-
-        va_end(ArgList);
-
-        if (nWritten > 0)
-        {
-            // If succeed, resize to fit and return result.
-            Buffer.resize(nWritten);
-            return Buffer;
-        }
-    }
-
-    // If failed, return "N/A".
-    return L"N/A";
-}
-
 #ifdef CPPWINRT_VERSION
 
 /**

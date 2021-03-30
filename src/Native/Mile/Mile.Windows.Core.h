@@ -1786,6 +1786,105 @@ namespace Mile
         _In_ HANDLE TokenHandle,
         _In_ DWORD MandatoryLabelRid);
 
+    /**
+     * @brief Retrieves a specified type of information about an access token.
+     *        The calling process must have appropriate access rights to obtain
+     *        the information.
+     * @param TokenHandle A handle to an access token from which information is
+     *                    retrieved.
+     * @param TokenInformationClass Specifies a value from the
+     *                              TOKEN_INFORMATION_CLASS enumerated type to
+     *                              identify the type of information the
+     *                              function retrieves.
+     * @param OutputInformation A pointer to a buffer the function fills with
+     *                          the requested information. When you have
+     *                          finished using the information, free it by
+     *                          calling the Mile::HeapMemory::Free method. You
+     *                          should also set the pointer to nullptr.
+     * @return An HResultFromLastError object An containing the HResult object
+     *         containing the error code.
+     * @remark For more information, see GetTokenInformation.
+    */
+    HResultFromLastError GetTokenInformationWithMemory(
+        _In_ HANDLE TokenHandle,
+        _In_ TOKEN_INFORMATION_CLASS TokenInformationClass,
+        _Out_ PVOID* OutputInformation);
+
+    /**
+     * @brief Creates a new access token that is a LUA version of an existing
+     *        access token.
+     * @param ExistingTokenHandle A handle to a primary or impersonation token.
+     *                            The token can also be a restricted token. The
+     *                            handle must have TOKEN_DUPLICATE access to
+     *                            the token.
+     * @param TokenHandle A pointer to a variable that receives a handle to the
+     *                    new restricted token.
+     * @return An HResult object containing the error code.
+    */
+    HResult CreateLUAToken(
+        _In_ HANDLE ExistingTokenHandle,
+        _Out_ PHANDLE TokenHandle);
+
+    /**
+     * @brief Creates a single uninitialized object of the class associated
+     *        with a specified CLSID.
+     * @param lpszCLSID The string representation of the CLSID.
+     * @param pUnkOuter If nullptr, indicates that the object is not being
+     *                  created as part of an aggregate. If non-nullptr,
+     *                  pointer to the aggregate object's IUnknown interface
+     *                  (the controlling IUnknown).
+     * @param dwClsContext Context in which the code that manages the newly
+     *                     created object will run. The values are taken from
+     *                     the enumeration CLSCTX.
+     * @param lpszIID The string representation of the IID.
+     * @param ppv Address of pointer variable that receives the interface
+     *            pointer requested in riid. Upon successful return, *ppv
+     *            contains the requested interface pointer. Upon failure, *ppv
+     *            contains nullptr.
+     * @return An HResult object containing the error code.
+    */
+    HResult CoCreateInstanceByString(
+        _In_ LPCWSTR lpszCLSID,
+        _In_opt_ LPUNKNOWN pUnkOuter,
+        _In_ DWORD dwClsContext,
+        _In_ LPCWSTR lpszIID,
+        _Out_ LPVOID* ppv);
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+    /**
+     * @brief Retrieves the string type data for the specified value name
+     *        associated with an open registry key.
+     * @param hKey A handle to an open registry key.
+     * @param lpValueName The name of the registry value.
+     * @param lpData A pointer to a buffer that receives the value's data. When
+     *               you have finished using the information, free it by
+     *               calling the Mile::HeapMemory::Free method. You should also
+     *               set the pointer to nullptr.
+     * @return An HResult object containing the error code.
+    */
+    HResult RegQueryStringValue(
+        _In_ HKEY hKey,
+        _In_opt_ LPCWSTR lpValueName,
+        _Out_ LPWSTR* lpData);
+
+#endif
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+    /**
+     * @brief Determines whether the interface id have the correct interface
+     *        name.
+     * @param InterfaceID A pointer to the string representation of the IID.
+     * @param InterfaceName A pointer to the interface name string.
+     * @return An HResult object containing the error code.
+    */
+    HResult CoCheckInterfaceName(
+        _In_ LPCWSTR InterfaceID,
+        _In_ LPCWSTR InterfaceName);
+
+#endif
+
 #pragma endregion
 
 #pragma region Definitions for Windows (C++ Style)
@@ -1932,6 +2031,16 @@ namespace Mile
             dwCreationFlags,
             lpThreadId);
     }
+
+    /**
+     * @brief Write formatted data to a string.
+     * @param Format Format-control string.
+     * @param ... Optional arguments to be formatted.
+     * @return A formatted string if successful, an empty string otherwise.
+    */
+    std::wstring FormatString(
+        _In_z_ _Printf_format_string_ wchar_t const* const Format,
+        ...);
 
 #pragma endregion
 }

@@ -289,7 +289,7 @@ EXTERN_C HRESULT WINAPI NSudoCreateProcess(
             &hCurrentProcessToken);
         if (hr == S_OK)
         {
-            hr = ::MileCreateLUAToken(hCurrentProcessToken, &OriginalToken);
+            hr = Mile::CreateLUAToken(hCurrentProcessToken, &OriginalToken);
 
             ::CloseHandle(hCurrentProcessToken);
         }

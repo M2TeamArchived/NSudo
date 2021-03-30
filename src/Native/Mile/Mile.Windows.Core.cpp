@@ -1313,6 +1313,346 @@ Mile::HResultFromLastError Mile::SetTokenMandatoryLabel(
     return Result;
 }
 
+Mile::HResultFromLastError Mile::GetTokenInformationWithMemory(
+    _In_ HANDLE TokenHandle,
+    _In_ TOKEN_INFORMATION_CLASS TokenInformationClass,
+    _Out_ PVOID* OutputInformation)
+{
+    if (!OutputInformation)
+    {
+        ::SetLastError(ERROR_INVALID_PARAMETER);
+        return FALSE;
+    }
+
+    *OutputInformation = nullptr;
+
+    BOOL Result = FALSE;
+
+    DWORD Length = 0;
+    ::GetTokenInformation(
+        TokenHandle,
+        TokenInformationClass,
+        nullptr,
+        0,
+        &Length);
+    if (ERROR_INSUFFICIENT_BUFFER == ::GetLastError())
+    {
+        *OutputInformation = Mile::HeapMemory::Allocate(Length);
+        if (*OutputInformation)
+        {
+            Result = ::GetTokenInformation(
+                TokenHandle,
+                TokenInformationClass,
+                *OutputInformation,
+                Length,
+                &Length);
+            if (!Result)
+            {
+                Mile::HeapMemory::Free(*OutputInformation);
+                *OutputInformation = nullptr;
+            }
+        }
+        else
+        {
+            ::SetLastError(ERROR_NOT_ENOUGH_MEMORY);
+        }
+    }
+
+    return Result;
+}
+
+Mile::HResult Mile::CreateLUAToken(
+    _In_ HANDLE ExistingTokenHandle,
+    _Out_ PHANDLE TokenHandle)
+{
+    Mile::HResult hr = E_INVALIDARG;
+
+    PTOKEN_USER pTokenUser = nullptr;
+    TOKEN_OWNER Owner = { 0 };
+    PTOKEN_DEFAULT_DACL pTokenDacl = nullptr;
+    DWORD Length = 0;
+    PACL NewDefaultDacl = nullptr;
+    TOKEN_DEFAULT_DACL NewTokenDacl = { 0 };
+    PACCESS_ALLOWED_ACE pTempAce = nullptr;
+    BOOL EnableTokenVirtualization = TRUE;
+
+    do
+    {
+        if (!TokenHandle)
+        {
+            break;
+        }
+
+        hr = Mile::HResultFromLastError(::CreateRestrictedToken(
+            ExistingTokenHandle,
+            LUA_TOKEN,
+            0,
+            nullptr,
+            0,
+            nullptr,
+            0,
+            nullptr,
+            TokenHandle));
+        if (hr != S_OK)
+        {
+            break;
+        }
+
+        hr = Mile::SetTokenMandatoryLabel(
+            *TokenHandle, SECURITY_MANDATORY_MEDIUM_RID);
+        if (hr != S_OK)
+        {
+            break;
+        }
+
+        hr = Mile::GetTokenInformationWithMemory(
+            *TokenHandle,
+            TokenUser,
+            reinterpret_cast<PVOID*>(&pTokenUser));
+        if (hr != S_OK)
+        {
+            break;
+        }
+
+        Owner.Owner = pTokenUser->User.Sid;
+        hr = Mile::HResultFromLastError(::SetTokenInformation(
+            *TokenHandle, TokenOwner, &Owner, sizeof(TOKEN_OWNER)));
+        if (hr != S_OK)
+        {
+            break;
+        }
+
+        hr = Mile::GetTokenInformationWithMemory(
+            *TokenHandle,
+            TokenDefaultDacl,
+            reinterpret_cast<PVOID*>(&pTokenDacl));
+        if (hr != S_OK)
+        {
+            break;
+        }
+
+        Length = pTokenDacl->DefaultDacl->AclSize;
+        Length += ::GetLengthSid(pTokenUser->User.Sid);
+        Length += sizeof(ACCESS_ALLOWED_ACE);
+
+        NewDefaultDacl = reinterpret_cast<PACL>(
+            Mile::HeapMemory::Allocate(Length));
+        if (NewDefaultDacl)
+        {
+            hr = Mile::HResult::FromWin32(ERROR_NOT_ENOUGH_MEMORY);
+            break;
+        }
+        NewTokenDacl.DefaultDacl = NewDefaultDacl;
+
+        hr = Mile::HResultFromLastError(::InitializeAcl(
+            NewTokenDacl.DefaultDacl,
+            Length,
+            pTokenDacl->DefaultDacl->AclRevision));
+        if (hr != S_OK)
+        {
+            break;
+        }
+
+        hr = Mile::HResultFromLastError(::AddAccessAllowedAce(
+            NewTokenDacl.DefaultDacl,
+            pTokenDacl->DefaultDacl->AclRevision,
+            GENERIC_ALL,
+            pTokenUser->User.Sid));
+        if (hr != S_OK)
+        {
+            break;
+        }
+
+        for (ULONG i = 0;
+            ::GetAce(
+                pTokenDacl->DefaultDacl,
+                i,
+                reinterpret_cast<PVOID*>(&pTempAce));
+            ++i)
+        {
+            if (::IsWellKnownSid(
+                &pTempAce->SidStart,
+                WELL_KNOWN_SID_TYPE::WinBuiltinAdministratorsSid))
+                continue;
+
+            ::AddAce(
+                NewTokenDacl.DefaultDacl,
+                pTokenDacl->DefaultDacl->AclRevision,
+                0,
+                pTempAce,
+                pTempAce->Header.AceSize);
+        }
+
+        Length += sizeof(TOKEN_DEFAULT_DACL);
+        hr = Mile::HResultFromLastError(::SetTokenInformation(
+            *TokenHandle, TokenDefaultDacl, &NewTokenDacl, Length));
+        if (hr != S_OK)
+        {
+            break;
+        }
+
+        hr = Mile::HResultFromLastError(::SetTokenInformation(
+            *TokenHandle,
+            TokenVirtualizationEnabled,
+            &EnableTokenVirtualization,
+            sizeof(BOOL)));
+        if (hr != S_OK)
+        {
+            break;
+        }
+
+    } while (false);
+
+    if (NewDefaultDacl)
+    {
+        Mile::HeapMemory::Free(NewDefaultDacl);
+    }
+
+    if (pTokenDacl)
+    {
+        Mile::HeapMemory::Free(pTokenDacl);
+    }
+
+    if (pTokenUser)
+    {
+        Mile::HeapMemory::Free(pTokenUser);
+    }
+
+    if (hr != S_OK)
+    {
+        ::CloseHandle(TokenHandle);
+        *TokenHandle = INVALID_HANDLE_VALUE;
+    }
+
+    return hr;
+}
+
+Mile::HResult Mile::CoCreateInstanceByString(
+    _In_ LPCWSTR lpszCLSID,
+    _In_opt_ LPUNKNOWN pUnkOuter,
+    _In_ DWORD dwClsContext,
+    _In_ LPCWSTR lpszIID,
+    _Out_ LPVOID* ppv)
+{
+    Mile::HResult hr = S_OK;
+
+    do
+    {
+        CLSID clsid;
+        IID iid;
+
+        hr = ::CLSIDFromString(lpszCLSID, &clsid);
+        if (hr != S_OK)
+        {
+            break;
+        }
+
+        hr = ::IIDFromString(lpszIID, &iid);
+        if (hr != S_OK)
+        {
+            break;
+        }
+
+        hr = ::CoCreateInstance(clsid, pUnkOuter, dwClsContext, iid, ppv);
+
+    } while (false);
+
+    return hr;
+}
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+Mile::HResult Mile::RegQueryStringValue(
+    _In_ HKEY hKey,
+    _In_opt_ LPCWSTR lpValueName,
+    _Out_ LPWSTR* lpData)
+{
+    *lpData = nullptr;
+
+    DWORD cbData = 0;
+    Mile::HResult hr = Mile::HResult::FromWin32(::RegQueryValueExW(
+        hKey,
+        lpValueName,
+        nullptr,
+        nullptr,
+        nullptr,
+        &cbData));
+    if (SUCCEEDED(hr))
+    {
+        *lpData = reinterpret_cast<LPWSTR>(Mile::HeapMemory::Allocate(cbData));
+        if (*lpData)
+        {
+            DWORD Type = 0;
+            hr = Mile::HResult::FromWin32(::RegQueryValueExW(
+                hKey,
+                lpValueName,
+                nullptr,
+                &Type,
+                reinterpret_cast<LPBYTE>(*lpData),
+                &cbData));
+            if (SUCCEEDED(hr) && REG_SZ != Type)
+                hr = __HRESULT_FROM_WIN32(ERROR_ILLEGAL_ELEMENT_ADDRESS);
+
+            if (FAILED(hr))
+                hr = Mile::HResultFromLastError(
+                    Mile::HeapMemory::Free(*lpData));
+        }
+        else
+        {
+            hr = Mile::HResult::FromWin32(ERROR_NOT_ENOUGH_MEMORY);
+        }
+    }
+
+    return hr;
+}
+
+#endif
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+Mile::HResult Mile::CoCheckInterfaceName(
+    _In_ LPCWSTR InterfaceID,
+    _In_ LPCWSTR InterfaceName)
+{
+    wchar_t RegistryKeyPath[64];
+    if (0 != ::wcscpy_s(RegistryKeyPath, L"Interface\\"))
+        return E_INVALIDARG;
+    if (0 != ::wcscat_s(RegistryKeyPath, InterfaceID))
+        return E_INVALIDARG;
+
+    HKEY hKey = nullptr;
+    Mile::HResult hr = Mile::HResult::FromWin32(::RegCreateKeyExW(
+        HKEY_CLASSES_ROOT,
+        RegistryKeyPath,
+        0,
+        nullptr,
+        0,
+        KEY_READ,
+        nullptr,
+        &hKey,
+        nullptr));
+    if (SUCCEEDED(hr))
+    {
+        wchar_t* InterfaceTypeName = nullptr;
+        hr = Mile::RegQueryStringValue(hKey, nullptr, &InterfaceTypeName);
+        if (SUCCEEDED(hr))
+        {
+            if (0 != ::_wcsicmp(InterfaceTypeName, InterfaceName))
+            {
+                hr = E_NOINTERFACE;
+            }
+
+            Mile::HeapMemory::Free(InterfaceTypeName);
+        }
+
+        ::RegCloseKey(hKey);
+    }
+
+    return hr;
+}
+
+#endif
+
 #pragma endregion
 
 #pragma region Implementations for Windows (C++ Style)
@@ -1703,6 +2043,44 @@ void Mile::SpiltCommandLineEx(
             }
         }
     }
+}
+
+std::wstring Mile::FormatString(
+    _In_z_ _Printf_format_string_ wchar_t const* const Format,
+    ...)
+{
+    // Check the argument list.
+    if (nullptr != Format)
+    {
+        va_list ArgList = nullptr;
+        va_start(ArgList, Format);
+
+        // Get the length of the format result.
+        size_t nLength = static_cast<size_t>(_vscwprintf(Format, ArgList)) + 1;
+
+        // Allocate for the format result.
+        std::wstring Buffer(nLength + 1, L'\0');
+
+        // Format the string.
+        int nWritten = _vsnwprintf_s(
+            &Buffer[0],
+            Buffer.size(),
+            nLength,
+            Format,
+            ArgList);
+
+        va_end(ArgList);
+
+        if (nWritten > 0)
+        {
+            // If succeed, resize to fit and return result.
+            Buffer.resize(nWritten);
+            return Buffer;
+        }
+    }
+
+    // If failed, return an empty string.
+    return L"";
 }
 
 #pragma endregion

@@ -337,17 +337,6 @@ HRESULT M2ThrownPlatformExceptionToHResult();
 #pragma region String
 
 /**
- * Write formatted data to a string.
- *
- * @param Format Format-control string.
- * @param ... Optional arguments to be formatted.
- * @return A formatted string if successful, "N/A" otherwise.
- */
-std::wstring M2FormatString(
-    _In_z_ _Printf_format_string_ wchar_t const* const Format,
-    ...);
-
-/**
  * Searches a path for a file name.
  *
  * @param Path A pointer to a null-terminated string of maximum length MAX_PATH
