@@ -1705,6 +1705,87 @@ namespace Mile
     */
     DWORD GetNumberOfHardwareThreads();
 
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+    /**
+     * @brief Obtains the primary access token of the logged-on user specified
+     *        by the session ID. To call this function successfully, the
+     *        calling application must be running within the context of the
+     *        LocalSystem account and have the SE_TCB_NAME privilege.
+     * @param SessionId A Remote Desktop Services session identifier.
+     * @param TokenHandle If the function succeeds, receives a pointer to the
+     *                    token handle for the logged-on user. Note that you
+     *                    must call the CloseHandle function to close this
+     *                    handle.
+     * @return An HResultFromLastError object An containing the HResult object
+     *         containing the error code.
+     * @remark For more information, see WTSQueryUserToken.
+    */
+    HResultFromLastError CreateSessionToken(
+        _In_ DWORD SessionId,
+        _Out_ PHANDLE TokenHandle);
+
+#endif
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+    /**
+     * @brief Obtains the primary access token of the SYSTEM user. To call this
+     *        function successfully, the calling application must be running
+     *        within the context of the Administrator account and have the
+     *        SE_DEBUG_NAME privilege enabled.
+     * @param DesiredAccess The access to the process object. This access right
+     *                      is checked against the security descriptor for the
+     *                      process. This parameter can be one or more of the
+     *                      process access rights.
+     * @param TokenHandle If the function succeeds, receives a pointer to the
+     *                    token handle for the SYSTEM user. Note that you
+     *                    must call the CloseHandle function to close this
+     *                    handle.
+     * @return An HResultFromLastError object An containing the HResult object
+     *         containing the error code.
+    */
+    HResultFromLastError CreateSystemToken(
+        _In_ DWORD DesiredAccess,
+        _Out_ PHANDLE TokenHandle);
+
+#endif
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+    /**
+     * @brief Retrieves the session identifier of the active session.
+     * @return The session identifier of the active session. If there is no
+     *         active session attached, this function returns 0xFFFFFFFF.
+    */
+    DWORD GetActiveSessionID();
+
+#endif
+
+    /**
+     * @brief Sets mandatory label for a specified access token. The
+     *        information that this function sets replaces existing
+     *        information. The calling process must have appropriate access
+     *        rights to set the information.
+     * @param TokenHandle A handle to the access token for which information is
+     *                    to be set.
+     * @param MandatoryLabelRid The value of the mandatory label for the
+     *                          process. This parameter can be one of the
+     *                          following values.
+     *                          SECURITY_MANDATORY_UNTRUSTED_RID
+     *                          SECURITY_MANDATORY_LOW_RID
+     *                          SECURITY_MANDATORY_MEDIUM_RID
+     *                          SECURITY_MANDATORY_MEDIUM_PLUS_RID
+     *                          SECURITY_MANDATORY_HIGH_RID
+     *                          SECURITY_MANDATORY_SYSTEM_RID
+     *                          SECURITY_MANDATORY_PROTECTED_PROCESS_RID
+     * @return An HResultFromLastError object An containing the HResult object
+     *         containing the error code.
+    */
+    HResultFromLastError SetTokenMandatoryLabel(
+        _In_ HANDLE TokenHandle,
+        _In_ DWORD MandatoryLabelRid);
+
 #pragma endregion
 
 #pragma region Definitions for Windows (C++ Style)

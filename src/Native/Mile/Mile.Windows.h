@@ -153,40 +153,6 @@ EXTERN_C HRESULT WINAPI MileGetPrivilegeValue(
     _In_ LPCWSTR Name,
     _Out_ PLUID Value);
 
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
-
-/**
- * Obtains the primary access token of the logged-on user specified by the
- * session ID. To call this function successfully, the calling application must
- * be running within the context of the LocalSystem account and have the
- * SE_TCB_NAME privilege.
- *
- * @param SessionId A Remote Desktop Services session identifier.
- * @param TokenHandle If the function succeeds, receives a pointer to the token
- *                    handle for the logged-on user. Note that you must call
- *                    the CloseHandle function to close this handle.
- * @return HRESULT. If the method succeeds, the return value is S_OK.
- * @remark For more information, see WTSQueryUserToken.
- */
-EXTERN_C HRESULT WINAPI MileCreateSessionToken(
-    _In_ DWORD SessionId,
-    _Out_ PHANDLE TokenHandle);
-
-#endif
-
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
-
-/**
- * Gets the identifier of the Local Security Authority process.
- *
- * @param ProcessId The identifier of the Local Security Authority process.
- * @return HRESULT. If the method succeeds, the return value is S_OK.
- */
-EXTERN_C HRESULT WINAPI MileGetLsassProcessId(
-    _Out_ PDWORD ProcessId);
-
-#endif
-
 /**
  * Assigns an impersonation token to a thread. The function can also cause a
  * thread to stop using an impersonation token.
@@ -222,27 +188,6 @@ EXTERN_C HRESULT WINAPI MileOpenProcess(
     _Out_opt_ PHANDLE ProcessHandle);
 
 /**
- * Opens an existing thread object.
- *
- * @param DesiredAccess The access to the thread object. This access right is
- *                      checked against the security descriptor for the thread.
- *                      This parameter can be one or more of the thread access
- *                      rights.
- * @param InheritHandle If this value is TRUE, processes created by this
- *                      process will inherit the handle. Otherwise, the
- *                      processes do not inherit this handle.
- * @param ThreadId The identifier of the thread to be opened.
- * @param ThreadHandle A pointer to an open handle to the specified thread.
- * @return HRESULT. If the method succeeds, the return value is S_OK.
- * @remark For more information, see OpenThread.
- */
-EXTERN_C HRESULT WINAPI MileOpenThread(
-    _In_ DWORD DesiredAccess,
-    _In_ BOOL InheritHandle,
-    _In_ DWORD ThreadId,
-    _Out_opt_ PHANDLE ThreadHandle);
-
-/**
  * Opens the access token associated with a process.
  *
  * @param ProcessHandle A handle to the process whose access token is opened.
@@ -261,52 +206,6 @@ EXTERN_C HRESULT WINAPI MileOpenProcessToken(
     _In_ HANDLE ProcessHandle,
     _In_ DWORD DesiredAccess,
     _Out_ PHANDLE TokenHandle);
-
-/**
- * Opens the access token associated with a thread.
- *
- * @param ThreadHandle A handle to the thread whose access token is opened.
- * @param DesiredAccess Specifies an access mask that specifies the requested
- *                      types of access to the access token. These requested
- *                      access types are reconciled against the token's
- *                      discretionary access control list (DACL) to determine
- *                      which accesses are granted or denied.
- * @param OpenAsSelf TRUE if the access check is to be made against the
- *                   process-level security context. FALSE if the access check
- *                   is to be made against the current security context of the
- *                   thread calling the MileOpenThreadToken function.
- * @param TokenHandle A pointer to a variable that receives the handle to the
- *                    newly opened access token.
- * @return HRESULT. If the method succeeds, the return value is S_OK.
- * @remark For more information, see OpenThreadToken.
- */
-EXTERN_C HRESULT WINAPI MileOpenThreadToken(
-    _In_ HANDLE ThreadHandle,
-    _In_ DWORD DesiredAccess,
-    _In_ BOOL OpenAsSelf,
-    _Out_ PHANDLE TokenHandle);
-
-/**
- * Sets mandatory label for a specified access token. The information that
- * this function sets replaces existing information. The calling process
- * must have appropriate access rights to set the information.
- *
- * @param TokenHandle A handle to the access token for which information is
- *                    to be set.
- * @param MandatoryLabelRid The value of the mandatory label for the process.
- *                          This parameter can be one of the following values.
- *                          SECURITY_MANDATORY_UNTRUSTED_RID
- *                          SECURITY_MANDATORY_LOW_RID
- *                          SECURITY_MANDATORY_MEDIUM_RID
- *                          SECURITY_MANDATORY_MEDIUM_PLUS_RID
- *                          SECURITY_MANDATORY_HIGH_RID
- *                          SECURITY_MANDATORY_SYSTEM_RID
- *                          SECURITY_MANDATORY_PROTECTED_PROCESS_RID
- * @return HRESULT. If the method succeeds, the return value is S_OK.
- */
-EXTERN_C HRESULT WINAPI MileSetTokenMandatoryLabel(
-    _In_ HANDLE TokenHandle,
-    _In_ DWORD MandatoryLabelRid);
 
 /**
  * Creates a new access token that is a LUA version of an existing access
@@ -355,32 +254,6 @@ EXTERN_C HRESULT WINAPI MileOpenServiceProcess(
     _In_ DWORD DesiredAccess,
     _In_ BOOL InheritHandle,
     _In_ LPCWSTR ServiceName,
-    _Out_ PHANDLE ProcessHandle);
-
-#endif
-
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
-
-/**
- * Opens an existing local process object associated with the Local Security
- * Authority process, the calling application must be running within the
- * context of the Administrator account and have the SE_DEBUG_NAME privilege
- * enabled.
- *
- * @param DesiredAccess The access to the process object. This access right is
- *                      checked against the security descriptor for the
- *                      process. This parameter can be one or more of the
- *                      process access rights.
- * @param InheritHandle If this value is TRUE, processes created by this
- *                      process will inherit the handle. Otherwise, the
- *                      processes do not inherit this handle.
- * @param ProcessHandle A pointer to an open handle to the specified process.
- * @return HRESULT. If the method succeeds, the return value is S_OK.
- * @remark For more information, see OpenProcess.
- */
-EXTERN_C HRESULT WINAPI MileOpenLsassProcess(
-    _In_ DWORD DesiredAccess,
-    _In_ BOOL InheritHandle,
     _Out_ PHANDLE ProcessHandle);
 
 #endif
@@ -451,74 +324,6 @@ EXTERN_C HRESULT WINAPI MileOpenServiceProcessToken(
     _Out_ PHANDLE TokenHandle);
 
 #endif
-
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
-
-/**
- * Opens the access token associated with the Local Security Authority process,
- * the calling application must be running within the context of the
- * Administrator account and have the SE_DEBUG_NAME privilege enabled.
- *
- * @param DesiredAccess The access to the process object. This access right is
- *                      checked against the security descriptor for the
- *                      process. This parameter can be one or more of the
- *                      process access rights.
- * @param TokenHandle A pointer to a handle that identifies the newly opened
- *                    access token when the function returns.
- * @return HRESULT. If the method succeeds, the return value is S_OK.
- * @remark For more information, see OpenProcessToken.
- */
-EXTERN_C HRESULT WINAPI MileOpenLsassProcessToken(
-    _In_ DWORD DesiredAccess,
-    _Out_ PHANDLE TokenHandle);
-
-#endif
-
-/**
- * Opens the access token associated with the current thread.
- *
- * @param DesiredAccess Specifies an access mask that specifies the requested
- *                      types of access to the access token. These requested
- *                      access types are reconciled against the token's
- *                      discretionary access control list (DACL) to determine
- *                      which accesses are granted or denied.
- * @param OpenAsSelf TRUE if the access check is to be made against the
- *                   process-level security context. FALSE if the access check
- *                   is to be made against the current security context of the
- *                   thread calling the OpenThreadToken function.
- * @param TokenHandle A pointer to a variable that receives the handle to the
- *                    newly opened access token.
- * @return HRESULT. If the method succeeds, the return value is S_OK.
- * @remark For more information, see OpenThreadToken.
- */
-EXTERN_C HRESULT WINAPI MileOpenCurrentThreadToken(
-    _In_ DWORD DesiredAccess,
-    _In_ BOOL OpenAsSelf,
-    _Out_ PHANDLE TokenHandle);
-
-/**
- * Opens the access token associated with a thread.
- *
- * @param ThreadId The identifier of the thread to be opened.
- * @param DesiredAccess Specifies an access mask that specifies the requested
- *                      types of access to the access token. These requested
- *                      access types are reconciled against the token's
- *                      discretionary access control list (DACL) to determine
- *                      which accesses are granted or denied.
- * @param OpenAsSelf TRUE if the access check is to be made against the
- *                   process-level security context. FALSE if the access check
- *                   is to be made against the current security context of the
- *                   thread calling the OpenThreadToken function.
- * @param TokenHandle A pointer to a variable that receives the handle to the
- *                    newly opened access token.
- * @return HRESULT. If the method succeeds, the return value is S_OK.
- * @remark For more information, see OpenThreadToken.
- */
-EXTERN_C HRESULT WINAPI MileOpenThreadTokenByThreadId(
-    _In_ DWORD ThreadId,
-    _In_ DWORD DesiredAccess,
-    _In_ BOOL OpenAsSelf,
-    _Out_ PHANDLE TokenHandle);
 
 /**
  * Creates a single uninitialized object of the class associated with a

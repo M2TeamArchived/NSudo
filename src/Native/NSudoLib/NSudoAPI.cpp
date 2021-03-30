@@ -19,37 +19,11 @@
 
 #include <type_traits>
 #include <utility>
-#include <WtsApi32.h>
 
 #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
 #include <Userenv.h>
 #pragma comment(lib, "Userenv.lib")
 #endif
-
-DWORD WINAPI TemporarilyGetActiveSessionID()
-{
-    DWORD Count = 0;
-    PWTS_SESSION_INFOW pSessionInfo = nullptr;
-    if (::WTSEnumerateSessionsW(
-        WTS_CURRENT_SERVER_HANDLE,
-        0,
-        1,
-        &pSessionInfo,
-        &Count))
-    {
-        for (DWORD i = 0; i < Count; ++i)
-        {
-            if (pSessionInfo[i].State == WTS_CONNECTSTATE_CLASS::WTSActive)
-            {
-                return pSessionInfo[i].SessionId;
-            }
-        }
-
-        ::WTSFreeMemory(pSessionInfo);
-    }
-
-    return static_cast<DWORD>(-1);
-}
 
 /**
  * @remark You can read the definition for this function in "NSudoAPI.h".
@@ -147,7 +121,7 @@ EXTERN_C HRESULT WINAPI NSudoCreateProcess(
     HANDLE CurrentProcessToken = INVALID_HANDLE_VALUE;
     HANDLE DuplicatedCurrentProcessToken = INVALID_HANDLE_VALUE;
     
-    HANDLE OriginalLsassProcessToken = INVALID_HANDLE_VALUE;
+    HANDLE OriginalSystemToken = INVALID_HANDLE_VALUE;
     HANDLE SystemToken = INVALID_HANDLE_VALUE;
 
     HANDLE hToken = INVALID_HANDLE_VALUE;
@@ -165,9 +139,9 @@ EXTERN_C HRESULT WINAPI NSudoCreateProcess(
                 ::CloseHandle(DuplicatedCurrentProcessToken);
             }
 
-            if (OriginalLsassProcessToken != INVALID_HANDLE_VALUE)
+            if (OriginalSystemToken != INVALID_HANDLE_VALUE)
             {
-                ::CloseHandle(OriginalLsassProcessToken);
+                ::CloseHandle(OriginalSystemToken);
             }
 
             if (SystemToken != INVALID_HANDLE_VALUE)
@@ -234,39 +208,20 @@ EXTERN_C HRESULT WINAPI NSudoCreateProcess(
         return hr;
     }
 
-    hr = ::MileOpenCurrentThreadToken(
-        MAXIMUM_ALLOWED, FALSE, &CurrentProcessToken);
-    if (hr != S_OK)
-    {
-        return hr;
-    }
-
-    /*hr = ::MileGetTokenInformation(
-        CurrentProcessToken,
-        TokenSessionId,
-        &SessionID,
-        sizeof(DWORD),
-        &ReturnLength);
-    if (hr != S_OK)
-    {
-        return hr;
-    }*/
-    SessionID = TemporarilyGetActiveSessionID();
+    SessionID = Mile::GetActiveSessionID();
     if (SessionID == static_cast<DWORD>(-1))
     {
         return Mile::HResult::FromWin32(ERROR_NO_TOKEN);
     }
 
-    hr = ::MileOpenLsassProcessToken(
-        MAXIMUM_ALLOWED,
-        &OriginalLsassProcessToken);
+    hr = Mile::CreateSystemToken(MAXIMUM_ALLOWED, &OriginalSystemToken);
     if (hr != S_OK)
     {
         return hr;
     }
 
     hr = Mile::HResultFromLastError(::DuplicateTokenEx(
-        OriginalLsassProcessToken,
+        OriginalSystemToken,
         MAXIMUM_ALLOWED,
         nullptr,
         SecurityImpersonation,
@@ -304,7 +259,7 @@ EXTERN_C HRESULT WINAPI NSudoCreateProcess(
     }
     else if (NSUDO_USER_MODE_TYPE::SYSTEM == UserModeType)
     {
-        hr = ::MileOpenLsassProcessToken(MAXIMUM_ALLOWED, &OriginalToken);
+        hr = Mile::CreateSystemToken(MAXIMUM_ALLOWED, &OriginalToken);
         if (hr != S_OK)
         {
             return hr;
@@ -312,7 +267,7 @@ EXTERN_C HRESULT WINAPI NSudoCreateProcess(
     }
     else if (NSUDO_USER_MODE_TYPE::CURRENT_USER == UserModeType)
     {
-        hr = ::MileCreateSessionToken(SessionID, &OriginalToken);
+        hr = Mile::CreateSessionToken(SessionID, &OriginalToken);
         if (hr != S_OK)
         {
             return hr;
@@ -347,7 +302,7 @@ EXTERN_C HRESULT WINAPI NSudoCreateProcess(
     else if (NSUDO_USER_MODE_TYPE::CURRENT_USER_ELEVATED == UserModeType)
     {
         HANDLE hCurrentProcessToken = nullptr;
-        hr = ::MileCreateSessionToken(SessionID, &hCurrentProcessToken);
+        hr = Mile::CreateSessionToken(SessionID, &hCurrentProcessToken);
         if (hr == S_OK)
         {
             TOKEN_LINKED_TOKEN LinkedToken = { 0 };
@@ -428,7 +383,7 @@ EXTERN_C HRESULT WINAPI NSudoCreateProcess(
 
     if (NSUDO_MANDATORY_LABEL_TYPE::UNTRUSTED != MandatoryLabelType)
     {
-        hr = ::MileSetTokenMandatoryLabel(hToken, MandatoryLabelRid);
+        hr = Mile::SetTokenMandatoryLabel(hToken, MandatoryLabelRid);
         if (hr != S_OK)
         {
             return hr;

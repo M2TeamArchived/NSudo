@@ -16,6 +16,11 @@
 #include <VersionHelpers.h>
 #endif
 
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+#include <WtsApi32.h>
+#pragma comment(lib, "WtsApi32.lib")
+#endif
+
 #include <assert.h>
 #include <process.h>
 
@@ -1158,6 +1163,154 @@ DWORD Mile::GetNumberOfHardwareThreads()
     SYSTEM_INFO SystemInfo = { 0 };
     ::GetNativeSystemInfo(&SystemInfo);
     return SystemInfo.dwNumberOfProcessors;
+}
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+Mile::HResultFromLastError Mile::CreateSessionToken(
+    _In_ DWORD SessionId,
+    _Out_ PHANDLE TokenHandle)
+{
+    return ::WTSQueryUserToken(SessionId, TokenHandle);
+}
+
+#endif
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+Mile::HResultFromLastError Mile::CreateSystemToken(
+    _In_ DWORD DesiredAccess,
+    _Out_ PHANDLE TokenHandle)
+{
+    DWORD dwLsassPID = static_cast<DWORD>(-1);
+    PWTS_PROCESS_INFOW pProcesses = nullptr;
+    DWORD dwProcessCount = 0;
+
+    if (::WTSEnumerateProcessesW(
+        WTS_CURRENT_SERVER_HANDLE,
+        0,
+        1,
+        &pProcesses,
+        &dwProcessCount))
+    {
+        for (DWORD i = 0; i < dwProcessCount; ++i)
+        {
+            PWTS_PROCESS_INFOW pProcess = &pProcesses[i];
+
+            if (pProcess->SessionId != 0)
+                continue;
+
+            if (!pProcess->pProcessName)
+                continue;
+
+            if (::_wcsicmp(L"lsass.exe", pProcess->pProcessName) != 0)
+                continue;
+
+            if (!pProcess->pUserSid)
+                continue;
+
+            if (!::IsWellKnownSid(
+                pProcess->pUserSid,
+                WELL_KNOWN_SID_TYPE::WinLocalSystemSid))
+                continue;
+
+            dwLsassPID = pProcess->ProcessId;
+            break;
+        }
+
+        ::WTSFreeMemory(pProcesses);
+    }
+
+    if (static_cast<DWORD>(-1) == dwLsassPID)
+    {
+        ::SetLastError(ERROR_NOT_FOUND);
+        return FALSE;
+    }
+
+    BOOL Result = FALSE;
+
+    HANDLE LsassProcessHandle = ::OpenProcess(
+        MAXIMUM_ALLOWED,
+        FALSE,
+        dwLsassPID);
+    if (LsassProcessHandle)
+    {
+        HANDLE LsassTokenHandle = nullptr;
+        if (::OpenProcessToken(
+            LsassProcessHandle,
+            MAXIMUM_ALLOWED,
+            &LsassTokenHandle))
+        {
+            Result = ::DuplicateTokenEx(
+                LsassTokenHandle,
+                DesiredAccess,
+                nullptr,
+                SecurityIdentification,
+                TokenPrimary,
+                TokenHandle);
+
+            ::CloseHandle(LsassTokenHandle);
+        }
+
+        ::CloseHandle(LsassProcessHandle);
+    }
+
+    return Result;
+}
+
+#endif
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+DWORD Mile::GetActiveSessionID()
+{
+    DWORD Count = 0;
+    PWTS_SESSION_INFOW pSessionInfo = nullptr;
+    if (::WTSEnumerateSessionsW(
+        WTS_CURRENT_SERVER_HANDLE,
+        0,
+        1,
+        &pSessionInfo,
+        &Count))
+    {
+        for (DWORD i = 0; i < Count; ++i)
+        {
+            if (pSessionInfo[i].State == WTS_CONNECTSTATE_CLASS::WTSActive)
+            {
+                return pSessionInfo[i].SessionId;
+            }
+        }
+
+        ::WTSFreeMemory(pSessionInfo);
+    }
+
+    return static_cast<DWORD>(-1);
+}
+
+#endif
+
+Mile::HResultFromLastError Mile::SetTokenMandatoryLabel(
+    _In_ HANDLE TokenHandle,
+    _In_ DWORD MandatoryLabelRid)
+{
+    BOOL Result = FALSE;
+
+    SID_IDENTIFIER_AUTHORITY SIA = SECURITY_MANDATORY_LABEL_AUTHORITY;
+
+    TOKEN_MANDATORY_LABEL TML;
+
+    if (::AllocateAndInitializeSid(
+        &SIA, 1, MandatoryLabelRid, 0, 0, 0, 0, 0, 0, 0, &TML.Label.Sid))
+    {
+        TML.Label.Attributes = SE_GROUP_INTEGRITY;
+
+        Result = ::SetTokenInformation(
+            TokenHandle, TokenIntegrityLevel, &TML, sizeof(TML));
+
+        ::FreeSid(TML.Label.Sid);
+    }
+
+    return Result;
 }
 
 #pragma endregion

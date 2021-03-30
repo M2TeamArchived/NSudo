@@ -10,25 +10,7 @@
 
 #include "Mile.Windows.h"
 
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
-#include <WtsApi32.h>
-#pragma comment(lib, "WtsApi32.lib")
-#endif
-
 #include <strsafe.h>
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
-EXTERN_C HRESULT WINAPI MileAllocMemory(
-    _In_ SIZE_T Size,
-    _Out_ LPVOID* Block)
-{
-    *Block = Mile::HeapMemory::Allocate(Size);
-    return *Block
-        ? Mile::HResult(S_OK)
-        : Mile::HResult::FromWin32(ERROR_NOT_ENOUGH_MEMORY);
-}
 
 /**
  * @remark You can read the definition for this function in "Mile.Windows.h".
@@ -72,8 +54,8 @@ EXTERN_C HRESULT WINAPI MileGetTokenInformationWithMemory(
         &Length));
     if (hr == Mile::HResult::FromWin32(ERROR_INSUFFICIENT_BUFFER))
     {
-        hr = ::MileAllocMemory(Length, OutputInformation);
-        if (hr == S_OK)
+        *OutputInformation = Mile::HeapMemory::Allocate(Length);
+        if (*OutputInformation)
         {
             hr = Mile::HResultFromLastError(::GetTokenInformation(
                 TokenHandle,
@@ -86,6 +68,10 @@ EXTERN_C HRESULT WINAPI MileGetTokenInformationWithMemory(
                 Mile::HeapMemory::Free(*OutputInformation);
                 *OutputInformation = nullptr;
             }
+        }
+        else
+        {
+            hr = Mile::HResult::FromWin32(ERROR_NOT_ENOUGH_MEMORY);
         }
     }
 
@@ -107,10 +93,9 @@ EXTERN_C HRESULT WINAPI MileAdjustTokenPrivilegesSimple(
         DWORD PSize = sizeof(LUID_AND_ATTRIBUTES) * PrivilegeCount;
         DWORD TPSize = PSize + sizeof(DWORD);
 
-        PTOKEN_PRIVILEGES pTP = nullptr;
-
-        hr = ::MileAllocMemory(TPSize, reinterpret_cast<LPVOID*>(&pTP));
-        if (hr == S_OK)
+        PTOKEN_PRIVILEGES pTP = reinterpret_cast<PTOKEN_PRIVILEGES>(
+            Mile::HeapMemory::Allocate(TPSize));
+        if (pTP)
         {
             pTP->PrivilegeCount = PrivilegeCount;
             ::memcpy(pTP->Privileges, Privileges, PSize);
@@ -119,6 +104,10 @@ EXTERN_C HRESULT WINAPI MileAdjustTokenPrivilegesSimple(
                 TokenHandle, FALSE, pTP, TPSize, nullptr, nullptr);
 
             Mile::HeapMemory::Free(pTP);
+        }
+        else
+        {
+            hr = Mile::HResult::FromWin32(ERROR_NOT_ENOUGH_MEMORY);
         }
     }
 
@@ -167,85 +156,6 @@ EXTERN_C HRESULT WINAPI MileGetPrivilegeValue(
         ::LookupPrivilegeValueW(nullptr, Name, Value));
 }
 
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
-EXTERN_C HRESULT WINAPI MileCreateSessionToken(
-    _In_ DWORD SessionId,
-    _Out_ PHANDLE TokenHandle)
-{
-    return Mile::HResultFromLastError(
-        ::WTSQueryUserToken(SessionId, TokenHandle));
-}
-
-#endif
-
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
-EXTERN_C HRESULT WINAPI MileGetLsassProcessId(
-    _Out_ PDWORD ProcessId)
-{
-    HRESULT hr = E_INVALIDARG;
-
-    if (ProcessId)
-    {
-        hr = Mile::HResult::FromWin32(ERROR_NOT_FOUND);
-
-        *ProcessId = static_cast<DWORD>(-1);
-
-        PWTS_PROCESS_INFOW pProcesses = nullptr;
-        DWORD dwProcessCount = 0;
-
-        hr = Mile::HResultFromLastError(
-            ::WTSEnumerateProcessesW(
-                WTS_CURRENT_SERVER_HANDLE,
-                0,
-                1,
-                &pProcesses,
-                &dwProcessCount));
-        if (hr == S_OK)
-        {
-            for (DWORD i = 0; i < dwProcessCount; ++i)
-            {
-                PWTS_PROCESS_INFOW pProcess = &pProcesses[i];
-
-                if (pProcess->SessionId != 0)
-                    continue;
-
-                if (!pProcess->pProcessName)
-                    continue;
-
-                if (::_wcsicmp(L"lsass.exe", pProcess->pProcessName) != 0)
-                    continue;
-
-                if (!pProcess->pUserSid)
-                    continue;
-
-                if (!::IsWellKnownSid(
-                    pProcess->pUserSid,
-                    WELL_KNOWN_SID_TYPE::WinLocalSystemSid))
-                    continue;
-
-                *ProcessId = pProcess->ProcessId;
-
-                hr = S_OK;
-                break;
-            }
-
-            ::WTSFreeMemory(pProcesses);
-        }
-    }
-
-    return hr;
-}
-
-#endif
-
 /**
  * @remark You can read the definition for this function in "Mile.Windows.h".
  */
@@ -280,27 +190,6 @@ EXTERN_C HRESULT WINAPI MileOpenProcess(
 /**
  * @remark You can read the definition for this function in "Mile.Windows.h".
  */
-EXTERN_C HRESULT WINAPI MileOpenThread(
-    _In_ DWORD DesiredAccess,
-    _In_ BOOL InheritHandle,
-    _In_ DWORD ThreadId,
-    _Out_opt_ PHANDLE ThreadHandle)
-{
-    HANDLE RawThreadHandle = ::OpenThread(
-        DesiredAccess, InheritHandle, ThreadId);
-
-    if (ThreadHandle)
-    {
-        *ThreadHandle = RawThreadHandle;    
-    }
-
-    return Mile::HResultFromLastError(
-        RawThreadHandle != nullptr);
-}
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
 EXTERN_C HRESULT WINAPI MileOpenProcessToken(
     _In_ HANDLE ProcessHandle,
     _In_ DWORD DesiredAccess,
@@ -308,49 +197,6 @@ EXTERN_C HRESULT WINAPI MileOpenProcessToken(
 {
     return Mile::HResultFromLastError(
         ::OpenProcessToken(ProcessHandle, DesiredAccess, TokenHandle));
-}
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
-EXTERN_C HRESULT WINAPI MileOpenThreadToken(
-    _In_ HANDLE ThreadHandle,
-    _In_ DWORD DesiredAccess,
-    _In_ BOOL OpenAsSelf,
-    _Out_ PHANDLE TokenHandle)
-{
-    return Mile::HResultFromLastError(
-        ::OpenThreadToken(
-            ThreadHandle,
-            DesiredAccess,
-            OpenAsSelf,
-            TokenHandle));
-}
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
-EXTERN_C HRESULT WINAPI MileSetTokenMandatoryLabel(
-    _In_ HANDLE TokenHandle,
-    _In_ DWORD MandatoryLabelRid)
-{
-    SID_IDENTIFIER_AUTHORITY SIA = SECURITY_MANDATORY_LABEL_AUTHORITY;
-
-    TOKEN_MANDATORY_LABEL TML;
-
-    HRESULT hr = Mile::HResultFromLastError(::AllocateAndInitializeSid(
-        &SIA, 1, MandatoryLabelRid, 0, 0, 0, 0, 0, 0, 0, &TML.Label.Sid));
-    if (hr == S_OK)
-    {
-        TML.Label.Attributes = SE_GROUP_INTEGRITY;
-
-        hr = Mile::HResultFromLastError(::SetTokenInformation(
-            TokenHandle, TokenIntegrityLevel, &TML, sizeof(TML)));
-
-        ::FreeSid(TML.Label.Sid);
-    }
-
-    return hr;
 }
 
 /**
@@ -393,7 +239,7 @@ EXTERN_C HRESULT WINAPI MileCreateLUAToken(
             break;
         }
 
-        hr = ::MileSetTokenMandatoryLabel(
+        hr = Mile::SetTokenMandatoryLabel(
             *TokenHandle, SECURITY_MANDATORY_MEDIUM_RID);
         if (hr != S_OK)
         {
@@ -430,10 +276,11 @@ EXTERN_C HRESULT WINAPI MileCreateLUAToken(
         Length += ::GetLengthSid(pTokenUser->User.Sid);
         Length += sizeof(ACCESS_ALLOWED_ACE);
 
-        hr = ::MileAllocMemory(
-            Length, reinterpret_cast<PVOID*>(&NewDefaultDacl));
-        if (hr != S_OK)
+        NewDefaultDacl = reinterpret_cast<PACL>(
+            Mile::HeapMemory::Allocate(Length));
+        if (NewDefaultDacl)
         {
+            hr = Mile::HResult::FromWin32(ERROR_NOT_ENOUGH_MEMORY);
             break;
         }
         NewTokenDacl.DefaultDacl = NewDefaultDacl;
@@ -549,33 +396,6 @@ EXTERN_C HRESULT WINAPI MileOpenServiceProcess(
 
 #endif
 
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
-EXTERN_C HRESULT WINAPI MileOpenLsassProcess(
-    _In_ DWORD DesiredAccess,
-    _In_ BOOL InheritHandle,
-    _Out_ PHANDLE ProcessHandle)
-{
-    DWORD dwLsassPID = static_cast<DWORD>(-1);
-
-    HRESULT hr = ::MileGetLsassProcessId(&dwLsassPID);
-    if (hr == S_OK)
-    {
-        hr = ::MileOpenProcess(
-            DesiredAccess,
-            InheritHandle,
-            dwLsassPID,
-            ProcessHandle);
-    }
-
-    return hr;
-}
-
-#endif
-
 /**
  * @remark You can read the definition for this function in "Mile.Windows.h".
  */
@@ -636,68 +456,6 @@ EXTERN_C HRESULT WINAPI MileOpenServiceProcessToken(
 
 #endif
 
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
-EXTERN_C HRESULT WINAPI MileOpenLsassProcessToken(
-    _In_ DWORD DesiredAccess,
-    _Out_ PHANDLE TokenHandle)
-{
-    HANDLE ProcessHandle = INVALID_HANDLE_VALUE;
-
-    HRESULT hr = ::MileOpenLsassProcess(
-        MAXIMUM_ALLOWED, FALSE, &ProcessHandle);
-    if (hr == S_OK)
-    {
-        hr = ::MileOpenProcessToken(
-            ProcessHandle, DesiredAccess, TokenHandle);
-
-        ::CloseHandle(ProcessHandle);
-    }
-
-    return hr;
-}
-
-#endif
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
-EXTERN_C HRESULT WINAPI MileOpenCurrentThreadToken(
-    _In_ DWORD DesiredAccess,
-    _In_ BOOL OpenAsSelf,
-    _Out_ PHANDLE TokenHandle)
-{
-    return ::MileOpenThreadToken(
-        ::GetCurrentThread(), DesiredAccess, OpenAsSelf, TokenHandle);
-}
-
-/**
- * @remark You can read the definition for this function in "Mile.Windows.h".
- */
-EXTERN_C HRESULT WINAPI MileOpenThreadTokenByThreadId(
-    _In_ DWORD ThreadId,
-    _In_ DWORD DesiredAccess,
-    _In_ BOOL OpenAsSelf,
-    _Out_ PHANDLE TokenHandle)
-{
-    HANDLE ThreadHandle = INVALID_HANDLE_VALUE;
-
-    HRESULT hr = ::MileOpenThread(
-        MAXIMUM_ALLOWED, FALSE, ThreadId, &ThreadHandle);
-    if (hr == S_OK)
-    {
-        hr = ::MileOpenThreadToken(
-            ThreadHandle, DesiredAccess, OpenAsSelf, TokenHandle);
-
-        ::CloseHandle(ThreadHandle);
-    }
-
-    return hr;
-}
-
 /**
  * @remark You can read the definition for this function in "Mile.Windows.h".
  */
@@ -756,8 +514,8 @@ EXTERN_C HRESULT WINAPI MileRegQueryStringValue(
         &cbData));
     if (SUCCEEDED(hr))
     {
-        hr = ::MileAllocMemory(cbData, reinterpret_cast<PVOID*>(lpData));
-        if (SUCCEEDED(hr))
+        *lpData = reinterpret_cast<LPWSTR>(Mile::HeapMemory::Allocate(cbData));
+        if (*lpData)
         {
             DWORD Type = 0;
             hr = Mile::HResult::FromWin32(::RegQueryValueExW(
@@ -773,6 +531,10 @@ EXTERN_C HRESULT WINAPI MileRegQueryStringValue(
             if (FAILED(hr))
                 hr = Mile::HResultFromLastError(
                     Mile::HeapMemory::Free(*lpData));
+        }
+        else
+        {
+            hr = Mile::HResult::FromWin32(ERROR_NOT_ENOUGH_MEMORY);
         }
     }
 
