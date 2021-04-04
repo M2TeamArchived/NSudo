@@ -16,9 +16,11 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Mile.Portable.cpp" />
     <ClCompile Include="Mile.Windows.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Mile.Portable.h" />
     <ClInclude Include="Mile.Windows.h" />
   </ItemGroup>
   <ItemGroup>
