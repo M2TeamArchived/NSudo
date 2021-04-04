@@ -1,6 +1,6 @@
 ﻿/*
  * PROJECT:   Mouri Internal Library Essentials
- * FILE:      Mile.Windows.Core.h
+ * FILE:      Mile.Windows.h
  * PURPOSE:   Definition for Windows
  *
  * LICENSE:   The MIT License
@@ -8,8 +8,8 @@
  * DEVELOPER: Mouri_Naruto (Mouri_Naruto AT Outlook.com)
  */
 
-#ifndef MILE_WINDOWS_CORE
-#define MILE_WINDOWS_CORE
+#ifndef MILE_WINDOWS
+#define MILE_WINDOWS
 
 #if (defined(__cplusplus) && __cplusplus >= 201703L)
 #elif (defined(_MSVC_LANG) && _MSVC_LANG >= 201703L)
@@ -2143,4 +2143,4 @@ namespace Mile
 #pragma endregion
 }
 
-#endif // !MILE_WINDOWS_CORE
+#endif // !MILE_WINDOWS
