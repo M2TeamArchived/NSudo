@@ -5,8 +5,8 @@
     <RootNamespace>Mile</RootNamespace>
     <MileProjectType>StaticLibrary</MileProjectType>
   </PropertyGroup>
-  <Import Project="..\Mile.Project\Mile.Project.Cpp.props" />
-  <Import Project="..\Mile.Project\Mile.Project.Cpp.VC-LTL.props" />
+  <Import Project="..\Mile.Project.VisualStudio\Mile.Project.Cpp.props" />
+  <Import Project="..\Mile.Project.VisualStudio\Mile.Project.Cpp.VC-LTL.props" />
   <ImportGroup Label="PropertySheets">
     <Import Project="..\MINT\MINT.props" />
   </ImportGroup>
@@ -27,5 +27,5 @@
     <None Include="MCC.cppold" />
     <None Include="Mile.props" />
   </ItemGroup>
-  <Import Project="..\Mile.Project\Mile.Project.Cpp.targets" />
+  <Import Project="..\Mile.Project.VisualStudio\Mile.Project.Cpp.targets" />
 </Project>

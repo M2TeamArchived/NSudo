@@ -7,8 +7,8 @@
     <MileProjectType>WindowsApplication</MileProjectType>
     <MileProjectManifestFile>NSudoLauncherGUI.manifest</MileProjectManifestFile>
   </PropertyGroup>
-  <Import Project="..\Mile.Project\Mile.Project.Cpp.props" />
-  <Import Project="..\Mile.Project\Mile.Project.Cpp.VC-LTL.props" />
+  <Import Project="..\Mile.Project.VisualStudio\Mile.Project.Cpp.props" />
+  <Import Project="..\Mile.Project.VisualStudio\Mile.Project.Cpp.VC-LTL.props" />
   <ImportGroup Label="PropertySheets">
     <Import Project="..\MSBuild\NSudoLib.props" />
     <Import Project="..\WTL\WTL.props" />
@@ -42,5 +42,5 @@
   <ItemGroup>
     <Manifest Include="NSudoLauncherGUI.manifest" />
   </ItemGroup>
-  <Import Project="..\Mile.Project\Mile.Project.Cpp.targets" />
+  <Import Project="..\Mile.Project.VisualStudio\Mile.Project.Cpp.targets" />
 </Project>

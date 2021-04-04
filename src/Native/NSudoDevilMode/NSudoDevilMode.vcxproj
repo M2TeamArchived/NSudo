@@ -6,7 +6,7 @@
     <TargetName>NSudoDM</TargetName>
     <MileProjectType>DynamicLibrary</MileProjectType>
   </PropertyGroup>
-  <Import Project="..\Mile.Project\Mile.Project.Cpp.props" />
+  <Import Project="..\Mile.Project.VisualStudio\Mile.Project.Cpp.props" />
   <ImportGroup Label="PropertySheets">
     <Import Project="..\libkcrt\libkcrt.props" />
     <Import Project="..\MINT\MINT.props" />
@@ -30,5 +30,5 @@
     <ClInclude Include="detours.h" />
     <ClInclude Include="Mile.Project.Properties.h" />
   </ItemGroup>
-  <Import Project="..\Mile.Project\Mile.Project.Cpp.targets" />
+  <Import Project="..\Mile.Project.VisualStudio\Mile.Project.Cpp.targets" />
 </Project>
