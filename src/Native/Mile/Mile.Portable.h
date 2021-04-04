@@ -11,10 +11,10 @@
 #ifndef MILE_PORTABLE
 #define MILE_PORTABLE
 
-#if (defined(__cplusplus) && __cplusplus >= 201703L)
-#elif (defined(_MSVC_LANG) && _MSVC_LANG >= 201703L)
+#if (defined(__cplusplus) && __cplusplus >= 201402L)
+#elif (defined(_MSVC_LANG) && _MSVC_LANG >= 201402L)
 #else
-#error "[Mile] You should use a C++ compiler with the C++17 standard."
+#error "[Mile] You should use a C++ compiler with the C++14 standard."
 #endif
 
 #include <map>
