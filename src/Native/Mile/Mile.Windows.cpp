@@ -1767,7 +1767,8 @@ std::wstring Mile::GetHResultMessage(
     DWORD RawMessageSize = ::FormatMessageW(
         FORMAT_MESSAGE_ALLOCATE_BUFFER |
         FORMAT_MESSAGE_FROM_SYSTEM |
-        FORMAT_MESSAGE_IGNORE_INSERTS,
+        FORMAT_MESSAGE_IGNORE_INSERTS |
+        FORMAT_MESSAGE_MAX_WIDTH_MASK,
         nullptr,
         Value,
         MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
