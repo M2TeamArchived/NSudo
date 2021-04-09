@@ -101,28 +101,6 @@ HRESULT M2LoadResource(
     return S_OK;
 }
 
-std::wstring GetMessageByID(DWORD MessageID)
-{
-    std::wstring MessageString;
-    LPWSTR pBuffer = nullptr;
-
-    if (FormatMessageW(
-        FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
-        nullptr,
-        MessageID,
-        MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-        reinterpret_cast<LPTSTR>(&pBuffer),
-        0,
-        nullptr))
-    {
-        MessageString = std::wstring(pBuffer, wcslen(pBuffer));
-
-        LocalFree(pBuffer);
-    }
-
-    return MessageString;
-}
-
 #include "jsmn.h"
 
 bool JsmnParseJson(
