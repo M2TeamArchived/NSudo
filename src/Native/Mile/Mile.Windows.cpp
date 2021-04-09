@@ -1771,7 +1771,7 @@ std::wstring Mile::GetHResultMessage(
         FORMAT_MESSAGE_MAX_WIDTH_MASK,
         nullptr,
         Value,
-        MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+        MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US),
         reinterpret_cast<LPTSTR>(&RawMessage),
         0,
         nullptr);
