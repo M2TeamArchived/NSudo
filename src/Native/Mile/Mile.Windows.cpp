@@ -1754,6 +1754,59 @@ Mile::HResult Mile::AdjustTokenAllPrivileges(
     return hr;
 }
 
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+Mile::HResultFromLastError Mile::LoadResource(
+    _Out_ Mile::PRESOURCE_INFO ResourceInfo,
+    _In_opt_ HMODULE ModuleHandle,
+    _In_ LPCWSTR Type,
+    _In_ LPCWSTR Name)
+{
+    if (!ResourceInfo)
+    {
+        ::SetLastError(ERROR_INVALID_PARAMETER);
+        return FALSE;
+    }
+
+    std::memset(
+        ResourceInfo,
+        0,
+        sizeof(Mile::RESOURCE_INFO));
+
+    HRSRC ResourceFind = ::FindResourceExW(
+        ModuleHandle,
+        Type,
+        Name,
+        MAKELANGID(LANG_NEUTRAL, SUBLANG_NEUTRAL));
+    if (!ResourceFind)
+    {
+        return FALSE;
+    }
+
+    ResourceInfo->Size = ::SizeofResource(
+        ModuleHandle,
+        ResourceFind);
+    if (ResourceInfo->Size == 0)
+    {
+        return FALSE;
+    }
+
+    HGLOBAL ResourceLoad = ::LoadResource(
+        ModuleHandle,
+        ResourceFind);
+    if (!ResourceLoad)
+    {
+        return FALSE;
+    }
+
+    ResourceInfo->Pointer = ::LockResource(
+        ResourceLoad);
+
+    return TRUE;
+}
+
+#endif
+
 #pragma endregion
 
 #pragma region Implementations for Windows (C++ Style)

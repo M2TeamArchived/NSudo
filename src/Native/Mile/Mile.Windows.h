@@ -869,6 +869,15 @@ namespace Mile
     } FILE_ENUMERATOR_INFORMATION, *PFILE_ENUMERATOR_INFORMATION;
 
     /**
+     * @brief The resource info struct.
+    */
+    typedef struct _RESOURCE_INFO
+    {
+        DWORD Size;
+        LPVOID Pointer;
+    } RESOURCE_INFO, *PRESOURCE_INFO;
+
+    /**
      * @brief Sends a control code directly to a specified device driver,
      *        causing the corresponding device to perform the corresponding
      *        operation.
@@ -1672,6 +1681,8 @@ namespace Mile
         _In_ DWORD DesiredAccess,
         _Out_ PHANDLE TokenHandle);
 
+#endif
+
     /**
      * @brief Enables or disables privileges in the specified access token.
      * @param TokenHandle A handle to the access token that contains the
@@ -1720,6 +1731,33 @@ namespace Mile
     HResult AdjustTokenAllPrivileges(
         _In_ HANDLE TokenHandle,
         _In_ DWORD Attributes);
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
+    /**
+     * @brief Obtain the best matching resource with the specified type and
+     *        name in the specified module.
+     * @param ResourceInfo The resource info which contains the pointer and
+     *                     size.
+     * @param ModuleHandle A handle to the module whose portable executable
+     *                     file or an accompanying MUI file contains the
+     *                     resource. If this parameter is nullptr, the
+     *                     function searches the module used to create the
+     *                     current process.
+     * @param Type The resource type. Alternately, rather than a pointer,
+     *             this parameter can be MAKEINTRESOURCE(ID), where ID is
+     *             the integer identifier of the given resource type.
+     * @param Name The name of the resource. Alternately, rather than a
+     *             pointer, this parameter can be MAKEINTRESOURCE(ID),
+     *             where ID is the integer identifier of the resource.
+     * @return An HResultFromLastError object An containing the HResult object
+     *         containing the error code.
+    */
+    HResultFromLastError LoadResource(
+        _Out_ PRESOURCE_INFO ResourceInfo,
+        _In_opt_ HMODULE ModuleHandle,
+        _In_ LPCWSTR Type,
+        _In_ LPCWSTR Name);
 
 #endif
 
