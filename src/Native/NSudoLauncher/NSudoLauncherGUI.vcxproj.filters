@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="NSudoLauncherGUI.cpp" />
+    <ClCompile Include="M2Win32GUIHelpers.cpp">
+      <Filter>M2Win32GUIHelpers</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\NSudo.json">
+      <Filter>Resources</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="jsmn">
+      <UniqueIdentifier>{ea0f1c36-890f-4f1c-9ade-9173c6b242d7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="M2Win32GUIHelpers">
+      <UniqueIdentifier>{69bb0b6f-1d7d-4a77-9b42-483f97fdde74}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{c4416227-cc2c-4764-84c2-2c2ef3e3ca3b}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="jsmn.h">
+      <Filter>jsmn</Filter>
+    </ClInclude>
+    <ClInclude Include="M2MessageDialogResource.h">
+      <Filter>M2Win32GUIHelpers</Filter>
+    </ClInclude>
+    <ClInclude Include="M2Win32GUIHelpers.h">
+      <Filter>M2Win32GUIHelpers</Filter>
+    </ClInclude>
+    <ClInclude Include="Mile.Project.Properties.h" />
+    <ClInclude Include="NSudoLauncherGUIResource.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="M2MessageDialogResource.rc">
+      <Filter>M2Win32GUIHelpers</Filter>
+    </ResourceCompile>
+    <ResourceCompile Include="NSudoLauncherGUI.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="NSudoLauncherGUI.manifest" />
+  </ItemGroup>
+</Project>

@@ -226,10 +226,6 @@ public:
 		_chChevronShortcut = _T('/')
 	};
 
-#ifndef DT_HIDEPREFIX
-	enum { DT_HIDEPREFIX = 0x00100000 };
-#endif // !DT_HIDEPREFIX
-
 // Data members
 	HMENU m_hMenu;
 	HIMAGELIST m_hImageList;
@@ -2280,7 +2276,7 @@ public:
 				}
 				else
 				{
-					HBRUSH hBrushBackground = ::GetSysColorBrush((bSelected && !(bDisabled && bChecked)) ? COLOR_MENUHILIGHT : COLOR_MENU);
+					HBRUSH hBrushBackground = ::GetSysColorBrush((bSelected && !bChecked) ? COLOR_MENUHILIGHT : COLOR_MENU);
 					HBRUSH hBrushDisabledImage = ::GetSysColorBrush(COLOR_3DSHADOW);
 					pT->DrawBitmapDisabled(dc, iButton, point, hBrushBackground, hBrushBackground, hBrushDisabledImage);
 				}
@@ -3303,7 +3299,7 @@ public:
 	BEGIN_MSG_MAP(CMDICommandBarCtrlImpl)
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)
 		MESSAGE_HANDLER(WM_DESTROY, OnDestroy)
-		MESSAGE_HANDLER(_GetThemeChangedMsg(), OnThemeChanged)
+		MESSAGE_HANDLER(WM_THEMECHANGED, OnThemeChanged)
 		MESSAGE_HANDLER(WM_SIZE, OnSize)
 		MESSAGE_HANDLER(WM_NCCALCSIZE, OnNcCalcSize)
 		MESSAGE_HANDLER(WM_NCPAINT, OnNcPaint)
@@ -3735,11 +3731,12 @@ public:
 	{
 		// assuming we are in a rebar, change ideal size to our size
 		// we hope that if we are not in a rebar, nCount will be 0
-		int nCount = (int)this->GetParent().SendMessage(RB_GETBANDCOUNT, 0, 0L);
+		ATL::CWindow wndParent = this->GetParent();
+		int nCount = (int)wndParent.SendMessage(RB_GETBANDCOUNT, 0, 0L);
 		for(int i = 0; i < nCount; i++)
 		{
 			REBARBANDINFO rbi = { RunTimeHelper::SizeOf_REBARBANDINFO(), RBBIM_CHILD | RBBIM_CHILDSIZE | RBBIM_IDEALSIZE };
-			this->GetParent().SendMessage(RB_GETBANDINFO, i, (LPARAM)&rbi);
+			wndParent.SendMessage(RB_GETBANDINFO, i, (LPARAM)&rbi);
 			if(rbi.hwndChild == this->m_hWnd)
 			{
 				rbi.fMask = RBBIM_IDEALSIZE;
@@ -3751,7 +3748,7 @@ public:
 					this->GetItemRect(nBtnCount - 1, &rect);
 					rbi.cxIdeal += rect.right;
 				}
-				this->GetParent().SendMessage(RB_SETBANDINFO, i, (LPARAM)&rbi);
+				wndParent.SendMessage(RB_SETBANDINFO, i, (LPARAM)&rbi);
 				break;
 			}
 		}
@@ -3796,12 +3793,13 @@ public:
 #endif
 			// assuming we are in a rebar, change our size to accomodate new state
 			// we hope that if we are not in a rebar, nCount will be 0
-			int nCount = (int)this->GetParent().SendMessage(RB_GETBANDCOUNT, 0, 0L);
+			ATL::CWindow wndParent = this->GetParent();
+			int nCount = (int)wndParent.SendMessage(RB_GETBANDCOUNT, 0, 0L);
 			int cxDiff = (m_bChildMaximized ? 1 : -1) * (m_cxLeft + m_cxRight);
 			for(int i = 0; i < nCount; i++)
 			{
 				REBARBANDINFO rbi = { RunTimeHelper::SizeOf_REBARBANDINFO(), RBBIM_CHILD | RBBIM_CHILDSIZE | RBBIM_IDEALSIZE | RBBIM_STYLE };
-				this->GetParent().SendMessage(RB_GETBANDINFO, i, (LPARAM)&rbi);
+				wndParent.SendMessage(RB_GETBANDINFO, i, (LPARAM)&rbi);
 				if(rbi.hwndChild == this->m_hWnd)
 				{
 					if((rbi.fStyle & RBBS_USECHEVRON) != 0)
@@ -3809,7 +3807,7 @@ public:
 						rbi.fMask = RBBIM_CHILDSIZE | RBBIM_IDEALSIZE;
 						rbi.cxMinChild += cxDiff;
 						rbi.cxIdeal += cxDiff;
-						this->GetParent().SendMessage(RB_SETBANDINFO, i, (LPARAM)&rbi);
+						wndParent.SendMessage(RB_SETBANDINFO, i, (LPARAM)&rbi);
 					}
 					break;
 				}
@@ -3959,14 +3957,6 @@ public:
 			if((nBtn == -1) || (nBtn == 2))
 				dc.DrawFrameControl(&pRects[2], DFC_CAPTION, DFCS_CAPTIONMIN | ((m_nBtnPressed == 2) ? DFCS_PUSHED : 0));
 		}
-	}
-
-	static UINT _GetThemeChangedMsg()
-	{
-#ifndef WM_THEMECHANGED
-		static const UINT WM_THEMECHANGED = 0x031A;
-#endif // !WM_THEMECHANGED
-		return WM_THEMECHANGED;
 	}
 
 	void _OpenThemeData()

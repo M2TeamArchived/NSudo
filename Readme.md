@@ -15,6 +15,17 @@ https://m2team.github.io/NSudo.
 This readme file will be the developer oriented document because this it is 
 under the source code repository.
 
+## 2021 Development Roadmap
+
+- [ ] Add Current User (Elevated) Mode.
+  - [x] Implemented in NSudo Shared Library.
+  - [ ] Implemented in NSudo Launcher.
+- [ ] Use wxWidgets to implement the UI.
+- [ ] TOML-based environment configuration file.
+- [ ] Add more APIs to NSudo Shared Library.
+- [ ] Export PDF directly from the offical website.
+- [ ] Improve the Gitee mirror experience.
+
 ## Code of Conduct
 
 Please read [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).

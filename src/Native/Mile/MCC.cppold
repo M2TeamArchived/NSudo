@@ -1,0 +1,282 @@
+﻿/*
+ * PROJECT:   Mouri Cleanup Collection
+ * FILE:      MCC.cpp
+ * PURPOSE:   Implementation for Mouri Cleanup Collection
+ *
+ * LICENSE:   Apache-2.0 License
+ *
+ * DEVELOPER: Mouri_Naruto (Mouri_Naruto AT Outlook.com)
+ */
+
+#include <Windows.h>
+
+#include <cstdio>
+
+#include <EmptyVC.h>
+
+#include <cstdint>
+
+#include <winrt/base.h>
+
+#include "Mile.Windows.Storage.h"
+
+#include <commctrl.h>
+#pragma comment(lib, "comctl32.lib")
+
+#include <string>
+
+#include "Mile.Platform.Windows.h"
+
+// HeapStringTraits
+
+class FileHandleTraits
+{
+public:
+
+    using Type = HANDLE;
+
+    static void Close(Type Value) noexcept
+    {
+        ::CloseHandle(Value);
+    }
+
+    static constexpr Type Invalid() noexcept
+    {
+        return INVALID_HANDLE_VALUE;
+    }
+};
+
+using FileHandle = Mile::UniqueObject<FileHandleTraits>;
+
+
+class WindowsPlatformException
+{
+private:
+
+    HRESULT m_Code{ E_FAIL };
+
+    std::wstring m_Message{ L"" };
+
+private:
+
+    WindowsPlatformException() noexcept = default;
+
+    WindowsPlatformException(
+        _In_ HRESULT Code,
+        _In_ std::wstring const& Message) noexcept :
+        m_Code(Code),
+        m_Message(Message)
+    {
+
+    }
+
+public:
+
+    WindowsPlatformException(
+        WindowsPlatformException&&) noexcept = default;
+
+    WindowsPlatformException& operator=(
+        WindowsPlatformException&&) noexcept = default;
+
+    WindowsPlatformException(
+        WindowsPlatformException const& Other) noexcept :
+        m_Code(Other.m_Code),
+        m_Message(Other.m_Message)
+    {
+
+    }
+
+    WindowsPlatformException& operator=(
+        WindowsPlatformException const& Other) noexcept
+    {
+        this->m_Code = Other.m_Code;
+        this->m_Message = Other.m_Message;
+    }
+
+public:
+
+    static WindowsPlatformException FromHResult(
+        _In_ HRESULT Code,
+        _In_ std::wstring const& Message = L"") noexcept
+    {
+        return WindowsPlatformException(Code, Message);
+    }
+
+    static WindowsPlatformException FromWin32Error(
+        _In_ DWORD Code,
+        _In_ std::wstring const& Message = L"") noexcept
+    {
+        return FromHResult(::HRESULT_FROM_WIN32(Code), Message);
+    }
+
+    static WindowsPlatformException FromLastError(
+        _In_ std::wstring const& Message = L"") noexcept
+    {
+        return FromWin32Error(::GetLastError(), Message);
+    }
+
+public:
+
+    HRESULT Code() const noexcept
+    {
+        return this->m_Code;
+    }
+
+    const std::wstring& Message() const noexcept
+    {
+        return this->m_Message;
+    }
+
+    std::wstring CodeMessage() const noexcept
+    {
+        std::wstring Message{ L"Failed to get formatted message." };
+
+        const DWORD MaximumMessageLength = 32768;
+        LPWSTR RawMessage = reinterpret_cast<LPWSTR>(
+            Mile::HeapMemory::Allocate(
+                MaximumMessageLength * sizeof(wchar_t)));
+        if (RawMessage)
+        {
+            DWORD RawMessageSize = ::FormatMessageW(
+                FORMAT_MESSAGE_FROM_SYSTEM |
+                FORMAT_MESSAGE_IGNORE_INSERTS,
+                nullptr,
+                this->m_Code,
+                MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                reinterpret_cast<LPTSTR>(RawMessage),
+                MaximumMessageLength,
+                nullptr);
+            if (RawMessageSize)
+            {
+                Message = std::wstring(RawMessage, RawMessageSize);
+            }
+
+            Mile::HeapMemory::Free(RawMessage);
+        }
+        
+        return Message;
+    }
+};
+
+
+//class FileEnumerator
+//{
+//private:
+//
+//
+//
+//    friend FileEnumerator CreateFileEnumerator(
+//        _In_ HANDLE FileHandle);
+//
+//
+//    FileEnumerator();
+//
+//    ~FileEnumerator();
+//
+//public:
+//    
+//    bool Next();
+//
+//    FILETIME CreationTime();
+//
+//    FILETIME LastAccessTime();
+//
+//    FILETIME LastWriteTime();
+//
+//    FILETIME ChangeTime();
+//
+//    UINT64 FileSize();
+//
+//    UINT64 AllocationSize();
+//
+//    DWORD FileAttributes();
+//
+//    DWORD EaSize();
+//
+//    LARGE_INTEGER FileId();
+//
+//    LPCWSTR ShortName();
+//
+//    LPCWSTR FileName();
+//
+//};
+//
+//FileEnumerator CreateFileEnumerator(
+//    _In_ HANDLE FileHandle)
+//{
+//    return FileEnumerator();
+//}
+
+int VisualStudioPackageCacheCleanup()
+{
+    //throw WindowsPlatformException::FromLastError();
+
+    return 0;
+}
+
+#include <clocale>
+
+#include <winstring.h>
+
+int main()
+{
+    HResult hr = S_OK;
+
+    hr = E_FAIL;
+
+    std::setlocale(LC_ALL, "chs");
+
+    try
+    {
+        FileHandle Handle = FileHandle(::CreateFileW(
+            L"F:\\2.log",
+            FILE_READ_DATA | FILE_READ_ATTRIBUTES,
+            FILE_SHARE_READ | FILE_SHARE_DELETE,
+            nullptr,
+            OPEN_EXISTING,
+            FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_SEQUENTIAL_SCAN,
+            nullptr));
+        if (!Handle)
+        {
+            throw WindowsPlatformException::FromLastError(L"CreateFileW failed -> main()");
+        }
+    }
+    catch (const WindowsPlatformException& e)
+    {
+        wprintf(L"%s : %s\n", e.Message().c_str(), e.CodeMessage().c_str());
+    }
+
+    
+
+    //HANDLE FileHandle = ::CreateFileW(
+    //    L"E:\\智小蜂_0100.max",
+    //    FILE_READ_DATA | FILE_READ_ATTRIBUTES,
+    //    FILE_SHARE_READ | FILE_SHARE_DELETE,
+    //    nullptr,
+    //    OPEN_EXISTING,
+    //    FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_SEQUENTIAL_SCAN,
+    //    nullptr);
+    //if (FileHandle != INVALID_HANDLE_VALUE)
+    //{
+    //    /*if (Mile::Windows::Storage::SetWofCompressionAttribute(
+    //        FileHandle,
+    //        FILE_PROVIDER_COMPRESSION_LZX))
+    //    {
+    //        std::printf("OK\n");
+    //    }*/
+
+    //    /*if (Mile::Windows::Storage::RemoveWofCompressionAttribute(
+    //        FileHandle))
+    //    {
+    //        std::printf("OK\n");
+    //    }*/
+
+    //    ::CloseHandle(FileHandle);
+    //}
+
+
+    std::printf("Hello World!\n");
+    std::getchar();
+
+    return 0;
+}

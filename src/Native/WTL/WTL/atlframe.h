@@ -2118,7 +2118,7 @@ public:
 		{
 			if(nID == (int)pMap->m_nID)
 			{
-				if((pUIData->m_lpstrText == NULL) || lstrcmp(pUIData->m_lpstrText, lpstrText))
+				if((pUIData->m_lpstrText == NULL) || (lstrcmp(pUIData->m_lpstrText, lpstrText) != 0))
 				{
 					delete [] pUIData->m_lpstrText;
 					pUIData->m_lpstrText = NULL;
@@ -2959,7 +2959,7 @@ public:
 			if(!pT->GetDlgItem(ATL_IDW_STATUS_BAR).IsWindow())
 			{
 				ATL::CWindow wndGripper;
-				wndGripper.Create(_T("SCROLLBAR"), pT->m_hWnd, rectDlg, NULL, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | SBS_SIZEBOX | SBS_SIZEGRIP | SBS_SIZEBOXBOTTOMRIGHTALIGN, 0, ATL_IDW_STATUS_BAR);
+				wndGripper.Create(_T("SCROLLBAR"), pT->m_hWnd, rectDlg, NULL, WS_CHILD | WS_VISIBLE | WS_GROUP | WS_CLIPSIBLINGS | SBS_SIZEBOX | SBS_SIZEGRIP | SBS_SIZEBOXBOTTOMRIGHTALIGN, 0, ATL_IDW_STATUS_BAR);
 				ATLASSERT(wndGripper.IsWindow());
 				if(wndGripper.IsWindow())
 				{

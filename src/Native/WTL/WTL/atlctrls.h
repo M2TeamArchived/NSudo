@@ -23,7 +23,7 @@
 #include <richole.h>
 
 #if (_RICHEDIT_VER < 0x0300)
-	#error WTL10 requires RichEdit version 3 or higher
+	#error WTL10 requires _RICHEDIT_VER >= 0x0300
 #endif
 
 // protect template members from windowsx.h macros
@@ -3681,6 +3681,12 @@ public:
 		return (BOOL)::SendMessage(this->m_hWnd, LVM_ENSUREVISIBLE, nItem, MAKELPARAM(bPartialOK, 0));
 	}
 
+	BOOL Scroll(int cx, int cy)
+	{
+		ATLASSERT(::IsWindow(this->m_hWnd));
+		return (BOOL)::SendMessage(this->m_hWnd, LVM_SCROLL, cx, cy);
+	}
+
 	BOOL Scroll(SIZE size)
 	{
 		ATLASSERT(::IsWindow(this->m_hWnd));
@@ -3870,6 +3876,12 @@ public:
 		return (int)::SendMessage(this->m_hWnd, LVM_MAPIDTOINDEX, uID, 0L);
 	}
 
+	BOOL IsItemVisible(int nItem) const
+	{
+		ATLASSERT(::IsWindow(this->m_hWnd));
+		return (BOOL)::SendMessage(this->m_hWnd, LVM_ISITEMVISIBLE, nItem, 0L);
+	}
+
 #if (_WIN32_WINNT >= 0x0600)
 	int HitTestEx(LPLVHITTESTINFO lpHitTestInfo) const
 	{
@@ -3896,19 +3908,27 @@ public:
 #endif // (_WIN32_WINNT >= 0x0600)
 
 	// Note: selects only one item
-	BOOL SelectItem(int nIndex)
+	BOOL SelectItem(int nIndex)   // -1 to select none
 	{
 		ATLASSERT(::IsWindow(this->m_hWnd));
 
-		// multi-selection only: de-select all items
-		if((this->GetStyle() & LVS_SINGLESEL) == 0)
-			SetItemState(-1, 0, LVIS_SELECTED);
-
-		BOOL bRet = SetItemState(nIndex, LVIS_SELECTED | LVIS_FOCUSED, LVIS_SELECTED | LVIS_FOCUSED);
-		if(bRet)
+		BOOL bRet = FALSE;
+		if(nIndex != -1)
 		{
-			SetSelectionMark(nIndex);
-			bRet = EnsureVisible(nIndex, FALSE);
+			// multi-selection only: de-select all items
+			if((this->GetStyle() & LVS_SINGLESEL) == 0)
+				SetItemState(-1, 0, LVIS_SELECTED);
+
+			bRet = SetItemState(nIndex, LVIS_SELECTED | LVIS_FOCUSED, LVIS_SELECTED | LVIS_FOCUSED);
+			if(bRet)
+			{
+				SetSelectionMark(nIndex);
+				bRet = EnsureVisible(nIndex, FALSE);
+			}
+		}
+		else   // no item specified, just de-select
+		{
+			bRet = SetItemState(-1, 0, LVIS_SELECTED);
 		}
 
 		return bRet;
@@ -4206,8 +4226,27 @@ public:
 
 	BOOL SetCheckState(HTREEITEM hItem, BOOL bCheck)
 	{
+		ATLASSERT(::IsWindow(this->m_hWnd));
+		ATLASSERT((this->GetStyle() & TVS_CHECKBOXES) != 0);
 		int nCheck = bCheck ? 2 : 1;   // one based index
 		return SetItemState(hItem, INDEXTOSTATEIMAGEMASK(nCheck), TVIS_STATEIMAGEMASK);
+	}
+
+	// for standard and extended checkboxes (0 = no checkbox, 1 = unchecked, 2 = checked, >2 = optional extended check states)
+	UINT GetCheckStateEx(HTREEITEM hItem) const
+	{
+		ATLASSERT(::IsWindow(this->m_hWnd));
+		ATLASSERT(this->GetImageList(TVSIL_STATE) != NULL);
+		UINT uRet = GetItemState(hItem, TVIS_STATEIMAGEMASK);
+		return (uRet >> 12);
+	}
+
+	BOOL SetCheckStateEx(HTREEITEM hItem, UINT uCheckState)
+	{
+		ATLASSERT(::IsWindow(this->m_hWnd));
+		ATLASSERT(this->GetImageList(TVSIL_STATE) != NULL);
+		ATLASSERT(uCheckState < (UINT)::ImageList_GetImageCount(this->GetImageList(TVSIL_STATE)));
+		return SetItemState(hItem, INDEXTOSTATEIMAGEMASK(uCheckState), TVIS_STATEIMAGEMASK);
 	}
 
 	COLORREF GetBkColor() const
@@ -4467,10 +4506,10 @@ public:
 		return (HTREEITEM)::SendMessage(this->m_hWnd, TVM_GETNEXTITEM, TVGN_LASTVISIBLE, 0L);
 	}
 
-	HTREEITEM GetNextSelectedItem() const
+	HTREEITEM GetNextSelectedItem(HTREEITEM hItem) const
 	{
 		ATLASSERT(::IsWindow(this->m_hWnd));
-		return (HTREEITEM)::SendMessage(this->m_hWnd, TVM_GETNEXTITEM, TVGN_NEXTSELECTED, 0L);
+		return (HTREEITEM)::SendMessage(this->m_hWnd, TVM_GETNEXTITEM, TVGN_NEXTSELECTED, (LPARAM)hItem);
 	}
 
 	BOOL Select(HTREEITEM hItem, UINT nCode)
@@ -4818,10 +4857,10 @@ public:
 		return CTreeItemT<TBase>(hTreeItem, (CTreeViewCtrlExT<TBase>*)this);
 	}
 
-	CTreeItemT<TBase> GetNextSelectedItem() const
+	CTreeItemT<TBase> GetNextSelectedItem(HTREEITEM hItem) const
 	{
 		ATLASSERT(::IsWindow(this->m_hWnd));
-		HTREEITEM hTreeItem = (HTREEITEM)::SendMessage(this->m_hWnd, TVM_GETNEXTITEM, TVGN_NEXTSELECTED, 0L);
+		HTREEITEM hTreeItem = (HTREEITEM)::SendMessage(this->m_hWnd, TVM_GETNEXTITEM, TVGN_NEXTSELECTED, (LPARAM)hItem);
 		return CTreeItemT<TBase>(hTreeItem, (CTreeViewCtrlExT<TBase>*)this);
 	}
 
@@ -4969,7 +5008,7 @@ template <class TBase>
 inline CTreeItemT<TBase> CTreeItemT<TBase>::GetNextSelected() const
 {
 	ATLASSERT(m_pTreeView != NULL);
-	return m_pTreeView->GetNextSelectedItem();
+	return m_pTreeView->GetNextSelectedItem(m_hTreeItem);
 }
 
 template <class TBase>

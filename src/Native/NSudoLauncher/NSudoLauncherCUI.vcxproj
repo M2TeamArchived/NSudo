@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{2b3e4f28-d499-4529-bec1-e0ed2003a385}</ProjectGuid>
+    <RootNamespace>NSudoLauncherCUI</RootNamespace>
+    <TargetName>NSudoLC</TargetName>
+    <MileProjectType>ConsoleApplication</MileProjectType>
+    <MileProjectManifestFile>NSudoLauncherCUI.manifest</MileProjectManifestFile>
+  </PropertyGroup>
+  <Import Project="..\Mile.Project.VisualStudio\Mile.Project.Cpp.props" />
+  <Import Project="..\Mile.Project.VisualStudio\Mile.Project.Cpp.VC-LTL.props" />
+  <ImportGroup Label="PropertySheets">
+    <Import Project="..\MSBuild\NSudoLib.props" />
+    <Import Project="..\WTL\WTL.props" />
+    <Import Project="..\Mile\Mile.props" />
+    <Import Project="NSudoLauncherResources.props" />
+  </ImportGroup>
+  <ItemDefinitionGroup>
+    <PostBuildEvent>
+      <Message>复制配置文件</Message>
+      <Command>xcopy /r /s /y $(ProjectDir)Resources\NSudo.json $(TargetDir)</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="NSudoLauncherCUI.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\NSudo.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="jsmn.h" />
+    <ClInclude Include="Mile.Project.Properties.h" />
+    <ClInclude Include="NSudoLauncherCUIResource.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="NSudoLauncherCUI.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="NSudoLauncherCUI.manifest" />
+  </ItemGroup>
+  <Import Project="..\Mile.Project.VisualStudio\Mile.Project.Cpp.targets" />
+</Project>

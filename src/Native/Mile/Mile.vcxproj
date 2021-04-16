@@ -5,7 +5,8 @@
     <RootNamespace>Mile</RootNamespace>
     <MileProjectType>StaticLibrary</MileProjectType>
   </PropertyGroup>
-  <Import Project="..\Mile.Project\Mile.Project.Cpp.props" />
+  <Import Project="..\Mile.Project.VisualStudio\Mile.Project.Cpp.props" />
+  <Import Project="..\Mile.Project.VisualStudio\Mile.Project.Cpp.VC-LTL.props" />
   <ImportGroup Label="PropertySheets">
     <Import Project="..\MINT\MINT.props" />
   </ImportGroup>
@@ -15,24 +16,16 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <PackageReference Include="VC-LTL">
-      <Version>4.1.1-Beta7</Version>
-    </PackageReference>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="Mile.Platform.cpp" />
-    <ClCompile Include="Mile.Platform.Windows.cpp" />
+    <ClCompile Include="Mile.Portable.cpp" />
     <ClCompile Include="Mile.Windows.cpp" />
-    <ClCompile Include="Mile.Windows.TrustedLibraryLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Mile.Platform.h" />
-    <ClInclude Include="Mile.Platform.Windows.h" />
+    <ClInclude Include="Mile.Portable.h" />
     <ClInclude Include="Mile.Windows.h" />
-    <ClInclude Include="Mile.Windows.TrustedLibraryLoader.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="MCC.cppold" />
     <None Include="Mile.props" />
   </ItemGroup>
-  <Import Project="..\Mile.Project\Mile.Project.Cpp.targets" />
+  <Import Project="..\Mile.Project.VisualStudio\Mile.Project.Cpp.targets" />
 </Project>

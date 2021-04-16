@@ -3250,7 +3250,10 @@ public:
 
 // Constructor/destructor
 	CEnhMetaFileInfo(HENHMETAFILE hEMF) : m_hEMF(hEMF), m_pBits(NULL), m_pDesc(NULL)
-	{ }
+	{
+		memset(&m_header, 0, sizeof(m_header));
+		memset(&m_pfd, 0, sizeof(m_pfd));
+	}
 
 	~CEnhMetaFileInfo()
 	{

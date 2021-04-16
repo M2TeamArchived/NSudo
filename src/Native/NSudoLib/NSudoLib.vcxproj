@@ -5,7 +5,8 @@
     <RootNamespace>NSudoLib</RootNamespace>
     <MileProjectType>StaticLibrary</MileProjectType>
   </PropertyGroup>
-  <Import Project="..\Mile.Project\Mile.Project.Cpp.props" />
+  <Import Project="..\Mile.Project.VisualStudio\Mile.Project.Cpp.props" />
+  <Import Project="..\Mile.Project.VisualStudio\Mile.Project.Cpp.VC-LTL.props" />
   <ImportGroup Label="PropertySheets">
     <Import Project="..\Mile\Mile.props" />
   </ImportGroup>
@@ -15,11 +16,6 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <PackageReference Include="VC-LTL">
-      <Version>4.1.1-Beta7</Version>
-    </PackageReference>
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="M2.Base.cpp" />
     <ClCompile Include="NSudoAPI.cpp" />
   </ItemGroup>
@@ -27,5 +23,5 @@
     <ClInclude Include="M2.Base.h" />
     <ClInclude Include="NSudoAPI.h" />
   </ItemGroup>
-  <Import Project="..\Mile.Project\Mile.Project.Cpp.targets" />
+  <Import Project="..\Mile.Project.VisualStudio\Mile.Project.Cpp.targets" />
 </Project>

@@ -962,10 +962,10 @@ public:
 			::OffsetRect(&rect, -rcWnd.left, -rcWnd.top);
 
 			// invert the brush pattern (looks just like frame window sizing)
-			CWindowDC dc(pT->m_hWnd);
 			CBrush brush(CDCHandle::GetHalftoneBrush());
 			if(brush.m_hBrush != NULL)
 			{
+				CWindowDC dc(pT->m_hWnd);
 				CBrushHandle brushOld = dc.SelectBrush(brush);
 				dc.PatBlt(rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, PATINVERT);
 				dc.SelectBrush(brushOld);

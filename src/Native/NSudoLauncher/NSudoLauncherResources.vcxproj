@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{B2176F44-F97A-4403-948C-F21D56999C70}</ProjectGuid>
+    <RootNamespace>NSudoLauncherResources</RootNamespace>
+    <MileProjectType>StaticLibrary</MileProjectType>
+  </PropertyGroup>
+  <Import Project="..\Mile.Project.VisualStudio\Mile.Project.Cpp.props" />
+  <ItemDefinitionGroup>
+    <ResourceCompile>
+      <ResourceOutputFileName>$(OutDir)%(Filename).res</ResourceOutputFileName>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <Text Include="Resources\en\CommandLineHelp.txt" />
+    <Text Include="Resources\en\Links.txt" />
+    <Text Include="Resources\es\CommandLineHelp.txt" />
+    <Text Include="Resources\es\Links.txt" />
+    <Text Include="Resources\fr\CommandLineHelp.txt" />
+    <Text Include="Resources\fr\Links.txt" />
+    <Text Include="Resources\it\CommandLineHelp.txt" />
+    <Text Include="Resources\it\Links.txt" />
+    <Text Include="Resources\zh-Hans\CommandLineHelp.txt" />
+    <Text Include="Resources\zh-Hans\Links.txt" />
+    <Text Include="Resources\zh-Hant\CommandLineHelp.txt" />
+    <Text Include="Resources\zh-Hant\Links.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\en\Translations.json" />
+    <None Include="Resources\es\Translations.json" />
+    <None Include="Resources\fr\Translations.json" />
+    <None Include="Resources\it\Translations.json" />
+    <None Include="Resources\NSudoLauncher.xcf" />
+    <None Include="NSudoLauncherResources.props" />
+    <None Include="Resources\zh-Hans\Translations.json" />
+    <None Include="Resources\zh-Hant\Translations.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="NSudoLauncherResources.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="NSudoLauncherResources.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Resources\NSudoLauncher.ico" />
+  </ItemGroup>
+  <Import Project="..\Mile.Project.VisualStudio\Mile.Project.Cpp.targets" />
+</Project>

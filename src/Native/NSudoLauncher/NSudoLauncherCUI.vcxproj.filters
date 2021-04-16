@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="NSudoLauncherCUI.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\NSudo.json">
+      <Filter>Resources</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="jsmn">
+      <UniqueIdentifier>{08c029f6-f8ae-4d16-bdf1-4baa97245c02}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{6dcc3e16-84d8-47d3-a6ac-e738a047a9aa}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="jsmn.h">
+      <Filter>jsmn</Filter>
+    </ClInclude>
+    <ClInclude Include="Mile.Project.Properties.h" />
+    <ClInclude Include="NSudoLauncherCUIResource.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="NSudoLauncherCUI.manifest" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="NSudoLauncherCUI.rc" />
+  </ItemGroup>
+</Project>

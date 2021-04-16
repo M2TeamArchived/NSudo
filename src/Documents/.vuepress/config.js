@@ -1,5 +1,5 @@
 module.exports = {
-  base: "/NSudo/",
+  base: "/",
   dest: "../../docs",
   temp: ".temp",
   cache: ".cache",

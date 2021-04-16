@@ -1,27 +1,31 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="Mile.Windows.cpp" />
-    <ClCompile Include="Mile.Windows.TrustedLibraryLoader.cpp">
-      <Filter>Mile.Windows.TrustedLibraryLoader</Filter>
+    <ClCompile Include="Mile.Windows.cpp">
+      <Filter>Mile.Windows</Filter>
     </ClCompile>
-    <ClCompile Include="Mile.Platform.cpp" />
-    <ClCompile Include="Mile.Platform.Windows.cpp" />
+    <ClCompile Include="Mile.Portable.cpp">
+      <Filter>Mile.Portable</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Mile.Windows.h" />
-    <ClInclude Include="Mile.Windows.TrustedLibraryLoader.h">
-      <Filter>Mile.Windows.TrustedLibraryLoader</Filter>
+    <ClInclude Include="Mile.Windows.h">
+      <Filter>Mile.Windows</Filter>
     </ClInclude>
-    <ClInclude Include="Mile.Platform.h" />
-    <ClInclude Include="Mile.Platform.Windows.h" />
+    <ClInclude Include="Mile.Portable.h">
+      <Filter>Mile.Portable</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Mile.props" />
+    <None Include="MCC.cppold" />
   </ItemGroup>
   <ItemGroup>
-    <Filter Include="Mile.Windows.TrustedLibraryLoader">
-      <UniqueIdentifier>{18842d57-9f75-4cf4-8562-2fe1c4b5337c}</UniqueIdentifier>
+    <Filter Include="Mile.Windows">
+      <UniqueIdentifier>{4778386b-d269-4131-a6cf-e1d32f708e94}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Mile.Portable">
+      <UniqueIdentifier>{6eafd39c-ff2b-43ba-8f99-13a4863c21b8}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

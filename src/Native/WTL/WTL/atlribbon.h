@@ -373,13 +373,14 @@ struct CharFormat : CHARFORMAT2
 	// Copy constructor
 	CharFormat(const CharFormat& cf)
 	{
-		::CopyMemory(this, &cf, sizeof(CHARFORMAT2));
+		this->CharFormat::CharFormat();
+		::CopyMemory(this, &cf, sizeof(CharFormat));
 	}
 
 	// Assign operator
 	CharFormat& operator =(const CharFormat& cf)
 	{
-		::CopyMemory(this, &cf, sizeof(CHARFORMAT2));
+		::CopyMemory(this, &cf, sizeof(CharFormat));
 		return (*this);
 	}
 
@@ -903,6 +904,7 @@ class CollectionImplBase
 public:
 	CollectionImplBase()
 	{
+		memset(&m_apItems, 0, sizeof(m_apItems));
 		for (int i = 0; i < t_size; i++)
 			m_apItems[i] = new ItemProperty<TCollection>(i, static_cast<TCollection*>(this));
 	}
@@ -1162,11 +1164,6 @@ class ItemCollectionImpl : public TextCollectionImpl<TCtrl, t_items, t_categorie
 public:
 	typedef thisClass ItemCollection;
 	
-	ItemCollectionImpl()
-	{
-		::ZeroMemory(m_aBitmap, sizeof(m_aBitmap));
-	}
-
 	CBitmap m_aBitmap[t_items];
 
 	// Operations
@@ -1228,7 +1225,9 @@ public:
 		if (ribbon.IsRibbonUI())
 		{
 			HRESULT hr = ribbon.GetIUIFrameworkPtr()->GetUICommandProperty(TCtrl::GetID(), UI_PKEY_StringValue, &var);
+			ATLASSERT(SUCCEEDED(hr));
 			hr = PropVariantToString(var, sCombo, RIBBONUI_MAX_TEXT);
+			ATLASSERT(SUCCEEDED(hr));
 			return sCombo;
 		}
 		return NULL;
@@ -2041,7 +2040,9 @@ public:
 		DECIMAL decVal;
 
 		HRESULT hr = UIPropertyToDecimal(UI_PKEY_DecimalValue, *ppropvarValue, &decVal);
+		ATLASSERT(SUCCEEDED(hr));
 		hr = InitVal(m_Values[0], &decVal);
+		ATLASSERT(SUCCEEDED(hr));
 
 		this->GetWndRibbon().OnRibbonSpinnerCtrlExecute(this->GetID(), &m_Values[0]);
 
@@ -2064,12 +2065,10 @@ public:
 			hr = OnGetValue(key, ppropvarNewValue);
 			break;
 		case k_FormatString:
-			if (m_FormatString.IsEmpty())
-				return OnGetText(key, m_FormatString, ppropvarNewValue);
+			hr = OnGetText(key, m_FormatString, ppropvarNewValue);
 			break;
 		case k_RepresentativeString:
-			if (m_RepresentativeString.IsEmpty())
-				return OnGetText(key, m_RepresentativeString, ppropvarNewValue);
+			hr = OnGetText(key, m_RepresentativeString, ppropvarNewValue);
 			break;
 		default:
 			hr = CtrlImpl<T, t_ID>::DoUpdateProperty(nCmdID, key, ppropvarCurrentValue, ppropvarNewValue);
@@ -2787,6 +2786,8 @@ public:
 		case UI_VIEWVERB_DESTROY:
 			SaveRibbonSettings();
 			m_bRibbonUI = false;
+			break;
+		default:
 			break;
 		}
 
