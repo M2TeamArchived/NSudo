@@ -20,6 +20,8 @@
     <MileProjectType>DynamicLibrary</MileProjectType>
   If the project is a static library project.
     <MileProjectType>StaticLibrary</MileProjectType>
+  If the project is a UEFI application project.
+    <MileProjectType>UefiApplication</MileProjectType>
 
   How to define the manifest file in the "Globals" label property group.
     <MileProjectManifestFile>C:\Folder\Manifest.manifest</MileProjectManifestFile>
@@ -114,6 +116,15 @@
       <PreprocessorDefinitions Condition="'$(MileProjectType)'=='WindowsApplication'">_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(MileProjectType)'=='DynamicLibrary'">_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(MileProjectType)'=='StaticLibrary'">_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck Condition="'$(MileProjectType)'=='UefiApplication'">false</SDLCheck>
+      <DebugInformationFormat Condition="'$(MileProjectType)'=='UefiApplication'">ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling Condition="'$(MileProjectType)'=='UefiApplication'">false</ExceptionHandling>
+      <BasicRuntimeChecks Condition="'$(MileProjectType)'=='UefiApplication'">Default</BasicRuntimeChecks>
+      <BufferSecurityCheck Condition="'$(MileProjectType)'=='UefiApplication'">false</BufferSecurityCheck>
+      <ControlFlowGuard Condition="'$(MileProjectType)'=='UefiApplication'">false</ControlFlowGuard>
+      <FunctionLevelLinking Condition="'$(MileProjectType)'=='UefiApplication'">false</FunctionLevelLinking>
+      <AdditionalOptions Condition="'$(MileProjectType)'=='UefiApplication'">/Oi- %(AdditionalOptions)</AdditionalOptions>
+      <WholeProgramOptimization Condition="'$(MileProjectType)'=='UefiApplication'">false</WholeProgramOptimization>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -123,6 +134,14 @@
       <SubSystem Condition="'$(MileProjectType)'=='WindowsApplication'">Windows</SubSystem>
       <SubSystem Condition="'$(MileProjectType)'=='DynamicLibrary'">Windows</SubSystem>
       <SubSystem Condition="'$(MileProjectType)'=='StaticLibrary'"></SubSystem>
+      <SubSystem Condition="'$(MileProjectType)'=='UefiApplication'">EFI Application</SubSystem>
+      <Driver Condition="'$(MileProjectType)'=='UefiApplication'">Driver</Driver>
+      <AdditionalDependencies Condition="'$(MileProjectType)'=='UefiApplication'">%(AdditionalDependencies)</AdditionalDependencies>
+      <IgnoreAllDefaultLibraries Condition="'$(MileProjectType)'=='UefiApplication'">true</IgnoreAllDefaultLibraries>
+      <RandomizedBaseAddress Condition="'$(MileProjectType)'=='UefiApplication'">
+      </RandomizedBaseAddress>
+      <DataExecutionPrevention Condition="'$(MileProjectType)'=='UefiApplication'">
+      </DataExecutionPrevention>
     </Link>
     <ResourceCompile Condition="'$(MileProjectType)'!='StaticLibrary'">
       <PreprocessorDefinitions Condition="'$(MileProjectManifestFile)'!=''">_MILE_PROJECT_MANIFEST_FILE=$([System.String]::Copy('$(MileProjectManifestFile)').Replace('\','\\'));%(PreprocessorDefinitions)</PreprocessorDefinitions>
