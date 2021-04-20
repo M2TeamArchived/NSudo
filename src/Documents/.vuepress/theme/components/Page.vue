@@ -6,14 +6,7 @@
     <PageEdit />
 
     <PageNav v-bind="{ sidebarItems }" />
-
-    <div class="page-footer">
-      <ul class="inner">
-        <li><a href="https://github.com/M2Team/NSudo/blob/master/License.md" target="_blank" rel="noopener noreferrer">MIT</a> Licensed &nbsp;</li>
-        <li> Copyright&nbsp;&copy;&nbsp;<a href="https://m2team.github.io/" target="_blank" rel="noopener noreferrer">M2-Team</a>&nbsp;and&nbsp;Contributors.&nbsp;All&nbsp;rights&nbsp;reserved.</li>
-      </ul>
-    </div>
-
+    <PageFooter />
     <slot name="bottom" />
   </main>
 </template>
@@ -21,9 +14,10 @@
 <script>
 import PageEdit from '@theme/components/PageEdit.vue'
 import PageNav from '@theme/components/PageNav.vue'
+import PageFooter from "@theme/components/PageFooter.vue";
 
 export default {
-  components: { PageEdit, PageNav },
+  components: { PageEdit, PageNav, PageFooter },
   props: ['sidebarItems']
 }
 </script>
@@ -34,24 +28,5 @@ export default {
 .page
   padding-bottom 2rem
   display block
-.page-footer
-  @extend $wrapper
-  padding 0 2.5rem
-  .inner
-    border-top 1px solid $borderColor
-    padding-top 2rem
-    text-align center
-    margin 0
-    li
-      display inline-block
-      color $textColor
-      font-size 12px
 
-@media (max-width: $MQMobileNarrow)
-  .page-footer
-    .inner
-      padding-left 0
-      li
-        display block
-        line-height 1rem
 </style>
