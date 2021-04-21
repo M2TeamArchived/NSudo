@@ -1,4 +1,4 @@
-module.exports = {
+﻿module.exports = {
   selectText: "Languages",
   label: "English",
   editLinkText: "Edit this page on GitHub",
@@ -21,8 +21,7 @@ module.exports = {
         children: [
           "/en-us/docs/Changelog",
           "/en-us/docs/DevilMode",
-          "/en-us/docs/SharedLibrary",
-          ["/en-us/docs/People", "Relevant People"]
+          "/en-us/docs/SharedLibrary"
         ]
       }
     ]
@@ -32,11 +31,15 @@ module.exports = {
 			text: "Copyright &copy; <a href='https://m2team.org/' target='_blank'>M2-Team</a> and Contributors. All rights reserved. "
 		},
 		{
-			text: "<a href='https://github.com/M2Team/NSudo/blob/master/License.md' target='_blank'>MIT</a> Licensed"
+			text: "<a href='https://github.com/M2Team/NSudo/blob/master/License.md' target='_blank'>MIT</a> Licensed "
 		},
 		{
-			text: " GitHub Issue ",
+			text: "GitHub Issue ",
 			link: "https://github.com/M2Team/NSudo/issues"
-		}
+    },
+    {
+      text: "Relevant People",
+      link: "https://github.com/M2Team/NSudo/blob/master/People.md"
+    }
 	]
 }

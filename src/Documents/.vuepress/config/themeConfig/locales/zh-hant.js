@@ -1,4 +1,4 @@
-module.exports = {
+﻿module.exports = {
   selectText: "選擇語言",
   label: "繁體中文",
   editLinkText: "在 GitHub 上編輯此頁",
@@ -22,8 +22,7 @@ module.exports = {
         title: "檔案",
         collapsable: false,
         children: [
-          ["/zh-hant/docs/Changelog", "變更紀錄"],
-          ["/en-us/docs/People", "相關人士"]
+          ["/zh-hant/docs/Changelog", "變更紀錄"]
         ]
       }
     ]
@@ -33,11 +32,15 @@ module.exports = {
 			text: "Copyright &copy; <a href='https://m2team.org/' target='_blank'>M2-Team</a> and Contributors. All rights reserved. "
 		},
 		{
-			text: "<a href='https://github.com/M2Team/NSudo/blob/master/License.md' target='_blank'>MIT</a> Licensed"
+			text: "<a href='https://github.com/M2Team/NSudo/blob/master/License.md' target='_blank'>MIT</a> Licensed "
 		},
 		{
-			text: " GitHub Issue ",
+			text: "GitHub Issue ",
 			link: "https://github.com/M2Team/NSudo/issues"
-		}
+    },
+    {
+      text: "相關人士",
+      link: "https://github.com/M2Team/NSudo/blob/master/People.md"
+    }
 	]
 }

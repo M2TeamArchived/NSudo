@@ -1,4 +1,4 @@
-module.exports = {
+﻿module.exports = {
 	selectText: "选择语言",
 	label: "简体中文",
 	editLinkText: "在 GitHub 上编辑此页",
@@ -23,8 +23,7 @@ module.exports = {
 				collapsable: false,
 				children: [
 					["/zh-hans/docs/Changelog", "更新日志"],
-					["/zh-hans/docs/DevilMode", "NSudo 恶魔模式"],
-					["/en-us/docs/People", "相关人士"]
+					["/zh-hans/docs/DevilMode", "NSudo 恶魔模式"]
 				]
 			}
 		]
@@ -34,11 +33,15 @@ module.exports = {
 			text: "Copyright &copy; <a href='https://m2team.org/' target='_blank'>M2-Team</a> and Contributors. All rights reserved. "
 		},
 		{
-			text: "<a href='https://github.com/M2Team/NSudo/blob/master/License.md' target='_blank'>MIT</a> Licensed"
+			text: "<a href='https://github.com/M2Team/NSudo/blob/master/License.md' target='_blank'>MIT</a> Licensed "
 		},
 		{
-			text: " GitHub Issue ",
+			text: "GitHub Issue ",
 			link: "https://github.com/M2Team/NSudo/issues"
-		}
+    },
+    {
+      text: "相关人士",
+      link: "https://github.com/M2Team/NSudo/blob/master/People.md"
+    }
 	]
 }
