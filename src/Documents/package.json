@@ -4,8 +4,8 @@
   "description": "System Administration Toolkit",
   "main": "index.js",
   "authors": {
-    "name": "qcyblm",
-    "email": "qcyblm@outlook.com"
+    "name": "Mouri_Naruto",
+    "email": "Mouri_Naruto@Outlook.com"
   },
   "repository": "m2team/NSudo",
   "scripts": {
@@ -14,9 +14,10 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "@vuepress/plugin-back-to-top": "^1.8.0",
-    "@vuepress/plugin-medium-zoom": "^1.8.0",
-    "@vuepress/plugin-pwa": "^1.8.0",
-    "vuepress": "^1.8.0"
+    "@vuepress/plugin-back-to-top": "^1.8.2",
+    "@vuepress/plugin-medium-zoom": "^1.8.2",
+    "@vuepress/plugin-pwa": "^1.8.2",
+    "moment": "^2.29.1",
+    "vuepress": "^1.8.2"
   }
 }
