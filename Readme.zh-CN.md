@@ -1,4 +1,4 @@
-﻿# ![Logo](Logo.png) NSudo - System Administration Toolkit
+﻿# ![Logo](Logo.png) NSudo - 系统管理工具包
 
 [![AppVeyor CI](https://ci.appveyor.com/api/projects/status/github/M2Team/NSudo?branch=master&svg=true)](https://ci.appveyor.com/project/MouriNaruto/nsudo)
 [![Latest Version](https://img.shields.io/github/release/M2Team/NSudo.svg)](https://github.com/M2Team/NSudo/releases/latest)
@@ -8,14 +8,12 @@
 [![996.icu](https://img.shields.io/badge/link-996.icu-red.svg)](https://996.icu)
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FM2Team%2FNSudo.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2FM2Team%2FNSudo?ref=badge_shield)
 
-[简体中文](Readme.zh-CN.md)
+[English](Readme.md)
 
-This is the source code repository of NSudo. If you wonder to visit the NSudo 
-official website, download NSudo or read the NSudo documents etc, please visit
-https://m2team.github.io/NSudo.
+这里是 NSudo 的源代码仓库。如果你想访问 NSudo 的官方网站、下载 NSudo 或者阅读
+NSudo 的文档等，请转到 https://m2team.github.io/NSudo.
 
-This readme file will be the developer oriented document because this it is 
-under the source code repository.
+本自述文件仅面向开发者，毕竟隶属于源代码仓库下。
 
 ## 2021 Development Roadmap
 
@@ -28,24 +26,22 @@ under the source code repository.
 - [ ] Export PDF directly from the offical website.
 - [ ] Improve the Gitee mirror experience.
 
-## Code of Conduct
+## 行为准则
 
-Please read [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
+请参阅 [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)。
 
-## Contributing to NSudo
+## 向 NSudo 贡献
 
-### How to become a contributor
+### 如何成为贡献者
 
-- Direct contributions
-  - **Create pull requests directly.**
-  - Please send e-mails to Mouri_Naruto@Outlook.com if you have any
-    questions.
-- Feedback suggestions and bugs.
-  - We use GitHub issues to track bugs and features.
-  - For bugs and general issues please 
-    [file a new issue](https://github.com/M2Team/NSudo/issues/new).
+- 直接贡献
+  - **请直接创建 Pull Requests。**
+  - 如有疑惑，请发送邮件到 Mouri_Naruto@Outlook.com 以进行讨论。
+- 反馈建议和问题
+  - 我们使用 GitHub Issues 跟踪问题和建议。
+  - [创建新 Issue](https://github.com/M2Team/NSudo/issues/new).
 
-### Code contribution guidelines
+### 代码贡献参考
 
 #### Prerequisites
 
