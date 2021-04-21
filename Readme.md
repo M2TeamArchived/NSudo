@@ -49,14 +49,13 @@ Please read [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
 
 #### Prerequisites
 
-- Visual Studio 2017 version 15.9 or later.
-  - Install from here: http://visualstudio.com/downloads
-  - You also need install ARM and ARM64 components.
-- Windows 10 version 1507 SDK or later.
-  - You need to change the Windows SDK version in the project properties if the
-    version of Windows 10 SDK I used isn't installed on your PC.
+- Visual Studio 2017 Version 15.9 or later.
+  - You also need install ARM and ARM64 components (MSVC Toolchain and ATL/MFC)
+    if you want to compile ARM and ARM64 version of NSudo.
+- Windows 10 Version 1507 SDK or later.
   - You also need install ARM and ARM64 components when you installing the 
-    Windows 10 Version 1703 SDK or later.
+    Windows 10 Version 1703 SDK or later and you want to compile ARM and ARM64
+    version of NSudo.
 
 #### How to build all targets of NSudo
 
@@ -95,9 +94,5 @@ To build new docs, you'll need to have [Node.js](https://nodejs.org) and
 
 Docs will be built into `docs`, where GitHub Pages treated as site root. So be
 sure to commit `docs` changes.
-
-CI/CD is not included in this PR, so manual build is required after every docs
-update. `yarn dev` runs a local hot-reload-enabled docs server for easier 
-debugging.
 
 Docs engine is based on [VuePress](https://v1.vuepress.vuejs.org).

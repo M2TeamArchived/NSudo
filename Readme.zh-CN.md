@@ -39,28 +39,26 @@ NSudo 的文档等，请转到 https://m2team.github.io/NSudo.
   - 如有疑惑，请发送邮件到 Mouri_Naruto@Outlook.com 以进行讨论。
 - 反馈建议和问题
   - 我们使用 GitHub Issues 跟踪问题和建议。
-  - [创建新 Issue](https://github.com/M2Team/NSudo/issues/new).
+  - 对于问题和建议，请[创建新 Issue](https://github.com/M2Team/NSudo/issues/new).
 
 ### 代码贡献参考
 
-#### Prerequisites
+#### 构建前置条件
 
-- Visual Studio 2017 version 15.9 or later.
-  - Install from here: http://visualstudio.com/downloads
-  - You also need install ARM and ARM64 components.
-- Windows 10 version 1507 SDK or later.
-  - You need to change the Windows SDK version in the project properties if the
-    version of Windows 10 SDK I used isn't installed on your PC.
-  - You also need install ARM and ARM64 components when you installing the 
-    Windows 10 Version 1703 SDK or later.
+- Visual Studio 2017 Version 15.9 及之后版本。
+  - 如果你要编译 ARM 和 ARM64 版本的 NSudo 还需要勾选 ARM 和 ARM64 版本的 MSVC
+    编译工具链和 ATL/MFC 组件。
+- Windows 10 Version 1507 SDK 及之后版本。
+  - 如果你使用的是 Windows 10 Version 1703 SDK 及之后版本且你要编译 ARM 和 
+    ARM64 版本的 NSudo 还需要勾选 ARM 和 ARM64 的相关组件。
 
-#### How to build all targets of NSudo
+#### 编译 NSudo 的所有目标
 
-Run `BuildAllTargets.bat` in `src/Native`.
+运行 `src/Native` 目录下的 `BuildAllTargets.bat`。
 
-#### How to modify or debugging NSudo
+#### 如何修改和调试 NSudo
 
-Open `NSudo.sln` in `src/Native`.
+运行 `src/Native` 目录下的 `NSudo.sln`。
 
 #### Code style and conventions
 
@@ -81,19 +79,13 @@ project:
 * The contribution is correctly attributed in the [Readme](Readme.md)
 file in the repository, as needed.
 
-### How to update documents.
+### 如何更新文档
 
-Refer to https://github.com/M2Team/NSudo/pull/29.
+请参阅 https://github.com/M2Team/NSudo/pull/29。
 
-To build new docs, you'll need to have [Node.js](https://nodejs.org) and 
-[Yarn](https://yarnpkg.com) installed on your system, and run `build.bat` in
-`src/Documents`.
+如要编译文档，你需要在你的开发环境下安装 [Node.js](https://nodejs.org) 和 
+[Yarn](https://yarnpkg.com) 后运行 `src/Documents` 目录下的 `build.bat`。
 
-Docs will be built into `docs`, where GitHub Pages treated as site root. So be
-sure to commit `docs` changes.
+构建的新文档将会放在 `docs` 目录下且 GitHub Pages 将该目录视为站点的根目录。
 
-CI/CD is not included in this PR, so manual build is required after every docs
-update. `yarn dev` runs a local hot-reload-enabled docs server for easier 
-debugging.
-
-Docs engine is based on [VuePress](https://v1.vuepress.vuejs.org).
+文档引擎基于 [VuePress](https://v1.vuepress.vuejs.org) 构建。
