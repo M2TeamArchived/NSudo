@@ -2,10 +2,6 @@ const enusThemeConfig = require('./config/themeConfig/locales/en-us')
 const zhhansThemeConfig = require('./config/themeConfig/locales/zh-hans')
 const zhhantThemeConfig = require('./config/themeConfig/locales/zh-hant')
 module.exports = {
-  base: "/",
-  dest: "../../docs",
-  temp: ".temp",
-  cache: ".cache",
   locales: {
     '/en-us/': {
       lang: 'en-US',
@@ -61,7 +57,7 @@ module.exports = {
         transformer: (timestamp, lang) => {
           const moment = require('moment')
           moment.locale(lang)
-          return moment(timestamp).format("YYYY/MM/DD HH:mm")  
+          return moment(timestamp).format("YYYY/MM/DD HH:mm")
         }
       }
     ]

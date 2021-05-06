@@ -1,0 +1,39 @@
+﻿name: Deploy Website to GitHub Pages
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'src/Documents/**'
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          persist-credentials: false
+
+      - name: Setup node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+
+      - name: Setup yarn
+        run: npm install -g yarn
+
+      - name: Install packages
+        run: yarn  --cwd "src/Documents"
+
+      - name: Build
+        run: yarn --cwd "src/Documents" build
+
+      - name: Deploy
+        uses: JamesIves/github-pages-deploy-action@releases/v3
+        with:
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+          BRANCH: gh-pages
+          FOLDER: src/Documents/.vuepress/dist
