@@ -5,7 +5,7 @@ on:
     branches:
       - master
     paths:
-      - 'src/Documents/**'
+      - 'docs/**'
 
 jobs:
   build-and-deploy:
@@ -26,14 +26,14 @@ jobs:
         run: npm install -g yarn
 
       - name: Install packages
-        run: yarn  --cwd "src/Documents"
+        run: yarn  --cwd "docs"
 
       - name: Build
-        run: yarn --cwd "src/Documents" build
+        run: yarn --cwd "docs" build
 
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@releases/v3
         with:
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
           BRANCH: gh-pages
-          FOLDER: src/Documents/.vuepress/dist
+          FOLDER: docs/.vuepress/dist

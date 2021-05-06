@@ -5,7 +5,6 @@ on:
     paths-ignore:
       - '.github/*'
       - 'docs/**'
-      - 'src/Documents/**'
       - 'Scripts/**'
       - '*.md'
       - 'appveyor.yml'
@@ -13,7 +12,6 @@ on:
     paths-ignore:
       - '.github/*'
       - 'docs/**'
-      - 'src/Documents/**'
       - 'Scripts/**'
       - '*.md'
       - 'appveyor.yml'
