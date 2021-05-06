@@ -2,6 +2,7 @@ const enusThemeConfig = require('./config/themeConfig/locales/en-us')
 const zhhansThemeConfig = require('./config/themeConfig/locales/zh-hans')
 const zhhantThemeConfig = require('./config/themeConfig/locales/zh-hant')
 module.exports = {
+  base: "/",
   locales: {
     '/en-us/': {
       lang: 'en-US',
