@@ -1,12 +1,12 @@
-rem 
-rem PROJECT:   Mouri Internal Library Essentials
-rem FILE:      BuildAllTargets.cmd
-rem PURPOSE:   Build all targets script for Visual Studio C++ Project
-rem 
-rem LICENSE:   The MIT License
-rem 
-rem DEVELOPER: Mouri_Naruto (Mouri_Naruto AT Outlook.com)
-rem 
+@rem 
+@rem PROJECT:   Mouri Internal Library Essentials
+@rem FILE:      BuildAllTargets.cmd
+@rem PURPOSE:   Build all targets script for Visual Studio C++ Project
+@rem 
+@rem LICENSE:   The MIT License
+@rem 
+@rem DEVELOPER: Mouri_Naruto (Mouri_Naruto AT Outlook.com)
+@rem 
 
 @setlocal
 @echo off
