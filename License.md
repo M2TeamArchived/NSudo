@@ -31,9 +31,9 @@ SOFTWARE.
 
 ## Mouri_Naruto's libraries which used in the official NSudo repository
 
-| Name                              | Project website                     |
-|-----------------------------------|-------------------------------------|
-| Mouri Internal Library Essentials | https://github.com/MouriNaruto/Mile |
+| Name                              | Project website                         |
+|-----------------------------------|-----------------------------------------|
+| Mouri Internal Library Essentials | https://github.com/ProjectMile/Mile.Cpp |
 
 ## M2-Team's libraries which used in the official NSudo repository
 
