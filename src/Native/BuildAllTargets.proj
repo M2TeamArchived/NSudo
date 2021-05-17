@@ -29,12 +29,6 @@
       <AdditionalProperties>Configuration=Release;Platform=x64</AdditionalProperties>   
     </ProjectReference>
     <ProjectReference Include="$(SolutionPath)">
-      <AdditionalProperties>Configuration=Debug;Platform=ARM</AdditionalProperties>   
-    </ProjectReference>
-    <ProjectReference Include="$(SolutionPath)">
-      <AdditionalProperties>Configuration=Release;Platform=ARM</AdditionalProperties>   
-    </ProjectReference>
-    <ProjectReference Include="$(SolutionPath)">
       <AdditionalProperties>Configuration=Debug;Platform=ARM64</AdditionalProperties>   
     </ProjectReference>
     <ProjectReference Include="$(SolutionPath)">
