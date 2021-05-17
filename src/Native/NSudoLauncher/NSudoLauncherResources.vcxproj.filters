@@ -19,6 +19,9 @@
     <Filter Include="zh-Hans">
       <UniqueIdentifier>{883152b8-638c-4a36-941f-da92d86a200d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="de">
+      <UniqueIdentifier>{96654262-cab3-4d4c-b9e3-0608da9197c0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Resources\en\CommandLineHelp.txt">
@@ -57,6 +60,12 @@
     <Text Include="Resources\zh-Hant\Links.txt">
       <Filter>zh-Hant</Filter>
     </Text>
+    <Text Include="Resources\de\CommandLineHelp.txt">
+      <Filter>de</Filter>
+    </Text>
+    <Text Include="Resources\de\Links.txt">
+      <Filter>de</Filter>
+    </Text>
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\en\Translations.json">
@@ -79,6 +88,9 @@
     </None>
     <None Include="NSudoLauncherResources.props" />
     <None Include="Resources\NSudoLauncher.xcf" />
+    <None Include="Resources\de\Translations.json">
+      <Filter>de</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="NSudoLauncherResources.rc" />

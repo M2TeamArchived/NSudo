@@ -1,4 +1,5 @@
-Format: NSudoL [ Optionen und Parameter ] Kommandozeile oder Verknüpfungskommando
+﻿Format: NSudoL [ Optionen und Parameter ] Kommandozeile oder 
+Verknüpfungskommando
 
 Optionen:
 
@@ -15,8 +16,8 @@ P.S.: Dieser Parameter ist Pflicht.
 Verfügbare Optionen:
     E Alle Privilegien aktivieren
     D Alle Privilegien deaktivieren
-P.S.: Wenn Sie die Standard-Privilegien des zu erstellenden Prozesses verwenden wollen, dann 
-verwenden Sie nicht den Parameter "-P".
+P.S.: Wenn Sie die Standard-Privilegien des zu erstellenden Prozesses verwenden
+wollen, dann verwenden Sie nicht den Parameter "-P".
 
 -M:[ Option ] Erstellt den Prozess mit der festgelegten Integritätsstufe.
 Verfügbare Optionen:
@@ -24,10 +25,11 @@ Verfügbare Optionen:
     H Hoch
     M Mittel
     L Niedrig
-P.S.: Wenn Sie die Standard-Integritätsstufe des zu erstellenden Prozesses verwenden wollen, dann 
-verwenden Sie nicht den Parameter "-M".
+P.S.: Wenn Sie die Standard-Integritätsstufe des zu erstellenden Prozesses 
+verwenden wollen, dann verwenden Sie nicht den Parameter "-M".
 
--Priority:[ Option ] Erstellt den Prozess mit der festgelegten Prozesspriorität.
+-Priority:[ Option ] Erstellt den Prozess mit der festgelegten 
+Prozesspriorität.
 Verfügbare Optionen:
     Idle Niedrig
     BelowNormal Niedriger als normal
@@ -35,28 +37,34 @@ Verfügbare Optionen:
     AboveNormal Höher als normal
     High Hoch
     RealTime Echtzeit
-P.S.: Wenn Sie die Standardpriorität des zu erstellenden Prozesses verwenden wollen, dann 
-verwenden Sie nicht den Parameter "-Priority".
+P.S.: Wenn Sie die Standardpriorität des zu erstellenden Prozesses verwenden 
+wollen, dann verwenden Sie nicht den Parameter "-Priority".
 
--ShowWindowMode:[ Option ] Erstellt den Prozess in der festgelegten Fensterdarstellung.
+-ShowWindowMode:[ Option ] Erstellt den Prozess in der festgelegten 
+Fensterdarstellung.
 Verfügbare Optionen:
     Show Anzeigen
     Hide Ausblenden
     Maximize Maximiert
     Minimize Minimiert
-P.S.: Wenn Sie das Standardverhalten des zu erstellenden Prozesses verwenden wollen, dann 
-verwenden Sie nicht den Parameter "-ShowWindowMode".
+P.S.: Wenn Sie das Standardverhalten des zu erstellenden Prozesses verwenden
+wollen, dann verwenden Sie nicht den Parameter "-ShowWindowMode".
 
--Wait Lässt den NSudo Launcher warten, bis der erstellte Prozess beendet ist, bevor er sich schließt.
-PS: Wenn Sie nicht wollen, dass gewartet wird, dann verwenden Sie nicht den Parameter "-Wait".
+-Wait Lässt den NSudo Launcher warten, bis der erstellte Prozess beendet ist,
+bevor er sich schließt.
+PS: Wenn Sie nicht wollen, dass gewartet wird, dann verwenden Sie nicht den 
+Parameter "-Wait".
 
--CurrentDirectory:[ DirectoryPath ] Legt das aktuelle Verzeichnis für den Prozess fest.
-P.S.: Wenn Sie das aktuelle Verzeichnis des NSudo Launcher's verwenden wollen, dann 
-verwenden Sie nicht den Parameter "-CurrentDirectory".
+-CurrentDirectory:[ DirectoryPath ] Legt das aktuelle Verzeichnis für den 
+Prozess fest.
+P.S.: Wenn Sie das aktuelle Verzeichnis des NSudo Launcher's verwenden wollen,
+dann verwenden Sie nicht den Parameter "-CurrentDirectory".
 
--UseCurrentConsole Erstellt den Prozess im aktuellen Eingabeaufforderungsfenster.
-P.S.: Wenn Sie den zu erstellenden Prozess in einem neuen Eingabeaufforderungsfenster erstellen wollen, dann 
-verwenden Sie nicht den Parameter "-UseCurrentConsole".
+-UseCurrentConsole Erstellt den Prozess im aktuellen 
+Eingabeaufforderungsfenster.
+P.S.: Wenn Sie den zu erstellenden Prozess in einem neuen 
+Eingabeaufforderungsfenster erstellen wollen, dann verwenden Sie nicht den 
+Parameter "-UseCurrentConsole".
 
 -Version Zeigt die Versionsinformationen des NSudo Launcher's an.
 
@@ -64,16 +72,18 @@ verwenden Sie nicht den Parameter "-UseCurrentConsole".
 -H Zeigt diese Hilfe an.
 -Help Zeigt diese Hilfe an.
 
-Bitte verwenden Sie https://github.com/Thdub/NSudo_Installer für die Integration in das Kontextmenü.
+Bitte verwenden Sie https://github.com/Thdub/NSudo_Installer für die 
+Integration in das Kontextmenü.
 
 P.S.:
     1. Alle Kommandos des NSudo Launcher beachten keine Groß-/Kleinschreibung.
     2. Sie können "/" oder "--" mit "-" und "=" mit ":" überschreiben und in 
-       den Kommandozeilenparametern verwenden. Als Beispiel: "/U:T" und "-U=T" sind 
-       gleichwertig.
-    3. Um das bestmögliche Anwendererlebnis sicherzustellen, unterstützt NSudoLC kein Kontextmenü.
+       den Kommandozeilenparametern verwenden. Als Beispiel: "/U:T" und "-U=T" 
+       sind gleichwertig.
+    3. Um das bestmögliche Anwendererlebnis sicherzustellen, unterstützt 
+       NSudoLC kein Kontextmenü.
 
 Beispiel:
-    Wenn Sie eine Eingabeaufforderung als TrustedInstaller ausführen wollen, dann aktivieren Sie alle  
-    Privilegien und die Standard-Integritätsstufe.
+    Wenn Sie eine Eingabeaufforderung als TrustedInstaller ausführen wollen, 
+    dann aktivieren Sie alle Privilegien und die Standard-Integritätsstufe.
         NSudoL -U:T -P:E cmd

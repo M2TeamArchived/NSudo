@@ -23,6 +23,7 @@
   - Improve the website. (Contributed by 青春永不落幕.) 
   - Improve the Gitee experience.
   - Use GitHub Actions to deploy the website.
+- Add German Language. (Contributed by Steve.)
 
 **NSudo 8.0 Update 1 (8.0.1)**
 

@@ -29,6 +29,7 @@
 - mingkuang ([https://github.com/mingkuang-Chuyu](https://github.com/mingkuang-Chuyu))
 - myfreeer ([https://github.com/myfreeer](https://github.com/myfreeer))
 - 青春永不落幕 ([https://github.com/qcyblm](https://github.com/qcyblm))
+- Steve ([https://github.com/uDEV2019](https://github.com/uDEV2019))
 - Thomas Dubreuil ([https://github.com/Thdub](https://github.com/Thdub))
 
 ## 赞助者 Sponsors

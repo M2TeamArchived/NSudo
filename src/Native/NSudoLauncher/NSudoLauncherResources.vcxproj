@@ -12,6 +12,8 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <Text Include="Resources\de\CommandLineHelp.txt" />
+    <Text Include="Resources\de\Links.txt" />
     <Text Include="Resources\en\CommandLineHelp.txt" />
     <Text Include="Resources\en\Links.txt" />
     <Text Include="Resources\es\CommandLineHelp.txt" />
@@ -26,6 +28,7 @@
     <Text Include="Resources\zh-Hant\Links.txt" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Resources\de\Translations.json" />
     <None Include="Resources\en\Translations.json" />
     <None Include="Resources\es\Translations.json" />
     <None Include="Resources\fr\Translations.json" />
