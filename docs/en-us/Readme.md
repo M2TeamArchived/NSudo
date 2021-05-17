@@ -65,8 +65,8 @@ improvements.
     - Note: You can custom it via editing NSudo.json.
   - Support multiple command line style.
   - Support multi-languages.
-    - Note: Chinese Simplified, Chinese Traditional, English, French, Italian 
-      and Spanish.
+    - Note: Chinese Simplified, Chinese Traditional, English, French, German,
+      Italian and Spanish.
   - Full High DPI Support.
     - Note: As good as the implementation from Windows Shell (conhost.exe), 
       with the full Per-Monitor DPI-Aware support under Windows 10 Build 10240 

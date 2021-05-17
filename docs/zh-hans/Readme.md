@@ -55,7 +55,7 @@ Patreon: [https://www.patreon.com/MouriNaruto](https://www.patreon.com/MouriNaru
     - 注：你可以通过编辑 NSudo.json 的方式定制
   - 支持多种命令行风格
   - 多语言支持
-    - 注：简体中文、繁体中文、英语、法语、意大利语、西班牙语
+    - 注：简体中文、繁体中文、英语、法语、德语、意大利语、西班牙语
   - 完整的高 DPI 支持
     - 注：和 Windows 外壳 (conhost.exe) 的实现一样完美，在 Windows 10 Build 
       10240 及之后版本有完整的 Per-Monitor DPI-Aware 支持和在 Windows Vista 到

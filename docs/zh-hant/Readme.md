@@ -55,7 +55,7 @@ SuperCMD 的信息。
     - 注：你可以通過編輯 NSudo.json 的方式定製
   - 支持多種命令行風格
   - 多語言支持
-    - 注：簡體中文、繁體中文、英語、法語、意大利語、西班牙語
+    - 注：簡體中文、繁體中文、英語、法語、德語、意大利語、西班牙語
   - 完整的高 DPI 支持
     - 注：和 Windows 外殼 (conhost.exe) 的實現一樣完美，在 Windows 10 Build 
       10240 及之後版本有完整的 Per-Monitor DPI-Aware 支持和在 Windows Vista 到
