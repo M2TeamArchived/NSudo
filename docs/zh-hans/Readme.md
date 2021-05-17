@@ -26,7 +26,7 @@ Patreon: [https://www.patreon.com/MouriNaruto](https://www.patreon.com/MouriNaru
 ### 特性列表
 
 - 以 MIT 许可证发行
-- 提供 x86, x86-64, ARM, ARM64 二进制
+- 提供 x86, x86-64, ARM64 二进制
 - 支持 Windows Vista 及之后版本
 - 使用初雨团队的 VC-LTL 和 libkcrt 以获取更小的二进制体积
 - 使用 C++17，但在大部分情况下只使用核心语言特性

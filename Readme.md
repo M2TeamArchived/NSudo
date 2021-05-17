@@ -50,12 +50,11 @@ Please read [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
 #### Prerequisites
 
 - Visual Studio 2017 Version 15.9 or later.
-  - You also need install ARM and ARM64 components (MSVC Toolchain and ATL/MFC)
-    if you want to compile ARM and ARM64 version of NSudo.
+  - You also need install ARM64 components (MSVC Toolchain and ATL/MFC) if you
+    want to compile ARM64 version of NSudo.
 - Windows 10 Version 1507 SDK or later.
-  - You also need install ARM and ARM64 components when you installing the 
-    Windows 10 Version 1703 SDK or later and you want to compile ARM and ARM64
-    version of NSudo.
+  - You also need install ARM64 components when you installing the Windows 10
+    Version 1703 SDK or later and you want to compile ARM64 version of NSudo.
 
 #### How to build all targets of NSudo
 

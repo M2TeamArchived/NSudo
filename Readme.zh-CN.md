@@ -46,11 +46,11 @@ NSudo 的文档等，请转到 https://m2team.github.io/NSudo.
 #### 构建前置条件
 
 - Visual Studio 2017 Version 15.9 及之后版本。
-  - 如果你要编译 ARM 和 ARM64 版本的 NSudo 还需要勾选 ARM 和 ARM64 版本的 MSVC
-    编译工具链和 ATL/MFC 组件。
+  - 如果你要编译 ARM64 版本的 NSudo 还需要勾选 ARM64 版本的 MSVC 编译工具链和 
+    ATL/MFC 组件。
 - Windows 10 Version 1507 SDK 及之后版本。
-  - 如果你使用的是 Windows 10 Version 1703 SDK 及之后版本且你要编译 ARM 和 
-    ARM64 版本的 NSudo 还需要勾选 ARM 和 ARM64 的相关组件。
+  - 如果你使用的是 Windows 10 Version 1703 SDK 及之后版本且你要编译 ARM64 
+    版本的 NSudo 还需要勾选 ARM64 的相关组件。
 
 #### 编译 NSudo 的所有目标
 

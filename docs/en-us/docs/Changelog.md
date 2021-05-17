@@ -6,11 +6,23 @@
   by xspeed1989.)
 - Fix the blocking bug when using NSudo under Windows Service context. (Thanks 
   to xspeed1989.)
-- Improve the website. (Contributed by 青春永不落幕.) 
 - Improve several implementations.
 - Fix the issue that the UI is Chinese when NSudo is running under an 
   unsupported language setting. (Thanks to rlesch.)(#56)
-- Update VC-LTL to 4.1.1.
+- Update to the latest Mile.Cpp packages.
+  - Update Mile.Project to the latest Mile.Project.VisualStudio.
+  - Merge Mile.Windows.TrustedLibraryLoader and Mile.Platform.Windows to 
+    Mile.Windows, move more portable implementations from Mile.Windows to 
+    Mile.Portable, split Mile.Portable and Mile.Windows to Mile.Library, and
+    Update to the latest Mile.Library.
+  - Update to the latest VC-LTL. 
+- Update Windows Template Library (WTL) to 10.0.10320 Release.
+- Remove ARM32 support.
+  - Reason: https://forums.mydigitallife.net/threads/59268/page-28#post-1660432
+- Make several improvements in the documentation.
+  - Improve the website. (Contributed by 青春永不落幕.) 
+  - Improve the Gitee experience.
+  - Use GitHub Actions to deploy the website.
 
 **NSudo 8.0 Update 1 (8.0.1)**
 
