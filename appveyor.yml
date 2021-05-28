@@ -7,6 +7,12 @@ skip_commits:
   - 'Scripts/**/*'
   - '*.md'
 image: Visual Studio 2019
+install:
+  - >-
+    git submodule update --init --recursive
+before_build:
+  - >-
+    dotnet nuget locals all --clear
 build:
   project: src/Native/BuildAllTargets.proj
   parallel: true
