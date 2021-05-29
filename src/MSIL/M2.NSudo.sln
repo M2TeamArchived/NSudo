@@ -7,8 +7,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "M2.NSudo", "M2.NSudo\M2.NSu
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "M2.NSudo.Demo", "M2.NSudo.Demo\M2.NSudo.Demo.csproj", "{69F65B19-2ABA-47AA-A6FA-CB3B83FCCE46}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "M2.NSudo.Prototype.IntegratedUserExperience", "M2.NSudo.Prototype.IntegratedUserExperience\M2.NSudo.Prototype.IntegratedUserExperience.csproj", "{74DEB6C1-2F91-48C3-BFD5-89298E44EEEC}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,10 +21,6 @@ Global
 		{69F65B19-2ABA-47AA-A6FA-CB3B83FCCE46}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{69F65B19-2ABA-47AA-A6FA-CB3B83FCCE46}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{69F65B19-2ABA-47AA-A6FA-CB3B83FCCE46}.Release|Any CPU.Build.0 = Release|Any CPU
-		{74DEB6C1-2F91-48C3-BFD5-89298E44EEEC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{74DEB6C1-2F91-48C3-BFD5-89298E44EEEC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{74DEB6C1-2F91-48C3-BFD5-89298E44EEEC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{74DEB6C1-2F91-48C3-BFD5-89298E44EEEC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
