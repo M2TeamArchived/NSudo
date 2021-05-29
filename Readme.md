@@ -27,6 +27,12 @@ under the source code repository.
 - [ ] Add more APIs to NSudo Shared Library.
 - [ ] Export PDF directly from the offical website.
 - [ ] Improve the Gitee mirror experience.
+  - [x] Translate the readme in the source tree root.
+  - [ ] Synchronizing automatically when commits pushed.
+
+## Relevant People
+
+Please read [People.md](People.md).
 
 ## Code of Conduct
 
@@ -77,11 +83,11 @@ plugin.
 
 The following rules must be followed for PRs that include files from another 
 project:
-* The license of the file is
-[permissive](https://en.wikipedia.org/wiki/Permissive_free_software_licence).
-* The license of the file is left intact.
-* The contribution is correctly attributed in the [Readme](Readme.md)
-file in the repository, as needed.
+- The license of the file is
+  [permissive](https://en.wikipedia.org/wiki/Permissive_free_software_licence).
+- The license of the file is left intact.
+- The contribution is correctly attributed in the [License](License.md)
+  file in the repository, as needed.
 
 ### How to update documents.
 

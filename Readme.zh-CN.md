@@ -17,14 +17,20 @@ NSudo 的文档等，请转到 https://m2team.github.io/NSudo.
 
 ## 2021 Development Roadmap
 
-- [ ] Add Current User (Elevated) Mode.
-  - [x] Implemented in NSudo Shared Library.
-  - [ ] Implemented in NSudo Launcher.
-- [ ] Use wxWidgets to implement the UI.
-- [ ] TOML-based environment configuration file.
-- [ ] Add more APIs to NSudo Shared Library.
-- [ ] Export PDF directly from the offical website.
-- [ ] Improve the Gitee mirror experience.
+- [ ] 添加当前用户（提权）模式
+  - [x] 在 NSudo Shared Library 实现
+  - [ ] 在 NSudo Launcher 实现
+- [ ] 使用 wxWidgets 实现用户界面
+- [ ] 基于 TOML 的环境配置文件
+- [ ] 在 NSudo Shared Library 中添加更多 API
+- [ ] 官方网站支持导出 PDF
+- [ ] 改善码云镜像体验
+  - [x] 对代码仓库根目录的自述文件进行本地化
+  - [ ] 实现自动同步
+
+## 相关人士
+
+请参阅 [People.md](People.md)。
 
 ## 行为准则
 
@@ -60,24 +66,21 @@ NSudo 的文档等，请转到 https://m2team.github.io/NSudo.
 
 运行 `src/Native` 目录下的 `NSudo.sln`。
 
-#### Code style and conventions
+#### 代码风格和规范
 
 - C++: [C++ Core Guidelines](https://github.com/isocpp/CppCoreGuidelines/blob/master/CppCoreGuidelines.md)
-- C#: Follow the .NET Core team's [C# coding style](https://github.com/dotnet/corefx/blob/master/Documentation/coding-guidelines/coding-style.md)
+- C#: 遵循 .NET Core 团队的 [C# coding style](https://github.com/dotnet/corefx/blob/master/Documentation/coding-guidelines/coding-style.md)
 
-For all languages respect the [.editorconfig](https://editorconfig.org/) file 
-specified in the source tree. Many IDEs natively support this or can with a 
-plugin.
+所有编程语言的实现都需要遵循代码树下 [.editorconfig](https://editorconfig.org/)
+文件的设定，许多 IDE 都对该文件有内置或者插件支持。
 
-#### Copying files from other projects
+#### 使用其他项目的文件
 
-The following rules must be followed for PRs that include files from another 
-project:
-* The license of the file is
-[permissive](https://en.wikipedia.org/wiki/Permissive_free_software_licence).
-* The license of the file is left intact.
-* The contribution is correctly attributed in the [Readme](Readme.md)
-file in the repository, as needed.
+如果 PR 中包含其他项目的文件，需要遵循下述规定：
+* 该文件的许可证必须为
+  [宽松许可](https://en.wikipedia.org/wiki/Permissive_free_software_licence).
+* 该文件的许可证必须标明。
+* 项目的引用必须正确标注在 [许可证](License.md) 文件中。
 
 ### 如何更新文档
 
