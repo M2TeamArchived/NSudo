@@ -87,8 +87,6 @@ NSudo 的文档等，请转到 https://m2team.github.io/NSudo.
 请参阅 https://github.com/M2Team/NSudo/pull/29。
 
 如要编译文档，你需要在你的开发环境下安装 [Node.js](https://nodejs.org) 和 
-[Yarn](https://yarnpkg.com) 后运行 `src/Documents` 目录下的 `build.bat`。
-
-构建的新文档将会放在 `docs` 目录下且 GitHub Pages 将该目录视为站点的根目录。
+[Yarn](https://yarnpkg.com) 后运行 `Website` 目录下的 `build.bat`。
 
 文档引擎基于 [VuePress](https://v1.vuepress.vuejs.org) 构建。

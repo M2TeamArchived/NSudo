@@ -4,14 +4,14 @@ on:
   push:
     paths-ignore:
       - '.github/*'
-      - 'docs/**'
+      - 'Website/**'
       - 'Scripts/**'
       - '*.md'
       - 'appveyor.yml'
   pull_request:
     paths-ignore:
       - '.github/*'
-      - 'docs/**'
+      - 'Website/**'
       - 'Scripts/**'
       - '*.md'
       - 'appveyor.yml'

@@ -95,9 +95,6 @@ Refer to https://github.com/M2Team/NSudo/pull/29.
 
 To build new docs, you'll need to have [Node.js](https://nodejs.org) and 
 [Yarn](https://yarnpkg.com) installed on your system, and run `build.bat` in
-`src/Documents`.
-
-Docs will be built into `docs`, where GitHub Pages treated as site root. So be
-sure to commit `docs` changes.
+`Website`.
 
 Docs engine is based on [VuePress](https://v1.vuepress.vuejs.org).

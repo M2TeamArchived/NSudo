@@ -2,8 +2,7 @@
 skip_commits:
   files:
   - '.github/**/*'
-  - 'docs/**/*'
-  - 'src/Documents/**/*'
+  - 'Website/**/*'
   - 'Scripts/**/*'
   - '*.md'
 image: Visual Studio 2019
