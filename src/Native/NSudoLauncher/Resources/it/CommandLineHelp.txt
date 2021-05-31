@@ -8,6 +8,7 @@ Opzioni disponibili:
     T TrustedInstaller
     S System
     C Utente Attuale
+    E Current User (Elevated)
     P Processo Attuale
     D Processo Attuale (meno privilegi: privilegi strettamente necessari 
                         all'esecuzione del codice)

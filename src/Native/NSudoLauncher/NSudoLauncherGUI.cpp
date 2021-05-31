@@ -549,6 +549,10 @@ NSUDO_MESSAGE NSudoCommandLineParser(
             {
                 UserModeType = NSUDO_USER_MODE_TYPE::CURRENT_USER;
             }
+            else if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"E"))
+            {
+                UserModeType = NSUDO_USER_MODE_TYPE::CURRENT_USER_ELEVATED;
+            }
             else if (0 == _wcsicmp(OptionAndParameter.second.c_str(), L"P"))
             {
                 UserModeType = NSUDO_USER_MODE_TYPE::CURRENT_PROCESS;

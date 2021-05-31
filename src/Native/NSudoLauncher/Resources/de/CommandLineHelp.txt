@@ -8,6 +8,7 @@ Verfügbare Optionen:
     T TrustedInstaller
     S System
     C Aktueller Benutzer
+    E Current User (Elevated)
     P Aktueller Prozess
     D Aktueller Prozess (mit weniger (minimalen) Privilegien)
 P.S.: Dieser Parameter ist Pflicht.

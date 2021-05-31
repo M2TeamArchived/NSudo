@@ -8,6 +8,7 @@ Opciones disponibles:
     T TrustedInstaller
     S System
     C Usuario actual
+    E Current User (Elevated)
     P Proceso actual
     D Proceso actual (Con menos privilegios)
 PD: Es un parámetro obligatorio.

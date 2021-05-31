@@ -7,6 +7,7 @@
     T TrustedInstaller
     S System
     C 当前用户
+    E 当前用户 (提权)
     P 当前进程
     D 当前进程 (降权)
 PS：这是一个必须被包含的参数。

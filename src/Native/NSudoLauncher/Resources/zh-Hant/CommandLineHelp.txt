@@ -7,6 +7,7 @@
     T TrustedInstaller
     S System
     C 當前使用者
+    E 當前使用者 (提權)
     P 當前處理程序
     D 當前處理程序 (降權)
 PS：這是一個必須被包含的參數。
