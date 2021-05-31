@@ -2,8 +2,7 @@
 
 **NSudo 8.1 (8.1.0) [Development Branch]**
 
-- Add get the Current User (Elevated) support in NSudo Shared Library. (Advised
-  by xspeed1989.)
+- Add get the Current User (Elevated) support. (Advised by xspeed1989.)
 - Fix the blocking bug when using NSudo under Windows Service context. (Thanks 
   to xspeed1989.)
 - Improve several implementations.
@@ -24,6 +23,7 @@
   - Improve the Gitee experience.
   - Use GitHub Actions to deploy the website.
 - Add German Language. (Contributed by Steve.)
+- Remove some experiment implementations, including NSudo Sweeper.
 
 **NSudo 8.0 Update 1 (8.0.1)**
 

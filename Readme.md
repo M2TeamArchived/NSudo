@@ -19,9 +19,9 @@ under the source code repository.
 
 ## 2021 Development Roadmap
 
-- [ ] Add Current User (Elevated) Mode.
+- [x] Add Current User (Elevated) Mode.
   - [x] Implemented in NSudo Shared Library.
-  - [ ] Implemented in NSudo Launcher.
+  - [x] Implemented in NSudo Launcher.
 - [ ] Use wxWidgets to implement the UI.
 - [ ] TOML-based environment configuration file.
 - [ ] Add more APIs to NSudo Shared Library.

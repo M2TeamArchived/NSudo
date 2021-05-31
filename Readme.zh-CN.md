@@ -17,9 +17,9 @@ NSudo 的文档等，请转到 https://m2team.github.io/NSudo.
 
 ## 2021 Development Roadmap
 
-- [ ] 添加当前用户（提权）模式
+- [x] 添加当前用户（提权）模式
   - [x] 在 NSudo Shared Library 实现
-  - [ ] 在 NSudo Launcher 实现
+  - [x] 在 NSudo Launcher 实现
 - [ ] 使用 wxWidgets 实现用户界面
 - [ ] 基于 TOML 的环境配置文件
 - [ ] 在 NSudo Shared Library 中添加更多 API
