@@ -28,6 +28,9 @@ popd
 
 call "%VisualStudioInstallDir%\VC\Auxiliary\Build\vcvarsall.bat" x86
 
+rem Restore all targets
+MSBuild -r -t:Restore -p:Configuration=Release;Platform=Win32 BuildAllTargets.proj
+
 rem Build all targets
 MSBuild -m BuildAllTargets.proj
 

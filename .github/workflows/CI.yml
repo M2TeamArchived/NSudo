@@ -27,7 +27,7 @@ jobs:
     - name: Clear local NuGet cache (workaround for failed restores on windows-latest)
       run: dotnet nuget locals all --clear
     - name: Build
-      run: msbuild /m src\Native\BuildAllTargets.proj
+      run: src\Native\BuildAllTargets.cmd
     - name: Prepare artifacts
       run: rm src\Native\Output\* -vb -Recurse -Force -Include *.exp, *.idb, *.ilk, *.iobj, *.ipdb, *.lastbuildstate, *.lib, *.obj, *.res, *.tlog
     - uses: actions/upload-artifact@v2

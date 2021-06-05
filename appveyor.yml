@@ -9,18 +9,16 @@ image: Visual Studio 2019
 install:
   - >-
     git submodule update --init --recursive
-before_build:
-  - >-
+build_script:
+- cmd: >-
     dotnet nuget locals all --clear
-build:
-  project: src/Native/BuildAllTargets.proj
-  parallel: true
-after_build:
-  - >-
+
+    src\Native\BuildAllTargets.cmd
+
     7z a -r NSudo_CI_Build_%APPVEYOR_BUILD_NUMBER%.zip ^
-    .\src\Native\Output\*.exe ^
-    .\src\Native\Output\*.dll ^
-    .\src\Native\Output\*.pdb ^
-    .\src\Native\Output\*.json
+        .\src\Native\Output\*.exe ^
+        .\src\Native\Output\*.dll ^
+        .\src\Native\Output\*.pdb ^
+        .\src\Native\Output\*.json
 artifacts:
   - path: NSudo_CI_Build_%APPVEYOR_BUILD_NUMBER%.zip
