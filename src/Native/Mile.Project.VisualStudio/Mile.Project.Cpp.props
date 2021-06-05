@@ -30,7 +30,14 @@
     Copy Mile.Project.Properties.Template.h to the project folder and rename it
     to Mile.Project.Properties.h.
 -->
-<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <!--
+      Only do this for MSBuild versions below 16.0 as it is since done 
+      automatically, see https://github.com/microsoft/msbuild/pull/3605.
+    -->
+    <MSBuildAllProjects Condition="'$(MSBuildToolsVersion)' &lt;= '15'">$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+  </PropertyGroup>
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|ARM64">
       <Configuration>Debug</Configuration>
@@ -63,13 +70,13 @@
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
     <NuGetTargetMoniker Condition="'$(MileProjectType)'!='UefiApplication'">native,Version=v0.0</NuGetTargetMoniker>
     <RuntimeIdentifiers Condition="'$(MileProjectType)'!='UefiApplication'">win;win-x86;win-x64;win-arm64</RuntimeIdentifiers>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Label="Configuration">
     <ConfigurationType Condition="'$(MileProjectType)'=='ConsoleApplication'">Application</ConfigurationType>
     <ConfigurationType Condition="'$(MileProjectType)'=='WindowsApplication'">Application</ConfigurationType>
     <ConfigurationType Condition="'$(MileProjectType)'=='DynamicLibrary'">DynamicLibrary</ConfigurationType>
     <ConfigurationType Condition="'$(MileProjectType)'=='StaticLibrary'">StaticLibrary</ConfigurationType>
-  </PropertyGroup>
-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
-  <PropertyGroup Label="Configuration">
     <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
     <UseDebugLibraries Condition="'$(Configuration)'=='Debug'">true</UseDebugLibraries>
