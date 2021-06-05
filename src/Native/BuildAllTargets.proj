@@ -38,7 +38,12 @@
   <Target Name="Build" >
     <MSBuild
       Projects="@(ProjectReference)"
-      Targets="Restore;Build"
+      Targets="Restore"
+      StopOnFirstFailure="True"
+      Properties="PreferredToolArchitecture=x64" />
+    <MSBuild
+      Projects="@(ProjectReference)"
+      Targets="Build"
       BuildInParallel="True"
       StopOnFirstFailure="True"
       Properties="PreferredToolArchitecture=x64" />
