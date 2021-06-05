@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--
+  PROJECT:   Mouri Internal Library Essentials
+  FILE:      Directory.Build.props
+  PURPOSE:   Global settings for Visual Studio C++ Project
+
+  LICENSE:   The MIT License
+
+  DEVELOPER: Mouri_Naruto (Mouri_Naruto AT Outlook.com)
+-->
+<Project>
+  <PropertyGroup>
+    <MSBuildProjectExtensionsPath>$(SolutionDir)Output\Objects\$(Configuration)\$(MSBuildProjectName)\obj\</MSBuildProjectExtensionsPath>
+  </PropertyGroup>
+</Project>
