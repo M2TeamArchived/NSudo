@@ -17,8 +17,8 @@
   - [NSudo Launcher](#nsudo-launcher)
   - [NSudo Devil Mode](#nsudo-devil-mode)
   - [NSudo Shared Library](#nsudo-shared-library)
-- [License](#license)
-- [Relevant People](#relevant-people)
+- License (Read License.txt)
+- Relevant People (Read People.txt)
 - [Release Notes](#release-notes)
 
 <div class="page"/>
@@ -28,7 +28,7 @@
 ## Features
 
 - Distributed under the MIT License.
-- Provide the x86, x86-64, ARM, ARM64 binaries.
+- Provide the x86, x86-64, ARM64 binaries.
 - Support Windows Vista and later.
 - Using VC-LTL and libkcrt from Chuyu Team for smaller binary size.
 - Using C++17, but only use core language features in the most cases.
@@ -38,6 +38,8 @@
   - Launch programs with current user access token.
     - Note: If the User Account Control has not been disabled, the privilege of
       this mode is similar to the standard user.
+  - Launch programs with elevated current user access token.
+    - Note: The privilege of this mode is similar to the elevated user.
   - Launch programs with current process access token.
     - Note: The privilege of this mode is similar to the elevated user.
   - Launch programs with current process access token with the LUA restriction.
@@ -61,8 +63,8 @@
     - Note: You can custom it via editing NSudo.json.
   - Support multiple command line style.
   - Support multi-languages.
-    - Note: Chinese Simplified, Chinese Traditional, English, French, Italian 
-      and Spanish.
+    - Note: Chinese Simplified, Chinese Traditional, English, French, German,
+      Italian and Spanish.
   - Full High DPI Support.
     - Note: As good as the implementation from Windows Shell (conhost.exe), 
       with the full Per-Monitor DPI-Aware support under Windows 10 Build 10240 
@@ -83,7 +85,7 @@
 ## System requirements
 
 - Supported OS Version: Windows NT 6.0 or later
-- Supported CPU Architecture: x86, x86-64(AMD64), ARM, ARM64
+- Supported CPU Architecture: x86, x86-64(AMD64), ARM64
 
 ## Prototype
 
@@ -185,7 +187,7 @@ device, you need to go to the x64 folder and click NSudoG.exe
 ### Command Line
 
 ```
-Format: NSudo [ Options and parameters ] Command line or ShortCut Command
+Format: NSudoL [ Options and parameters ] Command line or ShortCut Command
 
 Options:
 
@@ -194,6 +196,7 @@ Available options:
     T TrustedInstaller
     S System
     C Current User
+    E Current User (Elevated)
     P Current Process
     D Current Process (Drop right)
 PS: This is a mandatory parameter.
@@ -214,7 +217,7 @@ Available options:
 PS: If you want to use the default Integrity Level to create a process, please 
 do not include the "-M" parameter.
 
--Priority:[ Option ] Create a process with specified [rocess priority option.
+-Priority:[ Option ] Create a process with specified process priority option.
 Available options:
     Idle
     BelowNormal
@@ -234,18 +237,18 @@ Available options:
 PS: If you want to use the default window mode to create a process, please do 
 not include the "-ShowWindowMode" parameter.
 
--Wait Make NSudo wait for the created process to end before exiting.
+-Wait Make NSudo Launcher wait for the created process to end before exiting.
 PS: If you don't want to wait, please do not include the "-Wait" parameter.
 
 -CurrentDirectory:[ DirectoryPath ] Set the current directory for the process.
-PS: If you want to use the NSudo's current directory, please do not include the
-"-CurrentDirectory" parameter.
+PS: If you want to use the NSudo Launcher's current directory, please do not 
+include the "-CurrentDirectory" parameter.
 
 -UseCurrentConsole Create a process with the current console window.
 PS: If you want to create a process with the new console window, please do not 
 include the "-UseCurrentConsole" parameter.
 
--Version Show version information of NSudo.
+-Version Show version information of NSudo Launcher.
 
 -? Show this content.
 -H Show this content.
@@ -254,19 +257,19 @@ include the "-UseCurrentConsole" parameter.
 Please use https://github.com/Thdub/NSudo_Installer for context menu management.
 
 PS:
-    1. All NSudo command arguments is case-insensitive.
+    1. All NSudo Launcher command arguments is case-insensitive.
     2. You can use the "/" or "--" override "-" and use the "=" override ":" in
        the command line parameters.  For example, "/U:T" and "-U=T" are 
        equivalent.
-    3. To ensure the best experience, NSudoC does not support context menu.
+    3. To ensure the best experience, NSudoLC does not support context menu.
 
 Example:
     If you want to run Command Prompt with TrustedInstaller, enable all 
     privileges and the default Integrity Level.
-        NSudo -U:T -P:E cmd
+        NSudoL -U:T -P:E cmd
 ```
 
-Example：If you want to run Command Prompt with TrustedInstaller, enable all
+Example: If you want to run Command Prompt with TrustedInstaller, enable all
 privileges and the default Integrity Level:
 
 > NSudo -U:T -P:E cmd
@@ -392,44 +395,44 @@ namespace Demo
 
 ### NSudo 恶魔模式的技术内幕
 
-启用 SeBackupPrivilege 和 SeRestorePrivilege 是前提条件，但是你也需要在创建文件
-或注册表句柄的时候传入对应的选项，否则是不生效的。
+启用 SeBackupPrivilege 和 SeRestorePrivilege 是前提条件, 但是你也需要在创建文件
+或注册表句柄的时候传入对应的选项, 否则是不生效的。
 
-首先说明一点，那就是 Windows 内核当发现调用者上下文为 SYSTEM 令牌的时候，据 
-Microsoft 文档描述是为了提升 Windows 的性能会自动忽略掉大部分访问检查，毕竟很多
-Windows 系统关键组件运行在 SYSTEM 令牌上下文下面，对于 Windows 用户模式而言，
-SYSTEM 令牌是至高无上的，所以访问检查没必要做，做了也提升不了安全性反而降低了
+首先说明一点, 那就是 Windows 内核当发现调用者上下文为 SYSTEM 令牌的时候, 据 
+Microsoft 文档描述是为了提升 Windows 的性能会自动忽略掉大部分访问检查, 毕竟很多
+Windows 系统关键组件运行在 SYSTEM 令牌上下文下面, 对于 Windows 用户模式而言, 
+SYSTEM 令牌是至高无上的, 所以访问检查没必要做, 做了也提升不了安全性反而降低了
 效率。所以这也是为什么除了 SYSTEM 令牌上下文外的其他令牌都需要启用相关特权 + 
 创建文件和注册表句柄的 API 传入对应选项才能忽略掉相关访问检查。
 
-我用一个最简单的例子来说明减少不需要的内核级访问检查的好处，那就是在 Windows 
-AppContainer 下运行的代码，由于会多出一个额外的内核级访问检查（用 IDA 分析 
-ntoskrnl.exe，然后用 F5 查看相关函数可以发现，其实就是多出了一个分支和寥寥数行
-实现），大概会比在 AppContainer 外运行会损失 15% 的性能 （这也可以说明越底层的
-实现越需要重视性能问题）。Windows AppContainer 是 Windows 8 开始提供的用户模式
-沙盒，主要用在商店应用和浏览器的沙盒上面。
+我用一个最简单的例子来说明减少不需要的内核级访问检查的好处, 那就是在 Windows 
+AppContainer 下运行的代码, 由于会多出一个额外的内核级访问检查 (用 IDA 分析 
+ntoskrnl.exe, 然后用 F5 查看相关函数可以发现, 其实就是多出了一个分支和寥寥数行
+实现), 大概会比在 AppContainer 外运行会损失 15% 的性能  (这也可以说明越底层的
+实现越需要重视性能问题)。Windows AppContainer 是 Windows 8 开始提供的用户模式
+沙盒, 主要用在商店应用和浏览器的沙盒上面。
 
-Windows 的大部分内部使用了创建文件和注册表句柄的 API 并没有传入对应的选项，于是
+Windows 的大部分内部使用了创建文件和注册表句柄的 API 并没有传入对应的选项, 于是
 就出现了普通管理员下即使开启了这两个特权有些目录照样还是无法进行增删查改。而 
 NSudo 恶魔模式通过 Inline Hook 对 Windows 用户模式的系统调用层进行挂钩以
-智能传入相关选项，这也是 NSudo 恶魔模式能在非 SYSTEM 的但拥有这两个特权的
+智能传入相关选项, 这也是 NSudo 恶魔模式能在非 SYSTEM 的但拥有这两个特权的
 令牌上下文下绕过文件和注册表访问判断的缘由。
 
-Windows 用户模式系统调用层指的是 ntdll.dll 导出的前缀为 Nt 或 Zw 的 API，
+Windows 用户模式系统调用层指的是 ntdll.dll 导出的前缀为 Nt 或 Zw 的 API, 
 Windows 用户模式下的 API 最终全会调用这部分以通过软中断陷阱门或者系统调用指令
 进入内核模式完成最终操作。
 
-智能，指的是只有当前进程令牌上下文能够启用  SeBackupPrivilege 和 
-SeRestorePrivilege 的时候，才会传入对应选项。毕竟如果这两个特权没有开启的话，
-传入了相关选项是会返回错误的，这也是为什么 Windows 相关实现并没有传入的原因。
+智能, 指的是只有当前进程令牌上下文能够启用  SeBackupPrivilege 和 
+SeRestorePrivilege 的时候, 才会传入对应选项。毕竟如果这两个特权没有开启的话, 
+传入了相关选项是会返回错误的, 这也是为什么 Windows 相关实现并没有传入的原因。
 
-当然 NSudo 恶魔模式为了对调用者更加透明和符合最小权限原则，在初始化的时候首先会
-创建一份当前进程令牌的模拟令牌副本，然后对该副本开启这两个特权。在 Hook 中，
-会先备份当前线程上下文的令牌，接着替换成模拟令牌副本（或者用 Microsoft 文档的
-称法是模拟令牌上下文），传入相关选项调用原 API 后再恢复为原来线程上下文的令牌。
-（实现细节请参考在 NSudo 代码仓库的 NSudo 恶魔模式的源代码）
+当然 NSudo 恶魔模式为了对调用者更加透明和符合最小权限原则, 在初始化的时候首先会
+创建一份当前进程令牌的模拟令牌副本, 然后对该副本开启这两个特权。在 Hook 中, 
+会先备份当前线程上下文的令牌, 接着替换成模拟令牌副本 (或者用 Microsoft 文档的
+称法是模拟令牌上下文), 传入相关选项调用原 API 后再恢复为原来线程上下文的令牌。
+ (实现细节请参考在 NSudo 代码仓库的 NSudo 恶魔模式的源代码) 
 
-我说的有些啰嗦，请见谅，希望对你有帮助。
+我说的有些啰嗦, 请见谅, 希望对你有帮助。
 
 ## NSudo Shared Library
 
@@ -597,139 +600,31 @@ namespace M2.NSudo.Demo
 
 <div class="page"/>
 
-# License
-
-The offical NSudo repository (not including third-party libraries) is **only** 
-distributed under the MIT License today because we want to give the **maximum 
-respect** to every NSudo users and we also hope every people treat others 
-kindly.
-
-```
-The MIT License (MIT)
-
-Copyright (c) M2-Team and Contributors. All rights reserved.
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-```
-
-## Mouri_Naruto's libraries which used in the official NSudo repository
-
-| Name                              | Project website                     |
-|-----------------------------------|-------------------------------------|
-| Mouri Internal Library Essentials | https://github.com/ProjectMile/Mile |
-
-## M2-Team's libraries which used in the official NSudo repository
-
-| Name                   | Project website                               |
-|------------------------|-----------------------------------------------|
-| M2-Team Common Library | https://github.com/M2Team/M2TeamCommonLibrary |
-
-## Chuyu Team's libraries which used in the official NSudo repository
-
-| Name                                | Project website                       |
-|-------------------------------------|---------------------------------------|
-| libkcrt                             | https://github.com/Chuyu-Team/libkcrt |
-| Mouri's Internal NT API Collections | https://github.com/Chuyu-Team/MINT    |
-| VC-LTL                              | https://github.com/Chuyu-Team/VC-LTL  |
-
-## 3rd-party libraries which used in the official NSudo repository
-
-| Name                               | Project website                      |
-|------------------------------------|--------------------------------------|
-| JSMN                               | https://github.com/zserge/jsmn       |
-| Microsoft Research Detours Package | https://github.com/microsoft/Detours |
-| Windows Template Library           | https://sourceforge.net/projects/wtl |
-
-<div class="page"/>
-
-# Relevant People
-
-- This list sort in alphabetical order.
-
-## Creator
-
-- Mouri_Naruto ([https://github.com/MouriNaruto](https://github.com/MouriNaruto))
-
-## Prototype author
-
-- raymai97 ([https://github.com/Raymai97](https://github.com/Raymai97))
-
-## Contributors
-
-- 20011010wo ([https://github.com/yangrq](https://github.com/yangrq))
-- Bill ([https://github.com/bianyifan](https://github.com/bianyifan))
-- Eugene Wang J.y ([https://github.com/ewjy](https://github.com/ewjy))
-- Force.Charlie-I ([https://github.com/fcharlie](https://github.com/fcharlie))
-- garf02 ([https://github.com/garf02](https://github.com/garf02))
-- laosb ([https://github.com/laosb](https://github.com/laosb))
-- 罗宇凡 Luo Yufan ([https://github.com/njlyf2011](https://github.com/njlyf2011))
-- Margen67 ([https://github.com/Margen67](https://github.com/Margen67))
-- May_magic ([https://github.com/873578156](https://github.com/873578156))
-- Microsoft_Mars
-- Miguel Obando ([https://github.com/obando777](https://github.com/obando777))
-- mingkuang ([https://github.com/mingkuang-Chuyu](https://github.com/mingkuang-Chuyu))
-- myfreeer ([https://github.com/myfreeer](https://github.com/myfreeer))
-- 青春永不落幕 ([https://github.com/qcyblm](https://github.com/qcyblm))
-- Thomas Dubreuil ([https://github.com/Thdub](https://github.com/Thdub))
-
-## Sponsors
-
-- 安磊磊
-- boyangpangzi
-- cjy\_\_05
-- dfdc5
-- mhxkx
-- NotePad
-- tangmigoId
-- wondersnefu
-- xy137425740
-- 龍魂
-- 月光光
-
-## Advicers
-
-- 4071E95D-A09B-4AA3-8008
-- abbodi1406
-- AeonX
-- Domagoj Smolčić
-- hydra79545
-- imadlatch
-- jgtoy
-- kCaRhC 卡壳
-- Lenny
-- NotePad
-- sebus
-- testtest322
-- th1r5bvn23
-- 老九
-- 龍魂
-- 芈员外
-- 鸢一雨音 ([https://github.com/TobiichiAmane](https://github.com/TobiichiAmane))
-- さくら
-
-## Special thanks
-
-- 高坂穂乃果 (因为知晓了她的事迹，使我没有放弃对 NSudo 的开发)
-
-<div class="page"/>
-
 # Release Notes
+
+**NSudo 8.2**
+
+- Add the Current User (Elevated) mode support. (Advised by xspeed1989.)
+- Fix the blocking bug when using NSudo under Windows Service context. (Thanks 
+  to xspeed1989.)
+- Improve several implementations.
+- Fix the issue that the UI is Chinese when NSudo is running under an 
+  unsupported language setting. (Thanks to rlesch.)(#56)
+- Update to the latest Mile.Cpp packages.
+  - Update Mile.Project to the latest Mile.Project.VisualStudio.
+  - Merge Mile.Windows.TrustedLibraryLoader and Mile.Platform.Windows to the 
+    latest Mile.Library.
+  - Update to the latest VC-LTL. 
+- Update Windows Template Library (WTL) to 10.0.10320 Release.
+- Remove ARM32 support.
+  - Reason: https://forums.mydigitallife.net/threads/59268/page-28#post-1660432
+- Make several improvements in the documentation.
+  - Improve the website. (Contributed by 青春永不落幕.) 
+  - Improve the Gitee experience.
+  - Use GitHub Actions to deploy the website.
+- Add German Language. (Contributed by Steve.)
+- Remove some experiment implementations, including NSudo Sweeper.
+- Add logging support.
 
 **NSudo 8.0 Update 1 (8.0.1)**
 
@@ -881,31 +776,31 @@ SOFTWARE.
 
 **NSudo 5.2 (5.2.1709.8 - 5.2.1710.26)**
 
-- 整理代码，修复若干 Bugs
-- 更新文档，增加英文自述
-- 添加对 ARM 和 ARM64 平台的支持（感谢 fcharlie）
+- 整理代码, 修复若干 Bugs
+- 更新文档, 增加英文自述
+- 添加对 ARM 和 ARM64 平台的支持 (感谢 fcharlie) 
 - 优化命令行解析
 - 添加右键菜单支持
-  - 使用 /Install 或 -Install 参数添加右键菜单（命令行参数大小写不敏感）
-  - 使用 /Uninstall 或 -Uninstall 参数移除右键菜单（命令行参数大小写不敏感）
+  - 使用 /Install 或 -Install 参数添加右键菜单 (命令行参数大小写不敏感) 
+  - 使用 /Uninstall 或 -Uninstall 参数移除右键菜单 (命令行参数大小写不敏感) 
 
 **NSudo 5.1 (5.0.1708.9 - 5.1.1708.19)**
 
-- 修复批处理调用 NSudo 后批处理变量不生效的问题（感谢 芈员外）
-- 令 NSudo 在带有命令行的状态下也能自动请求管理员权限（感谢 鸢一雨音）
-- 更换新图标，顺便解决在 Windows Vista 之前版本系统上不显示 NSudo 图标的问题
-  （PS：NSudo 最低要求依旧是 Windows Vista）
-- 改进命令行解析（感谢 鸢一雨音）
-- 更新源代码许可的版权（对说辞进行了优化）和更新感谢名单（新增人士）
+- 修复批处理调用 NSudo 后批处理变量不生效的问题 (感谢 芈员外) 
+- 令 NSudo 在带有命令行的状态下也能自动请求管理员权限 (感谢 鸢一雨音) 
+- 更换新图标, 顺便解决在 Windows Vista 之前版本系统上不显示 NSudo 图标的问题
+   (PS: NSudo 最低要求依旧是 Windows Vista) 
+- 改进命令行解析 (感谢 鸢一雨音) 
+- 更新源代码许可的版权 (对说辞进行了优化) 和更新感谢名单 (新增人士) 
 
 **NSudo 5.0 (4.4.1705.28 - 5.0.1707.31)**
 
 - 使用新的获取会话 ID 方法解决在 Server 系统的远程桌面会话上使用 NSudo 运行应用可能无
-  法显示界面的问题（感谢 sebus）
+  法显示界面的问题 (感谢 sebus) 
 - 更新文档和许可协议以符合实际情况
-- 移除 VC-LTL（由 fcharlie 建议），理由如下：
-  - 虽然二进制大小增加 80KB，但源代码大小缩小 57.6MB
-  - 源代码大小缩小后，NSudo 的云编译速度大幅提升
+- 移除 VC-LTL (由 fcharlie 建议), 理由如下: 
+  - 虽然二进制大小增加 80KB, 但源代码大小缩小 57.6MB
+  - 源代码大小缩小后, NSudo 的云编译速度大幅提升
   - 可以少屏蔽大量编译警告
 - 使用 NSudoSDK 项目代替 M2-SDK 项目
 - 改进版本定义头文件
@@ -914,7 +809,7 @@ SOFTWARE.
 - .gitignore 文件更新(由 fcharlie 实现)
 - 完全使用 MSDN 文档化 API 实现 NSudoAPI.h 以方便人们调用
 - 与 Nagisa 项目共用 m2base.h
-- 整理屏蔽的警告，该版本 NSudo 屏蔽了以下警告实现 /W4 /WX 编译
+- 整理屏蔽的警告, 该版本 NSudo 屏蔽了以下警告实现 /W4 /WX 编译
   - C4505 未引用的本地函数已移除(等级 4)
 - NSudo 快捷列表文件格式从 ini 迁移到 json 并更新列表内容
 - 进程创建时添加环境块以改善兼容性
@@ -927,27 +822,27 @@ SOFTWARE.
 - 适配最新版 M2-SDK
 - 适配最新版 VC-LTL
 - 修改编译选项
-- 使用 git 子模块机制（由 myfreeer 实现）
-- 配置 AppVeyor（由 myfreeer 提供灵感）
+- 使用 git 子模块机制 (由 myfreeer 实现) 
+- 配置 AppVeyor (由 myfreeer 提供灵感) 
 - 开始使用 AppVeyor 自动编译
 - 更新 M2-SDK 和 VC-LTL 子模块
 - 命令行解析从 main 函数拆分
-- 修复升级 VC-LTL 后出现的编译警告（有空会 pull fix 到 VC-LTL）
+- 修复升级 VC-LTL 后出现的编译警告 (有空会 pull fix 到 VC-LTL) 
 - 版本号重新由自己而不是 CI 编译服务控制
 - 整理解决方案布局
 
 **NSudo 4.3.1703.25**
 
-- 32 位版本取消对 SSE 和 SSE2 指令集的依赖（为了保证完美的兼容性）
+- 32 位版本取消对 SSE 和 SSE2 指令集的依赖 (为了保证完美的兼容性) 
 - 移除 NTIShell, NSudo.AppContainer, MiniFM 子项目
 - NSudoSDK 完全被 M2-SDK 和 M2.NSudo.h 替代
 - 关于界面布局调整
-- 子系统设置调整为 Windows 子系统（为了不再弹出黑框）
-- 优化代码，减少全局变量
-- System 令牌副本创建函数移除会话 ID 参数（因为现实情况只能使用当前会话 ID）
-- 使用旧版应用调用方式（即使用 cmd，解决无法调用带参数应用的问题）
-- 优化在 UI 自动化工具（例如讲述人等读屏软件）上的使用体验
-- “运行”按钮被设为默认按钮以提升使用体验
+- 子系统设置调整为 Windows 子系统 (为了不再弹出黑框) 
+- 优化代码, 减少全局变量
+- System 令牌副本创建函数移除会话 ID 参数 (因为现实情况只能使用当前会话 ID) 
+- 使用旧版应用调用方式 (即使用 cmd, 解决无法调用带参数应用的问题) 
+- 优化在 UI 自动化工具 (例如讲述人等读屏软件) 上的使用体验
+-  "运行" 按钮被设为默认按钮以提升使用体验
 - 优化多语言资源以减小体积
 - 修复 UI 标题栏没有图标的问题
 - 为 UI 增加最小化按钮
@@ -956,59 +851,59 @@ SOFTWARE.
 - 修复 UI 图标的 DPI 缩放问题
 - 开始使用 Visual Studio 2017 编译
 - 移除 NSudo-GUI 项目
-- 代码不再包含 M2-SDK 和 VC-LTL 的内容，需要单独从 github 克隆
+- 代码不再包含 M2-SDK 和 VC-LTL 的内容, 需要单独从 github 克隆
 
 **NSudo 4.2**
 
 - 引入新 NSudoSDK API 并且对已有 NSudoSDK API 进行改善
-- 优化代码，以减少 Windows API 调用次数
+- 优化代码, 以减少 Windows API 调用次数
 - 修复不带任何参数情况下可能的奔溃问题
 - 修复控制台部分不能在非管理员权限显示命令行帮助的问题
-- 基于 ShellExecute 自建调用宿主，以去除对 cmd.exe 的依赖
-- 引入 NTIShell（相当于 NSudo 1.0）重制版，作为 NSudoSDK 的一个示例
+- 基于 ShellExecute 自建调用宿主, 以去除对 cmd.exe 的依赖
+- 引入 NTIShell (相当于 NSudo 1.0) 重制版, 作为 NSudoSDK 的一个示例
 - 更改 MiniFM 图标
 
 **NSudo 4.1**
 
 - 修复命令行使用-U:D 导致程序奔溃的问题
-- 更正命令行的 NSudoC 残余描述（感谢 NotePad）
-- 支持文件拖拽（感谢 NotePad）
+- 更正命令行的 NSudoC 残余描述 (感谢 NotePad) 
+- 支持文件拖拽 (感谢 NotePad) 
 
 **NSudo 4.0**
 
-- 重写代码，提供 NSudoSDK，使代码容易使用在其他项目上
+- 重写代码, 提供 NSudoSDK, 使代码容易使用在其他项目上
 - 命令行下新增"/"前缀参数支持,例如: NSudo /U:T /P:E cmd (感谢 th1r5bvn23)
-- 支持默认参数，即以 TrustedInstaller 令牌且开启全部特权运行 (感谢 老九)
+- 支持默认参数, 即以 TrustedInstaller 令牌且开启全部特权运行 (感谢 老九)
 - 在默认快捷命令列表加入 host 编辑
 - 增加 NSudo 和 MiniFM 的 Per-Monitor DPI Aware 支持
-- 采用 VC-LTL 大幅度减小程序体积（感谢 mingkuang）
-- 更改图标（感谢 20011010wo）
-- 精简并优化主界面（感谢 kCaRhC 卡壳，さくら）
+- 采用 VC-LTL 大幅度减小程序体积 (感谢 mingkuang) 
+- 更改图标 (感谢 20011010wo) 
+- 精简并优化主界面 (感谢 kCaRhC 卡壳, さくら) 
 - 使用 TaskDialog 替代 MessageBox
-- 对关于界面进行调整，并在关于界面加入命令行帮助
+- 对关于界面进行调整, 并在关于界面加入命令行帮助
 - 修复弹出文件不存在的问题
 - 修复命令行解析的一个潜在 Bug
-- 缓解 NSudo 图形界面的空格问题（浏览功能自动给命令行加引号）
+- 缓解 NSudo 图形界面的空格问题 (浏览功能自动给命令行加引号) 
 - 消除在编译时的警告(/Wall 和/WX 两个参数同时使用)
 
 **NSudo 2016.1**
 
-- 修复 TrustedInstaller 下运行程序界面不显示问题（感谢 abbodi1406）
-- 修复命令行解析的漏洞和 UI 错误（感谢 imadlatch）
-- 整理代码，提升可读性
-- 当前目录设为 NSudo 所在目录（未来会更加灵活）
+- 修复 TrustedInstaller 下运行程序界面不显示问题 (感谢 abbodi1406) 
+- 修复命令行解析的漏洞和 UI 错误 (感谢 imadlatch) 
+- 整理代码, 提升可读性
+- 当前目录设为 NSudo 所在目录 (未来会更加灵活) 
 - ShortCut 实现无限项目
-- 新增简易文件管理器小工具（感谢 20011010wo）
+- 新增简易文件管理器小工具 (感谢 20011010wo) 
 
 **NSudo 2016**
 
-- 支持多语言（程序内含简中，繁中，英文，日文）
+- 支持多语言 (程序内含简中, 繁中, 英文, 日文) 
 - 命令行处理重写
-- 实现代码全部重构；效率更高
+- 实现代码全部重构; 效率更高
 
 **NSudo 3.2 Fix1**
 
-- 优化程序逻辑；减少无用代码
+- 优化程序逻辑; 减少无用代码
 - 命令行版和图形版二合一
 
 **NSudo 3.2**
@@ -1016,59 +911,59 @@ SOFTWARE.
 - 修复无法使用带有空格的路径的问题
 - NSudo 和 NSudoC 单文件化
 - 增加 NSudo.bat 方便新手准确调用与电脑架构相符的 NSudo 版本
-- NSudoSDK 增加静态库（用 NSudo SDK 开发的工具可以实现单文件）
+- NSudoSDK 增加静态库 (用 NSudo SDK 开发的工具可以实现单文件) 
 - 编译平台采用 Visual Studio 2015 + Windows 10 SDK
 
 **NSudo 3.1 Debug**
 
 - 修复 UI 的 ComboBox 不能输入太长文字的问题
-- 修复某些情况下不能使用的问题（由于开发机 Windows10 的 Bug 而导致误认为那种方式可
-  行）
-- 增加真正的令牌降权（除了 cmd 会误显示管理员外；其他的会将其看作普通用户）
+- 修复某些情况下不能使用的问题 (由于开发机 Windows10 的 Bug 而导致误认为那种方式可
+  行) 
+- 增加真正的令牌降权 (除了 cmd 会误显示管理员外; 其他的会将其看作普通用户) 
 - 增加命令行版本
 - 增加常用列表自定义功能
 
 **NSudo 3.0 R2**
 
 - 修复不能打开其他被系统关联文件的 Bug
-- SDK 的头文件改进：增加#pragma comment(lib,"NSudoAPI.lib")
+- SDK 的头文件改进: 增加#pragma comment(lib,"NSudoAPI.lib")
 
 **NSudo 3.0**
 
-- 支持外部应用调用（很抱歉让一些人等太久）
-- 增加了常用调用列表（暂时不支持自定义；未来 3.1 会加入）
-- 加入了降权功能（当然，是完美降权到 UAC 未提权前。当然原理不是用获取 explorer 令牌
-  和创建计划任务）
+- 支持外部应用调用 (很抱歉让一些人等太久) 
+- 增加了常用调用列表 (暂时不支持自定义; 未来 3.1 会加入) 
+- 加入了降权功能 (当然, 是完美降权到 UAC 未提权前。当然原理不是用获取 explorer 令牌
+  和创建计划任务) 
 - 支持对权限令牌的自定义
-- 界面的完全重构（相对于 2.x 来说）
-- 代码优化（相对于 NSudo 3.0 M1 来说）
+- 界面的完全重构 (相对于 2.x 来说) 
+- 代码优化 (相对于 NSudo 3.0 M1 来说) 
 - 加入 NSudo SDK
 - 原生 64 位版本
-- 实现了调用外部程序无视 WOW64 重定向的方法（NSudoCreateProcess）
-- WinPE 支持（虽然没起多大作用）
+- 实现了调用外部程序无视 WOW64 重定向的方法 (NSudoCreateProcess) 
+- WinPE 支持 (虽然没起多大作用) 
 
 **NSudo 2.1**
 
 - 实现自动开启所有权限 Token
-- 对 cmd 的调用使用绝对路径，估计可以避免一些不必要的 Bug
+- 对 cmd 的调用使用绝对路径, 估计可以避免一些不必要的 Bug
 - 优化程序代码
 
 **NSudo 2.0**
 
-- 代码全部使用 C++ Win32 SDK 重写（程序从 692KB 缩小到 92KB）
+- 代码全部使用 C++ Win32 SDK 重写 (程序从 692KB 缩小到 92KB) 
 - 提供获取权限的选项
 - 提供命令行参数模式
 - 更换了图标
 
 **NSudo 1.2**
 
-- 未公开发布（估计还是在修复 SessionID 问题）
+- 未公开发布 (估计还是在修复 SessionID 问题) 
 
 **NSudo 1.1**
 
 - 修复 SessionID 问题
-- 32 位和 64 位版本合体（根据架构确定运行那个架构的命令提示符，采用 SysNative 目录
-  （64 位 Vista 开始有的重定向）调用 64 位 cmd）
+- 32 位和 64 位版本合体 (根据架构确定运行那个架构的命令提示符, 采用 SysNative 目录
+   (64 位 Vista 开始有的重定向) 调用 64 位 cmd) 
 
 **NTIShell 1.0**
 

@@ -9,7 +9,7 @@ device, you need to go to the x64 folder and click NSudoG.exe
 ## Command Line
 
 ```
-Format: NSudo [ Options and parameters ] Command line or ShortCut Command
+Format: NSudoL [ Options and parameters ] Command line or ShortCut Command
 
 Options:
 
@@ -18,6 +18,7 @@ Available options:
     T TrustedInstaller
     S System
     C Current User
+    E Current User (Elevated)
     P Current Process
     D Current Process (Drop right)
 PS: This is a mandatory parameter.
@@ -38,7 +39,7 @@ Available options:
 PS: If you want to use the default Integrity Level to create a process, please 
 do not include the "-M" parameter.
 
--Priority:[ Option ] Create a process with specified [rocess priority option.
+-Priority:[ Option ] Create a process with specified process priority option.
 Available options:
     Idle
     BelowNormal
@@ -58,18 +59,18 @@ Available options:
 PS: If you want to use the default window mode to create a process, please do 
 not include the "-ShowWindowMode" parameter.
 
--Wait Make NSudo wait for the created process to end before exiting.
+-Wait Make NSudo Launcher wait for the created process to end before exiting.
 PS: If you don't want to wait, please do not include the "-Wait" parameter.
 
 -CurrentDirectory:[ DirectoryPath ] Set the current directory for the process.
-PS: If you want to use the NSudo's current directory, please do not include the
-"-CurrentDirectory" parameter.
+PS: If you want to use the NSudo Launcher's current directory, please do not 
+include the "-CurrentDirectory" parameter.
 
 -UseCurrentConsole Create a process with the current console window.
 PS: If you want to create a process with the new console window, please do not 
 include the "-UseCurrentConsole" parameter.
 
--Version Show version information of NSudo.
+-Version Show version information of NSudo Launcher.
 
 -? Show this content.
 -H Show this content.
@@ -78,19 +79,19 @@ include the "-UseCurrentConsole" parameter.
 Please use https://github.com/Thdub/NSudo_Installer for context menu management.
 
 PS:
-    1. All NSudo command arguments is case-insensitive.
+    1. All NSudo Launcher command arguments is case-insensitive.
     2. You can use the "/" or "--" override "-" and use the "=" override ":" in
        the command line parameters.  For example, "/U:T" and "-U=T" are 
        equivalent.
-    3. To ensure the best experience, NSudoC does not support context menu.
+    3. To ensure the best experience, NSudoLC does not support context menu.
 
 Example:
     If you want to run Command Prompt with TrustedInstaller, enable all 
     privileges and the default Integrity Level.
-        NSudo -U:T -P:E cmd
+        NSudoL -U:T -P:E cmd
 ```
 
-Example：If you want to run Command Prompt with TrustedInstaller, enable all
+Example: If you want to run Command Prompt with TrustedInstaller, enable all
 privileges and the default Integrity Level:
 
 > NSudo -U:T -P:E cmd

@@ -23,7 +23,8 @@
 				collapsable: false,
 				children: [
 					["/zh-hans/docs/Changelog", "更新日志"],
-					["/zh-hans/docs/DevilMode", "NSudo 恶魔模式"]
+					["/zh-hans/docs/DevilMode", "NSudo 恶魔模式"],
+          ["/zh-hans/docs/DevilMode", "NSudo 共享库"]
 				]
 			}
 		]

@@ -42,6 +42,8 @@ improvements.
   - Launch programs with current user access token.
     - Note: If the User Account Control has not been disabled, the privilege of
       this mode is similar to the standard user.
+  - Launch programs with elevated current user access token.
+    - Note: The privilege of this mode is similar to the elevated user.
   - Launch programs with current process access token.
     - Note: The privilege of this mode is similar to the elevated user.
   - Launch programs with current process access token with the LUA restriction.
@@ -93,7 +95,7 @@ improvements.
 ### System requirements
 
 - Supported OS Version: Windows NT 6.0 or later
-- Supported CPU Architecture: x86, x86-64(AMD64), ARM, ARM64
+- Supported CPU Architecture: x86, x86-64(AMD64), ARM64
 
 ### Third-party introduction
 

@@ -2,7 +2,7 @@
 
 ## 联系方式
 
-- 邮箱：[Mouri_Naruto@Outlook.com](mailto:Mouri_Naruto@Outlook.com)
+- 邮箱: [Mouri_Naruto@Outlook.com](mailto:Mouri_Naruto@Outlook.com)
 
 ## 社区
 

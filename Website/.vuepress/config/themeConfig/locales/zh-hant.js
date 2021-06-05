@@ -22,7 +22,9 @@
         title: "檔案",
         collapsable: false,
         children: [
-          ["/zh-hant/docs/Changelog", "變更紀錄"]
+          ["/zh-hant/docs/Changelog", "變更紀錄"],
+          ["/zh-hant/docs/DevilMode", "NSudo 惡魔模式"],
+          ["/zh-hant/docs/DevilMode", "NSudo 共享庫"]
         ]
       }
     ]
