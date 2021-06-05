@@ -60,11 +60,11 @@ NSudo 的文档等, 请转到 https://m2team.github.io/NSudo.
 
 #### 编译 NSudo 的所有目标
 
-运行 `src/Native` 目录下的 `BuildAllTargets.bat`。
+运行 `Source/Native` 目录下的 `BuildAllTargets.bat`。
 
 #### 如何修改和调试 NSudo
 
-运行 `src/Native` 目录下的 `NSudo.sln`。
+运行 `Source/Native` 目录下的 `NSudo.sln`。
 
 #### 代码风格和规范
 

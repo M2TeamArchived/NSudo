@@ -37,7 +37,7 @@ module.exports = {
   themeConfig: {
     repo: 'm2team/NSudo',
     editLinks: true,
-    docsDir: 'src/Documents',
+    docsDir: 'Website',
     logo: '/assets/img/logo.png',
     lastUpdated: true,
     locales: {

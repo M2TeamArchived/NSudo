@@ -13,14 +13,14 @@ before_build:
   - >-
     dotnet nuget locals all --clear
 build:
-  project: src/Native/BuildAllTargets.proj
+  project: Source/Native/BuildAllTargets.proj
   parallel: true
 after_build:
   - >-
     7z a -r NSudo_CI_Build_%APPVEYOR_BUILD_NUMBER%.zip ^
-    .\src\Native\Output\*.exe ^
-    .\src\Native\Output\*.dll ^
-    .\src\Native\Output\*.pdb ^
-    .\src\Native\Output\*.json
+    .\Source\Native\Output\*.exe ^
+    .\Source\Native\Output\*.dll ^
+    .\Source\Native\Output\*.pdb ^
+    .\Source\Native\Output\*.json
 artifacts:
   - path: NSudo_CI_Build_%APPVEYOR_BUILD_NUMBER%.zip

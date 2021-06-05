@@ -64,11 +64,11 @@ Please read [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
 
 #### How to build all targets of NSudo
 
-Run `BuildAllTargets.bat` in `src/Native`.
+Run `BuildAllTargets.bat` in `Source/Native`.
 
 #### How to modify or debugging NSudo
 
-Open `NSudo.sln` in `src/Native`.
+Open `NSudo.sln` in `Source/Native`.
 
 #### Code style and conventions
 
