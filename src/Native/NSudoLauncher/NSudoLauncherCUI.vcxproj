@@ -10,7 +10,7 @@
   <Import Project="..\Mile.Project.VisualStudio\Mile.Project.Cpp.props" />
   <Import Project="..\Mile.Project.VisualStudio\Mile.Project.Cpp.VC-LTL.props" />
   <ImportGroup Label="PropertySheets">
-    <Import Project="..\MSBuild\NSudoLib.props" />
+    <Import Project="..\NSudoLib\NSudoLib.props" />
     <Import Project="..\WTL\WTL.props" />
     <Import Project="..\Mile\Mile.props" />
     <Import Project="NSudoLauncherResources.props" />

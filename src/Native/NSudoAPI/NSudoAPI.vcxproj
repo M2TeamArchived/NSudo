@@ -8,7 +8,7 @@
   <Import Project="..\Mile.Project.VisualStudio\Mile.Project.Cpp.props" />
   <Import Project="..\Mile.Project.VisualStudio\Mile.Project.Cpp.VC-LTL.props" />
   <ImportGroup Label="PropertySheets">
-    <Import Project="..\MSBuild\NSudoLib.props" />
+    <Import Project="..\NSudoLib\NSudoLib.props" />
     <Import Project="..\Mile\Mile.props" />
   </ImportGroup>
   <ItemDefinitionGroup>
@@ -24,6 +24,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="NSudoAPI.def" />
+    <None Include="NSudoAPI.props" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Mile.Project.Properties.h" />

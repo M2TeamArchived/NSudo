@@ -24,4 +24,7 @@
       <Filter>NSudoAPI</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="NSudoLib.props" />
+  </ItemGroup>
 </Project>

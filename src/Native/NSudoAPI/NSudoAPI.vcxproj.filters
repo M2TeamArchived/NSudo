@@ -5,6 +5,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="NSudoAPI.def" />
+    <None Include="NSudoAPI.props" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Mile.Project.Properties.h" />

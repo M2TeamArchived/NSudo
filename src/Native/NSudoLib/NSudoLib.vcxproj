@@ -23,5 +23,8 @@
     <ClInclude Include="M2.Base.h" />
     <ClInclude Include="NSudoAPI.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="NSudoLib.props" />
+  </ItemGroup>
   <Import Project="..\Mile.Project.VisualStudio\Mile.Project.Cpp.targets" />
 </Project>
