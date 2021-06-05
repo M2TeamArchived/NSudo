@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>NSudo 共享庫 | NSudo</title>
+    <meta name="generator" content="VuePress 1.8.2">
+    <link rel="icon" href="/favicon.ico">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon-152x152.png">
+    <link rel="mask-icon" href="/icons/safari-pinned-tab.svg" color="#2582D3">
+    <meta name="description" content="系統管理工具包">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="author" content="M2-Team">
+    <meta name="keywords" content="trustedinstaller,system,session,windows,token,integritylevel,privileges,nsudo,administration,process,devilmode,bypass,accesscheck,ntapi,launcher">
+    <meta name="theme-color" content="#2582D3">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="msapplication-TileImage" content="/icons/msapplication-icon-144x144.png">
+    <meta name="msapplication-TileColor" content="#000000">
+    <meta name="Copyright" content="Copyright M2-Team All Rights Reserved.">
+    
+    <link rel="preload" href="/assets/css/0.styles.dbfee10f.css" as="style"><link rel="preload" href="/assets/js/app.20c00f87.js" as="script"><link rel="preload" href="/assets/js/2.6e0dde66.js" as="script"><link rel="preload" href="/assets/js/3.d05d3189.js" as="script"><link rel="preload" href="/assets/js/28.7e593d4a.js" as="script"><link rel="prefetch" href="/assets/js/10.2329bc20.js"><link rel="prefetch" href="/assets/js/11.e76b0e43.js"><link rel="prefetch" href="/assets/js/12.c29c6254.js"><link rel="prefetch" href="/assets/js/13.28fd99e9.js"><link rel="prefetch" href="/assets/js/14.e1adb664.js"><link rel="prefetch" href="/assets/js/15.f818fdca.js"><link rel="prefetch" href="/assets/js/16.599a3e37.js"><link rel="prefetch" href="/assets/js/17.42fd45d1.js"><link rel="prefetch" href="/assets/js/18.04915c60.js"><link rel="prefetch" href="/assets/js/19.2531247c.js"><link rel="prefetch" href="/assets/js/20.1ad256f1.js"><link rel="prefetch" href="/assets/js/21.13e13782.js"><link rel="prefetch" href="/assets/js/22.42bc5385.js"><link rel="prefetch" href="/assets/js/23.b49be59c.js"><link rel="prefetch" href="/assets/js/24.3c09ea50.js"><link rel="prefetch" href="/assets/js/25.5ab16788.js"><link rel="prefetch" href="/assets/js/26.56178a47.js"><link rel="prefetch" href="/assets/js/27.4d3836a1.js"><link rel="prefetch" href="/assets/js/29.a3072c93.js"><link rel="prefetch" href="/assets/js/4.f7975784.js"><link rel="prefetch" href="/assets/js/5.11dfc3c1.js"><link rel="prefetch" href="/assets/js/6.ea860749.js"><link rel="prefetch" href="/assets/js/7.f44327dc.js"><link rel="prefetch" href="/assets/js/8.b333f2de.js"><link rel="prefetch" href="/assets/js/9.a7c9e60d.js">
+    <link rel="stylesheet" href="/assets/css/0.styles.dbfee10f.css">
+  </head>
+  <body>
+    <div id="app" data-server-rendered="true"><div class="theme-container"><header class="navbar"><div class="sidebar-button"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" viewBox="0 0 448 512" class="icon"><path fill="currentColor" d="M436 124H12c-6.627 0-12-5.373-12-12V80c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12z"></path></svg></div> <a href="/zh-hant/" class="home-link router-link-active"><img src="/assets/img/logo.png" alt="NSudo" class="logo"> <span class="site-name can-hide">NSudo</span></a> <div class="links"><div class="search-box"><input aria-label="Search" autocomplete="off" spellcheck="false" value=""> <!----></div> <nav class="nav-links can-hide"><div class="nav-item"><a href="/zh-hant/" class="nav-link">
+  主頁
+</a></div><div class="nav-item"><a href="/zh-hant/Download.html" class="nav-link">
+  下載
+</a></div><div class="nav-item"><a href="/zh-hant/Support.html" class="nav-link">
+  支援
+</a></div><div class="nav-item"><a href="/zh-hant/docs/" class="nav-link router-link-active">
+  文獻
+</a></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="Select language" class="dropdown-title"><span class="title">選擇語言</span> <span class="arrow down"></span></button> <button type="button" aria-label="Select language" class="mobile-dropdown-title"><span class="title">選擇語言</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/en-us/docs/SharedLibrary.html" class="nav-link">
+  English
+</a></li><li class="dropdown-item"><!----> <a href="/zh-hans/docs/SharedLibrary.html" class="nav-link">
+  简体中文
+</a></li><li class="dropdown-item"><!----> <a href="/zh-hant/docs/SharedLibrary.html" aria-current="page" class="nav-link router-link-exact-active router-link-active">
+  繁體中文
+</a></li></ul></div></div> <a href="https://github.com/m2team/NSudo" target="_blank" rel="noopener noreferrer" class="repo-link">
+    GitHub
+    <span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></nav></div></header> <div class="sidebar-mask"></div> <aside class="sidebar"><nav class="nav-links"><div class="nav-item"><a href="/zh-hant/" class="nav-link">
+  主頁
+</a></div><div class="nav-item"><a href="/zh-hant/Download.html" class="nav-link">
+  下載
+</a></div><div class="nav-item"><a href="/zh-hant/Support.html" class="nav-link">
+  支援
+</a></div><div class="nav-item"><a href="/zh-hant/docs/" class="nav-link router-link-active">
+  文獻
+</a></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="Select language" class="dropdown-title"><span class="title">選擇語言</span> <span class="arrow down"></span></button> <button type="button" aria-label="Select language" class="mobile-dropdown-title"><span class="title">選擇語言</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/en-us/docs/SharedLibrary.html" class="nav-link">
+  English
+</a></li><li class="dropdown-item"><!----> <a href="/zh-hans/docs/SharedLibrary.html" class="nav-link">
+  简体中文
+</a></li><li class="dropdown-item"><!----> <a href="/zh-hant/docs/SharedLibrary.html" aria-current="page" class="nav-link router-link-exact-active router-link-active">
+  繁體中文
+</a></li></ul></div></div> <a href="https://github.com/m2team/NSudo" target="_blank" rel="noopener noreferrer" class="repo-link">
+    GitHub
+    <span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></nav>  <ul class="sidebar-links"><li><a href="/zh-hant/docs/" aria-current="page" class="sidebar-link">使用方法</a></li><li><section class="sidebar-group depth-0"><p class="sidebar-heading"><span>檔案</span> <!----></p> <ul class="sidebar-links sidebar-group-items"><li><a href="/zh-hant/docs/Changelog.html" class="sidebar-link">變更紀錄</a></li><li><a href="/zh-hant/docs/DevilMode.html" class="sidebar-link">NSudo 惡魔模式</a></li><li><a href="/zh-hant/docs/DevilMode.html" class="sidebar-link">NSudo 共享庫</a></li></ul></section></li></ul> </aside> <main class="page"> <div class="theme-default-content content__default"><h1 id="nsudo-共享庫"><a href="#nsudo-共享庫" class="header-anchor">#</a> NSudo 共享庫</h1> <h2 id="nsudocreateprocess-函數"><a href="#nsudocreateprocess-函數" class="header-anchor">#</a> NSudoCreateProcess 函數</h2> <p>創建一個新進程和對應的主線程。</p> <h3 id="c-c-函數原型"><a href="#c-c-函數原型" class="header-anchor">#</a> C/C++ 函數原型</h3> <div class="language- extra-class"><pre class="language-text"><code>EXTERN_C HRESULT WINAPI NSudoCreateProcess(
+    _In_ NSUDO_USER_MODE_TYPE UserModeType,
+    _In_ NSUDO_PRIVILEGES_MODE_TYPE PrivilegesModeType,
+    _In_ NSUDO_MANDATORY_LABEL_TYPE MandatoryLabelType,
+    _In_ NSUDO_PROCESS_PRIORITY_CLASS_TYPE ProcessPriorityClassType,
+    _In_ NSUDO_SHOW_WINDOW_MODE_TYPE ShowWindowModeType,
+    _In_ DWORD WaitInterval,
+    _In_ BOOL CreateNewConsole,
+    _In_ LPCWSTR CommandLine,
+    _In_opt_ LPCWSTR CurrentDirectory);
+</code></pre></div><h3 id="usermodetype-參數"><a href="#usermodetype-參數" class="header-anchor">#</a> UserModeType 參數</h3> <p>一個類型爲 NSUDO_USER_MODE_TYPE 枚舉類型的值, 用以表示用戶類別。</p> <div class="language- extra-class"><pre class="language-text"><code>typedef enum class _NSUDO_USER_MODE_TYPE
+{
+    DEFAULT,
+    TRUSTED_INSTALLER,
+    SYSTEM,
+    CURRENT_USER,
+    CURRENT_PROCESS,
+    CURRENT_PROCESS_DROP_RIGHT
+} NSUDO_USER_MODE_TYPE, *PNSUDO_USER_MODE_TYPE;
+</code></pre></div><h3 id="privilegesmodetype-參數"><a href="#privilegesmodetype-參數" class="header-anchor">#</a> PrivilegesModeType 參數</h3> <p>一個類型爲 NSUDO_PRIVILEGES_MODE_TYPE 枚舉類型的值, 用以表示特權類型。</p> <div class="language- extra-class"><pre class="language-text"><code>typedef enum class _NSUDO_PRIVILEGES_MODE_TYPE
+{
+    DEFAULT,
+    ENABLE_ALL_PRIVILEGES,
+    DISABLE_ALL_PRIVILEGES
+} NSUDO_PRIVILEGES_MODE_TYPE, *PNSUDO_PRIVILEGES_MODE_TYPE;
+</code></pre></div><h3 id="mandatorylabeltype-參數"><a href="#mandatorylabeltype-參數" class="header-anchor">#</a> MandatoryLabelType 參數</h3> <p>一個類型爲 NSUDO_MANDATORY_LABEL_TYPE 枚舉類型的值, 用以表示完整性標籤。</p> <div class="language- extra-class"><pre class="language-text"><code>typedef enum class _NSUDO_MANDATORY_LABEL_TYPE
+{
+    UNTRUSTED,
+    LOW,
+    MEDIUM,
+    MEDIUM_PLUS,
+    HIGH,
+    SYSTEM,
+    PROTECTED_PROCESS,
+} NSUDO_MANDATORY_LABEL_TYPE, *PNSUDO_MANDATORY_LABEL_TYPE;
+</code></pre></div><h3 id="processpriorityclasstype-參數"><a href="#processpriorityclasstype-參數" class="header-anchor">#</a> ProcessPriorityClassType 參數</h3> <p>一個類型爲 NSUDO_PROCESS_PRIORITY_CLASS_TYPE 枚舉類型的值, 用以表示進程優先級。</p> <div class="language- extra-class"><pre class="language-text"><code>typedef enum class _NSUDO_PROCESS_PRIORITY_CLASS_TYPE
+{
+    IDLE,
+    BELOW_NORMAL,
+    NORMAL,
+    ABOVE_NORMAL,
+    HIGH,
+    REALTIME,
+} NSUDO_PROCESS_PRIORITY_CLASS_TYPE, *PNSUDO_PROCESS_PRIORITY_CLASS_TYPE;
+</code></pre></div><h3 id="showwindowmodetype-參數"><a href="#showwindowmodetype-參數" class="header-anchor">#</a> ShowWindowModeType 參數</h3> <p>一個類型爲 NSUDO_SHOW_WINDOW_MODE_TYPE 枚舉類型的值, 用以表示顯示窗口模式。</p> <div class="language- extra-class"><pre class="language-text"><code>typedef enum class _NSUDO_SHOW_WINDOW_MODE_TYPE
+{
+    DEFAULT,
+    SHOW,
+    HIDE,
+    MAXIMIZE,
+    MINIMIZE,
+} NSUDO_SHOW_WINDOW_MODE_TYPE, *PNSUDO_SHOW_WINDOW_MODE_TYPE;
+</code></pre></div><h3 id="waitinterval-參數"><a href="#waitinterval-參數" class="header-anchor">#</a> WaitInterval 參數</h3> <p>等待創建的進程的時間 (毫秒)。</p> <h3 id="createnewconsole-參數"><a href="#createnewconsole-參數" class="header-anchor">#</a> CreateNewConsole 參數</h3> <p>如果這個參數設爲 TRUE, 新進程則在新的控制檯窗口運行, 否則則直接在父進程對應的控
+制臺窗口運行 (默認設定)。</p> <h3 id="commandline-參數"><a href="#commandline-參數" class="header-anchor">#</a> CommandLine 參數</h3> <p>要執行的命令行, 對應的字符串最大長度爲 32k 即 32768 字符, 命令行所執行的應用的
+路徑被限制爲 MAX_PATH 即 260 字符。</p> <h3 id="currentdirectory-參數"><a href="#currentdirectory-參數" class="header-anchor">#</a> CurrentDirectory 參數</h3> <p>用來指定進程的當前目錄, 需要使用完整路徑。可以使用 UNC 路徑。如果該參數爲
+nullptr, 新進程將使用調用該函數的進程所使用的當前路徑。</p> <h3 id="返回值"><a href="#返回值" class="header-anchor">#</a> 返回值</h3> <p>HRESULT 類型。如果函數調用成功, 則返回值爲 S_OK。</p> <h2 id="c-接口"><a href="#c-接口" class="header-anchor">#</a> C# 接口</h2> <p>在你的項目中加載 M2.NSudo 程序集, 你就會知曉其用法。</p> <h3 id="代碼示例"><a href="#代碼示例" class="header-anchor">#</a> 代碼示例</h3> <div class="language- extra-class"><pre class="language-text"><code>using System;
+
+namespace M2.NSudo.Demo
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            NSudoInstance instance = new NSudoInstance();
+
+            instance.CreateProcess(
+                NSUDO_USER_MODE_TYPE.TRUSTED_INSTALLER,
+                NSUDO_PRIVILEGES_MODE_TYPE.ENABLE_ALL_PRIVILEGES,
+                NSUDO_MANDATORY_LABEL_TYPE.SYSTEM,
+                NSUDO_PROCESS_PRIORITY_CLASS_TYPE.NORMAL,
+                NSUDO_SHOW_WINDOW_MODE_TYPE.DEFAULT,
+                0,
+                true,
+                &quot;cmd&quot;,
+                null);
+
+            Console.ReadKey();
+        }
+    }
+}
+</code></pre></div></div> <footer class="page-edit"><div class="edit-link"><a href="https://github.com/m2team/NSudo/edit/master/Website/zh-hant/docs/SharedLibrary.md" target="_blank" rel="noopener noreferrer">在 GitHub 上編輯此頁</a> <span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></div> <div class="last-updated"><span class="prefix">最後更新時間:</span> <span class="time">2021/06/05 18:13</span></div></footer> <!----> <div class="page-footer"><ul class="inner"><li><span>Copyright &copy; <a href='https://m2team.org/' target='_blank'>M2-Team</a> and Contributors. All rights reserved. </span></li><li><span><a href='https://github.com/M2Team/NSudo/blob/master/License.md' target='_blank'>MIT</a> Licensed </span></li><li><a href="https://github.com/M2Team/NSudo/issues" target="_blank" rel="noopener noreferrer">GitHub Issue </a></li><li><a href="https://github.com/M2Team/NSudo/blob/master/People.md" target="_blank" rel="noopener noreferrer">相關人士</a></li></ul></div> </main></div><div class="global-ui"><!----></div></div>
+    <script src="/assets/js/app.20c00f87.js" defer></script><script src="/assets/js/2.6e0dde66.js" defer></script><script src="/assets/js/3.d05d3189.js" defer></script><script src="/assets/js/28.7e593d4a.js" defer></script>
+  </body>
+</html>

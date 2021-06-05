@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>NSudo 惡魔模式 | NSudo</title>
+    <meta name="generator" content="VuePress 1.8.2">
+    <link rel="icon" href="/favicon.ico">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon-152x152.png">
+    <link rel="mask-icon" href="/icons/safari-pinned-tab.svg" color="#2582D3">
+    <meta name="description" content="系統管理工具包">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="author" content="M2-Team">
+    <meta name="keywords" content="trustedinstaller,system,session,windows,token,integritylevel,privileges,nsudo,administration,process,devilmode,bypass,accesscheck,ntapi,launcher">
+    <meta name="theme-color" content="#2582D3">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="msapplication-TileImage" content="/icons/msapplication-icon-144x144.png">
+    <meta name="msapplication-TileColor" content="#000000">
+    <meta name="Copyright" content="Copyright M2-Team All Rights Reserved.">
+    
+    <link rel="preload" href="/assets/css/0.styles.dbfee10f.css" as="style"><link rel="preload" href="/assets/js/app.20c00f87.js" as="script"><link rel="preload" href="/assets/js/2.6e0dde66.js" as="script"><link rel="preload" href="/assets/js/3.d05d3189.js" as="script"><link rel="preload" href="/assets/js/26.56178a47.js" as="script"><link rel="prefetch" href="/assets/js/10.2329bc20.js"><link rel="prefetch" href="/assets/js/11.e76b0e43.js"><link rel="prefetch" href="/assets/js/12.c29c6254.js"><link rel="prefetch" href="/assets/js/13.28fd99e9.js"><link rel="prefetch" href="/assets/js/14.e1adb664.js"><link rel="prefetch" href="/assets/js/15.f818fdca.js"><link rel="prefetch" href="/assets/js/16.599a3e37.js"><link rel="prefetch" href="/assets/js/17.42fd45d1.js"><link rel="prefetch" href="/assets/js/18.04915c60.js"><link rel="prefetch" href="/assets/js/19.2531247c.js"><link rel="prefetch" href="/assets/js/20.1ad256f1.js"><link rel="prefetch" href="/assets/js/21.13e13782.js"><link rel="prefetch" href="/assets/js/22.42bc5385.js"><link rel="prefetch" href="/assets/js/23.b49be59c.js"><link rel="prefetch" href="/assets/js/24.3c09ea50.js"><link rel="prefetch" href="/assets/js/25.5ab16788.js"><link rel="prefetch" href="/assets/js/27.4d3836a1.js"><link rel="prefetch" href="/assets/js/28.7e593d4a.js"><link rel="prefetch" href="/assets/js/29.a3072c93.js"><link rel="prefetch" href="/assets/js/4.f7975784.js"><link rel="prefetch" href="/assets/js/5.11dfc3c1.js"><link rel="prefetch" href="/assets/js/6.ea860749.js"><link rel="prefetch" href="/assets/js/7.f44327dc.js"><link rel="prefetch" href="/assets/js/8.b333f2de.js"><link rel="prefetch" href="/assets/js/9.a7c9e60d.js">
+    <link rel="stylesheet" href="/assets/css/0.styles.dbfee10f.css">
+  </head>
+  <body>
+    <div id="app" data-server-rendered="true"><div class="theme-container"><header class="navbar"><div class="sidebar-button"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" viewBox="0 0 448 512" class="icon"><path fill="currentColor" d="M436 124H12c-6.627 0-12-5.373-12-12V80c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12z"></path></svg></div> <a href="/zh-hant/" class="home-link router-link-active"><img src="/assets/img/logo.png" alt="NSudo" class="logo"> <span class="site-name can-hide">NSudo</span></a> <div class="links"><div class="search-box"><input aria-label="Search" autocomplete="off" spellcheck="false" value=""> <!----></div> <nav class="nav-links can-hide"><div class="nav-item"><a href="/zh-hant/" class="nav-link">
+  主頁
+</a></div><div class="nav-item"><a href="/zh-hant/Download.html" class="nav-link">
+  下載
+</a></div><div class="nav-item"><a href="/zh-hant/Support.html" class="nav-link">
+  支援
+</a></div><div class="nav-item"><a href="/zh-hant/docs/" class="nav-link router-link-active">
+  文獻
+</a></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="Select language" class="dropdown-title"><span class="title">選擇語言</span> <span class="arrow down"></span></button> <button type="button" aria-label="Select language" class="mobile-dropdown-title"><span class="title">選擇語言</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/en-us/docs/DevilMode.html" class="nav-link">
+  English
+</a></li><li class="dropdown-item"><!----> <a href="/zh-hans/docs/DevilMode.html" class="nav-link">
+  简体中文
+</a></li><li class="dropdown-item"><!----> <a href="/zh-hant/docs/DevilMode.html" aria-current="page" class="nav-link router-link-exact-active router-link-active">
+  繁體中文
+</a></li></ul></div></div> <a href="https://github.com/m2team/NSudo" target="_blank" rel="noopener noreferrer" class="repo-link">
+    GitHub
+    <span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></nav></div></header> <div class="sidebar-mask"></div> <aside class="sidebar"><nav class="nav-links"><div class="nav-item"><a href="/zh-hant/" class="nav-link">
+  主頁
+</a></div><div class="nav-item"><a href="/zh-hant/Download.html" class="nav-link">
+  下載
+</a></div><div class="nav-item"><a href="/zh-hant/Support.html" class="nav-link">
+  支援
+</a></div><div class="nav-item"><a href="/zh-hant/docs/" class="nav-link router-link-active">
+  文獻
+</a></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="Select language" class="dropdown-title"><span class="title">選擇語言</span> <span class="arrow down"></span></button> <button type="button" aria-label="Select language" class="mobile-dropdown-title"><span class="title">選擇語言</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/en-us/docs/DevilMode.html" class="nav-link">
+  English
+</a></li><li class="dropdown-item"><!----> <a href="/zh-hans/docs/DevilMode.html" class="nav-link">
+  简体中文
+</a></li><li class="dropdown-item"><!----> <a href="/zh-hant/docs/DevilMode.html" aria-current="page" class="nav-link router-link-exact-active router-link-active">
+  繁體中文
+</a></li></ul></div></div> <a href="https://github.com/m2team/NSudo" target="_blank" rel="noopener noreferrer" class="repo-link">
+    GitHub
+    <span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></nav>  <ul class="sidebar-links"><li><a href="/zh-hant/docs/" aria-current="page" class="sidebar-link">使用方法</a></li><li><section class="sidebar-group depth-0"><p class="sidebar-heading open"><span>檔案</span> <!----></p> <ul class="sidebar-links sidebar-group-items"><li><a href="/zh-hant/docs/Changelog.html" class="sidebar-link">變更紀錄</a></li><li><a href="/zh-hant/docs/DevilMode.html" aria-current="page" class="active sidebar-link">NSudo 惡魔模式</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/zh-hant/docs/DevilMode.html#nsudo-惡魔模式的起源、命名和意義" class="sidebar-link">NSudo 惡魔模式的起源、命名和意義</a></li><li class="sidebar-sub-header"><a href="/zh-hant/docs/DevilMode.html#nsudo-惡魔模式掛鉤的-windows-nt-內核系統調用列表" class="sidebar-link">NSudo 惡魔模式掛鉤的 Windows NT 內核系統調用列表</a></li><li class="sidebar-sub-header"><a href="/zh-hant/docs/DevilMode.html#如何使用-nsudo-惡魔模式" class="sidebar-link">如何使用 NSudo 惡魔模式</a></li><li class="sidebar-sub-header"><a href="/zh-hant/docs/DevilMode.html#nsudo-惡魔模式的技術內幕" class="sidebar-link">NSudo 惡魔模式的技術內幕</a></li></ul></li><li><a href="/zh-hant/docs/DevilMode.html" aria-current="page" class="active sidebar-link">NSudo 共享庫</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/zh-hant/docs/DevilMode.html#nsudo-惡魔模式的起源、命名和意義" class="sidebar-link">NSudo 惡魔模式的起源、命名和意義</a></li><li class="sidebar-sub-header"><a href="/zh-hant/docs/DevilMode.html#nsudo-惡魔模式掛鉤的-windows-nt-內核系統調用列表" class="sidebar-link">NSudo 惡魔模式掛鉤的 Windows NT 內核系統調用列表</a></li><li class="sidebar-sub-header"><a href="/zh-hant/docs/DevilMode.html#如何使用-nsudo-惡魔模式" class="sidebar-link">如何使用 NSudo 惡魔模式</a></li><li class="sidebar-sub-header"><a href="/zh-hant/docs/DevilMode.html#nsudo-惡魔模式的技術內幕" class="sidebar-link">NSudo 惡魔模式的技術內幕</a></li></ul></li></ul></section></li></ul> </aside> <main class="page"> <div class="theme-default-content content__default"><h1 id="nsudo-惡魔模式"><a href="#nsudo-惡魔模式" class="header-anchor">#</a> NSudo 惡魔模式</h1> <p>NSudo 惡魔模式 (NSudo Devil Mode) 是爲想無視文件和註冊表操作權限檢查的開發者
+量身定做的一個用起來還算優雅的解決方案。</p> <p>其原理是使用開源的 Microsoft Detours 庫對 Windows NT 內核的文件和註冊表相關的
+系統調用進行 Inline Hook 以傳入選項讓開發者基本不用修改自己的實現也能充分的利用
+管理員權限所提供的特權, 這也使得開發者只需要把 NSudo 惡魔模式的動態鏈接庫加載入
+自己的以管理員身份運行的應用進程的地址空間內即可啓用 NSudo 惡魔模式。</p> <p>由於 NSudo 惡魔模式可以在大部分情況下替代類似 NSudo 的工具, 於是 NSudo 未來的
+功能會變得更加專業向。畢竟作爲 NSudo 的作者的我可不希望 NSudo 就這麼輕易地被
+替代掉。當然, 由於 NSudo 惡魔模式屬於 Dism++ 春哥附體的後續版本 (畢竟我也是
+Dism++ 的其中一位開發者, 這麼說還是有依據的), 於是未來 Dism++ 的春哥附體的實現
+會被替換成 NSudo 惡魔模式以幫助我更好的重構 Dism++ 的實現。當然, NSudo 也會支持
+以惡魔模式運行應用。</p> <h2 id="nsudo-惡魔模式的起源、命名和意義"><a href="#nsudo-惡魔模式的起源、命名和意義" class="header-anchor">#</a> NSudo 惡魔模式的起源、命名和意義</h2> <p>正如上文所說, NSudo 惡魔模式屬於 Dism++ 春哥附體的後續版本, 而且你也能在本文中
+瞭解 NSudo 惡魔模式和 Dism++ 春哥附體的區別。</p> <p>命名爲 NSudo 惡魔模式的靈感來源是《入間同學入魔了》的被蛋爺改造過的擁有四個檔位
+的入間手中的 &quot;惡食戒指&quot; 。</p> <p>最開始聽到 MSMG Toolkit 的作者希望我能提供 NSudo 的 SDK 方便他進行二次開發時,
+我試着做了基於 COM 接口的 NSudo Shared Library 即 NSudoAPI, 但是由於 NSudoAPI
+暴露的細節太多, 如果不是對 Windows 安全特性足夠了解的開發者是很難駕馭的。於是
+我覺得得換個方向, 於是就做了 NSudo 惡魔模式。</p> <h2 id="nsudo-惡魔模式掛鉤的-windows-nt-內核系統調用列表"><a href="#nsudo-惡魔模式掛鉤的-windows-nt-內核系統調用列表" class="header-anchor">#</a> NSudo 惡魔模式掛鉤的 Windows NT 內核系統調用列表</h2> <table><thead><tr><th>名稱</th> <th>起源</th></tr></thead> <tbody><tr><td>NtCreateKey</td> <td>Dism++ 春哥附體</td></tr> <tr><td>NtCreateKeyTransacted</td> <td>NSudo 惡魔模式</td></tr> <tr><td>NtOpenKey</td> <td>Dism++ 春哥附體, 並增強了效果</td></tr> <tr><td>NtOpenKeyTransacted</td> <td>NSudo 惡魔模式</td></tr> <tr><td>NtOpenKeyEx</td> <td>Dism++ 春哥附體</td></tr> <tr><td>NtOpenKeyTransactedEx</td> <td>NSudo 惡魔模式</td></tr> <tr><td>NtCreateFile</td> <td>Dism++ 春哥附體</td></tr> <tr><td>NtOpenFile</td> <td>Dism++ 春哥附體</td></tr></tbody></table> <h2 id="如何使用-nsudo-惡魔模式"><a href="#如何使用-nsudo-惡魔模式" class="header-anchor">#</a> 如何使用 NSudo 惡魔模式</h2> <p>調用 LoadLibrary 加載 NSudo 惡魔模式的動態鏈接庫以啓用 NSudo 惡魔模式, 調用
+FreeLibrary 釋放 NSudo 惡魔模式的動態鏈接庫的 HMODULE 句柄即可禁用 NSudo
+惡魔模式。</p> <p>當然, 你的應用需要在管理員權限下運行, 相對於原本要求 SYSTEM 和 TrustedInstaller
+權限的情況下其實好了不少。</p> <p>注: 如果你有本事把 NSudo 惡魔模式遠程注入到以管理員或者更高權限的進程內 (譬如
+7-Zip), 也能爲該進程賦能 (無視文件和註冊表的權限)。</p> <p>下面提供一個使用 C# 編寫的測試用例。 (遍歷 C:\System Volume Information 目錄
+的內容, 當啓用 NSudo 惡魔模式的情況下可以正常顯示, 禁用後會拋出文件夾拒絕訪問
+的異常。)</p> <div class="language- extra-class"><pre class="language-text"><code>using System;
+using System.IO;
+using System.Runtime.InteropServices;
+
+namespace Demo
+{
+    class Program
+    {
+        [DllImport(&quot;kernel32.dll&quot;, CharSet = CharSet.Unicode)]
+        static extern IntPtr LoadLibrary(string lpLibFileName);
+
+        [DllImport(&quot;kernel32.dll&quot;, SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        static extern bool FreeLibrary(IntPtr hLibModule);
+
+        static void Main(string[] args)
+        {
+            IntPtr NSudoDevilModeModuleHandle = LoadLibrary(
+                @&quot;E:\GitHub\M2Team\NSudo\Output\Release\x64\NSudoDevilMode.dll&quot;);
+
+            {
+                DirectoryInfo Folder = new DirectoryInfo(
+                @&quot;C:\System Volume Information&quot;);
+
+                foreach (FileInfo File in Folder.GetFiles())
+                {
+                    Console.WriteLine(File.FullName);
+                }
+            }
+
+            FreeLibrary(NSudoDevilModeModuleHandle);
+
+            {
+                DirectoryInfo Folder = new DirectoryInfo(
+                @&quot;C:\System Volume Information&quot;);
+
+                foreach (FileInfo File in Folder.GetFiles())
+                {
+                    Console.WriteLine(File.FullName);
+                }
+            }
+
+            Console.ReadKey();
+        }
+    }
+}
+</code></pre></div><h2 id="nsudo-惡魔模式的技術內幕"><a href="#nsudo-惡魔模式的技術內幕" class="header-anchor">#</a> NSudo 惡魔模式的技術內幕</h2> <p>啓用 SeBackupPrivilege 和 SeRestorePrivilege 是前提條件, 但是你也需要在創建文件
+或註冊表句柄的時候傳入對應的選項, 否則是不生效的。</p> <p>首先說明一點, 那就是 Windows 內核當發現調用者上下文爲 SYSTEM 令牌的時候, 據
+Microsoft 文檔描述是爲了提升 Windows 的性能會自動忽略掉大部分訪問檢查, 畢竟很多
+Windows 系統關鍵組件運行在 SYSTEM 令牌上下文下面, 對於 Windows 用戶模式而言,
+SYSTEM 令牌是至高無上的, 所以訪問檢查沒必要做, 做了也提升不了安全性反而降低了
+效率。所以這也是爲什麼除了 SYSTEM 令牌上下文外的其他令牌都需要啓用相關特權 +
+創建文件和註冊表句柄的 API 傳入對應選項才能忽略掉相關訪問檢查。</p> <p>我用一個最簡單的例子來說明減少不需要的內核級訪問檢查的好處, 那就是在 Windows
+AppContainer 下運行的代碼, 由於會多出一個額外的內核級訪問檢查 (用 IDA 分析
+ntoskrnl.exe, 然後用 F5 查看相關函數可以發現, 其實就是多出了一個分支和寥寥數行
+實現), 大概會比在 AppContainer 外運行會損失 15% 的性能  (這也可以說明越底層的
+實現越需要重視性能問題)。Windows AppContainer 是 Windows 8 開始提供的用戶模式
+沙盒, 主要用在商店應用和瀏覽器的沙盒上面。</p> <p>Windows 的大部分內部使用了創建文件和註冊表句柄的 API 並沒有傳入對應的選項, 於是
+就出現了普通管理員下即使開啓了這兩個特權有些目錄照樣還是無法進行增刪查改。而
+NSudo 惡魔模式通過 Inline Hook 對 Windows 用戶模式的系統調用層進行掛鉤以
+智能傳入相關選項, 這也是 NSudo 惡魔模式能在非 SYSTEM 的但擁有這兩個特權的
+令牌上下文下繞過文件和註冊表訪問判斷的緣由。</p> <p>Windows 用戶模式系統調用層指的是 ntdll.dll 導出的前綴爲 Nt 或 Zw 的 API,
+Windows 用戶模式下的 API 最終全會調用這部分以通過軟中斷陷阱門或者系統調用指令
+進入內核模式完成最終操作。</p> <p>智能, 指的是隻有當前進程令牌上下文能夠啓用  SeBackupPrivilege 和
+SeRestorePrivilege 的時候, 纔會傳入對應選項。畢竟如果這兩個特權沒有開啓的話,
+傳入了相關選項是會返回錯誤的, 這也是爲什麼 Windows 相關實現並沒有傳入的原因。</p> <p>當然 NSudo 惡魔模式爲了對調用者更加透明和符合最小權限原則, 在初始化的時候首先會
+創建一份當前進程令牌的模擬令牌副本, 然後對該副本開啓這兩個特權。在 Hook 中,
+會先備份當前線程上下文的令牌, 接着替換成模擬令牌副本 (或者用 Microsoft 文檔的
+稱法是模擬令牌上下文), 傳入相關選項調用原 API 後再恢復爲原來線程上下文的令牌。
+(實現細節請參考在 NSudo 代碼倉庫的 NSudo 惡魔模式的源代碼)</p> <p>我說的有些囉嗦, 請見諒, 希望對你有幫助。</p></div> <footer class="page-edit"><div class="edit-link"><a href="https://github.com/m2team/NSudo/edit/master/Website/zh-hant/docs/DevilMode.md" target="_blank" rel="noopener noreferrer">在 GitHub 上編輯此頁</a> <span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></div> <div class="last-updated"><span class="prefix">最後更新時間:</span> <span class="time">2021/06/05 18:13</span></div></footer> <div class="page-nav"><p class="inner"><span class="prev">
+      ←
+      <a href="/zh-hant/docs/Changelog.html" class="prev">
+        變更紀錄
+      </a></span> <span class="next"><a href="/zh-hant/docs/DevilMode.html" aria-current="page" class="router-link-exact-active router-link-active">
+        NSudo 共享庫
+      </a>
+      →
+    </span></p></div> <div class="page-footer"><ul class="inner"><li><span>Copyright &copy; <a href='https://m2team.org/' target='_blank'>M2-Team</a> and Contributors. All rights reserved. </span></li><li><span><a href='https://github.com/M2Team/NSudo/blob/master/License.md' target='_blank'>MIT</a> Licensed </span></li><li><a href="https://github.com/M2Team/NSudo/issues" target="_blank" rel="noopener noreferrer">GitHub Issue </a></li><li><a href="https://github.com/M2Team/NSudo/blob/master/People.md" target="_blank" rel="noopener noreferrer">相關人士</a></li></ul></div> </main></div><div class="global-ui"><!----></div></div>
+    <script src="/assets/js/app.20c00f87.js" defer></script><script src="/assets/js/2.6e0dde66.js" defer></script><script src="/assets/js/3.d05d3189.js" defer></script><script src="/assets/js/26.56178a47.js" defer></script>
+  </body>
+</html>
