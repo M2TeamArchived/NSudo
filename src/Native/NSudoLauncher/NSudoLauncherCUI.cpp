@@ -698,7 +698,10 @@ void NSudoPrintMsg(
     std::wstring DialogContent =
         g_ResourceManagement.GetTranslation("NSudo.LogoText") +
         lpContent +
-        g_ResourceManagement.GetTranslation("NSudo.String.Links");
+        g_ResourceManagement.GetTranslation("NSudo.String.Links") +
+        L"\r\n" +
+        L"\r\n" +
+        ::NSudoReadLog();
 
     UNREFERENCED_PARAMETER(hInstance);
     UNREFERENCED_PARAMETER(hWnd);
