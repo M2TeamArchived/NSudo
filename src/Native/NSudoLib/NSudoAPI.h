@@ -18,6 +18,21 @@
 #include <Windows.h>
 
 /**
+ * @brief Reads data from the NSudo logging infrastructure.
+ * @return The content of the data from the NSudo logging infrastructure.
+*/
+EXTERN_C LPCWSTR WINAPI NSudoReadLog();
+
+/**
+ * @brief Reads data to the NSudo logging infrastructure.
+ * @param Sender The sender name of the data.
+ * @param Content The content of the data.
+*/
+EXTERN_C VOID WINAPI NSudoWriteLog(
+    _In_ LPCWSTR Sender,
+    _In_ LPCWSTR Content);
+
+/**
 * Contains values that specify the type of user mode.
 */
 typedef enum class _NSUDO_USER_MODE_TYPE

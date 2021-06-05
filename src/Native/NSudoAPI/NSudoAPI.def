@@ -2,4 +2,7 @@
 
 EXPORTS
 
+NSudoReadLog
+NSudoWriteLog
+
 NSudoCreateProcess

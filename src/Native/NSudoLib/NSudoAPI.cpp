@@ -17,6 +17,7 @@
 #include <cstdio>
 #include <cwchar>
 
+#include <string>
 #include <type_traits>
 #include <utility>
 
@@ -25,9 +26,49 @@
 #pragma comment(lib, "Userenv.lib")
 #endif
 
-/**
- * @remark You can read the definition for this function in "NSudoAPI.h".
- */
+const std::wstring g_NSudoLogSplitter =
+    L"****************************************************************\r\n";
+static Mile::CriticalSection g_NSudoLogLock;
+static std::wstring g_NSudoLog = g_NSudoLogSplitter;
+
+EXTERN_C LPCWSTR WINAPI NSudoReadLog()
+{
+    Mile::AutoCriticalSectionLock Lock(g_NSudoLogLock);
+
+    return g_NSudoLog.c_str();
+}
+
+EXTERN_C VOID WINAPI NSudoWriteLog(
+    _In_ LPCWSTR Sender,
+    _In_ LPCWSTR Content)
+{
+    Mile::AutoCriticalSectionLock Lock(g_NSudoLogLock);
+
+    SYSTEMTIME SystemTime = { 0 };
+    ::GetLocalTime(&SystemTime);
+
+    g_NSudoLog += Mile::FormatString(
+        L"\r\n"
+        L"Sender: %s\r\n"
+        L"DateTime: %d-%.2d-%.2d %.2d:%.2d:%.2d\r\n"
+        L"Process ID: %d\r\n"
+        L"Thread ID: %d\r\n"
+        L"\r\n"
+        L"%s\r\n"
+        L"\r\n",
+        Sender,
+        SystemTime.wYear,
+        SystemTime.wMonth,
+        SystemTime.wDay,
+        SystemTime.wHour,
+        SystemTime.wMinute,
+        SystemTime.wSecond,
+        ::GetCurrentProcessId(),
+        ::GetCurrentThreadId(),
+        Content);
+    g_NSudoLog += g_NSudoLogSplitter;
+}
+
 EXTERN_C HRESULT WINAPI NSudoCreateProcess(
     _In_ NSUDO_USER_MODE_TYPE UserModeType,
     _In_ NSUDO_PRIVILEGES_MODE_TYPE PrivilegesModeType,

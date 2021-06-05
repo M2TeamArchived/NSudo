@@ -24,6 +24,7 @@
   - Use GitHub Actions to deploy the website.
 - Add German Language. (Contributed by Steve.)
 - Remove some experiment implementations, including NSudo Sweeper.
+- Add logging support.
 
 **NSudo 8.0 Update 1 (8.0.1)**
 
