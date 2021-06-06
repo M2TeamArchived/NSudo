@@ -11,6 +11,29 @@ namespace M2.NSudo
     public class NSudoInstance
     {
         /// <summary>
+        /// Reads data from the NSudo logging infrastructure.
+        /// </summary>
+        /// <returns>
+        /// The content of the data from the NSudo logging infrastructure.
+        /// </returns>
+        [UnmanagedFunctionPointer(CallingConvention.Winapi, CharSet = CharSet.Unicode)]
+        private delegate IntPtr NSudoReadLogType();
+
+        /// <summary>
+        /// Reads data to the NSudo logging infrastructure.
+        /// </summary>
+        /// <param name="Sender">
+        /// The sender name of the data.
+        /// </param>
+        /// <param name="Content">
+        /// The content of the data.
+        /// </param>
+        [UnmanagedFunctionPointer(CallingConvention.Winapi, CharSet = CharSet.Unicode)]
+        private delegate void NSudoWriteLogType(
+            string Sender,
+            string Content);
+
+        /// <summary>
         /// Creates a new process and its primary thread.
         /// </summary>
         /// <param name="UserModeType">
@@ -89,9 +112,6 @@ namespace M2.NSudo
                     Architecture.X64,
                     BaseDirectory + "x64\\NSudoAPI.dll");
                 BinaryPaths.TryAdd(
-                    Architecture.Arm,
-                    BaseDirectory + "ARM\\NSudoAPI.dll");
-                BinaryPaths.TryAdd(
                     Architecture.Arm64,
                     BaseDirectory + "ARM64\\NSudoAPI.dll");
             }
@@ -121,6 +141,57 @@ namespace M2.NSudo
             {
                 throw new Win32Exception(Marshal.GetLastWin32Error());
             }
+        }
+
+        /// <summary>
+        /// Reads data from the NSudo logging infrastructure.
+        /// </summary>
+        /// <returns>
+        /// The content of the data from the NSudo logging infrastructure.
+        /// </returns>
+        public string ReadLog()
+        {
+            IntPtr NSudoReadLogInstanceAddress = Win32.GetProcAddress(
+                this.ModuleHandle, "NSudoReadLog");
+            if (NSudoReadLogInstanceAddress == IntPtr.Zero)
+            {
+                throw new Win32Exception(Marshal.GetLastWin32Error());
+            }
+
+            NSudoReadLogType NSudoReadLogInstance =
+                Marshal.GetDelegateForFunctionPointer<NSudoReadLogType>(
+                    NSudoReadLogInstanceAddress);
+
+            return Marshal.PtrToStringUni(NSudoReadLogInstance());
+        }
+
+        /// <summary>
+        /// Reads data to the NSudo logging infrastructure.
+        /// </summary>
+        /// <param name="Sender">
+        /// The sender name of the data.
+        /// </param>
+        /// <param name="Content">
+        /// The content of the data.
+        /// </param>
+        public void WriteLog(
+            string Sender,
+            string Content)
+        {
+            IntPtr NSudoWriteLogInstanceAddress = Win32.GetProcAddress(
+                this.ModuleHandle, "NSudoWriteLog");
+            if (NSudoWriteLogInstanceAddress == IntPtr.Zero)
+            {
+                throw new Win32Exception(Marshal.GetLastWin32Error());
+            }
+
+            NSudoWriteLogType NSudoWriteLogInstance =
+                Marshal.GetDelegateForFunctionPointer<NSudoWriteLogType>(
+                    NSudoWriteLogInstanceAddress);
+
+            NSudoWriteLogInstance(
+                Sender,
+                Content);
         }
 
         /// <summary>
@@ -177,16 +248,16 @@ namespace M2.NSudo
             string CommandLine,
             string CurrentDirectory)
         {
-            IntPtr NSudoCreateInstanceAddress = Win32.GetProcAddress(
+            IntPtr NSudoCreateProcessInstanceAddress = Win32.GetProcAddress(
                 this.ModuleHandle, "NSudoCreateProcess");
-            if (NSudoCreateInstanceAddress == IntPtr.Zero)
+            if (NSudoCreateProcessInstanceAddress == IntPtr.Zero)
             {
                 throw new Win32Exception(Marshal.GetLastWin32Error());
             }
 
             NSudoCreateProcessType NSudoCreateProcessInstance =
                 Marshal.GetDelegateForFunctionPointer<NSudoCreateProcessType>(
-                    NSudoCreateInstanceAddress);
+                    NSudoCreateProcessInstanceAddress);
 
             int hr = NSudoCreateProcessInstance(
                 UserModeType,
