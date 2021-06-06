@@ -10,15 +10,15 @@
 
 #include <NSudoAPI.h>
 
-BOOL APIENTRY DllMain(
-    HMODULE hModule,
-    DWORD  ul_reason_for_call,
-    LPVOID lpReserved)
+BOOL WINAPI DllMain(
+    _In_ HINSTANCE hinstDLL,
+    _In_ DWORD fdwReason,
+    _In_ LPVOID lpvReserved)
 {
-    UNREFERENCED_PARAMETER(hModule);
-    UNREFERENCED_PARAMETER(lpReserved);
+    UNREFERENCED_PARAMETER(hinstDLL);
+    UNREFERENCED_PARAMETER(lpvReserved);
 
-    switch (ul_reason_for_call)
+    switch (fdwReason)
     {
     case DLL_PROCESS_ATTACH:
         break;
