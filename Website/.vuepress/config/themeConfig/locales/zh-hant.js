@@ -24,7 +24,7 @@
         children: [
           ["/zh-hant/docs/Changelog", "變更紀錄"],
           ["/zh-hant/docs/DevilMode", "NSudo 惡魔模式"],
-          ["/zh-hant/docs/DevilMode", "NSudo 共享庫"]
+          ["/zh-hant/docs/SharedLibrary", "NSudo 共享庫"]
         ]
       }
     ]
