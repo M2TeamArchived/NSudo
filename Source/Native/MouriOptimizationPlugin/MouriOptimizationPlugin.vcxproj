@@ -10,6 +10,7 @@
   <Import Project="..\Mile.Project.VisualStudio\Mile.Project.Cpp.VC-LTL.props" />
   <ImportGroup Label="PropertySheets">
     <Import Project="..\Mile\Mile.props" />
+    <Import Project="..\MINT\MINT.props" />
   </ImportGroup>
   <ItemDefinitionGroup>
     <Link>
@@ -18,6 +19,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="DllMain.cpp" />
+    <ClCompile Include="MoDefragMemory.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="MouriOptimizationPlugin.def" />
