@@ -1251,7 +1251,7 @@ int WINAPI wWinMain(
     {
         NSudoContextPluginEntryPointType Function =
             reinterpret_cast<NSudoContextPluginEntryPointType>(
-                ::GetProcAddress(ModuleHandle, "MoDefragMemory"));
+                ::GetProcAddress(ModuleHandle, "MoEnableMicrosoftUpdate"));
         if (Function)
         {
             Function(&Context, ModuleHandle, L"");

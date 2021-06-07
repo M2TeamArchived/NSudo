@@ -5,6 +5,9 @@
     <ClCompile Include="MoDefragMemory.cpp">
       <Filter>Modules</Filter>
     </ClCompile>
+    <ClCompile Include="MoEnableMicrosoftUpdate.cpp">
+      <Filter>Modules</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="MouriOptimizationPlugin.def" />
