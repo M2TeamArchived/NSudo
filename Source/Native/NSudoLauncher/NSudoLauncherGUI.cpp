@@ -1219,6 +1219,18 @@ private:
 //    MessageBoxW(nullptr, fuck.c_str(), L"NSudo", 0);
 //}
 
+#include <NSudoContextPlugin.h>
+
+VOID WINAPI NSudoContextPrintMessage(
+    _In_ LPCWSTR Message)
+{
+    ::MessageBoxW(
+        nullptr,
+        Message,
+        L"NSudo Context Plugin",
+        MB_ICONINFORMATION);
+}
+
 int WINAPI wWinMain(
     _In_ HINSTANCE hInstance,
     _In_opt_ HINSTANCE hPrevInstance,
@@ -1229,6 +1241,24 @@ int WINAPI wWinMain(
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
     UNREFERENCED_PARAMETER(nShowCmd);
+
+    NSUDO_CONTEXT Context;
+    Context.PrintMessage = ::NSudoContextPrintMessage;
+
+    HMODULE ModuleHandle = Mile::LoadLibraryFromSystem32(
+        L"D:\\Projects\\MouriNaruto\\NSudoPrivate\\Source\\Native\\Output\\Binaries\\Release\\x64\\MoPlugin.dll");
+    if (ModuleHandle)
+    {
+        NSudoContextPluginEntryPointType Function =
+            reinterpret_cast<NSudoContextPluginEntryPointType>(
+                ::GetProcAddress(ModuleHandle, "MoDefragMemory"));
+        if (Function)
+        {
+            Function(&Context, ModuleHandle, L"");
+        }
+
+        ::FreeLibrary(ModuleHandle);
+    }
 
     // Fall back to English in unsupported environment. (Temporary Hack)
     // Reference: https://github.com/M2Team/NSudo/issues/56
