@@ -15,6 +15,7 @@
     <ClInclude Include="Mile.Portable.h">
       <Filter>Mile.Portable</Filter>
     </ClInclude>
+    <ClInclude Include="NSudoContextPlugin.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Mile.props" />
