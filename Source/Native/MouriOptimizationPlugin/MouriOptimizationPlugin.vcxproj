@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{74324C26-D7B5-4BC7-94DD-1DF65C45783B}</ProjectGuid>
+    <RootNamespace>MouriOptimizationPlugin</RootNamespace>
+    <TargetName>MoPlugin</TargetName>
+    <MileProjectType>DynamicLibrary</MileProjectType>
+  </PropertyGroup>
+  <Import Project="..\Mile.Project.VisualStudio\Mile.Project.Cpp.props" />
+  <Import Project="..\Mile.Project.VisualStudio\Mile.Project.Cpp.VC-LTL.props" />
+  <ImportGroup Label="PropertySheets">
+    <Import Project="..\Mile\Mile.props" />
+  </ImportGroup>
+  <ItemDefinitionGroup>
+    <Link>
+      <ModuleDefinitionFile>MouriOptimizationPlugin.def</ModuleDefinitionFile>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="DllMain.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="MouriOptimizationPlugin.def" />
+    <None Include="MouriOptimizationPlugin.props" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Mile.Project.Properties.h" />
+  </ItemGroup>
+  <Import Project="..\Mile.Project.VisualStudio\Mile.Project.Cpp.targets" />
+</Project>
