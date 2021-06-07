@@ -1269,6 +1269,7 @@ int WINAPI wWinMain(
     case LANG_FRENCH:
     case LANG_ITALIAN:
     case LANG_CHINESE:
+    case LANG_GERMAN:
         break;
     default:
         ::SetThreadUILanguage(MAKELANGID(LANG_ENGLISH, SUBLANG_NEUTRAL));
