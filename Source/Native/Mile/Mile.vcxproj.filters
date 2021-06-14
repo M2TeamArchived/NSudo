@@ -7,6 +7,9 @@
     <ClCompile Include="Mile.Portable.cpp">
       <Filter>Mile.Portable</Filter>
     </ClCompile>
+    <ClCompile Include="Mile.PiConsole.cpp">
+      <Filter>Mile.PiConsole</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Mile.Windows.h">
@@ -16,6 +19,9 @@
       <Filter>Mile.Portable</Filter>
     </ClInclude>
     <ClInclude Include="NSudoContextPlugin.h" />
+    <ClInclude Include="Mile.PiConsole.h">
+      <Filter>Mile.PiConsole</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Mile.props" />
@@ -27,6 +33,9 @@
     </Filter>
     <Filter Include="Mile.Portable">
       <UniqueIdentifier>{6eafd39c-ff2b-43ba-8f99-13a4863c21b8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Mile.PiConsole">
+      <UniqueIdentifier>{cbc08989-829c-41d0-94d8-2938c6156d41}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
