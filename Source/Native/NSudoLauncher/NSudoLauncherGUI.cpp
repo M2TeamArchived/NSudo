@@ -1125,6 +1125,8 @@ VOID WINAPI NSudoContextPrintMessage(
         MB_ICONINFORMATION);
 }
 
+#include <Mile.PiConsole.h>
+
 int WINAPI wWinMain(
     _In_ HINSTANCE hInstance,
     _In_opt_ HINSTANCE hPrevInstance,
@@ -1136,7 +1138,35 @@ int WINAPI wWinMain(
     UNREFERENCED_PARAMETER(lpCmdLine);
     UNREFERENCED_PARAMETER(nShowCmd);
 
-    NSUDO_CONTEXT Context;
+    HWND WindowHandle = Mile::CreatePiConsole(
+        hInstance,
+        reinterpret_cast<HICON>(::LoadImageW(
+            hInstance,
+            MAKEINTRESOURCE(IDI_NSUDO_LAUNCHER),
+            IMAGE_ICON,
+            256,
+            256,
+            LR_SHARED)),
+        L"NSudo Interactive Console",
+        nShowCmd);
+
+    Mile::PrintMessageToPiConsole(
+        WindowHandle,
+        L"Hello World");
+
+    Mile::PrintMessageToPiConsole(
+        WindowHandle,
+        Mile::GetInputFromPiConsole(
+            WindowHandle,
+            L"请在此输入一段测试文字并回车"));
+
+    Mile::PrintMessageToPiConsole(
+        WindowHandle,
+        Mile::GetInputFromPiConsole(
+            WindowHandle,
+            L"Please 在此输入一段测试文字并回车"));
+
+    /*NSUDO_CONTEXT Context;
     Context.PrintMessage = ::NSudoContextPrintMessage;
 
     HMODULE ModuleHandle = Mile::LoadLibraryFromSystem32(
@@ -1152,7 +1182,7 @@ int WINAPI wWinMain(
         }
 
         ::FreeLibrary(ModuleHandle);
-    }
+    }*/
 
     // Fall back to English in unsupported environment. (Temporary Hack)
     // Reference: https://github.com/M2Team/NSudo/issues/56
