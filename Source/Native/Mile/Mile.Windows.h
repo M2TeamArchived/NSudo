@@ -488,6 +488,92 @@ namespace Mile
     };
 
     /**
+     * @brief Provides automatic locking and unlocking of a raw critical section.
+    */
+    class AutoRawCriticalSectionLock
+    {
+    private:
+
+        /**
+         * @brief The raw critical section object.
+        */
+        CRITICAL_SECTION& m_Object;
+
+    public:
+
+        /**
+         * @brief Lock the raw critical section object.
+         * @param Object The raw critical section object.
+        */
+        explicit AutoRawCriticalSectionLock(
+            CRITICAL_SECTION& Object) noexcept :
+            m_Object(Object)
+        {
+            CriticalSection::Enter(&this->m_Object);
+        }
+
+        /**
+         * @brief Unlock the raw critical section object.
+        */
+        ~AutoRawCriticalSectionLock() noexcept
+        {
+            CriticalSection::Leave(&this->m_Object);
+        }
+    };
+
+    /**
+     * @brief Provides automatic trying to locking and unlocking of a raw
+     *        critical section.
+    */
+    class AutoRawCriticalSectionTryLock
+    {
+    private:
+
+        /**
+         * @brief The raw critical section object.
+        */
+        CRITICAL_SECTION& m_Object;
+
+        /**
+         * @brief The lock status.
+        */
+        bool m_IsLocked;
+
+    public:
+
+        /**
+         * @brief Try to lock the raw critical section object.
+         * @param Object The raw critical section object.
+        */
+        explicit AutoRawCriticalSectionTryLock(
+            CRITICAL_SECTION& Object) noexcept :
+            m_Object(Object)
+        {
+            this->m_IsLocked = CriticalSection::TryEnter(&this->m_Object);
+        }
+
+        /**
+         * @brief Try to unlock the raw critical section object.
+        */
+        ~AutoRawCriticalSectionTryLock() noexcept
+        {
+            if (this->m_IsLocked)
+            {
+                CriticalSection::Leave(&this->m_Object);
+            }
+        }
+
+        /**
+         * @brief Check the lock status.
+         * @return The lock status.
+        */
+        bool IsLocked() const
+        {
+            return this->m_IsLocked;
+        }
+    };
+
+    /**
      * @brief Wraps a slim reader/writer (SRW) lock.
     */
     class SRWLock : DisableCopyConstruction, DisableMoveConstruction
@@ -826,6 +912,184 @@ namespace Mile
             if (this->m_IsLocked)
             {
                 this->m_Object.UnlockShared();
+            }
+        }
+
+        /**
+         * @brief Check the lock status.
+         * @return The lock status.
+        */
+        bool IsLocked() const
+        {
+            return this->m_IsLocked;
+        }
+    };
+
+    /**
+     * @brief Provides automatic exclusive locking and unlocking of a raw slim
+     *        reader/writer (SRW) lock.
+    */
+    class AutoRawSRWExclusiveLock
+    {
+    private:
+
+        /**
+         * @brief The slim reader/writer (SRW) lock object.
+        */
+        SRWLOCK& m_Object;
+
+    public:
+
+        /**
+         * @brief Exclusive lock the raw slim reader/writer (SRW) lock object.
+         * @param Object The raw slim reader/writer (SRW) lock object.
+        */
+        explicit AutoRawSRWExclusiveLock(
+            SRWLOCK& Object) noexcept :
+            m_Object(Object)
+        {
+            SRWLock::AcquireExclusive(&this->m_Object);
+        }
+
+        /**
+         * @brief Exclusive unlock the raw slim reader/writer (SRW) lock
+         *        object.
+        */
+        ~AutoRawSRWExclusiveLock() noexcept
+        {
+            SRWLock::ReleaseExclusive(&this->m_Object);
+        }
+    };
+
+    /**
+     * @brief Provides automatic trying to exclusive locking and unlocking of a
+     *        raw slim reader/writer (SRW) lock.
+    */
+    class AutoRawSRWExclusiveTryLock
+    {
+    private:
+
+        /**
+         * @brief The raw slim reader/writer (SRW) lock object.
+        */
+        SRWLOCK& m_Object;
+
+        /**
+         * @brief The lock status.
+        */
+        bool m_IsLocked;
+
+    public:
+
+        /**
+         * @brief Try to exclusive lock the raw slim reader/writer (SRW) lock
+         *        object.
+         * @param Object The slim reader/writer (SRW) lock object.
+        */
+        explicit AutoRawSRWExclusiveTryLock(
+            SRWLOCK& Object) noexcept :
+            m_Object(Object)
+        {
+            this->m_IsLocked = SRWLock::TryAcquireExclusive(&this->m_Object);
+        }
+
+        /**
+         * @brief Try to exclusive unlock the raw slim reader/writer (SRW) lock
+         *        object.
+        */
+        ~AutoRawSRWExclusiveTryLock() noexcept
+        {
+            if (this->m_IsLocked)
+            {
+                SRWLock::ReleaseExclusive(&this->m_Object);
+            }
+        }
+
+        /**
+         * @brief Check the lock status.
+         * @return The lock status.
+        */
+        bool IsLocked() const
+        {
+            return this->m_IsLocked;
+        }
+    };
+
+    /**
+     * @brief Provides automatic shared locking and unlocking of a raw slim
+     *        reader/writer (SRW) lock.
+    */
+    class AutoRawSRWSharedLock
+    {
+    private:
+
+        /**
+         * @brief The raw slim reader/writer (SRW) lock object.
+        */
+        SRWLOCK& m_Object;
+
+    public:
+
+        /**
+         * @brief Shared lock the raw slim reader/writer (SRW) lock object.
+         * @param Object The raw slim reader/writer (SRW) lock object.
+        */
+        explicit AutoRawSRWSharedLock(
+            SRWLOCK& Object) noexcept :
+            m_Object(Object)
+        {
+            SRWLock::AcquireShared(&this->m_Object);
+        }
+
+        /**
+         * @brief Shared unlock the raw slim reader/writer (SRW) lock object.
+        */
+        ~AutoRawSRWSharedLock() noexcept
+        {
+            SRWLock::ReleaseShared(&this->m_Object);
+        }
+    };
+
+    /**
+     * @brief Provides automatic trying to shared locking and unlocking of a
+     *        raw slim reader/writer (SRW) lock.
+    */
+    class AutoRawSRWSharedTryLock
+    {
+    private:
+
+        /**
+         * @brief The raw slim reader/writer (SRW) lock object.
+        */
+        SRWLOCK& m_Object;
+
+        /**
+         * @brief The lock status.
+        */
+        bool m_IsLocked;
+
+    public:
+
+        /**
+         * @brief Try to shared lock the raw slim reader/writer (SRW) lock object.
+         * @param Object The raw slim reader/writer (SRW) lock object.
+        */
+        explicit AutoRawSRWSharedTryLock(
+            SRWLOCK& Object) noexcept :
+            m_Object(Object)
+        {
+            this->m_IsLocked = SRWLock::TryAcquireShared(&this->m_Object);
+        }
+
+        /**
+         * @brief Try to shared unlock the raw slim reader/writer (SRW) lock
+         *        object.
+        */
+        ~AutoRawSRWSharedTryLock() noexcept
+        {
+            if (this->m_IsLocked)
+            {
+                SRWLock::ReleaseShared(&this->m_Object);
             }
         }
 
