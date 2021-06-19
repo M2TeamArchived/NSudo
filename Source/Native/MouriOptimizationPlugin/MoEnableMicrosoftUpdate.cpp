@@ -8,20 +8,15 @@
  * DEVELOPER: Mouri_Naruto (Mouri_Naruto AT Outlook.com)
  */
 
-#include <NSudoContextPlugin.h>
+#include <NSudoContext.h>
 
 #include <Mile.Windows.h>
 
 #include <wuapi.h>
 
 EXTERN_C HRESULT WINAPI MoEnableMicrosoftUpdate(
-    _In_ PNSUDO_CONTEXT Context,
-    _In_ HMODULE ModuleHandle,
-    _In_ LPCWSTR CommandLine)
+    _In_ PNSUDO_CONTEXT Context)
 {
-    Mile::UnreferencedParameter(ModuleHandle);
-    Mile::UnreferencedParameter(CommandLine);
-
     Mile::HResult hr = ::CoInitializeEx(
         nullptr,
         COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
@@ -83,7 +78,9 @@ EXTERN_C HRESULT WINAPI MoEnableMicrosoftUpdate(
         ::CoUninitialize();
     }
 
-    Context->PrintMessage(Mile::GetHResultMessage(hr).c_str());
+    Context->WriteLine(
+        Context,
+        Mile::GetHResultMessage(hr).c_str());
 
     return hr;
 }

@@ -1113,19 +1113,91 @@ private:
     }
 };
 
-#include <NSudoContextPlugin.h>
-
-VOID WINAPI NSudoContextPrintMessage(
-    _In_ LPCWSTR Message)
-{
-    ::MessageBoxW(
-        nullptr,
-        Message,
-        L"NSudo Context Plugin",
-        MB_ICONINFORMATION);
-}
+#include <NSudoContext.h>
 
 #include <Mile.PiConsole.h>
+
+typedef struct _NSUDO_CONTEXT_PRIVATE
+{
+    NSUDO_CONTEXT PublicContext;
+
+    SIZE_T Size;
+
+    HWND PiConsoleWindowHandle;
+
+    HMODULE ModuleHandle;
+    LPCWSTR CommandLine;
+
+} NSUDO_CONTEXT_PRIVATE, *PNSUDO_CONTEXT_PRIVATE;
+
+PNSUDO_CONTEXT_PRIVATE NSudoContextGetPrivate(
+    _In_ PNSUDO_CONTEXT Context)
+{
+    PNSUDO_CONTEXT_PRIVATE PrivateContext =
+        reinterpret_cast<PNSUDO_CONTEXT_PRIVATE>(Context);
+    if (PrivateContext)
+    {
+        if (PrivateContext->Size == sizeof(NSUDO_CONTEXT_PRIVATE))
+        {
+            return PrivateContext;
+        }
+    }
+
+    return nullptr;
+}
+
+
+HMODULE WINAPI NSudoContextGetContextPluginModuleHandle(
+    _In_ PNSUDO_CONTEXT Context)
+{
+    PNSUDO_CONTEXT_PRIVATE PrivateContext = NSudoContextGetPrivate(Context);
+
+    if (PrivateContext)
+    {
+        return PrivateContext->ModuleHandle;
+    }
+
+    return nullptr;
+}
+
+LPCWSTR WINAPI NSudoContextGetContextPluginCommandLine(
+    _In_ PNSUDO_CONTEXT Context)
+{
+    PNSUDO_CONTEXT_PRIVATE PrivateContext = NSudoContextGetPrivate(Context);
+
+    if (PrivateContext)
+    {
+        return PrivateContext->CommandLine;
+    }
+
+    return nullptr;
+}
+
+VOID WINAPI NSudoContextWrite(
+    _In_ PNSUDO_CONTEXT Context,
+    _In_ LPCWSTR Value)
+{
+    PNSUDO_CONTEXT_PRIVATE PrivateContext = NSudoContextGetPrivate(Context);
+
+    if (PrivateContext)
+    {
+        Mile::PiConsole::PrintMessage(
+            PrivateContext->PiConsoleWindowHandle,
+            Value);
+    }
+}
+
+VOID WINAPI NSudoContextWriteLine(
+    _In_ PNSUDO_CONTEXT Context,
+    _In_ LPCWSTR Value)
+{
+    if (Context)
+    {
+        Context->Write(Context, Value);
+        Context->Write(Context, L"\r\n");
+    }
+}
+
 
 int WINAPI wWinMain(
     _In_ HINSTANCE hInstance,
@@ -1137,52 +1209,6 @@ int WINAPI wWinMain(
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
     UNREFERENCED_PARAMETER(nShowCmd);
-
-    HWND WindowHandle = Mile::CreatePiConsole(
-        hInstance,
-        reinterpret_cast<HICON>(::LoadImageW(
-            hInstance,
-            MAKEINTRESOURCE(IDI_NSUDO_LAUNCHER),
-            IMAGE_ICON,
-            256,
-            256,
-            LR_SHARED)),
-        L"NSudo Interactive Console",
-        nShowCmd);
-
-    Mile::PrintMessageToPiConsole(
-        WindowHandle,
-        L"Hello World");
-
-    Mile::PrintMessageToPiConsole(
-        WindowHandle,
-        Mile::GetInputFromPiConsole(
-            WindowHandle,
-            L"请在此输入一段测试文字并回车"));
-
-    Mile::PrintMessageToPiConsole(
-        WindowHandle,
-        Mile::GetInputFromPiConsole(
-            WindowHandle,
-            L"Please 在此输入一段测试文字并回车"));
-
-    /*NSUDO_CONTEXT Context;
-    Context.PrintMessage = ::NSudoContextPrintMessage;
-
-    HMODULE ModuleHandle = Mile::LoadLibraryFromSystem32(
-        L"D:\\Projects\\MouriNaruto\\NSudoPrivate\\Source\\Native\\Output\\Binaries\\Release\\x64\\MoPlugin.dll");
-    if (ModuleHandle)
-    {
-        NSudoContextPluginEntryPointType Function =
-            reinterpret_cast<NSudoContextPluginEntryPointType>(
-                ::GetProcAddress(ModuleHandle, "MoEnableMicrosoftUpdate"));
-        if (Function)
-        {
-            Function(&Context, ModuleHandle, L"");
-        }
-
-        ::FreeLibrary(ModuleHandle);
-    }*/
 
     // Fall back to English in unsupported environment. (Temporary Hack)
     // Reference: https://github.com/M2Team/NSudo/issues/56
@@ -1200,9 +1226,110 @@ int WINAPI wWinMain(
         break;
     }
 
-    CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
+    ::CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
 
     g_ResourceManagement.Initialize();
+
+
+
+    NSUDO_CONTEXT_PRIVATE Context;
+
+    Context.PublicContext.GetContextPluginModuleHandle =
+        ::NSudoContextGetContextPluginModuleHandle;
+    Context.PublicContext.GetContextPluginCommandLine =
+        ::NSudoContextGetContextPluginCommandLine;
+    Context.PublicContext.Write =
+        ::NSudoContextWrite;
+    Context.PublicContext.WriteLine =
+        ::NSudoContextWriteLine;
+
+    Context.Size = sizeof(NSUDO_CONTEXT_PRIVATE);
+
+    Context.PiConsoleWindowHandle = Mile::PiConsole::Create(
+        hInstance,
+        reinterpret_cast<HICON>(::LoadImageW(
+            hInstance,
+            MAKEINTRESOURCE(IDI_NSUDO_LAUNCHER),
+            IMAGE_ICON,
+            256,
+            256,
+            LR_SHARED)),
+        g_ResourceManagement.GetTranslation("NSudo.VersionText").c_str(),
+        nShowCmd);
+
+
+    Context.PublicContext.WriteLine(
+        &Context.PublicContext,
+        L"Welcome to use NSudo Interactive Console, "
+        L"if you met the input box in the bottom, "
+        L"press enter to continue after finishing the input.");
+    Context.PublicContext.WriteLine(
+        &Context.PublicContext,
+        L"");
+    Context.PublicContext.WriteLine(
+        &Context.PublicContext,
+        L"Here is a demo of a context plugin.");
+    Context.PublicContext.WriteLine(
+        &Context.PublicContext,
+        L"");
+
+
+    const size_t x = sizeof(NSUDO_CONTEXT);
+    const size_t y = sizeof(NSUDO_CONTEXT_PRIVATE);
+
+    /*Mile::PiConsole::PrintMessage(
+        WindowHandle,
+        L"Hello World");
+
+    Mile::PiConsole::PrintMessage(
+        WindowHandle,
+        Mile::PiConsole::GetInput(
+            WindowHandle,
+            L"Please input a test sentence and press enter"));
+
+    Mile::PiConsole::PrintMessage(
+        WindowHandle,
+        Mile::PiConsole::GetInput(
+            WindowHandle,
+            L"Please input a test sentence and press enter"));*/
+
+
+    HMODULE ModuleHandle = Mile::LoadLibraryFromSystem32(
+        (g_ResourceManagement.AppPath + L"\\MoPlugin.dll").c_str());
+    if (ModuleHandle)
+    {
+        NSudoContextPluginEntryPointType Function =
+            reinterpret_cast<NSudoContextPluginEntryPointType>(
+                ::GetProcAddress(ModuleHandle, "MoDefragMemory"));
+        if (Function)
+        {
+            LPWSTR Answer = Mile::PiConsole::GetInput(
+                Context.PiConsoleWindowHandle,
+                L"Do you want to defrag memory? [y/n]");
+            if (Answer)
+            {
+                if (::_wcsicmp(Answer, L"y") == 0)
+                {
+                    Context.ModuleHandle = ModuleHandle;
+                    Context.CommandLine = L"";
+
+                    Function(&Context.PublicContext);
+
+                    Context.ModuleHandle = nullptr;
+                    Context.CommandLine = nullptr;
+                }
+
+                Mile::HeapMemory::Free(Answer);
+            } 
+        }
+
+        ::FreeLibrary(ModuleHandle);
+    }
+
+
+
+
+
 
     std::wstring ApplicationName;
     std::map<std::wstring, std::wstring> OptionsAndParameters;

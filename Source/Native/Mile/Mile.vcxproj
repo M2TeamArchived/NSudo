@@ -24,7 +24,7 @@
     <ClInclude Include="Mile.PiConsole.h" />
     <ClInclude Include="Mile.Portable.h" />
     <ClInclude Include="Mile.Windows.h" />
-    <ClInclude Include="NSudoContextPlugin.h" />
+    <ClInclude Include="NSudoContext.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="MCC.cppold" />

@@ -8,19 +8,14 @@
  * DEVELOPER: Mouri_Naruto (Mouri_Naruto AT Outlook.com)
  */
 
-#include <NSudoContextPlugin.h>
+#include <NSudoContext.h>
 
 #include <Mile.Windows.h>
 #include <MINT.h>
 
 EXTERN_C HRESULT WINAPI MoDefragMemory(
-    _In_ PNSUDO_CONTEXT Context,
-    _In_ HMODULE ModuleHandle,
-    _In_ LPCWSTR CommandLine)
+    _In_ PNSUDO_CONTEXT Context)
 {
-    Mile::UnreferencedParameter(ModuleHandle);
-    Mile::UnreferencedParameter(CommandLine);
-
     HANDLE CurrentProcessToken = INVALID_HANDLE_VALUE;
 
     Mile::HResult hr = Mile::HResultFromLastError(::OpenProcessToken(
@@ -77,7 +72,9 @@ EXTERN_C HRESULT WINAPI MoDefragMemory(
         hr = Mile::HResult::FromWin32(::RtlNtStatusToDosError(Status));
     }
 
-    Context->PrintMessage(Mile::GetHResultMessage(hr).c_str());
+    Context->WriteLine(
+        Context,
+        Mile::GetHResultMessage(hr).c_str());
 
     return hr;
 }

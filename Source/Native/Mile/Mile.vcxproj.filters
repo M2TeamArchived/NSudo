@@ -18,7 +18,7 @@
     <ClInclude Include="Mile.Portable.h">
       <Filter>Mile.Portable</Filter>
     </ClInclude>
-    <ClInclude Include="NSudoContextPlugin.h" />
+    <ClInclude Include="NSudoContext.h" />
     <ClInclude Include="Mile.PiConsole.h">
       <Filter>Mile.PiConsole</Filter>
     </ClInclude>

@@ -23,6 +23,9 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Mile", "Mile\Mile.vcxproj", "{A17EB414-7D7A-4455-BEF7-CA8D149D0CB2}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NSudoLauncherResources", "NSudoLauncher\NSudoLauncherResources.vcxproj", "{B2176F44-F97A-4403-948C-F21D56999C70}"
+	ProjectSection(ProjectDependencies) = postProject
+		{74324C26-D7B5-4BC7-94DD-1DF65C45783B} = {74324C26-D7B5-4BC7-94DD-1DF65C45783B}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NSudoLauncherCUI", "NSudoLauncher\NSudoLauncherCUI.vcxproj", "{2B3E4F28-D499-4529-BEC1-E0ED2003A385}"
 	ProjectSection(ProjectDependencies) = postProject
