@@ -18,7 +18,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="DllMain.cpp" />
+    <ClCompile Include="MouriOptimizationPlugin.cpp" />
     <ClCompile Include="MoDefragMemory.cpp" />
     <ClCompile Include="MoEnableMicrosoftUpdate.cpp" />
   </ItemGroup>
@@ -28,6 +28,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Mile.Project.Properties.h" />
+    <ClInclude Include="MouriOptimizationPlugin.h" />
   </ItemGroup>
   <Import Project="..\Mile.Project.VisualStudio\Mile.Project.Cpp.targets" />
 </Project>

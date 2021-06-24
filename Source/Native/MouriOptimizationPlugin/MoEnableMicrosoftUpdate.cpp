@@ -8,15 +8,15 @@
  * DEVELOPER: Mouri_Naruto (Mouri_Naruto AT Outlook.com)
  */
 
-#include <NSudoContext.h>
-
-#include <Mile.Windows.h>
+#include "MouriOptimizationPlugin.h"
 
 #include <wuapi.h>
 
 EXTERN_C HRESULT WINAPI MoEnableMicrosoftUpdate(
     _In_ PNSUDO_CONTEXT Context)
 {
+    LPCWSTR FailedPoint = nullptr;
+
     Mile::HResult hr = ::CoInitializeEx(
         nullptr,
         COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
@@ -37,12 +37,18 @@ EXTERN_C HRESULT WINAPI MoEnableMicrosoftUpdate(
             {
                 hr = pUpdateServiceManager2->put_ClientApplicationID(
                     ClientApplicationID);
+                if (hr.IsFailed())
+                {
+                    FailedPoint =
+                        L"IUpdateServiceManager2::put_ClientApplicationID";
+                }
 
-                ::SysFreeString(ClientApplicationID);
+                ::SysFreeString(ClientApplicationID);     
             }
             else
             {
                 hr = E_OUTOFMEMORY;
+                FailedPoint = L"SysAllocString";
             }
 
             if (hr.IsSucceeded())
@@ -64,6 +70,15 @@ EXTERN_C HRESULT WINAPI MoEnableMicrosoftUpdate(
                         flags,
                         authorizationCabPath,
                         &pResult);
+                    if (hr.IsSucceeded())
+                    {
+                        pResult->Release();
+                    }
+                    else
+                    {
+                        FailedPoint = L"IUpdateServiceManager2::AddService2";
+                    }
+                    
 
                     ::SysFreeString(serviceID);
                     ::SysFreeString(authorizationCabPath);
@@ -71,16 +86,25 @@ EXTERN_C HRESULT WINAPI MoEnableMicrosoftUpdate(
                 else
                 {
                     hr = E_OUTOFMEMORY;
+                    FailedPoint = L"SysAllocString";
                 }
             }
+
+            pUpdateServiceManager2->Release();
+        }
+        else
+        {
+            FailedPoint = L"CoCreateInstance";
         }
 
         ::CoUninitialize();
     }
+    else
+    {
+        FailedPoint = L"CoInitializeEx";
+    }
 
-    Context->WriteLine(
-        Context,
-        Mile::GetHResultMessage(hr).c_str());
+    ::MoPrivatePrintFinalResult(Context, hr, FailedPoint);
 
     return hr;
 }

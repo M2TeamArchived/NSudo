@@ -8,15 +8,15 @@
  * DEVELOPER: Mouri_Naruto (Mouri_Naruto AT Outlook.com)
  */
 
-#include <NSudoContext.h>
+#include "MouriOptimizationPlugin.h"
 
-#include <Mile.Windows.h>
 #include <MINT.h>
 
 EXTERN_C HRESULT WINAPI MoDefragMemory(
     _In_ PNSUDO_CONTEXT Context)
 {
     HANDLE CurrentProcessToken = INVALID_HANDLE_VALUE;
+    LPCWSTR FailedPoint = nullptr;
 
     Mile::HResult hr = Mile::HResultFromLastError(::OpenProcessToken(
         ::GetCurrentProcess(),
@@ -39,9 +39,21 @@ EXTERN_C HRESULT WINAPI MoDefragMemory(
                 CurrentProcessToken,
                 &RawPrivilege,
                 1);
+            if (hr.IsFailed())
+            {
+                FailedPoint = L"Mile::AdjustTokenPrivilegesSimple";
+            }
+        }
+        else
+        {
+            FailedPoint = L"LookupPrivilegeValueW";
         }
 
         ::CloseHandle(CurrentProcessToken);
+    }
+    else
+    {
+        FailedPoint = L"OpenProcessToken";
     }
 
     if (hr.IsSucceeded())
@@ -67,14 +79,16 @@ EXTERN_C HRESULT WINAPI MoDefragMemory(
             {
                 break;
             }
+            else
+            {
+                FailedPoint = L"NtSetSystemInformation";
+            }
         }
 
         hr = Mile::HResult::FromWin32(::RtlNtStatusToDosError(Status));
     }
 
-    Context->WriteLine(
-        Context,
-        Mile::GetHResultMessage(hr).c_str());
+    ::MoPrivatePrintFinalResult(Context, hr, FailedPoint);
 
     return hr;
 }
