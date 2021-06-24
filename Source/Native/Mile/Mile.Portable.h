@@ -304,6 +304,19 @@ namespace Mile
         std::wstring& ApplicationName,
         std::map<std::wstring, std::wstring>& OptionsAndParameters,
         std::wstring& UnresolvedCommandLine);
+
+    /**
+     * @brief Parses a command arguments string and returns an array of the
+     *        command arguments, along with a count of such arguments, in a way
+     *        that is similar to the standard C run-time.
+     * @param Arguments A string that contains the full command arguments. If
+     *                  this parameter is an empty string the function returns
+     *                  an array with only one empty string.
+     * @return An array of the command arguments, along with a count of such
+     *         arguments.
+    */
+    std::vector<std::wstring> SpiltCommandArguments(
+        std::wstring const& Arguments);
 }
 
 #endif // !MILE_PORTABLE

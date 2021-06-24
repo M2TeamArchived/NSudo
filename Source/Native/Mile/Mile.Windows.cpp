@@ -1948,7 +1948,7 @@ std::wstring Mile::ExpandEnvironmentStringsW(
             SourceString.c_str(),
             &DestinationString[0],
             Length);
-        DestinationString.resize(Length);
+        DestinationString.resize(Length - 1);
     }
 
     return DestinationString;
