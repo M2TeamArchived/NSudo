@@ -1130,6 +1130,19 @@ typedef struct _NSUDO_CONTEXT_PRIVATE
 
 } NSUDO_CONTEXT_PRIVATE, *PNSUDO_CONTEXT_PRIVATE;
 
+VOID WINAPI NSudoContextGetNSudoVersion(
+    _Out_ PNSUDO_VERSION Version)
+{
+    if (Version)
+    {
+        Version->Major = MILE_PROJECT_VERSION_MAJOR;
+        Version->Minor = MILE_PROJECT_VERSION_MINOR;
+        Version->Patch = MILE_PROJECT_VERSION_PATCH;
+        Version->Revision = MILE_PROJECT_VERSION_REVISION;
+        Version->Tag = MILE_PROJECT_VERSION_TAG;
+    }
+}
+
 PNSUDO_CONTEXT_PRIVATE NSudoContextGetPrivate(
     _In_ PNSUDO_CONTEXT Context)
 {
@@ -1146,11 +1159,10 @@ PNSUDO_CONTEXT_PRIVATE NSudoContextGetPrivate(
     return nullptr;
 }
 
-
 HMODULE WINAPI NSudoContextGetContextPluginModuleHandle(
     _In_ PNSUDO_CONTEXT Context)
 {
-    PNSUDO_CONTEXT_PRIVATE PrivateContext = NSudoContextGetPrivate(Context);
+    PNSUDO_CONTEXT_PRIVATE PrivateContext = ::NSudoContextGetPrivate(Context);
 
     if (PrivateContext)
     {
@@ -1163,7 +1175,7 @@ HMODULE WINAPI NSudoContextGetContextPluginModuleHandle(
 LPCWSTR WINAPI NSudoContextGetContextPluginCommandLine(
     _In_ PNSUDO_CONTEXT Context)
 {
-    PNSUDO_CONTEXT_PRIVATE PrivateContext = NSudoContextGetPrivate(Context);
+    PNSUDO_CONTEXT_PRIVATE PrivateContext = ::NSudoContextGetPrivate(Context);
 
     if (PrivateContext)
     {
@@ -1173,11 +1185,20 @@ LPCWSTR WINAPI NSudoContextGetContextPluginCommandLine(
     return nullptr;
 }
 
+VOID WINAPI NSudoContextFree(
+    _In_ PNSUDO_CONTEXT Context,
+    _In_ LPVOID Block)
+{
+    UNREFERENCED_PARAMETER(Context);
+
+    Mile::HeapMemory::Free(Block);
+}
+
 VOID WINAPI NSudoContextWrite(
     _In_ PNSUDO_CONTEXT Context,
     _In_ LPCWSTR Value)
 {
-    PNSUDO_CONTEXT_PRIVATE PrivateContext = NSudoContextGetPrivate(Context);
+    PNSUDO_CONTEXT_PRIVATE PrivateContext = ::NSudoContextGetPrivate(Context);
 
     if (PrivateContext)
     {
@@ -1196,6 +1217,22 @@ VOID WINAPI NSudoContextWriteLine(
         Context->Write(Context, Value);
         Context->Write(Context, L"\r\n");
     }
+}
+
+LPCWSTR WINAPI NSudoContextReadLine(
+    _In_ PNSUDO_CONTEXT Context,
+    _In_ LPCWSTR InputPrompt)
+{
+    PNSUDO_CONTEXT_PRIVATE PrivateContext = ::NSudoContextGetPrivate(Context);
+
+    if (PrivateContext)
+    {
+        return Mile::PiConsole::GetInput(
+            PrivateContext->PiConsoleWindowHandle,
+            InputPrompt);
+    }
+
+    return nullptr;
 }
 
 
@@ -1234,14 +1271,20 @@ int WINAPI wWinMain(
 
     NSUDO_CONTEXT_PRIVATE Context;
 
+    Context.PublicContext.GetNSudoVersion =
+        ::NSudoContextGetNSudoVersion;
     Context.PublicContext.GetContextPluginModuleHandle =
         ::NSudoContextGetContextPluginModuleHandle;
     Context.PublicContext.GetContextPluginCommandLine =
         ::NSudoContextGetContextPluginCommandLine;
+    Context.PublicContext.Free =
+        ::NSudoContextFree;
     Context.PublicContext.Write =
         ::NSudoContextWrite;
     Context.PublicContext.WriteLine =
         ::NSudoContextWriteLine;
+    Context.PublicContext.ReadLine =
+        ::NSudoContextReadLine;
 
     Context.Size = sizeof(NSUDO_CONTEXT_PRIVATE);
 
