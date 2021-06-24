@@ -1341,7 +1341,7 @@ int WINAPI wWinMain(
         (g_ResourceManagement.AppPath + L"\\MoPlugin.dll").c_str());
     if (ModuleHandle)
     {
-        NSudoContextPluginEntryPointType Function =
+        /*NSudoContextPluginEntryPointType Function =
             reinterpret_cast<NSudoContextPluginEntryPointType>(
                 ::GetProcAddress(ModuleHandle, "MoDefragMemory"));
         if (Function)
@@ -1364,6 +1364,20 @@ int WINAPI wWinMain(
 
                 Mile::HeapMemory::Free(Answer);
             } 
+        }*/
+
+        NSudoContextPluginEntryPointType Function =
+            reinterpret_cast<NSudoContextPluginEntryPointType>(
+                ::GetProcAddress(ModuleHandle, "MoPurgeSystemRestorePoint"));
+        if (Function)
+        {
+            Context.ModuleHandle = ModuleHandle;
+            Context.CommandArguments = L"ScanOnly";
+
+            Function(&Context.PublicContext);
+
+            Context.ModuleHandle = nullptr;
+            Context.CommandArguments = nullptr;
         }
 
         ::FreeLibrary(ModuleHandle);

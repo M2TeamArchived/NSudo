@@ -4,3 +4,5 @@ EXPORTS
 
 MoDefragMemory
 MoEnableMicrosoftUpdate
+
+MoPurgeSystemRestorePoint
