@@ -96,6 +96,7 @@
     <LinkIncremental Condition="'$(MileProjectType)'=='UefiApplication'">false</LinkIncremental>
     <UefiApplicationResourceIncludePath Condition="'$(MileProjectType)'=='UefiApplication'">$(IncludePath)</UefiApplicationResourceIncludePath>
     <IncludePath Condition="'$(MileProjectType)'=='UefiApplication'"></IncludePath>
+    <ExternalIncludePath Condition="'$(MileProjectType)'=='UefiApplication'"></ExternalIncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
