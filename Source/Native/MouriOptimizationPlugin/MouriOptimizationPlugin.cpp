@@ -43,6 +43,27 @@ void MoPrivatePrintFinalResult(
     }
 }
 
+void MoPrivatePrintPurgeScanResult(
+    _In_ PNSUDO_CONTEXT Context,
+    _In_ std::uint64_t ByteSize)
+{
+    if (Context)
+    {
+        //L"Total amount of disk space you may gain: ";
+        //L"或许可获得的磁盘空间总量: ";
+
+        Context->Write(
+            Context,
+            L"Total amount of disk space you may gain: ");
+        Context->Write(
+            Context,
+            Mile::ConvertByteSizeToString(ByteSize).c_str());
+        Context->Write(
+            Context,
+            L".\r\n");
+    }
+}
+
 BOOL WINAPI DllMain(
     _In_ HINSTANCE hinstDLL,
     _In_ DWORD fdwReason,

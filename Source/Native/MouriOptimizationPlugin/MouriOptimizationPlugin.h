@@ -25,4 +25,13 @@ void MoPrivatePrintFinalResult(
     _In_ Mile::HResult const& hr,
     _In_ LPCWSTR FailedPoint);
 
+/**
+ * @brief Prints the pruge scan result to the NSudo user interface.
+ * @param Context The NSudo context.
+ * @param ByteSize The numeric byte size value to be converted.
+*/
+void MoPrivatePrintPurgeScanResult(
+    _In_ PNSUDO_CONTEXT Context,
+    _In_ std::uint64_t ByteSize);
+
 #endif // !MOURI_OPTIMIZATION_PLUGIN
