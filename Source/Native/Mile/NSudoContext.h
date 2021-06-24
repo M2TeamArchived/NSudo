@@ -55,7 +55,7 @@ struct _NSUDO_CONTEXT
      * @param Context The NSudo context.
      * @return The command line arguments for the context plugin.
     */
-    LPCWSTR(WINAPI* GetContextPluginCommandLine)(
+    LPCWSTR(WINAPI* GetContextPluginCommandArguments)(
         _In_ PNSUDO_CONTEXT Context);
 
     /**

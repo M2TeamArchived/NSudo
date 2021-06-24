@@ -1126,7 +1126,7 @@ typedef struct _NSUDO_CONTEXT_PRIVATE
     HWND PiConsoleWindowHandle;
 
     HMODULE ModuleHandle;
-    LPCWSTR CommandLine;
+    LPCWSTR CommandArguments;
 
 } NSUDO_CONTEXT_PRIVATE, *PNSUDO_CONTEXT_PRIVATE;
 
@@ -1172,14 +1172,14 @@ HMODULE WINAPI NSudoContextGetContextPluginModuleHandle(
     return nullptr;
 }
 
-LPCWSTR WINAPI NSudoContextGetContextPluginCommandLine(
+LPCWSTR WINAPI NSudoContextGetContextPluginCommandArguments(
     _In_ PNSUDO_CONTEXT Context)
 {
     PNSUDO_CONTEXT_PRIVATE PrivateContext = ::NSudoContextGetPrivate(Context);
 
     if (PrivateContext)
     {
-        return PrivateContext->CommandLine;
+        return PrivateContext->CommandArguments;
     }
 
     return nullptr;
@@ -1275,8 +1275,8 @@ int WINAPI wWinMain(
         ::NSudoContextGetNSudoVersion;
     Context.PublicContext.GetContextPluginModuleHandle =
         ::NSudoContextGetContextPluginModuleHandle;
-    Context.PublicContext.GetContextPluginCommandLine =
-        ::NSudoContextGetContextPluginCommandLine;
+    Context.PublicContext.GetContextPluginCommandArguments =
+        ::NSudoContextGetContextPluginCommandArguments;
     Context.PublicContext.Free =
         ::NSudoContextFree;
     Context.PublicContext.Write =
@@ -1354,12 +1354,12 @@ int WINAPI wWinMain(
                 if (::_wcsicmp(Answer, L"y") == 0)
                 {
                     Context.ModuleHandle = ModuleHandle;
-                    Context.CommandLine = L"";
+                    Context.CommandArguments = L"";
 
                     Function(&Context.PublicContext);
 
                     Context.ModuleHandle = nullptr;
-                    Context.CommandLine = nullptr;
+                    Context.CommandArguments = nullptr;
                 }
 
                 Mile::HeapMemory::Free(Answer);
