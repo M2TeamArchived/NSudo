@@ -2001,4 +2001,41 @@ std::wstring Mile::FormatString(
     return L"";
 }
 
+std::wstring Mile::ConvertByteSizeToString(
+    std::uint64_t ByteSize)
+{
+    const wchar_t* Systems[] =
+    {
+        L"Byte",
+        L"Bytes",
+        L"KiB",
+        L"MiB",
+        L"GiB",
+        L"TiB",
+        L"PiB",
+        L"EiB"
+    };
+
+    size_t nSystem = 0;
+    double result = static_cast<double>(ByteSize);
+
+    if (ByteSize > 1)
+    {
+        for (
+            nSystem = 1;
+            nSystem < sizeof(Systems) / sizeof(*Systems);
+            ++nSystem)
+        {
+            if (1024.0 > result)
+                break;
+
+            result /= 1024.0;
+        }
+
+        result = static_cast<uint64_t>(result * 100) / 100.0;
+    }
+
+    return Mile::FormatString(L"%.1lf %s", result, Systems[nSystem]);
+}
+
 #pragma endregion

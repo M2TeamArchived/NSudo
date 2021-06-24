@@ -2148,6 +2148,17 @@ namespace Mile
         _In_z_ _Printf_format_string_ wchar_t const* const Format,
         ...);
 
+    /**
+     * @brief Converts a numeric value into a string that represents the number
+     *        expressed as a size value in byte, bytes, kibibytes, mebibytes,
+     *        gibibytes, tebibytes, pebibytes or exbibytes, depending on the
+     *        size.
+     * @param ByteSize The numeric byte size value to be converted.
+     * @return A formatted string if successful, an empty string otherwise.
+    */
+    std::wstring ConvertByteSizeToString(
+        std::uint64_t ByteSize);
+
 #pragma endregion
 }
 
