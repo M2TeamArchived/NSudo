@@ -54,7 +54,18 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MouriOptimizationPlugin", "
 		{A17EB414-7D7A-4455-BEF7-CA8D149D0CB2} = {A17EB414-7D7A-4455-BEF7-CA8D149D0CB2}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Mile.Library", "Mile.Cpp\Mile.Library\Mile.Library.vcxitems", "{CE65A617-D629-4B2A-BE58-9B96011980C1}"
+EndProject
 Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		Mile.Cpp\Mile.Library\Mile.Library.vcxitems*{074549f9-9197-41fe-a8ed-8bfa2a0e2549}*SharedItemsImports = 4
+		Mile.Cpp\Mile.Library\Mile.Library.vcxitems*{2b3e4f28-d499-4529-bec1-e0ed2003a385}*SharedItemsImports = 4
+		Mile.Cpp\Mile.Library\Mile.Library.vcxitems*{43c2bd57-4d61-42ec-b290-62a32b6fb5c7}*SharedItemsImports = 4
+		Mile.Cpp\Mile.Library\Mile.Library.vcxitems*{74324c26-d7b5-4bc7-94dd-1df65c45783b}*SharedItemsImports = 4
+		Mile.Cpp\Mile.Library\Mile.Library.vcxitems*{8f89c743-14c8-4442-812f-1f1816ffb88d}*SharedItemsImports = 4
+		Mile.Cpp\Mile.Library\Mile.Library.vcxitems*{a17eb414-7d7a-4455-bef7-ca8d149d0cb2}*SharedItemsImports = 4
+		Mile.Cpp\Mile.Library\Mile.Library.vcxitems*{ce65a617-d629-4b2a-be58-9b96011980c1}*SharedItemsImports = 9
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM64 = Debug|ARM64
 		Debug|x64 = Debug|x64
@@ -173,6 +184,7 @@ Global
 		{2B3E4F28-D499-4529-BEC1-E0ED2003A385} = {17B664B3-C93E-4723-AB24-4EBB84073B7D}
 		{8F89C743-14C8-4442-812F-1F1816FFB88D} = {17B664B3-C93E-4723-AB24-4EBB84073B7D}
 		{74324C26-D7B5-4BC7-94DD-1DF65C45783B} = {889EE1C4-242E-4E6D-93E5-6EC9376F7863}
+		{CE65A617-D629-4B2A-BE58-9B96011980C1} = {578E277E-04D1-495D-90F7-B0A7EE9FD538}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {07B0657A-5FA8-44A3-9E5B-2FB4FC7A26CD}

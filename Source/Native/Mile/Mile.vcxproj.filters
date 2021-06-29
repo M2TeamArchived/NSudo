@@ -1,41 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="Mile.Windows.cpp">
-      <Filter>Mile.Windows</Filter>
-    </ClCompile>
-    <ClCompile Include="Mile.Portable.cpp">
-      <Filter>Mile.Portable</Filter>
-    </ClCompile>
-    <ClCompile Include="Mile.PiConsole.cpp">
-      <Filter>Mile.PiConsole</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Mile.Windows.h">
-      <Filter>Mile.Windows</Filter>
-    </ClInclude>
-    <ClInclude Include="Mile.Portable.h">
-      <Filter>Mile.Portable</Filter>
-    </ClInclude>
     <ClInclude Include="NSudoContext.h" />
-    <ClInclude Include="Mile.PiConsole.h">
-      <Filter>Mile.PiConsole</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Mile.props" />
     <None Include="MCC.cppold" />
-  </ItemGroup>
-  <ItemGroup>
-    <Filter Include="Mile.Windows">
-      <UniqueIdentifier>{4778386b-d269-4131-a6cf-e1d32f708e94}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Mile.Portable">
-      <UniqueIdentifier>{6eafd39c-ff2b-43ba-8f99-13a4863c21b8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Mile.PiConsole">
-      <UniqueIdentifier>{cbc08989-829c-41d0-94d8-2938c6156d41}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
 </Project>
