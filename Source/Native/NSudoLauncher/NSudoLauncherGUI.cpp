@@ -1131,8 +1131,11 @@ typedef struct _NSUDO_CONTEXT_PRIVATE
 } NSUDO_CONTEXT_PRIVATE, *PNSUDO_CONTEXT_PRIVATE;
 
 VOID WINAPI NSudoContextGetNSudoVersion(
+    _In_ PNSUDO_CONTEXT Context,
     _Out_ PNSUDO_VERSION Version)
 {
+    Mile::UnreferencedParameter(Context);
+
     if (Version)
     {
         Version->Major = MILE_PROJECT_VERSION_MAJOR;
@@ -1341,43 +1344,63 @@ int WINAPI wWinMain(
         (g_ResourceManagement.AppPath + L"\\MoPlugin.dll").c_str());
     if (ModuleHandle)
     {
-        /*NSudoContextPluginEntryPointType Function =
-            reinterpret_cast<NSudoContextPluginEntryPointType>(
-                ::GetProcAddress(ModuleHandle, "MoDefragMemory"));
-        if (Function)
-        {
-            LPWSTR Answer = Mile::PiConsole::GetInput(
-                Context.PiConsoleWindowHandle,
-                L"Do you want to defrag memory? [y/n]");
-            if (Answer)
+        /*{
+            NSudoContextPluginEntryPointType Function =
+                reinterpret_cast<NSudoContextPluginEntryPointType>(
+                    ::GetProcAddress(ModuleHandle, "MoDefragMemory"));
+            if (Function)
             {
-                if (::_wcsicmp(Answer, L"y") == 0)
+                LPWSTR Answer = Mile::PiConsole::GetInput(
+                    Context.PiConsoleWindowHandle,
+                    L"Do you want to defrag memory? [y/n]");
+                if (Answer)
                 {
-                    Context.ModuleHandle = ModuleHandle;
-                    Context.CommandArguments = L"";
+                    if (::_wcsicmp(Answer, L"y") == 0)
+                    {
+                        Context.ModuleHandle = ModuleHandle;
+                        Context.CommandArguments = L"";
 
-                    Function(&Context.PublicContext);
+                        Function(&Context.PublicContext);
 
-                    Context.ModuleHandle = nullptr;
-                    Context.CommandArguments = nullptr;
+                        Context.ModuleHandle = nullptr;
+                        Context.CommandArguments = nullptr;
+                    }
+
+                    Mile::HeapMemory::Free(Answer);
                 }
-
-                Mile::HeapMemory::Free(Answer);
-            } 
+            }
         }*/
 
-        NSudoContextPluginEntryPointType Function =
-            reinterpret_cast<NSudoContextPluginEntryPointType>(
-                ::GetProcAddress(ModuleHandle, "MoPurgeSystemRestorePoint"));
-        if (Function)
         {
-            Context.ModuleHandle = ModuleHandle;
-            Context.CommandArguments = L"ScanOnly";
+            NSudoContextPluginEntryPointType Function =
+                reinterpret_cast<NSudoContextPluginEntryPointType>(
+                    ::GetProcAddress(ModuleHandle, "MoPurgeSystemRestorePoint"));
+            if (Function)
+            {
+                Context.ModuleHandle = ModuleHandle;
+                Context.CommandArguments = L"/Scan";
 
-            Function(&Context.PublicContext);
+                Function(&Context.PublicContext);
 
-            Context.ModuleHandle = nullptr;
-            Context.CommandArguments = nullptr;
+                Context.ModuleHandle = nullptr;
+                Context.CommandArguments = nullptr;
+            }
+        }
+
+        {
+            NSudoContextPluginEntryPointType Function =
+                reinterpret_cast<NSudoContextPluginEntryPointType>(
+                    ::GetProcAddress(ModuleHandle, "MoPurgeSystemRestorePoint"));
+            if (Function)
+            {
+                Context.ModuleHandle = ModuleHandle;
+                Context.CommandArguments = L"/Purge";
+
+                Function(&Context.PublicContext);
+
+                Context.ModuleHandle = nullptr;
+                Context.CommandArguments = nullptr;
+            }
         }
 
         ::FreeLibrary(ModuleHandle);

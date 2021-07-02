@@ -17,12 +17,12 @@ void MoPrivatePrintFinalResult(
 {
     if (Context)
     {
-        if (hr.IsFailed())
+        if (FailedPoint)
         {
             Context->Write(
                 Context,
                 Mile::FormatUtf16String(
-                    L"%s failed, ",
+                    L"%s: ",
                     FailedPoint).c_str());
         }
 
@@ -62,6 +62,54 @@ void MoPrivatePrintPurgeScanResult(
             Context,
             L".\r\n");
     }
+}
+
+DWORD MoPrivateParsePurgeMode(
+    _In_ PNSUDO_CONTEXT Context)
+{
+    DWORD Result = 0;
+
+    std::vector<std::wstring> Arguments = Mile::SpiltCommandArguments(
+        Context->GetContextPluginCommandArguments(Context));
+    for (auto& Argument : Arguments)
+    {
+        if (0 == ::_wcsicmp(Argument.c_str(), L"/Scan"))
+        {
+            Result = MO_PRIVATE_PURGE_MODE_SCAN;
+            break;
+        }
+        else if (0 == ::_wcsicmp(Argument.c_str(), L"/Purge"))
+        {
+            Result = MO_PRIVATE_PURGE_MODE_PURGE;
+            break;
+        }
+    }
+
+    if (Result == 0)
+    {
+        // TODO: Maybe we should ask for user to choice
+    }
+
+    Context->Write(Context, L"Purge Mode: ");
+
+    if (Result == MO_PRIVATE_PURGE_MODE_SCAN)
+    {
+        Context->Write(Context, L"Scan");
+    }
+    else if(Result == MO_PRIVATE_PURGE_MODE_PURGE)
+    {
+        Context->Write(Context, L"Purge");
+    }
+    else
+    {
+        Context->Write(Context, L"Canceled");
+    }
+
+    Context->Write(
+        Context,
+        L".\r\n");
+
+    return Result;
 }
 
 BOOL WINAPI DllMain(

@@ -34,4 +34,20 @@ void MoPrivatePrintPurgeScanResult(
     _In_ PNSUDO_CONTEXT Context,
     _In_ std::uint64_t ByteSize);
 
+#define MO_PRIVATE_PURGE_MODE_SCAN  1
+#define MO_PRIVATE_PURGE_MODE_PURGE 2
+
+/**
+ * @brief Parses the purge mode from context plugin command arguments or the
+ *        user input.
+ * @param Context The NSudo context.
+ * @return The purge mode, it can be zero or one of the following values.
+ *         MO_PRIVATE_PURGE_MODE_SCAN
+ *             Do scanning.
+ *         MO_PRIVATE_PURGE_MODE_PURGE
+ *             Do purging.
+*/
+DWORD MoPrivateParsePurgeMode(
+    _In_ PNSUDO_CONTEXT Context);
+
 #endif // !MOURI_OPTIMIZATION_PLUGIN

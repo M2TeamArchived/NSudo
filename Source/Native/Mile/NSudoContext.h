@@ -37,9 +37,11 @@ struct _NSUDO_CONTEXT
 {
     /**
      * @brief Gets NSudo version information.
+     * @param Context The NSudo context.
      * @param Version The NSudo version information.
     */
     VOID(WINAPI* GetNSudoVersion)(
+        _In_ PNSUDO_CONTEXT Context,
         _Out_ PNSUDO_VERSION Version);
 
     /**

@@ -390,20 +390,10 @@ EXTERN_C HRESULT WINAPI MoPurgeSystemRestorePoint(
     _In_ PNSUDO_CONTEXT Context)
 {
     Mile::HResult hr = S_OK;
-    bool IsScanOnlyMode = false;
     LPCWSTR FailedPoint = nullptr;
 
-    std::vector<std::wstring> Arguments =  Mile::SpiltCommandArguments(
-        Context->GetContextPluginCommandArguments(Context));
-    for (auto& Argument : Arguments)
-    {
-        if (0 == _wcsicmp(Argument.c_str(), L"ScanOnly"))
-        {
-            IsScanOnlyMode = true;
-        }
-    }
-
-    if (IsScanOnlyMode)
+    DWORD PurgeMode = ::MoPrivateParsePurgeMode(Context);
+    if (PurgeMode == MO_PRIVATE_PURGE_MODE_SCAN)
     {
         std::wstring Path =
             Mile::ExpandEnvironmentStringsW(L"%SystemDrive%") + L"\\";
@@ -420,7 +410,7 @@ EXTERN_C HRESULT WINAPI MoPurgeSystemRestorePoint(
             FailedPoint = L"QueryVssAllocatedSpace"; 
         }
     }
-    else
+    else if (PurgeMode == MO_PRIVATE_PURGE_MODE_PURGE)
     {
         hr = ::DeleteAllVssSnapshots();
         if (hr.IsSucceeded())
@@ -438,6 +428,10 @@ EXTERN_C HRESULT WINAPI MoPurgeSystemRestorePoint(
         {
             FailedPoint = L"DeleteAllVssSnapshots";
         }
+    }
+    else
+    {
+        hr = Mile::HResult::FromWin32(ERROR_CANCELLED);
     }
 
     ::MoPrivatePrintFinalResult(Context, hr, FailedPoint);
