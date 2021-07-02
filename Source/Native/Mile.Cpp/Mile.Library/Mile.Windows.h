@@ -2139,24 +2139,65 @@ namespace Mile
     }
 
     /**
-     * @brief Write formatted data to a string.
+     * @brief Write formatted data to a UTF-16 string.
+     * @param Format Format-control string.
+     * @param ArgList Pointer to list of optional arguments to be formatted.
+     * @return A formatted string if successful, an empty string otherwise.
+    */
+    std::wstring VFormatUtf16String(
+        _In_z_ _Printf_format_string_ wchar_t const* const Format,
+        _In_z_ _Printf_format_string_ va_list ArgList);
+
+    /**
+     * @brief Write formatted data to a UTF-8 string.
+     * @param Format Format-control string.
+     * @param ArgList Pointer to list of optional arguments to be formatted.
+     * @return A formatted string if successful, an empty string otherwise.
+    */
+    std::string VFormatUtf8String(
+        _In_z_ _Printf_format_string_ char const* const Format,
+        _In_z_ _Printf_format_string_ va_list ArgList);
+
+    /**
+     * @brief Write formatted data to a UTF-16 string.
      * @param Format Format-control string.
      * @param ... Optional arguments to be formatted.
      * @return A formatted string if successful, an empty string otherwise.
     */
-    std::wstring FormatString(
+    std::wstring FormatUtf16String(
         _In_z_ _Printf_format_string_ wchar_t const* const Format,
         ...);
 
     /**
-     * @brief Converts a numeric value into a string that represents the number
-     *        expressed as a size value in byte, bytes, kibibytes, mebibytes,
-     *        gibibytes, tebibytes, pebibytes or exbibytes, depending on the
-     *        size.
+     * @brief Write formatted data to a UTF-8 string.
+     * @param Format Format-control string.
+     * @param ... Optional arguments to be formatted.
+     * @return A formatted string if successful, an empty string otherwise.
+    */
+    std::string FormatUtf8String(
+        _In_z_ _Printf_format_string_ char const* const Format,
+        ...);
+
+    /**
+     * @brief Converts a numeric value into a UTF-16 string that represents
+     *        the number expressed as a size value in byte, bytes, kibibytes,
+     *        mebibytes, gibibytes, tebibytes, pebibytes or exbibytes,
+     *        depending on the size.
      * @param ByteSize The numeric byte size value to be converted.
      * @return A formatted string if successful, an empty string otherwise.
     */
-    std::wstring ConvertByteSizeToString(
+    std::wstring ConvertByteSizeToUtf16String(
+        std::uint64_t ByteSize);
+
+    /**
+     * @brief Converts a numeric value into a UTF-8 string that represents
+     *        the number expressed as a size value in byte, bytes, kibibytes,
+     *        mebibytes, gibibytes, tebibytes, pebibytes or exbibytes,
+     *        depending on the size.
+     * @param ByteSize The numeric byte size value to be converted.
+     * @return A formatted string if successful, an empty string otherwise.
+    */
+    std::string ConvertByteSizeToUtf8String(
         std::uint64_t ByteSize);
 
 #pragma endregion

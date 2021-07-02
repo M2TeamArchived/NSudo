@@ -47,7 +47,7 @@ EXTERN_C VOID WINAPI NSudoWriteLog(
     SYSTEMTIME SystemTime = { 0 };
     ::GetLocalTime(&SystemTime);
 
-    g_NSudoLog += Mile::FormatString(
+    g_NSudoLog += Mile::FormatUtf16String(
         L"\r\n"
         L"Sender: %s\r\n"
         L"DateTime: %d-%.2d-%.2d %.2d:%.2d:%.2d\r\n"
@@ -82,7 +82,7 @@ EXTERN_C HRESULT WINAPI NSudoCreateProcess(
 {
     ::NSudoWriteLog(
         L"NSudoCreateProcess",
-        Mile::FormatString(
+        Mile::FormatUtf16String(
             L"UserModeType: %d\r\n"
             L"PrivilegesModeType: %d\r\n"
             L"MandatoryLabelType: %d\r\n"
@@ -130,7 +130,7 @@ EXTERN_C HRESULT WINAPI NSudoCreateProcess(
 
         ::NSudoWriteLog(
             L"NSudoCreateProcess",
-            Mile::FormatString(
+            Mile::FormatUtf16String(
                 L"Invalid Parameter: %s",
                 L"MandatoryLabelType").c_str());
 
@@ -162,7 +162,7 @@ EXTERN_C HRESULT WINAPI NSudoCreateProcess(
 
         ::NSudoWriteLog(
             L"NSudoCreateProcess",
-            Mile::FormatString(
+            Mile::FormatUtf16String(
                 L"Invalid Parameter: %s",
                 L"ProcessPriorityClassType").c_str());
 
@@ -191,7 +191,7 @@ EXTERN_C HRESULT WINAPI NSudoCreateProcess(
 
         ::NSudoWriteLog(
             L"NSudoCreateProcess",
-            Mile::FormatString(
+            Mile::FormatUtf16String(
                 L"Invalid Parameter: %s",
                 L"ShowWindowModeType").c_str());
 
@@ -204,7 +204,7 @@ EXTERN_C HRESULT WINAPI NSudoCreateProcess(
 
     HANDLE CurrentProcessToken = INVALID_HANDLE_VALUE;
     HANDLE DuplicatedCurrentProcessToken = INVALID_HANDLE_VALUE;
-    
+
     HANDLE OriginalSystemToken = INVALID_HANDLE_VALUE;
     HANDLE SystemToken = INVALID_HANDLE_VALUE;
 
@@ -252,7 +252,7 @@ EXTERN_C HRESULT WINAPI NSudoCreateProcess(
     {
         ::NSudoWriteLog(
             L"NSudoCreateProcess",
-            Mile::FormatString(
+            Mile::FormatUtf16String(
                 L"%s failed, returns %d.",
                 L"Open the current process access token",
                 hr).c_str());
@@ -271,7 +271,7 @@ EXTERN_C HRESULT WINAPI NSudoCreateProcess(
     {
         ::NSudoWriteLog(
             L"NSudoCreateProcess",
-            Mile::FormatString(
+            Mile::FormatUtf16String(
                 L"%s failed, returns %d.",
                 L"Duplicate the current process token as context access token",
                 hr).c_str());
@@ -287,7 +287,7 @@ EXTERN_C HRESULT WINAPI NSudoCreateProcess(
     {
         ::NSudoWriteLog(
             L"NSudoCreateProcess",
-            Mile::FormatString(
+            Mile::FormatUtf16String(
                 L"%s failed, returns %d.",
                 L"Get the LUID of SeDebugPrivilege",
                 hr).c_str());
@@ -305,7 +305,7 @@ EXTERN_C HRESULT WINAPI NSudoCreateProcess(
     {
         ::NSudoWriteLog(
             L"NSudoCreateProcess",
-            Mile::FormatString(
+            Mile::FormatUtf16String(
                 L"%s failed, returns %d.",
                 L"Enable the SeDebugPrivilege for the context access token",
                 hr).c_str());
@@ -319,7 +319,7 @@ EXTERN_C HRESULT WINAPI NSudoCreateProcess(
     {
         ::NSudoWriteLog(
             L"NSudoCreateProcess",
-            Mile::FormatString(
+            Mile::FormatUtf16String(
                 L"%s failed, returns %d.",
                 L"Set the context access token",
                 hr).c_str());
@@ -332,7 +332,7 @@ EXTERN_C HRESULT WINAPI NSudoCreateProcess(
     {
         ::NSudoWriteLog(
             L"NSudoCreateProcess",
-            Mile::FormatString(
+            Mile::FormatUtf16String(
                 L"%s failed.",
                 L"Get the session ID").c_str());
 
@@ -344,7 +344,7 @@ EXTERN_C HRESULT WINAPI NSudoCreateProcess(
     {
         ::NSudoWriteLog(
             L"NSudoCreateProcess",
-            Mile::FormatString(
+            Mile::FormatUtf16String(
                 L"%s failed, returns %d.",
                 L"Create the system access token",
                 hr).c_str());
@@ -363,7 +363,7 @@ EXTERN_C HRESULT WINAPI NSudoCreateProcess(
     {
         ::NSudoWriteLog(
             L"NSudoCreateProcess",
-            Mile::FormatString(
+            Mile::FormatUtf16String(
                 L"%s failed, returns %d.",
                 L"Duplicate the system token as context access token",
                 hr).c_str());
@@ -378,7 +378,7 @@ EXTERN_C HRESULT WINAPI NSudoCreateProcess(
     {
         ::NSudoWriteLog(
             L"NSudoCreateProcess",
-            Mile::FormatString(
+            Mile::FormatUtf16String(
                 L"%s failed, returns %d.",
                 L"Enable all privileges for the system context access token",
                 hr).c_str());
@@ -392,7 +392,7 @@ EXTERN_C HRESULT WINAPI NSudoCreateProcess(
     {
         ::NSudoWriteLog(
             L"NSudoCreateProcess",
-            Mile::FormatString(
+            Mile::FormatUtf16String(
                 L"%s failed, returns %d.",
                 L"Set the system context access token",
                 hr).c_str());
@@ -410,7 +410,7 @@ EXTERN_C HRESULT WINAPI NSudoCreateProcess(
         {
             ::NSudoWriteLog(
                 L"NSudoCreateProcess",
-                Mile::FormatString(
+                Mile::FormatUtf16String(
                     L"%s failed, returns %d.",
                     L"Get the TrustedInstaller service access token",
                     hr).c_str());
@@ -425,7 +425,7 @@ EXTERN_C HRESULT WINAPI NSudoCreateProcess(
         {
             ::NSudoWriteLog(
                 L"NSudoCreateProcess",
-                Mile::FormatString(
+                Mile::FormatUtf16String(
                     L"%s failed, returns %d.",
                     L"Get the system access token",
                     hr).c_str());
@@ -440,7 +440,7 @@ EXTERN_C HRESULT WINAPI NSudoCreateProcess(
         {
             ::NSudoWriteLog(
                 L"NSudoCreateProcess",
-                Mile::FormatString(
+                Mile::FormatUtf16String(
                     L"%s failed, returns %d.",
                     L"Get the current session access token",
                     hr).c_str());
@@ -456,7 +456,7 @@ EXTERN_C HRESULT WINAPI NSudoCreateProcess(
         {
             ::NSudoWriteLog(
                 L"NSudoCreateProcess",
-                Mile::FormatString(
+                Mile::FormatUtf16String(
                     L"%s failed, returns %d.",
                     L"Get the current process access token",
                     hr).c_str());
@@ -480,7 +480,7 @@ EXTERN_C HRESULT WINAPI NSudoCreateProcess(
         {
             ::NSudoWriteLog(
                 L"NSudoCreateProcess",
-                Mile::FormatString(
+                Mile::FormatUtf16String(
                     L"%s failed, returns %d.",
                     L"Create the current process LUA acccess token",
                     hr).c_str());
@@ -523,7 +523,7 @@ EXTERN_C HRESULT WINAPI NSudoCreateProcess(
         {
             ::NSudoWriteLog(
                 L"NSudoCreateProcess",
-                Mile::FormatString(
+                Mile::FormatUtf16String(
                     L"%s failed, returns %d.",
                     L"Get the elevated current session acccess token",
                     hr).c_str());
@@ -547,7 +547,7 @@ EXTERN_C HRESULT WINAPI NSudoCreateProcess(
     {
         ::NSudoWriteLog(
             L"NSudoCreateProcess",
-            Mile::FormatString(
+            Mile::FormatUtf16String(
                 L"%s failed, returns %d.",
                 L"Duplicate the access token",
                 hr).c_str());
@@ -564,7 +564,7 @@ EXTERN_C HRESULT WINAPI NSudoCreateProcess(
     {
         ::NSudoWriteLog(
             L"NSudoCreateProcess",
-            Mile::FormatString(
+            Mile::FormatUtf16String(
                 L"%s failed, returns %d.",
                 L"Set the session ID for access token",
                 hr).c_str());
@@ -581,7 +581,7 @@ EXTERN_C HRESULT WINAPI NSudoCreateProcess(
         {
             ::NSudoWriteLog(
                 L"NSudoCreateProcess",
-                Mile::FormatString(
+                Mile::FormatUtf16String(
                     L"%s failed, returns %d.",
                     L"Enable all privileges for access token",
                     hr).c_str());
@@ -597,7 +597,7 @@ EXTERN_C HRESULT WINAPI NSudoCreateProcess(
         {
             ::NSudoWriteLog(
                 L"NSudoCreateProcess",
-                Mile::FormatString(
+                Mile::FormatUtf16String(
                     L"%s failed, returns %d.",
                     L"Disable all privileges for access token",
                     hr).c_str());
@@ -617,7 +617,7 @@ EXTERN_C HRESULT WINAPI NSudoCreateProcess(
         {
             ::NSudoWriteLog(
                 L"NSudoCreateProcess",
-                Mile::FormatString(
+                Mile::FormatUtf16String(
                     L"%s failed, returns %d.",
                     L"Set mandatory label for access token",
                     hr).c_str());
@@ -686,7 +686,7 @@ EXTERN_C HRESULT WINAPI NSudoCreateProcess(
     {
         ::NSudoWriteLog(
             L"NSudoCreateProcess",
-            Mile::FormatString(
+            Mile::FormatUtf16String(
                 L"%s failed, returns %d.",
                 L"Create process",
                 hr).c_str());
@@ -697,7 +697,7 @@ EXTERN_C HRESULT WINAPI NSudoCreateProcess(
     ::NSudoWriteLog(
         L"NSudoCreateProcess",
         L"Everything seems to be OK");
-    
+
     return S_OK;
 }
 
@@ -721,7 +721,7 @@ EXTERN_C HRESULT WINAPI NSudoCreateProcess(
     //    TOKEN_LINKED_TOKEN LinkedToken = { 0 };
     //    hr = g_ResourceManagement.pNSudoClient->GetTokenInformation(UserToken, TokenLinkedToken, &LinkedToken, sizeof(LinkedToken), &ReturnLength);
 
-    //    
+    //
 
     //    PROFILEINFOW ProfileInfo = { 0 };
     //    ProfileInfo.dwSize = sizeof(PROFILEINFOW);

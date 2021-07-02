@@ -21,7 +21,7 @@ void MoPrivatePrintFinalResult(
         {
             Context->Write(
                 Context,
-                Mile::FormatString(
+                Mile::FormatUtf16String(
                     L"%s failed, ",
                     FailedPoint).c_str());
         }
@@ -34,7 +34,7 @@ void MoPrivatePrintFinalResult(
         {
             Context->Write(
                 Context,
-                Mile::FormatString(
+                Mile::FormatUtf16String(
                     L" (0x%08lX)",
                     hr).c_str());
         }
@@ -57,7 +57,7 @@ void MoPrivatePrintPurgeScanResult(
             L"Total amount of disk space you may gain: ");
         Context->Write(
             Context,
-            Mile::ConvertByteSizeToString(ByteSize).c_str());
+            Mile::ConvertByteSizeToUtf16String(ByteSize).c_str());
         Context->Write(
             Context,
             L".\r\n");

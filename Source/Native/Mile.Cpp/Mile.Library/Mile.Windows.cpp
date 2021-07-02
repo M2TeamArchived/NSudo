@@ -1963,16 +1963,13 @@ std::wstring Mile::GetCurrentProcessModulePath()
     return Path;
 }
 
-std::wstring Mile::FormatString(
+std::wstring Mile::VFormatUtf16String(
     _In_z_ _Printf_format_string_ wchar_t const* const Format,
-    ...)
+    _In_z_ _Printf_format_string_ va_list ArgList)
 {
     // Check the argument list.
-    if (nullptr != Format)
+    if (Format)
     {
-        va_list ArgList = nullptr;
-        va_start(ArgList, Format);
-
         // Get the length of the format result.
         size_t nLength = static_cast<size_t>(_vscwprintf(Format, ArgList)) + 1;
 
@@ -1987,8 +1984,6 @@ std::wstring Mile::FormatString(
             Format,
             ArgList);
 
-        va_end(ArgList);
-
         if (nWritten > 0)
         {
             // If succeed, resize to fit and return result.
@@ -2001,7 +1996,62 @@ std::wstring Mile::FormatString(
     return L"";
 }
 
-std::wstring Mile::ConvertByteSizeToString(
+std::string Mile::VFormatUtf8String(
+    _In_z_ _Printf_format_string_ char const* const Format,
+    _In_z_ _Printf_format_string_ va_list ArgList)
+{
+    // Check the argument list.
+    if (Format)
+    {
+        // Get the length of the format result.
+        size_t nLength = static_cast<size_t>(_vscprintf(Format, ArgList)) + 1;
+
+        // Allocate for the format result.
+        std::string Buffer(nLength + 1, '\0');
+
+        // Format the string.
+        int nWritten = _vsnprintf_s(
+            &Buffer[0],
+            Buffer.size(),
+            nLength,
+            Format,
+            ArgList);
+
+        if (nWritten > 0)
+        {
+            // If succeed, resize to fit and return result.
+            Buffer.resize(nWritten);
+            return Buffer;
+        }
+    }
+
+    // If failed, return an empty string.
+    return "";
+}
+
+std::wstring Mile::FormatUtf16String(
+    _In_z_ _Printf_format_string_ wchar_t const* const Format,
+    ...)
+{
+    va_list ArgList;
+    va_start(ArgList, Format);
+    std::wstring Result = Mile::VFormatUtf16String(Format, ArgList);
+    va_end(ArgList);
+    return Result;
+}
+
+std::string Mile::FormatUtf8String(
+    _In_z_ _Printf_format_string_ char const* const Format,
+    ...)
+{
+    va_list ArgList;
+    va_start(ArgList, Format);
+    std::string Result = Mile::VFormatUtf8String(Format, ArgList);
+    va_end(ArgList);
+    return Result;
+}
+
+std::wstring Mile::ConvertByteSizeToUtf16String(
     std::uint64_t ByteSize)
 {
     const wchar_t* Systems[] =
@@ -2035,7 +2085,44 @@ std::wstring Mile::ConvertByteSizeToString(
         result = static_cast<uint64_t>(result * 100) / 100.0;
     }
 
-    return Mile::FormatString(L"%.1lf %s", result, Systems[nSystem]);
+    return Mile::FormatUtf16String(L"%.1lf %s", result, Systems[nSystem]);
+}
+
+std::string Mile::ConvertByteSizeToUtf8String(
+    std::uint64_t ByteSize)
+{
+    const wchar_t* Systems[] =
+    {
+        L"Byte",
+        L"Bytes",
+        L"KiB",
+        L"MiB",
+        L"GiB",
+        L"TiB",
+        L"PiB",
+        L"EiB"
+    };
+
+    size_t nSystem = 0;
+    double result = static_cast<double>(ByteSize);
+
+    if (ByteSize > 1)
+    {
+        for (
+            nSystem = 1;
+            nSystem < sizeof(Systems) / sizeof(*Systems);
+            ++nSystem)
+        {
+            if (1024.0 > result)
+                break;
+
+            result /= 1024.0;
+        }
+
+        result = static_cast<uint64_t>(result * 100) / 100.0;
+    }
+
+    return Mile::FormatUtf8String("%.1lf %s", result, Systems[nSystem]);
 }
 
 #pragma endregion
