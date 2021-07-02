@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="MoPurgeDeliveryOptimizationCache.cpp" />
     <ClCompile Include="MoPurgeSystemRestorePoint.cpp" />
+    <ClCompile Include="MoPurgeWindowsEventLog.cpp" />
     <ClCompile Include="MouriOptimizationPlugin.cpp" />
     <ClCompile Include="MoDefragMemory.cpp" />
     <ClCompile Include="MoEnableMicrosoftUpdate.cpp" />

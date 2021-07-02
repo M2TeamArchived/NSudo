@@ -7,3 +7,4 @@ MoEnableMicrosoftUpdate
 
 MoPurgeSystemRestorePoint
 MoPurgeDeliveryOptimizationCache
+MoPurgeWindowsEventLog

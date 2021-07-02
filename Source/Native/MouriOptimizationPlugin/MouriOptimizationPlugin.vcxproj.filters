@@ -14,6 +14,9 @@
     <ClCompile Include="MoPurgeDeliveryOptimizationCache.cpp">
       <Filter>Modules</Filter>
     </ClCompile>
+    <ClCompile Include="MoPurgeWindowsEventLog.cpp">
+      <Filter>Modules</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="MouriOptimizationPlugin.def" />
