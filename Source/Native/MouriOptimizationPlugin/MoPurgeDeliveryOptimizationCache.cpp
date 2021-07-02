@@ -61,6 +61,13 @@ EXTERN_C HRESULT WINAPI MoPurgeDeliveryOptimizationCache(
             break;
         }
 
+        if (PurgeMode != MO_PRIVATE_PURGE_MODE_SCAN &&
+            PurgeMode != MO_PRIVATE_PURGE_MODE_PURGE)
+        {
+            hr = E_NOINTERFACE;
+            break;
+        }
+
         const wchar_t DeliveryOptimizationCLSID[] =
             L"{5B99FA76-721C-423C-ADAC-56D03C8A8007}";
         const wchar_t DeliveryOptimizationIID[] =
