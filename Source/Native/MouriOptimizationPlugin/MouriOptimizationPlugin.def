@@ -6,3 +6,4 @@ MoDefragMemory
 MoEnableMicrosoftUpdate
 
 MoPurgeSystemRestorePoint
+MoPurgeDeliveryOptimizationCache

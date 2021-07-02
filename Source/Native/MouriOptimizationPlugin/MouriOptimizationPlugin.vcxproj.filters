@@ -11,6 +11,9 @@
     <ClCompile Include="MoPurgeSystemRestorePoint.cpp">
       <Filter>Modules</Filter>
     </ClCompile>
+    <ClCompile Include="MoPurgeDeliveryOptimizationCache.cpp">
+      <Filter>Modules</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="MouriOptimizationPlugin.def" />

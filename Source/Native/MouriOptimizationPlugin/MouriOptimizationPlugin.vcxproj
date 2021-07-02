@@ -19,6 +19,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="MoPurgeDeliveryOptimizationCache.cpp" />
     <ClCompile Include="MoPurgeSystemRestorePoint.cpp" />
     <ClCompile Include="MouriOptimizationPlugin.cpp" />
     <ClCompile Include="MoDefragMemory.cpp" />

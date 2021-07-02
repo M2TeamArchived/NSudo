@@ -1374,7 +1374,9 @@ int WINAPI wWinMain(
         {
             NSudoContextPluginEntryPointType Function =
                 reinterpret_cast<NSudoContextPluginEntryPointType>(
-                    ::GetProcAddress(ModuleHandle, "MoPurgeSystemRestorePoint"));
+                    ::GetProcAddress(
+                        ModuleHandle,
+                        "MoPurgeDeliveryOptimizationCache"));
             if (Function)
             {
                 Context.ModuleHandle = ModuleHandle;
@@ -1390,7 +1392,9 @@ int WINAPI wWinMain(
         {
             NSudoContextPluginEntryPointType Function =
                 reinterpret_cast<NSudoContextPluginEntryPointType>(
-                    ::GetProcAddress(ModuleHandle, "MoPurgeSystemRestorePoint"));
+                    ::GetProcAddress(
+                        ModuleHandle,
+                        "MoPurgeDeliveryOptimizationCache"));
             if (Function)
             {
                 Context.ModuleHandle = ModuleHandle;
