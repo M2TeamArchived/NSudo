@@ -12,6 +12,63 @@
 
 #include <MINT.h>
 
+namespace
+{
+    static HRESULT DefragMemory()
+    {
+        using NtSetSystemInformationType = decltype(::NtSetSystemInformation)*;
+        using RtlNtStatusToDosErrorType = decltype(::RtlNtStatusToDosError)*;
+
+        NtSetSystemInformationType pNtSetSystemInformation = nullptr;
+        RtlNtStatusToDosErrorType pRtlNtStatusToDosError = nullptr;
+
+        HMODULE ModuleHandle = ::GetModuleHandleW(L"ntdll.dll");
+        if (!ModuleHandle)
+        {
+            return E_NOINTERFACE;
+        }
+
+        pNtSetSystemInformation = reinterpret_cast<NtSetSystemInformationType>(
+            ::GetProcAddress(ModuleHandle, "NtSetSystemInformation"));
+        if (!pNtSetSystemInformation)
+        {
+            return E_NOINTERFACE;
+        }
+
+        pRtlNtStatusToDosError = reinterpret_cast<RtlNtStatusToDosErrorType>(
+            ::GetProcAddress(ModuleHandle, "RtlNtStatusToDosError"));
+        if (!pRtlNtStatusToDosError)
+        {
+            return E_NOINTERFACE;
+        }
+
+        // Working Sets -> Modified Page List -> Standby List
+
+        SYSTEM_MEMORY_LIST_COMMAND CommandList[] =
+        {
+            SYSTEM_MEMORY_LIST_COMMAND::MemoryEmptyWorkingSets,
+            SYSTEM_MEMORY_LIST_COMMAND::MemoryFlushModifiedList,
+            SYSTEM_MEMORY_LIST_COMMAND::MemoryPurgeStandbyList
+        };
+
+        NTSTATUS Status = STATUS_SUCCESS;
+
+        for (size_t i = 0; i < sizeof(CommandList) / sizeof(*CommandList); ++i)
+        {
+            Status = pNtSetSystemInformation(
+                SystemMemoryListInformation,
+                &CommandList[i],
+                sizeof(SYSTEM_MEMORY_LIST_COMMAND));
+            if (!NT_SUCCESS(Status))
+            {
+                break;
+            }
+        }
+
+        return Mile::HResult::FromWin32(pRtlNtStatusToDosError(Status)); 
+    }
+}
+
 EXTERN_C HRESULT WINAPI MoDefragMemory(
     _In_ PNSUDO_CONTEXT Context)
 {
@@ -39,7 +96,15 @@ EXTERN_C HRESULT WINAPI MoDefragMemory(
                 CurrentProcessToken,
                 &RawPrivilege,
                 1);
-            if (hr.IsFailed())
+            if (hr.IsSucceeded())
+            {
+                hr = ::DefragMemory();
+                if (hr.IsFailed())
+                {
+                    FailedPoint = L"DefragMemory";
+                }
+            }
+            else
             {
                 FailedPoint = L"Mile::AdjustTokenPrivilegesSimple";
             }
@@ -54,38 +119,6 @@ EXTERN_C HRESULT WINAPI MoDefragMemory(
     else
     {
         FailedPoint = L"OpenProcessToken";
-    }
-
-    if (hr.IsSucceeded())
-    {
-        // Working Sets -> Modified Page List -> Standby List
-
-        SYSTEM_MEMORY_LIST_COMMAND CommandList[] =
-        {
-            SYSTEM_MEMORY_LIST_COMMAND::MemoryEmptyWorkingSets,
-            SYSTEM_MEMORY_LIST_COMMAND::MemoryFlushModifiedList,
-            SYSTEM_MEMORY_LIST_COMMAND::MemoryPurgeStandbyList
-        };
-
-        NTSTATUS Status = STATUS_SUCCESS;
-
-        for (size_t i = 0; i < sizeof(CommandList) / sizeof(*CommandList); ++i)
-        {
-            Status = ::NtSetSystemInformation(
-                SystemMemoryListInformation,
-                &CommandList[i],
-                sizeof(SYSTEM_MEMORY_LIST_COMMAND));
-            if (!NT_SUCCESS(Status))
-            {
-                break;
-            }
-            else
-            {
-                FailedPoint = L"NtSetSystemInformation";
-            }
-        }
-
-        hr = Mile::HResult::FromWin32(::RtlNtStatusToDosError(Status));
     }
 
     ::MoPrivatePrintFinalResult(Context, hr, FailedPoint);
