@@ -20,6 +20,9 @@
     <ClCompile Include="MoUpdateAppXPackages.cpp">
       <Filter>Modules</Filter>
     </ClCompile>
+    <ClCompile Include="MoPurgeCorruptedAppXPackages.cpp">
+      <Filter>Modules</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="MouriOptimizationPlugin.def" />

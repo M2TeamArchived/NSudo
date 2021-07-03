@@ -9,3 +9,4 @@ MoUpdateAppXPackages
 MoPurgeSystemRestorePoint
 MoPurgeDeliveryOptimizationCache
 MoPurgeWindowsEventLog
+MoPurgeCorruptedAppXPackages

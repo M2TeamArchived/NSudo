@@ -20,6 +20,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="MoPurgeCorruptedAppXPackages.cpp" />
     <ClCompile Include="MoPurgeDeliveryOptimizationCache.cpp" />
     <ClCompile Include="MoPurgeSystemRestorePoint.cpp" />
     <ClCompile Include="MoPurgeWindowsEventLog.cpp" />
