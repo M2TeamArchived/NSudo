@@ -1217,8 +1217,9 @@ VOID WINAPI NSudoContextWriteLine(
 {
     if (Context)
     {
-        Context->Write(Context, Value);
-        Context->Write(Context, L"\r\n");
+        Context->Write(
+            Context,
+            Mile::FormatUtf16String(L"%s\r\n", Value).c_str());
     }
 }
 
@@ -1371,7 +1372,7 @@ int WINAPI wWinMain(
             }
         }*/
 
-        {
+        /*{
             NSudoContextPluginEntryPointType Function =
                 reinterpret_cast<NSudoContextPluginEntryPointType>(
                     ::GetProcAddress(
@@ -1399,6 +1400,24 @@ int WINAPI wWinMain(
             {
                 Context.ModuleHandle = ModuleHandle;
                 Context.CommandArguments = L"/Purge";
+
+                Function(&Context.PublicContext);
+
+                Context.ModuleHandle = nullptr;
+                Context.CommandArguments = nullptr;
+            }
+        }*/
+
+        {
+            NSudoContextPluginEntryPointType Function =
+                reinterpret_cast<NSudoContextPluginEntryPointType>(
+                    ::GetProcAddress(
+                        ModuleHandle,
+                        "MoUpdateAppXPackages"));
+            if (Function)
+            {
+                Context.ModuleHandle = ModuleHandle;
+                Context.CommandArguments = L"";
 
                 Function(&Context.PublicContext);
 

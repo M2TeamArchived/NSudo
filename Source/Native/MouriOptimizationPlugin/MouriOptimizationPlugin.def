@@ -4,6 +4,7 @@ EXPORTS
 
 MoDefragMemory
 MoEnableMicrosoftUpdate
+MoUpdateAppXPackages
 
 MoPurgeSystemRestorePoint
 MoPurgeDeliveryOptimizationCache
