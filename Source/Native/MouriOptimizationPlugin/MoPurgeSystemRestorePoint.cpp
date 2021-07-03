@@ -260,7 +260,7 @@ namespace
         VssModuleHandle = Mile::LoadLibraryFromSystem32(L"vssapi.dll");
         if (!VssModuleHandle)
         {
-            return E_NOTIMPL;
+            return E_NOINTERFACE;
         }
 
         pCreateBackupComponents =
@@ -270,7 +270,7 @@ namespace
                     "CreateVssBackupComponentsInternal"));
         if (!pCreateBackupComponents)
         {
-            return E_NOTIMPL;
+            return E_NOINTERFACE;
         }
 
         pFreeSnapshotProperties =
@@ -280,7 +280,7 @@ namespace
                     "VssFreeSnapshotPropertiesInternal"));
         if (!pFreeSnapshotProperties)
         {
-            return E_NOTIMPL;
+            return E_NOINTERFACE;
         }
 
         hr = pCreateBackupComponents(
@@ -354,7 +354,7 @@ namespace
         ModuleHandle = Mile::LoadLibraryFromSystem32(L"srclient.dll");
         if (!ModuleHandle)
         {
-            return E_NOTIMPL;
+            return E_NOINTERFACE;
         }
 
         pSRSetRestorePointW =
@@ -364,7 +364,7 @@ namespace
                     "SRSetRestorePointW"));
         if (!pSRSetRestorePointW)
         {
-            return E_NOTIMPL;
+            return E_NOINTERFACE;
         }
 
         STATEMGRSTATUS SRStatus = { 0 };
