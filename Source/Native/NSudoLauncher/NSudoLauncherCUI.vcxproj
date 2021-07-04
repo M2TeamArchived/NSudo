@@ -11,9 +11,7 @@
   <Import Project="..\Mile.Cpp\Mile.Project\Mile.Project.VC-LTL.props" />
   <Import Project="..\Mile.Cpp\Mile.Library\Mile.Library.vcxitems" Label="Shared" />
   <ImportGroup Label="PropertySheets">
-    <Import Project="..\NSudoLib\NSudoLib.props" />
-    <Import Project="..\WTL\WTL.props" />
-    <Import Project="..\Mile\Mile.props" />
+    <Import Project="..\NSudoSDK\NSudoSDK.props" />
     <Import Project="NSudoLauncherResources.props" />
   </ImportGroup>
   <ItemDefinitionGroup>

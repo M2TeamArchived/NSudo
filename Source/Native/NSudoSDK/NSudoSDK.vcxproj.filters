@@ -23,8 +23,10 @@
     <ClInclude Include="NSudoAPI.h">
       <Filter>NSudoAPI</Filter>
     </ClInclude>
+    <ClInclude Include="NSudoContext.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="NSudoLib.props" />
+    <None Include="NSudoSDK.props" />
+    <None Include="MCC.cppold" />
   </ItemGroup>
 </Project>

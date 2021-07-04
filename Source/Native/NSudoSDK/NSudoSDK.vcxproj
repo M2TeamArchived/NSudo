@@ -1,27 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{A17EB414-7D7A-4455-BEF7-CA8D149D0CB2}</ProjectGuid>
-    <RootNamespace>Mile</RootNamespace>
+    <ProjectGuid>{074549F9-9197-41FE-A8ED-8BFA2A0E2549}</ProjectGuid>
+    <RootNamespace>NSudoSDK</RootNamespace>
     <MileProjectType>StaticLibrary</MileProjectType>
   </PropertyGroup>
   <Import Project="..\Mile.Cpp\Mile.Project\Mile.Project.props" />
   <Import Project="..\Mile.Cpp\Mile.Project\Mile.Project.VC-LTL.props" />
   <Import Project="..\Mile.Cpp\Mile.Library\Mile.Library.vcxitems" Label="Shared" />
-  <ImportGroup Label="PropertySheets">
-    <Import Project="..\MINT\MINT.props" />
-  </ImportGroup>
   <ItemDefinitionGroup>
     <ClCompile>
       <PreprocessorDefinitions>NSUDOAPI_USING_STATIC_LIBRARY;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="M2.Base.cpp" />
+    <ClCompile Include="NSudoAPI.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="M2.Base.h" />
+    <ClInclude Include="NSudoAPI.h" />
     <ClInclude Include="NSudoContext.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="MCC.cppold" />
-    <None Include="Mile.props" />
+    <None Include="NSudoSDK.props" />
   </ItemGroup>
   <Import Project="..\Mile.Cpp\Mile.Project\Mile.Project.targets" />
 </Project>

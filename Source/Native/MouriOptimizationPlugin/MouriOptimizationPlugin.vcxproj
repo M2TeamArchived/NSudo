@@ -11,7 +11,7 @@
   <Import Project="..\Mile.Cpp\Mile.Project\Mile.Project.CppWinRT.props" />
   <Import Project="..\Mile.Cpp\Mile.Library\Mile.Library.vcxitems" Label="Shared" />
   <ImportGroup Label="PropertySheets">
-    <Import Project="..\Mile\Mile.props" />
+    <Import Project="..\NSudoSDK\NSudoSDK.props" />
     <Import Project="..\MINT\MINT.props" />
   </ImportGroup>
   <ItemDefinitionGroup>
