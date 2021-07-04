@@ -16,7 +16,6 @@
 #include <winrt/Windows.Management.Deployment.h>
 
 #include <vector>
-#include <string>
 
 namespace winrt
 {
@@ -31,7 +30,7 @@ EXTERN_C HRESULT WINAPI MoPurgeCorruptedAppXPackages(
     _In_ PNSUDO_CONTEXT Context)
 {
     Mile::HResult hr = S_OK;
-    std::vector<std::wstring> CorruptedPackages;
+    std::vector<winrt::hstring> CorruptedPackages;
 
     do
     {
@@ -69,7 +68,7 @@ EXTERN_C HRESULT WINAPI MoPurgeCorruptedAppXPackages(
 
                 }
 
-                CorruptedPackages.push_back(Package.Id().FullName().c_str());
+                CorruptedPackages.push_back(Package.Id().FullName());
             }
 
             if (CorruptedPackages.empty())
@@ -80,7 +79,7 @@ EXTERN_C HRESULT WINAPI MoPurgeCorruptedAppXPackages(
             }
             else
             {
-                for (std::wstring const& CorruptedPackage : CorruptedPackages)
+                for (winrt::hstring const& CorruptedPackage : CorruptedPackages)
                 {
                     if (PurgeMode == MO_PRIVATE_PURGE_MODE_SCAN)
                     {
