@@ -1372,7 +1372,7 @@ int WINAPI wWinMain(
             }
         }*/
 
-        {
+        /*{
             NSudoContextPluginEntryPointType Function =
                 reinterpret_cast<NSudoContextPluginEntryPointType>(
                     ::GetProcAddress(
@@ -1406,9 +1406,9 @@ int WINAPI wWinMain(
                 Context.ModuleHandle = nullptr;
                 Context.CommandArguments = nullptr;
             }
-        }
+        }*/ 
 
-        /*{
+        {
             NSudoContextPluginEntryPointType Function =
                 reinterpret_cast<NSudoContextPluginEntryPointType>(
                     ::GetProcAddress(
@@ -1424,7 +1424,7 @@ int WINAPI wWinMain(
                 Context.ModuleHandle = nullptr;
                 Context.CommandArguments = nullptr;
             }
-        }*/
+        }
 
         ::FreeLibrary(ModuleHandle);
     }

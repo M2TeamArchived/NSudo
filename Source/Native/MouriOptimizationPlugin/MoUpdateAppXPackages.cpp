@@ -71,11 +71,18 @@ EXTERN_C HRESULT WINAPI MoUpdateAppXPackages(
             {
                 Mile::UnreferencedParameter(args);
 
-                Context->WriteLine(
-                    Context,
-                    Mile::FormatUtf16String(
-                        L"%s: Update completed.",
-                        sender.PackageFamilyName().c_str()).c_str());
+                try
+                {
+                    Context->WriteLine(
+                        Context,
+                        Mile::FormatUtf16String(
+                            L"%s: Update completed.",
+                            sender.PackageFamilyName().c_str()).c_str());
+                }
+                catch (...)
+                {
+
+                }
 
                 ::SetEvent(CompletedSignal);
             });
@@ -86,12 +93,19 @@ EXTERN_C HRESULT WINAPI MoUpdateAppXPackages(
             {
                 Mile::UnreferencedParameter(args);
 
-                Context->WriteLine(
-                    Context,
-                    Mile::FormatUtf16String(
-                        L"%s: Update progress %.0f%%.",
-                        sender.PackageFamilyName().c_str(),
-                        sender.GetCurrentStatus().PercentComplete()).c_str());
+                try
+                {
+                    Context->WriteLine(
+                        Context,
+                        Mile::FormatUtf16String(
+                            L"%s: Update progress %.0f%%.",
+                            sender.PackageFamilyName().c_str(),
+                            sender.GetCurrentStatus().PercentComplete()).c_str());
+                }
+                catch (...)
+                {
+
+                }
             });
         }
 
