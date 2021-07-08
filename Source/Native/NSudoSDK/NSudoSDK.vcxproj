@@ -20,7 +20,7 @@
   <ItemGroup>
     <ClInclude Include="M2.Base.h" />
     <ClInclude Include="NSudoAPI.h" />
-    <ClInclude Include="NSudoContext.h" />
+    <ClInclude Include="NSudoContextPlugin.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="MCC.cppold" />

@@ -7,6 +7,9 @@
     <Filter Include="NSudoAPI">
       <UniqueIdentifier>{5c8e874d-d1d4-4a9e-b03d-d324fdc5eb88}</UniqueIdentifier>
     </Filter>
+    <Filter Include="NSudoContextPlugin">
+      <UniqueIdentifier>{e16bd9c7-d200-474c-8a8b-ddf5e8ccfdfb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="M2.Base.cpp">
@@ -23,7 +26,9 @@
     <ClInclude Include="NSudoAPI.h">
       <Filter>NSudoAPI</Filter>
     </ClInclude>
-    <ClInclude Include="NSudoContext.h" />
+    <ClInclude Include="NSudoContextPlugin.h">
+      <Filter>NSudoContextPlugin</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="NSudoSDK.props" />

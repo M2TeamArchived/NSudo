@@ -198,7 +198,7 @@ private:
             L"String",
             MAKEINTRESOURCEW(uID))))
         {
-            // Raw string without the UTF-8 BOM. (0xEF,0xBB,0xBF)	
+            // Raw string without the UTF-8 BOM. (0xEF,0xBB,0xBF)
             return Mile::ToUtf16String(std::string(
                 reinterpret_cast<const char*>(ResourceInfo.Pointer) + 3,
                 ResourceInfo.Size - 3));
@@ -1113,7 +1113,7 @@ private:
     }
 };
 
-#include <NSudoContext.h>
+#include <NSudoContextPlugin.h>
 
 #include <Mile.PiConsole.h>
 
@@ -1406,7 +1406,7 @@ int WINAPI wWinMain(
                 Context.ModuleHandle = nullptr;
                 Context.CommandArguments = nullptr;
             }
-        }*/ 
+        }*/
 
         {
             NSudoContextPluginEntryPointType Function =

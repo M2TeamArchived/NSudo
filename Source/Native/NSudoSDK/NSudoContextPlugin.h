@@ -1,6 +1,6 @@
 ﻿/*
  * PROJECT:   NSudo Software Development Kit
- * FILE:      NSudoContext.h
+ * FILE:      NSudoContextPlugin.h
  * PURPOSE:   Definition for NSudo context plugin
  *
  * LICENSE:   The MIT License
@@ -8,8 +8,8 @@
  * DEVELOPER: Mouri_Naruto (Mouri_Naruto AT Outlook.com)
  */
 
-#ifndef _NSUDO_CONTEXT_H_
-#define _NSUDO_CONTEXT_H_
+#ifndef NSUDO_CONTEXT_PLUGIN
+#define NSUDO_CONTEXT_PLUGIN
 
 #include <Windows.h>
 
@@ -109,4 +109,4 @@ struct _NSUDO_CONTEXT
 typedef HRESULT(WINAPI* NSudoContextPluginEntryPointType)(
     _In_ PNSUDO_CONTEXT Context);
 
-#endif // !_NSUDO_CONTEXT_H_
+#endif // !NSUDO_CONTEXT_PLUGIN

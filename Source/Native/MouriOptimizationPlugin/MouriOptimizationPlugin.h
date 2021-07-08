@@ -12,7 +12,7 @@
 #define MOURI_OPTIMIZATION_PLUGIN
 
 #include <Mile.Windows.h>
-#include <NSudoContext.h>
+#include <NSudoContextPlugin.h>
 
 /**
  * @brief Prints the final result to the NSudo user interface.
