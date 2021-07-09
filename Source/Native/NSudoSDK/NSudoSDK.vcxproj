@@ -16,11 +16,13 @@
   <ItemGroup>
     <ClCompile Include="M2.Base.cpp" />
     <ClCompile Include="NSudoAPI.cpp" />
+    <ClCompile Include="NSudoContextPluginHost.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="M2.Base.h" />
     <ClInclude Include="NSudoAPI.h" />
     <ClInclude Include="NSudoContextPlugin.h" />
+    <ClInclude Include="NSudoContextPluginHost.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="MCC.cppold" />

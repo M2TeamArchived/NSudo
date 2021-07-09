@@ -10,6 +10,9 @@
     <Filter Include="NSudoContextPlugin">
       <UniqueIdentifier>{e16bd9c7-d200-474c-8a8b-ddf5e8ccfdfb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="NSudoContextPluginHost">
+      <UniqueIdentifier>{c8cdd86e-b69b-4168-8cd1-1254ff96fa7f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="M2.Base.cpp">
@@ -17,6 +20,9 @@
     </ClCompile>
     <ClCompile Include="NSudoAPI.cpp">
       <Filter>NSudoAPI</Filter>
+    </ClCompile>
+    <ClCompile Include="NSudoContextPluginHost.cpp">
+      <Filter>NSudoContextPluginHost</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -28,6 +34,9 @@
     </ClInclude>
     <ClInclude Include="NSudoContextPlugin.h">
       <Filter>NSudoContextPlugin</Filter>
+    </ClInclude>
+    <ClInclude Include="NSudoContextPluginHost.h">
+      <Filter>NSudoContextPluginHost</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
