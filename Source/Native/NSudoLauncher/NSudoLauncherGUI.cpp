@@ -1205,94 +1205,45 @@ int WINAPI wWinMain(
             WindowHandle,
             L"Please input a test sentence and press enter"));*/
 
+    std::wstring MoPluginPath = g_ResourceManagement.AppPath + L"\\MoPlugin.dll";
 
-    HMODULE ModuleHandle = Mile::LoadLibraryFromSystem32(
-        (g_ResourceManagement.AppPath + L"\\MoPlugin.dll").c_str());
-    if (ModuleHandle)
+    LPWSTR Answer = Mile::PiConsole::GetInput(
+        Context.PiConsoleWindowHandle,
+        L"Do you want to defrag memory? [y/n]");
+    if (Answer)
     {
-        /*{
-            NSudoContextPluginEntryPointType Function =
-                reinterpret_cast<NSudoContextPluginEntryPointType>(
-                    ::GetProcAddress(ModuleHandle, "MoDefragMemory"));
-            if (Function)
-            {
-                LPWSTR Answer = Mile::PiConsole::GetInput(
-                    Context.PiConsoleWindowHandle,
-                    L"Do you want to defrag memory? [y/n]");
-                if (Answer)
-                {
-                    if (::_wcsicmp(Answer, L"y") == 0)
-                    {
-                        Context.ModuleHandle = ModuleHandle;
-                        Context.CommandArguments = L"";
-
-                        Function(&Context.PublicContext);
-
-                        Context.ModuleHandle = nullptr;
-                        Context.CommandArguments = nullptr;
-                    }
-
-                    Mile::HeapMemory::Free(Answer);
-                }
-            }
-        }*/
-
-        /*{
-            NSudoContextPluginEntryPointType Function =
-                reinterpret_cast<NSudoContextPluginEntryPointType>(
-                    ::GetProcAddress(
-                        ModuleHandle,
-                        "MoPurgeCorruptedAppXPackages"));
-            if (Function)
-            {
-                Context.ModuleHandle = ModuleHandle;
-                Context.CommandArguments = L"/Scan";
-
-                Function(&Context.PublicContext);
-
-                Context.ModuleHandle = nullptr;
-                Context.CommandArguments = nullptr;
-            }
+        if (::_wcsicmp(Answer, L"y") == 0)
+        {
+            ::NSudoContextExecutePlugin(
+                &Context.PublicContext,
+                MoPluginPath.c_str(),
+                "MoDefragMemory",
+                L"");
         }
 
-        {
-            NSudoContextPluginEntryPointType Function =
-                reinterpret_cast<NSudoContextPluginEntryPointType>(
-                    ::GetProcAddress(
-                        ModuleHandle,
-                        "MoPurgeCorruptedAppXPackages"));
-            if (Function)
-            {
-                Context.ModuleHandle = ModuleHandle;
-                Context.CommandArguments = L"/Purge";
-
-                Function(&Context.PublicContext);
-
-                Context.ModuleHandle = nullptr;
-                Context.CommandArguments = nullptr;
-            }
-        }*/
-
-        {
-            NSudoContextPluginEntryPointType Function =
-                reinterpret_cast<NSudoContextPluginEntryPointType>(
-                    ::GetProcAddress(
-                        ModuleHandle,
-                        "MoUpdateAppXPackages"));
-            if (Function)
-            {
-                Context.ModuleHandle = ModuleHandle;
-                Context.CommandArguments = L"";
-
-                Function(&Context.PublicContext);
-
-                Context.ModuleHandle = nullptr;
-                Context.CommandArguments = nullptr;
-            }
-        }
-
-        ::FreeLibrary(ModuleHandle);
+        Mile::HeapMemory::Free(Answer);
     }
+
+
+
+    ::NSudoContextExecutePlugin(
+        &Context.PublicContext,
+        MoPluginPath.c_str(),
+        "MoPurgeCorruptedAppXPackages",
+        L"/Scan");
+
+    ::NSudoContextExecutePlugin(
+        &Context.PublicContext,
+        MoPluginPath.c_str(),
+        "MoPurgeCorruptedAppXPackages",
+        L"/Purge");
+
+    ::NSudoContextExecutePlugin(
+        &Context.PublicContext,
+        MoPluginPath.c_str(),
+        "MoUpdateAppXPackages",
+        L"");
+
 
 
 

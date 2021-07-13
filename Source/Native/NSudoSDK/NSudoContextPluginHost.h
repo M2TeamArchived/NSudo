@@ -27,7 +27,7 @@ typedef struct _NSUDO_CONTEXT_PRIVATE
     HMODULE ModuleHandle;
     LPCWSTR CommandArguments;
 
-} NSUDO_CONTEXT_PRIVATE, * PNSUDO_CONTEXT_PRIVATE;
+} NSUDO_CONTEXT_PRIVATE, *PNSUDO_CONTEXT_PRIVATE;
 
 
 /**
@@ -36,5 +36,19 @@ typedef struct _NSUDO_CONTEXT_PRIVATE
 */
 EXTERN_C VOID WINAPI NSudoContextFillFunctionTable(
     _In_ PNSUDO_CONTEXT Context);
+
+/**
+ * @brief Executes the context plugin.
+ * @param Context The NSudo context.
+ * @param PluginModuleName The module name of the context plugin.
+ * @param PluginEntryPointName The entry point name of the context plugin.
+ * @param CommandArguments The command line arguments of the context plugin.
+ * @return HRESULT. If the function succeeds, the return value is S_OK.
+*/
+EXTERN_C HRESULT WINAPI NSudoContextExecutePlugin(
+    _In_ PNSUDO_CONTEXT Context,
+    _In_ LPCWSTR PluginModuleName,
+    _In_ LPCSTR PluginEntryPointName,
+    _In_ LPCWSTR CommandArguments);
 
 #endif // !NSUDO_CONTEXT_PLUGIN_HOST

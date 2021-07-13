@@ -187,3 +187,57 @@ EXTERN_C VOID WINAPI NSudoContextFillFunctionTable(
             ::NSudoContextReadLine;
     }
 }
+
+EXTERN_C HRESULT WINAPI NSudoContextExecutePlugin(
+    _In_ PNSUDO_CONTEXT Context,
+    _In_ LPCWSTR PluginModuleName,
+    _In_ LPCSTR PluginEntryPointName,
+    _In_ LPCWSTR CommandArguments)
+{
+    if (!Context || !PluginModuleName || !PluginEntryPointName)
+    {
+        return E_INVALIDARG;
+    }
+
+    PNSUDO_CONTEXT_PRIVATE PrivateContext = nullptr;
+    HMODULE ModuleHandle = nullptr;
+    NSudoContextPluginEntryPointType EntryPointFunction = nullptr;
+    HRESULT EntryPointResult = S_OK;
+
+    auto ExitHandler = Mile::ScopeExitTaskHandler([&]()
+    {
+        if (ModuleHandle)
+        {
+            ::FreeLibrary(ModuleHandle);
+        }
+    });
+
+    PrivateContext = ::NSudoContextGetPrivate(Context);
+    if (!PrivateContext)
+    {
+        return E_NOINTERFACE;
+    }
+
+    ModuleHandle = Mile::LoadLibraryFromSystem32(PluginModuleName);
+    if (!ModuleHandle)
+    {
+        return E_NOINTERFACE;
+    }
+
+    EntryPointFunction = reinterpret_cast<NSudoContextPluginEntryPointType>(
+        ::GetProcAddress(ModuleHandle, PluginEntryPointName));
+    if (!EntryPointFunction)
+    {
+        return E_NOINTERFACE;
+    }
+
+    PrivateContext->ModuleHandle = ModuleHandle;
+    PrivateContext->CommandArguments = CommandArguments;
+
+    EntryPointResult = EntryPointFunction(&PrivateContext->PublicContext);
+
+    PrivateContext->ModuleHandle = nullptr;
+    PrivateContext->CommandArguments = nullptr;
+
+    return EntryPointResult;
+}
