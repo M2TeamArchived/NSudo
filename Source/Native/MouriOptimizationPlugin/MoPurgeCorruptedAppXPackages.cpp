@@ -50,8 +50,7 @@ EXTERN_C HRESULT WINAPI MoPurgeCorruptedAppXPackages(
 
         try
         {
-            winrt::init_apartment(
-                winrt::apartment_type::single_threaded);
+            winrt::init_apartment();
 
             winrt::PackageManager PackageManager;
             for (winrt::Package Package : PackageManager.FindPackages())
