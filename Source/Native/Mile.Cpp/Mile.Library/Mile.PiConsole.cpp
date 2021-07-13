@@ -456,6 +456,12 @@ HWND Mile::PiConsole::Create(
             return;
         }
 
+        ::SendMessageW(
+            ConsoleInformation->OutputEdit,
+            EM_LIMITTEXT,
+            0x7FFFFFFE,
+            0);
+
         ConsoleInformation->InputEdit = ::CreateWindowExW(
             0,
             L"Edit",

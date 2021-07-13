@@ -1117,7 +1117,7 @@ namespace Mile
      * @brief The information about a found file or directory queried from the
      *        file enumerator.
     */
-    typedef struct _FILE_ENUMERATOR_INFORMATION
+    typedef struct _FILE_ENUMERATE_INFORMATION
     {
         FILETIME CreationTime;
         FILETIME LastAccessTime;
@@ -1130,7 +1130,19 @@ namespace Mile
         LARGE_INTEGER FileId;
         WCHAR ShortName[16];
         WCHAR FileName[256];
-    } FILE_ENUMERATOR_INFORMATION, *PFILE_ENUMERATOR_INFORMATION;
+    } FILE_ENUMERATE_INFORMATION, *PFILE_ENUMERATE_INFORMATION;
+
+    /**
+     * @brief The file enumerate callback type.
+     * @param Information The file enumerate information.
+     * @param Context The user context.
+     * @return If the return value is non-zero, the file enumerate will be
+     *         continued. If the return value is zero, the file enumerate will
+     *         be terminated.
+    */
+    typedef BOOL(WINAPI* ENUMERATE_FILE_CALLBACK_TYPE)(
+        _In_ Mile::PFILE_ENUMERATE_INFORMATION Information,
+        _In_opt_ LPVOID Context);
 
     /**
      * @brief The resource info struct.
@@ -1346,47 +1358,20 @@ namespace Mile
         _In_ DWORD DeploymentState);
 
     /**
-     * @brief Creates a file enumerator handle for searching a directory for a
-     *        file or subdirectory with a name.
-     * @param FileEnumeratorHandle The file enumerator handle.
+     * @brief Enumerates files in a directory.
      * @param FileHandle The handle of the file to be searched a directory for
      *                   a file or subdirectory with a name. This handle must
      *                   be opened with the appropriate permissions for the
      *                   requested change. This handle should not be a pipe
      *                   handle.
+     * @param Callback The file enumerate callback.
+     * @param Context The user context.
      * @return An HResult object containing the error code.
     */
-    HResult CreateFileEnumerator(
-        _Out_ PFILE_ENUMERATOR_HANDLE FileEnumeratorHandle,
-        _In_ HANDLE FileHandle);
-
-    /**
-     * @brief Closes a file enumerator handle opened by CreateFileEnumerator.
-     * @param FileEnumeratorHandle The file enumerator handle.
-     * @return An HResultFromLastError object An containing the HResult object
-     *         containing the error code.
-    */
-    HResultFromLastError CloseFileEnumerator(
-        _In_ FILE_ENUMERATOR_HANDLE FileEnumeratorHandle);
-
-    /**
-     * @brief Starts or continues a file search from a file enumerator handle.
-     * @param FileEnumeratorHandle The file enumerator handle.
-     * @param FileEnumeratorInformation A pointer to the
-     *                                  FILE_ENUMERATOR_INFORMATION structure
-     *                                  that receives information about a found
-     *                                  file or directory.
-     * @return An HResultFromLastError object An containing the HResult object
-     *         containing the error code. If the function succeeds, the
-     *         FileEnumeratorInformation parameter contains information about
-     *         the next file or directory found. If the function fails, the
-     *         contents of FileEnumeratorInformation are indeterminate. If the
-     *         function fails because no more matching files can be found,
-     *         the error code is HRESULT_FROM_WIN32(ERROR_NO_MORE_FILES).
-    */
-    HResultFromLastError QueryFileEnumerator(
-        _In_ FILE_ENUMERATOR_HANDLE FileEnumeratorHandle,
-        _Out_ PFILE_ENUMERATOR_INFORMATION FileEnumeratorInformation);
+    HResult EnumerateFile(
+        _In_ HANDLE FileHandle,
+        _In_ Mile::ENUMERATE_FILE_CALLBACK_TYPE Callback,
+        _In_opt_ LPVOID Context);
 
     /**
      * @brief Retrieves the size of the specified file.
@@ -2199,6 +2184,53 @@ namespace Mile
     */
     std::string ConvertByteSizeToUtf8String(
         std::uint64_t ByteSize);
+
+    /**
+     * @brief Enumerates files in a directory.
+     * @tparam CallbackType The callback type.
+     * @param FileHandle The handle of the file to be searched a directory for
+     *                   a file or subdirectory with a name. This handle must
+     *                   be opened with the appropriate permissions for the
+     *                   requested change. This handle should not be a pipe
+     *                   handle.
+     * @param CallbackFunction The file enumerate callback function. 
+     * @return An HResult object containing the error code.
+    */
+    template<class CallbackType>
+    HResult EnumerateFile(
+        _In_ HANDLE FileHandle,
+        _In_ CallbackType&& CallbackFunction)
+    {
+        Mile::HResult hr = S_OK;
+
+        CallbackType* CallbackObject = new CallbackType(
+            std::move(CallbackFunction));
+        if (CallbackObject)
+        {
+            auto FileEnumerateCallback = [](
+                _In_ Mile::PFILE_ENUMERATE_INFORMATION Information,
+                _In_opt_ LPVOID Context) -> BOOL
+            {
+                auto Callback = reinterpret_cast<CallbackType*>(Context);
+                BOOL Result = (*Callback)(Information);
+
+                return Result;
+            };
+
+            hr = Mile::EnumerateFile(
+                FileHandle,
+                FileEnumerateCallback,
+                reinterpret_cast<LPVOID>(CallbackObject));
+
+            delete CallbackObject;
+        }
+        else
+        {
+            hr = E_OUTOFMEMORY;
+        }
+
+        return hr;
+    }
 
 #pragma endregion
 }
