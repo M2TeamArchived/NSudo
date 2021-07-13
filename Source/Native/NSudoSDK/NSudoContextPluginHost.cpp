@@ -201,7 +201,7 @@ EXTERN_C HRESULT WINAPI NSudoContextExecutePlugin(
 
     PNSUDO_CONTEXT_PRIVATE PrivateContext = nullptr;
     HMODULE ModuleHandle = nullptr;
-    NSudoContextPluginEntryPointType EntryPointFunction = nullptr;
+    NSUDO_CONTEXT_PLUGIN_ENTRY_POINT_TYPE EntryPointFunction = nullptr;
     HRESULT EntryPointResult = S_OK;
 
     auto ExitHandler = Mile::ScopeExitTaskHandler([&]()
@@ -224,7 +224,7 @@ EXTERN_C HRESULT WINAPI NSudoContextExecutePlugin(
         return E_NOINTERFACE;
     }
 
-    EntryPointFunction = reinterpret_cast<NSudoContextPluginEntryPointType>(
+    EntryPointFunction = reinterpret_cast<NSUDO_CONTEXT_PLUGIN_ENTRY_POINT_TYPE>(
         ::GetProcAddress(ModuleHandle, PluginEntryPointName));
     if (!EntryPointFunction)
     {

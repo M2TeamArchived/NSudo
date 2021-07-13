@@ -106,7 +106,7 @@ struct _NSUDO_CONTEXT
  * @param Context The NSudo context.
  * @return HRESULT. If the function succeeds, the return value is S_OK.
 */
-typedef HRESULT(WINAPI* NSudoContextPluginEntryPointType)(
+typedef HRESULT(WINAPI* NSUDO_CONTEXT_PLUGIN_ENTRY_POINT_TYPE)(
     _In_ PNSUDO_CONTEXT Context);
 
 #endif // !NSUDO_CONTEXT_PLUGIN
