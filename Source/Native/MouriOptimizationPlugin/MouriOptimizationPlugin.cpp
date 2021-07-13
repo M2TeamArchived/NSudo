@@ -112,6 +112,142 @@ DWORD MoPrivateParsePurgeMode(
     return Result;
 }
 
+Mile::HResult MoPrivateEnableBackupRestorePrivilege(
+    _Out_ PHANDLE PreviousContextTokenHandle)
+{
+    HANDLE CurrentProcessToken = INVALID_HANDLE_VALUE;
+    HANDLE DuplicatedCurrentProcessToken = INVALID_HANDLE_VALUE;
+    LUID_AND_ATTRIBUTES RawPrivileges[2];
+
+    auto Handler = Mile::ScopeExitTaskHandler([&]()
+    {
+        if (DuplicatedCurrentProcessToken != INVALID_HANDLE_VALUE)
+        {
+            ::CloseHandle(DuplicatedCurrentProcessToken);
+        }
+
+        if (CurrentProcessToken != INVALID_HANDLE_VALUE)
+        {
+            ::CloseHandle(CurrentProcessToken);
+        }
+    });
+
+    if (!PreviousContextTokenHandle)
+    {
+        return E_INVALIDARG;
+    }
+
+    if (!::OpenProcessToken(
+        ::GetCurrentProcess(),
+        MAXIMUM_ALLOWED,
+        &CurrentProcessToken))
+    {
+        return Mile::HResultFromLastError(FALSE);
+    }
+
+    if (!::DuplicateTokenEx(
+        CurrentProcessToken,
+        MAXIMUM_ALLOWED,
+        nullptr,
+        SecurityImpersonation,
+        TokenImpersonation,
+        &DuplicatedCurrentProcessToken))
+    {
+        return Mile::HResultFromLastError(FALSE);
+    }
+
+    if (!::LookupPrivilegeValueW(
+        nullptr,
+        SE_BACKUP_NAME,
+        &RawPrivileges[0].Luid))
+    {
+        return Mile::HResultFromLastError(FALSE);
+    }
+    RawPrivileges[0].Attributes = SE_PRIVILEGE_ENABLED;
+
+    if (!::LookupPrivilegeValueW(
+        nullptr,
+        SE_RESTORE_NAME,
+        &RawPrivileges[1].Luid))
+    {
+        return Mile::HResultFromLastError(FALSE);
+    }
+    RawPrivileges[1].Attributes = SE_PRIVILEGE_ENABLED;
+
+    Mile::HResult hr = Mile::AdjustTokenPrivilegesSimple(
+        DuplicatedCurrentProcessToken,
+        RawPrivileges,
+        2);
+    if (hr.IsFailed())
+    {
+        return hr;
+    }
+
+    ::OpenThreadToken(
+        ::GetCurrentThread(),
+        MAXIMUM_ALLOWED,
+        FALSE,
+        PreviousContextTokenHandle);
+
+    return Mile::HResultFromLastError(::SetThreadToken(
+        nullptr, DuplicatedCurrentProcessToken));
+}
+
+std::vector<std::wstring> MoPrivateGetProfilePathList()
+{
+    std::vector<std::wstring> Result;
+
+    Mile::HResult hr = S_OK;
+    HKEY ProfileListKeyHandle = nullptr;
+    if (ERROR_SUCCESS == ::RegOpenKeyExW(
+        HKEY_LOCAL_MACHINE,
+        L"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList",
+        REG_OPTION_BACKUP_RESTORE,
+        KEY_READ | KEY_WOW64_64KEY,
+        &ProfileListKeyHandle))
+    {
+        DWORD i = 0;
+        for (;;)
+        {
+            wchar_t Buffer[256];
+            HKEY ProfileListItemKeyHandle = nullptr;
+            if (ERROR_SUCCESS != ::RegEnumKeyW(
+                ProfileListKeyHandle,
+                i++,
+                Buffer,
+                256))
+            {
+                break;
+            }
+
+            if (ERROR_SUCCESS == ::RegOpenKeyExW(
+                ProfileListKeyHandle,
+                Buffer,
+                REG_OPTION_BACKUP_RESTORE,
+                KEY_READ | KEY_WOW64_64KEY,
+                &ProfileListItemKeyHandle))
+            {
+                LPWSTR ProfileImagePath = nullptr;
+                if (Mile::RegQueryStringValue(
+                    ProfileListItemKeyHandle,
+                    L"ProfileImagePath",
+                    &ProfileImagePath).IsSucceeded())
+                {
+                    Result.push_back(ProfileImagePath);
+
+                    Mile::HeapMemory::Free(ProfileImagePath);
+                }
+
+                ::RegCloseKey(ProfileListItemKeyHandle);
+            }
+        }
+
+        ::RegCloseKey(ProfileListKeyHandle);
+    }
+
+    return Result;
+}
+
 BOOL WINAPI DllMain(
     _In_ HINSTANCE hinstDLL,
     _In_ DWORD fdwReason,

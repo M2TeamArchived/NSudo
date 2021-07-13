@@ -14,6 +14,9 @@
 #include <Mile.Windows.h>
 #include <NSudoContextPlugin.h>
 
+#include <vector>
+#include <string>
+
 /**
  * @brief Prints the final result to the NSudo user interface.
  * @param Context The NSudo context.
@@ -49,5 +52,24 @@ void MoPrivatePrintPurgeScanResult(
 */
 DWORD MoPrivateParsePurgeMode(
     _In_ PNSUDO_CONTEXT Context);
+
+/**
+ * @brief Enables backup and restore privilege to the access token that
+ *        impersonates the security context of the calling process. The
+ *        token is assigned to the calling thread.
+ * @param PreviousContextTokenHandle The previous access token that
+ *                                   impersonates the security context
+ *                                   of the calling thread for restoring
+ *                                   by SetThreadToken.
+ * @return An HResult object containing the error code.
+*/
+Mile::HResult MoPrivateEnableBackupRestorePrivilege(
+    _Out_ PHANDLE PreviousContextTokenHandle);
+
+/**
+ * @brief Gets user profile path list for the local computer.
+ * @return The user profile path list for the local computer.
+*/
+std::vector<std::wstring> MoPrivateGetProfilePathList();
 
 #endif // !MOURI_OPTIMIZATION_PLUGIN
