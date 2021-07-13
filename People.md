@@ -38,6 +38,8 @@
 - boyangpangzi
 - cjy\_\_05
 - dfdc5
+- Krunk Zhou ([https://github.com/KrunkZhou](https://github.com/KrunkZhou))
+- Legna ([https://www.brighost.com/nav/](https://www.brighost.com/nav/))
 - mhxkx
 - NotePad
 - tangmigoId
