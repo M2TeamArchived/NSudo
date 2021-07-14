@@ -72,4 +72,12 @@ Mile::HResult MoPrivateEnableBackupRestorePrivilege(
 */
 std::vector<std::wstring> MoPrivateGetProfilePathList();
 
+/**
+ * @brief Tests for the existence of the file or directory.
+ * @param FilePath The path of the file or directory for testing.
+ * @return Nonzero if the found file. Otherwise zero.
+*/
+BOOL MoPrivateIsFileExist(
+    _In_ LPCWSTR FilePath);
+
 #endif // !MOURI_OPTIMIZATION_PLUGIN

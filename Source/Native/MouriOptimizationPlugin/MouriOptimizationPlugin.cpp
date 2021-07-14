@@ -248,6 +248,24 @@ std::vector<std::wstring> MoPrivateGetProfilePathList()
     return Result;
 }
 
+BOOL MoPrivateIsFileExist(
+    _In_ LPCWSTR FilePath)
+{
+    HANDLE FileHandle = ::CreateFileW(
+        Mile::FormatUtf16String(L"\\\\?\\%s\\", FilePath).c_str(),
+        SYNCHRONIZE | FILE_READ_ATTRIBUTES,
+        FILE_SHARE_READ,
+        nullptr,
+        OPEN_EXISTING,
+        FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT,
+        nullptr);
+    if (FileHandle != INVALID_HANDLE_VALUE)
+    {
+        ::CloseHandle(FileHandle);
+    }
+    return (FileHandle != INVALID_HANDLE_VALUE);
+}
+
 BOOL WINAPI DllMain(
     _In_ HINSTANCE hinstDLL,
     _In_ DWORD fdwReason,
