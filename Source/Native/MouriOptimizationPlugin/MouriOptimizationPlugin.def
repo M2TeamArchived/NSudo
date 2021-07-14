@@ -10,3 +10,4 @@ MoPurgeSystemRestorePoint
 MoPurgeDeliveryOptimizationCache
 MoPurgeWindowsEventLog
 MoPurgeCorruptedAppXPackages
+MoPurgeNuGetCache

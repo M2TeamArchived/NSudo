@@ -22,6 +22,7 @@
   <ItemGroup>
     <ClCompile Include="MoPurgeCorruptedAppXPackages.cpp" />
     <ClCompile Include="MoPurgeDeliveryOptimizationCache.cpp" />
+    <ClCompile Include="MoPurgeNuGetCache.cpp" />
     <ClCompile Include="MoPurgeSystemRestorePoint.cpp" />
     <ClCompile Include="MoPurgeWindowsEventLog.cpp" />
     <ClCompile Include="MoUpdateAppXPackages.cpp" />
