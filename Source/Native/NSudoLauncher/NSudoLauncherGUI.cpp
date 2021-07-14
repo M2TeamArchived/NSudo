@@ -1207,7 +1207,9 @@ int WINAPI wWinMain(
 
     std::wstring MoPluginPath = g_ResourceManagement.AppPath + L"\\MoPlugin.dll";
 
-    LPWSTR Answer = Mile::PiConsole::GetInput(
+    //Mile::LoadLibraryFromSystem32((g_ResourceManagement.AppPath + L"\\NSudoDM.dll").c_str());
+
+    /*LPWSTR Answer = Mile::PiConsole::GetInput(
         Context.PiConsoleWindowHandle,
         L"Do you want to defrag memory? [y/n]");
     if (Answer)
@@ -1242,7 +1244,19 @@ int WINAPI wWinMain(
         &Context.PublicContext,
         MoPluginPath.c_str(),
         "MoUpdateAppXPackages",
-        L"");
+        L"");*/
+
+    ::NSudoContextExecutePlugin(
+        &Context.PublicContext,
+        MoPluginPath.c_str(),
+        "MoPurgeNuGetCache",
+        L"/Scan");
+
+    ::NSudoContextExecutePlugin(
+        &Context.PublicContext,
+        MoPluginPath.c_str(),
+        "MoPurgeNuGetCache",
+        L"/Purge");
 
 
 
