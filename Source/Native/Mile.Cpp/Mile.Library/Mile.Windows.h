@@ -1480,8 +1480,8 @@ namespace Mile
         _In_ HANDLE FileHandle);
 
     /**
-     * @brief Tests for the current directory and parent directory markers *
-              while iterating through files.
+     * @brief Tests for the current directory and parent directory markers
+     *        while iterating through files.
      * @param Name The name of the file or directory for testing.
      * @return Nonzero if the found file has the name "." or "..", which
      *         indicates that the found file is actually a directory. Otherwise
