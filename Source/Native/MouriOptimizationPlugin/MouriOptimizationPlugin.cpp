@@ -207,7 +207,7 @@ std::vector<std::wstring> MoPrivateGetProfilePathList()
     if (ERROR_SUCCESS == ::RegOpenKeyExW(
         HKEY_LOCAL_MACHINE,
         L"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList",
-        REG_OPTION_BACKUP_RESTORE,
+        0,
         KEY_READ | KEY_WOW64_64KEY,
         &ProfileListKeyHandle))
     {
@@ -228,7 +228,7 @@ std::vector<std::wstring> MoPrivateGetProfilePathList()
             if (ERROR_SUCCESS == ::RegOpenKeyExW(
                 ProfileListKeyHandle,
                 Buffer,
-                REG_OPTION_BACKUP_RESTORE,
+                0,
                 KEY_READ | KEY_WOW64_64KEY,
                 &ProfileListItemKeyHandle))
             {
@@ -238,7 +238,8 @@ std::vector<std::wstring> MoPrivateGetProfilePathList()
                     L"ProfileImagePath",
                     &ProfileImagePath).IsSucceeded())
                 {
-                    Result.push_back(ProfileImagePath);
+                    Result.push_back(
+                        Mile::ExpandEnvironmentStringsW(ProfileImagePath));
 
                     Mile::HeapMemory::Free(ProfileImagePath);
                 }
