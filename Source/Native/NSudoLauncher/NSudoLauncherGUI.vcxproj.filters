@@ -7,19 +7,11 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\NSudo.json">
-      <Filter>Resources</Filter>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
     <Filter Include="jsmn">
       <UniqueIdentifier>{ea0f1c36-890f-4f1c-9ade-9173c6b242d7}</UniqueIdentifier>
     </Filter>
     <Filter Include="M2Win32GUIHelpers">
       <UniqueIdentifier>{69bb0b6f-1d7d-4a77-9b42-483f97fdde74}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Resources">
-      <UniqueIdentifier>{c4416227-cc2c-4764-84c2-2c2ef3e3ca3b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

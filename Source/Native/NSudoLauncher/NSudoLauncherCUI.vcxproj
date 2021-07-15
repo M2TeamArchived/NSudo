@@ -14,17 +14,8 @@
     <Import Project="..\NSudoSDK\NSudoSDK.props" />
     <Import Project="NSudoLauncherResources.props" />
   </ImportGroup>
-  <ItemDefinitionGroup>
-    <PostBuildEvent>
-      <Message>复制配置文件</Message>
-      <Command>xcopy /r /s /y $(ProjectDir)Resources\NSudo.json $(TargetDir)</Command>
-    </PostBuildEvent>
-  </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="NSudoLauncherCUI.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\NSudo.json" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="jsmn.h" />

@@ -33,6 +33,7 @@
     <None Include="Resources\es\Translations.json" />
     <None Include="Resources\fr\Translations.json" />
     <None Include="Resources\it\Translations.json" />
+    <None Include="Resources\NSudo.json" />
     <None Include="Resources\NSudoLauncher.xcf" />
     <None Include="NSudoLauncherResources.props" />
     <None Include="Resources\zh-Hans\Translations.json" />
@@ -47,5 +48,8 @@
   <ItemGroup>
     <Image Include="Resources\NSudoLauncher.ico" />
   </ItemGroup>
+  <Target Name="NSudoLauncherCopyResourcesToOutputFolder" BeforeTargets="Build">
+    <Copy SourceFiles="Resources\NSudo.json" DestinationFolder="$(TargetDir)" />
+  </Target>
   <Import Project="..\Mile.Cpp\Mile.Project\Mile.Project.targets" />
 </Project>

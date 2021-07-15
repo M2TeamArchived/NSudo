@@ -4,16 +4,8 @@
     <ClCompile Include="NSudoLauncherCUI.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\NSudo.json">
-      <Filter>Resources</Filter>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
     <Filter Include="jsmn">
       <UniqueIdentifier>{08c029f6-f8ae-4d16-bdf1-4baa97245c02}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Resources">
-      <UniqueIdentifier>{6dcc3e16-84d8-47d3-a6ac-e738a047a9aa}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

@@ -91,6 +91,7 @@
     <None Include="Resources\de\Translations.json">
       <Filter>de</Filter>
     </None>
+    <None Include="Resources\NSudo.json" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="NSudoLauncherResources.rc" />
