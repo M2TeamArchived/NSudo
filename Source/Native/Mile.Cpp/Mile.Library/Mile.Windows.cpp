@@ -1813,7 +1813,7 @@ Mile::HResultFromLastError Mile::LoadResource(
 #pragma region Implementations for Windows (C++ Style)
 
 std::wstring Mile::GetHResultMessage(
-    HResult const& Value)
+    Mile::HResult const& Value)
 {
     std::wstring Message{ L"Failed to get formatted message." };
 
@@ -1825,13 +1825,17 @@ std::wstring Mile::GetHResultMessage(
         FORMAT_MESSAGE_MAX_WIDTH_MASK,
         nullptr,
         Value,
-        MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US),
+        0,
         reinterpret_cast<LPTSTR>(&RawMessage),
         0,
         nullptr);
     if (RawMessageSize)
     {
         Message = std::wstring(RawMessage, RawMessageSize);
+        if (Value.IsFailed())
+        {
+            Message += Mile::FormatUtf16String(L" (0x%08lX)", Value);
+        }
 
         ::LocalFree(RawMessage);
     }
