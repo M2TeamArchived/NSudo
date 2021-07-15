@@ -46,11 +46,10 @@ EXTERN_C HRESULT WINAPI MoUpdateAppXPackages(
             AppInstallManager.SearchForAllUpdatesAsync().get();
         for (winrt::AppInstallItem InstallItem : InstallList)
         {
-            Context->WriteLine(
+            ::MoPrivateWriteLine(
                 Context,
-                Mile::FormatUtf16String(
-                    L"Update: %s",
-                    InstallItem.PackageFamilyName().c_str()).c_str());
+                L"Update: %s",
+                InstallItem.PackageFamilyName().c_str());
 
             HANDLE CompletedSignal = ::CreateEventExW(
                 nullptr,
@@ -72,11 +71,10 @@ EXTERN_C HRESULT WINAPI MoUpdateAppXPackages(
 
                 try
                 {
-                    Context->WriteLine(
+                    ::MoPrivateWriteLine(
                         Context,
-                        Mile::FormatUtf16String(
-                            L"%s: Update completed.",
-                            sender.PackageFamilyName().c_str()).c_str());
+                        L"%s: Update completed.",
+                        sender.PackageFamilyName().c_str());
                 }
                 catch (...)
                 {
@@ -94,12 +92,11 @@ EXTERN_C HRESULT WINAPI MoUpdateAppXPackages(
 
                 try
                 {
-                    Context->WriteLine(
+                    ::MoPrivateWriteLine(
                         Context,
-                        Mile::FormatUtf16String(
-                            L"%s: Update progress %.0f%%.",
-                            sender.PackageFamilyName().c_str(),
-                            sender.GetCurrentStatus().PercentComplete()).c_str());
+                        L"%s: Update progress %.0f%%.",
+                        sender.PackageFamilyName().c_str(),
+                        sender.GetCurrentStatus().PercentComplete());
                 }
                 catch (...)
                 {
@@ -110,7 +107,7 @@ EXTERN_C HRESULT WINAPI MoUpdateAppXPackages(
 
         if (CompletedSignals.empty())
         {
-            Context->WriteLine(
+            ::MoPrivateWriteLine(
                 Context,
                 L"All your trusted apps and games from Microsoft Store have "
                 L"the latest updates.");
@@ -132,7 +129,7 @@ EXTERN_C HRESULT WINAPI MoUpdateAppXPackages(
         hr = static_cast<HRESULT>(ex.code());
     }
 
-    ::MoPrivatePrintFinalResult(Context, hr, nullptr);
+    ::MoPrivateWriteFinalResult(Context, hr);
 
     return hr;
 }

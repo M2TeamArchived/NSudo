@@ -15,8 +15,6 @@
 EXTERN_C HRESULT WINAPI MoEnableMicrosoftUpdate(
     _In_ PNSUDO_CONTEXT Context)
 {
-    LPCWSTR FailedPoint = nullptr;
-
     Mile::HResult hr = ::CoInitializeEx(
         nullptr,
         COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
@@ -39,16 +37,21 @@ EXTERN_C HRESULT WINAPI MoEnableMicrosoftUpdate(
                     ClientApplicationID);
                 if (hr.IsFailed())
                 {
-                    FailedPoint =
-                        L"IUpdateServiceManager2::put_ClientApplicationID";
+                    ::MoPrivateWriteErrorMessage(
+                        Context,
+                        hr,
+                        L"IUpdateServiceManager2::put_ClientApplicationID");
                 }
 
-                ::SysFreeString(ClientApplicationID);     
+                ::SysFreeString(ClientApplicationID);
             }
             else
             {
                 hr = E_OUTOFMEMORY;
-                FailedPoint = L"SysAllocString";
+                ::MoPrivateWriteErrorMessage(
+                    Context,
+                    hr,
+                    L"SysAllocString");
             }
 
             if (hr.IsSucceeded())
@@ -76,9 +79,12 @@ EXTERN_C HRESULT WINAPI MoEnableMicrosoftUpdate(
                     }
                     else
                     {
-                        FailedPoint = L"IUpdateServiceManager2::AddService2";
+                        ::MoPrivateWriteErrorMessage(
+                            Context,
+                            hr,
+                            L"IUpdateServiceManager2::AddService2");
                     }
-                    
+
 
                     ::SysFreeString(serviceID);
                     ::SysFreeString(authorizationCabPath);
@@ -86,7 +92,10 @@ EXTERN_C HRESULT WINAPI MoEnableMicrosoftUpdate(
                 else
                 {
                     hr = E_OUTOFMEMORY;
-                    FailedPoint = L"SysAllocString";
+                    ::MoPrivateWriteErrorMessage(
+                        Context,
+                        hr,
+                        L"SysAllocString");
                 }
             }
 
@@ -94,17 +103,23 @@ EXTERN_C HRESULT WINAPI MoEnableMicrosoftUpdate(
         }
         else
         {
-            FailedPoint = L"CoCreateInstance";
+            ::MoPrivateWriteErrorMessage(
+                Context,
+                hr,
+                L"CoCreateInstance");
         }
 
         ::CoUninitialize();
     }
     else
     {
-        FailedPoint = L"CoInitializeEx";
+    ::MoPrivateWriteErrorMessage(
+        Context,
+        hr,
+        L"CoInitializeEx");
     }
 
-    ::MoPrivatePrintFinalResult(Context, hr, FailedPoint);
+    ::MoPrivateWriteFinalResult(Context, hr);
 
     return hr;
 }

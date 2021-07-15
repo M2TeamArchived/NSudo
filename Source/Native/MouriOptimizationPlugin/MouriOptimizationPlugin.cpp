@@ -10,37 +10,46 @@
 
 #include "MouriOptimizationPlugin.h"
 
-void MoPrivatePrintFinalResult(
+void MoPrivateWriteLine(
     _In_ PNSUDO_CONTEXT Context,
-    _In_ Mile::HResult const& hr,
-    _In_ LPCWSTR FailedPoint)
+    _In_z_ _Printf_format_string_ wchar_t const* const Format,
+    ...)
 {
     if (Context)
     {
-        if (FailedPoint)
-        {
-            Context->Write(
-                Context,
-                Mile::FormatUtf16String(
-                    L"%s: ",
-                    FailedPoint).c_str());
-        }
-
-        Context->Write(
+        va_list ArgList;
+        va_start(ArgList, Format);
+        Context->WriteLine(
             Context,
-            Mile::GetHResultMessage(hr).c_str());
-
-        if (hr.IsFailed())
-        {
-            Context->Write(
-                Context,
-                Mile::FormatUtf16String(
-                    L" (0x%08lX)",
-                    hr).c_str());
-        }
-
-        Context->Write(Context, L"\r\n");
+            Mile::VFormatUtf16String(Format, ArgList).c_str());
+        va_end(ArgList);
     }
+}
+
+void MoPrivateWriteErrorMessage(
+    _In_ PNSUDO_CONTEXT Context,
+    _In_ Mile::HResult const& hr,
+    _In_z_ _Printf_format_string_ wchar_t const* const Format,
+    ...)
+{
+    va_list ArgList;
+    va_start(ArgList, Format);
+    ::MoPrivateWriteLine(
+        Context,
+        L"%s: %s",
+        Mile::VFormatUtf16String(Format, ArgList).c_str(),
+        Mile::GetHResultMessage(hr).c_str());
+    va_end(ArgList);
+}
+
+void MoPrivateWriteFinalResult(
+    _In_ PNSUDO_CONTEXT Context,
+    _In_ Mile::HResult const& hr)
+{
+    ::MoPrivateWriteLine(
+        Context,
+        L"%s\r\n",
+        Mile::GetHResultMessage(hr).c_str());
 }
 
 void MoPrivatePrintPurgeScanResult(
@@ -52,15 +61,10 @@ void MoPrivatePrintPurgeScanResult(
         //L"Total amount of disk space you may gain: ";
         //L"或许可获得的磁盘空间总量: ";
 
-        Context->Write(
+        ::MoPrivateWriteLine(
             Context,
-            L"Total amount of disk space you may gain: ");
-        Context->Write(
-            Context,
+            L"Total amount of disk space you may gain: %s.",
             Mile::ConvertByteSizeToUtf16String(ByteSize).c_str());
-        Context->Write(
-            Context,
-            L".\r\n");
     }
 }
 
@@ -90,24 +94,25 @@ DWORD MoPrivateParsePurgeMode(
         // TODO: Maybe we should ask for user to choice
     }
 
-    Context->Write(Context, L"Purge Mode: ");
+    LPCWSTR ModeText = nullptr;
 
     if (Result == MO_PRIVATE_PURGE_MODE_SCAN)
     {
-        Context->Write(Context, L"Scan");
+        ModeText = L"Scan";
     }
     else if(Result == MO_PRIVATE_PURGE_MODE_PURGE)
     {
-        Context->Write(Context, L"Purge");
+        ModeText = L"Purge";
     }
     else
     {
-        Context->Write(Context, L"Canceled");
+        ModeText = L"Canceled";
     }
 
-    Context->Write(
+    ::MoPrivateWriteLine(
         Context,
-        L".\r\n");
+        L"Purge Mode: %s.",
+        ModeText);
 
     return Result;
 }

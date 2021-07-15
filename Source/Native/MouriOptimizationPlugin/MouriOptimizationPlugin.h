@@ -18,15 +18,38 @@
 #include <string>
 
 /**
- * @brief Prints the final result to the NSudo user interface.
+ * @brief Writes the formatted data, followed by the current line terminator,
+ *        to the NSudo user interface.
+ * @param Context The NSudo context.
+ * @param Format Format-control string.
+ * @param ... Optional arguments to be formatted.
+*/
+void MoPrivateWriteLine(
+    _In_ PNSUDO_CONTEXT Context,
+    _In_z_ _Printf_format_string_ wchar_t const* const Format,
+    ...);
+
+/**
+ * @brief Writes the error message to the NSudo user interface.
  * @param Context The NSudo context.
  * @param hr The HResult object containing the error code.
- * @param FailedPoint The failed point string.
+ * @param Format Format-control string.
+ * @param ... Optional arguments to be formatted.
 */
-void MoPrivatePrintFinalResult(
+void MoPrivateWriteErrorMessage(
     _In_ PNSUDO_CONTEXT Context,
     _In_ Mile::HResult const& hr,
-    _In_ LPCWSTR FailedPoint);
+    _In_z_ _Printf_format_string_ wchar_t const* const Format,
+    ...);
+
+/**
+ * @brief Writes the final result to the NSudo user interface.
+ * @param Context The NSudo context.
+ * @param hr The HResult object containing the error code.
+*/
+void MoPrivateWriteFinalResult(
+    _In_ PNSUDO_CONTEXT Context,
+    _In_ Mile::HResult const& hr);
 
 /**
  * @brief Prints the pruge scan result to the NSudo user interface.

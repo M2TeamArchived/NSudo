@@ -153,7 +153,7 @@ namespace
         Mile::HResult hr = E_INVALIDARG;
         IVssSnapshotMgmt* pManagement = nullptr;
         IVssDifferentialSoftwareSnapshotMgmt* pDifferentialManagement = nullptr;
-        IVssEnumMgmtObject* pEnumManagementObject = nullptr;      
+        IVssEnumMgmtObject* pEnumManagementObject = nullptr;
         VSS_MGMT_OBJECT_PROP Properties;
         ULONG Fetched;
 
@@ -194,7 +194,7 @@ namespace
         {
             return hr;
         }
-        
+
         hr = pManagement->GetProviderMgmtInterface(
             ProviderId,
             IID_IVssDifferentialSoftwareSnapshotMgmt,
@@ -211,7 +211,7 @@ namespace
         {
             return hr;
         }
-        
+
         while (S_OK == pEnumManagementObject->Next(
             1,
             &Properties,
@@ -390,7 +390,6 @@ EXTERN_C HRESULT WINAPI MoPurgeSystemRestorePoint(
     _In_ PNSUDO_CONTEXT Context)
 {
     Mile::HResult hr = S_OK;
-    LPCWSTR FailedPoint = nullptr;
 
     DWORD PurgeMode = ::MoPrivateParsePurgeMode(Context);
     if (PurgeMode == MO_PRIVATE_PURGE_MODE_SCAN)
@@ -407,7 +406,10 @@ EXTERN_C HRESULT WINAPI MoPurgeSystemRestorePoint(
         }
         else
         {
-            FailedPoint = L"QueryVssAllocatedSpace"; 
+            ::MoPrivateWriteErrorMessage(
+                Context,
+                hr,
+                L"QueryVssAllocatedSpace");
         }
     }
     else if (PurgeMode == MO_PRIVATE_PURGE_MODE_PURGE)
@@ -421,12 +423,18 @@ EXTERN_C HRESULT WINAPI MoPurgeSystemRestorePoint(
                 L"After Cleanup By Mouri Optimization Plugin");
             if (hr.IsFailed())
             {
-                FailedPoint = L"CreateSystemRestorePoint";
+                ::MoPrivateWriteErrorMessage(
+                    Context,
+                    hr,
+                    L"CreateSystemRestorePoint");
             }
         }
         else
         {
-            FailedPoint = L"DeleteAllVssSnapshots";
+            ::MoPrivateWriteErrorMessage(
+                Context,
+                hr,
+                L"DeleteAllVssSnapshots");
         }
     }
     else
@@ -434,7 +442,7 @@ EXTERN_C HRESULT WINAPI MoPurgeSystemRestorePoint(
         hr = Mile::HResult::FromWin32(ERROR_CANCELLED);
     }
 
-    ::MoPrivatePrintFinalResult(Context, hr, FailedPoint);
+    ::MoPrivateWriteFinalResult(Context, hr);
 
     return hr;
 }

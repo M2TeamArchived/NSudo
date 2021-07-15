@@ -72,7 +72,7 @@ EXTERN_C HRESULT WINAPI MoPurgeCorruptedAppXPackages(
 
             if (CorruptedPackages.empty())
             {
-                Context->WriteLine(
+                ::MoPrivateWriteLine(
                     Context,
                     L"No corrupted packages were found.");
             }
@@ -82,11 +82,10 @@ EXTERN_C HRESULT WINAPI MoPurgeCorruptedAppXPackages(
                 {
                     if (PurgeMode == MO_PRIVATE_PURGE_MODE_SCAN)
                     {
-                        Context->WriteLine(
+                        ::MoPrivateWriteLine(
                             Context,
-                            Mile::FormatUtf16String(
-                                L"Corrupted packages found: %s.",
-                                CorruptedPackage.c_str()).c_str());
+                            L"Corrupted packages found: %s.",
+                            CorruptedPackage.c_str());
                     }
                     else if (PurgeMode == MO_PRIVATE_PURGE_MODE_PURGE)
                     {
@@ -99,22 +98,21 @@ EXTERN_C HRESULT WINAPI MoPurgeCorruptedAppXPackages(
                             winrt::check_hresult(
                                 Result.ExtendedErrorCode());
 
-                            Context->WriteLine(
+                            ::MoPrivateWriteLine(
                                 Context,
-                                Mile::FormatUtf16String(
-                                    L"Corrupted packages removed: %s.",
-                                    CorruptedPackage.c_str()).c_str());
+                                L"Corrupted packages removed: %s.",
+                                CorruptedPackage.c_str());
                         }
                         catch (winrt::hresult_error const& ex)
                         {
-                            ::MoPrivatePrintFinalResult(
+                            ::MoPrivateWriteErrorMessage(
                                 Context,
                                 static_cast<HRESULT>(ex.code()),
-                                Mile::FormatUtf16String(
-                                    L"PackageManager::RemovePackageAsync(%s)",
-                                    CorruptedPackage.c_str()).c_str());
+                                L"%s(%s)",
+                                L"PackageManager::RemovePackageAsync",
+                                CorruptedPackage.c_str());
                         }
-                        
+
                     }
                 }
             }
@@ -128,7 +126,7 @@ EXTERN_C HRESULT WINAPI MoPurgeCorruptedAppXPackages(
 
     } while (false);
 
-    ::MoPrivatePrintFinalResult(Context, hr, nullptr);
+    ::MoPrivateWriteFinalResult(Context, hr);
 
     return hr;
 }

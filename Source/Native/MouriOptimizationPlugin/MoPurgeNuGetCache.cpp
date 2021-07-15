@@ -73,13 +73,12 @@ namespace
                     nullptr);
                 if (RootHandle == INVALID_HANDLE_VALUE)
                 {
-                    ::MoPrivatePrintFinalResult(
+                    ::MoPrivateWriteErrorMessage(
                         Context,
                         Mile::HResultFromLastError(FALSE),
-                        Mile::FormatUtf16String(
-                            L"CreateFileW(%s)",
-                            CurrentPath.c_str()).c_str());
-
+                        L"%s(%s)",
+                        L"CreateFileW",
+                        CurrentPath.c_str());
                     return TRUE;
                 }
 
@@ -95,12 +94,12 @@ namespace
                     }
                     else
                     {
-                        ::MoPrivatePrintFinalResult(
+                        ::MoPrivateWriteErrorMessage(
                             Context,
                             hr,
-                            Mile::FormatUtf16String(
-                                L"Mile::GetCompressedFileSizeByHandle(%s)",
-                                CurrentPath.c_str()).c_str());
+                            L"%s(%s)",
+                            L"Mile::GetCompressedFileSizeByHandle",
+                            CurrentPath.c_str());
                     }
                 }
                 else
@@ -109,13 +108,12 @@ namespace
                         CurrentHandle);
                     if (hr.IsFailed())
                     {
-                        ::MoPrivatePrintFinalResult(
+                        ::MoPrivateWriteErrorMessage(
                             Context,
                             hr,
-                            Mile::FormatUtf16String(
-                                L"Mile::DeleteFileByHandle"
-                                L"IgnoreReadonlyAttribute(%s)",
-                                CurrentPath.c_str()).c_str());
+                            L"%s(%s)",
+                            L"Mile::DeleteFileByHandleIgnoreReadonlyAttribute",
+                            CurrentPath.c_str());
                     }
                 }
 
@@ -125,12 +123,12 @@ namespace
             });
             if (hr.IsFailed())
             {
-                ::MoPrivatePrintFinalResult(
+                ::MoPrivateWriteErrorMessage(
                     Context,
-                    Mile::HResultFromLastError(FALSE),
-                    Mile::FormatUtf16String(
-                        L"Mile::EnumerateFile(%s)",
-                        RootPath).c_str());
+                    hr,
+                    L"%s(%s)",
+                    L"Mile::EnumerateFile",
+                    RootPath);
             }
 
             if (!UsedSpace)
@@ -139,25 +137,25 @@ namespace
                     RootHandle);
                 if (hr.IsFailed())
                 {
-                    ::MoPrivatePrintFinalResult(
+                    ::MoPrivateWriteErrorMessage(
                         Context,
                         hr,
-                        Mile::FormatUtf16String(
-                            L"Mile::DeleteFileByHandleIgnoreReadonlyAttribute(%s)",
-                            RootPath).c_str());
+                        L"%s(%s)",
+                        L"Mile::DeleteFileByHandleIgnoreReadonlyAttribute",
+                        RootPath);
                 }
             }
-        
+
             ::CloseHandle(RootHandle);
         }
         else
         {
-            ::MoPrivatePrintFinalResult(
+            ::MoPrivateWriteErrorMessage(
                 Context,
                 Mile::HResultFromLastError(FALSE),
-                Mile::FormatUtf16String(
-                    L"CreateFileW(%s)",
-                    RootPath).c_str());
+                L"%s(%s)",
+                L"CreateFileW",
+                RootPath);
         }
     }
 }
@@ -166,7 +164,6 @@ EXTERN_C HRESULT WINAPI MoPurgeNuGetCache(
     _In_ PNSUDO_CONTEXT Context)
 {
     Mile::HResult hr = S_OK;
-    LPCWSTR FailedPoint = nullptr;
     HANDLE PreviousContextTokenHandle = INVALID_HANDLE_VALUE;
     std::vector<std::wstring> NuGetCachePathList;
 
@@ -190,27 +187,32 @@ EXTERN_C HRESULT WINAPI MoPurgeNuGetCache(
             &PreviousContextTokenHandle);
         if (hr.IsFailed())
         {
-            FailedPoint = L"MoPrivateEnableBackupRestorePrivilege";
+            ::MoPrivateWriteErrorMessage(
+                Context,
+                hr,
+                L"MoPrivateEnableBackupRestorePrivilege");
             break;
         }
 
         for (std::wstring const& ProfilePath : ::MoPrivateGetProfilePathList())
         {
+            std::wstring LocalAppDataPath = ProfilePath + L"\\AppData\\Local";
+
             std::wstring CandidatePath;
 
-            CandidatePath = ProfilePath + L"\\AppData\\Local\\NuGet\\v3-cache";
+            CandidatePath = LocalAppDataPath + L"\\NuGet\\v3-cache";
             if (::MoPrivateIsFileExist(CandidatePath.c_str()))
             {
                 NuGetCachePathList.push_back(CandidatePath);
             }
 
-            CandidatePath = ProfilePath + L"\\AppData\\Local\\NuGet\\plugins-cache";
+            CandidatePath = LocalAppDataPath + L"\\NuGet\\plugins-cache";
             if (::MoPrivateIsFileExist(CandidatePath.c_str()))
             {
                 NuGetCachePathList.push_back(CandidatePath);
             }
 
-            CandidatePath = ProfilePath + L"\\AppData\\Local\\Temp\\NuGetScratch";
+            CandidatePath = LocalAppDataPath + L"\\Temp\\NuGetScratch";
             if (::MoPrivateIsFileExist(CandidatePath.c_str()))
             {
                 NuGetCachePathList.push_back(CandidatePath);
@@ -225,7 +227,10 @@ EXTERN_C HRESULT WINAPI MoPurgeNuGetCache(
         if (NuGetCachePathList.empty())
         {
             hr = E_NOINTERFACE;
-            FailedPoint = L"MoPrivateGetProfilePathList";
+            ::MoPrivateWriteErrorMessage(
+                Context,
+                E_NOINTERFACE,
+                L"MoPrivateGetProfilePathList");
             break;
         }
 
@@ -263,7 +268,7 @@ EXTERN_C HRESULT WINAPI MoPurgeNuGetCache(
         ::CloseHandle(PreviousContextTokenHandle);
     }
 
-    ::MoPrivatePrintFinalResult(Context, hr, FailedPoint);
+    ::MoPrivateWriteFinalResult(Context, hr);
 
     return hr;
 }

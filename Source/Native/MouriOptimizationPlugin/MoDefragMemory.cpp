@@ -65,32 +65,27 @@ namespace
             }
         }
 
-        return Mile::HResult::FromWin32(pRtlNtStatusToDosError(Status)); 
+        return Mile::HResult::FromWin32(pRtlNtStatusToDosError(Status));
     }
 }
 
 EXTERN_C HRESULT WINAPI MoDefragMemory(
     _In_ PNSUDO_CONTEXT Context)
 {
+    Mile::HResult hr = S_OK;
     HANDLE CurrentProcessToken = INVALID_HANDLE_VALUE;
-    LPCWSTR FailedPoint = nullptr;
 
-    Mile::HResult hr = Mile::HResultFromLastError(::OpenProcessToken(
+    if (::OpenProcessToken(
         ::GetCurrentProcess(),
         MAXIMUM_ALLOWED,
-        &CurrentProcessToken));
-    if (hr.IsSucceeded())
+        &CurrentProcessToken))
     {
         LUID_AND_ATTRIBUTES RawPrivilege;
-
-        hr = Mile::HResultFromLastError(::LookupPrivilegeValueW(
+        RawPrivilege.Attributes = SE_PRIVILEGE_ENABLED;
+        if (::LookupPrivilegeValueW(
             nullptr,
             SE_PROF_SINGLE_PROCESS_NAME,
-            &RawPrivilege.Luid));
-
-        RawPrivilege.Attributes = SE_PRIVILEGE_ENABLED;
-
-        if (hr.IsSucceeded())
+            &RawPrivilege.Luid))
         {
             hr = Mile::AdjustTokenPrivilegesSimple(
                 CurrentProcessToken,
@@ -101,27 +96,41 @@ EXTERN_C HRESULT WINAPI MoDefragMemory(
                 hr = ::DefragMemory();
                 if (hr.IsFailed())
                 {
-                    FailedPoint = L"DefragMemory";
+                    ::MoPrivateWriteErrorMessage(
+                        Context,
+                        hr,
+                        L"DefragMemory");
                 }
             }
             else
             {
-                FailedPoint = L"Mile::AdjustTokenPrivilegesSimple";
+                ::MoPrivateWriteErrorMessage(
+                    Context,
+                    hr,
+                    L"Mile::AdjustTokenPrivilegesSimple");
             }
         }
         else
         {
-            FailedPoint = L"LookupPrivilegeValueW";
+            hr = Mile::HResultFromLastError(FALSE);
+            ::MoPrivateWriteErrorMessage(
+                Context,
+                hr,
+                L"LookupPrivilegeValueW");
         }
 
         ::CloseHandle(CurrentProcessToken);
     }
     else
     {
-        FailedPoint = L"OpenProcessToken";
+        hr = Mile::HResultFromLastError(FALSE);
+        ::MoPrivateWriteErrorMessage(
+            Context,
+            hr,
+            L"OpenProcessToken");
     }
 
-    ::MoPrivatePrintFinalResult(Context, hr, FailedPoint);
+    ::MoPrivateWriteFinalResult(Context, hr);
 
     return hr;
 }

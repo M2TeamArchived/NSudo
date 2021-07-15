@@ -23,7 +23,6 @@ EXTERN_C HRESULT WINAPI MoPurgeWindowsEventLog(
     using EvtCloseType = decltype(::EvtClose)*;
 
     Mile::HResult hr = S_OK;
-    LPCWSTR FailedPoint = nullptr;
     HMODULE ModuleHandle = nullptr;
     EvtOpenChannelEnumType pEvtOpenChannelEnum = nullptr;
     EvtNextChannelPathType pEvtNextChannelPath = nullptr;
@@ -151,24 +150,24 @@ EXTERN_C HRESULT WINAPI MoPurgeWindowsEventLog(
                         }
                         else
                         {
-                            ::MoPrivatePrintFinalResult(
+                            ::MoPrivateWriteErrorMessage(
                                 Context,
                                 Mile::HResultFromLastError(FALSE),
-                                Mile::FormatUtf16String(
-                                    L"EvtGetLogInfo(%s)",
-                                    ChannelBuffer).c_str());
+                                L"%s(%s)",
+                                L"EvtGetLogInfo",
+                                ChannelBuffer);
                         }
 
                         pEvtClose(LogHandle);
                     }
                     else
                     {
-                        ::MoPrivatePrintFinalResult(
+                        ::MoPrivateWriteErrorMessage(
                             Context,
                             Mile::HResultFromLastError(FALSE),
-                            Mile::FormatUtf16String(
-                                L"EvtOpenLog(%s)",
-                                ChannelBuffer).c_str());
+                            L"%s(%s)",
+                            L"EvtOpenLog",
+                            ChannelBuffer);
                     }
                 }
                 else if (PurgeMode == MO_PRIVATE_PURGE_MODE_PURGE)
@@ -179,12 +178,12 @@ EXTERN_C HRESULT WINAPI MoPurgeWindowsEventLog(
                         nullptr,
                         0))
                     {
-                        ::MoPrivatePrintFinalResult(
+                        ::MoPrivateWriteErrorMessage(
                             Context,
                             Mile::HResultFromLastError(FALSE),
-                            Mile::FormatUtf16String(
-                                L"EvtClearLog(%s)",
-                                ChannelBuffer).c_str());
+                            L"%s(%s)",
+                            L"EvtClearLog",
+                            ChannelBuffer);
                     }
                 }
             }
@@ -211,17 +210,22 @@ EXTERN_C HRESULT WINAPI MoPurgeWindowsEventLog(
                             nullptr,
                             0))
                         {
-                            ::MoPrivatePrintFinalResult(
+                            ::MoPrivateWriteErrorMessage(
                                 Context,
                                 Mile::HResultFromLastError(FALSE),
-                                L"EvtClearLog(System)");
+                                L"%s(%s)",
+                                L"EvtClearLog",
+                                L"System");
                         }
                     }
                 }
                 else
                 {
                     hr = Result;
-                    FailedPoint = L"EvtNextChannelPath";
+                    ::MoPrivateWriteErrorMessage(
+                        Context,
+                        hr,
+                        L"EvtNextChannelPath");
                 }
 
                 break;
@@ -240,7 +244,7 @@ EXTERN_C HRESULT WINAPI MoPurgeWindowsEventLog(
         ::FreeLibrary(ModuleHandle);
     }
 
-    ::MoPrivatePrintFinalResult(Context, hr, FailedPoint);
+    ::MoPrivateWriteFinalResult(Context, hr);
 
     return hr;
 }

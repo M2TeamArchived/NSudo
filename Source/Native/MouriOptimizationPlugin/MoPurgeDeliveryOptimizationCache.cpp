@@ -49,7 +49,6 @@ EXTERN_C HRESULT WINAPI MoPurgeDeliveryOptimizationCache(
     _In_ PNSUDO_CONTEXT Context)
 {
     Mile::HResult hr = S_OK;
-    LPCWSTR FailedPoint = nullptr;
     IUnknown* pInterface = nullptr;
 
     do
@@ -81,7 +80,10 @@ EXTERN_C HRESULT WINAPI MoPurgeDeliveryOptimizationCache(
             reinterpret_cast<LPVOID*>(&pInterface));
         if (hr.IsFailed())
         {
-            FailedPoint = L"Mile::CoCreateInstanceByString";
+            ::MoPrivateWriteErrorMessage(
+                Context,
+                hr,
+                L"Mile::CoCreateInstanceByString");
             break;
         }
 
@@ -105,7 +107,10 @@ EXTERN_C HRESULT WINAPI MoPurgeDeliveryOptimizationCache(
         else
         {
             hr = E_NOINTERFACE;
-            FailedPoint = L"Mile::CoCheckInterfaceName";
+            ::MoPrivateWriteErrorMessage(
+                Context,
+                hr,
+                L"Mile::CoCheckInterfaceName");
             break;
         }
 
@@ -124,7 +129,7 @@ EXTERN_C HRESULT WINAPI MoPurgeDeliveryOptimizationCache(
             {
                 hr = E_FAIL;
             }
-            
+
             if (hr.IsSucceeded())
             {
                 ::MoPrivatePrintPurgeScanResult(Context, CacheSize);
@@ -133,13 +138,17 @@ EXTERN_C HRESULT WINAPI MoPurgeDeliveryOptimizationCache(
             {
                 if (pCleanup)
                 {
-                    FailedPoint =
-                        L"IDeliveryOptimizationCleanup::GetCacheSize";
+                    ::MoPrivateWriteErrorMessage(
+                        Context,
+                        hr,
+                        L"IDeliveryOptimizationCleanup::GetCacheSize");
                 }
                 else if (pMgrInternal)
                 {
-                    FailedPoint =
-                        L"IDeliveryOptimizationMgrInternal::GetCacheSize";
+                    ::MoPrivateWriteErrorMessage(
+                        Context,
+                        hr,
+                        L"IDeliveryOptimizationMgrInternal::GetCacheSize");
                 }
             }
         }
@@ -157,18 +166,22 @@ EXTERN_C HRESULT WINAPI MoPurgeDeliveryOptimizationCache(
             {
                 hr = E_FAIL;
             }
-        
+
             if (hr.IsFailed())
             {
                 if (pCleanup)
                 {
-                    FailedPoint =
-                        L"IDeliveryOptimizationCleanup::DeleteCache";
+                    ::MoPrivateWriteErrorMessage(
+                        Context,
+                        hr,
+                        L"IDeliveryOptimizationCleanup::DeleteCache");
                 }
                 else if (pMgrInternal)
                 {
-                    FailedPoint =
-                        L"IDeliveryOptimizationMgrInternal::DeleteCache";
+                    ::MoPrivateWriteErrorMessage(
+                        Context,
+                        hr,
+                        L"IDeliveryOptimizationMgrInternal::DeleteCache");
                 }
             }
         }
@@ -180,7 +193,7 @@ EXTERN_C HRESULT WINAPI MoPurgeDeliveryOptimizationCache(
         pInterface->Release();
     }
 
-    ::MoPrivatePrintFinalResult(Context, hr, FailedPoint);
+    ::MoPrivateWriteFinalResult(Context, hr);
 
     return hr;
 }
