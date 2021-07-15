@@ -20,10 +20,8 @@ namespace
         _In_ LPCWSTR RootPath,
         _Inout_opt_ PUINT64 UsedSpace)
     {
-        HANDLE RootHandle = ::CreateFileW(
-            Mile::FormatUtf16String(
-                L"\\\\?\\%s\\",
-                RootPath).c_str(),
+        HANDLE RootHandle = ::MoPrivateCreateFile(
+            RootPath,
             SYNCHRONIZE |
             FILE_LIST_DIRECTORY |
             DELETE |
@@ -61,10 +59,8 @@ namespace
                     return TRUE;
                 }
 
-                HANDLE CurrentHandle = ::CreateFileW(
-                    Mile::FormatUtf16String(
-                        L"\\\\?\\%s",
-                        CurrentPath.c_str()).c_str(),
+                HANDLE CurrentHandle = ::MoPrivateCreateFile(
+                    CurrentPath.c_str(),
                     SYNCHRONIZE |
                     FILE_LIST_DIRECTORY |
                     DELETE |

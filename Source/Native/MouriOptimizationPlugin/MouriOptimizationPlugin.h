@@ -73,6 +73,50 @@ Mile::HResult MoPrivateEnableBackupRestorePrivilege(
 std::vector<std::wstring> MoPrivateGetProfilePathList();
 
 /**
+ * @brief Creates or opens a file, directory or drive with long path support.
+ *        The function returns a handle that can be used to access the file,
+ *        directory or drive depending on the flags and attributes specified.
+ * @param lpFileName The name of the file or device to be created or opened.
+ *                   You may use either forward slashes (/) or backslashes ()
+ *                   in this name.
+ * @param dwDesiredAccess The requested access to the file or device, which can
+ *                        be summarized as read, write, both or neither zero).
+ * @param dwShareMode The requested sharing mode of the file or device, which
+ *                    can be read, write, both, delete, all of these, or none
+ *                    (refer to the following table). Access requests to
+ *                    attributes or extended attributes are not affected by
+ *                    this flag.
+ * @param lpSecurityAttributes A pointer to a SECURITY_ATTRIBUTES structure
+ *                             that contains two separate but related data
+ *                             members: an optional security descriptor, and a
+ *                             Boolean value that determines whether the
+ *                             returned handle can be inherited by child
+ *                             processes. This parameter can be NULL.
+ * @param dwCreationDisposition An action to take on a file or device that
+ *                              exists or does not exist.
+ * @param dwFlagsAndAttributes The file or device attributes and flags,
+ *                             FILE_ATTRIBUTE_NORMAL being the most common
+ *                             default value for files.
+ * @param hTemplateFile A valid handle to a template file with the GENERIC_READ
+ *                      access right. The template file supplies file
+ *                      attributes and extended attributes for the file that is
+ *                      being created. This parameter can be NULL.
+ * @return If the function succeeds, the return value is an open handle to
+ *         the specified file, directory or drive. If the function fails,
+ *         the return value is INVALID_HANDLE_VALUE. To get extended error
+ *         information, call GetLastError.
+ * @remark For more information, see CreateFileW.
+*/
+HANDLE MoPrivateCreateFile(
+    _In_ LPCWSTR lpFileName,
+    _In_ DWORD dwDesiredAccess,
+    _In_ DWORD dwShareMode,
+    _In_opt_ LPSECURITY_ATTRIBUTES lpSecurityAttributes,
+    _In_ DWORD dwCreationDisposition,
+    _In_ DWORD dwFlagsAndAttributes,
+    _In_opt_ HANDLE hTemplateFile);
+
+/**
  * @brief Tests for the existence of the file or directory.
  * @param FilePath The path of the file or directory for testing.
  * @return Nonzero if the found file. Otherwise zero.

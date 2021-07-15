@@ -248,11 +248,30 @@ std::vector<std::wstring> MoPrivateGetProfilePathList()
     return Result;
 }
 
+HANDLE MoPrivateCreateFile(
+    _In_ LPCWSTR lpFileName,
+    _In_ DWORD dwDesiredAccess,
+    _In_ DWORD dwShareMode,
+    _In_opt_ LPSECURITY_ATTRIBUTES lpSecurityAttributes,
+    _In_ DWORD dwCreationDisposition,
+    _In_ DWORD dwFlagsAndAttributes,
+    _In_opt_ HANDLE hTemplateFile)
+{
+    return ::CreateFileW(
+        Mile::FormatUtf16String(L"\\\\?\\%s", lpFileName).c_str(),
+        dwDesiredAccess,
+        dwShareMode,
+        lpSecurityAttributes,
+        dwCreationDisposition,
+        dwFlagsAndAttributes,
+        hTemplateFile);
+}
+
 BOOL MoPrivateIsFileExist(
     _In_ LPCWSTR FilePath)
 {
-    HANDLE FileHandle = ::CreateFileW(
-        Mile::FormatUtf16String(L"\\\\?\\%s\\", FilePath).c_str(),
+    HANDLE FileHandle = ::MoPrivateCreateFile(
+        FilePath,
         SYNCHRONIZE | FILE_READ_ATTRIBUTES,
         FILE_SHARE_READ,
         nullptr,
