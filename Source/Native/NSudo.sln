@@ -39,6 +39,9 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NSudo Devil Mode", "NSudo Devil Mode", "{2CD77DFC-7DEE-4A19-8558-4FC0E8C4D237}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MouriOptimizationPlugin", "MouriOptimizationPlugin\MouriOptimizationPlugin.vcxproj", "{74324C26-D7B5-4BC7-94DD-1DF65C45783B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{074549F9-9197-41FE-A8ED-8BFA2A0E2549} = {074549F9-9197-41FE-A8ED-8BFA2A0E2549}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Mile.Library", "Mile.Cpp\Mile.Library\Mile.Library.vcxitems", "{CE65A617-D629-4B2A-BE58-9B96011980C1}"
 EndProject
