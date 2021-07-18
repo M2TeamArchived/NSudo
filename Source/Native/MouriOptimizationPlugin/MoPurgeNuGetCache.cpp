@@ -71,7 +71,7 @@ namespace
                     OPEN_EXISTING,
                     FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT,
                     nullptr);
-                if (RootHandle == INVALID_HANDLE_VALUE)
+                if (CurrentHandle == INVALID_HANDLE_VALUE)
                 {
                     ::MoPrivateWriteErrorMessage(
                         Context,
