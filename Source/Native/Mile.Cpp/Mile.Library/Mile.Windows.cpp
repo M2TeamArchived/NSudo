@@ -343,21 +343,12 @@ Mile::HResult Mile::GetWofCompressionAttribute(
         &WofInfo,
         sizeof(WofInfo),
         &BytesReturned));
-    if (hr.GetCode() == ERROR_OBJECT_NOT_EXTERNALLY_BACKED)
-    {
-        hr = S_OK;
-    }
-
     if (hr.IsSucceeded())
     {
         if (WofInfo.Wof.Version == WOF_CURRENT_VERSION &&
             WofInfo.Wof.Provider == WOF_PROVIDER_FILE)
         {
             *CompressionAlgorithm = WofInfo.FileProvider.Algorithm;
-        }
-        else
-        {
-            *CompressionAlgorithm = FILE_PROVIDER_COMPRESSION_NONE;
         }
     }
 

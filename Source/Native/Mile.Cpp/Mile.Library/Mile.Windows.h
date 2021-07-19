@@ -1108,11 +1108,6 @@ namespace Mile
 #pragma region Definitions for Windows (Win32 Style)
 
     /**
-     * @brief Indicates that the data for the file is not compressed.
-    */
-#define FILE_PROVIDER_COMPRESSION_NONE (0xFFFFFFFF)
-
-    /**
      * @brief The definition of the file enumerator handle.
     */
     typedef void* FILE_ENUMERATOR_HANDLE;
@@ -1285,9 +1280,6 @@ namespace Mile
      *                                 Indicates that the data for the file
      *                                 should be compressed in 16kb chunks with
      *                                 the XPress algorithm.
-     *                             FILE_PROVIDER_COMPRESSION_NONE
-     *                                 Indicates that the data for the file
-     *                                 is not compressed.
      * @return An HResult object containing the error code.
     */
     HResult GetWofCompressionAttribute(
