@@ -7,7 +7,7 @@
   </PropertyGroup>
   <Import Project="..\Mile.Cpp\Mile.Project\Mile.Project.props" />
   <Import Project="..\Mile.Cpp\Mile.Project\Mile.Project.VC-LTL.props" />
-  <Import Project="..\Mile.Cpp\Mile.Library\Mile.Library.vcxitems" Label="Shared" />
+  <Import Project="..\Mile.Cpp\Mile.Library\Mile.Library.props" />
   <ImportGroup Label="PropertySheets">
     <Import Project="NSudoSDK.props" />
   </ImportGroup>

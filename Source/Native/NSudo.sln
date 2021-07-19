@@ -14,6 +14,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NSudoAPI", "NSudoSDK\NSudoA
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NSudoSDK", "NSudoSDK\NSudoSDK.vcxproj", "{074549F9-9197-41FE-A8ED-8BFA2A0E2549}"
+	ProjectSection(ProjectDependencies) = postProject
+		{84E27A16-CBC7-466C-971F-2A4E0F2F95BE} = {84E27A16-CBC7-466C-971F-2A4E0F2F95BE}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NSudoDevilMode", "NSudoDevilMode\NSudoDevilMode.vcxproj", "{9FC5B22F-D2AE-4021-8883-5D6B74C5ED71}"
 EndProject
@@ -43,11 +46,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MouriOptimizationPlugin", "
 		{074549F9-9197-41FE-A8ED-8BFA2A0E2549} = {074549F9-9197-41FE-A8ED-8BFA2A0E2549}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Mile.Library", "Mile.Cpp\Mile.Library\Mile.Library.vcxitems", "{CE65A617-D629-4B2A-BE58-9B96011980C1}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NSudo Software Development Kit", "NSudo Software Development Kit", "{C1A5AEBE-523D-4EB7-97C3-7EA31312FB22}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Mouri Optimization Plugin", "Mouri Optimization Plugin", "{B01F8AD3-C043-4C41-A2F1-4571A644465F}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Mile.Library", "Mile.Cpp\Mile.Library\Mile.Library.vcxproj", "{84E27A16-CBC7-466C-971F-2A4E0F2F95BE}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
@@ -56,7 +59,6 @@ Global
 		Mile.Cpp\Mile.Library\Mile.Library.vcxitems*{43c2bd57-4d61-42ec-b290-62a32b6fb5c7}*SharedItemsImports = 4
 		Mile.Cpp\Mile.Library\Mile.Library.vcxitems*{74324c26-d7b5-4bc7-94dd-1df65c45783b}*SharedItemsImports = 4
 		Mile.Cpp\Mile.Library\Mile.Library.vcxitems*{8f89c743-14c8-4442-812f-1f1816ffb88d}*SharedItemsImports = 4
-		Mile.Cpp\Mile.Library\Mile.Library.vcxitems*{ce65a617-d629-4b2a-be58-9b96011980c1}*SharedItemsImports = 9
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM64 = Debug|ARM64
@@ -151,6 +153,18 @@ Global
 		{74324C26-D7B5-4BC7-94DD-1DF65C45783B}.Release|x64.Build.0 = Release|x64
 		{74324C26-D7B5-4BC7-94DD-1DF65C45783B}.Release|x86.ActiveCfg = Release|Win32
 		{74324C26-D7B5-4BC7-94DD-1DF65C45783B}.Release|x86.Build.0 = Release|Win32
+		{84E27A16-CBC7-466C-971F-2A4E0F2F95BE}.Debug|ARM64.ActiveCfg = Debug|ARM64
+		{84E27A16-CBC7-466C-971F-2A4E0F2F95BE}.Debug|ARM64.Build.0 = Debug|ARM64
+		{84E27A16-CBC7-466C-971F-2A4E0F2F95BE}.Debug|x64.ActiveCfg = Debug|x64
+		{84E27A16-CBC7-466C-971F-2A4E0F2F95BE}.Debug|x64.Build.0 = Debug|x64
+		{84E27A16-CBC7-466C-971F-2A4E0F2F95BE}.Debug|x86.ActiveCfg = Debug|Win32
+		{84E27A16-CBC7-466C-971F-2A4E0F2F95BE}.Debug|x86.Build.0 = Debug|Win32
+		{84E27A16-CBC7-466C-971F-2A4E0F2F95BE}.Release|ARM64.ActiveCfg = Release|ARM64
+		{84E27A16-CBC7-466C-971F-2A4E0F2F95BE}.Release|ARM64.Build.0 = Release|ARM64
+		{84E27A16-CBC7-466C-971F-2A4E0F2F95BE}.Release|x64.ActiveCfg = Release|x64
+		{84E27A16-CBC7-466C-971F-2A4E0F2F95BE}.Release|x64.Build.0 = Release|x64
+		{84E27A16-CBC7-466C-971F-2A4E0F2F95BE}.Release|x86.ActiveCfg = Release|Win32
+		{84E27A16-CBC7-466C-971F-2A4E0F2F95BE}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -163,7 +177,7 @@ Global
 		{2B3E4F28-D499-4529-BEC1-E0ED2003A385} = {17B664B3-C93E-4723-AB24-4EBB84073B7D}
 		{8F89C743-14C8-4442-812F-1F1816FFB88D} = {17B664B3-C93E-4723-AB24-4EBB84073B7D}
 		{74324C26-D7B5-4BC7-94DD-1DF65C45783B} = {B01F8AD3-C043-4C41-A2F1-4571A644465F}
-		{CE65A617-D629-4B2A-BE58-9B96011980C1} = {C1A5AEBE-523D-4EB7-97C3-7EA31312FB22}
+		{84E27A16-CBC7-466C-971F-2A4E0F2F95BE} = {C1A5AEBE-523D-4EB7-97C3-7EA31312FB22}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {07B0657A-5FA8-44A3-9E5B-2FB4FC7A26CD}
