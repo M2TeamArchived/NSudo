@@ -148,45 +148,34 @@ namespace
                 hr = Mile::GetWofCompressionAttribute(
                     CurrentHandle,
                     &CompressionAlgorithm);
-                if (hr.IsSucceeded())
+                if (hr.IsFailed() ||
+                    CompressionAlgorithm != FILE_PROVIDER_COMPRESSION_XPRESS4K)
                 {
-                    if (CompressionAlgorithm != FILE_PROVIDER_COMPRESSION_XPRESS4K)
+                    hr = Mile::SetWofCompressionAttribute(
+                        CurrentHandle,
+                        FILE_PROVIDER_COMPRESSION_XPRESS4K);
+                    if (hr.IsSucceeded())
                     {
-                        hr = Mile::SetWofCompressionAttribute(
-                            CurrentHandle,
-                            FILE_PROVIDER_COMPRESSION_XPRESS4K);
-                        if (hr.IsSucceeded())
-                        {
-                            /*::MoPrivateWriteLine(
-                                Context,
-                                L"Compressed - %s.",
-                                CurrentPath.c_str());*/
-                        }
-                        else
-                        {
-                            ::MoPrivateWriteErrorMessage(
-                                Context,
-                                hr,
-                                L"%s(%s)",
-                                L"Mile::SetWofCompressionAttribute",
-                                CurrentPath.c_str());
-                        }
+                        ::MoPrivateWriteLine(
+                            Context,
+                            L"Compressed - %s.",
+                            CurrentPath.c_str());
                     }
                     else
                     {
-                        /*::MoPrivateWriteLine(
+                        ::MoPrivateWriteErrorMessage(
                             Context,
-                            L"Skipped - %s.",
-                            CurrentPath.c_str());*/
+                            hr,
+                            L"%s(%s)",
+                            L"Mile::SetWofCompressionAttribute",
+                            CurrentPath.c_str());
                     }
                 }
                 else
                 {
-                    ::MoPrivateWriteErrorMessage(
+                    ::MoPrivateWriteLine(
                         Context,
-                        hr,
-                        L"%s(%s)",
-                        L"Mile::GetWofCompressionAttribute",
+                        L"Skipped - %s.",
                         CurrentPath.c_str());
                 }
 
@@ -293,47 +282,35 @@ namespace
                     return TRUE;
                 }
 
-                DWORD CompressionAlgorithm = FILE_PROVIDER_COMPRESSION_NONE;
+                DWORD CompressionAlgorithm = 0;
                 hr = Mile::GetWofCompressionAttribute(
                     CurrentHandle,
                     &CompressionAlgorithm);
                 if (hr.IsSucceeded())
                 {
-                    if (CompressionAlgorithm != FILE_PROVIDER_COMPRESSION_NONE)
-                    {
-                        hr = Mile::RemoveWofCompressionAttribute(CurrentHandle);
-                        if (hr.IsSucceeded())
-                        {
-                            ::MoPrivateWriteLine(
-                                Context,
-                                L"Uncompressed - %s.",
-                                CurrentPath.c_str());
-                        }
-                        else
-                        {
-                            ::MoPrivateWriteErrorMessage(
-                                Context,
-                                hr,
-                                L"%s(%s)",
-                                L"Mile::RemoveWofCompressionAttribute",
-                                CurrentPath.c_str());
-                        }
-                    }
-                    else
+                    hr = Mile::RemoveWofCompressionAttribute(CurrentHandle);
+                    if (hr.IsSucceeded())
                     {
                         ::MoPrivateWriteLine(
                             Context,
-                            L"Skipped - %s.",
+                            L"Uncompressed - %s.",
+                            CurrentPath.c_str());
+                    }
+                    else
+                    {
+                        ::MoPrivateWriteErrorMessage(
+                            Context,
+                            hr,
+                            L"%s(%s)",
+                            L"Mile::RemoveWofCompressionAttribute",
                             CurrentPath.c_str());
                     }
                 }
                 else
                 {
-                    ::MoPrivateWriteErrorMessage(
+                    ::MoPrivateWriteLine(
                         Context,
-                        hr,
-                        L"%s(%s)",
-                        L"Mile::GetWofCompressionAttribute",
+                        L"Skipped - %s.",
                         CurrentPath.c_str());
                 }
                 
