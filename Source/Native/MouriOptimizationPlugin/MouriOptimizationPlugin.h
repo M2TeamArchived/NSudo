@@ -60,8 +60,11 @@ void MoPrivatePrintPurgeScanResult(
     _In_ PNSUDO_CONTEXT Context,
     _In_ std::uint64_t ByteSize);
 
-#define MO_PRIVATE_PURGE_MODE_SCAN  1
-#define MO_PRIVATE_PURGE_MODE_PURGE 2
+#define MO_PRIVATE_PURGE_MODE_SCAN    1
+#define MO_PRIVATE_PURGE_MODE_PURGE   2
+#define MO_PRIVATE_PURGE_MODE_QUERY   3
+#define MO_PRIVATE_PURGE_MODE_ENABLE  4
+#define MO_PRIVATE_PURGE_MODE_DISABLE 5
 
 /**
  * @brief Parses the purge mode from context plugin command arguments or the

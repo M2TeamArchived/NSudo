@@ -11,3 +11,4 @@ MoPurgeDeliveryOptimizationCache
 MoPurgeWindowsEventLog
 MoPurgeCorruptedAppXPackages
 MoPurgeNuGetCache
+MoManageCompactOS

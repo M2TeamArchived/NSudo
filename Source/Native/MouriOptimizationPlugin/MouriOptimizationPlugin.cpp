@@ -87,6 +87,21 @@ DWORD MoPrivateParsePurgeMode(
             Result = MO_PRIVATE_PURGE_MODE_PURGE;
             break;
         }
+        else if (0 == ::_wcsicmp(Argument.c_str(), L"/Query"))
+        {
+            Result = MO_PRIVATE_PURGE_MODE_QUERY;
+            break;
+        }
+        else if (0 == ::_wcsicmp(Argument.c_str(), L"/Enable"))
+        {
+            Result = MO_PRIVATE_PURGE_MODE_ENABLE;
+            break;
+        }
+        else if (0 == ::_wcsicmp(Argument.c_str(), L"/Disable"))
+        {
+            Result = MO_PRIVATE_PURGE_MODE_DISABLE;
+            break;
+        }   
     }
 
     if (Result == 0)
@@ -100,9 +115,21 @@ DWORD MoPrivateParsePurgeMode(
     {
         ModeText = L"Scan";
     }
-    else if(Result == MO_PRIVATE_PURGE_MODE_PURGE)
+    else if (Result == MO_PRIVATE_PURGE_MODE_PURGE)
     {
         ModeText = L"Purge";
+    }
+    else if (Result == MO_PRIVATE_PURGE_MODE_QUERY)
+    {
+        ModeText = L"Query";
+    }
+    else if (Result == MO_PRIVATE_PURGE_MODE_ENABLE)
+    {
+        ModeText = L"Enable";
+    }
+    else if (Result == MO_PRIVATE_PURGE_MODE_DISABLE)
+    {
+        ModeText = L"Disable";
     }
     else
     {
@@ -111,7 +138,7 @@ DWORD MoPrivateParsePurgeMode(
 
     ::MoPrivateWriteLine(
         Context,
-        L"Purge Mode: %s.",
+        L"Mode: %s.",
         ModeText);
 
     return Result;

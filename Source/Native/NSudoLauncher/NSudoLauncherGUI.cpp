@@ -1190,19 +1190,19 @@ int WINAPI wWinMain(
     const size_t y = sizeof(NSUDO_CONTEXT_PRIVATE);
 
     /*Mile::PiConsole::PrintMessage(
-        WindowHandle,
+        Context.PiConsoleWindowHandle,
         L"Hello World");
 
     Mile::PiConsole::PrintMessage(
-        WindowHandle,
+        Context.PiConsoleWindowHandle,
         Mile::PiConsole::GetInput(
-            WindowHandle,
+            Context.PiConsoleWindowHandle,
             L"Please input a test sentence and press enter"));
 
     Mile::PiConsole::PrintMessage(
-        WindowHandle,
+        Context.PiConsoleWindowHandle,
         Mile::PiConsole::GetInput(
-            WindowHandle,
+            Context.PiConsoleWindowHandle,
             L"Please input a test sentence and press enter"));*/
 
     std::wstring MoPluginPath = g_ResourceManagement.AppPath + L"\\MoPlugin.dll";
@@ -1246,19 +1246,23 @@ int WINAPI wWinMain(
         "MoUpdateAppXPackages",
         L"");*/
 
-    ::NSudoContextExecutePlugin(
+    /*::NSudoContextExecutePlugin(
         &Context.PublicContext,
         MoPluginPath.c_str(),
         "MoPurgeNuGetCache",
-        L"/Scan");
+        L"/Scan");*/
+
+    /*::NSudoContextExecutePlugin(
+        &Context.PublicContext,
+        MoPluginPath.c_str(),
+        "MoPurgeNuGetCache",
+        L"/Purge");*/
 
     ::NSudoContextExecutePlugin(
         &Context.PublicContext,
         MoPluginPath.c_str(),
-        "MoPurgeNuGetCache",
-        L"/Purge");
-
-
+        "MoManageCompactOS",
+        L"/Enable");
 
 
 
