@@ -68,8 +68,6 @@
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <NuGetTargetMoniker Condition="'$(MileProjectType)'!='UefiApplication'">native,Version=v0.0</NuGetTargetMoniker>
-    <RuntimeIdentifiers Condition="'$(MileProjectType)'!='UefiApplication'">win;win-x86;win-x64;win-arm64</RuntimeIdentifiers>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Label="Configuration">
@@ -155,7 +153,4 @@
       <AdditionalIncludeDirectories>$(ProjectDir);$(MSBuildThisFileDirectory);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ProjectCapability Include="PackageReferences" />
-  </ItemGroup>
 </Project>

@@ -60,7 +60,7 @@ namespace
                 ? InputEdit
                 : OutputEdit;
             ::SetForegroundWindow(FocusedEdit);
-            ::SetFocus(FocusedEdit) ? 'Y' : 'N';
+            ::SetFocus(FocusedEdit);
         }
     }
 
@@ -231,7 +231,7 @@ HWND Mile::PiConsole::Create(
                         0,
                         HIWORD(lParam) - RealInputEditHeight,
                         LOWORD(lParam),
-                        ConsoleInformation->InputEditHeight,
+                        RealInputEditHeight,
                         0);
                 }
 
@@ -368,6 +368,34 @@ HWND Mile::PiConsole::Create(
             return;
         }
 
+        int xDPI = USER_DEFAULT_SCREEN_DPI;
+        int yDPI = USER_DEFAULT_SCREEN_DPI;
+        if (S_OK != Mile::GetDpiForMonitor(
+            ::MonitorFromWindow(WindowHandle, MONITOR_DEFAULTTONEAREST),
+            MDT_EFFECTIVE_DPI,
+            reinterpret_cast<UINT*>(&xDPI),
+            reinterpret_cast<UINT*>(&yDPI)))
+        {
+            xDPI = ::GetDeviceCaps(::GetDC(WindowHandle), LOGPIXELSX);
+            yDPI = ::GetDeviceCaps(::GetDC(WindowHandle), LOGPIXELSY);
+        }
+        ConsoleInformation->WindowDpi = xDPI;
+
+        int RealPiConsoleWindowWidth = ::MulDiv(
+            640,
+            ConsoleInformation->WindowDpi,
+            USER_DEFAULT_SCREEN_DPI);
+
+        int RealPiConsoleWindowHeight = ::MulDiv(
+            400,
+            ConsoleInformation->WindowDpi,
+            USER_DEFAULT_SCREEN_DPI);
+
+        int RealInputEditHeight = ::MulDiv(
+            ConsoleInformation->InputEditHeight,
+            ConsoleInformation->WindowDpi,
+            USER_DEFAULT_SCREEN_DPI);
+
         Mile::EnablePerMonitorDialogScaling();
 
         WNDCLASSEXW WindowClass;
@@ -396,8 +424,8 @@ HWND Mile::PiConsole::Create(
             WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
             CW_USEDEFAULT,
             0,
-            640,
-            400,
+            RealPiConsoleWindowWidth,
+            RealPiConsoleWindowHeight,
             nullptr,
             nullptr,
             WindowClass.hInstance,
@@ -419,24 +447,6 @@ HWND Mile::PiConsole::Create(
         {
             return;
         }
-
-        int xDPI = USER_DEFAULT_SCREEN_DPI;
-        int yDPI = USER_DEFAULT_SCREEN_DPI;
-        if (S_OK != Mile::GetDpiForMonitor(
-            ::MonitorFromWindow(WindowHandle, MONITOR_DEFAULTTONEAREST),
-            MDT_EFFECTIVE_DPI,
-            reinterpret_cast<UINT*>(&xDPI),
-            reinterpret_cast<UINT*>(&yDPI)))
-        {
-            xDPI = ::GetDeviceCaps(::GetDC(WindowHandle), LOGPIXELSX);
-            yDPI = ::GetDeviceCaps(::GetDC(WindowHandle), LOGPIXELSY);
-        }
-        ConsoleInformation->WindowDpi = xDPI;
-
-        int RealInputEditHeight = ::MulDiv(
-            ConsoleInformation->InputEditHeight,
-            ConsoleInformation->WindowDpi,
-            USER_DEFAULT_SCREEN_DPI);
 
         ConsoleInformation->OutputEdit = ::CreateWindowExW(
             0,

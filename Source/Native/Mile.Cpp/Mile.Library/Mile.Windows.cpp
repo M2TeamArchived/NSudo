@@ -324,32 +324,47 @@ Mile::HResultFromLastError Mile::SetNtfsCompressionAttribute(
         &BytesReturned);
 }
 
-Mile::HResultFromLastError Mile::GetWofCompressionAttribute(
+Mile::HResult Mile::GetWofCompressionAttribute(
     _In_ HANDLE FileHandle,
     _Out_ PDWORD CompressionAlgorithm)
 {
     if (!CompressionAlgorithm)
+    {
         return E_INVALIDARG;
+    }
 
     WOF_FILE_PROVIDER_EXTERNAL_INFO WofInfo = { 0 };
     DWORD BytesReturned;
-    if (!Mile::DeviceIoControl(
+    Mile::HResult hr = Mile::HResultFromLastError(Mile::DeviceIoControl(
         FileHandle,
         FSCTL_GET_EXTERNAL_BACKING,
         nullptr,
         0,
         &WofInfo,
         sizeof(WofInfo),
-        &BytesReturned))
+        &BytesReturned));
+    if (hr.GetCode() == ERROR_OBJECT_NOT_EXTERNALLY_BACKED)
     {
-        return FALSE;
+        hr = S_OK;
     }
 
-    *CompressionAlgorithm = WofInfo.FileProvider.Algorithm;
-    return TRUE;
+    if (hr.IsSucceeded())
+    {
+        if (WofInfo.Wof.Version == WOF_CURRENT_VERSION &&
+            WofInfo.Wof.Provider == WOF_PROVIDER_FILE)
+        {
+            *CompressionAlgorithm = WofInfo.FileProvider.Algorithm;
+        }
+        else
+        {
+            *CompressionAlgorithm = FILE_PROVIDER_COMPRESSION_NONE;
+        }
+    }
+
+    return hr;
 }
 
-Mile::HResultFromLastError Mile::SetWofCompressionAttribute(
+Mile::HResult Mile::SetWofCompressionAttribute(
     _In_ HANDLE FileHandle,
     _In_ DWORD CompressionAlgorithm)
 {
@@ -374,34 +389,47 @@ Mile::HResultFromLastError Mile::SetWofCompressionAttribute(
     WofInfo.FileProvider.Algorithm = CompressionAlgorithm;
 
     DWORD BytesReturned;
-    return Mile::DeviceIoControl(
+    Mile::HResult hr = Mile::HResultFromLastError(Mile::DeviceIoControl(
         FileHandle,
         FSCTL_SET_EXTERNAL_BACKING,
         &WofInfo,
         sizeof(WofInfo),
         nullptr,
         0,
-        &BytesReturned);
+        &BytesReturned));
+    if (hr.GetCode() == ERROR_COMPRESSION_NOT_BENEFICIAL ||
+        hr.GetCode() == ERROR_MR_MID_NOT_FOUND)
+    {
+        hr = S_OK;
+    }
+
+    return hr;
 }
 
-Mile::HResultFromLastError Mile::RemoveWofCompressionAttribute(
+Mile::HResult Mile::RemoveWofCompressionAttribute(
     _In_ HANDLE FileHandle)
 {
     DWORD BytesReturned;
-    return Mile::DeviceIoControl(
+    Mile::HResult hr = Mile::HResultFromLastError(Mile::DeviceIoControl(
         FileHandle,
         FSCTL_DELETE_EXTERNAL_BACKING,
         nullptr,
         0,
         nullptr,
         0,
-        &BytesReturned);
+        &BytesReturned));
+    if (hr.GetCode() == ERROR_OBJECT_NOT_EXTERNALLY_BACKED)
+    {
+        hr = S_OK;
+    }
+
+    return hr;
 }
 
 Mile::HResult Mile::GetCompactOsDeploymentState(
     _Out_ PDWORD DeploymentState)
 {
-    if (DeploymentState)
+    if (!DeploymentState)
     {
         return E_INVALIDARG;
     }

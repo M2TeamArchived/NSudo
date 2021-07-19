@@ -1108,6 +1108,11 @@ namespace Mile
 #pragma region Definitions for Windows (Win32 Style)
 
     /**
+     * @brief Indicates that the data for the file is not compressed.
+    */
+#define FILE_PROVIDER_COMPRESSION_NONE (0xFFFFFFFF)
+
+    /**
      * @brief The definition of the file enumerator handle.
     */
     typedef void* FILE_ENUMERATOR_HANDLE;
@@ -1280,10 +1285,12 @@ namespace Mile
      *                                 Indicates that the data for the file
      *                                 should be compressed in 16kb chunks with
      *                                 the XPress algorithm.
-     * @return An HResultFromLastError object An containing the HResult object
-     *         containing the error code.
+     *                             FILE_PROVIDER_COMPRESSION_NONE
+     *                                 Indicates that the data for the file
+     *                                 is not compressed.
+     * @return An HResult object containing the error code.
     */
-    HResultFromLastError GetWofCompressionAttribute(
+    HResult GetWofCompressionAttribute(
         _In_ HANDLE FileHandle,
         _Out_ PDWORD CompressionAlgorithm);
 
@@ -1317,10 +1324,9 @@ namespace Mile
      *                                 Indicates that the data for the file
      *                                 should be compressed in 16kb chunks with
      *                                 the XPress algorithm.
-     * @return An HResultFromLastError object An containing the HResult object
-     *         containing the error code.
+     * @return An HResult object containing the error code.
     */
-    HResultFromLastError SetWofCompressionAttribute(
+    HResult SetWofCompressionAttribute(
         _In_ HANDLE FileHandle,
         _In_ DWORD CompressionAlgorithm);
 
@@ -1329,10 +1335,9 @@ namespace Mile
      * @param FileHandle A handle to the file on which the operation is to be
      *                   performed. To retrieve a handle, use the CreateFile or
      *                   a similar API.
-     * @return An HResultFromLastError object An containing the HResult object
-     *         containing the error code.
+     * @return An HResult object containing the error code.
     */
-    HResultFromLastError RemoveWofCompressionAttribute(
+    HResult RemoveWofCompressionAttribute(
         _In_ HANDLE FileHandle);
 
     /**
