@@ -91,6 +91,11 @@ namespace
                     if (hr.IsSucceeded())
                     {
                         *UsedSpace += CurrentFileSize;
+
+                        ::MoPrivateWriteLine(
+                            Context,
+                            L"Detected - %s.",
+                            CurrentPath.c_str());
                     }
                     else
                     {
@@ -106,7 +111,14 @@ namespace
                 {
                     hr = Mile::DeleteFileByHandleIgnoreReadonlyAttribute(
                         CurrentHandle);
-                    if (hr.IsFailed())
+                    if (hr.IsSucceeded())
+                    {
+                        ::MoPrivateWriteLine(
+                            Context,
+                            L"Removed - %s.",
+                            CurrentPath.c_str());
+                    }
+                    else
                     {
                         ::MoPrivateWriteErrorMessage(
                             Context,
@@ -131,11 +143,25 @@ namespace
                     RootPath);
             }
 
-            if (!UsedSpace)
+            if (UsedSpace)
+            {
+                ::MoPrivateWriteLine(
+                    Context,
+                    L"Detected - %s.",
+                    RootPath);
+            }
+            else
             {
                 hr = Mile::DeleteFileByHandleIgnoreReadonlyAttribute(
                     RootHandle);
-                if (hr.IsFailed())
+                if (hr.IsSucceeded())
+                {
+                    ::MoPrivateWriteLine(
+                        Context,
+                        L"Removed - %s.",
+                        RootPath);
+                }
+                else
                 {
                     ::MoPrivateWriteErrorMessage(
                         Context,
