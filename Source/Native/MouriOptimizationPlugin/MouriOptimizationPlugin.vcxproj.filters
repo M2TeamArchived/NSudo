@@ -29,6 +29,9 @@
     <ClCompile Include="MoManageCompactOS.cpp">
       <Filter>Modules</Filter>
     </ClCompile>
+    <ClCompile Include="MoPurgeVisualStudioCodeCache.cpp">
+      <Filter>Modules</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="MouriOptimizationPlugin.def" />

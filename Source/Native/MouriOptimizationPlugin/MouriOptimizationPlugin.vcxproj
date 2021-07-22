@@ -25,6 +25,7 @@
     <ClCompile Include="MoPurgeDeliveryOptimizationCache.cpp" />
     <ClCompile Include="MoPurgeNuGetCache.cpp" />
     <ClCompile Include="MoPurgeSystemRestorePoint.cpp" />
+    <ClCompile Include="MoPurgeVisualStudioCodeCache.cpp" />
     <ClCompile Include="MoPurgeWindowsEventLog.cpp" />
     <ClCompile Include="MoUpdateAppXPackages.cpp" />
     <ClCompile Include="MouriOptimizationPlugin.cpp" />

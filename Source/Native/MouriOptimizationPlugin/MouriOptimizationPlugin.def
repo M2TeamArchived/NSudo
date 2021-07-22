@@ -5,10 +5,11 @@ EXPORTS
 MoDefragMemory
 MoEnableMicrosoftUpdate
 MoUpdateAppXPackages
+MoManageCompactOS
 
 MoPurgeSystemRestorePoint
 MoPurgeDeliveryOptimizationCache
 MoPurgeWindowsEventLog
 MoPurgeCorruptedAppXPackages
 MoPurgeNuGetCache
-MoManageCompactOS
+MoPurgeVisualStudioCodeCache
