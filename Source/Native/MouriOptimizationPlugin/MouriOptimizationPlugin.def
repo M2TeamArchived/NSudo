@@ -13,4 +13,5 @@ MoPurgeWindowsEventLog
 MoPurgeCorruptedAppXPackages
 MoPurgeNuGetCache
 MoPurgeVisualStudioCodeCache
-MoPurgeWebEngineCache
+MoPurgeChromiumCache
+MoPurgeTridentCache

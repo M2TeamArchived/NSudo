@@ -32,7 +32,10 @@
     <ClCompile Include="MoPurgeVisualStudioCodeCache.cpp">
       <Filter>Modules</Filter>
     </ClCompile>
-    <ClCompile Include="MoPurgeWebEngineCache.cpp">
+    <ClCompile Include="MoPurgeChromiumCache.cpp">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="MoPurgeTridentCache.cpp">
       <Filter>Modules</Filter>
     </ClCompile>
   </ItemGroup>
