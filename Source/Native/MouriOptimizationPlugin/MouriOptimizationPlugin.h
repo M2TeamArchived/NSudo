@@ -150,4 +150,17 @@ HANDLE MoPrivateCreateFile(
 BOOL MoPrivateIsFileExist(
     _In_ LPCWSTR FilePath);
 
+/**
+ * @brief Empties an existing directory.
+ * @param Context The NSudo context.
+ * @param RootPath The existing directory you want to empty.
+ * @param UsedSpace If nullptr, the function will in the purge mode. If
+ *                  non-nullptr, the function will in the scan mode and
+ *                  accumulate the value of used space for the directory.
+*/
+void MoPrivateEmptyDirectoryWorker(
+    _In_ PNSUDO_CONTEXT Context,
+    _In_ LPCWSTR RootPath,
+    _Inout_opt_ PUINT64 UsedSpace);
+
 #endif // !MOURI_OPTIMIZATION_PLUGIN

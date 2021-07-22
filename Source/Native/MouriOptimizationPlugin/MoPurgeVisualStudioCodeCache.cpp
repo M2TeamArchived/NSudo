@@ -13,179 +13,6 @@
 #include <vector>
 #include <string>
 
-namespace
-{
-    static void PurgeVisualStudioCodeCacheWorker(
-        _In_ PNSUDO_CONTEXT Context,
-        _In_ LPCWSTR RootPath,
-        _Inout_opt_ PUINT64 UsedSpace)
-    {
-        HANDLE RootHandle = ::MoPrivateCreateFile(
-            RootPath,
-            SYNCHRONIZE |
-            FILE_LIST_DIRECTORY |
-            DELETE |
-            FILE_READ_ATTRIBUTES |
-            FILE_WRITE_ATTRIBUTES,
-            FILE_SHARE_READ | FILE_SHARE_WRITE,
-            nullptr,
-            OPEN_EXISTING,
-            FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT,
-            nullptr);
-        if (RootHandle != INVALID_HANDLE_VALUE)
-        {
-            Mile::HResult hr = S_OK;
-            hr = Mile::EnumerateFile(
-                RootHandle,
-                [&](
-                    _In_ Mile::PFILE_ENUMERATE_INFORMATION Information) -> BOOL
-            {
-                if (Mile::IsDotsName(Information->FileName))
-                {
-                    return TRUE;
-                }
-
-                std::wstring CurrentPath = Mile::FormatUtf16String(
-                    L"%s\\%s",
-                    RootPath,
-                    Information->FileName);
-
-                if (Information->FileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-                {
-                    ::PurgeVisualStudioCodeCacheWorker(
-                        Context,
-                        CurrentPath.c_str(),
-                        UsedSpace);
-                    return TRUE;
-                }
-
-                HANDLE CurrentHandle = ::MoPrivateCreateFile(
-                    CurrentPath.c_str(),
-                    SYNCHRONIZE |
-                    FILE_LIST_DIRECTORY |
-                    DELETE |
-                    FILE_READ_ATTRIBUTES |
-                    FILE_WRITE_ATTRIBUTES,
-                    FILE_SHARE_READ | FILE_SHARE_WRITE,
-                    nullptr,
-                    OPEN_EXISTING,
-                    FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT,
-                    nullptr);
-                if (CurrentHandle == INVALID_HANDLE_VALUE)
-                {
-                    ::MoPrivateWriteErrorMessage(
-                        Context,
-                        Mile::HResultFromLastError(FALSE),
-                        L"%s(%s)",
-                        L"CreateFileW",
-                        CurrentPath.c_str());
-                    return TRUE;
-                }
-
-                if (UsedSpace)
-                {
-                    UINT64 CurrentFileSize = 0;
-                    hr = Mile::GetCompressedFileSizeByHandle(
-                        CurrentHandle,
-                        &CurrentFileSize);
-                    if (hr.IsSucceeded())
-                    {
-                        *UsedSpace += CurrentFileSize;
-
-                        ::MoPrivateWriteLine(
-                            Context,
-                            L"Detected - %s.",
-                            CurrentPath.c_str());
-                    }
-                    else
-                    {
-                        ::MoPrivateWriteErrorMessage(
-                            Context,
-                            hr,
-                            L"%s(%s)",
-                            L"Mile::GetCompressedFileSizeByHandle",
-                            CurrentPath.c_str());
-                    }
-                }
-                else
-                {
-                    hr = Mile::DeleteFileByHandleIgnoreReadonlyAttribute(
-                        CurrentHandle);
-                    if (hr.IsSucceeded())
-                    {
-                        ::MoPrivateWriteLine(
-                            Context,
-                            L"Removed - %s.",
-                            CurrentPath.c_str());
-                    }
-                    else
-                    {
-                        ::MoPrivateWriteErrorMessage(
-                            Context,
-                            hr,
-                            L"%s(%s)",
-                            L"Mile::DeleteFileByHandleIgnoreReadonlyAttribute",
-                            CurrentPath.c_str());
-                    }
-                }
-
-                ::CloseHandle(CurrentHandle);
-
-                return TRUE;
-            });
-            if (hr.IsFailed())
-            {
-                ::MoPrivateWriteErrorMessage(
-                    Context,
-                    hr,
-                    L"%s(%s)",
-                    L"Mile::EnumerateFile",
-                    RootPath);
-            }
-
-            if (UsedSpace)
-            {
-                ::MoPrivateWriteLine(
-                    Context,
-                    L"Detected - %s.",
-                    RootPath);
-            }
-            else
-            {
-                hr = Mile::DeleteFileByHandleIgnoreReadonlyAttribute(
-                    RootHandle);
-                if (hr.IsSucceeded())
-                {
-                    ::MoPrivateWriteLine(
-                        Context,
-                        L"Removed - %s.",
-                        RootPath);
-                }
-                else
-                {
-                    ::MoPrivateWriteErrorMessage(
-                        Context,
-                        hr,
-                        L"%s(%s)",
-                        L"Mile::DeleteFileByHandleIgnoreReadonlyAttribute",
-                        RootPath);
-                }
-            }
-
-            ::CloseHandle(RootHandle);
-        }
-        else
-        {
-            ::MoPrivateWriteErrorMessage(
-                Context,
-                Mile::HResultFromLastError(FALSE),
-                L"%s(%s)",
-                L"CreateFileW",
-                RootPath);
-        }
-    }
-}
-
 EXTERN_C HRESULT WINAPI MoPurgeVisualStudioCodeCache(
     _In_ PNSUDO_CONTEXT Context)
 {
@@ -254,14 +81,14 @@ EXTERN_C HRESULT WINAPI MoPurgeVisualStudioCodeCache(
         {
             if (PurgeMode == MO_PRIVATE_PURGE_MODE_SCAN)
             {
-                ::PurgeVisualStudioCodeCacheWorker(
+                ::MoPrivateEmptyDirectoryWorker(
                     Context,
                     CachePath.c_str(),
                     &UsedSpace);
             }
             else if (PurgeMode == MO_PRIVATE_PURGE_MODE_PURGE)
             {
-                ::PurgeVisualStudioCodeCacheWorker(
+                ::MoPrivateEmptyDirectoryWorker(
                     Context,
                     CachePath.c_str(),
                     nullptr);
