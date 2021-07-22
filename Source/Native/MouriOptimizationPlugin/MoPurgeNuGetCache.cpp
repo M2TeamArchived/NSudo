@@ -191,7 +191,7 @@ EXTERN_C HRESULT WINAPI MoPurgeNuGetCache(
 {
     Mile::HResult hr = S_OK;
     HANDLE PreviousContextTokenHandle = INVALID_HANDLE_VALUE;
-    std::vector<std::wstring> NuGetCachePathList;
+    std::vector<std::wstring> CachePathList;
 
     do
     {
@@ -220,37 +220,37 @@ EXTERN_C HRESULT WINAPI MoPurgeNuGetCache(
             break;
         }
 
-        for (std::wstring const& ProfilePath : ::MoPrivateGetProfilePathList())
+        for (std::wstring const& Profile : ::MoPrivateGetProfilePathList())
         {
-            std::wstring LocalAppDataPath = ProfilePath + L"\\AppData\\Local";
+            std::wstring LocalAppData = Profile + L"\\AppData\\Local";
 
-            std::wstring CandidatePath;
+            std::wstring Candidate;
 
-            CandidatePath = LocalAppDataPath + L"\\NuGet\\v3-cache";
-            if (::MoPrivateIsFileExist(CandidatePath.c_str()))
+            Candidate = LocalAppData + L"\\NuGet\\v3-cache";
+            if (::MoPrivateIsFileExist(Candidate.c_str()))
             {
-                NuGetCachePathList.push_back(CandidatePath);
+                CachePathList.push_back(Candidate);
             }
 
-            CandidatePath = LocalAppDataPath + L"\\NuGet\\plugins-cache";
-            if (::MoPrivateIsFileExist(CandidatePath.c_str()))
+            Candidate = LocalAppData + L"\\NuGet\\plugins-cache";
+            if (::MoPrivateIsFileExist(Candidate.c_str()))
             {
-                NuGetCachePathList.push_back(CandidatePath);
+                CachePathList.push_back(Candidate);
             }
 
-            CandidatePath = LocalAppDataPath + L"\\Temp\\NuGetScratch";
-            if (::MoPrivateIsFileExist(CandidatePath.c_str()))
+            Candidate = LocalAppData + L"\\Temp\\NuGetScratch";
+            if (::MoPrivateIsFileExist(Candidate.c_str()))
             {
-                NuGetCachePathList.push_back(CandidatePath);
+                CachePathList.push_back(Candidate);
             }
 
-            CandidatePath = ProfilePath + L"\\.nuget\\packages";
-            if (::MoPrivateIsFileExist(CandidatePath.c_str()))
+            Candidate = Profile + L"\\.nuget\\packages";
+            if (::MoPrivateIsFileExist(Candidate.c_str()))
             {
-                NuGetCachePathList.push_back(CandidatePath);
+                CachePathList.push_back(Candidate);
             }
         }
-        if (NuGetCachePathList.empty())
+        if (CachePathList.empty())
         {
             hr = E_NOINTERFACE;
             ::MoPrivateWriteErrorMessage(
@@ -261,20 +261,20 @@ EXTERN_C HRESULT WINAPI MoPurgeNuGetCache(
         }
 
         UINT64 UsedSpace = 0;
-        for (std::wstring const& NuGetCachePath : NuGetCachePathList)
+        for (std::wstring const& CachePath : CachePathList)
         {
             if (PurgeMode == MO_PRIVATE_PURGE_MODE_SCAN)
             {
                 ::PurgeNuGetCacheWorker(
                     Context,
-                    NuGetCachePath.c_str(),
+                    CachePath.c_str(),
                     &UsedSpace);
             }
             else if (PurgeMode == MO_PRIVATE_PURGE_MODE_PURGE)
             {
                 ::PurgeNuGetCacheWorker(
                     Context,
-                    NuGetCachePath.c_str(),
+                    CachePath.c_str(),
                     nullptr);
             }
         }
