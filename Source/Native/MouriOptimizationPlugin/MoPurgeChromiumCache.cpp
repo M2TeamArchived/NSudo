@@ -227,7 +227,8 @@ namespace
                     CurrentPath.c_str(),
                     UsedSpace);
 
-                bool IsChromiumCacheFolder = false;
+                bool IsChromiumBlockfileCacheFolder = false;
+                bool IsChromiumSimpleCacheFolder = false;
 
                 HANDLE CurrentHandle = ::MoPrivateCreateFile(
                     (CurrentPath + L"\\index").c_str(),
@@ -239,34 +240,49 @@ namespace
                     nullptr);
                 if (CurrentHandle != INVALID_HANDLE_VALUE)
                 {
-                    std::uint8_t Signature[4];
+                    std::uint8_t Signature[sizeof(std::uint64_t)];
 
-                    const DWORD NumberOfBytesToRead =
-                        static_cast<DWORD>(sizeof(Signature));
                     DWORD NumberOfBytesRead = 0;
-
                     hr = Mile::ReadFile(
                         CurrentHandle,
                         Signature,
-                        NumberOfBytesToRead,
+                        static_cast<DWORD>(sizeof(Signature)),
                         &NumberOfBytesRead);
                     if (hr.IsSucceeded() &&
-                        NumberOfBytesRead == NumberOfBytesToRead)
+                        NumberOfBytesRead == sizeof(Signature))
                     {
-                        // Chromium Index File Signature: 0xC103CAC3
-                        IsChromiumCacheFolder = (
+                        // Blockfile Index File Magic: 0xC103CAC3
+                        IsChromiumBlockfileCacheFolder = (
                             Signature[0] == 0xC3 &&
                             Signature[1] == 0xCA &&
                             Signature[2] == 0x03 &&
                             Signature[3] == 0xC1);
+
+                        // Simple Index File Magic: 0xFCFB6D1BA7725C30
+                        IsChromiumSimpleCacheFolder = (
+                            Signature[0] == 0x30 &&
+                            Signature[1] == 0x5C &&
+                            Signature[2] == 0x72 &&
+                            Signature[3] == 0xA7 &&
+                            Signature[4] == 0x1B &&
+                            Signature[5] == 0x6D &&
+                            Signature[6] == 0xFB &&
+                            Signature[7] == 0xFC);
                     }
 
                     ::CloseHandle(CurrentHandle);
                 }
 
-                if (IsChromiumCacheFolder)
+                if (IsChromiumBlockfileCacheFolder)
                 {
                     ::PurgeChromiumCacheFilesWorker(
+                        Context,
+                        CurrentPath.c_str(),
+                        UsedSpace);
+                }
+                else if (IsChromiumSimpleCacheFolder)
+                {
+                    ::MoPrivateEmptyDirectoryWorker(
                         Context,
                         CurrentPath.c_str(),
                         UsedSpace);
