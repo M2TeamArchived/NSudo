@@ -81,14 +81,14 @@ EXTERN_C HRESULT WINAPI MoPurgeVisualStudioCodeCache(
         {
             if (PurgeMode == MO_PRIVATE_PURGE_MODE_SCAN)
             {
-                ::MoPrivateEmptyDirectoryWorker(
+                ::MoPrivateRemoveDirectoryWorker(
                     Context,
                     CachePath.c_str(),
                     &UsedSpace);
             }
             else if (PurgeMode == MO_PRIVATE_PURGE_MODE_PURGE)
             {
-                ::MoPrivateEmptyDirectoryWorker(
+                ::MoPrivateRemoveDirectoryWorker(
                     Context,
                     CachePath.c_str(),
                     nullptr);
