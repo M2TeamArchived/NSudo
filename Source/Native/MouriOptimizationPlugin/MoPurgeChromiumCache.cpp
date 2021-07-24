@@ -46,7 +46,7 @@ namespace
         return false;
     }
 
-    void PurgeChromiumCacheFilesWorker(
+    static void PurgeChromiumCacheFilesWorker(
         _In_ PNSUDO_CONTEXT Context,
         _In_ LPCWSTR RootPath,
         _Inout_opt_ PUINT64 UsedSpace)
@@ -186,7 +186,7 @@ namespace
         }
     }
 
-    void PurgeChromiumCacheFolderWorker(
+    static void PurgeChromiumCacheFolderWorker(
         _In_ PNSUDO_CONTEXT Context,
         _In_ LPCWSTR RootPath,
         _Inout_opt_ PUINT64 UsedSpace)

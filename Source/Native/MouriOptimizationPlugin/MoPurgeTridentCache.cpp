@@ -46,7 +46,7 @@ namespace
         return false;
     }
 
-    void PurgeTridentCacheFolderWorker(
+    static void PurgeTridentCacheFolderWorker(
         _In_ PNSUDO_CONTEXT Context,
         _In_ LPCWSTR RootPath,
         _Inout_opt_ PUINT64 UsedSpace)
