@@ -93,6 +93,7 @@ EXTERN_C HRESULT WINAPI MoPurgePackageCache(
 {
     Mile::HResult hr = S_OK;
     HANDLE PreviousContextTokenHandle = INVALID_HANDLE_VALUE;
+    HANDLE MSIExecuteEvent = nullptr;
     std::vector<std::wstring> CachePathList;
 
     do
@@ -119,6 +120,19 @@ EXTERN_C HRESULT WINAPI MoPurgePackageCache(
                 Context,
                 hr,
                 L"MoPrivateEnableBackupRestorePrivilege");
+            break;
+        }
+
+        // Try to block Windows Installer for bring this implementation more
+        // safety.
+        MSIExecuteEvent = ::CreateEventExW(
+            nullptr,
+            L"Global\\_MSIExecute",
+            CREATE_EVENT_MANUAL_RESET,
+            EVENT_ALL_ACCESS);
+        if (!MSIExecuteEvent)
+        {
+            hr = E_ACCESSDENIED;
             break;
         }
 
@@ -181,6 +195,11 @@ EXTERN_C HRESULT WINAPI MoPurgePackageCache(
         }
 
     } while (false);
+
+    if (MSIExecuteEvent)
+    {
+        ::CloseHandle(MSIExecuteEvent);
+    }
 
     if (PreviousContextTokenHandle != INVALID_HANDLE_VALUE)
     {
