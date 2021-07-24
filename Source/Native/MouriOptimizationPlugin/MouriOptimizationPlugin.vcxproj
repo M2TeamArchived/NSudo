@@ -29,6 +29,7 @@
     <ClCompile Include="MoPurgeVisualStudioCodeCache.cpp" />
     <ClCompile Include="MoPurgeChromiumCache.cpp" />
     <ClCompile Include="MoPurgeTridentCache.cpp" />
+    <ClCompile Include="MoPurgeVisualStudioInstallerCache.cpp" />
     <ClCompile Include="MoPurgeWindowsEventLog.cpp" />
     <ClCompile Include="MoUpdateAppXPackages.cpp" />
     <ClCompile Include="MouriOptimizationPlugin.cpp" />
