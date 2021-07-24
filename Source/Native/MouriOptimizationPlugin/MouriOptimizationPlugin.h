@@ -163,4 +163,17 @@ void MoPrivateEmptyDirectoryWorker(
     _In_ LPCWSTR RootPath,
     _Inout_opt_ PUINT64 UsedSpace);
 
+/**
+ * @brief Removes an existing directory.
+ * @param Context The NSudo context.
+ * @param RootPath The existing directory you want to remove.
+ * @param UsedSpace If nullptr, the function will in the purge mode. If
+ *                  non-nullptr, the function will in the scan mode and
+ *                  accumulate the value of used space for the directory.
+*/
+void MoPrivateRemoveDirectoryWorker(
+    _In_ PNSUDO_CONTEXT Context,
+    _In_ LPCWSTR RootPath,
+    _Inout_opt_ PUINT64 UsedSpace);
+
 #endif // !MOURI_OPTIMIZATION_PLUGIN
