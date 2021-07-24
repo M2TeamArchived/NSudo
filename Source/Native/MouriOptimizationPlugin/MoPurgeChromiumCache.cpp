@@ -282,7 +282,7 @@ namespace
                 }
                 else if (IsChromiumSimpleCacheFolder)
                 {
-                    ::MoPrivateEmptyDirectoryWorker(
+                    ::MoPrivateRemoveDirectoryWorker(
                         Context,
                         CurrentPath.c_str(),
                         UsedSpace);
