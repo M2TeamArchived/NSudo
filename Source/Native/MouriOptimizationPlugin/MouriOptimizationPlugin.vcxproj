@@ -24,6 +24,7 @@
     <ClCompile Include="MoPurgeCorruptedAppXPackages.cpp" />
     <ClCompile Include="MoPurgeDeliveryOptimizationCache.cpp" />
     <ClCompile Include="MoPurgeNuGetCache.cpp" />
+    <ClCompile Include="MoPurgePackageCache.cpp" />
     <ClCompile Include="MoPurgeSystemRestorePoint.cpp" />
     <ClCompile Include="MoPurgeVisualStudioCodeCache.cpp" />
     <ClCompile Include="MoPurgeChromiumCache.cpp" />

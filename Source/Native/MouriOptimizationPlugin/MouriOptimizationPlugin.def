@@ -15,3 +15,4 @@ MoPurgeNuGetCache
 MoPurgeVisualStudioCodeCache
 MoPurgeChromiumCache
 MoPurgeTridentCache
+MoPurgePackageCache
