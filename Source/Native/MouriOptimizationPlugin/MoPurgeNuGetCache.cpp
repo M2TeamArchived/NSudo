@@ -83,76 +83,10 @@ namespace
                     return TRUE;
                 }
 
-                HANDLE CurrentHandle = ::MoPrivateCreateFile(
+                ::MoPrivateRemoveFileWorker(
+                    Context,
                     CurrentPath.c_str(),
-                    SYNCHRONIZE |
-                    FILE_LIST_DIRECTORY |
-                    DELETE |
-                    FILE_READ_ATTRIBUTES |
-                    FILE_WRITE_ATTRIBUTES,
-                    FILE_SHARE_READ | FILE_SHARE_WRITE,
-                    nullptr,
-                    OPEN_EXISTING,
-                    FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT,
-                    nullptr);
-                if (CurrentHandle == INVALID_HANDLE_VALUE)
-                {
-                    ::MoPrivateWriteErrorMessage(
-                        Context,
-                        Mile::HResultFromLastError(FALSE),
-                        L"%s(%s)",
-                        L"CreateFileW",
-                        CurrentPath.c_str());
-                }
-
-                if (UsedSpace)
-                {
-                    UINT64 CurrentFileSize = 0;
-                    hr = Mile::GetCompressedFileSizeByHandle(
-                        CurrentHandle,
-                        &CurrentFileSize);
-                    if (hr.IsSucceeded())
-                    {
-                        *UsedSpace += CurrentFileSize;
-
-                        ::MoPrivateWriteLine(
-                            Context,
-                            L"Detected - %s.",
-                            CurrentPath.c_str());
-                    }
-                    else
-                    {
-                        ::MoPrivateWriteErrorMessage(
-                            Context,
-                            hr,
-                            L"%s(%s)",
-                            L"Mile::GetCompressedFileSizeByHandle",
-                            CurrentPath.c_str());
-                    }
-                }
-                else
-                {
-                    hr = Mile::DeleteFileByHandleIgnoreReadonlyAttribute(
-                        CurrentHandle);
-                    if (hr.IsSucceeded())
-                    {
-                        ::MoPrivateWriteLine(
-                            Context,
-                            L"Removed - %s.",
-                            CurrentPath.c_str());
-                    }
-                    else
-                    {
-                        ::MoPrivateWriteErrorMessage(
-                            Context,
-                            hr,
-                            L"%s(%s)",
-                            L"Mile::DeleteFileByHandleIgnoreReadonlyAttribute",
-                            CurrentPath.c_str());
-                    }
-                }
-
-                ::CloseHandle(CurrentHandle);
+                    UsedSpace);
 
                 return TRUE;
             });
