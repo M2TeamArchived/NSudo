@@ -10,8 +10,6 @@
 
 #include "MouriOptimizationPlugin.h"
 
-#include "MouriOptimizationPlugin.h"
-
 #include <regex>
 #include <vector>
 #include <string>
