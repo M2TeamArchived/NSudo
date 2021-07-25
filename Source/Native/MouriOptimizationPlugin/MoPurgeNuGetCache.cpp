@@ -18,7 +18,7 @@ namespace
 {
     static const std::wregex g_NuGetPackageCacheFileInclusion =
         std::wregex(
-            L"(.*)\\\\.nuget\\\\packages\\\\(.*)\\\\(.*)\\\\(.*).nupkg",
+            L"(.*)\\\\.nuget\\\\packages\\\\(.*)\\\\(.*)\\\\\\2.\\3.nupkg",
             std::regex_constants::syntax_option_type::icase);
 
     static void PurgeNuGetPackageCacheWorker(
@@ -65,20 +65,9 @@ namespace
                     return TRUE;
                 }
 
-                std::wsmatch Matches;
                 if (!std::regex_match(
                     CurrentPath,
-                    Matches,
                     g_NuGetPackageCacheFileInclusion))
-                {
-                    return TRUE;
-                }
-
-                // The cleanable file path in NuGet package folder should be
-                // the form of .nuget\packages\[C]\[V]\[C].[V].nupkg.
-                if (::_wcsicmp(
-                    (Matches[2].str() + L"." + Matches[3].str()).c_str(),
-                    Matches[4].str().c_str()))
                 {
                     return TRUE;
                 }
