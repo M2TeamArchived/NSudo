@@ -151,6 +151,14 @@ BOOL MoPrivateIsFileExist(
     _In_ LPCWSTR FilePath);
 
 /**
+ * @brief Splits the traditional DOS path string by the directory separator character.
+ * @param String The traditional DOS path string you want to split.
+ * @return The split result of the traditional DOS path string.
+*/
+std::vector<std::wstring> MoPrivateSplitPathString(
+    std::wstring const& String);
+
+/**
  * @brief Removes an existing file.
  * @param Context The NSudo context.
  * @param RootPath The existing file you want to remove.

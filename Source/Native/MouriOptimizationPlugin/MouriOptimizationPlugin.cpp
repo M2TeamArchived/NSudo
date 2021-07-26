@@ -318,6 +318,37 @@ BOOL MoPrivateIsFileExist(
     return (FileHandle != INVALID_HANDLE_VALUE);
 }
 
+std::vector<std::wstring> MoPrivateSplitPathString(
+    std::wstring const& String)
+{
+    std::vector<std::wstring> Result;
+
+    std::wstring CurrentString;
+    for (wchar_t const& CurrentCharacter : String)
+    {
+        if (CurrentCharacter == L'\\' || CurrentCharacter == L'/')
+        {
+            if (!CurrentString.empty())
+            {
+                Result.push_back(CurrentString);
+                CurrentString.clear();
+            }
+        }
+        else
+        {
+            CurrentString.push_back(CurrentCharacter);
+        }
+    }
+
+    if (!CurrentString.empty())
+    {
+        Result.push_back(CurrentString);
+        CurrentString.clear();
+    }
+
+    return Result;
+}
+
 void MoPrivateRemoveFileWorker(
     _In_ PNSUDO_CONTEXT Context,
     _In_ LPCWSTR FilePath,
