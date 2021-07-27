@@ -10,40 +10,11 @@
 
 #include "MouriOptimizationPlugin.h"
 
-#include <regex>
 #include <vector>
 #include <string>
 
 namespace
 {
-    static const std::vector<std::wregex> g_TridentCacheFolderInclusionList =
-    {
-        std::wregex(
-            L"(.*)\\\\INetCache",
-            std::regex_constants::syntax_option_type::icase),
-        std::wregex(
-            L"(.*)\\\\Temporary Internet Files",
-            std::regex_constants::syntax_option_type::icase),
-        std::wregex(
-            L"(.*)\\\\MicrosoftEdge\\\\Cache",
-            std::regex_constants::syntax_option_type::icase)
-    };
-
-    static bool IsFileNameMatchedWithRegularExpressionList(
-        std::wstring const& FileName,
-        std::vector<std::wregex> const& RegularExpressionList)
-    {
-        for (std::wregex const& RegularExpressionItem : RegularExpressionList)
-        {
-            if (std::regex_match(FileName, RegularExpressionItem))
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     static void PurgeTridentCacheFolderWorker(
         _In_ PNSUDO_CONTEXT Context,
         _In_ LPCWSTR RootPath,
@@ -80,9 +51,37 @@ namespace
                     RootPath,
                     Information->FileName);
 
-                if (::IsFileNameMatchedWithRegularExpressionList(
-                    CurrentPath,
-                    g_TridentCacheFolderInclusionList))
+                bool Matched = false;
+                if (S_OK == ::PathMatchSpecExW(
+                    CurrentPath.c_str(),
+                    L"*\\AppData\\Local\\*",
+                    PMSF_NORMAL))
+                {
+                    if (S_OK == ::PathMatchSpecExW(
+                        CurrentPath.c_str(),
+                        L"*\\Microsoft\\Windows\\*",
+                        PMSF_NORMAL))
+                    {
+                        Matched = (S_OK == ::PathMatchSpecExW(
+                            CurrentPath.c_str(),
+                            L"*\\INetCache;"
+                            L"*\\Temporary Internet Files;",
+                            PMSF_MULTIPLE));
+                    }
+                    else if (S_OK == ::PathMatchSpecExW(
+                        CurrentPath.c_str(),
+                        L"*\\Packages\\*\\AC\\*",
+                        PMSF_NORMAL))
+                    {
+                        Matched = (S_OK == ::PathMatchSpecExW(
+                            CurrentPath.c_str(),
+                            L"*\\INetCache;"
+                            L"*\\MicrosoftEdge\\Cache;",
+                            PMSF_MULTIPLE));
+                    }
+                }
+
+                if (Matched)
                 {
                     ::MoPrivateEmptyDirectoryWorker(
                         Context,

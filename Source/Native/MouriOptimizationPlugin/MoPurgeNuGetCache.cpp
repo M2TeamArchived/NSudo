@@ -10,17 +10,11 @@
 
 #include "MouriOptimizationPlugin.h"
 
-#include <regex>
 #include <vector>
 #include <string>
 
 namespace
 {
-    static const std::wregex g_NuGetPackageCacheFileInclusion =
-        std::wregex(
-            L"(.*)\\\\.nuget\\\\packages\\\\(.*)\\\\(.*)\\\\\\2.\\3.nupkg",
-            std::regex_constants::syntax_option_type::icase);
-
     static void PurgeNuGetPackageCacheWorker(
         _In_ PNSUDO_CONTEXT Context,
         _In_ LPCWSTR RootPath,
@@ -65,9 +59,36 @@ namespace
                     return TRUE;
                 }
 
-                if (!std::regex_match(
-                    CurrentPath,
-                    g_NuGetPackageCacheFileInclusion))
+                // The cleanable file path in NuGet package folder should be
+                // the form of .nuget\packages\[C]\[V]\[C].[V].nupkg.
+
+                if (S_OK != ::PathMatchSpecExW(
+                    CurrentPath.c_str(),
+                    L"*\\.nuget\\packages\\*\\*\\*.nupkg",
+                    PMSF_NORMAL))
+                {
+                    return TRUE;
+                }
+
+                std::vector<std::wstring> SplitResult =
+                    ::MoPrivateSplitPathString(CurrentPath);
+                std::size_t SplitResultSize = SplitResult.size();
+                if (SplitResultSize < 3)
+                {
+                    return TRUE;
+                }
+
+                std::wstring ActualFileName =
+                    SplitResult[SplitResultSize - 1];
+                std::wstring GuessedFileName =
+                    SplitResult[SplitResultSize - 3];
+                GuessedFileName += L".";
+                GuessedFileName += SplitResult[SplitResultSize - 2];
+                GuessedFileName += L".nupkg";
+
+                if (0 != ::_wcsicmp(
+                    GuessedFileName.c_str(),
+                    ActualFileName.c_str()))
                 {
                     return TRUE;
                 }

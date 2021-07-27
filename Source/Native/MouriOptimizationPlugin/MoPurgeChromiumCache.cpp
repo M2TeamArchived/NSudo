@@ -10,40 +10,11 @@
 
 #include "MouriOptimizationPlugin.h"
 
-#include <regex>
 #include <vector>
 #include <string>
 
 namespace
 {
-    static const std::vector<std::wregex> g_ChromiumCacheFileInclusionList =
-    {
-        std::wregex(
-            L"(.*)\\\\index",
-            std::regex_constants::syntax_option_type::icase),
-        std::wregex(
-            L"(.*)\\\\data_([0-9A-F]*)",
-            std::regex_constants::syntax_option_type::icase),
-        std::wregex(
-            L"(.*)\\\\f_([0-9A-F]*)",
-            std::regex_constants::syntax_option_type::icase),
-    };
-
-    static bool IsFileNameMatchedWithRegularExpressionList(
-        std::wstring const& FileName,
-        std::vector<std::wregex> const& RegularExpressionList)
-    {
-        for (std::wregex const& RegularExpressionItem : RegularExpressionList)
-        {
-            if (std::regex_match(FileName, RegularExpressionItem))
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     static void PurgeChromiumCacheFilesWorker(
         _In_ PNSUDO_CONTEXT Context,
         _In_ LPCWSTR RootPath,
@@ -80,9 +51,9 @@ namespace
                     RootPath,
                     Information->FileName);
 
-                if (!::IsFileNameMatchedWithRegularExpressionList(
-                    CurrentPath,
-                    g_ChromiumCacheFileInclusionList))
+                if (0 != ::_wcsicmp(Information->FileName, L"index") &&
+                    0 != _wcsnicmp(Information->FileName, L"data_", 5) &&
+                    0 != _wcsnicmp(Information->FileName, L"f_", 2))
                 {
                     return TRUE;
                 }

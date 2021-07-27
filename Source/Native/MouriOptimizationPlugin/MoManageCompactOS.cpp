@@ -10,51 +10,11 @@
 
 #include "MouriOptimizationPlugin.h"
 
-#include <VersionHelpers.h>
-
-#include <regex>
 #include <string>
 #include <vector>
 
 namespace
 {
-    static const std::vector<std::wregex> g_ExclusionList =
-    {
-        std::wregex(
-            L"(.*)\\\\WinSxS\\\\(Backup|Manifest(s|Cache))(.*)",
-            std::regex_constants::syntax_option_type::icase),
-        std::wregex(
-            L"(.*)\\\\((nt|cm)ldr|BootMgr|aow.wim)",
-            std::regex_constants::syntax_option_type::icase),
-        std::wregex(
-            L"(.*)\\\\boot\\\\(bcd(|.log)|bootstat.dat)",
-            std::regex_constants::syntax_option_type::icase),
-        std::wregex(
-            L"(.*)\\\\config\\\\(drivers(|.log)|system(|.log))",
-            std::regex_constants::syntax_option_type::icase),
-        std::wregex(
-            L"(.*)\\\\windows\\\\bootstat.dat",
-            std::regex_constants::syntax_option_type::icase),
-        std::wregex(
-            L"(.*)\\\\win(load|resume)(.efi|.exe)(|.mui)",
-            std::regex_constants::syntax_option_type::icase)
-    };
-
-    static bool IsFileNameMatchedWithRegularExpressionList(
-        std::wstring const& FileName,
-        std::vector<std::wregex> const& RegularExpressionList)
-    {
-        for (std::wregex const& RegularExpressionItem : RegularExpressionList)
-        {
-            if (std::regex_match(FileName, RegularExpressionItem))
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     static void CompressFileWorker(
         _In_ PNSUDO_CONTEXT Context,
         _In_ LPCWSTR RootPath)
@@ -104,9 +64,26 @@ namespace
                     RootPath,
                     Information->FileName);
 
-                if (::IsFileNameMatchedWithRegularExpressionList(
-                    CurrentPath,
-                    g_ExclusionList))
+                if (S_OK == ::PathMatchSpecExW(
+                    CurrentPath.c_str(),
+                    L"*\\WinSxS\\Backup;"
+                    L"*\\WinSxS\\ManifestCache;"
+                    L"*\\WinSxS\\Manifests;"
+                    L"*\\ntldr;"
+                    L"*\\cmldr;"
+                    L"*\\BootMgr;"
+                    L"*\\aow.wim;"
+                    L"*\\boot\\bcd;"
+                    L"*\\boot\\bcd.*;"
+                    L"*\\boot\\bootstat.dat;"
+                    L"*\\config\\drivers;"
+                    L"*\\config\\drivers.*;"
+                    L"*\\config\\system;"
+                    L"*\\config\\system.*;"
+                    L"*\\windows\\bootstat.dat;"
+                    L"*\\winload.e??*;"
+                    L"*\\winresume.e??*;",
+                    PMSF_MULTIPLE))
                 {
                     ::MoPrivateWriteLine(
                         Context,

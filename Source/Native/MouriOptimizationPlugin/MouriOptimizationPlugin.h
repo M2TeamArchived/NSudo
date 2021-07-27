@@ -14,6 +14,11 @@
 #include <Mile.Windows.h>
 #include <NSudoContextPlugin.h>
 
+#include <VersionHelpers.h>
+
+#include <Shlwapi.h>
+#pragma comment(lib, "Shlwapi.lib")
+
 #include <vector>
 #include <string>
 
