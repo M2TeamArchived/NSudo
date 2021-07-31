@@ -13,6 +13,9 @@
 
 #include "NSudoContextPlugin.h"
 
+#include <map>
+#include <string>
+
 /**
  * @brief Definition for NSudo private context.
 */
@@ -26,6 +29,8 @@ typedef struct _NSUDO_CONTEXT_PRIVATE
 
     HMODULE ModuleHandle;
     LPCWSTR CommandArguments;
+
+    std::map<std::string, std::wstring> Translations;
 
 } NSUDO_CONTEXT_PRIVATE, *PNSUDO_CONTEXT_PRIVATE;
 

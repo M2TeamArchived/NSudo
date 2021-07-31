@@ -99,6 +99,16 @@ struct _NSUDO_CONTEXT
     LPCWSTR(WINAPI* ReadLine)(
         _In_ PNSUDO_CONTEXT Context,
         _In_ LPCWSTR InputPrompt);
+
+    /**
+     * @brief Gets the translated string.
+     * @param Context The NSudo context.
+     * @param Name The UTF-8 name of the translated string.
+     * @return The translated string.
+    */
+    LPCWSTR(WINAPI* GetTranslation)(
+        _In_ PNSUDO_CONTEXT Context,
+        _In_ LPCSTR Name);
 };
 
 /**

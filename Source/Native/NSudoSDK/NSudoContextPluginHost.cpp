@@ -12,6 +12,8 @@
 
 #include <Mile.PiConsole.h>
 
+#include "toml.hpp"
+
 /**
  * @brief Gets the NSudo private context.
  * @param Context The NSudo context.
@@ -165,6 +167,32 @@ LPCWSTR WINAPI NSudoContextReadLine(
     return nullptr;
 }
 
+/**
+ * @brief Gets the translated string.
+ * @param Context The NSudo context.
+ * @param Name The UTF-8 name of the translated string.
+ * @return The translated string.
+*/
+LPCWSTR WINAPI NSudoContextGetTranslation(
+    _In_ PNSUDO_CONTEXT Context,
+    _In_ LPCSTR Name)
+{
+    PNSUDO_CONTEXT_PRIVATE PrivateContext = ::NSudoContextGetPrivate(Context);
+    if (PrivateContext)
+    {
+        try
+        {
+            return PrivateContext->Translations[Name].c_str();
+        }
+        catch (...)
+        {
+
+        }
+    }
+
+    return L"";
+}
+
 
 EXTERN_C VOID WINAPI NSudoContextFillFunctionTable(
     _In_ PNSUDO_CONTEXT Context)
@@ -185,6 +213,8 @@ EXTERN_C VOID WINAPI NSudoContextFillFunctionTable(
             ::NSudoContextWriteLine;
         Context->ReadLine =
             ::NSudoContextReadLine;
+        Context->GetTranslation =
+            ::NSudoContextGetTranslation;
     }
 }
 
@@ -233,11 +263,37 @@ EXTERN_C HRESULT WINAPI NSudoContextExecutePlugin(
 
     PrivateContext->ModuleHandle = ModuleHandle;
     PrivateContext->CommandArguments = CommandArguments;
+    Mile::RESOURCE_INFO ResourceInfo = { 0 };
+    if (SUCCEEDED(Mile::LoadResource(
+        &ResourceInfo,
+        PrivateContext->ModuleHandle,
+        L"Translations",
+        MAKEINTRESOURCEW(1))))
+    {
+        try
+        {
+            toml::table Translations = toml::parse(std::string(
+                reinterpret_cast<const char*>(ResourceInfo.Pointer),
+                ResourceInfo.Size));
+            for (auto const& Translation : Translations)
+            {
+                PrivateContext->Translations.emplace(std::make_pair(
+                    Translation.first,
+                    Mile::ToUtf16String(
+                        Translation.second.value_or<std::string>(""))));
+            }
+        }
+        catch (...)
+        {
+
+        }
+    }
 
     EntryPointResult = EntryPointFunction(&PrivateContext->PublicContext);
 
     PrivateContext->ModuleHandle = nullptr;
     PrivateContext->CommandArguments = nullptr;
+    PrivateContext->Translations.clear();
 
     return EntryPointResult;
 }
