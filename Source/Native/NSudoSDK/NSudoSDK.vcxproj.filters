@@ -13,6 +13,9 @@
     <Filter Include="NSudoContextPluginHost">
       <UniqueIdentifier>{c8cdd86e-b69b-4168-8cd1-1254ff96fa7f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="toml++">
+      <UniqueIdentifier>{a299b819-d1c5-434e-9b20-6f2be41d6173}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="M2.Base.cpp">
@@ -37,6 +40,9 @@
     </ClInclude>
     <ClInclude Include="NSudoContextPluginHost.h">
       <Filter>NSudoContextPluginHost</Filter>
+    </ClInclude>
+    <ClInclude Include="toml.hpp">
+      <Filter>toml++</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -23,6 +23,7 @@
     <ClInclude Include="NSudoAPI.h" />
     <ClInclude Include="NSudoContextPlugin.h" />
     <ClInclude Include="NSudoContextPluginHost.h" />
+    <ClInclude Include="toml.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="MCC.cppold" />
