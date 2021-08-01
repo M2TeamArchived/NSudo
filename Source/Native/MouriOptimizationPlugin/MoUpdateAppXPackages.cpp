@@ -48,7 +48,9 @@ EXTERN_C HRESULT WINAPI MoUpdateAppXPackages(
         {
             ::MoPrivateWriteLine(
                 Context,
-                L"Update: %s",
+                Context->GetTranslation(
+                    Context,
+                    "MoUpdateAppXPackages_UpdateText"),
                 InstallItem.PackageFamilyName().c_str());
 
             HANDLE CompletedSignal = ::CreateEventExW(
@@ -73,7 +75,9 @@ EXTERN_C HRESULT WINAPI MoUpdateAppXPackages(
                 {
                     ::MoPrivateWriteLine(
                         Context,
-                        L"%s: Update completed.",
+                        Context->GetTranslation(
+                            Context,
+                            "MoUpdateAppXPackages_UpdateCompletedText"),
                         sender.PackageFamilyName().c_str());
                 }
                 catch (...)
@@ -94,7 +98,9 @@ EXTERN_C HRESULT WINAPI MoUpdateAppXPackages(
                 {
                     ::MoPrivateWriteLine(
                         Context,
-                        L"%s: Update progress %.0f%%.",
+                        Context->GetTranslation(
+                            Context,
+                            "MoUpdateAppXPackages_UpdateProgressText"),
                         sender.PackageFamilyName().c_str(),
                         sender.GetCurrentStatus().PercentComplete());
                 }
@@ -109,8 +115,9 @@ EXTERN_C HRESULT WINAPI MoUpdateAppXPackages(
         {
             ::MoPrivateWriteLine(
                 Context,
-                L"All your trusted apps and games from Microsoft Store have "
-                L"the latest updates.");
+                Context->GetTranslation(
+                    Context,
+                    "MoUpdateAppXPackages_NoUpdatesNoticeText"));
         }
         else
         {

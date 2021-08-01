@@ -420,7 +420,9 @@ EXTERN_C HRESULT WINAPI MoPurgeSystemRestorePoint(
             hr = ::CreateSystemRestorePoint(
                 RESTORE_POINT_EVENT_TYPE::BeginSystemChange,
                 RESTORE_POINT_TYPE::ManualCheckPoint,
-                L"After Cleanup By Mouri Optimization Plugin");
+                Context->GetTranslation(
+                    Context,
+                    "MoPurgeSystemRestorePoint_RestorePointName"));
             if (hr.IsFailed())
             {
                 ::MoPrivateWriteErrorMessage(

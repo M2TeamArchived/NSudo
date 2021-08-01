@@ -58,12 +58,9 @@ void MoPrivatePrintPurgeScanResult(
 {
     if (Context)
     {
-        //L"Total amount of disk space you may gain: ";
-        //L"或许可获得的磁盘空间总量: ";
-
         ::MoPrivateWriteLine(
             Context,
-            L"Total amount of disk space you may gain: %s.",
+            Context->GetTranslation(Context, "PurgeScanResultText"),
             Mile::ConvertByteSizeToUtf16String(ByteSize).c_str());
     }
 }
@@ -109,37 +106,41 @@ DWORD MoPrivateParsePurgeMode(
         // TODO: Maybe we should ask for user to choice
     }
 
-    LPCWSTR ModeText = nullptr;
+    LPCSTR ModeText = nullptr;
 
     if (Result == MO_PRIVATE_PURGE_MODE_SCAN)
     {
-        ModeText = L"Scan";
+        ModeText = "ScanModeText";
     }
     else if (Result == MO_PRIVATE_PURGE_MODE_PURGE)
     {
-        ModeText = L"Purge";
+        ModeText = "PurgeModeText";
     }
     else if (Result == MO_PRIVATE_PURGE_MODE_QUERY)
     {
-        ModeText = L"Query";
+        ModeText = "QueryModeText";
     }
     else if (Result == MO_PRIVATE_PURGE_MODE_ENABLE)
     {
-        ModeText = L"Enable";
+        ModeText = "EnableModeText";
     }
     else if (Result == MO_PRIVATE_PURGE_MODE_DISABLE)
     {
-        ModeText = L"Disable";
+        ModeText = "DisableModeText";
     }
     else
     {
-        ModeText = L"Canceled";
+        ModeText = "CanceledModeText";
     }
 
     ::MoPrivateWriteLine(
         Context,
-        L"Mode: %s.",
-        ModeText);
+        Context->GetTranslation(
+            Context,
+            "ModeText"),
+        Context->GetTranslation(
+            Context,
+            ModeText));
 
     return Result;
 }
@@ -378,7 +379,9 @@ void MoPrivateRemoveFileWorker(
 
                 ::MoPrivateWriteLine(
                     Context,
-                    L"Detected - %s.",
+                    Context->GetTranslation(
+                        Context,
+                        "DetectedText"),
                     FilePath);
             }
             else
@@ -399,7 +402,9 @@ void MoPrivateRemoveFileWorker(
             {
                 ::MoPrivateWriteLine(
                     Context,
-                    L"Removed - %s.",
+                    Context->GetTranslation(
+                        Context,
+                        "RemovedText"),
                     FilePath);
             }
             else
@@ -564,7 +569,9 @@ void MoPrivateRemoveDirectoryWorker(
         {
             ::MoPrivateWriteLine(
                 Context,
-                L"Detected - %s.",
+                Context->GetTranslation(
+                    Context,
+                    "DetectedText"),
                 RootPath);
         }
         else
@@ -575,7 +582,9 @@ void MoPrivateRemoveDirectoryWorker(
             {
                 ::MoPrivateWriteLine(
                     Context,
-                    L"Removed - %s.",
+                    Context->GetTranslation(
+                        Context,
+                        "RemovedText"),
                     RootPath);
             }
             else

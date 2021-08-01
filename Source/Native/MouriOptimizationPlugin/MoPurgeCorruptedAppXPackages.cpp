@@ -74,7 +74,9 @@ EXTERN_C HRESULT WINAPI MoPurgeCorruptedAppXPackages(
             {
                 ::MoPrivateWriteLine(
                     Context,
-                    L"No corrupted packages were found.");
+                    Context->GetTranslation(
+                        Context,
+                        "MoPurgeCorruptedAppXPackages_NoPackagesText"));
             }
             else
             {
@@ -84,7 +86,9 @@ EXTERN_C HRESULT WINAPI MoPurgeCorruptedAppXPackages(
                     {
                         ::MoPrivateWriteLine(
                             Context,
-                            L"Corrupted packages found: %s.",
+                            Context->GetTranslation(
+                                Context,
+                                "DetectedText"),
                             CorruptedPackage.c_str());
                     }
                     else if (PurgeMode == MO_PRIVATE_PURGE_MODE_PURGE)
@@ -100,7 +104,9 @@ EXTERN_C HRESULT WINAPI MoPurgeCorruptedAppXPackages(
 
                             ::MoPrivateWriteLine(
                                 Context,
-                                L"Corrupted packages removed: %s.",
+                                Context->GetTranslation(
+                                    Context,
+                                    "RemovedText"),
                                 CorruptedPackage.c_str());
                         }
                         catch (winrt::hresult_error const& ex)

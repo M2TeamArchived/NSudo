@@ -1,0 +1,49 @@
+﻿## 
+## PROJECT:   Mouri Optimization Plugin
+## FILE:      Translations.toml
+## PURPOSE:   The English translation
+## 
+## LICENSE:   The MIT License
+## 
+## DEVELOPER: Mouri_Naruto (Mouri_Naruto AT Outlook.com)
+## 
+
+PurgeScanResultText = """
+Total amount of disk space you may gain:  %s.
+"""
+DetectedText = "Detected - %s."
+RemovedText = "Removed - %s."
+CompressedText = "Compressed - %s."
+UncompressedText = "Uncompressed - %s."
+SkippedText = "Skipped - %s."
+ModeText = "Mode: %s."
+ScanModeText = "Scan"
+PurgeModeText = "Purge"
+QueryModeText = "Query"
+EnableModeText = "Enable"
+DisableModeText = "Disable"
+CanceledModeText = "Canceled"
+
+MoUpdateAppXPackages_UpdateText = """
+Update: %s.
+"""
+MoUpdateAppXPackages_UpdateProgressText = """
+%s: Update progress %.0f%%.
+"""
+MoUpdateAppXPackages_UpdateCompletedText = """
+%s: Update completed.
+"""
+MoUpdateAppXPackages_NoUpdatesNoticeText = """
+All your trusted apps and games from Microsoft Store have the latest updates.
+"""
+
+MoPurgeCorruptedAppXPackages_NoPackagesText = """
+No corrupted packages were found.
+"""
+
+MoPurgeSystemRestorePoint_RestorePointName = """
+Created by Mouri Optimization Plugin System Restore Point Cleanup
+"""
+
+MoManageCompactOS_EnabledText = "CompactOS is Enabled."
+MoManageCompactOS_DisabledText = "CompactOS is Disabled."

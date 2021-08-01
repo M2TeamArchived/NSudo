@@ -48,14 +48,33 @@
   <ItemGroup>
     <None Include="MouriOptimizationPlugin.def" />
     <None Include="MouriOptimizationPlugin.props" />
+    <None Include="Resources\en\Translations.toml">
+      <Filter>Resources\en</Filter>
+    </None>
+    <None Include="Resources\zh-Hans\Translations.toml">
+      <Filter>Resources\zh-Hans</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Mile.Project.Properties.h" />
     <ClInclude Include="MouriOptimizationPlugin.h" />
+    <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Modules">
       <UniqueIdentifier>{00d84d05-ab74-4945-a280-ceaa16f48c11}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{975787bd-9e79-429e-83a0-b4578db89622}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources\zh-Hans">
+      <UniqueIdentifier>{316a9b80-e875-4034-a240-e5ad2af7ef14}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources\en">
+      <UniqueIdentifier>{6da1b7a9-8f67-4f63-a326-f882ddf0eaf0}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="MouriOptimizationPlugin.rc" />
   </ItemGroup>
 </Project>

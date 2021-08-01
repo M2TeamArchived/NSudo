@@ -144,7 +144,7 @@ EXTERN_C HRESULT WINAPI MoPurgeWindowsEventLog(
                             &FileSize,
                             &cbUsed))
                         {
-                            // 如果获取成功且类型正确，则返回日志大小
+                            // If succeed and the type is OK, return the size.
                             if (EvtVarTypeUInt64 == FileSize.Type)
                                 AllocatedSpace += FileSize.UInt64Val;
                         }

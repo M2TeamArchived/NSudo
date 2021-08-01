@@ -87,7 +87,9 @@ namespace
                 {
                     ::MoPrivateWriteLine(
                         Context,
-                        L"Skipped - %s.",
+                        Context->GetTranslation(
+                            Context,
+                            "SkippedText"),
                         CurrentPath.c_str());
 
                     return TRUE;
@@ -135,7 +137,9 @@ namespace
                     {
                         ::MoPrivateWriteLine(
                             Context,
-                            L"Compressed - %s.",
+                            Context->GetTranslation(
+                                Context,
+                                "CompressedText"),
                             CurrentPath.c_str());
                     }
                     else
@@ -152,7 +156,9 @@ namespace
                 {
                     ::MoPrivateWriteLine(
                         Context,
-                        L"Skipped - %s.",
+                        Context->GetTranslation(
+                            Context,
+                            "SkippedText"),
                         CurrentPath.c_str());
                 }
 
@@ -270,7 +276,9 @@ namespace
                     {
                         ::MoPrivateWriteLine(
                             Context,
-                            L"Uncompressed - %s.",
+                            Context->GetTranslation(
+                                Context,
+                                "UncompressedText"),
                             CurrentPath.c_str());
                     }
                     else
@@ -287,7 +295,9 @@ namespace
                 {
                     ::MoPrivateWriteLine(
                         Context,
-                        L"Skipped - %s.",
+                        Context->GetTranslation(
+                            Context,
+                            "SkippedText"),
                         CurrentPath.c_str());
                 }
                 
@@ -364,12 +374,13 @@ EXTERN_C HRESULT WINAPI MoManageCompactOS(
             DWORD DeploymentState = 0;
             ::MoPrivateWriteLine(
                 Context,
-                L"CompactOS is %s.",
-                (Mile::GetCompactOsDeploymentState(
-                    &DeploymentState).IsSucceeded()
-                    && DeploymentState != FALSE)
-                ? L"Enabled"
-                : L"Disabled");
+                Context->GetTranslation(
+                    Context,
+                    (Mile::GetCompactOsDeploymentState(
+                        &DeploymentState).IsSucceeded()
+                        && DeploymentState != FALSE)
+                    ? "MoManageCompactOS_EnabledText"
+                    : "MoManageCompactOS_DisabledText"));
         }
         else if (PurgeMode == MO_PRIVATE_PURGE_MODE_ENABLE)
         {
