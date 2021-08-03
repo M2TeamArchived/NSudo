@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{F3E82C07-D4FD-45AD-9C7C-29C7FC210158}</ProjectGuid>
+    <RootNamespace>NSudoPluginHost</RootNamespace>
+    <MileProjectType>ConsoleApplication</MileProjectType>
+    <MileProjectManifestFile>NSudoPluginHost.manifest</MileProjectManifestFile>
+  </PropertyGroup>
+  <Import Project="..\Mile.Cpp\Mile.Project\Mile.Project.props" />
+  <Import Project="..\Mile.Cpp\Mile.Project\Mile.Project.VC-LTL.props" />
+  <Import Project="..\Mile.Cpp\Mile.Library\Mile.Library.props" />
+  <ImportGroup Label="PropertySheets">
+    <Import Project="..\NSudoSDK\NSudoSDK.props" />
+  </ImportGroup>
+  <ItemGroup>
+    <ClCompile Include="NSudoPluginHost.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="NSudoPluginHost.manifest" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Mile.Project.Properties.h" />
+  </ItemGroup>
+  <Import Project="..\Mile.Cpp\Mile.Project\Mile.Project.targets" />
+</Project>
