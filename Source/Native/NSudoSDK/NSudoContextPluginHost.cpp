@@ -119,9 +119,22 @@ VOID WINAPI NSudoContextWrite(
 
     if (PrivateContext)
     {
-        Mile::PiConsole::PrintMessage(
-            PrivateContext->PiConsoleWindowHandle,
-            Value);
+        if (PrivateContext->ConsoleMode)
+        {
+            DWORD NumberOfCharsWritten = 0;
+            ::WriteConsoleW(
+                PrivateContext->ConsoleOutputHandle,
+                Value,
+                static_cast<DWORD>(std::wcslen(Value)),
+                &NumberOfCharsWritten,
+                nullptr);
+        }
+        else
+        {
+            Mile::PiConsole::PrintMessage(
+                PrivateContext->PiConsoleWindowHandle,
+                Value);
+        }
     }
 }
 
@@ -159,9 +172,88 @@ LPCWSTR WINAPI NSudoContextReadLine(
 
     if (PrivateContext)
     {
-        return Mile::PiConsole::GetInput(
-            PrivateContext->PiConsoleWindowHandle,
-            InputPrompt);
+        if (PrivateContext->ConsoleMode)
+        {
+            wchar_t* InputBuffer = nullptr;
+            DWORD PreviousConsoleMode = 0;
+
+            do
+            {
+                if (!::GetConsoleMode(
+                    PrivateContext->ConsoleInputHandle,
+                    &PreviousConsoleMode))
+                {
+                    break;
+                }
+
+                if (!::SetConsoleMode(
+                    PrivateContext->ConsoleInputHandle,
+                    ENABLE_LINE_INPUT |
+                    ENABLE_PROCESSED_INPUT |
+                    ENABLE_ECHO_INPUT))
+                {
+                    break;
+                }
+
+                std::wstring Result;
+
+                for (;;)
+                {
+                    wchar_t CurrentChar = L'\0';
+                    DWORD NumberOfCharsRead = 0;
+
+                    if (!::ReadConsoleW(
+                        PrivateContext->ConsoleInputHandle,
+                        reinterpret_cast<LPVOID>(&CurrentChar),
+                        1,
+                        &NumberOfCharsRead,
+                        nullptr))
+                    {
+                        break;
+                    }
+
+                    if (CurrentChar == '\r')
+                    {
+                        continue;
+                    }
+                    else if (CurrentChar == '\n')
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        Result.push_back(CurrentChar);
+                    }
+                }
+
+                std::size_t InputResultLength =
+                    (Result.size() + 1) * sizeof(wchar_t);
+                InputBuffer = reinterpret_cast<wchar_t*>(
+                    Mile::HeapMemory::Allocate(InputResultLength));
+                if (InputBuffer)
+                {
+                    std::memcpy(
+                        InputBuffer,
+                        Result.c_str(),
+                        InputResultLength);
+                }
+
+                Result = Result;
+
+            } while (false);
+
+            ::SetConsoleMode(
+                PrivateContext->ConsoleInputHandle,
+                PreviousConsoleMode);
+
+            return InputBuffer;
+        }
+        else
+        {
+            return Mile::PiConsole::GetInput(
+                PrivateContext->PiConsoleWindowHandle,
+                InputPrompt);
+        }
     }
 
     return nullptr;

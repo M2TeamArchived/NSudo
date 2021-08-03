@@ -26,6 +26,9 @@ typedef struct _NSUDO_CONTEXT_PRIVATE
     SIZE_T Size;
 
     HWND PiConsoleWindowHandle;
+    HANDLE ConsoleInputHandle;
+    HANDLE ConsoleOutputHandle;
+    bool ConsoleMode;
 
     HMODULE ModuleHandle;
     LPCWSTR CommandArguments;
