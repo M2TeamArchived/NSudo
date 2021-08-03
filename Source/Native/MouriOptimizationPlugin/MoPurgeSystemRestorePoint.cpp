@@ -391,57 +391,65 @@ EXTERN_C HRESULT WINAPI MoPurgeSystemRestorePoint(
 {
     Mile::HResult hr = S_OK;
 
-    DWORD PurgeMode = ::MoPrivateParsePurgeMode(Context);
-    if (PurgeMode == MO_PRIVATE_PURGE_MODE_SCAN)
+    hr = ::CoInitializeEx(
+        nullptr,
+        COINIT_MULTITHREADED | COINIT_DISABLE_OLE1DDE);
+    if (hr.IsSucceeded())
     {
-        std::wstring Path =
-            Mile::ExpandEnvironmentStringsW(L"%SystemDrive%") + L"\\";
-        UINT64 AllocatedSpace = 0;
-        hr = ::QueryVssAllocatedSpace(
-            const_cast<LPWSTR>(Path.c_str()),
-            &AllocatedSpace);
-        if (hr.IsSucceeded())
+        DWORD PurgeMode = ::MoPrivateParsePurgeMode(Context);
+        if (PurgeMode == MO_PRIVATE_PURGE_MODE_SCAN)
         {
-            ::MoPrivatePrintPurgeScanResult(Context, AllocatedSpace);
-        }
-        else
-        {
-            ::MoPrivateWriteErrorMessage(
-                Context,
-                hr,
-                L"QueryVssAllocatedSpace");
-        }
-    }
-    else if (PurgeMode == MO_PRIVATE_PURGE_MODE_PURGE)
-    {
-        hr = ::DeleteAllVssSnapshots();
-        if (hr.IsSucceeded())
-        {
-            hr = ::CreateSystemRestorePoint(
-                RESTORE_POINT_EVENT_TYPE::BeginSystemChange,
-                RESTORE_POINT_TYPE::ManualCheckPoint,
-                Context->GetTranslation(
-                    Context,
-                    "MoPurgeSystemRestorePoint_RestorePointName"));
-            if (hr.IsFailed())
+            std::wstring Path =
+                Mile::ExpandEnvironmentStringsW(L"%SystemDrive%") + L"\\";
+            UINT64 AllocatedSpace = 0;
+            hr = ::QueryVssAllocatedSpace(
+                const_cast<LPWSTR>(Path.c_str()),
+                &AllocatedSpace);
+            if (hr.IsSucceeded())
+            {
+                ::MoPrivatePrintPurgeScanResult(Context, AllocatedSpace);
+            }
+            else
             {
                 ::MoPrivateWriteErrorMessage(
                     Context,
                     hr,
-                    L"CreateSystemRestorePoint");
+                    L"QueryVssAllocatedSpace");
+            }
+        }
+        else if (PurgeMode == MO_PRIVATE_PURGE_MODE_PURGE)
+        {
+            hr = ::DeleteAllVssSnapshots();
+            if (hr.IsSucceeded())
+            {
+                hr = ::CreateSystemRestorePoint(
+                    RESTORE_POINT_EVENT_TYPE::BeginSystemChange,
+                    RESTORE_POINT_TYPE::ManualCheckPoint,
+                    Context->GetTranslation(
+                        Context,
+                        "MoPurgeSystemRestorePoint_RestorePointName"));
+                if (hr.IsFailed())
+                {
+                    ::MoPrivateWriteErrorMessage(
+                        Context,
+                        hr,
+                        L"CreateSystemRestorePoint");
+                }
+            }
+            else
+            {
+                ::MoPrivateWriteErrorMessage(
+                    Context,
+                    hr,
+                    L"DeleteAllVssSnapshots");
             }
         }
         else
         {
-            ::MoPrivateWriteErrorMessage(
-                Context,
-                hr,
-                L"DeleteAllVssSnapshots");
+            hr = Mile::HResult::FromWin32(ERROR_CANCELLED);
         }
-    }
-    else
-    {
-        hr = Mile::HResult::FromWin32(ERROR_CANCELLED);
+
+        ::CoUninitialize();
     }
 
     ::MoPrivateWriteFinalResult(Context, hr);
