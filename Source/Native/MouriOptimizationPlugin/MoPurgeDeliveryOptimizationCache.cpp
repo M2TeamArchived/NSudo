@@ -51,146 +51,156 @@ EXTERN_C HRESULT WINAPI MoPurgeDeliveryOptimizationCache(
     Mile::HResult hr = S_OK;
     IUnknown* pInterface = nullptr;
 
-    do
+    hr = ::CoInitializeEx(
+        nullptr,
+        COINIT_MULTITHREADED | COINIT_DISABLE_OLE1DDE);
+    if (hr.IsSucceeded())
     {
-        DWORD PurgeMode = ::MoPrivateParsePurgeMode(Context);
-        if (PurgeMode == 0)
+        do
         {
-            hr = Mile::HResult::FromWin32(ERROR_CANCELLED);
-            break;
-        }
-
-        if (PurgeMode != MO_PRIVATE_PURGE_MODE_SCAN &&
-            PurgeMode != MO_PRIVATE_PURGE_MODE_PURGE)
-        {
-            hr = E_NOINTERFACE;
-            break;
-        }
-
-        const wchar_t DeliveryOptimizationCLSID[] =
-            L"{5B99FA76-721C-423C-ADAC-56D03C8A8007}";
-        const wchar_t DeliveryOptimizationIID[] =
-            L"{6692FD56-3B9B-433A-AC04-3FFB442556DD}";
-
-        hr = Mile::CoCreateInstanceByString(
-            DeliveryOptimizationCLSID,
-            0,
-            CLSCTX_LOCAL_SERVER,
-            DeliveryOptimizationIID,
-            reinterpret_cast<LPVOID*>(&pInterface));
-        if (hr.IsFailed())
-        {
-            ::MoPrivateWriteErrorMessage(
-                Context,
-                hr,
-                L"Mile::CoCreateInstanceByString");
-            break;
-        }
-
-        IDeliveryOptimizationCleanup* pCleanup = nullptr;
-        IDeliveryOptimizationMgrInternal* pMgrInternal = nullptr;
-
-        if (Mile::CoCheckInterfaceName(
-            DeliveryOptimizationIID,
-            L"IDeliveryOptimizationCleanup").IsSucceeded())
-        {
-            pCleanup = reinterpret_cast<IDeliveryOptimizationCleanup*>(
-                pInterface);
-        }
-        else if (Mile::CoCheckInterfaceName(
-            DeliveryOptimizationIID,
-            L"IDeliveryOptimizationMgrInternal").IsSucceeded())
-        {
-            pMgrInternal = reinterpret_cast<IDeliveryOptimizationMgrInternal*>(
-                pInterface);
-        }
-        else
-        {
-            hr = E_NOINTERFACE;
-            ::MoPrivateWriteErrorMessage(
-                Context,
-                hr,
-                L"Mile::CoCheckInterfaceName");
-            break;
-        }
-
-        if (PurgeMode == MO_PRIVATE_PURGE_MODE_SCAN)
-        {
-            UINT64 CacheSize = 0;
-            if (pCleanup)
+            DWORD PurgeMode = ::MoPrivateParsePurgeMode(Context);
+            if (PurgeMode == 0)
             {
-                hr = pCleanup->GetCacheSize(&CacheSize);
-            }
-            else if (pMgrInternal)
-            {
-                hr = pMgrInternal->GetCacheSize(&CacheSize);
-            }
-            else
-            {
-                hr = E_FAIL;
+                hr = Mile::HResult::FromWin32(ERROR_CANCELLED);
+                break;
             }
 
-            if (hr.IsSucceeded())
+            if (PurgeMode != MO_PRIVATE_PURGE_MODE_SCAN &&
+                PurgeMode != MO_PRIVATE_PURGE_MODE_PURGE)
             {
-                ::MoPrivatePrintPurgeScanResult(Context, CacheSize);
-            }
-            else
-            {
-                if (pCleanup)
-                {
-                    ::MoPrivateWriteErrorMessage(
-                        Context,
-                        hr,
-                        L"IDeliveryOptimizationCleanup::GetCacheSize");
-                }
-                else if (pMgrInternal)
-                {
-                    ::MoPrivateWriteErrorMessage(
-                        Context,
-                        hr,
-                        L"IDeliveryOptimizationMgrInternal::GetCacheSize");
-                }
-            }
-        }
-        else if (PurgeMode == MO_PRIVATE_PURGE_MODE_PURGE)
-        {
-            if (pCleanup)
-            {
-                hr = pCleanup->DeleteCache();
-            }
-            else if (pMgrInternal)
-            {
-                hr = pMgrInternal->DeleteCache();
-            }
-            else
-            {
-                hr = E_FAIL;
+                hr = E_NOINTERFACE;
+                break;
             }
 
+            const wchar_t DeliveryOptimizationCLSID[] =
+                L"{5B99FA76-721C-423C-ADAC-56D03C8A8007}";
+            const wchar_t DeliveryOptimizationIID[] =
+                L"{6692FD56-3B9B-433A-AC04-3FFB442556DD}";
+
+            hr = Mile::CoCreateInstanceByString(
+                DeliveryOptimizationCLSID,
+                0,
+                CLSCTX_LOCAL_SERVER,
+                DeliveryOptimizationIID,
+                reinterpret_cast<LPVOID*>(&pInterface));
             if (hr.IsFailed())
             {
+                ::MoPrivateWriteErrorMessage(
+                    Context,
+                    hr,
+                    L"Mile::CoCreateInstanceByString");
+                break;
+            }
+
+            IDeliveryOptimizationCleanup* pCleanup = nullptr;
+            IDeliveryOptimizationMgrInternal* pMgrInternal = nullptr;
+
+            if (Mile::CoCheckInterfaceName(
+                DeliveryOptimizationIID,
+                L"IDeliveryOptimizationCleanup").IsSucceeded())
+            {
+                pCleanup =
+                    reinterpret_cast<IDeliveryOptimizationCleanup*>(
+                        pInterface);
+            }
+            else if (Mile::CoCheckInterfaceName(
+                DeliveryOptimizationIID,
+                L"IDeliveryOptimizationMgrInternal").IsSucceeded())
+            {
+                pMgrInternal =
+                    reinterpret_cast<IDeliveryOptimizationMgrInternal*>(
+                        pInterface);
+            }
+            else
+            {
+                hr = E_NOINTERFACE;
+                ::MoPrivateWriteErrorMessage(
+                    Context,
+                    hr,
+                    L"Mile::CoCheckInterfaceName");
+                break;
+            }
+
+            if (PurgeMode == MO_PRIVATE_PURGE_MODE_SCAN)
+            {
+                UINT64 CacheSize = 0;
                 if (pCleanup)
                 {
-                    ::MoPrivateWriteErrorMessage(
-                        Context,
-                        hr,
-                        L"IDeliveryOptimizationCleanup::DeleteCache");
+                    hr = pCleanup->GetCacheSize(&CacheSize);
                 }
                 else if (pMgrInternal)
                 {
-                    ::MoPrivateWriteErrorMessage(
-                        Context,
-                        hr,
-                        L"IDeliveryOptimizationMgrInternal::DeleteCache");
+                    hr = pMgrInternal->GetCacheSize(&CacheSize);
+                }
+                else
+                {
+                    hr = E_FAIL;
+                }
+
+                if (hr.IsSucceeded())
+                {
+                    ::MoPrivatePrintPurgeScanResult(Context, CacheSize);
+                }
+                else
+                {
+                    if (pCleanup)
+                    {
+                        ::MoPrivateWriteErrorMessage(
+                            Context,
+                            hr,
+                            L"IDeliveryOptimizationCleanup::GetCacheSize");
+                    }
+                    else if (pMgrInternal)
+                    {
+                        ::MoPrivateWriteErrorMessage(
+                            Context,
+                            hr,
+                            L"IDeliveryOptimizationMgrInternal::GetCacheSize");
+                    }
                 }
             }
+            else if (PurgeMode == MO_PRIVATE_PURGE_MODE_PURGE)
+            {
+                if (pCleanup)
+                {
+                    hr = pCleanup->DeleteCache();
+                }
+                else if (pMgrInternal)
+                {
+                    hr = pMgrInternal->DeleteCache();
+                }
+                else
+                {
+                    hr = E_FAIL;
+                }
+
+                if (hr.IsFailed())
+                {
+                    if (pCleanup)
+                    {
+                        ::MoPrivateWriteErrorMessage(
+                            Context,
+                            hr,
+                            L"IDeliveryOptimizationCleanup::DeleteCache");
+                    }
+                    else if (pMgrInternal)
+                    {
+                        ::MoPrivateWriteErrorMessage(
+                            Context,
+                            hr,
+                            L"IDeliveryOptimizationMgrInternal::DeleteCache");
+                    }
+                }
+            }
+
+        } while (false);
+
+        if (pInterface)
+        {
+            pInterface->Release();
         }
 
-    } while (false);
-
-    if (pInterface)
-    {
-        pInterface->Release();
+        ::CoUninitialize();
     }
 
     ::MoPrivateWriteFinalResult(Context, hr);
