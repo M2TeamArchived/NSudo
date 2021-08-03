@@ -144,6 +144,13 @@ EXTERN_C HRESULT WINAPI MoPurgeWindowsEventLog(
                             &FileSize,
                             &cbUsed))
                         {
+                            ::MoPrivateWriteLine(
+                                Context,
+                                Context->GetTranslation(
+                                    Context,
+                                    "DetectedText"),
+                                ChannelBuffer);
+
                             // If succeed and the type is OK, return the size.
                             if (EvtVarTypeUInt64 == FileSize.Type)
                                 AllocatedSpace += FileSize.UInt64Val;
@@ -172,11 +179,20 @@ EXTERN_C HRESULT WINAPI MoPurgeWindowsEventLog(
                 }
                 else if (PurgeMode == MO_PRIVATE_PURGE_MODE_PURGE)
                 {
-                    if (!pEvtClearLog(
+                    if (pEvtClearLog(
                         nullptr,
                         reinterpret_cast<LPCWSTR>(ChannelBuffer),
                         nullptr,
                         0))
+                    {
+                        ::MoPrivateWriteLine(
+                            Context,
+                            Context->GetTranslation(
+                                Context,
+                                "ProcessedText"),
+                            ChannelBuffer);
+                    }
+                    else
                     {
                         ::MoPrivateWriteErrorMessage(
                             Context,
@@ -204,11 +220,20 @@ EXTERN_C HRESULT WINAPI MoPurgeWindowsEventLog(
                         // Clear System event log again in the end because when
                         // system event log will add new events when clearing
                         // the event log.
-                        if (!pEvtClearLog(
+                        if (pEvtClearLog(
                             nullptr,
                             L"System",
                             nullptr,
                             0))
+                        {
+                            ::MoPrivateWriteLine(
+                                Context,
+                                Context->GetTranslation(
+                                    Context,
+                                    "ProcessedText"),
+                                L"System");
+                        }
+                        else
                         {
                             ::MoPrivateWriteErrorMessage(
                                 Context,
