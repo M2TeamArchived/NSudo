@@ -16,6 +16,7 @@ RemovedText = "移除 - %s。"
 CompressedText = "压缩 - %s。"
 UncompressedText = "解压缩 - %s。"
 SkippedText = "跳过 - %s。"
+ProcessedText = "处理 - %s。"
 ModeText = "模式：%s。"
 ScanModeText = "扫描"
 PurgeModeText = "清理"
@@ -42,8 +43,7 @@ MoPurgeCorruptedAppXPackages_NoPackagesText = """
 """
 
 MoPurgeSystemRestorePoint_RestorePointName = """
-由毛利优化插件系统还原点清理创建
-"""
+由毛利优化插件系统还原点清理创建"""
 
 MoManageCompactOS_EnabledText = "CompactOS 已启用。"
 MoManageCompactOS_DisabledText = "CompactOS 已禁用。"

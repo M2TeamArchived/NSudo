@@ -16,6 +16,7 @@ RemovedText = "Removed - %s."
 CompressedText = "Compressed - %s."
 UncompressedText = "Uncompressed - %s."
 SkippedText = "Skipped - %s."
+ProcessedText = "Processed - %s."
 ModeText = "Mode: %s."
 ScanModeText = "Scan"
 PurgeModeText = "Purge"
@@ -42,8 +43,7 @@ No corrupted packages were found.
 """
 
 MoPurgeSystemRestorePoint_RestorePointName = """
-Created by Mouri Optimization Plugin System Restore Point Cleanup
-"""
+Created by Mouri Optimization Plugin System Restore Point Cleanup"""
 
 MoManageCompactOS_EnabledText = "CompactOS is Enabled."
 MoManageCompactOS_DisabledText = "CompactOS is Disabled."
