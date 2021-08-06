@@ -215,11 +215,14 @@ public:
 
         StringTranslations.emplace(std::make_pair(
             "NSudo.VersionText",
-            L"M2-Team NSudo Launcher " MILE_PROJECT_VERSION_STRING));
+            L"M2-Team NSudo Launcher " MILE_PROJECT_VERSION_STRING L" (Build "
+            MILE_PROJECT_MACRO_TO_STRING(MILE_PROJECT_VERSION_BUILD) L")"));
 
         StringTranslations.emplace(std::make_pair(
             "NSudo.LogoText",
-            L"M2-Team NSudo Launcher " MILE_PROJECT_VERSION_STRING L"\r\n"
+            L"M2-Team NSudo Launcher " MILE_PROJECT_VERSION_STRING L" (Build "
+            MILE_PROJECT_MACRO_TO_STRING(MILE_PROJECT_VERSION_BUILD) L")"
+            L"\r\n"
             L"© M2-Team. All rights reserved.\r\n"
             L"\r\n"));
 
@@ -1168,7 +1171,9 @@ int WINAPI wWinMain(
             LR_SHARED)),
         g_ResourceManagement.GetTranslation("NSudo.VersionText").c_str(),
         nShowCmd);
-
+    Context.ConsoleInputHandle = INVALID_HANDLE_VALUE;
+    Context.ConsoleOutputHandle = INVALID_HANDLE_VALUE;
+    Context.ConsoleMode = false;
 
     Context.PublicContext.WriteLine(
         &Context.PublicContext,
@@ -1178,9 +1183,15 @@ int WINAPI wWinMain(
     Context.PublicContext.WriteLine(
         &Context.PublicContext,
         L"");
+    /*Context.PublicContext.WriteLine(
+        &Context.PublicContext,
+        L"Here is a demo of a context plugin.");*/
     Context.PublicContext.WriteLine(
         &Context.PublicContext,
-        L"Here is a demo of a context plugin.");
+        L"DetailedVersionTag: 20210806_DennyAmaro");
+    Context.PublicContext.WriteLine(
+        &Context.PublicContext,
+        L"Under Construction. You should not use this version for production.");
     Context.PublicContext.WriteLine(
         &Context.PublicContext,
         L"");
@@ -1238,9 +1249,9 @@ int WINAPI wWinMain(
         &Context.PublicContext,
         MoPluginPath.c_str(),
         "MoPurgeCorruptedAppXPackages",
-        L"/Purge");
+        L"/Purge");*/
 
-    ::NSudoContextExecutePlugin(
+    /*::NSudoContextExecutePlugin(
         &Context.PublicContext,
         MoPluginPath.c_str(),
         "MoUpdateAppXPackages",
@@ -1258,15 +1269,29 @@ int WINAPI wWinMain(
         "MoPurgeNuGetCache",
         L"/Purge");*/
 
-    ::NSudoContextExecutePlugin(
+    /*::NSudoContextExecutePlugin(
         &Context.PublicContext,
         MoPluginPath.c_str(),
         "MoManageCompactOS",
-        L"/Enable");
+        L"/Enable");*/
 
+    /*::NSudoContextExecutePlugin(
+        &Context.PublicContext,
+        MoPluginPath.c_str(),
+        "MoPurgeChromiumCache",
+        L"/Scan");*/
 
+    /*::NSudoContextExecutePlugin(
+        &Context.PublicContext,
+        MoPluginPath.c_str(),
+        "MoPurgeTridentCache",
+        L"/Scan");*/
 
-
+    /*::NSudoContextExecutePlugin(
+        &Context.PublicContext,
+        MoPluginPath.c_str(),
+        "MoManageCompactOS",
+        L"/Enable");*/
 
     std::wstring ApplicationName;
     std::map<std::wstring, std::wstring> OptionsAndParameters;

@@ -201,11 +201,14 @@ public:
 
         StringTranslations.emplace(std::make_pair(
             "NSudo.VersionText",
-            L"M2-Team NSudo Launcher " MILE_PROJECT_VERSION_STRING));
+            L"M2-Team NSudo Launcher " MILE_PROJECT_VERSION_STRING L" (Build "
+            MILE_PROJECT_MACRO_TO_STRING(MILE_PROJECT_VERSION_BUILD) L")"));
 
         StringTranslations.emplace(std::make_pair(
             "NSudo.LogoText",
-            L"M2-Team NSudo Launcher " MILE_PROJECT_VERSION_STRING L"\r\n"
+            L"M2-Team NSudo Launcher " MILE_PROJECT_VERSION_STRING L" (Build "
+            MILE_PROJECT_MACRO_TO_STRING(MILE_PROJECT_VERSION_BUILD) L")"
+            L"\r\n"
             L"© M2-Team. All rights reserved.\r\n"
             L"\r\n"));
 

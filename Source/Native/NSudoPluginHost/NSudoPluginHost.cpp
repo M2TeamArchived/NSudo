@@ -34,17 +34,15 @@ int main()
 
     Context.PublicContext.Write(
         &Context.PublicContext,
-        //L"M2-Team NSudo Plugin Host " MILE_PROJECT_VERSION_STRING L"\r\n"
-        //L"© M2-Team. All rights reserved.\r\n"
-        //L"\r\n"  
-        //L"DetailedVersionTag: 20210731_DennyAmaro_v2"
+        L"NSudo Plugin Host " MILE_PROJECT_VERSION_STRING L" (Build "
+        MILE_PROJECT_MACRO_TO_STRING(MILE_PROJECT_VERSION_BUILD) L")" L"\r\n"
+        L"© M2-Team. All rights reserved.\r\n"
+        L"\r\n"
+        //L"DetailedVersionTag: 20210806_LegnaBrighost"
         //L"\r\n"
         //L"Under Construction. You should not use this version for production."
-        //L"\r\n"
-        L"NSudo Plugin Host " MILE_PROJECT_VERSION_STRING L"\r\n"
-        L"© M2-Team. All rights reserved.\r\n"
-        L"\r\n"    
-        L"内部版本标签：20210803_LegnaBrighost_v1\r\n"
+        //L"\r\n" 
+        L"内部版本标签：20210806_LegnaBrighost\r\n"
         L"\r\n"
         L"本版属于内部开发版本。您不应将此用于生产。\r\n"
         L"\r\n");
