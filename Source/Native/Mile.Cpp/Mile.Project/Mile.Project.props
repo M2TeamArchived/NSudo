@@ -20,8 +20,6 @@
     <MileProjectType>DynamicLibrary</MileProjectType>
   If the project is a static library project.
     <MileProjectType>StaticLibrary</MileProjectType>
-  If the project is a UEFI application project.
-    <MileProjectType>UefiApplication</MileProjectType>
 
   How to define the manifest file in the "Globals" label property group.
     <MileProjectManifestFile>C:\Folder\Manifest.manifest</MileProjectManifestFile>
@@ -71,8 +69,7 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Label="Configuration">
-    <ConfigurationType Condition="'$(MileProjectType)'=='ConsoleApplication'">Application</ConfigurationType>
-    <ConfigurationType Condition="'$(MileProjectType)'=='WindowsApplication'">Application</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <ConfigurationType Condition="'$(MileProjectType)'=='DynamicLibrary'">DynamicLibrary</ConfigurationType>
     <ConfigurationType Condition="'$(MileProjectType)'=='StaticLibrary'">StaticLibrary</ConfigurationType>
     <PlatformToolset>v142</PlatformToolset>
@@ -80,7 +77,6 @@
     <UseDebugLibraries Condition="'$(Configuration)'=='Debug'">true</UseDebugLibraries>
     <UseDebugLibraries Condition="'$(Configuration)'=='Release'">false</UseDebugLibraries>
     <WholeProgramOptimization Condition="'$(Configuration)'=='Release'">true</WholeProgramOptimization>
-    <WholeProgramOptimization Condition="'$(MileProjectType)'=='UefiApplication'">false</WholeProgramOptimization>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <PropertyGroup>
@@ -90,11 +86,6 @@
     <LinkIncremental Condition="'$(Configuration)'=='Release'">false</LinkIncremental>
     <GenerateManifest>false</GenerateManifest>
     <IncludePath>$(MSBuildThisFileDirectory);$(IncludePath)</IncludePath>
-    <TargetExt Condition="'$(MileProjectType)'=='UefiApplication'">.efi</TargetExt>
-    <LinkIncremental Condition="'$(MileProjectType)'=='UefiApplication'">false</LinkIncremental>
-    <UefiApplicationResourceIncludePath Condition="'$(MileProjectType)'=='UefiApplication'">$(IncludePath)</UefiApplicationResourceIncludePath>
-    <IncludePath Condition="'$(MileProjectType)'=='UefiApplication'"></IncludePath>
-    <ExternalIncludePath Condition="'$(MileProjectType)'=='UefiApplication'"></ExternalIncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
@@ -104,14 +95,11 @@
       <TreatWarningAsError>true</TreatWarningAsError>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalOptions>/d2FH4- %(AdditionalOptions)</AdditionalOptions>
       <EnableEnhancedInstructionSet Condition="'$(Platform)'=='Win32'">NoExtensions</EnableEnhancedInstructionSet>
       <PreprocessorDefinitions Condition="'$(Platform)'=='Win32'">WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)'=='Debug'">_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <RuntimeLibrary Condition="'$(Configuration)'=='Debug'">MultiThreadedDebug</RuntimeLibrary>
       <Optimization Condition="'$(Configuration)'=='Debug'">Disabled</Optimization>
       <PreprocessorDefinitions Condition="'$(Configuration)'=='Release'">NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <RuntimeLibrary Condition="'$(Configuration)'=='Release'">MultiThreaded</RuntimeLibrary>
       <Optimization Condition="'$(Configuration)'=='Release'">MaxSpeed</Optimization>
       <FunctionLevelLinking Condition="'$(Configuration)'=='Release'">true</FunctionLevelLinking>
       <IntrinsicFunctions Condition="'$(Configuration)'=='Release'">true</IntrinsicFunctions>
@@ -119,16 +107,6 @@
       <PreprocessorDefinitions Condition="'$(MileProjectType)'=='WindowsApplication'">_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(MileProjectType)'=='DynamicLibrary'">_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(MileProjectType)'=='StaticLibrary'">_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <SDLCheck Condition="'$(MileProjectType)'=='UefiApplication'">false</SDLCheck>
-      <DebugInformationFormat Condition="'$(MileProjectType)'=='UefiApplication'">ProgramDatabase</DebugInformationFormat>
-      <ExceptionHandling Condition="'$(MileProjectType)'=='UefiApplication'">false</ExceptionHandling>
-      <BasicRuntimeChecks Condition="'$(MileProjectType)'=='UefiApplication'">Default</BasicRuntimeChecks>
-      <BufferSecurityCheck Condition="'$(MileProjectType)'=='UefiApplication'">false</BufferSecurityCheck>
-      <ControlFlowGuard Condition="'$(MileProjectType)'=='UefiApplication'">false</ControlFlowGuard>
-      <FunctionLevelLinking Condition="'$(MileProjectType)'=='UefiApplication'">false</FunctionLevelLinking>
-      <IntrinsicFunctions Condition="'$(MileProjectType)'=='UefiApplication'">false</IntrinsicFunctions>
-      <AdditionalOptions Condition="'$(MileProjectType)'=='UefiApplication'">/Oi- %(AdditionalOptions)</AdditionalOptions>
-      <WholeProgramOptimization Condition="'$(MileProjectType)'=='UefiApplication'">false</WholeProgramOptimization>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -138,18 +116,9 @@
       <SubSystem Condition="'$(MileProjectType)'=='WindowsApplication'">Windows</SubSystem>
       <SubSystem Condition="'$(MileProjectType)'=='DynamicLibrary'">Windows</SubSystem>
       <SubSystem Condition="'$(MileProjectType)'=='StaticLibrary'"></SubSystem>
-      <SubSystem Condition="'$(MileProjectType)'=='UefiApplication'">EFI Application</SubSystem>
-      <Driver Condition="'$(MileProjectType)'=='UefiApplication'">Driver</Driver>
-      <AdditionalDependencies Condition="'$(MileProjectType)'=='UefiApplication'">%(AdditionalDependencies)</AdditionalDependencies>
-      <IgnoreAllDefaultLibraries Condition="'$(MileProjectType)'=='UefiApplication'">true</IgnoreAllDefaultLibraries>
-      <RandomizedBaseAddress Condition="'$(MileProjectType)'=='UefiApplication'">
-      </RandomizedBaseAddress>
-      <DataExecutionPrevention Condition="'$(MileProjectType)'=='UefiApplication'">
-      </DataExecutionPrevention>
     </Link>
     <ResourceCompile Condition="'$(MileProjectType)'!='StaticLibrary'">
       <PreprocessorDefinitions Condition="'$(MileProjectManifestFile)'!=''">_MILE_PROJECT_MANIFEST_FILE=$([System.String]::Copy('$(MileProjectManifestFile)').Replace('\','\\'));%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories Condition="'$(MileProjectType)'=='UefiApplication'">$(UefiApplicationResourceIncludePath);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories>$(ProjectDir);$(MSBuildThisFileDirectory);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
   </ItemDefinitionGroup>

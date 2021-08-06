@@ -6,7 +6,7 @@
     <MileProjectType>StaticLibrary</MileProjectType>
   </PropertyGroup>
   <Import Project="..\Mile.Project\Mile.Project.props" />
-  <Import Project="..\Mile.Project\Mile.Project.VC-LTL.props" />
+  <Import Project="..\Mile.Project\Mile.Project.Runtime.VC-LTL.props" />
   <ItemGroup>
     <None Include="Mile.Library.props" />
   </ItemGroup>
