@@ -1980,6 +1980,16 @@ namespace Mile
         std::wstring const& Utf16String);
 
     /**
+     * @brief Converts from the UTF-16 string to the string encoded with the
+     *        console code page.
+     * @param Utf16String The UTF-16 string you want to convert.
+     * @return A converted string encoded with the console code page if
+     *         successful, an empty string otherwise.
+    */
+    std::string ToConsoleString(
+        std::wstring const& Utf16String);
+
+    /**
      * @brief Retrieves the path of the system directory. The system directory
      *        contains system files such as dynamic-link libraries and drivers.
      * @return The path of the system directory if successful, an empty string

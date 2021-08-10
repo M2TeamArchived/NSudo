@@ -1836,6 +1836,40 @@ std::string Mile::ToUtf8String(
     return Utf8String;
 }
 
+std::string Mile::ToConsoleString(
+    std::wstring const& Utf16String)
+{
+    std::string ConsoleString;
+
+    UINT CurrentCodePage = ::GetConsoleOutputCP();
+
+    int ConsoleStringLength = ::WideCharToMultiByte(
+        CurrentCodePage,
+        0,
+        Utf16String.data(),
+        static_cast<int>(Utf16String.size()),
+        nullptr,
+        0,
+        nullptr,
+        nullptr);
+    if (ConsoleStringLength > 0)
+    {
+        ConsoleString.resize(ConsoleStringLength);
+        ConsoleStringLength = ::WideCharToMultiByte(
+            CurrentCodePage,
+            0,
+            Utf16String.data(),
+            static_cast<int>(Utf16String.size()),
+            &ConsoleString[0],
+            ConsoleStringLength,
+            nullptr,
+            nullptr);
+        ConsoleString.resize(ConsoleStringLength);
+    }
+
+    return ConsoleString;
+}
+
 std::wstring Mile::GetSystemDirectoryW()
 {
     std::wstring Path;
