@@ -1,6 +1,9 @@
 ﻿# 毛利优化插件 简易使用方法
 
-注：仅适用于 NSudo_9.0_Preview1_PluginOnly_20210803_LegnaBrighost_v1.zip 的版本
+## 适用的内部版本发行包
+
+- NSudo_9.0_Preview1_PluginOnly_20210803_LegnaBrighost_v1.zip
+- NSudo_9.0.2654.0_Preview1_StandaloneMoPlugin_LegnaBrighost.20210806.zip
 
 ## MoDefragMemory
 
