@@ -327,12 +327,12 @@ public:
                 if (FileContent)
                 {
                     DWORD NumberOfBytesRead = 0;
-                    hr = Mile::ReadFile(
+                    if (::ReadFile(
                         FileHandle,
                         FileContent,
                         static_cast<DWORD>(FileSize),
-                        &NumberOfBytesRead);
-                    if (hr == S_OK)
+                        &NumberOfBytesRead,
+                        nullptr))
                     {
                         const char* JsonString = FileContent + 3;
                         std::size_t JsonStringLength = NumberOfBytesRead - 3;

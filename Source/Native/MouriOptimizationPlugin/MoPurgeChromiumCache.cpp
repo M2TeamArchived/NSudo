@@ -145,12 +145,12 @@ namespace
                     std::uint8_t Signature[sizeof(std::uint64_t)];
 
                     DWORD NumberOfBytesRead = 0;
-                    hr = Mile::ReadFile(
+                    if (::ReadFile(
                         CurrentHandle,
                         Signature,
                         static_cast<DWORD>(sizeof(Signature)),
-                        &NumberOfBytesRead);
-                    if (hr.IsSucceeded() &&
+                        &NumberOfBytesRead,
+                        nullptr) &&
                         NumberOfBytesRead == sizeof(Signature))
                     {
                         // Blockfile Index File Magic: 0xC103CAC3

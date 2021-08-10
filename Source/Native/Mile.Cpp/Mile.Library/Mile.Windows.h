@@ -1487,64 +1487,6 @@ namespace Mile
     BOOL IsDotsName(
         _In_ LPCWSTR Name);
 
-    /**
-     * @brief Reads data from the specified file or input/output (I/O) device.
-     *        Reads occur at the position specified by the file pointer if
-     *        supported by the device.
-     * @param hFile A handle to the device (for example, a file, file stream,
-     *              physical disk, volume, console buffer, tape drive, socket,
-     *              communications resource, mailslot, or pipe).
-     * @param lpBuffer A pointer to the buffer that receives the data read from
-     *                 a file or device. This buffer must remain valid for the
-     *                 duration of the read operation. The caller must not use
-     *                 this buffer until the read operation is completed.
-     * @param nNumberOfBytesToRead The maximum number of bytes to be read.
-     * @param lpNumberOfBytesRead A pointer to the variable that receives the
-     *                            number of bytes read when using a synchronous
-     *                            hFile parameter. Mile::ReadFile sets this
-     *                            value to zero before doing any work or error
-     *                            checking.
-     * @return An HResultFromLastError object An containing the HResult object
-     *         containing the error code.
-     * @remark For more information, see ReadFile.
-    */
-    HResultFromLastError ReadFile(
-        _In_ HANDLE hFile,
-        _Out_opt_ LPVOID lpBuffer,
-        _In_ DWORD nNumberOfBytesToRead,
-        _Out_ LPDWORD lpNumberOfBytesRead);
-
-    /**
-     * @brief Writes data to the specified file or input/output (I/O) device.
-     * @param hFile A handle to the device (for example, a file, file stream,
-     *              physical disk, volume, console buffer, tape drive, socket,
-     *              communications resource, mailslot, or pipe).
-     * @param lpBuffer A pointer to the buffer containing the data to be
-     *                 written to the file or device. This buffer must remain
-     *                 valid for the duration of the write operation. The
-     *                 caller must not use this buffer until the write
-     *                 operation is completed.
-     * @param nNumberOfBytesToWrite The number of bytes to be written to the
-     *                              file or device. A value of zero specifies a
-     *                              null write operation. The behavior of a
-     *                              null write operation depends on the
-     *                              underlying file system or communications
-     *                              technology.
-     * @param lpNumberOfBytesWritten A pointer to the variable that receives
-     *                               the number of bytes written when using a
-     *                               synchronous hFile parameter.
-     *                               Mile::WriteFile sets this value to zero
-     *                               before doing any work or error checking.
-     * @return An HResultFromLastError object An containing the HResult object
-     *         containing the error code.
-     * @remark For more information, see WriteFile.
-    */
-    HResultFromLastError WriteFile(
-        _In_ HANDLE hFile,
-        _In_opt_ LPCVOID lpBuffer,
-        _In_ DWORD nNumberOfBytesToWrite,
-        _Out_ LPDWORD lpNumberOfBytesWritten);
-
 #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
 
     /**
