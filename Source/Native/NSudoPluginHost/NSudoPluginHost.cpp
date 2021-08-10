@@ -42,9 +42,11 @@ int main()
         //L"\r\n"
         //L"Under Construction. You should not use this version for production."
         //L"\r\n" 
-        L"内部版本标签：20210806_LegnaBrighost\r\n"
+        /*L"内部版本标签：20210811\r\n"
         L"\r\n"
         L"本版属于内部开发版本。您不应将此用于生产。\r\n"
+        L"\r\n"*/
+        L"本版属于技术预览版本。您不应将此用于生产。\r\n"
         L"\r\n");
 
     std::wstring CommandLine = std::wstring(::GetCommandLineW());

@@ -1188,7 +1188,7 @@ int WINAPI wWinMain(
         L"Here is a demo of a context plugin.");*/
     Context.PublicContext.WriteLine(
         &Context.PublicContext,
-        L"DetailedVersionTag: 20210806_DennyAmaro");
+        L"DetailedVersionTag: DennyAmaro");
     Context.PublicContext.WriteLine(
         &Context.PublicContext,
         L"Under Construction. You should not use this version for production.");
