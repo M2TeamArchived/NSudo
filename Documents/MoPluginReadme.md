@@ -4,6 +4,23 @@
 
 - NSudo_9.0_Preview1_PluginOnly_20210803_LegnaBrighost_v1.zip
 - NSudo_9.0.2654.0_Preview1_StandaloneMoPlugin_LegnaBrighost.20210806.zip
+- NSudo_9.0.2659.0_TechnicalPreview_StandaloneMoPlugin.zip
+
+## 插件宿主下的使用示例
+
+- NSudoPluginHost MoPlugin.dll MoPurgeDeliveryOptimizationCache /Scan
+- NSudoPluginHost MoPlugin.dll MoPurgeDeliveryOptimizationCache /Purge
+- NSudoPluginHost MoPlugin.dll MoPurgeCorruptedAppXPackages /Scan
+- NSudoPluginHost MoPlugin.dll MoPurgePackageCache /Scan
+- NSudoPluginHost MoPlugin.dll MoPurgePackageCache /Purge
+- NSudoPluginHost MoPlugin.dll MoPurgeChromiumCache /Scan
+- NSudoPluginHost MoPlugin.dll MoPurgeChromiumCache /Purge
+- NSudoPluginHost MoPlugin.dll MoPurgeTridentCache /Scan
+- NSudoPluginHost MoPlugin.dll MoPurgeTridentCache /Purge
+- NSudoPluginHost MoPlugin.dll MoPurgeVisualStudioCodeCache /Scan
+- NSudoPluginHost MoPlugin.dll MoPurgeWindowsEventLog /Scan
+- NSudoPluginHost MoPlugin.dll MoPurgeWindowsEventLog /Purge
+- NSudoPluginHost MoPlugin.dll MoUpdateAppXPackages
 
 ## MoDefragMemory
 
