@@ -709,11 +709,13 @@ void NSudoPrintMsg(
     UNREFERENCED_PARAMETER(hInstance);
     UNREFERENCED_PARAMETER(hWnd);
 
+    std::string CurrentCodePageString = Mile::ToConsoleString(DialogContent);
+
     DWORD NumberOfCharsWritten = 0;
-    WriteConsoleW(
+    ::WriteFile(
         GetStdHandle(STD_OUTPUT_HANDLE),
-        DialogContent.c_str(),
-        (DWORD)DialogContent.size(),
+        CurrentCodePageString.c_str(),
+        static_cast<DWORD>(CurrentCodePageString.size()),
         &NumberOfCharsWritten,
         nullptr);
 }
@@ -730,15 +732,17 @@ HRESULT NSudoShowAboutDialog(
 
     UNREFERENCED_PARAMETER(hwndParent);
 
+    std::string CurrentCodePageString = Mile::ToConsoleString(DialogContent);
+
     DWORD NumberOfCharsWritten = 0;
-    WriteConsoleW(
+    ::WriteFile(
         GetStdHandle(STD_OUTPUT_HANDLE),
-        DialogContent.c_str(),
-        (DWORD)DialogContent.size(),
+        CurrentCodePageString.c_str(),
+        static_cast<DWORD>(CurrentCodePageString.size()),
         &NumberOfCharsWritten,
         nullptr);
 
-    return ::HRESULT_FROM_WIN32(::GetLastError());
+    return Mile::HResultFromLastError();
 }
 
 int main()

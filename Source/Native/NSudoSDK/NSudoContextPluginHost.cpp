@@ -121,11 +121,13 @@ VOID WINAPI NSudoContextWrite(
     {
         if (PrivateContext->ConsoleMode)
         {
+            std::string CurrentCodePageString = Mile::ToConsoleString(Value);
+
             DWORD NumberOfCharsWritten = 0;
-            ::WriteConsoleW(
+            ::WriteFile(
                 PrivateContext->ConsoleOutputHandle,
-                Value,
-                static_cast<DWORD>(std::wcslen(Value)),
+                CurrentCodePageString.c_str(),
+                static_cast<DWORD>(CurrentCodePageString.size()),
                 &NumberOfCharsWritten,
                 nullptr);
         }
