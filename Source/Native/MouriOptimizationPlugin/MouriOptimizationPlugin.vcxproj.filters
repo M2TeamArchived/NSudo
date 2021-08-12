@@ -44,6 +44,9 @@
     <ClCompile Include="MoPurgeVisualStudioInstallerCache.cpp">
       <Filter>Modules</Filter>
     </ClCompile>
+    <ClCompile Include="MoPurgeGeckoCache.cpp">
+      <Filter>Modules</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="MouriOptimizationPlugin.def" />

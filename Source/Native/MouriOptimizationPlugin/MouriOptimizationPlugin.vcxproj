@@ -23,6 +23,7 @@
     <ClCompile Include="MoManageCompactOS.cpp" />
     <ClCompile Include="MoPurgeCorruptedAppXPackages.cpp" />
     <ClCompile Include="MoPurgeDeliveryOptimizationCache.cpp" />
+    <ClCompile Include="MoPurgeGeckoCache.cpp" />
     <ClCompile Include="MoPurgeNuGetCache.cpp" />
     <ClCompile Include="MoPurgePackageCache.cpp" />
     <ClCompile Include="MoPurgeSystemRestorePoint.cpp" />

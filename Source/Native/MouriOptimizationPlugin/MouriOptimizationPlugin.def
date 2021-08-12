@@ -17,3 +17,4 @@ MoPurgeChromiumCache
 MoPurgeTridentCache
 MoPurgePackageCache
 MoPurgeVisualStudioInstallerCache
+MoPurgeGeckoCache
