@@ -66,17 +66,9 @@ EXTERN_C HRESULT WINAPI MoPurgeVisualStudioCodeCache(
                 CachePathList.push_back(Candidate);
             }
         }
-        if (CachePathList.empty())
-        {
-            hr = E_NOINTERFACE;
-            ::MoPrivateWriteErrorMessage(
-                Context,
-                E_NOINTERFACE,
-                L"MoPrivateGetProfilePathList");
-            break;
-        }
 
         UINT64 UsedSpace = 0;
+
         for (std::wstring const& CachePath : CachePathList)
         {
             if (PurgeMode == MO_PRIVATE_PURGE_MODE_SCAN)

@@ -127,7 +127,6 @@ EXTERN_C HRESULT WINAPI MoPurgeTridentCache(
 {
     Mile::HResult hr = S_OK;
     HANDLE PreviousContextTokenHandle = INVALID_HANDLE_VALUE;
-    std::vector<std::wstring> ProfilePathList;
 
     do
     {
@@ -156,19 +155,9 @@ EXTERN_C HRESULT WINAPI MoPurgeTridentCache(
             break;
         }
 
-        ProfilePathList = ::MoPrivateGetProfilePathList();
-        if (ProfilePathList.empty())
-        {
-            hr = E_NOINTERFACE;
-            ::MoPrivateWriteErrorMessage(
-                Context,
-                E_NOINTERFACE,
-                L"MoPrivateGetProfilePathList");
-            break;
-        }
-
         UINT64 UsedSpace = 0;
-        for (std::wstring const& ProfilePath : ProfilePathList)
+        
+        for (std::wstring const& ProfilePath : ::MoPrivateGetProfilePathList())
         {
             if (PurgeMode == MO_PRIVATE_PURGE_MODE_SCAN)
             {

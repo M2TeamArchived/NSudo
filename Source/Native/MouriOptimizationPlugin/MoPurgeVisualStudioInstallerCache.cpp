@@ -110,7 +110,6 @@ EXTERN_C HRESULT WINAPI MoPurgeVisualStudioInstallerCache(
     Mile::HResult hr = S_OK;
     HANDLE PreviousContextTokenHandle = INVALID_HANDLE_VALUE;
     HANDLE MSIExecuteEvent = nullptr;
-    std::wstring CachePath;
 
     do
     {
@@ -152,32 +151,27 @@ EXTERN_C HRESULT WINAPI MoPurgeVisualStudioInstallerCache(
             break;
         }
 
-        CachePath= Mile::ExpandEnvironmentStringsW(
+        std::wstring CachePath = Mile::ExpandEnvironmentStringsW(
             L"%SystemDrive%\\ProgramData\\Microsoft\\VisualStudio\\Packages");
-        if (!::MoPrivateIsFileExist(CachePath.c_str()))
-        {
-            hr = E_NOINTERFACE;
-            ::MoPrivateWriteErrorMessage(
-                Context,
-                E_NOINTERFACE,
-                L"MoPrivateGetProfilePathList");
-            break;
-        }
 
         UINT64 UsedSpace = 0;
-        if (PurgeMode == MO_PRIVATE_PURGE_MODE_SCAN)
+
+        if (::MoPrivateIsFileExist(CachePath.c_str()))
         {
-            ::PurgeVisualStudioInstallerCacheWorker(
-                Context,
-                CachePath.c_str(),
-                &UsedSpace);
-        }
-        else if (PurgeMode == MO_PRIVATE_PURGE_MODE_PURGE)
-        {
-            ::PurgeVisualStudioInstallerCacheWorker(
-                Context,
-                CachePath.c_str(),
-                nullptr);
+            if (PurgeMode == MO_PRIVATE_PURGE_MODE_SCAN)
+            {
+                ::PurgeVisualStudioInstallerCacheWorker(
+                    Context,
+                    CachePath.c_str(),
+                    &UsedSpace);
+            }
+            else if (PurgeMode == MO_PRIVATE_PURGE_MODE_PURGE)
+            {
+                ::PurgeVisualStudioInstallerCacheWorker(
+                    Context,
+                    CachePath.c_str(),
+                    nullptr);
+            }
         }
 
         if (PurgeMode == MO_PRIVATE_PURGE_MODE_SCAN)

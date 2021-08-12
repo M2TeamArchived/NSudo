@@ -189,15 +189,6 @@ EXTERN_C HRESULT WINAPI MoPurgeNuGetCache(
                 PackagePathList.push_back(Candidate);
             }
         }
-        if (CachePathList.empty() && PackagePathList.empty())
-        {
-            hr = E_NOINTERFACE;
-            ::MoPrivateWriteErrorMessage(
-                Context,
-                E_NOINTERFACE,
-                L"MoPrivateGetProfilePathList");
-            break;
-        }
 
         UINT64 UsedSpace = 0;
 
