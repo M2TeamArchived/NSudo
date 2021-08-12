@@ -1,175 +1,193 @@
 ﻿# 毛利优化插件 简易使用方法
 
-## 适用的内部版本发行包
+## 适用版本
 
-- NSudo_9.0_Preview1_PluginOnly_20210803_LegnaBrighost_v1.zip
-- NSudo_9.0.2654.0_Preview1_StandaloneMoPlugin_LegnaBrighost.20210806.zip
-- NSudo_9.0.2659.0_TechnicalPreview_StandaloneMoPlugin.zip
-
-## 插件宿主下的使用示例
-
-- NSudoPluginHost MoPlugin.dll MoPurgeDeliveryOptimizationCache /Scan
-- NSudoPluginHost MoPlugin.dll MoPurgeDeliveryOptimizationCache /Purge
-- NSudoPluginHost MoPlugin.dll MoPurgeCorruptedAppXPackages /Scan
-- NSudoPluginHost MoPlugin.dll MoPurgePackageCache /Scan
-- NSudoPluginHost MoPlugin.dll MoPurgePackageCache /Purge
-- NSudoPluginHost MoPlugin.dll MoPurgeChromiumCache /Scan
-- NSudoPluginHost MoPlugin.dll MoPurgeChromiumCache /Purge
-- NSudoPluginHost MoPlugin.dll MoPurgeTridentCache /Scan
-- NSudoPluginHost MoPlugin.dll MoPurgeTridentCache /Purge
-- NSudoPluginHost MoPlugin.dll MoPurgeVisualStudioCodeCache /Scan
-- NSudoPluginHost MoPlugin.dll MoPurgeWindowsEventLog /Scan
-- NSudoPluginHost MoPlugin.dll MoPurgeWindowsEventLog /Purge
-- NSudoPluginHost MoPlugin.dll MoUpdateAppXPackages
+- 9.0.2660.0
 
 ## MoDefragMemory
 
-### 插件功能
+### 功能
 
-内存碎片整理
+内存碎片整理，通过把物理内存中的大部分内存交换到页面文件实现。
 
-### 插件参数
+### 用法
 
-无
+> NSudoPluginHost MoPlugin.dll MoDefragMemory
 
 ## MoEnableMicrosoftUpdate
 
-### 插件功能
+### 功能
 
-开启 Microsoft Update
+开启 Windows Update 中“更新 Windows 时提供其他 Microsoft 产品的更新”的选项
 
-### 插件参数
+### 用法
 
-无
+> NSudoPluginHost MoPlugin.dll MoEnableMicrosoftUpdate
 
 ## MoManageCompactOS
 
-### 插件功能
+### 功能
 
 CompactOS 管理
 
-### 插件参数
+### 用法
 
 - `/Query` 查询 CompactOS 状态
+  > NSudoPluginHost MoPlugin.dll MoManageCompactOS /Query
 - `/Enable` 启用 CompactOS
+  > NSudoPluginHost MoPlugin.dll MoManageCompactOS /Enable
 - `/Disable` 禁用 CompactOS
+  > NSudoPluginHost MoPlugin.dll MoManageCompactOS /Disable
 
 ## MoPurgeChromiumCache
 
-### 插件功能
+### 功能
 
 Chromium 内核缓存清理
 
-### 插件参数
+### 用法
 
 - `/Scan` 扫描
+  > NSudoPluginHost MoPlugin.dll MoPurgeChromiumCache /Scan
 - `/Purge` 清理
+  > NSudoPluginHost MoPlugin.dll MoPurgeChromiumCache /Purge
 
 ## MoPurgeCorruptedAppXPackages
 
-### 插件功能
+### 功能
 
 损坏的 AppX 包清理
 
-### 插件参数
+### 用法
 
 - `/Scan` 扫描
+  > NSudoPluginHost MoPlugin.dll MoPurgeCorruptedAppXPackages /Scan
 - `/Purge` 清理
+  > NSudoPluginHost MoPlugin.dll MoPurgeCorruptedAppXPackages /Purge
 
 ## MoPurgeDeliveryOptimizationCache
 
-### 插件功能
+### 功能
 
 传递优化缓存清理
 
-### 插件参数
+### 用法
 
 - `/Scan` 扫描
+  > NSudoPluginHost MoPlugin.dll MoPurgeDeliveryOptimizationCache /Scan
 - `/Purge` 清理
+  > NSudoPluginHost MoPlugin.dll MoPurgeDeliveryOptimizationCache /Purge
+
+## MoPurgeGeckoCache
+
+### 功能
+
+Gecko 内核缓存清理
+
+### 用法
+
+- `/Scan` 扫描
+  > NSudoPluginHost MoPlugin.dll MoPurgeGeckoCache /Scan
+- `/Purge` 清理
+  > NSudoPluginHost MoPlugin.dll MoPurgeGeckoCache /Purge
 
 ## MoPurgeNuGetCache
 
-### 插件功能
+### 功能
 
-NuGet 缓存清理
+NuGet 缓存安全清理
 
-### 插件参数
+### 用法
 
 - `/Scan` 扫描
+  > NSudoPluginHost MoPlugin.dll MoPurgeNuGetCache /Scan
 - `/Purge` 清理
+  > NSudoPluginHost MoPlugin.dll MoPurgeNuGetCache /Purge
 
 ## MoPurgePackageCache
 
-### 插件功能
+### 功能
 
-Package Cache 目录清理
+Package Cache 目录安全清理
 
-### 插件参数
+### 用法
 
 - `/Scan` 扫描
+  > NSudoPluginHost MoPlugin.dll MoPurgePackageCache /Scan
 - `/Purge` 清理
+  > NSudoPluginHost MoPlugin.dll MoPurgePackageCache /Purge
 
 ## MoPurgeSystemRestorePoint
 
-### 插件功能
+### 功能
 
 系统还原点清理
 
-### 插件参数
+### 用法
 
 - `/Scan` 扫描
+  > NSudoPluginHost MoPlugin.dll MoPurgeSystemRestorePoint /Scan
 - `/Purge` 清理
+  > NSudoPluginHost MoPlugin.dll MoPurgeSystemRestorePoint /Purge
 
 ## MoPurgeTridentCache
 
-### 插件功能
+### 功能
 
 Trident (MSHTML 和 EdgeHtml) 内核缓存清理
 
-### 插件参数
+### 用法
 
 - `/Scan` 扫描
+  > NSudoPluginHost MoPlugin.dll MoPurgeTridentCache /Scan
 - `/Purge` 清理
+  > NSudoPluginHost MoPlugin.dll MoPurgeTridentCache /Purge
 
 ## MoPurgeVisualStudioCodeCache
 
-### 插件功能
+### 功能
 
 Visual Studio Code 缓存清理
 
-### 插件参数
+### 用法
 
 - `/Scan` 扫描
+  > NSudoPluginHost MoPlugin.dll MoPurgeVisualStudioCodeCache /Scan
 - `/Purge` 清理
+  > NSudoPluginHost MoPlugin.dll MoPurgeVisualStudioCodeCache /Purge
 
 ## MoPurgeVisualStudioInstallerCache
 
-### 插件功能
+### 功能
 
-Visual Studio Installer 缓存清理
+Visual Studio Installer 缓存安全清理
 
-### 插件参数
+### 用法
 
 - `/Scan` 扫描
+  > NSudoPluginHost MoPlugin.dll MoPurgeVisualStudioInstallerCache /Scan
 - `/Purge` 清理
+  > NSudoPluginHost MoPlugin.dll MoPurgeVisualStudioInstallerCache /Purge
 
 ## MoPurgeWindowsEventLog
 
-### 插件功能
+### 功能
 
 Windows 事件日志清理
 
-### 插件参数
+### 用法
 
 - `/Scan` 扫描
+  > NSudoPluginHost MoPlugin.dll MoPurgeWindowsEventLog /Scan
 - `/Purge` 清理
+  > NSudoPluginHost MoPlugin.dll MoPurgeWindowsEventLog /Purge
 
 ## MoUpdateAppXPackages
 
-### 插件功能
+### 功能
 
 Windows 商店应用一键升级
 
-### 插件参数
+### 用法
 
-无
+> NSudoPluginHost MoPlugin.dll MoUpdateAppXPackages
