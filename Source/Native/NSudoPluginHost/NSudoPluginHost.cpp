@@ -1,5 +1,5 @@
 ﻿/*
- * PROJECT:   NSudo Launcher
+ * PROJECT:   NSudo Plugin Host
  * FILE:      NSudoPluginHost.cpp
  * PURPOSE:   Implementation for NSudo Plugin Host
  *
@@ -41,7 +41,7 @@ int main()
         //L"DetailedVersionTag: 20210806_LegnaBrighost"
         //L"\r\n"
         //L"Under Construction. You should not use this version for production."
-        //L"\r\n" 
+        //L"\r\n"
         /*L"内部版本标签：20210811\r\n"
         L"\r\n"
         L"本版属于内部开发版本。您不应将此用于生产。\r\n"
@@ -57,7 +57,7 @@ int main()
         Context.PublicContext.Write(
             &Context.PublicContext,
             L"命令行参数错误。\r\n"
-            L"格式: NSudoPluginHost [ 插件模块名 ] [ 插件入口名 ] [插件参数]\r\n"
+            L"格式: NSudoPluginHost [ 模块名 ] [ 入口名 ] [ 参数 ]\r\n"
             L"注：插件模块必须与本二进制放在同一目录。\r\n"
             L"\r\n");
         return E_INVALIDARG;
@@ -84,7 +84,7 @@ int main()
         // Get the unresolved command line. Search for the beginning of
         // the first parameter delimiter called space and exclude the
         // first space by adding 1 to the result.
-        wchar_t* command = wcsstr(search_start, L" ") + 1;
+        wchar_t* command = ::wcsstr(search_start, L" ") + 1;
 
         // Omit the space. (Thanks to wzzw.)
         while (command && *command == L' ')
@@ -98,7 +98,7 @@ int main()
     std::wstring RootPath = Mile::GetCurrentProcessModulePath();
     std::wcsrchr(&RootPath[0], '\\')[0] = L'\0';
     RootPath.resize(std::wcslen(RootPath.c_str()));
-    
+
     HRESULT hr = ::NSudoContextExecutePlugin(
         &Context.PublicContext,
         (RootPath + L"\\" + PluginModuleName).c_str(),
