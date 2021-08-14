@@ -274,14 +274,7 @@ LPCWSTR WINAPI NSudoContextGetTranslation(
     PNSUDO_CONTEXT_PRIVATE PrivateContext = ::NSudoContextGetPrivate(Context);
     if (PrivateContext)
     {
-        try
-        {
-            return PrivateContext->Translations[Name].c_str();
-        }
-        catch (...)
-        {
-
-        }
+        return PrivateContext->Translations[Name].c_str();
     }
 
     return L"";
