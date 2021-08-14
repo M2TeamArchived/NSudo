@@ -14,11 +14,52 @@
 #include <vector>
 
 #include <NSudoContextPluginHost.h>
+#include <toml.hpp>
 
 #include "Mile.Project.Properties.h"
 
 int main()
 {
+    // Fall back to English in unsupported environment. (Temporary Hack)
+    // Reference: https://github.com/M2Team/NSudo/issues/56
+    switch (PRIMARYLANGID(::GetThreadUILanguage()))
+    {
+    case LANG_ENGLISH:
+    case LANG_CHINESE:
+        break;
+    default:
+        ::SetThreadUILanguage(MAKELANGID(LANG_ENGLISH, SUBLANG_NEUTRAL));
+        break;
+    }
+
+    std::map<std::string, std::wstring> GlobalTranslations;
+
+    Mile::RESOURCE_INFO ResourceInfo = { 0 };
+    if (SUCCEEDED(Mile::LoadResource(
+        &ResourceInfo,
+        ::GetModuleHandleW(nullptr),
+        L"Translations",
+        MAKEINTRESOURCEW(1))))
+    {
+        try
+        {
+            toml::table Translations = toml::parse(std::string(
+                reinterpret_cast<const char*>(ResourceInfo.Pointer),
+                ResourceInfo.Size));
+            for (auto const& Translation : Translations)
+            {
+                GlobalTranslations.emplace(std::make_pair(
+                    Translation.first,
+                    Mile::ToUtf16String(
+                        Translation.second.value_or<std::string>(""))));
+            }
+        }
+        catch (...)
+        {
+
+        }
+    }
+
     NSUDO_CONTEXT_PRIVATE Context;
 
     ::NSudoContextFillFunctionTable(
@@ -36,18 +77,12 @@ int main()
         &Context.PublicContext,
         L"NSudo Plugin Host " MILE_PROJECT_VERSION_STRING L" (Build "
         MILE_PROJECT_MACRO_TO_STRING(MILE_PROJECT_VERSION_BUILD) L")" L"\r\n"
-        L"© M2-Team. All rights reserved.\r\n"
-        L"\r\n"
-        //L"DetailedVersionTag: 20210806_LegnaBrighost"
-        //L"\r\n"
-        //L"Under Construction. You should not use this version for production."
-        //L"\r\n"
-        /*L"内部版本标签：20210811\r\n"
-        L"\r\n"
-        L"本版属于内部开发版本。您不应将此用于生产。\r\n"
-        L"\r\n"*/
-        L"本版属于技术预览版本。您不应将此用于生产。\r\n"
+        L"(c) M2-Team. All rights reserved.\r\n"
         L"\r\n");
+
+    Context.PublicContext.Write(
+        &Context.PublicContext,
+        GlobalTranslations["WarningText"].c_str());
 
     std::wstring CommandLine = std::wstring(::GetCommandLineW());
 
@@ -56,10 +91,7 @@ int main()
     {
         Context.PublicContext.Write(
             &Context.PublicContext,
-            L"命令行参数错误。\r\n"
-            L"格式: NSudoPluginHost [ 模块名 ] [ 入口名 ] [ 参数 ]\r\n"
-            L"注：插件模块必须与本二进制放在同一目录。\r\n"
-            L"\r\n");
+            GlobalTranslations["CommandLineHelpText"].c_str());
         return E_INVALIDARG;
     }
 

@@ -8,5 +8,28 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Mile.Project.Properties.h" />
+    <ClInclude Include="resource.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{0e357701-8331-4610-8ae1-8322ee27262d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources\zh-Hans">
+      <UniqueIdentifier>{2ba69bf0-5858-40eb-be4b-2cca5f367307}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources\en">
+      <UniqueIdentifier>{4f55b135-ae2f-4ac1-baa7-d563b7f270ad}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\zh-Hans\Translations.toml">
+      <Filter>Resources\zh-Hans</Filter>
+    </None>
+    <None Include="Resources\en\Translations.toml">
+      <Filter>Resources\en</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="NSudoPluginHost.rc" />
   </ItemGroup>
 </Project>

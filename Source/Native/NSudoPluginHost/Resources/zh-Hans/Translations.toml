@@ -1,0 +1,23 @@
+﻿## 
+## PROJECT:   NSudo Plugin Host
+## FILE:      Translations.toml
+## PURPOSE:   The Chinese (Simplified) translation
+## 
+## LICENSE:   The MIT License
+## 
+## DEVELOPER: Mouri_Naruto (Mouri_Naruto AT Outlook.com)
+## 
+
+WarningText = """
+本版属于技术预览版本。您不应将此用于生产环境。
+
+"""
+
+CommandLineHelpText = """
+命令行参数错误。
+
+格式: NSudoPluginHost [ 模块名 ] [ 入口名 ] [ 参数 ]
+
+注：插件模块必须与本二进制放在同一目录。
+
+"""

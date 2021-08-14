@@ -20,6 +20,14 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Mile.Project.Properties.h" />
+    <ClInclude Include="resource.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\en\Translations.toml" />
+    <None Include="Resources\zh-Hans\Translations.toml" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="NSudoPluginHost.rc" />
   </ItemGroup>
   <Import Project="..\Mile.Cpp\Mile.Project\Mile.Project.targets" />
 </Project>

@@ -1,0 +1,24 @@
+﻿## 
+## PROJECT:   NSudo Plugin Host
+## FILE:      Translations.toml
+## PURPOSE:   The English translation
+## 
+## LICENSE:   The MIT License
+## 
+## DEVELOPER: Mouri_Naruto (Mouri_Naruto AT Outlook.com)
+## 
+
+WarningText = """
+This is a technical preview version, you should not use this version for
+production.
+
+"""
+
+CommandLineHelpText = """
+Invalid command line parameters.
+
+Format: NSudoPluginHost [ Module Name ] [ Entry Name ] [ Arguments ]
+
+P.S. Plugin module must be put to the same directory of this binary.
+
+"""
