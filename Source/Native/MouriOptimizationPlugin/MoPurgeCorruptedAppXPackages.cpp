@@ -30,7 +30,7 @@ EXTERN_C HRESULT WINAPI MoPurgeCorruptedAppXPackages(
     _In_ PNSUDO_CONTEXT Context)
 {
     Mile::HResult hr = S_OK;
-    std::vector<winrt::hstring> CorruptedPackages;
+    bool ApartmentInitialized = false;
 
     do
     {
@@ -51,6 +51,9 @@ EXTERN_C HRESULT WINAPI MoPurgeCorruptedAppXPackages(
         try
         {
             winrt::init_apartment();
+            ApartmentInitialized = true;
+
+            std::vector<winrt::hstring> CorruptedPackages;
 
             winrt::PackageManager PackageManager;
             for (winrt::Package Package : PackageManager.FindPackages())
@@ -122,8 +125,6 @@ EXTERN_C HRESULT WINAPI MoPurgeCorruptedAppXPackages(
                     }
                 }
             }
-
-            winrt::uninit_apartment();
         }
         catch (winrt::hresult_error const& ex)
         {
@@ -131,6 +132,11 @@ EXTERN_C HRESULT WINAPI MoPurgeCorruptedAppXPackages(
         }
 
     } while (false);
+
+    if (ApartmentInitialized)
+    {
+        winrt::uninit_apartment();
+    }
 
     ::MoPrivateWriteFinalResult(Context, hr);
 

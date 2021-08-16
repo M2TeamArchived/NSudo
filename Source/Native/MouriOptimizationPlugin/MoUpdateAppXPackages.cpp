@@ -27,19 +27,13 @@ EXTERN_C HRESULT WINAPI MoUpdateAppXPackages(
     _In_ PNSUDO_CONTEXT Context)
 {
     Mile::HResult hr = S_OK;
+    bool ApartmentInitialized = false;
     std::vector<HANDLE> CompletedSignals;
-
-    auto ExitHandler = Mile::ScopeExitTaskHandler([&]()
-    {
-        for (HANDLE CompletedSignal : CompletedSignals)
-        {
-            ::CloseHandle(CompletedSignal);
-        }
-    });
 
     try
     {
         winrt::init_apartment();
+        ApartmentInitialized = true;
 
         winrt::AppInstallManager AppInstallManager;
         winrt::IVectorView<winrt::AppInstallItem> InstallList =
@@ -128,12 +122,20 @@ EXTERN_C HRESULT WINAPI MoUpdateAppXPackages(
                 INFINITE,
                 FALSE);
         }
-
-        winrt::uninit_apartment();
     }
     catch (winrt::hresult_error const& ex)
     {
         hr = static_cast<HRESULT>(ex.code());
+    }
+
+    for (HANDLE CompletedSignal : CompletedSignals)
+    {
+        ::CloseHandle(CompletedSignal);
+    }
+
+    if (ApartmentInitialized)
+    {
+        winrt::uninit_apartment();
     }
 
     ::MoPrivateWriteFinalResult(Context, hr);
