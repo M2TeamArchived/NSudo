@@ -8,9 +8,7 @@
 ## DEVELOPER: Mouri_Naruto (Mouri_Naruto AT Outlook.com)
 ## 
 
-PurgeScanResultText = """
-预估可获得的磁盘空间总量：%s。
-"""
+PurgeScanResultText = "预估可获得的磁盘空间总量：%s。"
 DetectedText = "发现 - %s。"
 RemovedText = "移除 - %s。"
 CompressedText = "压缩 - %s。"
@@ -26,21 +24,16 @@ DisableModeText = "禁用"
 CanceledModeText = "已取消"
 
 MoUpdateAppXPackages_UpdateText = """
-正在升级：%s.
-"""
+正在升级：%s."""
 MoUpdateAppXPackages_UpdateProgressText = """
-%s：升级进度 %.0f%%。
-"""
+%s：升级进度 %.0f%%。"""
 MoUpdateAppXPackages_UpdateCompletedText = """
-%s：升级完毕。
-"""
+%s：升级完毕。"""
 MoUpdateAppXPackages_NoUpdatesNoticeText = """
-你从 Microsoft Store 获取的所有受信任的应用和游戏已更新为最新版本。
-"""
+你从 Microsoft Store 获取的所有受信任的应用和游戏已更新为最新版本。"""
 
 MoPurgeCorruptedAppXPackages_NoPackagesText = """
-未发现损坏包。
-"""
+未发现损坏包。"""
 
 MoPurgeSystemRestorePoint_RestorePointName = """
 由毛利优化插件系统还原点清理创建"""

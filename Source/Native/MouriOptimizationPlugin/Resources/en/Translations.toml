@@ -8,9 +8,7 @@
 ## DEVELOPER: Mouri_Naruto (Mouri_Naruto AT Outlook.com)
 ## 
 
-PurgeScanResultText = """
-Total amount of disk space you may gain:  %s.
-"""
+PurgeScanResultText = "Total amount of disk space you may gain:  %s."
 DetectedText = "Detected - %s."
 RemovedText = "Removed - %s."
 CompressedText = "Compressed - %s."
@@ -26,21 +24,16 @@ DisableModeText = "Disable"
 CanceledModeText = "Canceled"
 
 MoUpdateAppXPackages_UpdateText = """
-Update: %s.
-"""
+Update: %s."""
 MoUpdateAppXPackages_UpdateProgressText = """
-%s: Update progress %.0f%%.
-"""
+%s: Update progress %.0f%%."""
 MoUpdateAppXPackages_UpdateCompletedText = """
-%s: Update completed.
-"""
+%s: Update completed."""
 MoUpdateAppXPackages_NoUpdatesNoticeText = """
-All your trusted apps and games from Microsoft Store have the latest updates.
-"""
+All your trusted apps and games from Microsoft Store have the latest updates."""
 
 MoPurgeCorruptedAppXPackages_NoPackagesText = """
-No corrupted packages were found.
-"""
+No corrupted packages were found."""
 
 MoPurgeSystemRestorePoint_RestorePointName = """
 Created by Mouri Optimization Plugin System Restore Point Cleanup"""
