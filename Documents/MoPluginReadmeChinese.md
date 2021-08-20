@@ -2,7 +2,7 @@
 
 ## 适用版本
 
-- 9.0.2662.0
+- 9.0.2668.0
 
 ## MoDefragMemory
 
@@ -43,7 +43,8 @@ CompactOS 管理
 
 ### 功能
 
-Chromium 内核缓存清理
+基于 Chromium 的应用程序的 Web 缓存清理，包括 Chrome、基于 Chromium 的 Edge 和
+基于 Electron 的应用程序等
 
 ### 用法
 
@@ -82,7 +83,7 @@ Chromium 内核缓存清理
 
 ### 功能
 
-Gecko 内核缓存清理
+基于 Gecko 的应用程序的 Web 缓存清理，包括 Firefox、Waterfox 和 Pale Moon 等
 
 ### 用法
 
@@ -134,7 +135,9 @@ Package Cache 目录安全清理
 
 ### 功能
 
-Trident (MSHTML 和 EdgeHtml) 内核缓存清理
+基于 Trident 的应用程序的 Web 缓存清理，包括 Internet Explorer、传统版本的 
+Edge、基于 MSHTML 的应用程序和基于based applications, Edge WebView 的应用程
+序等。
 
 ### 用法
 
@@ -190,4 +193,7 @@ Windows 商店应用一键升级
 
 ### 用法
 
-> NSudoPluginHost MoPlugin.dll MoUpdateAppXPackages
+- 无参数
+  > NSudoPluginHost MoPlugin.dll MoUpdateAppXPackages
+- `/Loop` 循环执行，直到无应用包需要升级再停止
+  > NSudoPluginHost MoPlugin.dll MoUpdateAppXPackages /Loop

@@ -2,7 +2,7 @@
 
 ## Applicable Version
 
-- 9.0.2662.0
+- 9.0.2668.0
 
 ## MoDefragMemory
 
@@ -196,4 +196,7 @@ Update the apps from Microsoft Store.
 
 ### Usage
 
-> NSudoPluginHost MoPlugin.dll MoUpdateAppXPackages
+- No arguments.
+  > NSudoPluginHost MoPlugin.dll MoUpdateAppXPackages
+- `/Loop` Loop the operation until no packages need to upgrade.
+  > NSudoPluginHost MoPlugin.dll MoUpdateAppXPackages /Loop
