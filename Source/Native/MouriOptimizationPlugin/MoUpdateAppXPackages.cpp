@@ -28,109 +28,132 @@ EXTERN_C HRESULT WINAPI MoUpdateAppXPackages(
 {
     Mile::HResult hr = S_OK;
     bool ApartmentInitialized = false;
-    std::vector<HANDLE> CompletedSignals;
-
+    bool EnableLoop = false;
+    
     try
     {
         winrt::init_apartment();
         ApartmentInitialized = true;
 
-        winrt::AppInstallManager AppInstallManager;
-        winrt::IVectorView<winrt::AppInstallItem> InstallList =
-            AppInstallManager.SearchForAllUpdatesAsync().get();
-        for (winrt::AppInstallItem InstallItem : InstallList)
+        std::vector<std::wstring> Arguments = Mile::SpiltCommandArguments(
+            Context->GetContextPluginCommandArguments(Context));
+        for (auto& Argument : Arguments)
         {
-            ::MoPrivateWriteLine(
-                Context,
-                Context->GetTranslation(
-                    Context,
-                    "MoUpdateAppXPackages_UpdateText"),
-                InstallItem.PackageFamilyName().c_str());
-
-            HANDLE CompletedSignal = ::CreateEventExW(
-                nullptr,
-                nullptr,
-                0,
-                EVENT_ALL_ACCESS);
-            if (!CompletedSignal)
+            if (0 == ::_wcsicmp(Argument.c_str(), L"/Loop"))
             {
-                winrt::throw_last_error();
+                EnableLoop = true;
+                break;
+            }
+        }
+
+        for (;;)
+        {
+            std::vector<HANDLE> CompletedSignals;
+
+            winrt::AppInstallManager AppInstallManager;
+            winrt::IVectorView<winrt::AppInstallItem> InstallList =
+                AppInstallManager.SearchForAllUpdatesAsync().get();
+            for (winrt::AppInstallItem InstallItem : InstallList)
+            {
+                ::MoPrivateWriteLine(
+                    Context,
+                    Context->GetTranslation(
+                        Context,
+                        "MoUpdateAppXPackages_UpdateText"),
+                    InstallItem.PackageFamilyName().c_str());
+
+                HANDLE CompletedSignal = ::CreateEventExW(
+                    nullptr,
+                    nullptr,
+                    0,
+                    EVENT_ALL_ACCESS);
+                if (!CompletedSignal)
+                {
+                    winrt::throw_last_error();
+                }
+
+                CompletedSignals.push_back(CompletedSignal);
+
+                InstallItem.Completed([Context, CompletedSignal](
+                    winrt::AppInstallItem const& sender,
+                    winrt::IInspectable const& args)
+                {
+                    Mile::UnreferencedParameter(args);
+
+                    try
+                    {
+                        ::MoPrivateWriteLine(
+                            Context,
+                            Context->GetTranslation(
+                                Context,
+                                "MoUpdateAppXPackages_UpdateCompletedText"),
+                            sender.PackageFamilyName().c_str());
+                    }
+                    catch (...)
+                    {
+
+                    }
+
+                    ::SetEvent(CompletedSignal);
+                });
+
+                InstallItem.StatusChanged([Context](
+                    winrt::AppInstallItem const& sender,
+                    winrt::IInspectable const& args)
+                {
+                    Mile::UnreferencedParameter(args);
+
+                    try
+                    {
+                        ::MoPrivateWriteLine(
+                            Context,
+                            Context->GetTranslation(
+                                Context,
+                                "MoUpdateAppXPackages_UpdateProgressText"),
+                            sender.PackageFamilyName().c_str(),
+                            sender.GetCurrentStatus().PercentComplete());
+                    }
+                    catch (...)
+                    {
+
+                    }
+                });
             }
 
-            CompletedSignals.push_back(CompletedSignal);
-
-            InstallItem.Completed([Context, CompletedSignal](
-                winrt::AppInstallItem const& sender,
-                winrt::IInspectable const& args)
+            if (CompletedSignals.empty())
             {
-                Mile::UnreferencedParameter(args);
-
-                try
-                {
-                    ::MoPrivateWriteLine(
-                        Context,
-                        Context->GetTranslation(
-                            Context,
-                            "MoUpdateAppXPackages_UpdateCompletedText"),
-                        sender.PackageFamilyName().c_str());
-                }
-                catch (...)
-                {
-
-                }
-
-                ::SetEvent(CompletedSignal);
-            });
-
-            InstallItem.StatusChanged([Context](
-                winrt::AppInstallItem const& sender,
-                winrt::IInspectable const& args)
-            {
-                Mile::UnreferencedParameter(args);
-
-                try
-                {
-                    ::MoPrivateWriteLine(
-                        Context,
-                        Context->GetTranslation(
-                            Context,
-                            "MoUpdateAppXPackages_UpdateProgressText"),
-                        sender.PackageFamilyName().c_str(),
-                        sender.GetCurrentStatus().PercentComplete());
-                }
-                catch (...)
-                {
-
-                }
-            });
-        }
-
-        if (CompletedSignals.empty())
-        {
-            ::MoPrivateWriteLine(
-                Context,
-                Context->GetTranslation(
+                ::MoPrivateWriteLine(
                     Context,
-                    "MoUpdateAppXPackages_NoUpdatesNoticeText"));
-        }
-        else
-        {
-            ::WaitForMultipleObjectsEx(
-                static_cast<DWORD>(CompletedSignals.size()),
-                &CompletedSignals[0],
-                TRUE,
-                INFINITE,
-                FALSE);
+                    Context->GetTranslation(
+                        Context,
+                        "MoUpdateAppXPackages_NoUpdatesNoticeText"));
+
+                break;
+            }
+            else
+            {
+                ::WaitForMultipleObjectsEx(
+                    static_cast<DWORD>(CompletedSignals.size()),
+                    &CompletedSignals[0],
+                    TRUE,
+                    INFINITE,
+                    FALSE);
+
+                for (HANDLE CompletedSignal : CompletedSignals)
+                {
+                    ::CloseHandle(CompletedSignal);
+                }
+
+                if (!EnableLoop)
+                {
+                    break;
+                }
+            }
         }
     }
     catch (winrt::hresult_error const& ex)
     {
         hr = static_cast<HRESULT>(ex.code());
-    }
-
-    for (HANDLE CompletedSignal : CompletedSignals)
-    {
-        ::CloseHandle(CompletedSignal);
     }
 
     if (ApartmentInitialized)
