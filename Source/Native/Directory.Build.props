@@ -12,15 +12,15 @@
   <PropertyGroup>
     <MSBuildProjectExtensionsPath>$(SolutionDir)Output\Objects\$(Configuration)\$(MSBuildProjectName)\obj\</MSBuildProjectExtensionsPath>
   </PropertyGroup>
-  <ItemGroup Label="NuGet" Condition="('$(MileProjectType)'!='UefiApplication') And ('$(MSBuildProjectExtension)' == '.vcxproj')">
+  <ItemGroup Label="NuGet" Condition="'$(MSBuildProjectExtension)' == '.vcxproj'">
     <ProjectCapability Include="PackageReferences" />
   </ItemGroup>
-  <PropertyGroup Label="NuGet" Condition="('$(MileProjectType)'!='UefiApplication') And ('$(MSBuildProjectExtension)' == '.vcxproj')">
+  <PropertyGroup Label="NuGet" Condition="'$(MSBuildProjectExtension)' == '.vcxproj'">
     <!-- https://github.com/microsoft/react-native-windows/pull/8195 -->
     <AssetTargetFallback>$(AssetTargetFallback);native</AssetTargetFallback>
     <!-- https://github.com/microsoft/react-native-windows/pull/8195 -->
     <TargetFrameworkMoniker>native,Version=v0.0</TargetFrameworkMoniker>
     <NuGetTargetMoniker>native,Version=v0.0</NuGetTargetMoniker>
-    <RuntimeIdentifiers>win;win-x86;win-x64;win-arm64</RuntimeIdentifiers>
+    <RuntimeIdentifiers>win;win-x86;win-x64;win-arm;win-arm64</RuntimeIdentifiers>
   </PropertyGroup>
 </Project>
