@@ -1114,9 +1114,25 @@ Mile::HResultFromLastError Mile::CreateSystemToken(
     _In_ DWORD DesiredAccess,
     _Out_ PHANDLE TokenHandle)
 {
-    DWORD dwLsassPID = static_cast<DWORD>(-1);
+    // If the specified process is the System Idle Process (0x00000000), the
+    // function fails and the last error code is ERROR_INVALID_PARAMETER.
+    // So this is why 0 is the default value of dwLsassPID and dwWinLogonPID.
+
+    // For fix the issue that @_kod0k and @DennyAmaro mentioned in
+    // https://forums.mydigitallife.net/threads/59268/page-28#post-1672011 and
+    // https://forums.mydigitallife.net/threads/59268/page-28#post-1674985.
+    // Mile::CreateSystemToken will try to open the access token from lsass.exe
+    // for maximum privileges in the access token, and try to open the access
+    // token from winlogon.exe of current active session as fallback.
+
+    // If no source process of SYSTEM access token can be found, the error code
+    // will be HRESULT_FROM_WIN32(ERROR_INVALID_PARAMETER).
+
+    DWORD dwLsassPID = 0;
+    DWORD dwWinLogonPID = 0;
     PWTS_PROCESS_INFOW pProcesses = nullptr;
     DWORD dwProcessCount = 0;
+    DWORD dwSessionID = Mile::GetActiveSessionID();
 
     if (::WTSEnumerateProcessesW(
         WTS_CURRENT_SERVER_HANDLE,
@@ -1129,62 +1145,70 @@ Mile::HResultFromLastError Mile::CreateSystemToken(
         {
             PWTS_PROCESS_INFOW pProcess = &pProcesses[i];
 
-            if (pProcess->SessionId != 0)
+            if ((!pProcess->pProcessName) ||
+                (!pProcess->pUserSid) ||
+                (!::IsWellKnownSid(
+                    pProcess->pUserSid,
+                    WELL_KNOWN_SID_TYPE::WinLocalSystemSid)))
+            {
                 continue;
+            }
 
-            if (!pProcess->pProcessName)
+            if ((0 == dwLsassPID) &&
+                (0 == pProcess->SessionId) &&
+                (0 == ::_wcsicmp(L"lsass.exe", pProcess->pProcessName)))
+            {
+                dwLsassPID = pProcess->ProcessId;
                 continue;
+            }
 
-            if (::_wcsicmp(L"lsass.exe", pProcess->pProcessName) != 0)
+            if ((0 == dwWinLogonPID) &&
+                (dwSessionID == pProcess->SessionId) &&
+                (0 == ::_wcsicmp(L"winlogon.exe", pProcess->pProcessName)))
+            {
+                dwWinLogonPID = pProcess->ProcessId;
                 continue;
-
-            if (!pProcess->pUserSid)
-                continue;
-
-            if (!::IsWellKnownSid(
-                pProcess->pUserSid,
-                WELL_KNOWN_SID_TYPE::WinLocalSystemSid))
-                continue;
-
-            dwLsassPID = pProcess->ProcessId;
-            break;
+            }
         }
 
         ::WTSFreeMemory(pProcesses);
     }
 
-    if (static_cast<DWORD>(-1) == dwLsassPID)
-    {
-        ::SetLastError(ERROR_NOT_FOUND);
-        return FALSE;
-    }
-
     BOOL Result = FALSE;
+    HANDLE SystemProcessHandle = nullptr;
 
-    HANDLE LsassProcessHandle = ::OpenProcess(
-        MAXIMUM_ALLOWED,
+    SystemProcessHandle = ::OpenProcess(
+        PROCESS_QUERY_INFORMATION,
         FALSE,
         dwLsassPID);
-    if (LsassProcessHandle)
+    if (!SystemProcessHandle)
     {
-        HANDLE LsassTokenHandle = nullptr;
+        SystemProcessHandle = ::OpenProcess(
+            PROCESS_QUERY_INFORMATION,
+            FALSE,
+            dwWinLogonPID);
+    }
+
+    if (SystemProcessHandle)
+    {
+        HANDLE SystemTokenHandle = nullptr;
         if (::OpenProcessToken(
-            LsassProcessHandle,
-            MAXIMUM_ALLOWED,
-            &LsassTokenHandle))
+            SystemProcessHandle,
+            TOKEN_DUPLICATE,
+            &SystemTokenHandle))
         {
             Result = ::DuplicateTokenEx(
-                LsassTokenHandle,
+                SystemTokenHandle,
                 DesiredAccess,
                 nullptr,
                 SecurityIdentification,
                 TokenPrimary,
                 TokenHandle);
 
-            ::CloseHandle(LsassTokenHandle);
+            ::CloseHandle(SystemTokenHandle);
         }
 
-        ::CloseHandle(LsassProcessHandle);
+        ::CloseHandle(SystemProcessHandle);
     }
 
     return Result;
@@ -1594,10 +1618,16 @@ Mile::HResultFromLastError Mile::OpenProcessTokenByProcessId(
 {
     BOOL Result = FALSE;
 
-    HANDLE ProcessHandle = ::OpenProcess(MAXIMUM_ALLOWED, FALSE, ProcessId);
+    HANDLE ProcessHandle = ::OpenProcess(
+        PROCESS_QUERY_INFORMATION,
+        FALSE,
+        ProcessId);
     if (ProcessHandle)
     {
-        Result = ::OpenProcessToken(ProcessHandle, DesiredAccess, TokenHandle);
+        Result = ::OpenProcessToken(
+            ProcessHandle,
+            DesiredAccess,
+            TokenHandle);
 
         ::CloseHandle(ProcessHandle);
     }
