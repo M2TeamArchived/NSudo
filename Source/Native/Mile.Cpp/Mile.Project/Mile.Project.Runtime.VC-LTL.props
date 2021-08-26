@@ -16,5 +16,9 @@
       <RuntimeLibrary Condition="'$(Configuration)'=='Release'">MultiThreaded</RuntimeLibrary>
     </ClCompile>
   </ItemDefinitionGroup>
-  <Import Project="$(MSBuildThisFileDirectory)VC-LTL.helper.for.NuGet.PackageReference-v4.1.3.props" />
+  <ItemGroup>
+    <PackageReference Include="VC-LTL">
+      <Version>5.0.1-Beta4</Version>
+    </PackageReference>
+  </ItemGroup>
 </Project>
