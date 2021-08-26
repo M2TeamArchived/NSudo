@@ -1120,6 +1120,149 @@ private:
 
 #include <Mile.PiConsole.h>
 
+//void ContextPluginComment()
+//{
+//    NSUDO_CONTEXT_PRIVATE Context;
+//
+//    ::NSudoContextFillFunctionTable(
+//        &Context.PublicContext);
+//
+//    Context.Size = sizeof(NSUDO_CONTEXT_PRIVATE);
+//
+//    Context.PiConsoleWindowHandle = Mile::PiConsole::Create(
+//        hInstance,
+//        reinterpret_cast<HICON>(::LoadImageW(
+//            hInstance,
+//            MAKEINTRESOURCE(IDI_NSUDO_LAUNCHER),
+//            IMAGE_ICON,
+//            256,
+//            256,
+//            LR_SHARED)),
+//        g_ResourceManagement.GetTranslation("NSudo.VersionText").c_str(),
+//        nShowCmd);
+//    Context.ConsoleInputHandle = INVALID_HANDLE_VALUE;
+//    Context.ConsoleOutputHandle = INVALID_HANDLE_VALUE;
+//    Context.ConsoleMode = false;
+//
+//    Context.PublicContext.WriteLine(
+//        &Context.PublicContext,
+//        L"Welcome to use NSudo Interactive Console, "
+//        L"if you met the input box in the bottom, "
+//        L"press enter to continue after finishing the input.");
+//    Context.PublicContext.WriteLine(
+//        &Context.PublicContext,
+//        L"");
+//    /*Context.PublicContext.WriteLine(
+//        &Context.PublicContext,
+//        L"Here is a demo of a context plugin.");*/
+//    Context.PublicContext.WriteLine(
+//        &Context.PublicContext,
+//        L"DetailedVersionTag: DennyAmaro");
+//    Context.PublicContext.WriteLine(
+//        &Context.PublicContext,
+//        L"Under Construction. You should not use this version for production.");
+//    Context.PublicContext.WriteLine(
+//        &Context.PublicContext,
+//        L"");
+//
+//
+//    const size_t x = sizeof(NSUDO_CONTEXT);
+//    const size_t y = sizeof(NSUDO_CONTEXT_PRIVATE);
+//
+//    /*Mile::PiConsole::PrintMessage(
+//        Context.PiConsoleWindowHandle,
+//        L"Hello World");
+//
+//    Mile::PiConsole::PrintMessage(
+//        Context.PiConsoleWindowHandle,
+//        Mile::PiConsole::GetInput(
+//            Context.PiConsoleWindowHandle,
+//            L"Please input a test sentence and press enter"));
+//
+//    Mile::PiConsole::PrintMessage(
+//        Context.PiConsoleWindowHandle,
+//        Mile::PiConsole::GetInput(
+//            Context.PiConsoleWindowHandle,
+//            L"Please input a test sentence and press enter"));*/
+//
+//    std::wstring MoPluginPath = g_ResourceManagement.AppPath + L"\\MoPlugin.dll";
+//
+//    //Mile::LoadLibraryFromSystem32((g_ResourceManagement.AppPath + L"\\NSudoDM.dll").c_str());
+//
+//    /*LPWSTR Answer = Mile::PiConsole::GetInput(
+//        Context.PiConsoleWindowHandle,
+//        L"Do you want to defrag memory? [y/n]");
+//    if (Answer)
+//    {
+//        if (::_wcsicmp(Answer, L"y") == 0)
+//        {
+//            ::NSudoContextExecutePlugin(
+//                &Context.PublicContext,
+//                MoPluginPath.c_str(),
+//                "MoDefragMemory",
+//                L"");
+//        }
+//
+//        Mile::HeapMemory::Free(Answer);
+//    }
+//
+//
+//
+//    ::NSudoContextExecutePlugin(
+//        &Context.PublicContext,
+//        MoPluginPath.c_str(),
+//        "MoPurgeCorruptedAppXPackages",
+//        L"/Scan");
+//
+//    ::NSudoContextExecutePlugin(
+//        &Context.PublicContext,
+//        MoPluginPath.c_str(),
+//        "MoPurgeCorruptedAppXPackages",
+//        L"/Purge");*/
+//
+//    /*::NSudoContextExecutePlugin(
+//        &Context.PublicContext,
+//        MoPluginPath.c_str(),
+//        "MoUpdateAppXPackages",
+//        L"");*/
+//
+//    /*::NSudoContextExecutePlugin(
+//        &Context.PublicContext,
+//        MoPluginPath.c_str(),
+//        "MoPurgeNuGetCache",
+//        L"/Scan");*/
+//
+//    /*::NSudoContextExecutePlugin(
+//        &Context.PublicContext,
+//        MoPluginPath.c_str(),
+//        "MoPurgeNuGetCache",
+//        L"/Purge");*/
+//
+//    /*::NSudoContextExecutePlugin(
+//        &Context.PublicContext,
+//        MoPluginPath.c_str(),
+//        "MoManageCompactOS",
+//        L"/Enable");*/
+//
+//    /*::NSudoContextExecutePlugin(
+//        &Context.PublicContext,
+//        MoPluginPath.c_str(),
+//        "MoPurgeChromiumCache",
+//        L"/Scan");*/
+//
+//    /*::NSudoContextExecutePlugin(
+//        &Context.PublicContext,
+//        MoPluginPath.c_str(),
+//        "MoPurgeTridentCache",
+//        L"/Scan");*/
+//
+//    /*::NSudoContextExecutePlugin(
+//        &Context.PublicContext,
+//        MoPluginPath.c_str(),
+//        "MoManageCompactOS",
+//        L"/Enable");*/
+//}
+
 int WINAPI wWinMain(
     _In_ HINSTANCE hInstance,
     _In_opt_ HINSTANCE hPrevInstance,
@@ -1150,148 +1293,6 @@ int WINAPI wWinMain(
     ::CoInitializeEx(nullptr, COINIT_MULTITHREADED | COINIT_DISABLE_OLE1DDE);
 
     g_ResourceManagement.Initialize();
-
-
-
-    NSUDO_CONTEXT_PRIVATE Context;
-
-    ::NSudoContextFillFunctionTable(
-        &Context.PublicContext);
-
-    Context.Size = sizeof(NSUDO_CONTEXT_PRIVATE);
-
-    Context.PiConsoleWindowHandle = Mile::PiConsole::Create(
-        hInstance,
-        reinterpret_cast<HICON>(::LoadImageW(
-            hInstance,
-            MAKEINTRESOURCE(IDI_NSUDO_LAUNCHER),
-            IMAGE_ICON,
-            256,
-            256,
-            LR_SHARED)),
-        g_ResourceManagement.GetTranslation("NSudo.VersionText").c_str(),
-        nShowCmd);
-    Context.ConsoleInputHandle = INVALID_HANDLE_VALUE;
-    Context.ConsoleOutputHandle = INVALID_HANDLE_VALUE;
-    Context.ConsoleMode = false;
-
-    Context.PublicContext.WriteLine(
-        &Context.PublicContext,
-        L"Welcome to use NSudo Interactive Console, "
-        L"if you met the input box in the bottom, "
-        L"press enter to continue after finishing the input.");
-    Context.PublicContext.WriteLine(
-        &Context.PublicContext,
-        L"");
-    /*Context.PublicContext.WriteLine(
-        &Context.PublicContext,
-        L"Here is a demo of a context plugin.");*/
-    Context.PublicContext.WriteLine(
-        &Context.PublicContext,
-        L"DetailedVersionTag: DennyAmaro");
-    Context.PublicContext.WriteLine(
-        &Context.PublicContext,
-        L"Under Construction. You should not use this version for production.");
-    Context.PublicContext.WriteLine(
-        &Context.PublicContext,
-        L"");
-
-
-    const size_t x = sizeof(NSUDO_CONTEXT);
-    const size_t y = sizeof(NSUDO_CONTEXT_PRIVATE);
-
-    /*Mile::PiConsole::PrintMessage(
-        Context.PiConsoleWindowHandle,
-        L"Hello World");
-
-    Mile::PiConsole::PrintMessage(
-        Context.PiConsoleWindowHandle,
-        Mile::PiConsole::GetInput(
-            Context.PiConsoleWindowHandle,
-            L"Please input a test sentence and press enter"));
-
-    Mile::PiConsole::PrintMessage(
-        Context.PiConsoleWindowHandle,
-        Mile::PiConsole::GetInput(
-            Context.PiConsoleWindowHandle,
-            L"Please input a test sentence and press enter"));*/
-
-    std::wstring MoPluginPath = g_ResourceManagement.AppPath + L"\\MoPlugin.dll";
-
-    //Mile::LoadLibraryFromSystem32((g_ResourceManagement.AppPath + L"\\NSudoDM.dll").c_str());
-
-    /*LPWSTR Answer = Mile::PiConsole::GetInput(
-        Context.PiConsoleWindowHandle,
-        L"Do you want to defrag memory? [y/n]");
-    if (Answer)
-    {
-        if (::_wcsicmp(Answer, L"y") == 0)
-        {
-            ::NSudoContextExecutePlugin(
-                &Context.PublicContext,
-                MoPluginPath.c_str(),
-                "MoDefragMemory",
-                L"");
-        }
-
-        Mile::HeapMemory::Free(Answer);
-    }
-
-
-
-    ::NSudoContextExecutePlugin(
-        &Context.PublicContext,
-        MoPluginPath.c_str(),
-        "MoPurgeCorruptedAppXPackages",
-        L"/Scan");
-
-    ::NSudoContextExecutePlugin(
-        &Context.PublicContext,
-        MoPluginPath.c_str(),
-        "MoPurgeCorruptedAppXPackages",
-        L"/Purge");*/
-
-    /*::NSudoContextExecutePlugin(
-        &Context.PublicContext,
-        MoPluginPath.c_str(),
-        "MoUpdateAppXPackages",
-        L"");*/
-
-    /*::NSudoContextExecutePlugin(
-        &Context.PublicContext,
-        MoPluginPath.c_str(),
-        "MoPurgeNuGetCache",
-        L"/Scan");*/
-
-    /*::NSudoContextExecutePlugin(
-        &Context.PublicContext,
-        MoPluginPath.c_str(),
-        "MoPurgeNuGetCache",
-        L"/Purge");*/
-
-    /*::NSudoContextExecutePlugin(
-        &Context.PublicContext,
-        MoPluginPath.c_str(),
-        "MoManageCompactOS",
-        L"/Enable");*/
-
-    /*::NSudoContextExecutePlugin(
-        &Context.PublicContext,
-        MoPluginPath.c_str(),
-        "MoPurgeChromiumCache",
-        L"/Scan");*/
-
-    /*::NSudoContextExecutePlugin(
-        &Context.PublicContext,
-        MoPluginPath.c_str(),
-        "MoPurgeTridentCache",
-        L"/Scan");*/
-
-    /*::NSudoContextExecutePlugin(
-        &Context.PublicContext,
-        MoPluginPath.c_str(),
-        "MoManageCompactOS",
-        L"/Enable");*/
 
     std::wstring ApplicationName;
     std::map<std::wstring, std::wstring> OptionsAndParameters;
