@@ -1,5 +1,38 @@
 ﻿# Changelog
 
+**NSudo 9.0 Preview 1**
+
+- Fixed an issue "GUI doesn't start in operating systems language" mentioned in
+  https://github.com/M2Team/NSudo/issues/66. (Thanks to Steve.)
+- Fixed an issue when getting the SYSTEM access token. (Thanks to _kod0k and 
+  DennyAmaro.)
+- Implement the infrastructure of NSudo context plugin and interactive console.
+  (Thanks to Legna and Microsoft_Mars.)
+- Introduce the Mouri Optimization Plugin as the NSudo context plugin example. 
+  (Thanks to Legna, mingkuang, Microsoft_Mars, sdtzsf and abbodi1406.) 
+  Here are the supported features in Mouri Optimization Plugin:
+  - Perform defrag for memory via swapping most contents from the physical 
+    memory to the page file.
+  - Enable the "Receive updates for other Microsoft products when you update 
+    Windows" option in Windows Update.
+  - Manage the CompactOS feature.
+  - Purge the web cache in the Chromium-based applications, including Chrome, 
+    Chromium-based Edge, Electron-based applications, etc.
+  - Purge the corrupted AppX packages.
+  - Purge the cache in the Delivery Optimization.
+  - Purge the web cache in the Gecko-based applications, including Firefox, 
+    Waterfox, Pale Moon, etc.
+  - Purge the cache in the NuGet safely.
+  - Purge the cache in the Package Cache folder safely.
+  - Purge the system restore points.
+  - Purge the web cache in the Trident based applications, including Internet 
+    Explorer, Legacy Edge, MSHTML based applications, Edge WebView based 
+    applications, etc.
+  - Purge the cache in the Visual Studio Code.
+  - Purge the cache in the Visual Studio Installer safely.
+  - Purge the Windows Event Log.
+  - Update the apps from Microsoft Store.
+
 **NSudo 8.2**
 
 - Add the Current User (Elevated) mode support. (Advised by xspeed1989.)
@@ -49,7 +82,8 @@
   - Use jsmn instead of JSON for Modern C++.
 - Rename NSudo itself to NSudo Launcher. (NSudoLG.exe and NSudoLC.exe)
 - Remove context menu support because you can use 
-  [https://github.com/Thdub/NSudo_Installer](https://github.com/Thdub/NSudo_Installer) for better experience.
+  [https://github.com/Thdub/NSudo_Installer](https://github.com/Thdub/NSudo_Installer)
+  for better experience.
 - Add Itlian Language. (Contributed by garf02.)
 - Add Spanish Language. (Contributed by Miguel Obando.)
 - Use the Semantic Versioning format.

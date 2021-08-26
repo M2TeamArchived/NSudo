@@ -50,9 +50,11 @@
 
 ## 反馈者 Advicers
 
+- _kod0k
 - 4071E95D-A09B-4AA3-8008
 - abbodi1406
 - AeonX
+- DennyAmaro
 - Domagoj Smolčić
 - hydra79545
 - imadlatch
@@ -61,6 +63,7 @@
 - Lenny
 - NotePad
 - rlesch ([https://github.com/rlesch](https://github.com/rlesch))
+- sdtzsf
 - sebus
 - testtest322
 - th1r5bvn23
