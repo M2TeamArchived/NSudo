@@ -1,6 +1,6 @@
 ﻿# Changelog
 
-**NSudo 9.0 Preview 1**
+**NSudo 9.0 Preview 1 (9.0.2675.0)**
 
 - Fixed an issue "GUI doesn't start in operating systems language" mentioned in
   https://github.com/M2Team/NSudo/issues/66. (Thanks to Steve.)
@@ -8,6 +8,8 @@
   DennyAmaro.)
 - Implement the infrastructure of NSudo context plugin and interactive console.
   (Thanks to Legna and Microsoft_Mars.)
+  - Warning: The ABI of NSudo context plugin won't be stable until NSudo 9.0 
+    final version released. It's still under construction. 
 - Introduce the Mouri Optimization Plugin as the NSudo context plugin example. 
   (Thanks to Legna, mingkuang, Microsoft_Mars, sdtzsf and abbodi1406.) 
   Here are the supported features in Mouri Optimization Plugin:
