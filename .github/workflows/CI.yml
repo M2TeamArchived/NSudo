@@ -29,7 +29,7 @@ jobs:
     - name: Build
       run: msbuild -m Source\Native\BuildAllTargets.proj
     - name: Prepare artifacts
-      run: rm Source\Native\Output\* -vb -Recurse -Force -Include *.exp, *.idb, *.ilk, *.iobj, *.ipdb, *.lastbuildstate, *.lib, *.obj, *.res, *.tlog
+      run: rm Source\Native\Output\Binaries\* -vb -Recurse -Force -Include *.exp, *.idb, *.ilk, *.iobj, *.ipdb, *.lastbuildstate, *.lib, *.obj, *.res, *.tlog
     - uses: actions/upload-artifact@v2
       with:
         name: NSudo_CI_Build
