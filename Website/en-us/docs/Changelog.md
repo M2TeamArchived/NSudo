@@ -34,6 +34,7 @@
   - Purge the cache in the Visual Studio Installer safely.
   - Purge the Windows Event Log.
   - Update the apps from Microsoft Store.
+- Update to VC-LTL 5.0.1-Beta4 (Cooperate with mingkuang.).
 
 **NSudo 8.2**
 
