@@ -94,26 +94,30 @@ Example:
 Example: If you want to run Command Prompt with TrustedInstaller, enable all
 privileges and the default Integrity Level:
 
-> NSudo -U:T -P:E cmd
+```powershell
+NSudo -U:T -P:E cmd
+```
 
 Starting from NSudo 5.0.1708.16, the command line nested quotes is supported.
 For example:
 
-> NSudo -U:T cmd /c "dir "C:\Program Files" & pause"
+```powershell
+NSudo -U:T cmd /c "dir "C:\Program Files" & pause"
+```
 
 ## Shortcut List
 
 You can edit NSudo.json to custom the Shortcut list, here are the demo
 (NSudo.json in the NSudo.exe's folder):
 
-```
+```json
 {
-  "ShortCutList_V2": {
+  "ShortCutList_V2": {
 
     "Command Prompt": "cmd",
-    "PowerShell": "powershell",
-    "PowerShell ISE": "powershell_ise",
-    "Edit Hosts": "notepad %windir%\\System32\\Drivers\\etc\\hosts"
-  }
+    "PowerShell": "powershell",
+    "PowerShell ISE": "powershell_ise",
+    "Edit Hosts": "notepad %windir%\\System32\\Drivers\\etc\\hosts"
+  }
 }
 ```

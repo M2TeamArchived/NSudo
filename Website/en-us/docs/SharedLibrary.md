@@ -6,7 +6,7 @@ Creates a new process and its primary thread.
 
 ### C/C++ prototype
 
-```
+```cpp
 EXTERN_C HRESULT WINAPI NSudoCreateProcess(
     _In_ NSUDO_USER_MODE_TYPE UserModeType,
     _In_ NSUDO_PRIVILEGES_MODE_TYPE PrivilegesModeType,
@@ -24,7 +24,7 @@ EXTERN_C HRESULT WINAPI NSudoCreateProcess(
 A value from the NSUDO_USER_MODE_TYPE enumerated type that identifies the user
 mode.
 
-```
+```cpp
 typedef enum class _NSUDO_USER_MODE_TYPE
 {
     DEFAULT,
@@ -41,7 +41,7 @@ typedef enum class _NSUDO_USER_MODE_TYPE
 A value from the NSUDO_PRIVILEGES_MODE_TYPE enumerated type that identifies the
 privileges mode.
 
-```
+```cpp
 typedef enum class _NSUDO_PRIVILEGES_MODE_TYPE
 {
     DEFAULT,
@@ -55,7 +55,7 @@ typedef enum class _NSUDO_PRIVILEGES_MODE_TYPE
 A value from the NSUDO_MANDATORY_LABEL_TYPE enumerated type that identifies the
 mandatory label.
 
-```
+```cpp
 typedef enum class _NSUDO_MANDATORY_LABEL_TYPE
 {
     UNTRUSTED,
@@ -73,7 +73,7 @@ typedef enum class _NSUDO_MANDATORY_LABEL_TYPE
 A value from the NSUDO_PROCESS_PRIORITY_CLASS_TYPE enumerated type that 
 identifies the process priority class.
 
-```
+```cpp
 typedef enum class _NSUDO_PROCESS_PRIORITY_CLASS_TYPE
 {
     IDLE,
@@ -90,7 +90,7 @@ typedef enum class _NSUDO_PROCESS_PRIORITY_CLASS_TYPE
 A value from the NSUDO_SHOW_WINDOW_MODE_TYPE enumerated type that identifies 
 the ShowWindow mode.
 
-```
+```cpp
 typedef enum class _NSUDO_SHOW_WINDOW_MODE_TYPE
 {
     DEFAULT,
@@ -134,7 +134,7 @@ Load the M2.NSudo assembly to your project, you will know the usage.
 
 ### Example
 
-```
+```csharp
 using System;
 
 namespace M2.NSudo.Demo

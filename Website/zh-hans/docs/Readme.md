@@ -85,18 +85,22 @@ PS:
 
 例子: 以 TrustedInstaller 权限, 启用所有特权, 完整性默认运行命令提示符
 
-> NSudo -U:T -P:E cmd
+```powershell
+NSudo -U:T -P:E cmd
+```
 
 从 NSudo 5.0.1708.16 开始命令行支持嵌套引号, 例如:
 
-> NSudo -U:T cmd /c "dir "C:\Program Files" & pause"
+```powershell
+NSudo -U:T cmd /c "dir "C:\Program Files" & pause"
+```
 
 ## 常用列表
 
 关于常用列表的自定义,可以使用记事本等工具编辑 NSudo.json。你可以照着示例的做法添
 加你的自定义项目:
 
-```
+```json
 {
   "ShortCutList_V2": {
     "命令提示符": "cmd",

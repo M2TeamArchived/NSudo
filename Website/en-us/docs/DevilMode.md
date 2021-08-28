@@ -46,7 +46,7 @@ new features and make its source code available in NSudo's GitHub repository.
 You can enable it via LoadLibrary and disable it via FreeLibrary. Here is a 
 demo code.
 
-```
+```csharp
 using System;
 using System.IO;
 using System.Runtime.InteropServices;
