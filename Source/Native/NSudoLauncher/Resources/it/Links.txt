@@ -1,3 +1,3 @@
 ﻿
 
-Per ulteriori informazioni, visitare https://m2team.github.io/NSudo.
+Per ulteriori informazioni, visitare https://nsudo.m2team.org.

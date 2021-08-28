@@ -11,7 +11,7 @@
 [English](Readme.md)
 
 这里是 NSudo 的源代码仓库。如果你想访问 NSudo 的官方网站、下载 NSudo 或者阅读
-NSudo 的文档等, 请转到 https://m2team.github.io/NSudo.
+NSudo 的文档等, 请转到 https://nsudo.m2team.org。
 
 本自述文件仅面向开发者, 毕竟隶属于源代码仓库下。
 

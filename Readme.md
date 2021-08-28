@@ -12,7 +12,7 @@
 
 This is the source code repository of NSudo. If you wonder to visit the NSudo 
 official website, download NSudo or read the NSudo documents etc, please visit
-https://m2team.github.io/NSudo.
+https://nsudo.m2team.org.
 
 This readme file will be the developer oriented document because this it is 
 under the source code repository.
