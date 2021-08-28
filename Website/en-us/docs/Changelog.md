@@ -1,6 +1,6 @@
 ﻿# Changelog
 
-**NSudo 9.0 Preview 1 (9.0.2675.0)**
+**NSudo 9.0 Preview 1 (9.0.2676.0)**
 
 - Fixed an issue "GUI doesn't start in operating systems language" mentioned in
   https://github.com/M2Team/NSudo/issues/66. (Thanks to Steve.)

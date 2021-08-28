@@ -2,13 +2,13 @@
 
 ## 适用版本
 
-- 9.0.2668.0
+- 9.0.2676.0
 
 ## MoDefragMemory
 
 ### 功能
 
-内存碎片整理，通过把物理内存中的大部分内存交换到页面文件实现。
+内存碎片整理，通过把物理内存中的大部分内存交换到页面文件实现
 
 ### 用法
 
@@ -18,7 +18,7 @@
 
 ### 功能
 
-开启 Windows Update 中“更新 Windows 时提供其他 Microsoft 产品的更新”的选项
+开启 Windows Update 中 "更新 Windows 时提供其他 Microsoft 产品的更新" 的选项
 
 ### 用法
 
@@ -137,7 +137,7 @@ Package Cache 目录安全清理
 
 基于 Trident 的应用程序的 Web 缓存清理，包括 Internet Explorer、传统版本的 
 Edge、基于 MSHTML 的应用程序和基于based applications, Edge WebView 的应用程
-序等。
+序等
 
 ### 用法
 

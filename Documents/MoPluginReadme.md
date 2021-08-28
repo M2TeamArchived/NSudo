@@ -2,7 +2,7 @@
 
 ## Applicable Version
 
-- 9.0.2668.0
+- 9.0.2676.0
 
 ## MoDefragMemory
 

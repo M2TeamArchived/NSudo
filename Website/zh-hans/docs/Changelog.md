@@ -1,5 +1,36 @@
 ﻿# 更新日志
 
+**NSudo 9.0 Preview 1 (9.0.2676.0)**
+
+- 修复在 https://github.com/M2Team/NSudo/issues/66 提到的德语系统下德语语言支持
+  不生效的问题 (感谢 Steve)
+- 修复无法获取 SYSTEM 访问令牌的问题 (感谢 _kod0k 和 DennyAmaro)
+- 实现 NSudo 上下文插件和交互控制台的基础架构 (感谢 Legna 和 Microsoft_Mars)
+  - 警告: NSudo 上下文插件在 NSudo 9.0 最终版本之前无法保证稳定的二进制接口，该
+    功能仍在开发中
+- 引入毛利优化插件作为 NSudo 上下文插件的示例 (感谢 Legna, mingkuang, 
+  Microsoft_Mars, sdtzsf 和 abbodi1406.) 
+  以下是毛利优化插件支持的功能:
+  - 内存碎片整理，通过把物理内存中的大部分内存交换到页面文件实现
+  - 开启 Windows Update 中 "更新 Windows 时提供其他 Microsoft 产品的更新" 的选项
+  - CompactOS 管理
+  - 基于 Chromium 的应用程序的 Web 缓存清理，包括 Chrome、基于 Chromium 的 Edge
+    和基于 Electron 的应用程序等
+  - 损坏的 AppX 包清理
+  - 传递优化缓存清理
+  - 基于 Gecko 的应用程序的 Web 缓存清理，包括 Firefox、Waterfox 和 Pale Moon 等
+  - NuGet 缓存安全清理
+  - Package Cache 目录安全清理
+  - 系统还原点清理
+  - 基于 Trident 的应用程序的 Web 缓存清理，包括 Internet Explorer、传统版本的 
+    Edge、基于 MSHTML 的应用程序和基于based applications, Edge WebView 的应用程
+    序等。
+  - Visual Studio Code 缓存清理
+  - Visual Studio Installer 缓存安全清理
+  - Windows 事件日志清理
+  - Windows 商店应用一键升级
+- 升级到 VC-LTL 5.0.1-Beta4 (与 mingkuang 协作开发)
+
 **NSudo 8.2**
 
 - 添加当前用户 (提权) 模式支持 (由 xspeed1989 建议)
