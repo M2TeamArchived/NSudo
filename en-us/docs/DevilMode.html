@@ -20,7 +20,7 @@
     <meta name="msapplication-TileColor" content="#000000">
     <meta name="Copyright" content="Copyright M2-Team All Rights Reserved.">
     
-    <link rel="preload" href="/assets/css/0.styles.dbfee10f.css" as="style"><link rel="preload" href="/assets/js/app.75968e17.js" as="script"><link rel="preload" href="/assets/js/2.2bf2e7cc.js" as="script"><link rel="preload" href="/assets/js/3.87784963.js" as="script"><link rel="preload" href="/assets/js/14.bb0165d0.js" as="script"><link rel="prefetch" href="/assets/js/10.353d9ee2.js"><link rel="prefetch" href="/assets/js/11.ec5617da.js"><link rel="prefetch" href="/assets/js/12.9b0fcf11.js"><link rel="prefetch" href="/assets/js/13.6b5d6810.js"><link rel="prefetch" href="/assets/js/15.e0679035.js"><link rel="prefetch" href="/assets/js/16.28bda89f.js"><link rel="prefetch" href="/assets/js/17.aeb244de.js"><link rel="prefetch" href="/assets/js/18.9af31b35.js"><link rel="prefetch" href="/assets/js/19.16a5960d.js"><link rel="prefetch" href="/assets/js/20.a511d1c2.js"><link rel="prefetch" href="/assets/js/21.107b0644.js"><link rel="prefetch" href="/assets/js/22.4094a4e3.js"><link rel="prefetch" href="/assets/js/23.8a9b13c7.js"><link rel="prefetch" href="/assets/js/24.8e9656f6.js"><link rel="prefetch" href="/assets/js/25.12746a37.js"><link rel="prefetch" href="/assets/js/26.f105d893.js"><link rel="prefetch" href="/assets/js/27.bab74a7b.js"><link rel="prefetch" href="/assets/js/28.8b4bf3cb.js"><link rel="prefetch" href="/assets/js/29.60398b61.js"><link rel="prefetch" href="/assets/js/4.18bad379.js"><link rel="prefetch" href="/assets/js/5.13ed8bd6.js"><link rel="prefetch" href="/assets/js/6.74645ea0.js"><link rel="prefetch" href="/assets/js/7.3db2b0da.js"><link rel="prefetch" href="/assets/js/8.5b0b51a4.js"><link rel="prefetch" href="/assets/js/9.d9eac141.js">
+    <link rel="preload" href="/assets/css/0.styles.dbfee10f.css" as="style"><link rel="preload" href="/assets/js/app.fb3dedda.js" as="script"><link rel="preload" href="/assets/js/2.2bf2e7cc.js" as="script"><link rel="preload" href="/assets/js/3.87784963.js" as="script"><link rel="preload" href="/assets/js/14.7182d83a.js" as="script"><link rel="prefetch" href="/assets/js/10.353d9ee2.js"><link rel="prefetch" href="/assets/js/11.516078e9.js"><link rel="prefetch" href="/assets/js/12.9b0fcf11.js"><link rel="prefetch" href="/assets/js/13.6b5d6810.js"><link rel="prefetch" href="/assets/js/15.682c114c.js"><link rel="prefetch" href="/assets/js/16.a1f3eafd.js"><link rel="prefetch" href="/assets/js/17.dcea462f.js"><link rel="prefetch" href="/assets/js/18.9af31b35.js"><link rel="prefetch" href="/assets/js/19.16a5960d.js"><link rel="prefetch" href="/assets/js/20.2c062be5.js"><link rel="prefetch" href="/assets/js/21.3bd61ab4.js"><link rel="prefetch" href="/assets/js/22.a26daf22.js"><link rel="prefetch" href="/assets/js/23.542fa051.js"><link rel="prefetch" href="/assets/js/24.8e9656f6.js"><link rel="prefetch" href="/assets/js/25.12746a37.js"><link rel="prefetch" href="/assets/js/26.73b6ff31.js"><link rel="prefetch" href="/assets/js/27.020ccd83.js"><link rel="prefetch" href="/assets/js/28.16d25d69.js"><link rel="prefetch" href="/assets/js/29.60398b61.js"><link rel="prefetch" href="/assets/js/4.18bad379.js"><link rel="prefetch" href="/assets/js/5.13ed8bd6.js"><link rel="prefetch" href="/assets/js/6.74645ea0.js"><link rel="prefetch" href="/assets/js/7.3db2b0da.js"><link rel="prefetch" href="/assets/js/8.5b0b51a4.js"><link rel="prefetch" href="/assets/js/9.d9eac141.js">
     <link rel="stylesheet" href="/assets/css/0.styles.dbfee10f.css">
   </head>
   <body>
@@ -71,53 +71,53 @@ want to bypass the file and registry access checks. So I have created the NSudo
 Devil Mode.</p> <h2 id="origin-of-nsudo-devil-mode"><a href="#origin-of-nsudo-devil-mode" class="header-anchor">#</a> Origin of NSudo Devil Mode</h2> <p>NSudo Devil Mode is based on the Dism++ God Mode or call it &quot;Dism++ 春哥附体&quot;
 via Chinese. I have refactored the implementations of Dism++ God Mode, add some
 new features and make its source code available in NSudo's GitHub repository.</p> <h2 id="the-list-of-hooked-windows-nt-kernel-system-calls"><a href="#the-list-of-hooked-windows-nt-kernel-system-calls" class="header-anchor">#</a> The list of hooked Windows NT kernel system calls</h2> <table><thead><tr><th>Name</th> <th>Origin</th></tr></thead> <tbody><tr><td>NtCreateKey</td> <td>Dism++ God Mode.</td></tr> <tr><td>NtCreateKeyTransacted</td> <td>NSudo Devil Mode.</td></tr> <tr><td>NtOpenKey</td> <td>Dism++ God Mode. Extended in NSudo Devil Mode.</td></tr> <tr><td>NtOpenKeyTransacted</td> <td>NSudo Devil Mode.</td></tr> <tr><td>NtOpenKeyEx</td> <td>Dism++ God Mode.</td></tr> <tr><td>NtOpenKeyTransactedEx</td> <td>NSudo Devil Mode.</td></tr> <tr><td>NtCreateFile</td> <td>Dism++ God Mode.</td></tr> <tr><td>NtOpenFile</td> <td>Dism++ God Mode.</td></tr></tbody></table> <h2 id="how-to-use-nsudo-devil-mode"><a href="#how-to-use-nsudo-devil-mode" class="header-anchor">#</a> How to use NSudo Devil Mode</h2> <p>You can enable it via LoadLibrary and disable it via FreeLibrary. Here is a
-demo code.</p> <div class="language- extra-class"><pre class="language-text"><code>using System;
-using System.IO;
-using System.Runtime.InteropServices;
+demo code.</p> <div class="language-csharp extra-class"><pre class="language-csharp"><code><span class="token keyword">using</span> <span class="token namespace">System</span><span class="token punctuation">;</span>
+<span class="token keyword">using</span> <span class="token namespace">System<span class="token punctuation">.</span>IO</span><span class="token punctuation">;</span>
+<span class="token keyword">using</span> <span class="token namespace">System<span class="token punctuation">.</span>Runtime<span class="token punctuation">.</span>InteropServices</span><span class="token punctuation">;</span>
 
-namespace Demo
-{
-    class Program
-    {
-        [DllImport(&quot;kernel32.dll&quot;, CharSet = CharSet.Unicode)]
-        static extern IntPtr LoadLibrary(string lpLibFileName);
+<span class="token keyword">namespace</span> <span class="token namespace">Demo</span>
+<span class="token punctuation">{</span>
+    <span class="token keyword">class</span> <span class="token class-name">Program</span>
+    <span class="token punctuation">{</span>
+        <span class="token punctuation">[</span><span class="token attribute"><span class="token class-name">DllImport</span><span class="token attribute-arguments"><span class="token punctuation">(</span><span class="token string">&quot;kernel32.dll&quot;</span><span class="token punctuation">,</span> CharSet <span class="token operator">=</span> CharSet<span class="token punctuation">.</span>Unicode<span class="token punctuation">)</span></span></span><span class="token punctuation">]</span>
+        <span class="token keyword">static</span> <span class="token keyword">extern</span> <span class="token return-type class-name">IntPtr</span> <span class="token function">LoadLibrary</span><span class="token punctuation">(</span><span class="token class-name"><span class="token keyword">string</span></span> lpLibFileName<span class="token punctuation">)</span><span class="token punctuation">;</span>
 
-        [DllImport(&quot;kernel32.dll&quot;, SetLastError = true)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        static extern bool FreeLibrary(IntPtr hLibModule);
+        <span class="token punctuation">[</span><span class="token attribute"><span class="token class-name">DllImport</span><span class="token attribute-arguments"><span class="token punctuation">(</span><span class="token string">&quot;kernel32.dll&quot;</span><span class="token punctuation">,</span> SetLastError <span class="token operator">=</span> <span class="token boolean">true</span><span class="token punctuation">)</span></span></span><span class="token punctuation">]</span>
+        <span class="token punctuation">[</span><span class="token attribute"><span class="token target keyword">return</span><span class="token punctuation">:</span> <span class="token class-name">MarshalAs</span><span class="token attribute-arguments"><span class="token punctuation">(</span>UnmanagedType<span class="token punctuation">.</span>Bool<span class="token punctuation">)</span></span></span><span class="token punctuation">]</span>
+        <span class="token keyword">static</span> <span class="token keyword">extern</span> <span class="token return-type class-name"><span class="token keyword">bool</span></span> <span class="token function">FreeLibrary</span><span class="token punctuation">(</span><span class="token class-name">IntPtr</span> hLibModule<span class="token punctuation">)</span><span class="token punctuation">;</span>
 
-        static void Main(string[] args)
-        {
-            IntPtr NSudoDevilModeModuleHandle = LoadLibrary(
-                @&quot;E:\GitHub\M2Team\NSudo\Output\Release\x64\NSudoDevilMode.dll&quot;);
+        <span class="token keyword">static</span> <span class="token return-type class-name"><span class="token keyword">void</span></span> <span class="token function">Main</span><span class="token punctuation">(</span><span class="token class-name"><span class="token keyword">string</span><span class="token punctuation">[</span><span class="token punctuation">]</span></span> args<span class="token punctuation">)</span>
+        <span class="token punctuation">{</span>
+            <span class="token class-name">IntPtr</span> NSudoDevilModeModuleHandle <span class="token operator">=</span> <span class="token function">LoadLibrary</span><span class="token punctuation">(</span>
+                <span class="token string">@&quot;E:\GitHub\M2Team\NSudo\Output\Release\x64\NSudoDevilMode.dll&quot;</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 
-            {
-                DirectoryInfo Folder = new DirectoryInfo(
-                @&quot;C:\System Volume Information&quot;);
+            <span class="token punctuation">{</span>
+                <span class="token class-name">DirectoryInfo</span> Folder <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token constructor-invocation class-name">DirectoryInfo</span><span class="token punctuation">(</span>
+                <span class="token string">@&quot;C:\System Volume Information&quot;</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 
-                foreach (FileInfo File in Folder.GetFiles())
-                {
-                    Console.WriteLine(File.FullName);
-                }
-            }
+                <span class="token keyword">foreach</span> <span class="token punctuation">(</span><span class="token class-name">FileInfo</span> File <span class="token keyword">in</span> Folder<span class="token punctuation">.</span><span class="token function">GetFiles</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+                <span class="token punctuation">{</span>
+                    Console<span class="token punctuation">.</span><span class="token function">WriteLine</span><span class="token punctuation">(</span>File<span class="token punctuation">.</span>FullName<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token punctuation">}</span>
+            <span class="token punctuation">}</span>
 
-            FreeLibrary(NSudoDevilModeModuleHandle);
+            <span class="token function">FreeLibrary</span><span class="token punctuation">(</span>NSudoDevilModeModuleHandle<span class="token punctuation">)</span><span class="token punctuation">;</span>
 
-            {
-                DirectoryInfo Folder = new DirectoryInfo(
-                @&quot;C:\System Volume Information&quot;);
+            <span class="token punctuation">{</span>
+                <span class="token class-name">DirectoryInfo</span> Folder <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token constructor-invocation class-name">DirectoryInfo</span><span class="token punctuation">(</span>
+                <span class="token string">@&quot;C:\System Volume Information&quot;</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 
-                foreach (FileInfo File in Folder.GetFiles())
-                {
-                    Console.WriteLine(File.FullName);
-                }
-            }
+                <span class="token keyword">foreach</span> <span class="token punctuation">(</span><span class="token class-name">FileInfo</span> File <span class="token keyword">in</span> Folder<span class="token punctuation">.</span><span class="token function">GetFiles</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+                <span class="token punctuation">{</span>
+                    Console<span class="token punctuation">.</span><span class="token function">WriteLine</span><span class="token punctuation">(</span>File<span class="token punctuation">.</span>FullName<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token punctuation">}</span>
+            <span class="token punctuation">}</span>
 
-            Console.ReadKey();
-        }
-    }
-}
-</code></pre></div></div> <footer class="page-edit"><div class="edit-link"><a href="https://github.com/m2team/NSudo/edit/master/Website/en-us/docs/DevilMode.md" target="_blank" rel="noopener noreferrer">Edit this page on GitHub</a> <span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></div> <div class="last-updated"><span class="prefix">Last Updated:</span> <span class="time">2021/08/28 11:05</span></div></footer> <div class="page-nav"><p class="inner"><span class="prev">
+            Console<span class="token punctuation">.</span><span class="token function">ReadKey</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div></div> <footer class="page-edit"><div class="edit-link"><a href="https://github.com/m2team/NSudo/edit/master/Website/en-us/docs/DevilMode.md" target="_blank" rel="noopener noreferrer">Edit this page on GitHub</a> <span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></div> <div class="last-updated"><span class="prefix">Last Updated:</span> <span class="time">2021/08/30 12:41</span></div></footer> <div class="page-nav"><p class="inner"><span class="prev">
       ←
       <a href="/en-us/docs/Changelog.html" class="prev">
         Changelog
@@ -126,6 +126,6 @@ namespace Demo
       </a>
       →
     </span></p></div> <div class="page-footer"><ul class="inner"><li><span>Copyright &copy; <a href='https://m2team.org/' target='_blank'>M2-Team</a> and Contributors. All rights reserved. </span></li><li><span><a href='https://github.com/M2Team/NSudo/blob/master/License.md' target='_blank'>MIT</a> Licensed </span></li><li><a href="https://github.com/M2Team/NSudo/issues" target="_blank" rel="noopener noreferrer">GitHub Issue </a></li><li><a href="https://github.com/M2Team/NSudo/blob/master/People.md" target="_blank" rel="noopener noreferrer">Relevant People</a></li></ul></div> </main></div><div class="global-ui"><!----></div></div>
-    <script src="/assets/js/app.75968e17.js" defer></script><script src="/assets/js/2.2bf2e7cc.js" defer></script><script src="/assets/js/3.87784963.js" defer></script><script src="/assets/js/14.bb0165d0.js" defer></script>
+    <script src="/assets/js/app.fb3dedda.js" defer></script><script src="/assets/js/2.2bf2e7cc.js" defer></script><script src="/assets/js/3.87784963.js" defer></script><script src="/assets/js/14.7182d83a.js" defer></script>
   </body>
 </html>
