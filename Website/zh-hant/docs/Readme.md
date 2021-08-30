@@ -86,18 +86,22 @@ PS:
 
 例子: 以 TrustedInstaller 權限, 啓用所有特殊權限, 完整性默認執行命令提示字元:
 
-> NSudo -U:T -P:E cmd
+```powershell
+NSudo -U:T -P:E cmd
+```
 
 從 NSudo 5.0.1708.16 開始命令列支持嵌套引號, 例如:
 
-> NSudo -U:T cmd /c "dir "C:\Program Files" & pause"
+```powershell
+NSudo -U:T cmd /c "dir "C:\Program Files" & pause"
+```
 
 ## 常用列表
 
 關於常用列表的自訂,可以使用記事本等工具編輯 NSudo.json。你可以照著示例的做法添
 加你的自訂項目:
 
-```
+```json
 {
   "ShortCutList_V2": {
     "命令提示字元": "cmd",

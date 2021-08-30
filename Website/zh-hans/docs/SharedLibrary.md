@@ -6,7 +6,7 @@
 
 ### C/C++ 函数原型
 
-```
+```cpp
 EXTERN_C HRESULT WINAPI NSudoCreateProcess(
     _In_ NSUDO_USER_MODE_TYPE UserModeType,
     _In_ NSUDO_PRIVILEGES_MODE_TYPE PrivilegesModeType,
@@ -23,7 +23,7 @@ EXTERN_C HRESULT WINAPI NSudoCreateProcess(
 
 一个类型为 NSUDO_USER_MODE_TYPE 枚举类型的值, 用以表示用户类别。
 
-```
+```cpp
 typedef enum class _NSUDO_USER_MODE_TYPE
 {
     DEFAULT,
@@ -39,7 +39,7 @@ typedef enum class _NSUDO_USER_MODE_TYPE
 
 一个类型为 NSUDO_PRIVILEGES_MODE_TYPE 枚举类型的值, 用以表示特权类型。
 
-```
+```cpp
 typedef enum class _NSUDO_PRIVILEGES_MODE_TYPE
 {
     DEFAULT,
@@ -52,7 +52,7 @@ typedef enum class _NSUDO_PRIVILEGES_MODE_TYPE
 
 一个类型为 NSUDO_MANDATORY_LABEL_TYPE 枚举类型的值, 用以表示完整性标签。
 
-```
+```cpp
 typedef enum class _NSUDO_MANDATORY_LABEL_TYPE
 {
     UNTRUSTED,
@@ -69,7 +69,7 @@ typedef enum class _NSUDO_MANDATORY_LABEL_TYPE
 
 一个类型为 NSUDO_PROCESS_PRIORITY_CLASS_TYPE 枚举类型的值, 用以表示进程优先级。
 
-```
+```cpp
 typedef enum class _NSUDO_PROCESS_PRIORITY_CLASS_TYPE
 {
     IDLE,
@@ -85,7 +85,7 @@ typedef enum class _NSUDO_PROCESS_PRIORITY_CLASS_TYPE
 
 一个类型为 NSUDO_SHOW_WINDOW_MODE_TYPE 枚举类型的值, 用以表示显示窗口模式。
 
-```
+```cpp
 typedef enum class _NSUDO_SHOW_WINDOW_MODE_TYPE
 {
     DEFAULT,
@@ -125,7 +125,7 @@ HRESULT 类型。如果函数调用成功, 则返回值为 S_OK。
 
 ### 代码示例
 
-```
+```csharp
 using System;
 
 namespace M2.NSudo.Demo

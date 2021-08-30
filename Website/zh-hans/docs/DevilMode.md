@@ -57,7 +57,7 @@ FreeLibrary 释放 NSudo 恶魔模式的动态链接库的 HMODULE 句柄即可�
 的内容, 当启用 NSudo 恶魔模式的情况下可以正常显示, 禁用后会抛出文件夹拒绝访问
 的异常。) 
 
-```
+```csharp
 using System;
 using System.IO;
 using System.Runtime.InteropServices;
