@@ -8,7 +8,7 @@ device, you need to go to the x64 folder and click NSudoG.exe
 
 ## Command Line
 
-```
+``` powershell
 Format: NSudoL [ Options and parameters ] Command line or ShortCut Command
 
 Options:
