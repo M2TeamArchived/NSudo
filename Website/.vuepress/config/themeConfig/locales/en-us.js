@@ -2,9 +2,6 @@
   selectText: "Languages",
   label: "English",
   editLinkText: "Edit this page on GitHub",
-  serviceWorker: {
-    updatePopup: { message: "New content is available.", buttonText: "Refresh" }
-  },
   lastUpdated: 'Last Updated',
   nav: [
     { text: "Home", link: "/en-us/" },

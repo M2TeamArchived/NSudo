@@ -2,12 +2,6 @@
   selectText: "選擇語言",
   label: "繁體中文",
   editLinkText: "在 GitHub 上編輯此頁",
-  serviceWorker: {
-    updatePopup: {
-      message: "發現新內容可用。",
-      buttonText: "重載"
-    }
-  },
   lastUpdated: '最後更新時間',
   nav: [
     { text: "主頁", link: "/zh-hant/" },
