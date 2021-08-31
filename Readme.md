@@ -26,9 +26,9 @@ under the source code repository.
 - [ ] TOML-based environment configuration file.
 - [ ] Add more APIs to NSudo Shared Library.
 - [ ] Export PDF directly from the offical website.
-- [ ] Improve the Gitee mirror experience.
+- [x] Improve the Gitee mirror experience.
   - [x] Translate the readme in the source tree root.
-  - [ ] Synchronizing automatically when commits pushed.
+  - [x] Synchronizing automatically when commits pushed.
 
 ## Relevant People
 
