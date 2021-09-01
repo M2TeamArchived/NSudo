@@ -18,13 +18,13 @@
 
 ## Chocolatey (Unofficial)
 
-```powershell
+``` cmd
 choco install nsudo
 ```
 
 ## scoop (Unofficial)
 
-```powershell
+``` cmd
 scoop bucket add extras
 scoop install nsudo
 ```
