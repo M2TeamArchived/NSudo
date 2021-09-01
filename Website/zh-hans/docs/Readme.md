@@ -8,7 +8,7 @@ NSudoG.exe。
 
 ## 命令行选项
 
-```
+``` powershell
 格式: NSudoL [ 选项与参数 ] 命令行或常用任务名
 
 选项:

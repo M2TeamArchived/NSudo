@@ -2,12 +2,6 @@
 	selectText: "选择语言",
 	label: "简体中文",
 	editLinkText: "在 GitHub 上编辑此页",
-	serviceWorker: {
-		updatePopup: {
-			message: "发现新内容可用。",
-			buttonText: "刷新"
-		}
-	},
 	lastUpdated: '最后更新时间',
 	nav: [
 		{ text: "首页", link: "/zh-hans/" },

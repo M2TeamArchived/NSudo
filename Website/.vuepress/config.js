@@ -51,7 +51,24 @@ module.exports = {
     '@vuepress/medium-zoom',
     '@vuepress/pwa', {
       serviceWorker: true,
-      updatePopup: true
+      updatePopup: {
+        '/en-us/': {
+          message: "New content is available.",
+          buttonText: "Refresh",
+        },
+        '/zh-hans/': {
+          updatePopup: {
+            message: "发现新内容可用。",
+            buttonText: "刷新"
+          }
+        },
+        '/zh-hant/': {
+          updatePopup: {
+            message: "發現新內容可用。",
+            buttonText: "重載"
+          }
+        },
+      }
     },
     ['@vuepress/last-updated', {
         transformer: (timestamp, lang) => {
