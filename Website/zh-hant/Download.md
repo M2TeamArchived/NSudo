@@ -18,13 +18,13 @@
 
 ## Chocolatey (非官方)
 
-```powershell
+``` batch
 choco install nsudo
 ```
 
 ## scoop (非官方)
 
-```powershell
+``` batchs
 scoop bucket add extras
 scoop install nsudo
 ```

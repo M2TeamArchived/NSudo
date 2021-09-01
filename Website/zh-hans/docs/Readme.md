@@ -8,7 +8,7 @@ NSudoG.exe。
 
 ## 命令行选项
 
-``` powershell
+``` batch
 格式: NSudoL [ 选项与参数 ] 命令行或常用任务名
 
 选项:
@@ -85,13 +85,13 @@ PS:
 
 例子: 以 TrustedInstaller 权限, 启用所有特权, 完整性默认运行命令提示符
 
-```powershell
+``` batch
 NSudo -U:T -P:E cmd
 ```
 
 从 NSudo 5.0.1708.16 开始命令行支持嵌套引号, 例如:
 
-```powershell
+``` batch
 NSudo -U:T cmd /c "dir "C:\Program Files" & pause"
 ```
 
