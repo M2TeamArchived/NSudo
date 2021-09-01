@@ -18,13 +18,13 @@
 
 ## Chocolatey (Unofficial)
 
-``` cmd
+``` batch
 choco install nsudo
 ```
 
 ## scoop (Unofficial)
 
-``` cmd
+``` batch
 scoop bucket add extras
 scoop install nsudo
 ```

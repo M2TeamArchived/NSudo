@@ -8,7 +8,7 @@
 
 ## 命令列選項
 
-``` cmd
+``` batch
 格式: NSudoL [ 選項與參數 ] 命令列執行或常用任務名
 
 選項:
@@ -86,13 +86,13 @@ PS:
 
 例子: 以 TrustedInstaller 權限, 啓用所有特殊權限, 完整性默認執行命令提示字元:
 
-``` cmd
+``` batch
 NSudo -U:T -P:E cmd
 ```
 
 從 NSudo 5.0.1708.16 開始命令列支持嵌套引號, 例如:
 
-``` cmd
+``` batch
 NSudo -U:T cmd /c "dir "C:\Program Files" & pause"
 ```
 

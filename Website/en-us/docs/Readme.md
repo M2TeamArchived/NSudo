@@ -8,7 +8,7 @@ device, you need to go to the x64 folder and click NSudoG.exe
 
 ## Command Line
 
-``` cmd
+``` batch
 Format: NSudoL [ Options and parameters ] Command line or ShortCut Command
 
 Options:
@@ -94,14 +94,14 @@ Example:
 Example: If you want to run Command Prompt with TrustedInstaller, enable all
 privileges and the default Integrity Level:
 
-``` cmd
+``` batch
 NSudo -U:T -P:E cmd
 ```
 
 Starting from NSudo 5.0.1708.16, the command line nested quotes is supported.
 For example:
 
-``` cmd
+``` batch
 NSudo -U:T cmd /c "dir "C:\Program Files" & pause"
 ```
 
