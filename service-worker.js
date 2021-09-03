@@ -27,7 +27,7 @@ self.addEventListener('message', (event) => {
 self.__precacheManifest = [
   {
     "url": "404.html",
-    "revision": "7314ae9042e7dfd49e5241601f451d99"
+    "revision": "0779a7f1697e5cbeae421fec576100ee"
   },
   {
     "url": "assets/css/0.styles.fc4d6fd4.css",
@@ -154,36 +154,36 @@ self.__precacheManifest = [
     "revision": "d3ad79e24125e16da920efcfb63fa436"
   },
   {
-    "url": "assets/js/app.a5df621d.js",
-    "revision": "2b8b7010c918225427c5baf3ee4d7b7e"
+    "url": "assets/js/app.49a39fa3.js",
+    "revision": "2a6c84f65e8184cd47ff1e7f39c94fad"
   },
   {
     "url": "en-us/docs/Changelog.html",
-    "revision": "f8928c8ee193b89e07c01ccdd19f24b7"
+    "revision": "13a7baee0758e52d83e185fa29ff71d5"
   },
   {
     "url": "en-us/docs/DevilMode.html",
-    "revision": "cf8f7a74c9fa2d45d83f94a39786535e"
+    "revision": "30b86a17ba1baf363d909ae389507ae4"
   },
   {
     "url": "en-us/docs/index.html",
-    "revision": "e6f29eebb2d8c33fc0c86facdc49f4d2"
+    "revision": "db4a842760e0d36164890c184a537f51"
   },
   {
     "url": "en-us/docs/SharedLibrary.html",
-    "revision": "69e9eae90ce0c673714ba7a39a2df51b"
+    "revision": "88ceb6ec688ee9c91beec60b6000e93d"
   },
   {
     "url": "en-us/Download.html",
-    "revision": "04cd1d77e09d9d95c37fa58ddcee5801"
+    "revision": "e511f8e4512eee8e13deba073be7253a"
   },
   {
     "url": "en-us/index.html",
-    "revision": "e4c654c0b57ab479339d39933b885a83"
+    "revision": "71d22e05f69acb6723d507f42f5c4b7f"
   },
   {
     "url": "en-us/Support.html",
-    "revision": "7947009d77b2c985433ed23693090451"
+    "revision": "4e26b0738600accb835a6f739b42056b"
   },
   {
     "url": "icons/apple-touch-icon-152x152.png",
@@ -203,59 +203,59 @@ self.__precacheManifest = [
   },
   {
     "url": "zh-hans/docs/Changelog.html",
-    "revision": "3a533fe689bb92b243ca579f2fa3c892"
+    "revision": "9ff31cc01c00e4de41ceb3d022b46af6"
   },
   {
     "url": "zh-hans/docs/DevilMode.html",
-    "revision": "b5771e08760f0ad20378b0eae402e15a"
+    "revision": "fdd0be32b203edfb7ee39564c441e498"
   },
   {
     "url": "zh-hans/docs/index.html",
-    "revision": "15dff3c4cb5be468cea44d1293d44550"
+    "revision": "59f6d9d097d55d5d86c2b51535f3a1d9"
   },
   {
     "url": "zh-hans/docs/SharedLibrary.html",
-    "revision": "254c2f6ddf0e41b092c9b919e4f2ab6c"
+    "revision": "38455d19bdd17214b786c034578fe1ed"
   },
   {
     "url": "zh-hans/Download.html",
-    "revision": "fa06a7c0e99561a6075399dd98aa2326"
+    "revision": "22aa567ba6e1af1388c9220fad4a1b63"
   },
   {
     "url": "zh-hans/index.html",
-    "revision": "0b0a97e53a6d0d4abcac5efdb0211827"
+    "revision": "576dfcc4f8fb1c7d2f93a7d7c0e524d8"
   },
   {
     "url": "zh-hans/Support.html",
-    "revision": "15564559f7ea76b27192296cf64d0a52"
+    "revision": "9094af8bacaed899042256b660f5fe0c"
   },
   {
     "url": "zh-hant/docs/Changelog.html",
-    "revision": "43ac34d816df0b2f142fa5db9b15a92e"
+    "revision": "311d9e24f3404b77b4734770d2a9aa8d"
   },
   {
     "url": "zh-hant/docs/DevilMode.html",
-    "revision": "26f5f14dbbb1c84848a71c2852f7fac3"
+    "revision": "799da9e81e22ae952013a92caf44d19c"
   },
   {
     "url": "zh-hant/docs/index.html",
-    "revision": "da8ff4aa38e5cf174e313e15862dd5e1"
+    "revision": "db20e81233458126f20bb5cf05094451"
   },
   {
     "url": "zh-hant/docs/SharedLibrary.html",
-    "revision": "e27b07a2ed8d4d054ffe4206c071d0f5"
+    "revision": "fd321b40d99a58f4a37fdba2ffd822b8"
   },
   {
     "url": "zh-hant/Download.html",
-    "revision": "b86097335fdc2f7bb4bba654c2219e67"
+    "revision": "5bb25227a6175d9e38a8413c275f8183"
   },
   {
     "url": "zh-hant/index.html",
-    "revision": "bbe4f6d0ab7b2398ba4105f58a9ae650"
+    "revision": "053aaf07d07a3a1ac6ea6e249047ce3f"
   },
   {
     "url": "zh-hant/Support.html",
-    "revision": "b4ccde55b657f2e7d0bd8f7095c107fa"
+    "revision": "27df382499b30630f72abf7d8c5eeac8"
   }
 ].concat(self.__precacheManifest || []);
 workbox.precaching.precacheAndRoute(self.__precacheManifest, {});
