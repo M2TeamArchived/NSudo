@@ -57,26 +57,22 @@ module.exports = {
           buttonText: "Refresh",
         },
         '/zh-hans/': {
-          updatePopup: {
-            message: "发现新内容可用。",
-            buttonText: "刷新"
-          }
+          message: "发现新内容可用。",
+          buttonText: "刷新"
         },
         '/zh-hant/': {
-          updatePopup: {
-            message: "發現新內容可用。",
-            buttonText: "重載"
-          }
+          message: "發現新內容可用。",
+          buttonText: "重載"
         },
       }
     },
     ['@vuepress/last-updated', {
-        transformer: (timestamp, lang) => {
-          const moment = require('moment')
-          moment.locale(lang)
-          return moment(timestamp).format("YYYY/MM/DD HH:mm")
-        }
+      transformer: (timestamp, lang) => {
+        const moment = require('moment')
+        moment.locale(lang)
+        return moment(timestamp).format("YYYY/MM/DD HH:mm")
       }
+    }
     ]
   ]
 }
