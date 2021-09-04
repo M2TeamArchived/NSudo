@@ -1,20 +1,12 @@
-﻿name: CI
+﻿name: Build Binaries
 
 on:
   push:
-    paths-ignore:
-      - '.github/*'
-      - 'Website/**'
-      - 'Scripts/**'
-      - '*.md'
-      - 'appveyor.yml'
+    paths:
+      - 'Source/**'
   pull_request:
-    paths-ignore:
-      - '.github/*'
-      - 'Website/**'
-      - 'Scripts/**'
-      - '*.md'
-      - 'appveyor.yml'
+    paths:
+      - 'Source/**'
 
 jobs:
   build:
