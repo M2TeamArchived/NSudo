@@ -18,6 +18,7 @@
 - 20011010wo ([https://github.com/yangrq](https://github.com/yangrq))
 - Bill ([https://github.com/bianyifan](https://github.com/bianyifan))
 - Eugene Wang J.y ([https://github.com/ewjy](https://github.com/ewjy))
+- Flex Zhong ([https://github.com/ChungZH](https://github.com/ChungZH))
 - Force.Charlie-I ([https://github.com/fcharlie](https://github.com/fcharlie))
 - garf02 ([https://github.com/garf02](https://github.com/garf02))
 - laosb ([https://github.com/laosb](https://github.com/laosb))
