@@ -1,6 +1,6 @@
 ﻿# Changelog
 
-**NSudo 9.0 Preview 2 (vNext, >= 9.0.2683.0)**
+**NSudo 9.0 Preview 2 (vNext, >= 9.0.2684.0)**
 
 - Improve documents and website. (Thanks to 青春永不落幕 and Flex Zhong.)
 
