@@ -23,20 +23,20 @@
       }
     ]
   },
-	footer: [
-		{
-			text: "Copyright &copy; <a href='https://m2team.org/' target='_blank'>M2-Team</a> and Contributors. All rights reserved. "
-		},
-		{
-			text: "<a href='https://github.com/M2Team/NSudo/blob/master/License.md' target='_blank'>MIT</a> Licensed "
-		},
-		{
-			text: "GitHub Issue ",
-			link: "https://github.com/M2Team/NSudo/issues"
-    },
-    {
-      text: "相關人士",
-      link: "https://github.com/M2Team/NSudo/blob/master/People.md"
-    }
-	]
+  footer: {
+    actor: 'M2-Team',
+    actorLink: 'https://m2team.org/',
+    licensedLink: 'https://github.com/M2Team/NSudo/blob/master/License.md',
+    licensed: 'MIT',
+    copyright: [
+      {
+        text: "GitHub Issue ",
+        link: "https://github.com/M2Team/NSudo/issues"
+      },
+      {
+        text: "相關人士",
+        link: "https://github.com/M2Team/NSudo/blob/master/People.md"
+      }
+    ]
+  }
 }

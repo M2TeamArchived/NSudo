@@ -1,9 +1,25 @@
 <template>
-  <div class="page-footer">
-    <ul class="inner">    
-      <li v-for="item in footer" :key="item.link">
-        <a v-if="item.link" :href="item.link" target="_blank" rel="noopener noreferrer">{{ item.text }}</a>
-        <template v-else><span v-html="item.text">{{ item.text }}</span></template>
+  <div class="page-footer" v-if='footer.actor'>
+    <ul class="inner">
+      <li v-if="footer.createUpdate">
+        Copyright &copy; {{ footer.createYear }}-{{ new Date().getFullYear() }}
+        <a v-if="footer.actorLink" :href="footer.actorLink" target="_blank" rel="noopener noreferrer"> {{ footer.actor }} </a> and Contributors. All rights reserved.
+      </li>
+      <li v-else-if="footer.createYear">
+        Copyright &copy; {{ footer.createYear }} <a v-if="footer.actorLink" :href="footer.actorLink" target="_blank" rel="noopener noreferrer"> {{ footer.actor }} </a> and Contributors. All rights reserved.
+      </li>
+      <li v-else-if="footer.actorLink">
+        Copyright &copy; <a v-if="footer.actorLink" :href="footer.actorLink" target="_blank" rel="noopener noreferrer"> {{ footer.actor }} </a> and Contributors. All rights reserved.
+      </li>
+      <li v-else-if="footer.actor">
+        Copyright &copy; {{ footer.actor }} and Contributors. All rights reserved.
+      </li>
+      <li v-if="footer.licensedLink">
+        <a :href="footer.licensedLink" target="_blank" rel="noopener noreferrer">{{ footer.licensed }}</a> Licensed
+      </li>
+      <li v-for="copyright in footer.copyright" :key="copyright.link">
+        <a v-if="copyright.link" :href="copyright.link" target="_blank" rel="noopener noreferrer">{{ copyright.text }}</a>
+        <template v-else><span v-html="copyright.text">{{ copyright.text }}</span></template>
       </li>
     </ul>
   </div>
@@ -11,8 +27,8 @@
 <script>
 export default {
   computed: {
-    footer () {
-      return this.$themeLocaleConfig.footer || this.$site.themeConfig.footer || []
+    footer() {
+      return this.$themeConfig.footer || this.$themeLocaleConfig.footer || this.$site.themeConfig.footer || {}
     }
   }
 };
@@ -38,9 +54,6 @@ export default {
       &:last-child
         border-right none
         padding-right 0
-      img 
-        vertical-align middle
-        margin-right 8px
 @media (max-width: $MQMobileNarrow)
   .page-footer
     padding 0 1.5rem

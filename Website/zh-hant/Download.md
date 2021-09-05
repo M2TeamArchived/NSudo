@@ -24,7 +24,7 @@ choco install nsudo
 
 ## scoop (非官方)
 
-``` batchs
+``` batch
 scoop bucket add extras
 scoop install nsudo
 ```
