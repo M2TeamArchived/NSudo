@@ -17,9 +17,6 @@
       <li v-if="footer.licensedLink">
         <a :href="footer.licensedLink" target="_blank" rel="noopener noreferrer">{{ footer.licensed }}</a> Licensed
       </li>
-      <li v-if="footer.licensedLink">
-        <a :href="footer.licensedLink" target="_blank" rel="noopener noreferrer">{{ footer.licensed }}</a> Licensed
-      </li>
       <li v-for="copyright in footer.copyright" :key="copyright.link">
         <a v-if="copyright.link" :href="copyright.link" target="_blank" rel="noopener noreferrer">{{ copyright.text }}</a>
         <template v-else><span v-html="copyright.text">{{ copyright.text }}</span></template>
