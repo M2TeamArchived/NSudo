@@ -32,6 +32,7 @@
     <ClCompile Include="MoPurgeTridentCache.cpp" />
     <ClCompile Include="MoPurgeVisualStudioInstallerCache.cpp" />
     <ClCompile Include="MoPurgeWindowsEventLog.cpp" />
+    <ClCompile Include="MoPurgeWindowsSetup.cpp" />
     <ClCompile Include="MoUpdateAppXPackages.cpp" />
     <ClCompile Include="MouriOptimizationPlugin.cpp" />
     <ClCompile Include="MoDefragMemory.cpp" />

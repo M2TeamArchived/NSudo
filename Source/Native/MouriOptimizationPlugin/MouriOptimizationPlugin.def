@@ -18,3 +18,4 @@ MoPurgeTridentCache
 MoPurgePackageCache
 MoPurgeVisualStudioInstallerCache
 MoPurgeGeckoCache
+MoPurgeWindowsSetup

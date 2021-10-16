@@ -185,6 +185,20 @@ Windows 事件日志清理
 - `/Purge` 清理
   > NSudoPluginHost MoPlugin.dll MoPurgeWindowsEventLog /Purge
 
+## MoPurgeWindowsSetup
+
+### 功能
+
+Windows 安装清理，包括以前的 Windows 安装文件、临时 Windows 安装文件、Windows 
+升级舍弃的文件、 Windows ESD 安装文件和 Windows 升级日志文件
+
+### 用法
+
+- `/Scan` 扫描
+  > NSudoPluginHost MoPlugin.dll MoPurgeWindowsSetup /Scan
+- `/Purge` 清理
+  > NSudoPluginHost MoPlugin.dll MoPurgeWindowsSetup /Purge
+
 ## MoUpdateAppXPackages
 
 ### 功能

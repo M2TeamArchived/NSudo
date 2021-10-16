@@ -188,6 +188,21 @@ Purge the Windows Event Log.
 - `/Purge` Purge this item.
   > NSudoPluginHost MoPlugin.dll MoPurgeWindowsEventLog /Purge
 
+## MoPurgeWindowsSetup
+
+### Feature
+
+Purge the Windows Setup, including Previous Windows installation(s), Temporary 
+Windows installation files, Files discarded by Windows upgrade, Windows ESD 
+installation files and Windows upgrade log files.
+
+### Usage
+
+- `/Scan` Scan this item.
+  > NSudoPluginHost MoPlugin.dll MoPurgeWindowsSetup /Scan
+- `/Purge` Purge this item.
+  > NSudoPluginHost MoPlugin.dll MoPurgeWindowsSetup /Purge
+
 ## MoUpdateAppXPackages
 
 ### Feature
