@@ -10,48 +10,47 @@
 
 [简体中文](Readme.zh-CN.md) | [English](Readme.md)
 
-This is the source code repository of NSudo. If you wonder to visit the NSudo 
-official website, download NSudo or read the NSudo documents etc, please visit
+Это репозиторий исходного кода NSudo. Если вы хотите посетить официальный сайт NSudo, 
+скачать NSudo или прочитать документацию по NSudo и т.д., пожалуйста, посетите страницу
 https://nsudo.m2team.org.
 
-This readme file will be the developer oriented document because this it is 
-under the source code repository.
+Этот файл readme будет документом, ориентированным на разработчиков, поскольку он 
+находится в репозитории исходного кода.
 
-## 2021 Development Roadmap
+## Дорожная карта развития на 2021 год
 
-- [x] Add Current User (Elevated) Mode.
-  - [x] Implemented in NSudo Shared Library.
-  - [x] Implemented in NSudo Launcher.
-- [ ] Use wxWidgets to implement the UI.
-- [ ] TOML-based environment configuration file.
-- [ ] Add more APIs to NSudo Shared Library.
-- [ ] Export PDF directly from the offical website.
-- [x] Improve the Gitee mirror experience.
-  - [x] Translate the readme in the source tree root.
-  - [x] Synchronizing automatically when commits pushed.
+- [x] Добавить режим текущего пользователя (повышенный).
+  - [x] Реализовать общую библиотеку NSudo.
+  - [x] Реализовать NSudo Launcher.
+- [ ] Использование wxWidgets для реализации пользовательского интерфейса.
+- [ ] Конфигурационный файл среды на основе TOML.
+- [ ] Добавить больше API в общую библиотеку NSudo.
+- [ ] Экспорт PDF непосредственно с официального сайта.
+- [x] Улучшить работу зеркала Gitee.
+  - [x] Перевести readme в корне дерева источника.
+  - [x] Автоматическая синхронизация при коммите.
 
-## Relevant People
+## Благодарности
 
-Please read [People.md](People.md).
+Пожалуйста, прочтите [People.md](People.md).
 
-## Code of Conduct
+## Правила поведения
 
-Please read [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
+Пожалуйста, прочтите [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
 
-## Contributing to NSudo
+## Внесение вклада в NSudo
 
-### How to become a contributor
+### Как стать участником внесения вклада
 
-- Direct contributions
-  - **Create pull requests directly.**
-  - Please send e-mails to Mouri_Naruto@Outlook.com if you have any
-    questions.
-- Feedback suggestions and bugs.
-  - We use GitHub issues to track bugs and features.
-  - For bugs and general issues please 
-    [file a new issue](https://github.com/M2Team/NSudo/issues/new).
+- Прямые вклады
+  - **Создавайте pull request'ы напрямую.**
+  - Если у вас есть вопросы, пожалуйста, пишите на Mouri_Naruto@Outlook.com.
+- Обратная связь о предложениях и ошибках.
+  - Мы используем GitHub issues для отслеживания ошибок и предложений.
+  - Для устранения ошибок и общих вопросов, пожалуйста, 
+    [создайте новый вопрос](https://github.com/M2Team/NSudo/issues/new).
 
-### Code contribution guidelines
+### Руководство по внесению написанию кода
 
 #### Prerequisites
 
@@ -62,39 +61,39 @@ Please read [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
   - You also need install ARM64 components when you installing the Windows 10
     Version 1703 SDK or later and you want to compile ARM64 version of NSudo.
 
-#### How to build all targets of NSudo
+#### Как создать все целевые объекты NSudo
 
-Run `BuildAllTargets.bat` in `Source/Native`.
+Запустите `BuildAllTargets.bat` в `Source/Native`.
 
-#### How to modify or debugging NSudo
+#### Как изменить или отладить NSudo
 
-Open `NSudo.sln` in `Source/Native`.
+Откройте `NSudo.sln` в `Source/Native`.
 
-#### Code style and conventions
+#### Стиль кода и соглашения
 
-- C++: [C++ Core Guidelines](https://github.com/isocpp/CppCoreGuidelines/blob/master/CppCoreGuidelines.md)
-- C#: Follow the .NET Core team's [C# coding style](https://github.com/dotnet/corefx/blob/master/Documentation/coding-guidelines/coding-style.md)
+- C++: [Основные рекомендации C++](https://github.com/isocpp/CppCoreGuidelines/blob/master/CppCoreGuidelines.md)
+- C#: Следуйте стилю команды .NET Core [стиль кода C#](https://github.com/dotnet/corefx/blob/master/Documentation/coding-guidelines/coding-style.md)
 
-For all languages respect the [.editorconfig](https://editorconfig.org/) file 
-specified in the source tree. Many IDEs natively support this or can with a 
-plugin.
+Для всех языков соблюдайте файл [.editorconfig](https://editorconfig.org/), 
+указанный в дереве исходного текста. Многие IDE поддерживают эту возможность 
+изначально или с помощью плагина.
 
-#### Copying files from other projects
+#### Копирование файлов из других проектов
 
-The following rules must be followed for PRs that include files from another 
-project:
-- The license of the file is
-  [permissive](https://en.wikipedia.org/wiki/Permissive_free_software_licence).
-- The license of the file is left intact.
-- The contribution is correctly attributed in the [License](License.md)
-  file in the repository, as needed.
+Следующие правила должны соблюдаться для Pull request'ов, включающих файлы из другого 
+проекта:
+- Лицензия файла является
+  [пермиссивной](https://ru.wikipedia.org/wiki/Разрешительная_лицензия_свободного_ПО).
+- Лицензия файла остаётся нетронутой.
+- При необходимости вклад правильно атрибутируется в файле [лицензии](License.md)
+  в репозитории.
 
-### How to update documents.
+### Способ обновления документации.
 
-Refer to https://github.com/M2Team/NSudo/pull/29.
+Обратите внимание сюда https://github.com/M2Team/NSudo/pull/29.
 
-To build new docs, you'll need to have [Node.js](https://nodejs.org) and 
-[Yarn](https://yarnpkg.com) installed on your system, and run `build.bat` in
+Для создания новых документов вам потребуется установить [Node.js](https://nodejs.org) и 
+[Yarn](https://yarnpkg.com) в вашей системе и запустить `build.bat` в
 `Website`.
 
-Docs engine is based on [VuePress](https://v1.vuepress.vuejs.org).
+Движок документации основан на [VuePress](https://v1.vuepress.vuejs.org).
