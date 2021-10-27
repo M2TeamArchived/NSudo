@@ -1,10 +1,10 @@
-﻿# NSudo Shared Library
+﻿# Общая библиотека NSudo
 
-## NSudoCreateProcess function
+## Функция NSudoCreateProcess
 
-Creates a new process and its primary thread.
+Создаёт новый процесс и его основной поток.
 
-### C/C++ prototype
+### Прототип на C/C++
 
 ```cpp
 EXTERN_C HRESULT WINAPI NSudoCreateProcess(
@@ -19,10 +19,10 @@ EXTERN_C HRESULT WINAPI NSudoCreateProcess(
     _In_opt_ LPCWSTR CurrentDirectory);
 ```
 
-### UserModeType parameter
+### Параметр UserModeType
 
-A value from the NSUDO_USER_MODE_TYPE enumerated type that identifies the user
-mode.
+Значение из перечислимого типа NSUDO_USER_MODE_TYPE, которое идентифицирует пользовательский
+режим.
 
 ```cpp
 typedef enum class _NSUDO_USER_MODE_TYPE
@@ -36,10 +36,10 @@ typedef enum class _NSUDO_USER_MODE_TYPE
 } NSUDO_USER_MODE_TYPE, *PNSUDO_USER_MODE_TYPE;
 ```
 
-### PrivilegesModeType parameter
+### Параметр PrivilegesModeType
 
-A value from the NSUDO_PRIVILEGES_MODE_TYPE enumerated type that identifies the
-privileges mode.
+Значение из перечислимого типа NSUDO_PRIVILEGES_MODE_TYPE, которое идентифицирует
+режим привилегий.
 
 ```cpp
 typedef enum class _NSUDO_PRIVILEGES_MODE_TYPE
@@ -50,10 +50,10 @@ typedef enum class _NSUDO_PRIVILEGES_MODE_TYPE
 } NSUDO_PRIVILEGES_MODE_TYPE, *PNSUDO_PRIVILEGES_MODE_TYPE;
 ```
 
-### MandatoryLabelType parameter
+### Параметр MandatoryLabelType
 
-A value from the NSUDO_MANDATORY_LABEL_TYPE enumerated type that identifies the
-mandatory label.
+Значение из перечислимого типа NSUDO_MANDATORY_LABEL_TYPE, которое идентифицирует
+обязательную метку.
 
 ```cpp
 typedef enum class _NSUDO_MANDATORY_LABEL_TYPE
@@ -68,10 +68,10 @@ typedef enum class _NSUDO_MANDATORY_LABEL_TYPE
 } NSUDO_MANDATORY_LABEL_TYPE, *PNSUDO_MANDATORY_LABEL_TYPE;
 ```
 
-### ProcessPriorityClassType parameter
+### Параметр ProcessPriorityClassType
 
-A value from the NSUDO_PROCESS_PRIORITY_CLASS_TYPE enumerated type that 
-identifies the process priority class.
+Значение из перечислимого типа NSUDO_PROCESS_PRIORITY_CLASS_TYPE, которое 
+идентифицирует класс приоритета процесса.
 
 ```cpp
 typedef enum class _NSUDO_PROCESS_PRIORITY_CLASS_TYPE
@@ -85,10 +85,10 @@ typedef enum class _NSUDO_PROCESS_PRIORITY_CLASS_TYPE
 } NSUDO_PROCESS_PRIORITY_CLASS_TYPE, *PNSUDO_PROCESS_PRIORITY_CLASS_TYPE;
 ```
 
-### ShowWindowModeType parameter
+### Параметр ShowWindowModeType
 
-A value from the NSUDO_SHOW_WINDOW_MODE_TYPE enumerated type that identifies 
-the ShowWindow mode.
+Значение из перечислимого типа NSUDO_SHOW_WINDOW_MODE_TYPE, которое идентифицирует 
+режим ShowWindow.
 
 ```cpp
 typedef enum class _NSUDO_SHOW_WINDOW_MODE_TYPE
@@ -101,38 +101,38 @@ typedef enum class _NSUDO_SHOW_WINDOW_MODE_TYPE
 } NSUDO_SHOW_WINDOW_MODE_TYPE, *PNSUDO_SHOW_WINDOW_MODE_TYPE;
 ```
 
-### WaitInterval parameter
+### Параметр WaitInterval
 
-The time-out interval for waiting the process, in milliseconds. 
+Интервал время ожидания для процесса, в миллисекундах. 
 
-### CreateNewConsole parameter
+### Параметр CreateNewConsole
 
-If this parameter is TRUE, the new process has a new console, instead of 
-inheriting its parent's console (the default).
+Если этот параметр равен TRUE, новый процесс будет иметь новую консоль, вместо того 
+чтобы наследовать консоль своего родителя (по умолчанию).
 
-### CommandLine parameter
+### Параметр CommandLine
 
-The command line to be executed. The maximum length of this string is 32K 
-characters, the module name portion of CommandLine is limited to MAX_PATH 
-characters.
+Командная строка, которая должна быть выполнена. Максимальная длина этой 
+строки составляет 32 тыс. символов, часть имени модуля в CommandLine ограничена 
+MAX_PATH символами.
 
-### CurrentDirectory parameter
+### Параметр CurrentDirectory
 
-The full path to the current directory for the process. The string can also
-specify a UNC path. If this parameter is nullptr, the new process will the same
-current drive and directory as the calling process. (This feature is provided
-primarily for shells that need to start an application and specify its initial
-drive and working directory.)
+Полный путь к текущему каталогу для процесса. Строка также может указывать UNC-путь.
+Если этот параметр равен nullptr, новый процесс будет иметь тот же текущий диск
+и каталог, что и вызывающий процесс. (Эта возможность предусмотрена в основном
+для оболочек, которым необходимо запустить приложение и указать его
+начальный диск и рабочий каталог.)
 
-### Return value
+### Обратное значение
 
-HRESULT. If the function succeeds, the return value is S_OK.
+HRESULT. При успешном выполнении функции возвращаемое значение равно S_OK.
 
 ## C# API
 
-Load the M2.NSudo assembly to your project, you will know the usage.
+Загрузите сборку M2.NSudo в свой проект, и вы узнаете, как её использовать.
 
-### Example
+### Пример
 
 ```csharp
 using System;

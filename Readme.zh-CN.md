@@ -8,7 +8,7 @@
 [![996.icu](https://img.shields.io/badge/link-996.icu-red.svg)](https://996.icu)
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FM2Team%2FNSudo.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2FM2Team%2FNSudo?ref=badge_shield)
 
-[English](Readme.md)
+[English](Readme.md) | [Русский](Readme.ru.md)
 
 这里是 NSudo 的源代码仓库。如果你想访问 NSudo 的官方网站、下载 NSudo 或者阅读
 NSudo 的文档等, 请转到 https://nsudo.m2team.org。

@@ -1,10 +1,10 @@
-﻿# Changelog
+﻿# Журнал изменений
 
-**NSudo 9.0 Preview 2 (vNext, >= 9.0.2684.0)**
+**NSudo 9.0 Предварительная версия 2 (vNext, >= 9.0.2684.0)**
 
-- Improve documents and website. (Thanks to 青春永不落幕 and Flex Zhong.)
+- Улучшена документация и веб-сайт. (Спасибо 青春永不落幕 и Flex Zhong).
 
-**NSudo 9.0 Preview 1 (9.0.2676.0)**
+**NSudo 9.0 Предварительная версия 1 (9.0.2676.0)**
 
 - Fixed an issue "GUI doesn't start in operating systems language" mentioned in
   https://github.com/M2Team/NSudo/issues/66. (Thanks to Steve.)
@@ -64,7 +64,7 @@
 - Remove some experiment implementations, including NSudo Sweeper.
 - Add logging support.
 
-**NSudo 8.0 Update 1 (8.0.1)**
+**NSudo 8.0 Обновление 1 (8.0.1)**
 
 - Update Italian translation. (Contributed by garf02.)
 - Use VC-LTL NuGet package edition instead of standalone edition. (Thanks to mingkuang.)

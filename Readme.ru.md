@@ -1,4 +1,4 @@
-﻿# ![Logo](Logo.png) NSudo - System Administration Toolkit
+﻿# ![Logo](Logo.png) NSudo - Инструментарий системного администрирования
 
 [![AppVeyor CI](https://ci.appveyor.com/api/projects/status/github/M2Team/NSudo?branch=master&svg=true)](https://ci.appveyor.com/project/MouriNaruto/nsudo)
 [![Latest Version](https://img.shields.io/github/release/M2Team/NSudo.svg)](https://github.com/M2Team/NSudo/releases/latest)
@@ -8,7 +8,7 @@
 [![996.icu](https://img.shields.io/badge/link-996.icu-red.svg)](https://996.icu)
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FM2Team%2FNSudo.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2FM2Team%2FNSudo?ref=badge_shield)
 
-[简体中文](Readme.zh-CN.md) | [Русский](Readme.ru.md)
+[简体中文](Readme.zh-CN.md) | [English](Readme.md)
 
 This is the source code repository of NSudo. If you wonder to visit the NSudo 
 official website, download NSudo or read the NSudo documents etc, please visit

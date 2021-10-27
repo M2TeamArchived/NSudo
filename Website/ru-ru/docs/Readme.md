@@ -1,114 +1,114 @@
-﻿# Usage
+﻿# Использование
 
-## Quick Start
+## Быстрый старт
 
-Please go to the [CPU Architecture] folder and click NSudo.exe. Follow the
-prompts. For example, if you want to use 64-bit NSudo on your Intel or AMD
-device, you need to go to the x64 folder and click NSudoG.exe
+Перейдите в папку [CPU Architecture] и нажмите NSudo.exe. Следуйте подсказкам.
+Например, если вы хотите использовать 64-битную NSudo на устройстве Intel или AMD,
+вам нужно перейти в папку x64 и щёлкнуть по NSudoG.exe.
 
-## Command Line
+## Командная строка
 
 ``` batch
-Format: NSudoL [ Options and parameters ] Command line or ShortCut Command
+Формат: NSudoL [ Опции и параметры ] Командная строка или команда быстрого доступа
 
-Options:
+Параметры:
 
--U:[ Option ] Create a process with specified user option.
-Available options:
-    T TrustedInstaller
-    S System
-    C Current User
-    E Current User (Elevated)
-    P Current Process
-    D Current Process (Drop right)
-PS: This is a mandatory parameter.
+-U:[ Параметр ] Создать процесс с указанным параметром пользователя.
+Доступные варианты:
+    T ДоверенныйУстановщик
+    S Система
+    C Текущий пользователь
+    E Текущий пользователь (повышенный)
+    P Текущий процесс
+    D Текущий процесс (Капающий справа)
+PS: Это обязательный параметр.
 
--P:[ Option ] Create a process with specified privilege option. 
-Available options:
-    E Enable All Privileges
-    D Disable All Privileges
-PS: If you want to use the default privileges to create a process, please do 
-not include the "-P" parameter.
+-P:[ Параметр ] Создать процесс с указанным параметром привилегий. 
+Доступные варианты:
+    E Включить все права
+    D Отключить все права
+PS: Если вы хотите использовать привилегии по умолчанию для создания процесса, 
+пожалуйста, не включайте параметр "-P".
 
--M:[ Option ] Create a process with specified Integrity Level option.
-Available options:
-    S System
-    H High
-    M Medium
-    L Low
-PS: If you want to use the default Integrity Level to create a process, please 
-do not include the "-M" parameter.
+-M:[ Параметр ] Создать процесс с указанным параметром уровня целостности.
+Доступные варианты:
+    S Системный 
+    H Высокий
+    M Средний
+    L Низкий
+PS: Если вы хотите использовать уровень целостности по умолчанию для создания процесса, 
+пожалуйста, не включайте параметр "-M".
 
--Priority:[ Option ] Create a process with specified process priority option.
-Available options:
-    Idle
-    BelowNormal
-    Normal
-    AboveNormal
-    High
-    RealTime
-PS: If you want to use the default Process Priority to create a process, please
-do not include the "-Priority" parameter.
+-Priority:[ Параметр ] Создать процесс с указанным приоритетом процесса.
+Доступные варианты:
+    Idle (Режим ожидания)
+    BelowNormal (Ниже обычного)
+    Normal (Обычный)
+    AboveNormal (Выше обычного)
+    High (Высокий)
+    RealTime (В режиме реального времени)
+PS: Если вы хотите использовать приоритет процесса по умолчанию для создания
+процесса, не включайте параметр "-Priority".
 
--ShowWindowMode:[ Option ] Create a process with specified window mode option.
-Available options:
-    Show
-    Hide
-    Maximize
-    Minimize
-PS: If you want to use the default window mode to create a process, please do 
-not include the "-ShowWindowMode" parameter.
+-ShowWindowMode:[ Параметр ] Создание процесса с указанным параметром оконного режима.
+Доступные варианты:
+    Show (Открыть)
+    Hide (Скрыть)
+    Maximize (Развернуть)
+    Minimize (Свернуть)
+PS: Если вы хотите использовать оконный режим по умолчанию для создания процесса, 
+не включайте параметр "-ShowWindowMode".
 
--Wait Make NSudo Launcher wait for the created process to end before exiting.
-PS: If you don't want to wait, please do not include the "-Wait" parameter.
+-Wait Заставит NSudo Launcher ждать завершения созданного процесса перед выходом.
+PS: Если вы не хотите ждать, пожалуйста, не включайте параметр "-Wait".
 
--CurrentDirectory:[ DirectoryPath ] Set the current directory for the process.
-PS: If you want to use the NSudo Launcher's current directory, please do not 
-include the "-CurrentDirectory" parameter.
+-CurrentDirectory:[ Путь к каталогу ] Установить текущий каталог для процесса.
+PS: Если вы хотите использовать текущий каталог NSudo Launcher, не указывайте 
+параметр "-CurrentDirectory".
 
--UseCurrentConsole Create a process with the current console window.
-PS: If you want to create a process with the new console window, please do not 
-include the "-UseCurrentConsole" parameter.
+-UseCurrentConsole Создайте процесс с текущим окном консоли.
+PS: Если вы хотите создать процесс с новым консольным окном, 
+не включайте параметр "-UseCurrentConsole".
 
--Version Show version information of NSudo Launcher.
+-Version Показать информацию о версии NSudo Launcher.
 
--? Show this content.
--H Show this content.
--Help Show this content.
+-? Показать содержимое.
+-H Показать содержимое.
+-Help Показать содержимое.
 
-Please use https://github.com/Thdub/NSudo_Installer for context menu management.
+Пожалуйста, используйте https://github.com/Thdub/NSudo_Installer для управления контекстным меню.
 
 PS:
-    1. All NSudo Launcher command arguments is case-insensitive.
-    2. You can use the "/" or "--" override "-" and use the "=" override ":" in
-       the command line parameters.  For example, "/U:T" and "-U=T" are 
-       equivalent.
-    3. To ensure the best experience, NSudoLC does not support context menu.
+    1. Все аргументы команды NSudo Launcher не чувствительны к регистру.
+    2. Вы можете использовать "/" или "--" вместо "-" и использовать "=" вместо ":"
+       в параметрах командной строки.  Например, "/U:T" и "-U=T" 
+       аналогичны.
+    3. Для обеспечения наилучшего опыта работы NSudoLC не поддерживает контекстное меню.
 
-Example:
-    If you want to run Command Prompt with TrustedInstaller, enable all 
-    privileges and the default Integrity Level.
+Пример:
+    Если вы хотите запустить командную строку с TrustedInstaller, включите все 
+    привилегии и уровень целостности по умолчанию.
         NSudoL -U:T -P:E cmd
 ```
 
-Example: If you want to run Command Prompt with TrustedInstaller, enable all
-privileges and the default Integrity Level:
+Пример: Если вы хотите запустить командную строку с TrustedInstaller, включите все
+привилегии и уровень целостности по умолчанию:
 
 ``` batch
 NSudo -U:T -P:E cmd
 ```
 
-Starting from NSudo 5.0.1708.16, the command line nested quotes is supported.
-For example:
+Начиная с NSudo 5.0.1708.16, поддерживаются вложенные кавычки в командной строке.
+Например:
 
 ``` batch
 NSudo -U:T cmd /c "dir "C:\Program Files" & pause"
 ```
 
-## Shortcut List
+## Список ярлыков
 
-You can edit NSudo.json to custom the Shortcut list, here are the demo
-(NSudo.json in the NSudo.exe's folder):
+Вы можете отредактировать NSudo.json, чтобы настроить список ярлыков, вот демонстрация
+(NSudo.json в папке с NSudo.exe):
 
 ```json
 {
