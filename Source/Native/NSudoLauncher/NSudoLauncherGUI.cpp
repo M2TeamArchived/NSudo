@@ -748,6 +748,12 @@ HRESULT NSudoShowAboutDialog(
     return ::HRESULT_FROM_WIN32(::GetLastError());
 }
 
+#include <dwmapi.h>
+#pragma comment(lib,"dwmapi.lib")
+
+#include <uxtheme.h>
+#pragma comment(lib,"uxtheme.lib")
+
 class CNSudoMainWindow : public ATL::CDialogImpl<CNSudoMainWindow>
 {
 public:
@@ -801,6 +807,50 @@ private:
     {
         UNREFERENCED_PARAMETER(wndFocus);
         UNREFERENCED_PARAMETER(lInitParam);
+
+        /*BOOL UseImmersiveDarkMode = TRUE;
+        ::DwmSetWindowAttribute(
+            this->m_hWnd,
+            DWMWINDOWATTRIBUTE::DWMWA_USE_IMMERSIVE_DARK_MODE,
+            &UseImmersiveDarkMode,
+            sizeof(BOOL));
+
+        HRESULT hr0 = ::SetWindowTheme(
+            this->m_hWnd,
+            L"Dark_Explorer",
+            nullptr);
+
+        hr0 = hr0;*/
+
+        /*DWM_WINDOW_CORNER_PREFERENCE WindowCornerPreference =
+            DWM_WINDOW_CORNER_PREFERENCE::DWMWCP_DONOTROUND;
+        ::DwmSetWindowAttribute(
+            this->m_hWnd,
+            DWMWINDOWATTRIBUTE::DWMWA_WINDOW_CORNER_PREFERENCE,
+            &WindowCornerPreference,
+            sizeof(DWM_WINDOW_CORNER_PREFERENCE));*/
+
+        /*COLORREF BorderColor = RGB(255,0,0);
+        ::DwmSetWindowAttribute(
+            this->m_hWnd,
+            DWMWINDOWATTRIBUTE::DWMWA_BORDER_COLOR,
+            &BorderColor,
+            sizeof(COLORREF));
+
+        COLORREF CaptionColor = RGB(255, 0, 0);
+        ::DwmSetWindowAttribute(
+            this->m_hWnd,
+            DWMWINDOWATTRIBUTE::DWMWA_CAPTION_COLOR,
+            &CaptionColor,
+            sizeof(COLORREF));
+
+        COLORREF TextColor = RGB(0, 0, 255);
+        ::DwmSetWindowAttribute(
+            this->m_hWnd,
+            DWMWINDOWATTRIBUTE::DWMWA_TEXT_COLOR,
+            &TextColor,
+            sizeof(COLORREF));*/
+
 
         this->UserNameComboBox = this->GetDlgItem(IDC_UserName);
         this->EnableAllPrivilegesCheckBox = this->GetDlgItem(
