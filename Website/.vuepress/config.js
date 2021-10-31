@@ -1,6 +1,7 @@
-const enusThemeConfig = require('./config/themeConfig/locales/en-us')
+﻿const enusThemeConfig = require('./config/themeConfig/locales/en-us')
 const zhhansThemeConfig = require('./config/themeConfig/locales/zh-hans')
 const zhhantThemeConfig = require('./config/themeConfig/locales/zh-hant')
+const ruruThemeConfig = require('./config/themeConfig/locales/ru-ru')
 module.exports = {
   locales: {
     '/en-us/': {
@@ -17,6 +18,11 @@ module.exports = {
       lang: 'zh-TW',
       title: 'NSudo',
       description: '系統管理工具包'
+    },
+    '/ru-ru/': {
+      lang: 'ru-RU',
+      title: 'NSudo',
+      description: 'Инструментарий системного администрирования'
     }
   },
   head: [
@@ -44,6 +50,7 @@ module.exports = {
       "/en-us/": enusThemeConfig,
       "/zh-hans/": zhhansThemeConfig,
       "/zh-hant/": zhhantThemeConfig,
+      "/ru-ru/": ruruThemeConfig,
     },
   },
   plugins: [
@@ -63,6 +70,10 @@ module.exports = {
         '/zh-hant/': {
           message: "發現新內容可用。",
           buttonText: "重載"
+        },
+        '/ru-ru/': {
+          message: "New content is available.",
+          buttonText: "Refresh",
         },
       }
     },

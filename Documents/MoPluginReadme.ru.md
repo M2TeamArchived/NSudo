@@ -188,6 +188,21 @@ Edge WebView и т.д.
 - `/Purge` Удалить этот элемент.
   > NSudoPluginHost MoPlugin.dll MoPurgeWindowsEventLog /Purge
 
+## MoPurgeWindowsSetup
+
+### Особенность
+
+Purge the Windows Setup, including Previous Windows installation(s), Temporary 
+Windows installation files, Files discarded by Windows upgrade, Windows ESD 
+installation files and Windows upgrade log files.
+
+### Использование
+
+- `/Scan` Сканировать этот элемент.
+  > NSudoPluginHost MoPlugin.dll MoPurgeWindowsSetup /Scan
+- `/Purge` Удалить этот элемент.
+  > NSudoPluginHost MoPlugin.dll MoPurgeWindowsSetup /Purge
+
 ## MoUpdateAppXPackages
 
 ### Особенность

@@ -22,6 +22,8 @@
     <Text Include="Resources\fr\Links.txt" />
     <Text Include="Resources\it\CommandLineHelp.txt" />
     <Text Include="Resources\it\Links.txt" />
+    <Text Include="Resources\ru\CommandLineHelp.txt" />
+    <Text Include="Resources\ru\Links.txt" />
     <Text Include="Resources\zh-Hans\CommandLineHelp.txt" />
     <Text Include="Resources\zh-Hans\Links.txt" />
     <Text Include="Resources\zh-Hant\CommandLineHelp.txt" />
@@ -36,6 +38,7 @@
     <None Include="Resources\NSudo.json" />
     <None Include="Resources\NSudoLauncher.xcf" />
     <None Include="NSudoLauncherResources.props" />
+    <None Include="Resources\ru\Translations.json" />
     <None Include="Resources\zh-Hans\Translations.json" />
     <None Include="Resources\zh-Hant\Translations.json" />
   </ItemGroup>

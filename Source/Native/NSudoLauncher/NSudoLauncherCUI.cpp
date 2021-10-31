@@ -757,6 +757,7 @@ int main()
     case LANG_ITALIAN:
     case LANG_CHINESE:
     case LANG_GERMAN:
+    case LANG_RUSSIAN:
         break;
     default:
         ::SetThreadUILanguage(MAKELANGID(LANG_ENGLISH, SUBLANG_NEUTRAL));
