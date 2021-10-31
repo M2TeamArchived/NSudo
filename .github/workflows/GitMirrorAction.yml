@@ -21,4 +21,4 @@ jobs:
           date > generated.txt
           git remote add gitee https://gitee.com/M2-Team/NSudo.git
           git fetch -q --all
-          git push -q https://Mouri_Naruto:${{ secrets.GITEE_TOKEN }}@gitee.com/M2-Team/NSudo.git master
+          git push -q https://Mouri_Naruto:${{ secrets.GITEE_TOKEN }}@gitee.com/M2-Team/NSudo.git master --tags
