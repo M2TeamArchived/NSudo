@@ -192,9 +192,9 @@ Edge WebView и т.д.
 
 ### Особенность
 
-Purge the Windows Setup, including Previous Windows installation(s), Temporary 
-Windows installation files, Files discarded by Windows upgrade, Windows ESD 
-installation files and Windows upgrade log files.
+Очистка Установщика Windows, включая предыдущую установку (установки) Windows,
+временные файлы установки Windows, файлы, удалённые при обновлении Windows,
+файлы установки Windows ESD и файлы журнала обновления Windows. 
 
 ### Использование
 
