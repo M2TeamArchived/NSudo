@@ -8,7 +8,7 @@
 [![996.icu](https://img.shields.io/badge/link-996.icu-red.svg)](https://996.icu)
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FM2Team%2FNSudo.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2FM2Team%2FNSudo?ref=badge_shield)
 
-[简体中文](Readme.zh-CN.md)
+[简体中文](Readme.zh-CN.md) | [Русский](Readme.ru.md)
 
 This is the source code repository of NSudo. If you wonder to visit the NSudo 
 official website, download NSudo or read the NSudo documents etc, please visit

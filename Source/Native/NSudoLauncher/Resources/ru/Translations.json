@@ -1,0 +1,23 @@
+﻿{
+  "Translations": {
+    "Button.About": "&О программе",
+    "Button.Browse": "&Обзор",
+    "Button.Run": "&Запуск",
+    "CurrentProcess": "Текущий процесс",
+    "CurrentUser": "Текущий пользователь",
+    "Default": "По умолчанию",
+    "EnableAllPrivileges": "&Включить все права",
+    "LanguageID": "ru",
+    "Message.CreateProcessFailed": "Ошибка: Не удалось создать процесс.",
+    "Message.InvalidCommandParameter": "Ошибка: Неверные параметры командной строки, пожалуйста, измените.(Показать справку по параметру -?)",
+    "Message.InvalidTextBoxParameter": "Ошибка: Пожалуйста, введите командную строку или выберите команду быстрого доступа в раскрывающемся окне.",
+    "Message.PrivilegeNotHeld": "Ошибка: Не удалось получить привилегию SE_DEBUG_NAME.(Пожалуйста, запустите от имени администратора)",
+    "Message.Success": "Операция завершена успешно.",
+    "SettingsGroupText": "Параметры режима",
+    "Static.Open": "&Открыть:",
+    "Static.User": "&Пользователь: ",
+    "System": "Система",
+    "TI": "TrustedInstaller",
+    "WarningText": "Внимание: Пожалуйста, используйте NSudo ОСТОРОЖНО!"
+  }
+}
