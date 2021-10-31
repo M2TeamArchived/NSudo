@@ -72,8 +72,8 @@ module.exports = {
           buttonText: "重載"
         },
         '/ru-ru/': {
-          message: "New content is available.",
-          buttonText: "Refresh",
+          message: "Содержимое сайта было обновлено.",
+          buttonText: "Перезагрузить",
         },
       }
     },
