@@ -17,6 +17,7 @@
 
 - 20011010wo ([https://github.com/yangrq](https://github.com/yangrq))
 - Bill ([https://github.com/bianyifan](https://github.com/bianyifan))
+- Blueberryy ([https://github.com/Blueberryy](https://github.com/Blueberryy))
 - Eugene Wang J.y ([https://github.com/ewjy](https://github.com/ewjy))
 - Flex Zhong ([https://github.com/ChungZH](https://github.com/ChungZH))
 - Force.Charlie-I ([https://github.com/fcharlie](https://github.com/fcharlie))

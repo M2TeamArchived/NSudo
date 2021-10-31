@@ -3,6 +3,7 @@
 **NSudo 9.0 Preview 2 (vNext, >= 9.0.2684.0)**
 
 - Improve documents and website. (Thanks to 青春永不落幕 and Flex Zhong.)
+- Add Russian Language. (Contributed by Blueberryy.)
 
 **NSudo 9.0 Preview 1 (9.0.2676.0)**
 
