@@ -26,6 +26,16 @@ Windows" option in Windows Update.
 
 > NSudoPluginHost MoPlugin.dll MoEnableMicrosoftUpdate
 
+## MoLaunchAppX
+
+### Feature
+
+Launch an AppX application.
+
+### Usage
+
+> NSudoPluginHost MoPlugin.dll MoLaunchAppX [ApplicationUserModelID] [Arguments]
+
 ## MoManageCompactOS
 
 ### Feature

@@ -24,6 +24,16 @@
 
 > NSudoPluginHost MoPlugin.dll MoEnableMicrosoftUpdate
 
+## MoLaunchAppX
+
+### 功能
+
+启动一个 AppX
+
+### 用法
+
+> NSudoPluginHost MoPlugin.dll MoLaunchAppX [应用用户模型 ID] [参数]
+
 ## MoManageCompactOS
 
 ### 功能

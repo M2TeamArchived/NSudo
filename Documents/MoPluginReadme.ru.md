@@ -26,6 +26,16 @@
 
 > NSudoPluginHost MoPlugin.dll MoEnableMicrosoftUpdate
 
+## MoLaunchAppX
+
+### Особенность
+
+Launch an AppX application.
+
+### Использование
+
+> NSudoPluginHost MoPlugin.dll MoLaunchAppX [ApplicationUserModelID] [Arguments]
+
 ## MoManageCompactOS
 
 ### Особенность

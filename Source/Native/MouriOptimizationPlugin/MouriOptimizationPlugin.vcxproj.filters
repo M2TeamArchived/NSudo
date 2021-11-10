@@ -50,6 +50,9 @@
     <ClCompile Include="MoPurgeWindowsSetup.cpp">
       <Filter>Modules</Filter>
     </ClCompile>
+    <ClCompile Include="MoLaunchAppX.cpp">
+      <Filter>Modules</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="MouriOptimizationPlugin.def" />
