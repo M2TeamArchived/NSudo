@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\Mile.Cpp\Mile.Project\Mile.Project.Platform.Win32.props" />
+  <Import Project="..\Mile.Cpp\Mile.Project\Mile.Project.Platform.x64.props" />
+  <Import Project="..\Mile.Cpp\Mile.Project\Mile.Project.Platform.ARM64.props" />
   <PropertyGroup Label="Globals">
     <ProjectGuid>{9FC5B22F-D2AE-4021-8883-5D6B74C5ED71}</ProjectGuid>
     <RootNamespace>NSudoDevilMode</RootNamespace>
