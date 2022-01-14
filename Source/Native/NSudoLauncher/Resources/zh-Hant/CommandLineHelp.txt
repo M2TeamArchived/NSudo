@@ -48,7 +48,7 @@ PS: 如果想以默認視窗模式選項建立處理程序的話, 請不要包�
 -Wait 令 NSudo Launcher 等待建立的處理程序結束後再退出。
 PS: 如果不想等待, 請不要包含「-Wait」參數。
 
--CurrentDirectory:[ 目錄路徑 ] 設置處理程序的的當前目錄。
+-CurrentDirectory:[ 目錄路徑 ] 設置處理程序的當前目錄。
 PS: 如果你想用 NSudo Launcher 的當前目錄, 請不要包含「-CurrentDirectory」參數。
 
 -UseCurrentConsole 使用當前控制台視窗建立處理程序。
