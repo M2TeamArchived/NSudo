@@ -9,15 +9,16 @@
   },
   "repository": "m2team/NSudo",
   "scripts": {
-    "dev": "vuepress dev --no-cache",
-    "build": "vuepress build --no-cache"
+    "dev": "cross-env NODE_OPTIONS=--openssl-legacy-provider vuepress dev --no-cache",
+    "build": "cross-env NODE_OPTIONS=--openssl-legacy-provider vuepress build --no-cache"
   },
   "license": "MIT",
   "devDependencies": {
-    "@vuepress/plugin-back-to-top": "^1.8.2",
-    "@vuepress/plugin-medium-zoom": "^1.8.2",
-    "@vuepress/plugin-pwa": "^1.8.2",
+    "@vuepress/plugin-back-to-top": "^1.9.7",
+    "@vuepress/plugin-medium-zoom": "^1.9.7",
+    "@vuepress/plugin-pwa": "^1.9.7",
+    "cross-env": "^7.0.3",
     "moment": "^2.29.1",
-    "vuepress": "^1.8.2"
+    "vuepress": "^1.9.7"
   }
 }
