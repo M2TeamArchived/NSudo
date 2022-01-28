@@ -8,6 +8,7 @@ MoUpdateAppXPackages
 MoManageCompactOS
 MoLaunchAppX
 MoQueryLicenseInformation
+MoBlockShutdown
 
 MoPurgeSystemRestorePoint
 MoPurgeDeliveryOptimizationCache

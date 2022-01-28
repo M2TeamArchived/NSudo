@@ -23,6 +23,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="MoBlockShutdown.cpp" />
     <ClCompile Include="MoLaunchAppX.cpp" />
     <ClCompile Include="MoManageCompactOS.cpp" />
     <ClCompile Include="MoPurgeCorruptedAppXPackages.cpp" />
