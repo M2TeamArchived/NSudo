@@ -12,8 +12,6 @@
 
 #include <shobjidl.h>
 
-#include <winrt/Windows.Foundation.h>
-
 namespace
 {
     static bool ParseCommandArguments(
