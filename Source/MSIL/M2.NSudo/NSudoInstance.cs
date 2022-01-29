@@ -105,15 +105,26 @@ namespace M2.NSudo
 
             if (BinaryPaths.Count == 0)
             {
-                BinaryPaths.TryAdd(
-                    Architecture.X86, 
-                    BaseDirectory + "Win32\\NSudoAPI.dll");
-                BinaryPaths.TryAdd(
-                    Architecture.X64,
-                    BaseDirectory + "x64\\NSudoAPI.dll");
-                BinaryPaths.TryAdd(
-                    Architecture.Arm64,
-                    BaseDirectory + "ARM64\\NSudoAPI.dll");
+                if (!BinaryPaths.ContainsKey(Architecture.X86))
+                {
+                    BinaryPaths.Add(
+                        Architecture.X86, 
+                        BaseDirectory + "Win32\\NSudoAPI.dll");
+                }
+
+                if (!BinaryPaths.ContainsKey(Architecture.X64))
+                {
+                    BinaryPaths.Add(
+                        Architecture.X64,
+                        BaseDirectory + "x64\\NSudoAPI.dll");
+                }
+
+                if (!BinaryPaths.ContainsKey(Architecture.Arm64))
+                {
+                    BinaryPaths.Add(
+                        Architecture.Arm64,
+                        BaseDirectory + "ARM64\\NSudoAPI.dll");
+                }
             }
 
             this.ModuleHandle = Win32.LoadLibrary(
