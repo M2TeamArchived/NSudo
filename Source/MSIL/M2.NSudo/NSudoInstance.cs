@@ -91,7 +91,27 @@ namespace M2.NSudo
             string CommandLine,
             string CurrentDirectory);
 
+
         private IntPtr ModuleHandle;
+
+        private NSudoReadLogType NSudoReadLogInstance = null;
+        private NSudoWriteLogType NSudoWriteLogInstance = null;
+        private NSudoCreateProcessType NSudoCreateProcessInstance = null;
+
+        private TDelegate GetFunctionAddress<TDelegate>(
+            string procName)
+        {
+            IntPtr InstanceAddress = Win32.GetProcAddress(
+                ModuleHandle, procName);
+            if (InstanceAddress == IntPtr.Zero)
+            {
+                throw new Win32Exception(Marshal.GetLastWin32Error());
+            }
+
+            return Marshal.GetDelegateForFunctionPointer<TDelegate>(
+                InstanceAddress);
+        }
+
 
         /// <summary>
         /// Initialize the NSudoInstance.
@@ -99,36 +119,46 @@ namespace M2.NSudo
         /// <param name="BinaryPaths">
         /// Help you customize the path of NSudo Shared Library.
         /// </param>
-        public NSudoInstance(Dictionary<Architecture, string> BinaryPaths)
+        public NSudoInstance(IDictionary<Architecture, string> BinaryPaths)
         {
-            string BaseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            Dictionary<Architecture, string> CachedBinaryPaths = 
+                new Dictionary<Architecture, string>();
 
-            if (BinaryPaths.Count == 0)
+            if (BinaryPaths != null)
             {
-                if (!BinaryPaths.ContainsKey(Architecture.X86))
+                foreach (var BinaryPath in BinaryPaths)
                 {
-                    BinaryPaths.Add(
-                        Architecture.X86, 
+                    CachedBinaryPaths.Add(BinaryPath.Key, BinaryPath.Value);
+                }
+            }
+            else
+            {
+                string BaseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+
+                if (!CachedBinaryPaths.ContainsKey(Architecture.X86))
+                {
+                    CachedBinaryPaths.Add(
+                        Architecture.X86,
                         BaseDirectory + "Win32\\NSudoAPI.dll");
                 }
 
-                if (!BinaryPaths.ContainsKey(Architecture.X64))
+                if (!CachedBinaryPaths.ContainsKey(Architecture.X64))
                 {
-                    BinaryPaths.Add(
+                    CachedBinaryPaths.Add(
                         Architecture.X64,
                         BaseDirectory + "x64\\NSudoAPI.dll");
                 }
 
-                if (!BinaryPaths.ContainsKey(Architecture.Arm64))
+                if (!CachedBinaryPaths.ContainsKey(Architecture.Arm64))
                 {
-                    BinaryPaths.Add(
+                    CachedBinaryPaths.Add(
                         Architecture.Arm64,
                         BaseDirectory + "ARM64\\NSudoAPI.dll");
                 }
             }
 
             this.ModuleHandle = Win32.LoadLibrary(
-                BinaryPaths[RuntimeInformation.ProcessArchitecture]);
+                CachedBinaryPaths[RuntimeInformation.ProcessArchitecture]);
             if (this.ModuleHandle == IntPtr.Zero)
             {
                 throw new Win32Exception(Marshal.GetLastWin32Error());
@@ -139,7 +169,7 @@ namespace M2.NSudo
         /// Initialize the NSudoInstance.
         /// </summary>
         public NSudoInstance() :
-            this(new Dictionary<Architecture, string>())
+            this(null)
         {
         }
 
@@ -162,16 +192,12 @@ namespace M2.NSudo
         /// </returns>
         public string ReadLog()
         {
-            IntPtr NSudoReadLogInstanceAddress = Win32.GetProcAddress(
-                this.ModuleHandle, "NSudoReadLog");
-            if (NSudoReadLogInstanceAddress == IntPtr.Zero)
+            if (NSudoReadLogInstance == null)
             {
-                throw new Win32Exception(Marshal.GetLastWin32Error());
+                NSudoReadLogInstance = 
+                    GetFunctionAddress<NSudoReadLogType>(
+                        "NSudoReadLog");
             }
-
-            NSudoReadLogType NSudoReadLogInstance =
-                Marshal.GetDelegateForFunctionPointer<NSudoReadLogType>(
-                    NSudoReadLogInstanceAddress);
 
             return Marshal.PtrToStringUni(NSudoReadLogInstance());
         }
@@ -189,16 +215,12 @@ namespace M2.NSudo
             string Sender,
             string Content)
         {
-            IntPtr NSudoWriteLogInstanceAddress = Win32.GetProcAddress(
-                this.ModuleHandle, "NSudoWriteLog");
-            if (NSudoWriteLogInstanceAddress == IntPtr.Zero)
+            if (NSudoWriteLogInstance == null)
             {
-                throw new Win32Exception(Marshal.GetLastWin32Error());
+                NSudoWriteLogInstance =
+                    GetFunctionAddress<NSudoWriteLogType>(
+                        "NSudoWriteLog");
             }
-
-            NSudoWriteLogType NSudoWriteLogInstance =
-                Marshal.GetDelegateForFunctionPointer<NSudoWriteLogType>(
-                    NSudoWriteLogInstanceAddress);
 
             NSudoWriteLogInstance(
                 Sender,
@@ -259,16 +281,12 @@ namespace M2.NSudo
             string CommandLine,
             string CurrentDirectory)
         {
-            IntPtr NSudoCreateProcessInstanceAddress = Win32.GetProcAddress(
-                this.ModuleHandle, "NSudoCreateProcess");
-            if (NSudoCreateProcessInstanceAddress == IntPtr.Zero)
+            if (NSudoCreateProcessInstance == null)
             {
-                throw new Win32Exception(Marshal.GetLastWin32Error());
+                NSudoCreateProcessInstance =
+                    GetFunctionAddress<NSudoCreateProcessType>(
+                        "NSudoCreateProcess");
             }
-
-            NSudoCreateProcessType NSudoCreateProcessInstance =
-                Marshal.GetDelegateForFunctionPointer<NSudoCreateProcessType>(
-                    NSudoCreateProcessInstanceAddress);
 
             int hr = NSudoCreateProcessInstance(
                 UserModeType,
