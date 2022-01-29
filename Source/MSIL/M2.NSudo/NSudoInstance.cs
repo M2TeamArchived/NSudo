@@ -119,7 +119,7 @@ namespace M2.NSudo
         /// <param name="BinaryPaths">
         /// Help you customize the path of NSudo Shared Library.
         /// </param>
-        public NSudoInstance(Dictionary<Architecture, string> BinaryPaths)
+        public NSudoInstance(IDictionary<Architecture, string> BinaryPaths)
         {
             Dictionary<Architecture, string> CachedBinaryPaths = 
                 new Dictionary<Architecture, string>();
@@ -163,6 +163,19 @@ namespace M2.NSudo
             {
                 throw new Win32Exception(Marshal.GetLastWin32Error());
             }
+        }
+
+        /// <summary>
+        /// Initialize the NSudoInstance.
+        /// </summary>
+        /// <param name="BinaryPaths">
+        /// Help you customize the path of NSudo Shared Library.
+        /// </param>
+        [Obsolete]
+        public NSudoInstance(Dictionary<Architecture, string> BinaryPaths) :
+            this((IDictionary<Architecture, string>)BinaryPaths)
+        {
+
         }
 
         /// <summary>
