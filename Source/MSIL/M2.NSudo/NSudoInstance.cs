@@ -119,7 +119,7 @@ namespace M2.NSudo
         /// <param name="BinaryPaths">
         /// Help you customize the path of NSudo Shared Library.
         /// </param>
-        public NSudoInstance(IDictionary<Architecture, string> BinaryPaths)
+        public NSudoInstance(Dictionary<Architecture, string> BinaryPaths)
         {
             Dictionary<Architecture, string> CachedBinaryPaths = 
                 new Dictionary<Architecture, string>();
