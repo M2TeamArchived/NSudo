@@ -103,22 +103,12 @@ EXTERN_C HRESULT WINAPI MoPurgeDeliveryOptimizationCache(
                     reinterpret_cast<IDeliveryOptimizationCleanup*>(
                         pInterface);
             }
-            else if (Mile::CoCheckInterfaceName(
-                DeliveryOptimizationIID,
-                L"IDeliveryOptimizationMgrInternal").IsSucceeded())
+            else
             {
+                // Available on Windows 10 Version 1903 or later.
                 pMgrInternal =
                     reinterpret_cast<IDeliveryOptimizationMgrInternal*>(
                         pInterface);
-            }
-            else
-            {
-                hr = E_NOINTERFACE;
-                ::MoPrivateWriteErrorMessage(
-                    Context,
-                    hr,
-                    L"Mile::CoCheckInterfaceName");
-                break;
             }
 
             if (PurgeMode == MO_PRIVATE_PURGE_MODE_SCAN)
