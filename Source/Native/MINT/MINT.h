@@ -17774,7 +17774,7 @@ typedef NTSTATUS (NTAPI *PENTER_STATE_HANDLER)(
     _In_opt_ PENTER_STATE_SYSTEM_HANDLER SystemHandler,
     _In_ PVOID SystemContext,
     _In_ LONG NumberProcessors,
-    _In_ volatile PLONG Number
+    _In_ LONG volatile *Number
     );
 
 typedef struct _POWER_STATE_HANDLER
@@ -30001,10 +30001,12 @@ RtlAssert(
 
 
 // #include <ntd3dkmt.h>
-#include <dxmini.h>
-#include <d3dkmddi.h>
+#if __has_include(<d3dkmthk.h>)
+#include <d3dkmthk.h>
+#else
 
-typedef D3DKMT_HANDLE* PD3DKMT_HANDLE;
+typedef UINT32 D3DKMT_HANDLE;
+typedef D3DKMT_HANDLE *PD3DKMT_HANDLE;
 
 typedef enum _KMTQUERYADAPTERINFOTYPE
 {
@@ -30161,12 +30163,10 @@ typedef struct _D3DKMT_ADAPTERREGISTRYINFO
     _Out_ WCHAR ChipType[MAX_PATH]; // A string that contains the chip type for the graphics adapter.
 } D3DKMT_ADAPTERREGISTRYINFO;
 
-#ifdef USE_D3DKMT_SINGLE_HEADER
 #ifndef MAKEFOURCC
 #define MAKEFOURCC(ch0, ch1, ch2, ch3)                              \
                 ((DWORD)(BYTE)(ch0) | ((DWORD)(BYTE)(ch1) << 8) |       \
                 ((DWORD)(BYTE)(ch2) << 16) | ((DWORD)(BYTE)(ch3) << 24 ))
-#endif
 
 typedef enum _D3DDDIFORMAT
 {
@@ -30438,7 +30438,6 @@ typedef struct _D3DKMT_OUTPUTDUPLCONTEXTSCOUNT
     UINT32 OutputDuplicationCount; // The number of current DDA clients that are attached to the VidPN specified by the VidPnSourceId member.
 } D3DKMT_OUTPUTDUPLCONTEXTSCOUNT;
 
-#ifdef USE_D3DKMT_SINGLE_HEADER
 typedef enum _D3DKMDT_GRAPHICS_PREEMPTION_GRANULARITY
 {
     D3DKMDT_GRAPHICS_PREEMPTION_NONE = 0,
@@ -30487,7 +30486,6 @@ typedef struct _D3DKMT_WDDM_1_2_CAPS
         UINT32 Value;
     };
 } D3DKMT_WDDM_1_2_CAPS;
-#endif
 
 // Indicates the version number of the user-mode driver.
 typedef struct _D3DKMT_UMD_DRIVER_VERSION 
@@ -30511,7 +30509,6 @@ typedef struct _D3DKMT_DLIST_DRIVER_NAME
     _Out_ WCHAR DListFileName[MAX_PATH]; // DList driver file name
 } D3DKMT_DLIST_DRIVER_NAME;
 
-#ifdef USE_D3DKMT_SINGLE_HEADER
 typedef struct _D3DKMT_WDDM_1_3_CAPS
 {
     union
@@ -30529,7 +30526,6 @@ typedef struct _D3DKMT_WDDM_1_3_CAPS
         UINT32 Value;
     };
 } D3DKMT_WDDM_1_3_CAPS;
-#endif
 
 typedef struct _D3DKMT_MULTIPLANEOVERLAY_HUD_SUPPORT
 {
@@ -30539,7 +30535,6 @@ typedef struct _D3DKMT_MULTIPLANEOVERLAY_HUD_SUPPORT
     BOOL HudSupported;
 } D3DKMT_MULTIPLANEOVERLAY_HUD_SUPPORT;
 
-#ifdef USE_D3DKMT_SINGLE_HEADER
 typedef struct _D3DKMT_WDDM_2_0_CAPS
 {
     union
@@ -30557,9 +30552,7 @@ typedef struct _D3DKMT_WDDM_2_0_CAPS
         UINT32 Value;
     };
 } D3DKMT_WDDM_2_0_CAPS;
-#endif
 
-#ifdef USE_D3DKMT_SINGLE_HEADER
 #include <pshpack1.h>
 
 #define DXGK_MAX_METADATA_NAME_LENGTH 32
@@ -30612,7 +30605,6 @@ typedef struct _D3DKMT_NODEMETADATA
 } D3DKMT_NODEMETADATA;
 
 #include <poppack.h>
-#endif
 
 typedef struct _D3DKMT_CPDRIVERNAME
 {
@@ -30655,7 +30647,6 @@ typedef struct _D3DKMT_QUERY_DEVICE_IDS
     _Out_ D3DKMT_DEVICE_IDS DeviceIds;
 } D3DKMT_QUERY_DEVICE_IDS;
 
-#ifdef USE_D3DKMT_SINGLE_HEADER
 typedef struct _D3DKMT_DRIVERCAPS_EXT
 {
     union
@@ -30668,7 +30659,6 @@ typedef struct _D3DKMT_DRIVERCAPS_EXT
         UINT32 Value;
     };
 } D3DKMT_DRIVERCAPS_EXT;
-#endif
 
 typedef enum _D3DKMT_MIRACAST_DRIVER_TYPE
 {
@@ -30783,7 +30773,6 @@ typedef struct _D3DKMT_GET_DEVICE_VIDPN_OWNERSHIP_INFO
     _Out_ BOOLEAN bFailedDwmAcquireVidPn; // True if Dwm Acquire VidPn failed due to another Dwm device having ownership
 } D3DKMT_GET_DEVICE_VIDPN_OWNERSHIP_INFO;
 
-#ifdef USE_D3DKMT_SINGLE_HEADER
 typedef struct _D3DDDI_QUERYREGISTRY_FLAGS
 {
     union
@@ -30834,7 +30823,6 @@ typedef struct _D3DDDI_QUERYREGISTRY_INFO
         _Out_ BYTE OutputBinary[1];
     };
 } D3DDDI_QUERYREGISTRY_INFO;
-#endif
 
 // Contains the kernel mode driver version.
 typedef struct _D3DKMT_KMD_DRIVER_VERSION
@@ -30915,6 +30903,22 @@ typedef struct _D3DKMT_QUERY_SCANOUT_CAPS
     ULONG VidPnSourceId;
     UINT Caps;
 } D3DKMT_QUERY_SCANOUT_CAPS;
+
+typedef struct _D3DKMT_WDDM_2_7_CAPS
+{
+    union
+    {
+        struct
+        {
+            UINT32 HwSchSupported : 1;
+            UINT32 HwSchEnabled : 1;
+            UINT32 HwSchEnabledByDefault : 1;
+            UINT32 ReseIndependentVidPnVSyncControlrved : 1;
+            UINT32 Reserved : 28;
+        };
+        UINT32 Value;
+    };
+} D3DKMT_WDDM_2_7_CAPS;
 
 // Describes the mapping of the given name of a device to a graphics adapter handle and monitor output.
 typedef struct _D3DKMT_OPENADAPTERFROMDEVICENAME
@@ -31613,7 +31617,6 @@ typedef struct _D3DKMT_GET_GPUMMU_CAPS
     DXGK_ESCAPE_GPUMMUCAPS GpuMmuCaps; // Out
 } D3DKMT_GET_GPUMMU_CAPS;
 
-#ifdef USE_D3DKMT_SINGLE_HEADER
 typedef enum _DXGK_PTE_PAGE_SIZE
 {
     DXGK_PTE_PAGE_TABLE_PAGE_4KB = 0,
@@ -31646,7 +31649,6 @@ typedef struct _DXGK_PTE
         ULONGLONG PageTableAddress; // High 52 bits of 64 bit physical address. Low 12 bits are zero.
     };
 } DXGK_PTE;
-#endif
 
 #define D3DKMT_GET_PTE_MAX 64
 
@@ -31946,7 +31948,6 @@ typedef struct _D3DKMT_REQUEST_MACHINE_CRASH_ESCAPE
     ULONG_PTR Param3;
 } D3DKMT_REQUEST_MACHINE_CRASH_ESCAPE;
 
-#ifdef USE_D3DKMT_SINGLE_HEADER
 typedef struct _D3DDDI_ESCAPEFLAGS
 {
     union
@@ -31966,7 +31967,6 @@ typedef struct _D3DDDI_ESCAPEFLAGS
         UINT32 Value;
     };
 } D3DDDI_ESCAPEFLAGS;
-#endif
 
 // The D3DKMT_ESCAPE structure describes information that is exchanged with the display miniport driver.
 typedef struct _D3DKMT_ESCAPE 
@@ -32083,6 +32083,7 @@ D3DKMTGetProcessSchedulingPriorityClass(
     _Out_ enum D3DKMT_SCHEDULINGPRIORITYCLASS*
     );
 
+#endif
 // #include <ntwow64.h>
 #define WOW64_SYSTEM_DIRECTORY "SysWOW64"
 #define WOW64_SYSTEM_DIRECTORY_U L"SysWOW64"
