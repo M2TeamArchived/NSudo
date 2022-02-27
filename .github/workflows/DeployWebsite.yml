@@ -8,7 +8,7 @@ on:
       - 'Website/**'
 
 jobs:
-  Deploy Website:
+  DeployWebsite:
     runs-on: ubuntu-latest
     steps:
 
