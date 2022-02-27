@@ -8,7 +8,7 @@ on:
       - 'Website/**'
 
 jobs:
-  build-and-deploy:
+  Deploy Website:
     runs-on: ubuntu-latest
     steps:
 
@@ -20,7 +20,7 @@ jobs:
       - name: Setup node.js
         uses: actions/setup-node@main
         with:
-          node-version: 'lts/Fermium'
+          node-version: '16'
 
       - name: Install packages
         run: yarn --cwd "Website"
