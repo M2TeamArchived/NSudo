@@ -1,13 +1,13 @@
 {
   "name": "nsudo",
-  "version": "8.0",
+  "version": "9.0",
   "description": "System Administration Toolkit",
   "main": "index.js",
   "authors": {
     "name": "Mouri_Naruto",
     "email": "Mouri_Naruto@Outlook.com"
   },
-  "repository": "m2team/NSudo",
+  "repository": "M2Team/NSudo",
   "scripts": {
     "dev": "cross-env NODE_OPTIONS=--openssl-legacy-provider vuepress dev --no-cache",
     "build": "cross-env NODE_OPTIONS=--openssl-legacy-provider vuepress build --no-cache"
