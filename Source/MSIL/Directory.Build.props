@@ -10,9 +10,7 @@
 -->
 <Project>
   <PropertyGroup>
-    <OutputPath>$(SolutionDir)Output\Binaries\$(MSBuildProjectName)\$(Configuration)\</OutputPath>
-    <IntermediateOutputPath>$(SolutionDir)Output\Objects\$(MSBuildProjectName)\$(Configuration)\</IntermediateOutputPath>
-    <BaseIntermediateOutputPath>$(SolutionDir)Output\Objects\$(MSBuildProjectName)\$(Configuration)\</BaseIntermediateOutputPath>
-    <MSBuildProjectExtensionsPath>$(SolutionDir)Output\Objects\$(MSBuildProjectName)\$(Configuration)\</MSBuildProjectExtensionsPath>
+    <BaseOutputPath>$(SolutionDir)Output\Binaries\$(MSBuildProjectName)\</BaseOutputPath>
+    <BaseIntermediateOutputPath>$(SolutionDir)Output\Objects\$(MSBuildProjectName)\</BaseIntermediateOutputPath>
   </PropertyGroup>
 </Project>
