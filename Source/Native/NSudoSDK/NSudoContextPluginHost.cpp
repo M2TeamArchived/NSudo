@@ -179,75 +179,71 @@ LPCWSTR WINAPI NSudoContextReadLine(
             wchar_t* InputBuffer = nullptr;
             DWORD PreviousConsoleMode = 0;
 
-            do
+            if (::GetConsoleMode(
+                PrivateContext->ConsoleInputHandle,
+                &PreviousConsoleMode))
             {
-                if (!::GetConsoleMode(
-                    PrivateContext->ConsoleInputHandle,
-                    &PreviousConsoleMode))
-                {
-                    break;
-                }
-
-                if (!::SetConsoleMode(
+                if (::SetConsoleMode(
                     PrivateContext->ConsoleInputHandle,
                     ENABLE_LINE_INPUT |
                     ENABLE_PROCESSED_INPUT |
                     ENABLE_ECHO_INPUT))
                 {
-                    break;
-                }
+                    do
+                    {
+                        std::wstring Result;
 
-                std::wstring Result;
+                        for (;;)
+                        {
+                            wchar_t CurrentChar = L'\0';
+                            DWORD NumberOfCharsRead = 0;
 
-                for (;;)
-                {
-                    wchar_t CurrentChar = L'\0';
-                    DWORD NumberOfCharsRead = 0;
+                            if (!::ReadConsoleW(
+                                PrivateContext->ConsoleInputHandle,
+                                reinterpret_cast<LPVOID>(&CurrentChar),
+                                1,
+                                &NumberOfCharsRead,
+                                nullptr))
+                            {
+                                break;
+                            }
 
-                    if (!::ReadConsoleW(
+                            if (CurrentChar == '\r')
+                            {
+                                continue;
+                            }
+                            else if (CurrentChar == '\n')
+                            {
+                                break;
+                            }
+                            else
+                            {
+                                Result.push_back(CurrentChar);
+                            }
+                        }
+
+                        std::size_t InputResultLength =
+                            (Result.size() + 1) * sizeof(wchar_t);
+                        InputBuffer = reinterpret_cast<wchar_t*>(
+                            Mile::HeapMemory::Allocate(InputResultLength));
+                        if (InputBuffer)
+                        {
+                            std::memcpy(
+                                InputBuffer,
+                                Result.c_str(),
+                                InputResultLength);
+                        }
+
+                        Result = Result;
+
+                    } while (false);
+
+                    ::SetConsoleMode(
                         PrivateContext->ConsoleInputHandle,
-                        reinterpret_cast<LPVOID>(&CurrentChar),
-                        1,
-                        &NumberOfCharsRead,
-                        nullptr))
-                    {
-                        break;
-                    }
-
-                    if (CurrentChar == '\r')
-                    {
-                        continue;
-                    }
-                    else if (CurrentChar == '\n')
-                    {
-                        break;
-                    }
-                    else
-                    {
-                        Result.push_back(CurrentChar);
-                    }
+                        PreviousConsoleMode);
                 }
-
-                std::size_t InputResultLength =
-                    (Result.size() + 1) * sizeof(wchar_t);
-                InputBuffer = reinterpret_cast<wchar_t*>(
-                    Mile::HeapMemory::Allocate(InputResultLength));
-                if (InputBuffer)
-                {
-                    std::memcpy(
-                        InputBuffer,
-                        Result.c_str(),
-                        InputResultLength);
-                }
-
-                Result = Result;
-
-            } while (false);
-
-            ::SetConsoleMode(
-                PrivateContext->ConsoleInputHandle,
-                PreviousConsoleMode);
-
+            }
+            
             return InputBuffer;
         }
         else
