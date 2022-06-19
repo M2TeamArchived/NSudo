@@ -23,7 +23,7 @@
 - Force.Charlie-I ([https://github.com/fcharlie](https://github.com/fcharlie))
 - garf02 ([https://github.com/garf02](https://github.com/garf02))
 - laosb ([https://github.com/laosb](https://github.com/laosb))
-- 罗宇凡 Luo Yufan ([https://github.com/njlyf2011](https://github.com/njlyf2011))
+- Luke Luo ([https://github.com/njlyf2011](https://github.com/njlyf2011))
 - Margen67 ([https://github.com/Margen67](https://github.com/Margen67))
 - May_magic ([https://github.com/873578156](https://github.com/873578156))
 - Microsoft_Mars
