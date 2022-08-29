@@ -18,7 +18,7 @@
     "@vuepress/plugin-medium-zoom": "^1.9.7",
     "@vuepress/plugin-pwa": "^1.9.7",
     "cross-env": "^7.0.3",
-    "moment": "^2.29.1",
+    "moment": "^2.29.4",
     "vuepress": "^1.9.7"
   }
 }
